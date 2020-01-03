@@ -38,6 +38,12 @@ import info.nightscout.androidaps.aaps;
 import info.nightscout.androidaps.complications.BaseComplicationProviderService;
 import info.nightscout.androidaps.data.RawDisplayData;
 import info.nightscout.androidaps.data.ListenerService;
+import info.nightscout.androidaps.interaction.actions.BolusActivity;
+import info.nightscout.androidaps.interaction.actions.ECarbActivity;
+import info.nightscout.androidaps.interaction.actions.TempTargetActivity;
+import info.nightscout.androidaps.interaction.actions.WizardActivity;
+import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
+import info.nightscout.androidaps.interaction.menus.StatusMenuActivity;
 import info.nightscout.androidaps.R;
 import lecho.lib.hellocharts.view.LineChartView;
 
@@ -45,6 +51,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  * Created by emmablack on 12/29/14.
  * Updated by andrew-warrington on 02-Jan-2018.
  * Refactored by dlvoy on 2019-11-2019
+ * Updated by philoul on 15-dec-2019
  */
 
 public  abstract class BaseWatchFace extends WatchFace implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -58,19 +65,20 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
     public int loopLevel = 1;
     public int highColor = Color.YELLOW;
     public int lowColor = Color.RED;
-    public int midColor = Color.WHITE;
+    public int midColor = Color.GREEN;
     public int gridColor = Color.WHITE;
     public int basalBackgroundColor = Color.BLUE;
     public int basalCenterColor = Color.BLUE;
     public int bolusColor = Color.MAGENTA;
+    public int carbColor = Color.rgb(255,160,0);
     public boolean lowResMode = false;
     public boolean layoutSet = false;
     public boolean bIsRound = false;
     public boolean dividerMatchesBg = false;
+    public boolean ResizePointSize = false;
     public int pointSize = 2;
     public BgGraphBuilder bgGraphBuilder;
     public LineChartView chart;
-
 
     public RawDisplayData rawData = new RawDisplayData();
 
@@ -548,14 +556,134 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
         if(rawData.bgDataList.size() > 0) { //Dont crash things just because we dont have values, people dont like crashy things
             int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
             if (lowResMode) {
-                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe);
+                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe);
             } else {
-                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe);
+                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe);
             }
 
             chart.setLineChartData(bgGraphBuilder.lineData());
             chart.setViewportCalculationEnabled(true);
             chart.setMaximumViewport(chart.getMaximumViewport());
+        }
+    }
+
+    public void doTapAction(WatchfaceZone zone) {
+        switch (zone) {
+            case BACKGROUND:
+                doAction(WatchfaceAction.MENU);
+                break;
+            case TOP:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_top", "none")));
+                break;
+            case DOWN:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_down", "none")));
+                break;
+            case LEFT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_left", "none")));
+                break;
+            case RIGHT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_right", "none")));
+                break;
+            case CENTER:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_center", "none")));
+                break;
+            case CHART:
+                int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
+                timeframe = (timeframe%5) + 1;
+                if(ResizePointSize) {
+                    if (timeframe < 3) {
+                        pointSize = 2;
+                    } else {
+                        pointSize = 1;
+                    }
+                }
+                setupCharts();
+                sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
+                break;
+            default:
+                // no action
+        }
+    }
+
+
+
+    public void doAction(WatchfaceAction action) {
+        Intent intent = null;
+
+        switch (action) {
+            case TEMPT:
+                intent = new Intent(this, TempTargetActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case WIZARD:
+                intent = new Intent(aaps.getAppContext(), WizardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case BOLUS:
+                intent = new Intent(aaps.getAppContext(), BolusActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case ECARB:
+                intent = new Intent(aaps.getAppContext(), ECarbActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case STATUS:
+                intent = new Intent(aaps.getAppContext(), StatusMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case CPP:
+                ListenerService.initiateAction(this, "opencpp");
+                break;
+            case TDD:
+                ListenerService.initiateAction(this, "tddstats");
+                break;
+            case LOOP:
+                ListenerService.initiateAction(this, "status loop");
+                break;
+            case PUMP:
+                ListenerService.initiateAction(this, "status pump");
+                break;
+            case MENU:
+                intent = new Intent(aaps.getAppContext(), MainMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case NONE:
+            default:
+                // do nothing
+        }
+    }
+
+    public WatchfaceAction remapActionWithUserPreferences(String userPrefAction) {
+        switch (userPrefAction) {
+            case "tempt":
+                return WatchfaceAction.TEMPT;
+            case "wizard":
+                return WatchfaceAction.WIZARD;
+            case "bolus":
+                return WatchfaceAction.BOLUS;
+            case "ecarb":
+                return WatchfaceAction.ECARB;
+            case "status":
+                return WatchfaceAction.STATUS;
+            case "pump":
+                return WatchfaceAction.PUMP;
+            case "loop":
+                return WatchfaceAction.LOOP;
+            case "cpp":
+                return WatchfaceAction.CPP;
+            case "tdd":
+                return WatchfaceAction.TDD;
+            case "none":
+                return WatchfaceAction.NONE;
+            case "menu":
+            default:
+                return WatchfaceAction.MENU;
         }
     }
 

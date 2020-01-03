@@ -53,6 +53,7 @@
                 android:paddingTop="-2dp"
                 android:text="---"
                 android:textColor="#FFFFFF"
+                android:textStyle="bold"
                 android:textSize="38sp" />
 
             <LinearLayout
@@ -221,7 +222,6 @@
                 android:layout_gravity="center"
                 android:baselineAligned="false"
                 android:gravity="center"
-                android:orientation="horizontal"
                 android:weightSum="7">
 
                 <LinearLayout
@@ -267,7 +267,7 @@
                 <LinearLayout
                     android:layout_width="0px"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="0.8"
                     android:orientation="horizontal" />
 
                 <TextView
@@ -275,11 +275,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center"
+                    android:gravity="bottom|center_horizontal"
                     android:text="12:00"
+                    android:layout_marginTop="0dp"
                     android:textAlignment="center"
                     android:textColor="#FFFFFF"
-                    android:textSize="30sp" />
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:id="@+id/date_time"
@@ -300,7 +302,8 @@
                         android:text="day"
                         android:textAlignment="center"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/month"
@@ -310,14 +313,15 @@
                         android:gravity="center"
                         android:text="mth"
                         android:textColor="#FFFFFF"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0px"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="0.8"
                     android:orientation="horizontal" />
 
                 <LinearLayout
@@ -357,7 +361,7 @@
                 <LinearLayout
                     android:layout_width="0px"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="0"
                     android:orientation="horizontal" />
 
             </LinearLayout>

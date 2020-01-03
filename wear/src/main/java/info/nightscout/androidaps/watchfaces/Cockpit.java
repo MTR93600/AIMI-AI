@@ -10,11 +10,13 @@ import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 
 /**
  * Created by andrew-warrington on 18/11/2017.
+ * Updated by Philoul on dec 2019(onTapCommand)
  */
 
 public class Cockpit extends BaseWatchFace {
 
-    private long sgvTapTime = 0;
+    private long TapTime = 0;
+    private WatchfaceZone LastZone = WatchfaceZone.NONE;
 
     @Override
     public void onCreate() {
@@ -26,14 +28,40 @@ public class Cockpit extends BaseWatchFace {
 
     @Override
     protected void onTapCommand(int tapType, int x, int y, long eventTime) {
+        if (tapType == TAP_TYPE_TAP) {
+            WatchfaceZone TapZone ;
+            int xlow = mRelativeLayout.getWidth()/3;
+            int ylow = mRelativeLayout.getHeight()/3;
 
-        if (tapType == TAP_TYPE_TAP ) {
-            if (eventTime - sgvTapTime < 800) {
-                Intent intent = new Intent(this, MainMenuActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= 2*ylow) {                                  // if double tap on DOWN
+                TapZone = WatchfaceZone.DOWN;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y <= ylow) {                                    // if double tap on TOP
+                TapZone = WatchfaceZone.TOP;
+            } else if (x <= xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on LEFT
+                TapZone = WatchfaceZone.LEFT;
+            } else if (x >= 2*xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on RIGHT
+                TapZone = WatchfaceZone.RIGHT;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on CENTER
+                TapZone = WatchfaceZone.CENTER;
+            } else {                                                // on all background (outside chart and Top, Down, left, right and center) access to main menu
+                TapZone = WatchfaceZone.BACKGROUND;
             }
-            sgvTapTime = eventTime;
+            if (eventTime - TapTime < 800 && LastZone == TapZone) {
+                doTapAction(TapZone);
+            }
+            TapTime = eventTime;
+            LastZone = TapZone;
         }
     }
 

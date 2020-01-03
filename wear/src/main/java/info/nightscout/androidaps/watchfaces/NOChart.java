@@ -41,11 +41,17 @@ import com.ustwo.clockwise.wearable.WatchFace;
 import java.util.ArrayList;
 
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.aaps;
 import info.nightscout.androidaps.data.BasalWatchData;
 import info.nightscout.androidaps.data.BgWatchData;
 import info.nightscout.androidaps.data.ListenerService;
 import info.nightscout.androidaps.data.TempWatchData;
+import info.nightscout.androidaps.interaction.actions.BolusActivity;
+import info.nightscout.androidaps.interaction.actions.ECarbActivity;
+import info.nightscout.androidaps.interaction.actions.TempTargetActivity;
+import info.nightscout.androidaps.interaction.actions.WizardActivity;
 import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
+import info.nightscout.androidaps.interaction.menus.StatusMenuActivity;
 
 /**
  * Created by adrianLxM.
@@ -78,7 +84,8 @@ public class NOChart extends WatchFace implements SharedPreferences.OnSharedPref
     private String sgvString = "--";
     private String externalStatusString = "no status";
     private TextView statusView;
-    private long sgvTapTime = 0l;
+    private long TapTime = 0;
+    private WatchfaceZone LastZone = WatchfaceZone.NONE;
 
     @Override
     public void onCreate() {
@@ -143,20 +150,148 @@ public class NOChart extends WatchFace implements SharedPreferences.OnSharedPref
 
     @Override
     protected void onTapCommand(int tapType, int x, int y, long eventTime) {
+        if (tapType == TAP_TYPE_TAP) {
+            RelativeLayout mRelativeLayout = (RelativeLayout) layoutView.findViewById(R.id.main_layout);
+            WatchfaceZone TapZone;
+            int xlow = mRelativeLayout.getWidth()/3;
+            int ylow = mRelativeLayout.getHeight()/3;
 
-        int extra = mSgv!=null?(mSgv.getRight() - mSgv.getLeft())/2:0;
+            if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= 2*ylow) {                                  // if double tap on Down
+                TapZone = WatchfaceZone.DOWN;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y <= ylow) {                                    // if double tap on TOP
+                TapZone = WatchfaceZone.TOP;
+            } else if (x <= xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on LEFT
+                TapZone = WatchfaceZone.LEFT;
+            } else if (x >= 2*xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on RIGHT
+                TapZone = WatchfaceZone.RIGHT;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on CENTER
+                TapZone = WatchfaceZone.CENTER;
+            } else {                                                // on all background (outside chart and Top, Down, left, right and center) access to main menu
+                TapZone = WatchfaceZone.BACKGROUND;
+            }
+            if (eventTime - TapTime < 800 && LastZone == TapZone) {
+                doTapAction(TapZone);
+            }
+            TapTime = eventTime;
+            LastZone = TapZone;
+        }
+    }
 
-        if (tapType == TAP_TYPE_TAP&&
-                x + extra >=mSgv.getLeft() &&
-                x - extra <= mSgv.getRight()&&
-                y >= mSgv.getTop() &&
-                y <= mSgv.getBottom()){
-            if (eventTime - sgvTapTime < 800){
-                Intent intent = new Intent(this, MainMenuActivity.class);
+    private void doTapAction(WatchfaceZone zone) {
+        switch (zone) {
+            case BACKGROUND:
+                doAction(WatchfaceAction.MENU);
+                break;
+            case TOP:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_top", "none")));
+                break;
+            case DOWN:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_down", "none")));
+                break;
+            case LEFT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_left", "none")));
+                break;
+            case RIGHT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_right", "none")));
+                break;
+            case CENTER:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_center", "none")));
+                break;
+            default:
+                // no action
+        }
+    }
+
+
+
+    private void doAction(WatchfaceAction action) {
+        Intent intent = null;
+
+        switch (action) {
+            case TEMPT:
+                intent = new Intent(this, TempTargetActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-            }
-            sgvTapTime = eventTime;
+                break;
+            case WIZARD:
+                intent = new Intent(aaps.getAppContext(), WizardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case BOLUS:
+                intent = new Intent(aaps.getAppContext(), BolusActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case ECARB:
+                intent = new Intent(aaps.getAppContext(), ECarbActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case STATUS:
+                intent = new Intent(aaps.getAppContext(), StatusMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case CPP:
+                ListenerService.initiateAction(this, "opencpp");
+                break;
+            case TDD:
+                ListenerService.initiateAction(this, "tddstats");
+                break;
+            case LOOP:
+                ListenerService.initiateAction(this, "status loop");
+                break;
+            case PUMP:
+                ListenerService.initiateAction(this, "status pump");
+                break;
+            case MENU:
+                intent = new Intent(aaps.getAppContext(), MainMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case NONE:
+            default:
+                // do nothing
+        }
+    }
+
+    private WatchfaceAction remapActionWithUserPreferences(String userPrefAction) {
+        switch (userPrefAction) {
+            case "tempt":
+                return WatchfaceAction.TEMPT;
+            case "wizard":
+                return WatchfaceAction.WIZARD;
+            case "bolus":
+                return WatchfaceAction.BOLUS;
+            case "ecarb":
+                return WatchfaceAction.ECARB;
+            case "status":
+                return WatchfaceAction.STATUS;
+            case "pump":
+                return WatchfaceAction.PUMP;
+            case "loop":
+                return WatchfaceAction.LOOP;
+            case "cpp":
+                return WatchfaceAction.CPP;
+            case "tdd":
+                return WatchfaceAction.TDD;
+            case "none":
+                return WatchfaceAction.NONE;
+            case "menu":
+            default:
+                return WatchfaceAction.MENU;
         }
     }
 

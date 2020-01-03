@@ -13,8 +13,8 @@ import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 
 public class Home extends BaseWatchFace {
 
-    private long chartTapTime = 0;
-    private long sgvTapTime = 0;
+    private long TapTime = 0;
+    private WatchfaceZone LastZone = WatchfaceZone.NONE;
 
     @Override
     public void onCreate() {
@@ -26,37 +26,46 @@ public class Home extends BaseWatchFace {
 
     @Override
     protected void onTapCommand(int tapType, int x, int y, long eventTime) {
+        if (tapType == TAP_TYPE_TAP) {
+            WatchfaceZone TapZone ;
+            int xlow = mRelativeLayout.getWidth()/3;
+            int ylow = chart.getTop()/2;
 
-        int extra = mSgv!=null?(mSgv.getRight() - mSgv.getLeft())/2:0;
-
-        if (tapType == TAP_TYPE_TAP&&
-                x >=chart.getLeft() &&
-                x <= chart.getRight()&&
-                y >= chart.getTop() &&
-                y <= chart.getBottom()){
-            if (eventTime - chartTapTime < 800){
-                changeChartTimeframe();
+            if (x >= chart.getLeft() &&
+                    x <= chart.getRight() &&
+                    y >= chart.getTop() &&
+                    y <= chart.getBottom()) {                       // if double tap in chart
+                TapZone = WatchfaceZone.CHART;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y <= ylow) {                                    // if double tap on TOP
+                TapZone = WatchfaceZone.TOP;
+            } else if (x <= xlow &&
+                    y >= ylow) {                                    // if double tap on LEFT
+                TapZone = WatchfaceZone.LEFT;
+            } else if (x >= 2*xlow &&
+                    y >= ylow) {                                    // if double tap on RIGHT
+                TapZone = WatchfaceZone.RIGHT;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= ylow &&
+                    y <= 2*ylow) {                                    // if double tap on CENTER
+                TapZone = WatchfaceZone.CENTER;
+            } else if (x >= xlow &&
+                    x  <= 2*xlow &&
+                    y >= 2*ylow) {                                    // if double tap on DOWN (below chart)
+                TapZone = WatchfaceZone.DOWN;
+            } else {                                                // on all background (outside chart and Top, Down, left, right and center) access to main menu
+                TapZone = WatchfaceZone.BACKGROUND;
             }
-            chartTapTime = eventTime;
-        } else if (tapType == TAP_TYPE_TAP&&
-                x + extra >=mSgv.getLeft() &&
-                x - extra <= mSgv.getRight()&&
-                y >= mSgv.getTop() &&
-                y <= mSgv.getBottom()){
-            if (eventTime - sgvTapTime < 800){
-                Intent intent = new Intent(this, MainMenuActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            if (eventTime - TapTime < 800 && LastZone == TapZone) {
+                doTapAction(TapZone);
             }
-            sgvTapTime = eventTime;
+            TapTime = eventTime;
+            LastZone = TapZone;
         }
     }
 
-    private void changeChartTimeframe() {
-        int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
-        timeframe = (timeframe%5) + 1;
-        sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
-    }
 
     @Override
     protected WatchFaceStyle getWatchFaceStyle(){
@@ -85,20 +94,20 @@ public class Home extends BaseWatchFace {
 
         if (ageLevel == 1) {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_mTimestamp1_home));
+                    R.color.dark_gridColor : R.color.dark_mTimestamp1_home));
         } else {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_TimestampOld));
         }
 
         if (rawData.batteryLevel == 1) {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_uploaderBattery));
+                    R.color.dark_gridColor : R.color.dark_uploaderBattery));
         } else {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_uploaderBatteryEmpty));
         }
 
         mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                R.color.dark_midColor : R.color.dark_mStatus_home));
+                R.color.dark_gridColor : R.color.dark_mStatus_home));
 
         if (chart != null) {
             highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_highColor);
@@ -115,13 +124,13 @@ public class Home extends BaseWatchFace {
     protected void setColorLowRes() {
         mTime.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         mRelativeLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_background));
-        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
+        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor));
+        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor));
         mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_Timestamp));
         if (chart != null) {
-            highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            midColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
+            highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
+            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
+            midColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             gridColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark_lowres);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light_lowres);

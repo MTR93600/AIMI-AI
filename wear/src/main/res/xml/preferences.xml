@@ -222,6 +222,47 @@
         app:wear_iconOn="@drawable/settings_on"/>
 
     <ListPreference
+        android:defaultValue="menu"
+        android:entries="@array/watchface_action"
+        android:entryValues="@array/watchface_action_values"
+        android:key="action_top"
+        android:summary="What action after double tap on top"
+        android:title="@string/pref_action_top" />
+
+    <ListPreference
+        android:defaultValue="none"
+        android:entries="@array/watchface_action"
+        android:entryValues="@array/watchface_action_values"
+        android:key="action_down"
+        android:summary="What action after double tap on down"
+        android:title="@string/pref_action_down" />
+
+    <ListPreference
+        android:defaultValue="none"
+        android:entries="@array/watchface_action"
+        android:entryValues="@array/watchface_action_values"
+        android:key="action_left"
+        android:summary="What action after double tap on left"
+        android:title="@string/pref_action_left" />
+
+    <ListPreference
+        android:defaultValue="none"
+        android:entries="@array/watchface_action"
+        android:entryValues="@array/watchface_action_values"
+        android:key="action_center"
+        android:summary="What action after double tap on center"
+        android:title="@string/pref_action_center" />
+
+    <ListPreference
+        android:defaultValue="none"
+        android:entries="@array/watchface_action"
+        android:entryValues="@array/watchface_action_values"
+        android:key="action_right"
+        android:summary="What action after double tap on right"
+        android:title="@string/pref_action_right" />
+
+
+    <ListPreference
         android:defaultValue="default"
         android:entries="@array/complication_tap_action"
         android:entryValues="@array/complication_tap_action_values"

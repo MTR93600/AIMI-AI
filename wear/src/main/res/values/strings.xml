@@ -79,6 +79,12 @@
     <string name="menu_default">Default</string>
     <string name="menu_menu">Menu</string>
 
+    <string name="pref_action_top" comment="In menu, set action when double tap on the top of the screen">Top Action</string>
+    <string name="pref_action_down" comment="In menu, set action when double tap on the down of the screen">Down Action</string>
+    <string name="pref_action_left" comment="In menu, set action when double tap on the left of the screen">Left Action</string>
+    <string name="pref_action_right" comment="In menu, set action when double tap on the right of the screen">Right Action</string>
+    <string name="pref_action_center" comment="In menu, set action when double tap on the center of the screen">Center Action</string>
+
     <string name="action_duration">duration</string>
     <string name="action_target" comment="In temp target menu, single target value">target</string>
     <string name="action_low" comment="In temp target menu, lower value from range">low</string>
