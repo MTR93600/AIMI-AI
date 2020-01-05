@@ -32,8 +32,8 @@ public class Home2 extends BaseWatchFace {
 
             if (x >= chart.getLeft() &&
                     x <= chart.getRight() &&
-                    y >= chart.getTop() &&                          // todo reduce a little bie chart size to keep a little more space for DOWN ZONE
-                    y <= chart.getBottom()) {                       // if double tap in chart
+                    y >= chart.getTop() &&                           // 85% of chart height to leave some space for DOWN ZONE
+                    y <= (chart.getTop() + 0.85 * chart.getHeight())) {                       // if double tap in chart
                 TapZone = WatchfaceZone.CHART;
             } else if (x >= xlow &&
                     x  <= 2*xlow &&
@@ -257,11 +257,11 @@ public class Home2 extends BaseWatchFace {
 
     protected void setTextSizes() {
         // Adjust text size according to watchscreen resolution
-        double hoursize = mRelativeLayout.getHeight()/9.5;  // 42 for 400, 34 for 320 , 29 for 280 (original = 30)
-        int svgsize = mRelativeLayout.getHeight()/8;        // 50 for 400, 40 for 320 , 35 for 280 (original = 38)
-        int smalltxt = mRelativeLayout.getHeight()/32;      // 13 for 400, 10 for 320 , 9 for 280 (original = 10)
-        int midtxt = mRelativeLayout.getHeight()/25;        // 16 for 400, 13 for 320 , 11 for 280 (original = 14)
-        int topmargin = mRelativeLayout.getHeight()>320 ? (320 - mRelativeLayout.getHeight())/10 : 0;   // top margin for hour needs to be adjust above 320px
+        int hoursize = mRelativeLayout.getHeight()/9.5 > 30 ? (int)(mRelativeLayout.getHeight()/9.5) : 30;  // 42 for 400, 34 for 320 , 29 for 280 (original = 30)
+        int svgsize = mRelativeLayout.getHeight()/8 > 38 ? mRelativeLayout.getHeight()/8 : 38;              // 50 for 400, 40 for 320 , 35 for 280 (original = 38)
+        int smalltxt = mRelativeLayout.getHeight()/32 > 10 ? mRelativeLayout.getHeight()/32 : 10;           // 13 for 400, 10 for 320 , 9 for 280 (original = 10)
+        int midtxt = mRelativeLayout.getHeight()/25 > 14 ? mRelativeLayout.getHeight()/25 : 14;             // 16 for 400, 13 for 320 , 11 for 280 (original = 14)
+        int topmargin = mRelativeLayout.getHeight()>320 ? (320 - mRelativeLayout.getHeight())/10 : 0;       // top margin for hour needs to be adjust above 320px
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)mTime.getLayoutParams();
         if (mIOB1 != null && mIOB2 != null) {
             if (rawData.detailedIOB) {
