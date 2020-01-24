@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-        <color name="wl_blue">#2878ff</color>
-        <color name="wl_gray">#c1c1c1</color>
-        <color name="text_color">#434343</color>
+    <color name="wl_blue">#2878ff</color>
+    <color name="wl_gray">#c1c1c1</color>
+    <color name="text_color">#434343</color>
     <color name="cardObjectiveText">#779ECB</color>
+
+
+    <!-- Carbs Colors -->
+    <color name="carb">#FFA000</color>
+    <color name="carb_700">#E69500</color>
+    <!-- Carbs Colors -->
 
 
     <!-- light colors -->
@@ -16,8 +22,10 @@
     <color name="light_mTimestamp">@color/red_600</color>
     <color name="light_highColor">@color/yellow_700</color>
     <color name="light_lowColor">@color/red_600</color>
-    <color name="light_midColor">@color/black</color>
+    <color name="light_midColor">@color/green_300</color>
     <color name="light_gridColor">@color/black</color>
+    <color name="light_carbcolor">@color/carb_700</color>
+
     <!-- dark colors -->
     <color name="dark_mTime">@color/white</color>
     <color name="dark_statusView">@color/white</color>
@@ -32,8 +40,9 @@
 
     <color name="dark_highColor">@color/yellow_A200</color>
     <color name="dark_lowColor">@color/RED</color>
-    <color name="dark_midColor">@color/grey_50</color>
+    <color name="dark_midColor">@color/green_500</color>
     <color name="dark_gridColor">@color/grey_50</color>
+    <color name="dark_carbcolor">@color/carb</color>
 
     <!-- basal colors -->
     <color name="basal_light">@color/blue_300</color>
@@ -50,6 +59,7 @@
 
     <!-- Blue -->
     <color name="blue_300">#64B5F6</color>
+    <color name="BLUE">#0000FF</color>
     <!-- Blue -->
 
     <!-- Yellow -->
@@ -64,9 +74,11 @@
     <color name="grey_steampunk">#333333</color>
     <!-- Grey -->
 
-    <!-- Blue Grey -->
-    <color name="BLUE">#0000FF</color>
-    <!-- Blue Grey -->
+    <!--  Green -->
+    <color name="green_500">#9EFF9E</color>
+    <color name="green">#00FF00</color>
+    <color name="green_300">#01C501</color>
+    <!--  Green -->
 
     <!-- Black -->
     <color name="black">#000000</color>
