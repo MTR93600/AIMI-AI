@@ -85,20 +85,20 @@ public class Home extends BaseWatchFace {
 
         if (ageLevel == 1) {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_mTimestamp1_home));
+                    R.color.dark_mTime : R.color.dark_mTimestamp1_home));
         } else {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_TimestampOld));
         }
 
         if (rawData.batteryLevel == 1) {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_uploaderBattery));
+                    R.color.dark_mTime : R.color.dark_uploaderBattery));
         } else {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_uploaderBatteryEmpty));
         }
 
         mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                R.color.dark_midColor : R.color.dark_mStatus_home));
+                R.color.dark_mTime : R.color.dark_mStatus_home));
 
         if (chart != null) {
             highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_highColor);
@@ -107,6 +107,7 @@ public class Home extends BaseWatchFace {
             gridColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light);
+            carbColor =  ContextCompat.getColor(getApplicationContext(), R.color.dark_carbcolor);
             pointSize = 2;
             setupCharts();
         }
@@ -115,16 +116,17 @@ public class Home extends BaseWatchFace {
     protected void setColorLowRes() {
         mTime.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         mRelativeLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_background));
-        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
+        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_Timestamp));
         if (chart != null) {
-            highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            midColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
+            highColor = ContextCompat.getColor(getApplicationContext(), R.color.white);
+            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.white);
+            midColor = ContextCompat.getColor(getApplicationContext(), R.color.white);
             gridColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark_lowres);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light_lowres);
+            carbColor =  ContextCompat.getColor(getApplicationContext(), R.color.dark_carbcolor);
             pointSize = 2;
             setupCharts();
         }
@@ -173,6 +175,7 @@ public class Home extends BaseWatchFace {
                 gridColor = ContextCompat.getColor(getApplicationContext(), R.color.light_gridColor);
                 basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light);
                 basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
+                carbColor =  ContextCompat.getColor(getApplicationContext(), R.color.light_carbcolor);
                 pointSize = 2;
                 setupCharts();
             }
