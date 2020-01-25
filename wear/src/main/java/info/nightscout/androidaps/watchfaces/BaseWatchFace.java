@@ -58,11 +58,12 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
     public int loopLevel = 1;
     public int highColor = Color.YELLOW;
     public int lowColor = Color.RED;
-    public int midColor = Color.WHITE;
+    public int midColor = Color.GREEN;
     public int gridColor = Color.WHITE;
     public int basalBackgroundColor = Color.BLUE;
     public int basalCenterColor = Color.BLUE;
     public int bolusColor = Color.MAGENTA;
+    public int carbColor = Color.rgb(255,160,0);
     public boolean lowResMode = false;
     public boolean layoutSet = false;
     public boolean bIsRound = false;
@@ -548,9 +549,9 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
         if(rawData.bgDataList.size() > 0) { //Dont crash things just because we dont have values, people dont like crashy things
             int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
             if (lowResMode) {
-                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe);
+                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe);
             } else {
-                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe);
+                bgGraphBuilder = new BgGraphBuilder(getApplicationContext(), rawData, pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe);
             }
 
             chart.setLineChartData(bgGraphBuilder.lineData());
