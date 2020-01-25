@@ -62,12 +62,12 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
     public int ageLevel = 1;
     public int highColor = Color.YELLOW;
     public int lowColor = Color.RED;
-    public int midColor = Color.WHITE;
+    public int midColor = Color.GREEN;
     public int gridColour = Color.WHITE;
     public int basalBackgroundColor = Color.BLUE;
     public int basalCenterColor = Color.BLUE;
     public int bolusColor = Color.MAGENTA;
-    public int carbsColor = Color.GREEN;
+    public int carbsColor = Color.rgb(255,160,0);;
     public int pointSize = 2;
     public boolean lowResMode = false;
     public boolean layoutSet = false;
@@ -537,17 +537,18 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
         mTime.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         statusView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_statusView));
         mRelativeLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_background));
-        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mAvgDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
+        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mAvgDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_Timestamp));
         if (chart != null) {
-            highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
-            midColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor);
+            highColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime);
+            lowColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime);
+            midColor = ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime);
             gridColour = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark_lowres);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light_lowres);
+            carbsColor =  ContextCompat.getColor(getApplicationContext(), R.color.dark_carbcolor);
             pointSize = 2;
             setupCharts();
         }
@@ -585,6 +586,7 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
             gridColour = ContextCompat.getColor(getApplicationContext(), R.color.dark_gridColor);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light);
+            carbsColor =  ContextCompat.getColor(getApplicationContext(), R.color.dark_carbcolor);
             pointSize = 2;
             setupCharts();
         }
@@ -625,6 +627,7 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
                 gridColour = ContextCompat.getColor(getApplicationContext(), R.color.light_gridColor);
                 basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_light);
                 basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
+                carbsColor =  ContextCompat.getColor(getApplicationContext(), R.color.light_carbcolor);
                 pointSize = 2;
                 setupCharts();
             }
