@@ -195,6 +195,7 @@ public class Steampunk extends BaseWatchFace {
             gridColor = ContextCompat.getColor(getApplicationContext(), R.color.grey_steampunk);
             basalBackgroundColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
             basalCenterColor = ContextCompat.getColor(getApplicationContext(), R.color.basal_dark);
+            carbColor =  ContextCompat.getColor(getApplicationContext(), R.color.light_carbcolor);
             if (Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3")) < 3) {
                 pointSize = 2;
             } else {
