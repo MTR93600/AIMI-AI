@@ -69,19 +69,19 @@ public class LargeHome extends BaseWatchFace {
 
         if (ageLevel == 1) {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_mTimestamp1_home));
+                    R.color.dark_mTime : R.color.dark_mTimestamp1_home));
         } else {
             mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_TimestampOld));
         }
 
         if (rawData.batteryLevel == 1) {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ?
-                    R.color.dark_midColor : R.color.dark_uploaderBattery));
+                    R.color.dark_mTime : R.color.dark_uploaderBattery));
         } else {
             mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_uploaderBatteryEmpty));
         }
 
-        mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_midColor : R.color.dark_mStatus_home));
+        mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_mTime : R.color.dark_mStatus_home));
     }
 
     @Override
@@ -146,11 +146,11 @@ public class LargeHome extends BaseWatchFace {
         mLinearLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_background : R.color.dark_mLinearLayout));
         mTime.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
         mRelativeLayout.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_background));
-        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mDirection.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_midColor));
-        mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_midColor : R.color.dark_mTimestamp1_home));
-        mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_midColor : R.color.dark_uploaderBattery));
-        mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_midColor : R.color.dark_mStatus_home));
+        mSgv.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mDelta.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mDirection.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.dark_mTime));
+        mTimestamp.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_mTime : R.color.dark_mTimestamp1_home));
+        mUploaderBattery.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_mTime : R.color.dark_uploaderBattery));
+        mStatus.setTextColor(ContextCompat.getColor(getApplicationContext(), dividerMatchesBg ? R.color.dark_mTime : R.color.dark_mStatus_home));
     }
 }
