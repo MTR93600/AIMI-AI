@@ -16,6 +16,7 @@ import android.graphics.Shader;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -41,12 +42,18 @@ import com.ustwo.clockwise.wearable.WatchFace;
 import java.util.ArrayList;
 
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.aaps;
 import info.nightscout.androidaps.data.BasalWatchData;
 import info.nightscout.androidaps.data.BgWatchData;
 import info.nightscout.androidaps.data.BolusWatchData;
 import info.nightscout.androidaps.data.ListenerService;
 import info.nightscout.androidaps.data.TempWatchData;
 import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
+import info.nightscout.androidaps.interaction.actions.BolusActivity;
+import info.nightscout.androidaps.interaction.actions.ECarbActivity;
+import info.nightscout.androidaps.interaction.actions.TempTargetActivity;
+import info.nightscout.androidaps.interaction.actions.WizardActivity;
+import info.nightscout.androidaps.interaction.menus.StatusMenuActivity;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
@@ -98,8 +105,15 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
     private String cobString = "";
 
     private TextView statusView;
-    private long chartTapTime = 0l;
-    private long sgvTapTime = 0l;
+    public long TapTime = 0;
+    public WatchfaceZone LastZone = WatchfaceZone.NONE;
+    public int tapxlow;
+    public int tapylow;
+    public int tapyhigh;
+    public int tapcharttop;
+    public int tapchartbottom;
+    public int tapchartleft;
+    public int tapchartright;
 
     @Override
     public void onCreate() {
@@ -164,36 +178,187 @@ public class BIGChart extends WatchFace implements SharedPreferences.OnSharedPre
 
     @Override
     protected void onTapCommand(int tapType, int x, int y, long eventTime) {
+        if (tapType == TAP_TYPE_TAP) {
+            WatchfaceZone TapZone ;
 
-        int extra = mSgv!=null?(mSgv.getRight() - mSgv.getLeft())/2:0;
+            getTapZones();
 
-        if (tapType == TAP_TYPE_TAP&&
-                x >=chart.getLeft() &&
-                x <= chart.getRight()&&
-                y >= chart.getTop() &&
-                y <= chart.getBottom()){
-            if (eventTime - chartTapTime < 800){
-                changeChartTimeframe();
+            if (    x >= tapchartleft &&
+                    x <= tapchartright &&
+                    y >= tapcharttop &&
+                    y <= tapchartbottom ) {                             // if double tap in chart
+                TapZone = WatchfaceZone.CHART;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y >= tapyhigh) {                                   // if double tap on DOWN
+                TapZone = WatchfaceZone.DOWN;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y <= tapylow) {                                     // if double tap on TOP
+                TapZone = WatchfaceZone.TOP;
+            } else if (x <= tapxlow &&
+                    y >= tapylow &&
+                    y <= tapyhigh) {                                   // if double tap on LEFT
+                TapZone = WatchfaceZone.LEFT;
+            } else if (x >= 2*tapxlow &&
+                    y >= tapylow &&
+                    y <= tapyhigh) {                                   // if double tap on RIGHT
+                TapZone = WatchfaceZone.RIGHT;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y >= tapylow &&
+                    y <= tapyhigh) {                                  // if double tap on CENTER (not used in this watchface
+                TapZone = WatchfaceZone.CENTER;
+            } else {                                                // on all background (outside chart and Top, Down, left, right and center) access to main menu
+                TapZone = WatchfaceZone.BACKGROUND;
             }
-            chartTapTime = eventTime;
-        } else if (tapType == TAP_TYPE_TAP&&
-                x + extra >=mSgv.getLeft() &&
-                x - extra <= mSgv.getRight()&&
-                y >= mSgv.getTop() &&
-                y <= mSgv.getBottom()){
-            if (eventTime - sgvTapTime < 800){
-                Intent intent = new Intent(this, MainMenuActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            if (eventTime - TapTime < 800 && LastZone == TapZone) {
+                if (TapZone != WatchfaceZone.CHART) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    long[] vibratePattern = new long[]{0, 100, 50, 100, 50};
+                    v.vibrate(vibratePattern, -1);
+                }
+                doTapAction(TapZone);
             }
-            sgvTapTime = eventTime;
+            TapTime = eventTime;
+            LastZone = TapZone;
         }
     }
 
-    private void changeChartTimeframe() {
-        int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
-        timeframe = (timeframe%5) + 1;
-        sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
+    /* update Size and position of different zones:
+     * CHART zone: Chart height and 50% of chart width
+     * TOP    zone: tapxlow < x < 2*tapxlow AND y < chart top
+     * LEFT   zone: x < 1/4 chart width AND chart top < y < chart bottom
+     * No CENTER zone in this watchface
+     * RIGHT  zone: 3/4 chart width < x AND tapylow < y < tapyhigh
+     * DOWN   zone: tapxlow < x < 2*tapxlow AND chart bottom < y
+     * */
+    public void getTapZones(){
+        // tap zones for direct actions
+        tapxlow = mRelativeLayout.getWidth()/3;
+        tapylow = chart.getTop();
+        tapyhigh = chart.getBottom();
+        tapcharttop = chart.getTop();
+        tapchartbottom = chart.getBottom();
+        tapchartleft = mRelativeLayout.getWidth()/4;
+        tapchartright = mRelativeLayout.getWidth()*3/4;
+    }
+
+
+    /* Launch by onTapCommand, get preference settings according to zone tapped and send doAction
+     * replace change Chart Time frame if tapped zone is chart */
+    public void doTapAction(WatchfaceZone zone) {
+        switch (zone) {
+            case BACKGROUND:
+                doAction(WatchfaceAction.MAINMENU);
+                break;
+            case TOP:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_top", "none")));
+                break;
+            case DOWN:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_down", "none")));
+                break;
+            case LEFT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_left", "none")));
+                break;
+            case RIGHT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_right", "none")));
+                break;
+            case CENTER:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_center", "none")));
+                break;
+            case CHART:
+                int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
+                timeframe = (timeframe%5) + 1;
+                setupCharts();
+                sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
+                break;
+            default:
+                // no action
+        }
+    }
+
+
+    /* intent actions */
+    public void doAction(WatchfaceAction action) {
+        Intent intent = null;
+
+        switch (action) {
+            case TEMPT:
+                intent = new Intent(this, TempTargetActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case WIZARD:
+                intent = new Intent(aaps.getAppContext(), WizardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case BOLUS:
+                intent = new Intent(aaps.getAppContext(), BolusActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case ECARB:
+                intent = new Intent(aaps.getAppContext(), ECarbActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case STATUS:
+                intent = new Intent(aaps.getAppContext(), StatusMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case CPP:
+                ListenerService.initiateAction(this, "opencpp");
+                break;
+            case TDD:
+                ListenerService.initiateAction(this, "tddstats");
+                break;
+            case LOOP:
+                ListenerService.initiateAction(this, "status loop");
+                break;
+            case PUMP:
+                ListenerService.initiateAction(this, "status pump");
+                break;
+            case MAINMENU:
+                intent = new Intent(aaps.getAppContext(), MainMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case NONE:
+            default:
+                // do nothing
+        }
+    }
+
+    /* remap Actions with user preferences settings */
+    public WatchfaceAction remapActionWithUserPreferences(String userPrefAction) {
+        switch (userPrefAction) {
+            case "tempt":
+                return WatchfaceAction.TEMPT;
+            case "wizard":
+                return WatchfaceAction.WIZARD;
+            case "bolus":
+                return WatchfaceAction.BOLUS;
+            case "ecarb":
+                return WatchfaceAction.ECARB;
+            case "status":
+                return WatchfaceAction.STATUS;
+            case "pump":
+                return WatchfaceAction.PUMP;
+            case "loop":
+                return WatchfaceAction.LOOP;
+            case "cpp":
+                return WatchfaceAction.CPP;
+            case "tdd":
+                return WatchfaceAction.TDD;
+            case "none":
+                return WatchfaceAction.NONE;
+            case "menu":
+            default:
+                return WatchfaceAction.MAINMENU;
+        }
     }
 
     protected void onWatchModeChanged(WatchMode watchMode) {
