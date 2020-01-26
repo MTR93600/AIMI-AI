@@ -68,6 +68,12 @@
     <string name="pref_unicode_in_complications">Unicode in Complications</string>
     <string name="pref_version">Version:</string>
 
+    <string name="pref_action_top" comment="In menu, set action when double tap on the top of the screen">Top Action</string>
+    <string name="pref_action_down" comment="In menu, set action when double tap on the down of the screen">Down Action</string>
+    <string name="pref_action_left" comment="In menu, set action when double tap on the left of the screen">Left Action</string>
+    <string name="pref_action_right" comment="In menu, set action when double tap on the right of the screen">Right Action</string>
+    <string name="pref_action_center" comment="In menu, set action when double tap on the center of the screen">Center Action</string>
+
     <string name="menu_tempt">TempT</string>
     <string name="menu_wizard">Wizard</string>
     <string name="menu_bolus">Bolus</string>

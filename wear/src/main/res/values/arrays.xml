@@ -65,4 +65,31 @@
         <item>none</item>
     </string-array>
 
+    <string-array name="watchface_action">
+        <item>@string/menu_menu</item>
+        <item>@string/menu_tempt</item>
+        <item>@string/menu_wizard</item>
+        <item>@string/menu_bolus</item>
+        <item>@string/menu_ecarb</item>
+        <item>@string/menu_status</item>
+        <item>@string/status_pump</item>
+        <item>@string/status_loop</item>
+        <item>@string/status_cpp</item>
+        <item>@string/status_tdd</item>
+        <item>@string/menu_none</item>
+    </string-array>
+
+    <string-array name="watchface_action_values">
+        <item>menu</item>
+        <item>tempt</item>
+        <item>wizard</item>
+        <item>bolus</item>
+        <item>ecarb</item>
+        <item>status</item>
+        <item>pump</item>
+        <item>loop</item>
+        <item>cpp</item>
+        <item>tdd</item>
+        <item>none</item>
+    </string-array>
 </resources>
