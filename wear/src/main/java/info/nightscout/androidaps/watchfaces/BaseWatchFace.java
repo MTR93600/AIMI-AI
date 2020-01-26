@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.PowerManager;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.support.wearable.view.WatchViewStub;
@@ -40,11 +41,18 @@ import info.nightscout.androidaps.data.RawDisplayData;
 import info.nightscout.androidaps.data.ListenerService;
 import info.nightscout.androidaps.R;
 import lecho.lib.hellocharts.view.LineChartView;
+import info.nightscout.androidaps.interaction.actions.BolusActivity;
+import info.nightscout.androidaps.interaction.actions.ECarbActivity;
+import info.nightscout.androidaps.interaction.actions.TempTargetActivity;
+import info.nightscout.androidaps.interaction.actions.WizardActivity;
+import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
+import info.nightscout.androidaps.interaction.menus.StatusMenuActivity;
 
-/**
+/*
  * Created by emmablack on 12/29/14.
  * Updated by andrew-warrington on 02-Jan-2018.
  * Refactored by dlvoy on 2019-11-2019
+ * Update by philoul on 2020-01 (onTapCommand)
  */
 
 public  abstract class BaseWatchFace extends WatchFace implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -67,11 +75,19 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
     public boolean layoutSet = false;
     public boolean bIsRound = false;
     public boolean dividerMatchesBg = false;
+    public boolean resizePointSize = false;         //Added for steampunk watchface
+    public boolean chartOk = false;                 //Added for allow or not chart resize on double tap
     public int pointSize = 2;
     public BgGraphBuilder bgGraphBuilder;
     public LineChartView chart;
-
-
+    public long TapTime = 0;
+    public WatchfaceZone LastZone = WatchfaceZone.NONE;
+    public int tapxlow;
+    public int tapylow;
+    public int tapcharttop;
+    public int tapchartbottom;
+    public int tapchartleft;
+    public int tapchartright;
     public RawDisplayData rawData = new RawDisplayData();
 
     public PowerManager.WakeLock wakeLock;
@@ -559,4 +575,197 @@ public  abstract class BaseWatchFace extends WatchFace implements SharedPreferen
         }
     }
 
+    @Override
+    protected void onTapCommand(int tapType, int x, int y, long eventTime) {
+        if (tapType == TAP_TYPE_TAP) {
+            WatchfaceZone TapZone ;
+
+            getTapZones();
+
+            if (chartOk &&
+                    x >= tapchartleft &&
+                    x <= tapchartright &&
+                    y >= tapcharttop &&
+                    y <= tapchartbottom ) {                             // if double tap in chart
+                TapZone = WatchfaceZone.CHART;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y >= 2*tapylow) {                                   // if double tap on DOWN
+                TapZone = WatchfaceZone.DOWN;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y <= tapylow) {                                     // if double tap on TOP
+                TapZone = WatchfaceZone.TOP;
+            } else if (x <= tapxlow &&
+                    y >= tapylow &&
+                    y <= 2*tapylow) {                                   // if double tap on LEFT
+                TapZone = WatchfaceZone.LEFT;
+            } else if (x >= 2*tapxlow &&
+                    y >= tapylow &&
+                    y <= 2*tapylow) {                                   // if double tap on RIGHT
+                TapZone = WatchfaceZone.RIGHT;
+            } else if (x >= tapxlow &&
+                    x  <= 2*tapxlow &&
+                    y >= tapylow &&
+                    y <= 2*tapylow) {                                  // if double tap on CENTER
+                TapZone = WatchfaceZone.CENTER;
+            } else {                                                // on all background (outside chart and Top, Down, left, right and center) access to main menu
+                TapZone = WatchfaceZone.BACKGROUND;
+            }
+            if (eventTime - TapTime < 800 && LastZone == TapZone) {
+                if (TapZone != WatchfaceZone.CHART) {
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    long[] vibratePattern = new long[]{0, 100, 50, 100, 50};
+                    v.vibrate(vibratePattern, -1);
+                }
+                doTapAction(TapZone);
+            }
+            TapTime = eventTime;
+            LastZone = TapZone;
+        }
+    }
+
+    /* update Size and position of different zones:
+    * CHART zone: default CHART
+    * TOP    zone: tapxlow < x < 2*tapxlow AND y < tapylow
+    * LEFT   zone: x < tapxlow AND tapylow < y < 2*tapylow
+    * CENTER zone: tapxlow < x < 2*tapxlow AND tapylow < y < 2*tapylow
+    * RIGHT  zone: 2*tapxlow < x AND tapylow < y < 2*tapylow
+    * DOWN   zone: tapxlow < x < 2*tapxlow AND 2*tapylow < y
+     * */
+    public void getTapZones(){
+        // tap zones for direct actions
+        tapxlow = mRelativeLayout.getWidth()/3;
+        tapylow = mRelativeLayout.getHeight()/3;
+        if (chartOk) {
+            tapcharttop = chart.getTop();
+            tapchartbottom = chart.getBottom();
+            tapchartleft = chart.getLeft();
+            tapchartright = chart.getRight();
+        }
+    }
+
+
+    /* Launch by onTapCommand, get preference settings according to zone tapped and send doAction
+    * replace change Chart Time frame if tapped zone is chart */
+    public void doTapAction(WatchfaceZone zone) {
+        switch (zone) {
+            case BACKGROUND:
+                doAction(WatchfaceAction.MAINMENU);
+                break;
+            case TOP:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_top", "none")));
+                break;
+            case DOWN:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_down", "none")));
+                break;
+            case LEFT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_left", "none")));
+                break;
+            case RIGHT:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_right", "none")));
+                break;
+            case CENTER:
+                doAction(remapActionWithUserPreferences(sharedPrefs.getString("action_center", "none")));
+                break;
+            case CHART:
+                int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
+                timeframe = (timeframe%5) + 1;
+                if(resizePointSize) {
+                    if (timeframe < 3) {
+                        pointSize = 2;
+                    } else {
+                        pointSize = 1;
+                    }
+                }
+                setupCharts();
+                sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
+                break;
+            default:
+                // no action
+        }
+    }
+
+
+    /* intent actions */
+    public void doAction(WatchfaceAction action) {
+        Intent intent = null;
+
+        switch (action) {
+            case TEMPT:
+                intent = new Intent(this, TempTargetActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case WIZARD:
+                intent = new Intent(aaps.getAppContext(), WizardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case BOLUS:
+                intent = new Intent(aaps.getAppContext(), BolusActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case ECARB:
+                intent = new Intent(aaps.getAppContext(), ECarbActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case STATUS:
+                intent = new Intent(aaps.getAppContext(), StatusMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case CPP:
+                ListenerService.initiateAction(this, "opencpp");
+                break;
+            case TDD:
+                ListenerService.initiateAction(this, "tddstats");
+                break;
+            case LOOP:
+                ListenerService.initiateAction(this, "status loop");
+                break;
+            case PUMP:
+                ListenerService.initiateAction(this, "status pump");
+                break;
+            case MAINMENU:
+                intent = new Intent(aaps.getAppContext(), MainMenuActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            case NONE:
+            default:
+                // do nothing
+        }
+    }
+
+    /* remap Actions with user preferences settings */
+    public WatchfaceAction remapActionWithUserPreferences(String userPrefAction) {
+        switch (userPrefAction) {
+            case "tempt":
+                return WatchfaceAction.TEMPT;
+            case "wizard":
+                return WatchfaceAction.WIZARD;
+            case "bolus":
+                return WatchfaceAction.BOLUS;
+            case "ecarb":
+                return WatchfaceAction.ECARB;
+            case "status":
+                return WatchfaceAction.STATUS;
+            case "pump":
+                return WatchfaceAction.PUMP;
+            case "loop":
+                return WatchfaceAction.LOOP;
+            case "cpp":
+                return WatchfaceAction.CPP;
+            case "tdd":
+                return WatchfaceAction.TDD;
+            case "none":
+                return WatchfaceAction.NONE;
+            case "menu":
+            default:
+                return WatchfaceAction.MAINMENU;
+        }
+    }
 }
