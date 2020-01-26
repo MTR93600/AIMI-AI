@@ -22,40 +22,18 @@ public class Home extends BaseWatchFace {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         layoutView = inflater.inflate(R.layout.activity_home, null);
         performViewSetup();
+        chartOk = true;
     }
 
     @Override
-    protected void onTapCommand(int tapType, int x, int y, long eventTime) {
-
-        int extra = mSgv!=null?(mSgv.getRight() - mSgv.getLeft())/2:0;
-
-        if (tapType == TAP_TYPE_TAP&&
-                x >=chart.getLeft() &&
-                x <= chart.getRight()&&
-                y >= chart.getTop() &&
-                y <= chart.getBottom()){
-            if (eventTime - chartTapTime < 800){
-                changeChartTimeframe();
-            }
-            chartTapTime = eventTime;
-        } else if (tapType == TAP_TYPE_TAP&&
-                x + extra >=mSgv.getLeft() &&
-                x - extra <= mSgv.getRight()&&
-                y >= mSgv.getTop() &&
-                y <= mSgv.getBottom()){
-            if (eventTime - sgvTapTime < 800){
-                Intent intent = new Intent(this, MainMenuActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-            sgvTapTime = eventTime;
-        }
-    }
-
-    private void changeChartTimeframe() {
-        int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "3"));
-        timeframe = (timeframe%5) + 1;
-        sharedPrefs.edit().putString("chart_timeframe", "" + timeframe).commit();
+    public void getTapZones(){
+        // tap zones for direct actions
+        tapxlow = mRelativeLayout.getWidth()/3;
+        tapylow = chart.getTop()/2;                     // no overlap with chart for LEFT, CENTER and RIGHT zones, zone below chart available for DOWN
+        tapcharttop = chart.getTop();
+        tapchartbottom = chart.getBottom();             // disable DOWN action
+        tapchartleft = chart.getLeft();
+        tapchartright = chart.getRight();
     }
 
     @Override
