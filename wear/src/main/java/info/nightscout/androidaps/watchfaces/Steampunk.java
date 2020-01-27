@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.watchfaces;
 
-import android.content.Intent;
 import androidx.core.content.ContextCompat;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 
 import info.nightscout.androidaps.R;
-import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 import info.nightscout.androidaps.interaction.utils.SafeParse;
 /**
  * Created by andrew-warrington on 01/12/2017.
@@ -17,8 +15,6 @@ import info.nightscout.androidaps.interaction.utils.SafeParse;
 
 public class Steampunk extends BaseWatchFace {
 
-    private long chartTapTime = 0;
-    private long mainMenuTapTime = 0;
     private float lastEndDegrees = 0f;
     private float deltaRotationAngle = 0f;
 

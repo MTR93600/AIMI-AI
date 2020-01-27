@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.watchfaces;
 
-import android.content.Intent;
 import android.graphics.Color;
 import androidx.core.content.ContextCompat;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -9,12 +8,9 @@ import android.view.LayoutInflater;
 import com.ustwo.clockwise.common.WatchMode;
 
 import info.nightscout.androidaps.R;
-import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 
 public class Home extends BaseWatchFace {
 
-    private long chartTapTime = 0;
-    private long sgvTapTime = 0;
 
     @Override
     public void onCreate() {

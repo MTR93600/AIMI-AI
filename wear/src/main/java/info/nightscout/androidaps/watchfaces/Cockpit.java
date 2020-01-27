@@ -1,12 +1,10 @@
 package info.nightscout.androidaps.watchfaces;
 
-import android.content.Intent;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import info.nightscout.androidaps.R;
-import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 
 /**
  * Created by andrew-warrington on 18/11/2017.

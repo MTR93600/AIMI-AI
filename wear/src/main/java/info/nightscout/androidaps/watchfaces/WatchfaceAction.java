@@ -11,6 +11,5 @@ public enum WatchfaceAction {
     TDD,
     LOOP,
     STATUS,
-	SETTINGS,
     NONE
 }

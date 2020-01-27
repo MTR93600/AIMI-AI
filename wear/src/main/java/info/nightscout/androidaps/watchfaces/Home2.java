@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.watchfaces;
 
-import android.content.Intent;
 import android.graphics.Color;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
@@ -10,7 +9,6 @@ import android.view.LayoutInflater;
 import com.ustwo.clockwise.common.WatchMode;
 
 import info.nightscout.androidaps.R;
-import info.nightscout.androidaps.interaction.menus.MainMenuActivity;
 
 public class Home2 extends BaseWatchFace {
 
