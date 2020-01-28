@@ -213,10 +213,10 @@ public class BgGraphBuilder {
 
         addPredictionLines(lines);
         lines.add(basalLine((float) minChart, factor, highlight));
-        lines.add(bolusLine((float) minChart));
         lines.add(bolusInvalidLine((float) minChart));
         lines.add(carbsLine((float) minChart));
         lines.add(smbLine((float) minChart));
+        lines.add(bolusLine((float) minChart));
 
         return lines;
     }
@@ -249,7 +249,7 @@ public class BgGraphBuilder {
 
         for (BolusWatchData bwd: bolusWatchDataList) {
             if(bwd.date > start_time && bwd.date <= end_time && !bwd.isSMB && bwd.isValid && bwd.bolus > 0) {
-                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2));
+                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2*pointSize));
             }
         }
         Line line = new Line(pointValues);
@@ -266,7 +266,7 @@ public class BgGraphBuilder {
 
         for (BolusWatchData bwd: bolusWatchDataList) {
             if(bwd.date > start_time && bwd.date <= end_time && bwd.isSMB && bwd.isValid && bwd.bolus > 0) {
-                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2));
+                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2*pointSize));
             }
         }
         Line line = new Line(pointValues);
@@ -283,7 +283,7 @@ public class BgGraphBuilder {
 
         for (BolusWatchData bwd: bolusWatchDataList) {
             if(bwd.date > start_time && bwd.date <= end_time && !(bwd.isValid && (bwd.bolus > 0 || bwd.carbs > 0))) {
-                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2));
+                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset-2*pointSize));
             }
         }
         Line line = new Line(pointValues);
@@ -300,7 +300,7 @@ public class BgGraphBuilder {
 
         for (BolusWatchData bwd: bolusWatchDataList) {
             if(bwd.date > start_time && bwd.date <= end_time && !bwd.isSMB && bwd.isValid && bwd.carbs > 0) {
-                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset+2));
+                pointValues.add(new PointValue(fuzz(bwd.date), (float) offset+2*pointSize));
             }
         }
         Line line = new Line(pointValues);
