@@ -445,14 +445,14 @@
     <string name="key_nsclientinternal_paused" translatable="false">nsclientinternal_paused</string>
     <string name="nowritepermission">NSCLIENT has no write permission. Wrong API secret?</string>
     <string name="wear_settings">Wear settings</string>
-    <string name="wearos_settings">Wear OS settings</string>
-    <string name="wearos_title">Enable Wear OS</string>
-    <string name="wearos_summary">Enable Wear OS watch</string>
+    <string name="wearos_settings">WearOS settings</string>
+    <string name="wearos_settings_summary">WearOS Watch display settings</string>
+    <string name="wearos_title">Enable WearOS Watch</string>
 
     <!-- Tizen wear plugin -->
-    <string name="tizen_settings">Tizen Watch settings</string>
-    <string name="tizen_title">Enable Tizen</string>
-    <string name="tizen_summary">Enable Tizen watch</string>
+    <string name="tizen_settings">Tizen settings</string>
+    <string name="tizen_title">Enable Tizen Watch</string>
+    <string name="tizen_settings_summary">Tizen Watch display settings</string>
 
     <!-- Tizen wear service -->
     <string name="tizen_sendstatus_ch" translatable="false">105</string>
