@@ -20,6 +20,7 @@ public class TizenUpdaterService extends SAAgentV2 {
     private ServiceConnection mConnectionHandler = null;
     private Handler mHandler = new Handler();
     private Context mContext = null;
+    public boolean connected = false;
 
     public TizenUpdaterService(Context context) {
         super(TAG, context, SASOCKET_CLASS);
@@ -51,11 +52,14 @@ public class TizenUpdaterService extends SAAgentV2 {
         } else if (result == SAAgentV2.FINDPEER_DEVICE_NOT_CONNECTED) {
             Toast.makeText(getApplicationContext(), "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Disconnected");
+            connected=false;
         } else if (result == SAAgentV2.FINDPEER_SERVICE_NOT_FOUND) {
             Toast.makeText(getApplicationContext(), "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Disconnected");
+            connected=false;
         } else {
             Toast.makeText(getApplicationContext(), "No peers have been found!!!", Toast.LENGTH_LONG).show();
+            connected=false;
         }
     }
 
@@ -72,13 +76,16 @@ public class TizenUpdaterService extends SAAgentV2 {
             this.mConnectionHandler = (ServiceConnection) socket;
             Log.e(TAG, "Connected");
             Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();
+            connected=true;
         } else if (result == SAAgentV2.CONNECTION_ALREADY_EXIST) {
             Log.e(TAG, "Connected");
             Toast.makeText(mContext, "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
+            connected=true;
         } else if (result == SAAgentV2.CONNECTION_DUPLICATE_REQUEST) {
             Toast.makeText(mContext, "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(mContext, "Service Connection Failure", Toast.LENGTH_LONG).show();
+            connected=false;
         }
     }
 
@@ -97,7 +104,7 @@ public class TizenUpdaterService extends SAAgentV2 {
                 if (peers != null) {
                     if (status == SAAgentV2.PEER_AGENT_AVAILABLE) {
                         Toast.makeText(getApplicationContext(), "PEER_AGENT_AVAILABLE", Toast.LENGTH_LONG).show();
-
+                        findPeers();
                     } else {
                         Toast.makeText(getApplicationContext(), "PEER_AGENT_UNAVAILABLE", Toast.LENGTH_LONG).show();
                     }
