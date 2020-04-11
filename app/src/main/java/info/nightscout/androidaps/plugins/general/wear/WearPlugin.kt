@@ -65,7 +65,7 @@ class WearPlugin @Inject constructor(
 
     private val disposable = CompositeDisposable()
     override fun onStart() {
-        if (sp.getBoolean("tizenenable", false)) {
+        if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false)) {
             SAAgentV2.requestAgent(mainApp, TizenUpdaterService::class.java.name, mAgentCallback)
         }
         super.onStart()
@@ -118,6 +118,7 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 0)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
+                if (tizenOK()) { tizenUS!!.sendBolusProgress(0,status) }
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventDismissBolusProgressIfRunning::class.java)
@@ -133,6 +134,7 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 100)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
+                if (tizenOK()) { tizenUS!!.sendBolusProgress(100,status) }
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventOverviewBolusProgress::class.java)
@@ -143,6 +145,7 @@ class WearPlugin @Inject constructor(
                     intent.putExtra("progresspercent", event.percent)
                     intent.putExtra("progressstatus", event.status)
                     mainApp.startService(intent)
+                    if (tizenOK()) { tizenUS!!.sendBolusProgress(event.percent,event.status) }
                 }
             }) { fabricPrivacy.logException(it) })
     }
@@ -168,50 +171,32 @@ class WearPlugin @Inject constructor(
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_SEND_STATUS))
             }
 
-            // Code added for Tizen Watch updater service
-            if (sp.getBoolean("tizenenable", false)) { // then starts WatchUpdaterService for Tizen watch if enable
-                if (tizenUS == null) {              // if restart Tisen agent also include a find peer but update will be done later once connection will be done
-                    Toast.makeText(mainApp, "Tizen enabled and agent KO, start peerAgent", Toast.LENGTH_LONG).show()
-                    restartTizenAgent()
-                } else if (tizenUS!!.connected) {     // Tizen enabled in settings and
-                    if (bgValue) {
-                        // tizenUS.sendBG();
-                    }
-                    if (basals) {
-                        // tizenUS.sendBasals();
-                    }
-                    if (status) {
-                        // tizenUS.sendStatus();
-                    }
-                } else {                        // Tizen agent is launched but not connected, try to find peers should not appear because findpeer is automatic...
-                    Toast.makeText(mainApp, "Agent OK, try to find peers", Toast.LENGTH_LONG).show()
-                    tizenUS!!.findPeers()
+            if (tizenOK()) {     // Tizen enabled in settings and connected to a watch
+                if (bgValue) {
+                    tizenUS!!.sendData()
+                }
+                if (basals) {
+                    tizenUS!!.sendBasals()
+                }
+                if (status) {
+                    tizenUS!!.sendStatus()
                 }
             }
-
-        } else {                            // if tizen is disable in settings, then close connection and stop Tizen agent
-            if (tizenUS != null) Toast.makeText(mainApp, "Tizen disabled, close communication and stop tizen Agent", Toast.LENGTH_LONG).show()
-            stopTizenAgent()
         }
     }
 
     fun resendDataToWatch() {
         //Log.d(TAG, "WR: WearPlugin:resendDataToWatch");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
-        // code added for Tizen Watch updater service
-        if (sp.getBoolean("tizenenable", false)) { // if Tizen is enable
-            if (tizenUS == null) {
-                Toast.makeText(mainApp, "Agent KO, Restart peerAgent", Toast.LENGTH_LONG).show()
-                restartTizenAgent()
-            } else {
-                //tizenUS!!.resendData()
-            }
-        }
+
+        if (tizenOK()) { tizenUS!!.resendData() }
     }
 
     fun openSettings() {
         //Log.d(TAG, "WR: WearPlugin:openSettings");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_OPEN_SETTINGS))
+
+        if (tizenOK()) { tizenUS!!.sendNotification() }
     }
 
     fun requestNotificationCancel(actionString: String?) { //Log.d(TAG, "WR: WearPlugin:requestNotificationCancel");
@@ -219,6 +204,8 @@ class WearPlugin @Inject constructor(
             .setAction(WatchUpdaterService.ACTION_CANCEL_NOTIFICATION)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        if (tizenOK()) { tizenUS!!.sendCancelNotificationRequest(actionString) }
     }
 
     fun requestActionConfirmation(title: String, message: String, actionString: String) {
@@ -227,6 +214,8 @@ class WearPlugin @Inject constructor(
         intent.putExtra("message", message)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        if (tizenOK()) { tizenUS!!.sendActionConfirmationRequest(title, message, actionString) }
     }
 
     fun requestChangeConfirmation(title: String, message: String, actionString: String) {
@@ -235,6 +224,8 @@ class WearPlugin @Inject constructor(
         intent.putExtra("message", message)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        if (tizenOK()) { tizenUS!!.sendChangeConfirmationRequest(title, message, actionString) }
     }
 
     private fun stopTizenAgent() {
@@ -250,6 +241,27 @@ class WearPlugin @Inject constructor(
             stopTizenAgent()
         }
         SAAgentV2.requestAgent(mainApp, TizenUpdaterService::class.java.name, mAgentCallback)
+    }
+
+
+    private fun tizenOK(): Boolean {
+        var tizenOk=false
+        if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false)) { // if Tizen is enable check if SAAgent is launched and if a watch is connected
+            if (tizenUS == null) {
+                Toast.makeText(mainApp, "Agent KO, Restart peerAgent", Toast.LENGTH_LONG).show()
+                restartTizenAgent()
+            } else  if (tizenUS!!.connected) {  // Tizen watch enabled in settings and connected, we can send data
+                Toast.makeText(mainApp, "Connected", Toast.LENGTH_LONG).show()
+                tizenOk=true
+            } else {                            // Tizen agent is launched but not connected, try to find peers should not appear because findpeer is automatic in TizenUpdaterService...
+                Toast.makeText(mainApp, "Agent OK, try to find peers", Toast.LENGTH_LONG).show()
+                tizenUS!!.findPeers()
+            }
+        } else {                                // if tizen is disable in settings, then close connection and stop Tizen agent
+            if (tizenUS != null) Toast.makeText(mainApp, "Tizen disabled, close communication and stop tizen Agent", Toast.LENGTH_LONG).show()
+            stopTizenAgent()
+        }
+        return tizenOk
     }
 
 }
