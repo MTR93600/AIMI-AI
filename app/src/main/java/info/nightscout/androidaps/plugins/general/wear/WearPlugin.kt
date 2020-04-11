@@ -106,7 +106,7 @@ class WearPlugin @Inject constructor(
             .toObservable(EventRefreshOverview::class.java)
             .observeOn(Schedulers.io())
             .subscribe({
-                if (WatchUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)))
+                if (WatchUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)) || TizenUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)))
                     sendDataToWatch(status = true, basals = false, bgValue = false)
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus

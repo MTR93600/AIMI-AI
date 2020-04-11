@@ -212,7 +212,7 @@ public class TizenUpdaterService extends SAAgentV2 {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-// lines below for testing communication
+// lines below for testing communication **********************************************************************************
             final String message = new String(data);
             Log.e(TAG, "Received: " + message);
             if (channelId == 105)
@@ -223,8 +223,8 @@ public class TizenUpdaterService extends SAAgentV2 {
                 Toast.makeText(getApplicationContext(), "115: " + message, Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getApplicationContext(), "Other: " + message, Toast.LENGTH_LONG).show();
+// End of bloc for testing communication **********************************************************************************
 
-/* Todo: activate bloc below once communication is validated
             if (tizenIntegration()) {
                 if (channelId==TIZEN_RESEND_CH) {
                     resendData();
@@ -243,7 +243,6 @@ public class TizenUpdaterService extends SAAgentV2 {
                     actionStringHandler.handleConfirmation(actionstring);
                 }
             }
-*/
         }
 
         @Override
@@ -605,7 +604,12 @@ public class TizenUpdaterService extends SAAgentV2 {
             dm.put("boluses", boluses);
             dm.put("predictions", predictions);
 
-            //executeTask(new SendToDataLayerThread(BASAL_DATA_PATH, googleApiClient), dm);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    sendTizen(TIZEN_SENDBASALS_CH, dm.toString());
+                }
+            });
         } catch (JSONException e) {
             Log.e(TAG, "Unhandled exception");
         }
@@ -915,6 +919,10 @@ public class TizenUpdaterService extends SAAgentV2 {
             }
         }
         return basalStringResult;
+    }
+
+    public static boolean shouldReportLoopStatus(boolean enabled) {
+        return (lastLoopStatus != enabled);
     }
 
     private long generatePreference() {
