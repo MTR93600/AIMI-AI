@@ -76,7 +76,6 @@ public class TizenUpdaterService extends SAAgent {
     @Inject public WearPlugin wearPlugin;
     @Inject public ResourceHelper resourceHelper;
     @Inject public SP sp;
-    @Inject public MainApp mainApp;
     @Inject public ProfileFunction profileFunction;
     @Inject public DefaultValueHelper defaultValueHelper;
     @Inject public NSDeviceStatus nsDeviceStatus;
@@ -163,19 +162,17 @@ public class TizenUpdaterService extends SAAgent {
             for(SAPeerAgent peerAgent:peerAgents)
                 requestServiceConnection(peerAgent);
         } else if (result == SAAgent.FINDPEER_DEVICE_NOT_CONNECTED) {
-            Toast.makeText(mainApp, "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Disconnected");
+            Toast.makeText(getApplicationContext(), "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.FINDPEER_SERVICE_NOT_FOUND) {
-            Toast.makeText(mainApp, "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Disconnected");
+            Toast.makeText(getApplicationContext(), "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(mainApp, "No peers have been found!!!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "No peers have been found!!!", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
-        if (peerAgent != null && sp.getBoolean(TIZEN_ENABLE, false)) {
+        if (peerAgent != null) {
             acceptServiceConnectionRequest(peerAgent);
         }
     }
@@ -184,15 +181,12 @@ public class TizenUpdaterService extends SAAgent {
     protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
         if (result == SAAgent.CONNECTION_SUCCESS) {
             this.mConnectionHandler = (ServiceConnection) socket;
-            Log.e(TAG, "Connected");
-            Toast.makeText(mainApp, "Connected", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
-            Log.e(TAG, "Connected");
-            Toast.makeText(mainApp, "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_DUPLICATE_REQUEST) {
-            Toast.makeText(mainApp, "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(mainApp, "Service Connection Failure", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Service Connection failure", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -233,48 +227,11 @@ public class TizenUpdaterService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-// lines below for testing communication **********************************************************************************
             final String message = new String(data);
-            Log.e(TAG, "Received: " + message);
-            if (channelId == 105)
-                Toast.makeText(getApplicationContext(), "105: " + message, Toast.LENGTH_LONG).show();
-            else if (channelId==110)
-                Toast.makeText(getApplicationContext(), "110: " + message, Toast.LENGTH_LONG).show();
-            else if (channelId==115)
-                Toast.makeText(getApplicationContext(), "115: " + message, Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(getApplicationContext(), "Other: " + message, Toast.LENGTH_LONG).show();
-/* End of bloc for testing communication **********************************************************************************
-
-            if (mConnectionHandler.isConnected()) {
-                if (channelId==TIZEN_RESEND_CH) {
-                    resendData();
-                }
-                if (channelId==TIZEN_CANCELBOLUS_CH) {
-                    cancelBolus();
-                }
-                if (channelId==TIZEN_INITIATE_ACTIONSTRING_CH) {
-                    String actionstring = new String(data);
-                    aapsLogger.debug(LTag.TIZEN, "Tizen: " + actionstring);
-                    actionStringHandler.handleInitiate(actionstring);
-                }
-                if (channelId==TIZEN_CONFIRM_ACTIONSTRING_CH) {
-                    String actionstring = new String(data);
-                    aapsLogger.debug(LTag.TIZEN, "Tizen Confirm: " + actionstring);
-                    actionStringHandler.handleConfirmation(actionstring);
-                }
-            } else { // todo: check if it a findpeers here
-                findPeers();
-            }
-
- */
-
         }
 
         @Override
         protected void onServiceConnectionLost(int reason) {
-            Log.e(TAG, "Disconnected");
-            Toast.makeText(getApplicationContext(), "Disconnected", Toast.LENGTH_LONG).show();
             closeConnection();
         }
     }
@@ -296,7 +253,6 @@ public class TizenUpdaterService extends SAAgent {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.e(TAG, "Sent: " + data);
         }
         return retvalue;
     }
@@ -324,13 +280,10 @@ public class TizenUpdaterService extends SAAgent {
             stopSelf();
         } else if (errType == SsdkUnsupportedException.LIBRARY_NOT_INSTALLED) {
             Log.e(TAG, "You need to install Samsung Accessory SDK to use this application.");
-            Toast.makeText(getApplicationContext(), "You need to install Samsung Accessory SDK to use this application.", Toast.LENGTH_LONG).show();
         } else if (errType == SsdkUnsupportedException.LIBRARY_UPDATE_IS_REQUIRED) {
             Log.e(TAG, "You need to update Samsung Accessory SDK to use this application.");
-            Toast.makeText(getApplicationContext(), "You need to update Samsung Accessory SDK to use this application.", Toast.LENGTH_LONG).show();
         } else if (errType == SsdkUnsupportedException.LIBRARY_UPDATE_IS_RECOMMENDED) {
             Log.e(TAG, "We recommend that you update your Samsung Accessory SDK before using this application.");
-            Toast.makeText(getApplicationContext(), "We recommend that you update your Samsung Accessory SDK before using this application.", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -341,10 +294,9 @@ public class TizenUpdaterService extends SAAgent {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : null;
 
-        // Log.d(TAG, logPrefix + "onStartCommand: " + action);
         if (mConnectionHandler != null) {
             if (mConnectionHandler.isConnected()) {
-                sendTizen(TIZEN_SENDSTATUS_CH,"Coucou");
+                sendTizen(TIZEN_SENDSTATUS_CH,"Hello from AAPS");
             } else {
                 findPeers();
             }
@@ -390,7 +342,7 @@ public class TizenUpdaterService extends SAAgent {
         return Service.START_STICKY;
     }
 
-
+/*
     // code below is for data exchange and integration as close as possible than Wearintegration plugin
 
     private boolean tizenIntegration() {
@@ -1000,7 +952,7 @@ public class TizenUpdaterService extends SAAgent {
         }
         return basalStringResult;
     }
-
+*/
     public static boolean shouldReportLoopStatus(boolean enabled) {
         return (lastLoopStatus != enabled);
     }
