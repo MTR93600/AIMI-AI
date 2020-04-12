@@ -1,6 +1,12 @@
 package info.nightscout.androidaps.plugins.general.wear
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
+import android.widget.Toast
+import com.samsung.android.sdk.accessory.SAAgentV2
 import dagger.Lazy
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.MainApp
@@ -10,13 +16,13 @@ import info.nightscout.androidaps.interfaces.PluginBase
 import info.nightscout.androidaps.interfaces.PluginDescription
 import info.nightscout.androidaps.interfaces.PluginType
 import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
+import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBolusProgressIfRunning
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
-import info.nightscout.androidaps.plugins.general.wear.wearintegration.WatchUpdaterService
 import info.nightscout.androidaps.plugins.general.wear.tizenintegration.TizenUpdaterService
+import info.nightscout.androidaps.plugins.general.wear.wearintegration.WatchUpdaterService
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.resources.ResourceHelper
@@ -25,11 +31,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
-
-import android.util.Log
-import android.widget.Toast
-import com.samsung.android.sdk.accessory.SAAgentV2
-import com.samsung.android.sdk.accessory.SAAgentV2.RequestAgentCallback
 
 @Singleton
 class WearPlugin @Inject constructor(
@@ -53,20 +54,13 @@ class WearPlugin @Inject constructor(
 ) {
     private val TAG = "Tizen plugin"
     private var tizenUS: TizenUpdaterService? = null
-    private val mAgentCallback: RequestAgentCallback = object : RequestAgentCallback {
-        override fun onAgentAvailable(agent: SAAgentV2) {
-            tizenUS = agent as TizenUpdaterService
-            tizenUS!!.findPeers()
-        }
-        override fun onError(errorCode: Int, message: String) {
-            Log.e(TAG, "Agent initialization error: $errorCode. ErrorMsg: $message")
-        }
-    }
+    private var mIsBound = false
 
     private val disposable = CompositeDisposable()
     override fun onStart() {
         if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false)) {
-            SAAgentV2.requestAgent(mainApp, TizenUpdaterService::class.java.name, mAgentCallback)
+            // Bind service
+            mIsBound = mainApp.bindService(Intent(mainApp, TizenUpdaterService::class.java), mConnection, Context.BIND_AUTO_CREATE)
         }
         super.onStart()
         disposable.add(rxBus
@@ -118,7 +112,11 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 0)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
-                if (tizenOK()) { tizenUS!!.sendBolusProgress(0,status) }
+
+                val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                intent2.putExtra("progresspercent", 0)
+                intent2.putExtra("progressstatus", status)
+                mainApp.startService(intent2)
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventDismissBolusProgressIfRunning::class.java)
@@ -134,7 +132,12 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 100)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
-                if (tizenOK()) { tizenUS!!.sendBolusProgress(100,status) }
+
+                val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                intent.putExtra("progresspercent", 100)
+                intent.putExtra("progressstatus", status)
+                mainApp.startService(intent2)
+
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventOverviewBolusProgress::class.java)
@@ -145,14 +148,17 @@ class WearPlugin @Inject constructor(
                     intent.putExtra("progresspercent", event.percent)
                     intent.putExtra("progressstatus", event.status)
                     mainApp.startService(intent)
-                    if (tizenOK()) { tizenUS!!.sendBolusProgress(event.percent,event.status) }
+
+                    val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                    intent2.putExtra("progresspercent", event.percent)
+                    intent2.putExtra("progressstatus", event.status)
+                    mainApp.startService(intent2)
                 }
             }) { fabricPrivacy.logException(it) })
     }
 
     override fun onStop() {
         disposable.clear()
-        stopTizenAgent()
         super.onStop()
     }
 
@@ -163,24 +169,15 @@ class WearPlugin @Inject constructor(
             // only start service when this plugin is enabled
             if (bgValue) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java))
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java))
             }
             if (basals) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_SEND_BASALS))
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BASALS))
             }
             if (status) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_SEND_STATUS))
-            }
-
-            if (tizenOK()) {     // Tizen enabled in settings and connected to a watch
-                if (bgValue) {
-                    tizenUS!!.sendData()
-                }
-                if (basals) {
-                    tizenUS!!.sendBasals()
-                }
-                if (status) {
-                    tizenUS!!.sendStatus()
-                }
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_STATUS))
             }
         }
     }
@@ -188,15 +185,13 @@ class WearPlugin @Inject constructor(
     fun resendDataToWatch() {
         //Log.d(TAG, "WR: WearPlugin:resendDataToWatch");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
-
-        if (tizenOK()) { tizenUS!!.resendData() }
+        mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_RESEND))
     }
 
     fun openSettings() {
         //Log.d(TAG, "WR: WearPlugin:openSettings");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_OPEN_SETTINGS))
-
-        if (tizenOK()) { tizenUS!!.sendNotification() }
+        mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_OPEN_SETTINGS))
     }
 
     fun requestNotificationCancel(actionString: String?) { //Log.d(TAG, "WR: WearPlugin:requestNotificationCancel");
@@ -205,7 +200,10 @@ class WearPlugin @Inject constructor(
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
 
-        if (tizenOK()) { tizenUS!!.sendCancelNotificationRequest(actionString) }
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java)
+            .setAction(TizenUpdaterService.ACTION_CANCEL_NOTIFICATION)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
 
     fun requestActionConfirmation(title: String, message: String, actionString: String) {
@@ -215,7 +213,11 @@ class WearPlugin @Inject constructor(
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
 
-        if (tizenOK()) { tizenUS!!.sendActionConfirmationRequest(title, message, actionString) }
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_ACTIONCONFIRMATIONREQUEST)
+        intent2.putExtra("title", title)
+        intent2.putExtra("message", message)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
 
     fun requestChangeConfirmation(title: String, message: String, actionString: String) {
@@ -225,9 +227,13 @@ class WearPlugin @Inject constructor(
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
 
-        if (tizenOK()) { tizenUS!!.sendChangeConfirmationRequest(title, message, actionString) }
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_CHANGECONFIRMATIONREQUEST)
+        intent2.putExtra("title", title)
+        intent2.putExtra("message", message)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
-
+/*
     private fun stopTizenAgent() {
         if (tizenUS != null) {
             tizenUS!!.closeConnection()
@@ -262,6 +268,18 @@ class WearPlugin @Inject constructor(
             stopTizenAgent()
         }
         return tizenOk
+    }
+*/
+    private val mConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            tizenUS = (service as TizenUpdaterService.LocalBinder).getService()
+            tizenUS!!.findPeers()
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            tizenUS = null
+            mIsBound = false
+        }
     }
 
 }

@@ -1,17 +1,16 @@
 package info.nightscout.androidaps.plugins.general.wear.tizenintegration;
 
 // imports for Samsung communication
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.samsung.android.sdk.SsdkUnsupportedException;
-import com.samsung.android.sdk.accessory.SA;
-import com.samsung.android.sdk.accessory.SAAgentV2;
-import com.samsung.android.sdk.accessory.SAPeerAgent;
-import com.samsung.android.sdk.accessory.SASocket;
+import com.samsung.android.sdk.accessory.*;
 
 import java.io.IOException;
 
@@ -19,7 +18,13 @@ import java.io.IOException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.HandlerThread;
-
+import android.app.Service;
+import android.os.Binder;
+import android.os.IBinder;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
 import androidx.annotation.NonNull;
 
 
@@ -65,7 +70,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 
-public class TizenUpdaterService extends SAAgentV2 {
+public class TizenUpdaterService extends SAAgent {
     @Inject public HasAndroidInjector injector;
     @Inject public AAPSLogger aapsLogger;
     @Inject public WearPlugin wearPlugin;
@@ -86,7 +91,18 @@ public class TizenUpdaterService extends SAAgentV2 {
     private ServiceConnection mConnectionHandler = null;
     private Handler mHandler = new Handler();
     private Context mContext = null;
-    public boolean connected = false;
+    private Handler handler;
+    private final IBinder mBinder = new LocalBinder();
+
+
+    public static final String ACTION_RESEND = TizenUpdaterService.class.getName().concat(".Resend");
+    public static final String ACTION_OPEN_SETTINGS = TizenUpdaterService.class.getName().concat(".OpenSettings");
+    public static final String ACTION_SEND_STATUS = TizenUpdaterService.class.getName().concat(".SendStatus");
+    public static final String ACTION_SEND_BASALS = TizenUpdaterService.class.getName().concat(".SendBasals");
+    public static final String ACTION_SEND_BOLUSPROGRESS = TizenUpdaterService.class.getName().concat(".BolusProgress");
+    public static final String ACTION_SEND_ACTIONCONFIRMATIONREQUEST = TizenUpdaterService.class.getName().concat(".ActionConfirmationRequest");
+    public static final String ACTION_SEND_CHANGECONFIRMATIONREQUEST = TizenUpdaterService.class.getName().concat(".ChangeConfirmationRequest");
+    public static final String ACTION_CANCEL_NOTIFICATION = TizenUpdaterService.class.getName().concat(".CancelNotification");
 
 
     // channel list for Tizen
@@ -108,44 +124,51 @@ public class TizenUpdaterService extends SAAgentV2 {
     private static boolean lastLoopStatus;
 
 
-    public TizenUpdaterService(Context context) {
-        super(TAG, context, SASOCKET_CLASS);
-        mContext = context;
+    public TizenUpdaterService() {
+        super(TAG, SASOCKET_CLASS);
+    }
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
         SA mAccessory = new SA();
         try {
-            mAccessory.initialize(mContext);
+            mAccessory.initialize(this);
         } catch (SsdkUnsupportedException e) {
-            // try to handle SsdkUnsupportedException
-            if (processUnsupportedException(e)) {
+            if (processUnsupportedException(e) == true) {
                 return;
             }
         } catch (Exception e1) {
             e1.printStackTrace();
-            /*
-             * Your application can not use Samsung Accessory SDK. Your application should work smoothly
-             * without using this SDK, or you may want to notify user and close your application gracefully
-             * (release resources, stop Service threads, close UI thread, etc.)
-             */
+            stopSelf();
         }
     }
 
     @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     protected void onFindPeerAgentsResponse(SAPeerAgent[] peerAgents, int result) {
-        if ((result == SAAgentV2.PEER_AGENT_FOUND) && (peerAgents != null)) {
+        if ((result == SAAgent.PEER_AGENT_FOUND) && (peerAgents != null)) {
             for(SAPeerAgent peerAgent:peerAgents)
                 requestServiceConnection(peerAgent);
-        } else if (result == SAAgentV2.FINDPEER_DEVICE_NOT_CONNECTED) {
+        } else if (result == SAAgent.FINDPEER_DEVICE_NOT_CONNECTED) {
             Toast.makeText(getApplicationContext(), "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
-            connected = false;
             Log.e(TAG, "Disconnected");
-        } else if (result == SAAgentV2.FINDPEER_SERVICE_NOT_FOUND) {
+        } else if (result == SAAgent.FINDPEER_SERVICE_NOT_FOUND) {
             Toast.makeText(getApplicationContext(), "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
-            connected=false;
             Log.e(TAG, "Disconnected");
         } else {
             Toast.makeText(getApplicationContext(), "No peers have been found!!!", Toast.LENGTH_LONG).show();
-            connected=false;
         }
     }
 
@@ -160,18 +183,15 @@ public class TizenUpdaterService extends SAAgentV2 {
     protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
         if (result == SAAgentV2.CONNECTION_SUCCESS) {
             this.mConnectionHandler = (ServiceConnection) socket;
-            connected=true;
             Log.e(TAG, "Connected");
             Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();
         } else if (result == SAAgentV2.CONNECTION_ALREADY_EXIST) {
-            connected=true;
             Log.e(TAG, "Connected");
             Toast.makeText(mContext, "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
         } else if (result == SAAgentV2.CONNECTION_DUPLICATE_REQUEST) {
             Toast.makeText(mContext, "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(mContext, "Service Connection Failure", Toast.LENGTH_LONG).show();
-            connected=false;
         }
     }
 
@@ -225,7 +245,7 @@ public class TizenUpdaterService extends SAAgentV2 {
                 Toast.makeText(getApplicationContext(), "Other: " + message, Toast.LENGTH_LONG).show();
 // End of bloc for testing communication **********************************************************************************
 
-            if (tizenIntegration()) {
+            if (mConnectionHandler.isConnected()) {
                 if (channelId==TIZEN_RESEND_CH) {
                     resendData();
                 }
@@ -242,12 +262,13 @@ public class TizenUpdaterService extends SAAgentV2 {
                     aapsLogger.debug(LTag.TIZEN, "Tizen Confirm: " + actionstring);
                     actionStringHandler.handleConfirmation(actionstring);
                 }
+            } else { // todo: check if it a findpeers here
+                findPeers();
             }
         }
 
         @Override
         protected void onServiceConnectionLost(int reason) {
-            connected = false;
             Log.e(TAG, "Disconnected");
             Toast.makeText(getApplicationContext(), "Disconnected", Toast.LENGTH_LONG).show();
             closeConnection();
@@ -280,7 +301,6 @@ public class TizenUpdaterService extends SAAgentV2 {
         if (mConnectionHandler != null) {
             mConnectionHandler.close();
             mConnectionHandler = null;
-            connected=false;
             return true;
         } else {
             return false;
@@ -310,6 +330,68 @@ public class TizenUpdaterService extends SAAgentV2 {
         }
         return true;
     }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent != null ? intent.getAction() : null;
+
+        // Log.d(TAG, logPrefix + "onStartCommand: " + action);
+
+        if (tizenIntegration()) {
+            handler.post(() -> {
+                if (mConnectionHandler.isConnected()) {
+                    if (ACTION_RESEND.equals(action)) {
+                        resendData();
+                    } else if (ACTION_OPEN_SETTINGS.equals(action)) {
+                        sendNotification();
+                    } else if (ACTION_SEND_STATUS.equals(action)) {
+                        sendStatus();
+                    } else if (ACTION_SEND_BASALS.equals(action)) {
+                        sendBasals();
+                    } else if (ACTION_SEND_BOLUSPROGRESS.equals(action)) {
+                        sendBolusProgress(intent.getIntExtra("progresspercent", 0), intent.hasExtra("progressstatus") ? intent.getStringExtra("progressstatus") : "");
+                    } else if (ACTION_SEND_ACTIONCONFIRMATIONREQUEST.equals(action)) {
+                        String title = intent.getStringExtra("title");
+                        String message = intent.getStringExtra("message");
+                        String actionstring = intent.getStringExtra("actionstring");
+                        sendActionConfirmationRequest(title, message, actionstring);
+                    } else if (ACTION_SEND_CHANGECONFIRMATIONREQUEST.equals(action)) {
+                        String title = intent.getStringExtra("title");
+                        String message = intent.getStringExtra("message");
+                        String actionstring = intent.getStringExtra("actionstring");
+                        sendChangeConfirmationRequest(title, message, actionstring);
+                    } else if (ACTION_CANCEL_NOTIFICATION.equals(action)) {
+                        String actionstring = intent.getStringExtra("actionstring");
+                        sendCancelNotificationRequest(actionstring);
+                    } else {
+                        sendData();
+                    }
+                } else {
+                    //googleApiClient.connect();
+                }
+            });
+        }
+
+        return Service.START_STICKY;
+    }
+
+
+/*
+    private void tizenApiConnect() {
+        if (mConnectionHandler != null && (mConnectionHandler.isConnected() )) {
+            mConnectionHandler.close();
+        }
+        googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this).addApi(Wearable.API).build();
+        Wearable.MessageApi.addListener(googleApiClient, this);
+        if (mConnectionHandler.isConnected()) {
+            aapsLogger.debug(LTag.TIZEN, "API client is connected");
+        } else {
+            findPeers();
+        }
+    }
+*/
 
     // code below is for data exchange and integration as close as possible than Wearintegration plugin
 
