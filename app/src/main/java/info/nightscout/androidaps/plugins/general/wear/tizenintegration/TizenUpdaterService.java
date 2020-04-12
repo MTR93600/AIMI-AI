@@ -377,26 +377,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
 
-/*
-    private void tizenApiConnect() {
-        if (mConnectionHandler != null && (mConnectionHandler.isConnected() )) {
-            mConnectionHandler.close();
-        }
-        googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this).addApi(Wearable.API).build();
-        Wearable.MessageApi.addListener(googleApiClient, this);
-        if (mConnectionHandler.isConnected()) {
-            aapsLogger.debug(LTag.TIZEN, "API client is connected");
-        } else {
-            findPeers();
-        }
-    }
-*/
-
     // code below is for data exchange and integration as close as possible than Wearintegration plugin
 
     private boolean tizenIntegration() {
-        return wearPlugin.isEnabled(PluginType.GENERAL) && sp.getBoolean(TIZEN_ENABLE, true);
+        return wearPlugin.isEnabled(PluginType.GENERAL) && sp.getBoolean(TIZEN_ENABLE, true) && mConnectionHandler!= null ;
     }
 
     private void cancelBolus() {
