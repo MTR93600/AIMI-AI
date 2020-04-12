@@ -285,6 +285,8 @@
                   android:theme="@style/AppTheme.NoActionBar"/>
 
         <!-- Samsung Tizen-->
+        <service android:name=".plugins.general.wear.tizenintegration.TizenUpdaterService" />
+
         <service android:name="com.samsung.android.sdk.accessory.SAService"/>
         <service android:name="com.samsung.android.sdk.accessory.SAJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"></service>

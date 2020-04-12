@@ -34,7 +34,7 @@
             serviceImpl="info.nightscout.androidaps.plugins.general.wear.tizenintegration.TizenUpdaterService"
             version="1.0"
             serviceLimit="ANY"
-            serviceTimeout="50">
+            serviceTimeout="10">
             <supportedTransports>
                 <transport type="TRANSPORT_BT" />
                 <transport type="TRANSPORT_WIFI" />

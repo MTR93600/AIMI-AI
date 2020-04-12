@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.widget.Toast
 import dagger.Lazy
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.MainApp
@@ -59,6 +60,7 @@ class WearPlugin @Inject constructor(
         if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false)) {
             // Bind service
             mIsBound = mainApp.bindService(Intent(mainApp, TizenUpdaterService::class.java), mConnection, Context.BIND_AUTO_CREATE)
+            //Toast.makeText(mainApp, "Launch Tizen callback on Startup", Toast.LENGTH_LONG).show()
         }
         super.onStart()
         disposable.add(rxBus
@@ -184,13 +186,18 @@ class WearPlugin @Inject constructor(
 
     fun resendDataToWatch() {
         //if preference changed, Start or Stop Tizen communication
+        mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
         if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false) ) {
-            if (!mIsBound)
+            if (!mIsBound) {
+                //Toast.makeText(mainApp, "Launch Tizen callback", Toast.LENGTH_LONG).show()
                 mIsBound = mainApp.bindService(Intent(mainApp, TizenUpdaterService::class.java), mConnection, Context.BIND_AUTO_CREATE)
+            } else {
+                tizenUS!!.findPeers()
+                Toast.makeText(mainApp, "Try to find peers", Toast.LENGTH_LONG).show()
+            }
         } else {
             if (mIsBound == true && tizenUS != null) { tizenUS!!.closeConnection() }
         }
-        mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
         mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_RESEND))
     }
 
@@ -243,12 +250,14 @@ class WearPlugin @Inject constructor(
     private val mConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             tizenUS = (service as TizenUpdaterService.LocalBinder).getService()
-            tizenUS!!.findPeers()
+            //Toast.makeText(mainApp, "Try to find peers", Toast.LENGTH_LONG).show()
+            //tizenUS!!.findPeers()
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
             tizenUS = null
             mIsBound = false
+            Toast.makeText(mainApp, "Service disconnected", Toast.LENGTH_LONG).show()
         }
     }
 }
