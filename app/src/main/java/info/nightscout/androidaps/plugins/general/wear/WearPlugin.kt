@@ -154,6 +154,7 @@ class WearPlugin @Inject constructor(
         super.onStop()
     }
 
+
     private fun sendDataToWatch(status: Boolean, basals: Boolean, bgValue: Boolean) {
         //Log.d(TAG, "WR: WearPlugin:sendDataToWatch (status=" + status + ",basals=" + basals + ",bgValue=" + bgValue + ")");
         if (isEnabled(getType())) {

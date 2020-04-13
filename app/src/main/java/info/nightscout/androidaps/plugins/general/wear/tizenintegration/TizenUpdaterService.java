@@ -132,6 +132,9 @@ public class TizenUpdaterService extends SAAgent {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (tizenIntegration()) {
+            tizenApiConnect();
+        }
 
         SA mAccessory = new SA();
         try {
@@ -144,7 +147,6 @@ public class TizenUpdaterService extends SAAgent {
             e1.printStackTrace();
             stopSelf();
         }
-        findPeers();
     }
 
     @Override
@@ -154,6 +156,9 @@ public class TizenUpdaterService extends SAAgent {
 
     @Override
     public void onDestroy() {
+        if (mConnectionHandler != null && mConnectionHandler.isConnected()) {
+            mConnectionHandler=null; //todo: I'm not sure if it's enough or if it's closed cleanly
+        }
         super.onDestroy();
     }
 
@@ -410,6 +415,9 @@ public class TizenUpdaterService extends SAAgent {
         if (lastBG != null) {
             GlucoseStatus glucoseStatus = new GlucoseStatus(injector).getGlucoseStatusData();
 
+            if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
+                tizenApiConnect();
+            }
             if (tizenIntegration()) {
 
                 final JSONObject dataMap = dataMapSingleBG(lastBG, glucoseStatus);
@@ -549,6 +557,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendBasals() {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
+            tizenApiConnect();
+        }
+
         long now = System.currentTimeMillis();
         final long startTimeWindow = now - (long) (60000 * 60 * 5.5);
 
@@ -754,6 +766,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendNotification() {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             dataMap.put("timestamp", System.currentTimeMillis());
@@ -772,6 +788,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendBolusProgress(int progresspercent, String status) {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             dataMap.put("timestamp", System.currentTimeMillis());
@@ -791,6 +811,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendActionConfirmationRequest(String title, String message, String actionstring) {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected()) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             dataMap.put("timestamp", System.currentTimeMillis());
@@ -813,6 +837,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendChangeConfirmationRequest(String title, String message, String actionstring) {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected()) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             dataMap.put("timestamp", System.currentTimeMillis());
@@ -835,6 +863,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendCancelNotificationRequest(String actionstring) {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected()) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             dataMap.put("timestamp", System.currentTimeMillis());
@@ -855,6 +887,10 @@ public class TizenUpdaterService extends SAAgent {
     }
 
     public void sendStatus() {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected()) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             Profile profile = profileFunction.getProfile();
@@ -923,6 +959,10 @@ public class TizenUpdaterService extends SAAgent {
         }
     }
     private void sendPreferences() {
+        if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
+            tizenApiConnect();
+        }
+
         try {
             JSONObject dataMap = new JSONObject();
             //boolean wearcontrol = sp.getBoolean("wearcontrol", false);
