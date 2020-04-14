@@ -51,17 +51,9 @@ class WearPlugin @Inject constructor(
     .description(R.string.description_wear),
     aapsLogger, resourceHelper, injector
 ) {
-    private val TAG = "Tizen plugin"
-    private var tizenUS: TizenUpdaterService? = null
-    private var mIsBound = false
 
     private val disposable = CompositeDisposable()
     override fun onStart() {
-        if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false)) {
-            // Bind service
-            mIsBound = mainApp.bindService(Intent(mainApp, TizenUpdaterService::class.java), mConnection, Context.BIND_AUTO_CREATE)
-            //Toast.makeText(mainApp, "Launch Tizen callback on Startup", Toast.LENGTH_LONG).show()
-        }
         super.onStart()
         disposable.add(rxBus
             .toObservable(EventOpenAPSUpdateGui::class.java)
@@ -159,11 +151,8 @@ class WearPlugin @Inject constructor(
 
     override fun onStop() {
         disposable.clear()
-        // Un-bind service
-        mainApp.unbindService(mConnection)
         super.onStop()
     }
-
 
     private fun sendDataToWatch(status: Boolean, basals: Boolean, bgValue: Boolean) {
         //Log.d(TAG, "WR: WearPlugin:sendDataToWatch (status=" + status + ",basals=" + basals + ",bgValue=" + bgValue + ")");
@@ -187,17 +176,6 @@ class WearPlugin @Inject constructor(
     fun resendDataToWatch() {
         //if preference changed, Start or Stop Tizen communication
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
-        if (sp.getBoolean(TizenUpdaterService.TIZEN_ENABLE, false) ) {
-            if (!mIsBound) {
-                //Toast.makeText(mainApp, "Launch Tizen callback", Toast.LENGTH_LONG).show()
-                mIsBound = mainApp.bindService(Intent(mainApp, TizenUpdaterService::class.java), mConnection, Context.BIND_AUTO_CREATE)
-            } else {
-                tizenUS!!.findPeers()
-                Toast.makeText(mainApp, "Try to find peers", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            if (mIsBound == true && tizenUS != null) { tizenUS!!.closeConnection() }
-        }
         mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_RESEND))
     }
 
@@ -245,19 +223,5 @@ class WearPlugin @Inject constructor(
         intent2.putExtra("message", message)
         intent2.putExtra("actionstring", actionString)
         mainApp.startService(intent2)
-    }
-
-    private val mConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            tizenUS = (service as TizenUpdaterService.LocalBinder).getService()
-            //Toast.makeText(mainApp, "Try to find peers", Toast.LENGTH_LONG).show()
-            //tizenUS!!.findPeers()
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            tizenUS = null
-            mIsBound = false
-            Toast.makeText(mainApp, "Service disconnected", Toast.LENGTH_LONG).show()
-        }
     }
 }

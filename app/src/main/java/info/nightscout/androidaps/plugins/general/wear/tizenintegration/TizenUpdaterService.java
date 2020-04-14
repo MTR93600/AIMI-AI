@@ -144,6 +144,7 @@ public class TizenUpdaterService extends SAAgent {
             e1.printStackTrace();
             stopSelf();
         }
+        findPeers();
     }
 
     @Override
@@ -172,7 +173,7 @@ public class TizenUpdaterService extends SAAgent {
 
     @Override
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
-        if (peerAgent != null) {
+        if (peerAgent != null && sp.getBoolean(TIZEN_ENABLE, false)) {
             acceptServiceConnectionRequest(peerAgent);
         }
     }
@@ -181,6 +182,8 @@ public class TizenUpdaterService extends SAAgent {
     protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
         if (result == SAAgent.CONNECTION_SUCCESS) {
             this.mConnectionHandler = (ServiceConnection) socket;
+            Log.e(TAG, "Connected");
+            Toast.makeText(getBaseContext(), "Connected", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
             Toast.makeText(getBaseContext(), "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_DUPLICATE_REQUEST) {
@@ -227,11 +230,48 @@ public class TizenUpdaterService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
+// lines below for testing communication **********************************************************************************
             final String message = new String(data);
+            Log.e(TAG, "Received: " + message);
+            if (channelId == 105)
+                Toast.makeText(getApplicationContext(), "105: " + message, Toast.LENGTH_LONG).show();
+            else if (channelId==110)
+                Toast.makeText(getApplicationContext(), "110: " + message, Toast.LENGTH_LONG).show();
+            else if (channelId==115)
+                Toast.makeText(getApplicationContext(), "115: " + message, Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(getApplicationContext(), "Other: " + message, Toast.LENGTH_LONG).show();
+/* End of bloc for testing communication **********************************************************************************
+
+            if (mConnectionHandler.isConnected()) {
+                if (channelId==TIZEN_RESEND_CH) {
+                    resendData();
+                }
+                if (channelId==TIZEN_CANCELBOLUS_CH) {
+                    cancelBolus();
+                }
+                if (channelId==TIZEN_INITIATE_ACTIONSTRING_CH) {
+                    String actionstring = new String(data);
+                    aapsLogger.debug(LTag.TIZEN, "Tizen: " + actionstring);
+                    actionStringHandler.handleInitiate(actionstring);
+                }
+                if (channelId==TIZEN_CONFIRM_ACTIONSTRING_CH) {
+                    String actionstring = new String(data);
+                    aapsLogger.debug(LTag.TIZEN, "Tizen Confirm: " + actionstring);
+                    actionStringHandler.handleConfirmation(actionstring);
+                }
+            } else { // todo: check if it a findpeers here
+                findPeers();
+            }
+
+ */
+
         }
 
         @Override
         protected void onServiceConnectionLost(int reason) {
+            Log.e(TAG, "Disconnected");
+            Toast.makeText(getApplicationContext(), "Disconnected", Toast.LENGTH_LONG).show();
             closeConnection();
         }
     }
@@ -340,6 +380,16 @@ public class TizenUpdaterService extends SAAgent {
  */
 
         return Service.START_STICKY;
+    }
+
+    private void tizenApiConnect() {
+
+        findPeers();
+    }
+
+
+    private boolean tizenIntegration() {
+        return wearPlugin.isEnabled(PluginType.GENERAL) && sp.getBoolean(TIZEN_ENABLE, true) ;
     }
 
 /*
