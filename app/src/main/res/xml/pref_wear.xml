@@ -64,6 +64,7 @@
             android:title="@string/wearos_settings">
 
             <PreferenceCategory
+                android:key="wearossettings"
                 android:title="@string/wearos_settings">
 
                 <SwitchPreference
@@ -103,11 +104,203 @@
             android:key="tizenosadv"
             android:summary="@string/tizen_settings_summary"
             android:title="@string/tizen_settings">
-            <!--    settings to be defined for Tizen Watches (Samsung Galaxy watches)   -->
 
+            <!--    settings to be defined for Tizen Watches (Samsung Galaxy watches)
+                    This is a draft with all available (and future) settings (64 max in long value)
+                    The idea is to show only available settings according to Watch face
+                    And to rename the main category with Watch Face name
+                    -->
             <PreferenceCategory
-                android:title="@string/tizen_settings">
+                android:key="tizen_settings"
+                android:title="Tizen AAPS v2">
 
+                <PreferenceCategory
+                    android:title="Blood Glucose Settings">
+                    android:key="tizen_section_1"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_1"
+                        android:title="Show BG value" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_2"
+                        android:title="Show BG arrow" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_3"
+                        android:title="Show delta" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_4"
+                        android:title="Show 15' delta" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_5"
+                        android:title="Show 40' delta" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_6"
+                        android:title="Show detailled delta" />
+
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="IOB / COB /BGI settings">
+                    android:key="tizen_section_8"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_8"
+                        android:title="Show IOB" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_9"
+                        android:title="Show Detailled IOB"
+                        android:summary="Show IOB with one decimal" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_10"
+                        android:title="Show COB" />
+
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_11"
+                        android:title="Show BGI" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="Battery settings">
+                    android:key="tizen_section_14"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_14"
+                        android:title="Show Phone battery" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_15"
+                        android:title="Show Pump battery" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_16"
+                        android:title="Show Sensor battery" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_17"
+                        android:title="Show rig battery" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="Other AAPS settings">
+                    android:key="tizen_section_20"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_20"
+                        android:title="Show Basal rate" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_21"
+                        android:title="Show Loop Status" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_22"
+                        android:title="Show Ago" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="Graph settings">
+                    android:key="tizen_section_24"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_24"
+                        android:title="Show Prediction lines" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_25"
+                        android:title="Show Carb point" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_26"
+                        android:title="Show Bolus point" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_27"
+                        android:title="Show SMB as Bolus" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_28"
+                        android:title="Show Profile" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_29"
+                        android:title="Show Basal" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="Time and date settings">
+                    android:key="tizen_section_32"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_32"
+                        android:title="Show seconds" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_33"
+                        android:title="Show day name" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_34"
+                        android:title="Show short date" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_35"
+                        android:title="Show date" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_36"
+                        android:title="Show long date" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:title="Color settings">
+                    android:key="tizen_section_38"
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_39"
+                        android:title="Dark Background" />
+
+                    <SwitchPreference
+                        android:defaultValue="false"
+                        android:key="tizen_settings_40"
+                        android:title="Dark Divider" />
+                </PreferenceCategory>
 
             </PreferenceCategory>
 
