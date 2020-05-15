@@ -1,11 +1,6 @@
 package info.nightscout.androidaps.plugins.general.wear
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
-import android.widget.Toast
 import dagger.Lazy
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.MainApp
@@ -15,8 +10,8 @@ import info.nightscout.androidaps.interfaces.PluginBase
 import info.nightscout.androidaps.interfaces.PluginDescription
 import info.nightscout.androidaps.interfaces.PluginType
 import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
+import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBolusProgressIfRunning
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
@@ -154,7 +149,6 @@ class WearPlugin @Inject constructor(
         super.onStop()
     }
 
-
     private fun sendDataToWatch(status: Boolean, basals: Boolean, bgValue: Boolean) {
         //Log.d(TAG, "WR: WearPlugin:sendDataToWatch (status=" + status + ",basals=" + basals + ",bgValue=" + bgValue + ")");
         if (isEnabled(getType())) {
@@ -175,7 +169,7 @@ class WearPlugin @Inject constructor(
     }
 
     fun resendDataToWatch() {
-        //if preference changed, Start or Stop Tizen communication
+        //Log.d(TAG, "WR: WearPlugin:resendDataToWatch");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
         mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_RESEND))
     }

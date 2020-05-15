@@ -454,21 +454,6 @@
     <string name="tizen_title">Enable Tizen Watch</string>
     <string name="tizen_settings_summary">Tizen Watch display settings</string>
 
-    <!-- Tizen wear channel mapping -->
-    <string name="tizen_debug_ch" translatable="false">104</string>
-    <string name="tizen_sendstatus_ch" translatable="false">105</string>
-    <string name="tizen_senddata_ch" translatable="false">110</string>
-    <string name="tizen_preferences_ch" translatable="false">115</string>
-    <string name="tizen_resend_ch" translatable="false">120</string>
-    <string name="tizen_sendbasals_ch" translatable="false">125</string>
-    <string name="tizen_initiate_actionstring_ch" translatable="false">200</string>
-    <string name="tizen_confirm_actionstring_ch" translatable="false">205</string>
-    <string name="tizen_cancel_actionstring_ch" translatable="false">210</string>
-    <string name="tizen_bolusprogress_ch" translatable="false">220</string>
-    <string name="tizen_cancelbolus_ch" translatable="false">225</string>
-    <string name="tizen_opensettings_ch" translatable="false">230</string>
-
-
     <string name="wear_detailedIOB_title">Show detailed IOB</string>
     <string name="wear_detailedIOB_summary">Break down IOB into bolus and basal IOB on the watchface</string>
     <string name="nosuccess">not successful - please check phone</string>

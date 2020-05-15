@@ -48,27 +48,26 @@ import info.nightscout.androidaps.data.IobTotal;
 import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.TemporaryBasal;
+import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.PluginType;
+import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin;
-import info.nightscout.androidaps.plugins.configBuilder.ProfileFunction;
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSDeviceStatus;
 import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.general.wear.WearPlugin;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
-import info.nightscout.androidaps.plugins.treatments.Treatment;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
-import info.nightscout.androidaps.utils.BatteryLevel;
+import info.nightscout.androidaps.receivers.ReceiverStatusStore;
 import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.DefaultValueHelper;
 import info.nightscout.androidaps.utils.SafeParse;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
-
 
 public class TizenUpdaterService extends SAAgent {
     @Inject public HasAndroidInjector injector;
@@ -84,7 +83,8 @@ public class TizenUpdaterService extends SAAgent {
     @Inject public IobCobCalculatorPlugin iobCobCalculatorPlugin;
     @Inject public TreatmentsPlugin treatmentsPlugin;
     @Inject public ActionStringHandler actionStringHandler;
-
+    @Inject ReceiverStatusStore receiverStatusStore;
+    @Inject Config config;
 
     private static final String TAG = "Tizen Service";
     private static final Class<ServiceConnection> SASOCKET_CLASS = ServiceConnection.class;
@@ -106,18 +106,17 @@ public class TizenUpdaterService extends SAAgent {
 
 
     // channel list for Tizen
-    private static final int TIZEN_SENDSTATUS_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_sendstatus_ch));
-    private static final int TIZEN_SENDDATA_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_senddata_ch));
-    private static final int TIZEN_SENDBASALS_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_sendbasals_ch));
-    private static final int TIZEN_PREFERENCES_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_preferences_ch));
-    private static final int TIZEN_RESEND_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_resend_ch));
-    private static final int TIZEN_INITIATE_ACTIONSTRING_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_initiate_actionstring_ch));
-    private static final int TIZEN_CONFIRM_ACTIONSTRING_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_confirm_actionstring_ch));
-    private static final int TIZEN_CANCEL_ACTIONSTRING_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_cancel_actionstring_ch));
-    private static final int TIZEN_CANCELBOLUS_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_cancelbolus_ch));
-    private static final int TIZEN_OPENSETTINGS_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_opensettings_ch));
-    private static final int TIZEN_BOLUSPROGRESS_CH = SafeParse.stringToInt(MainApp.gs(R.string.tizen_bolusprogress_ch));
-
+    private final int TIZEN_SENDSTATUS_CH = 105;
+    private final int TIZEN_SENDDATA_CH = 110;
+    private final int TIZEN_SENDBASALS_CH = 125;
+    private final int TIZEN_PREFERENCES_CH = 115;
+    private final int TIZEN_RESEND_CH = 120;
+    private final int TIZEN_INITIATE_ACTIONSTRING_CH = 200;
+    private final int TIZEN_CONFIRM_ACTIONSTRING_CH = 205;
+    private final int TIZEN_CANCEL_ACTIONSTRING_CH = 210;
+    private final int TIZEN_CANCELBOLUS_CH = 225;
+    private final int TIZEN_OPENSETTINGS_CH = 230;
+    private final int TIZEN_BOLUSPROGRESS_CH = 220;
 
     public static final String TIZEN_ENABLE = "tizenenable";
     public static final String logPrefix = "Tizen::";
@@ -132,6 +131,7 @@ public class TizenUpdaterService extends SAAgent {
     @Override
     public void onCreate() {
         super.onCreate();
+        AndroidInjection.inject(this);
         if (tizenIntegration()) {
             tizenApiConnect();
         }
@@ -246,7 +246,7 @@ public class TizenUpdaterService extends SAAgent {
                 Toast.makeText(getApplicationContext(), "115: " + message, Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getApplicationContext(), "Other: " + message, Toast.LENGTH_LONG).show();
-/* End of bloc for testing communication **********************************************************************************
+// End of bloc for testing communication **********************************************************************************
 
             if (mConnectionHandler.isConnected()) {
                 if (channelId==TIZEN_RESEND_CH) {
@@ -269,7 +269,7 @@ public class TizenUpdaterService extends SAAgent {
                 findPeers();
             }
 
- */
+
 
         }
 
@@ -383,12 +383,10 @@ public class TizenUpdaterService extends SAAgent {
         }
 
  */
-
         return Service.START_STICKY;
     }
 
     private void tizenApiConnect() {
-
         findPeers();
     }
 
@@ -397,12 +395,8 @@ public class TizenUpdaterService extends SAAgent {
         return wearPlugin.isEnabled(PluginType.GENERAL) && sp.getBoolean(TIZEN_ENABLE, true) ;
     }
 
-/*
-    // code below is for data exchange and integration as close as possible than Wearintegration plugin
 
-    private boolean tizenIntegration() {
-        return wearPlugin.isEnabled(PluginType.GENERAL) && sp.getBoolean(TIZEN_ENABLE, true) && mConnectionHandler!= null ;
-    }
+    // code below is for data exchange and integration as close as possible than Wearintegration plugin
 
     private void cancelBolus() {
         activePlugin.getActivePump().stopBolusDelivering();
@@ -680,9 +674,9 @@ public class TizenUpdaterService extends SAAgent {
 
             }
 
-            final LoopPlugin.LastRun finalLastRun = loopPlugin.lastRun;
-            if (sp.getBoolean("wear_predictions", true) && finalLastRun != null && finalLastRun.request.hasPredictions && finalLastRun.constraintsProcessed != null) {
-                List<BgReading> predArray = finalLastRun.constraintsProcessed.getPredictions();
+            final LoopPlugin.LastRun finalLastRun = loopPlugin.getLastRun();
+            if (sp.getBoolean("wear_predictions", true) && finalLastRun != null && finalLastRun.getRequest().hasPredictions && finalLastRun.getConstraintsProcessed() != null) {
+                List<BgReading> predArray = finalLastRun.getConstraintsProcessed().getPredictions();
 
                 if (!predArray.isEmpty()) {
                     for (BgReading bg : predArray) {
@@ -918,14 +912,14 @@ public class TizenUpdaterService extends SAAgent {
             }
 
             //batteries
-            int phoneBattery = BatteryLevel.getBatteryLevel();
+            int phoneBattery = receiverStatusStore.getBatteryLevel();
             String rigBattery = nsDeviceStatus.getUploaderStatus().trim();
 
             long openApsStatus;
             //OpenAPS status
-            if (Config.APS) {
+            if (config.getAPS()) {
                 //we are AndroidAPS
-                openApsStatus = loopPlugin.lastRun != null && loopPlugin.lastRun.lastTBREnact != 0 ? loopPlugin.lastRun.lastTBREnact : -1;
+                openApsStatus = loopPlugin.getLastRun() != null && loopPlugin.getLastRun().getLastTBREnact() != 0 ? loopPlugin.getLastRun().getLastTBREnact() : -1;
             } else {
                 //NSClient or remote
                 openApsStatus = NSDeviceStatus.getOpenApsTimestamp();
@@ -1042,7 +1036,7 @@ public class TizenUpdaterService extends SAAgent {
         }
         return basalStringResult;
     }
-*/
+
     public static boolean shouldReportLoopStatus(boolean enabled) {
         return (lastLoopStatus != enabled);
     }
