@@ -231,6 +231,7 @@ public class OpenAPSSMBPlugin extends PluginBase implements APSInterface, Constr
 
         long now = System.currentTimeMillis();
 
+
         DetermineBasalResultSMB determineBasalResultSMB = determineBasalAdapterSMBJS.invoke();
         if (L.isEnabled(L.APS))
             Profiler.log(log, "SMB calculation", start);

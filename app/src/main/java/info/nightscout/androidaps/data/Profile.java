@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import info.nightscout.androidaps.Config;
@@ -20,6 +24,7 @@ import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.configBuilder.ConfigBuilderPlugin;
 import info.nightscout.androidaps.plugins.configBuilder.ProfileFunctions;
+import info.nightscout.androidaps.plugins.constraints.objectives.objectives.Objective;
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.utils.DateUtil;
@@ -345,6 +350,20 @@ public class Profile {
         else
             log.error("Unknown array type");
         return multiplier;
+    }
+
+    public ProfileValue[] getBasalProfilesForWindow(Integer windowInterval, Integer currentTime) {
+        ProfileValue[] profiles = getBasalValues();
+        Integer endInstant = currentTime + windowInterval;
+        ProfileValue firstProfile = null;
+        List<ProfileValue> result = Collections.emptyList();
+        for(ProfileValue profile:profiles) {
+            if(firstProfile == null) firstProfile = profile;
+            if(endInstant < profile.timeAsSeconds) break;
+            result.add(profile);
+        }
+        if(result.isEmpty()) result.add(firstProfile);
+        return result.toArray(new ProfileValue[result.size()]);
     }
 
     private double getValueToTime(LongSparseArray<Double> array, Integer timeAsSeconds) {

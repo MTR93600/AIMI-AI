@@ -367,6 +367,11 @@ public abstract class PumpPluginAbstract extends PluginBase implements PumpInter
         return pump;
     }
 
+    @Override
+    public PumpType model() {
+        return null;
+    }
+
 
     // FIXME i18n, null checks: iob, TDD
     @Override

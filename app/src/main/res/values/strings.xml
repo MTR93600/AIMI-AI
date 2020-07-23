@@ -64,6 +64,7 @@
     <string name="description_pump_dana_r_v2">Pump integration for DANA Diabecare R pumps with upgraded firmware</string>
     <string name="description_pump_dana_rs">Pump integration for DANA Diabecare RS pumps</string>
     <string name="description_pump_mdi">Pump integration for people who do multiple daily injections for their diabetes therapy</string>
+    <string name="description_pump_medlink">Pump integration for Medtronic 7xx new firmware</string>
     <string name="description_pump_virtual">Pump integration for pumps which don\'t have any driver yet (Open Loop)</string>
     <string name="description_sensitivity_aaps">Sensitivity is calculated the same way like Oref0, but you can specify timeframe to the past. Minimal carb absorption is calculated from max carb absorption time from preferences.</string>
     <string name="description_sensitivity_oref0">Sensitivity is calculated from 24h data in the past and carbs (if not absorbed) are cut after time specified in preferences.</string>
@@ -432,6 +433,7 @@
     <string name="sms_actualbg">BG:</string>
     <string name="sms_lastbg">Last BG:</string>
     <string name="mdi">MDI</string>
+    <string name="medlink">MedtronicMedlink</string>
     <string name="MM640g">MM640g</string>
     <string name="ongoingnotificaction">Ongoing Notification</string>
     <string name="old_data">OLD DATA</string>
