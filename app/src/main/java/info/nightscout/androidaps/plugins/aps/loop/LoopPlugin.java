@@ -55,6 +55,8 @@ import info.nightscout.androidaps.plugins.general.nsclient.NSUpload;
 import info.nightscout.androidaps.activities.ErrorHelperActivity;
 import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished;
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.queue.Callback;
@@ -307,6 +309,13 @@ public class LoopPlugin extends PluginBase {
             APSInterface usedAPS = ConfigBuilderPlugin.getPlugin().getActiveAPS();
             if (usedAPS != null && ((PluginBase) usedAPS).isEnabled(PluginType.APS)) {
                 usedAPS.invoke(initiator, tempBasalFallback);
+                if (pump instanceof MedLinkMedtronicPumpPlugin){
+                    MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin)pump;
+                    if(convPlugin.isFakingTempsByMicroBolus()){
+                        TempBasalMicrobolusOperations operations = convPlugin.getTempbasalMicrobolusOperations();
+                        operations.
+                    }
+                }
                 result = usedAPS.getLastAPSResult();
             }
 
