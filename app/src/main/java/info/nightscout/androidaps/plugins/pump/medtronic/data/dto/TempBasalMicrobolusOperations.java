@@ -16,11 +16,11 @@ public class TempBasalMicrobolusOperations {
 
     public List<TempBasalMicroBolusPair> operations = Collections.emptyList();
     @Expose
-    private Integer remainingOperations=operations.size();
+    private Integer remainingOperations = operations.size();
     @Expose
-    private double totalDosage =0d;
+    private double totalDosage = 0d;
     @Expose
-    private Integer nextOperationInterval=0;
+    private Integer nextOperationInterval = 0;
     @Expose
     private Integer suspendedTime;
 

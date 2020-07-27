@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.medtronic;
 
 
-
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalTime;
 import org.json.JSONException;
@@ -45,7 +44,7 @@ import info.nightscout.androidaps.utils.InstanceId;
 /**
  * Created by dirceu on 10.07.2020.
  */
-public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInterface, MicrobolusPumpInterface {
+public class MedLinkMedtronicPumpPlugin extends PluginBase implements PumpInterface, MicrobolusPumpInterface {
 
 
     private static Logger log = LoggerFactory.getLogger(info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin.class);
@@ -81,7 +80,7 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
 
     @Override
     public boolean isFakingTempsByMicroBolus() {
-        return tempbasalMicrobolusOperations !=null && tempbasalMicrobolusOperations.getRemainingOperations()>0;
+        return tempbasalMicrobolusOperations != null && tempbasalMicrobolusOperations.getRemainingOperations() > 0;
     }
 
 
@@ -175,10 +174,14 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
     }
 
     @Override
-    public double getReservoirLevel() { return -1; }
+    public double getReservoirLevel() {
+        return -1;
+    }
 
     @Override
-    public int getBatteryLevel() { return -1; }
+    public int getBatteryLevel() {
+        return -1;
+    }
 
     @Override
     public PumpEnactResult deliverTreatment(DetailedBolusInfo detailedBolusInfo) {
@@ -216,43 +219,44 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
         List<TempBasalMicroBolusPair> operations = new ArrayList<>();
         LocalDateTime time = LocalDateTime.now();
         LocalDateTime operation = time.plusMinutes(totalSuspendedMinutes.longValue());
-        for (int index = 0; index<suspensions; index++){
-            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes,0d,time,
+        for (int index = 0; index < suspensions; index++) {
+            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d, time,
                     TempBasalMicroBolusPair.OperationType.SUSPEND));
-            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes,0d,
-                    operation,  TempBasalMicroBolusPair.OperationType.REACTIVATE));
+            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d,
+                    operation, TempBasalMicroBolusPair.OperationType.REACTIVATE));
             time = time.plusMinutes(interval);
             operation = operation.plusMinutes(interval);
         }
         return operations;
     }
+
     private PumpEnactResult scheduleSuspension(Integer percent, Long durationInMinutes,
                                                Profile profile, PumpEnactResult result) {
-        Integer totalSuspendedMinutes = (int)Math.round(durationInMinutes*(1-(percent/100d)));
-        if(totalSuspendedMinutes< Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB){
+        Integer totalSuspendedMinutes = (int) Math.round(durationInMinutes * (1 - (percent / 100d)));
+        if (totalSuspendedMinutes < Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB) {
             Integer suspensions = 1;
-            Long interval = durationInMinutes/suspensions;
+            Long interval = durationInMinutes / suspensions;
             List<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes,suspensions,interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensions,0d,
+                    totalSuspendedMinutes, suspensions, interval);
+            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
                     operations, totalSuspendedMinutes);
-        } else if (totalSuspendedMinutes % 5 ==0){
+        } else if (totalSuspendedMinutes % 5 == 0) {
             Integer suspensions = new Double(
                     totalSuspendedMinutes / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB).intValue();
-            Long interval = durationInMinutes/suspensions;
+            Long interval = durationInMinutes / suspensions;
             List<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes,suspensions,interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensions,0d,
+                    totalSuspendedMinutes, suspensions, interval);
+            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
                     operations, totalSuspendedMinutes);
         } else {
             Integer suspensions = new Double(
                     totalSuspendedMinutes / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB).intValue();
-            Long interval = durationInMinutes/suspensions;
+            Long interval = durationInMinutes / suspensions;
             //TODO need to reavaluate some cases, used floor here to avoid two possible up rounds
-            Integer suspensionsQuantity = (int)Math.round(totalSuspendedMinutes/durationInMinutes);
+            Integer suspensionsQuantity = (int) Math.round(totalSuspendedMinutes / durationInMinutes);
             List<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
                     totalSuspendedMinutes, suspensions, interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensionsQuantity,0d,
+            this.tempbasalMicrobolusOperations.updateOperations(suspensionsQuantity, 0d,
                     operations,
                     totalSuspendedMinutes);
 
@@ -280,13 +284,13 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
             insulinPeriod.add(new TempBasalPair(profileDosage, false, deltaPreviousBasal.intValue()));
         }
 
-        return buildTempBasalSMBOperations(totalAmount,insulinPeriod);
+        return buildTempBasalSMBOperations(totalAmount, insulinPeriod);
     }
 
     private TempBasalMicrobolusOperations buildTempBasalSMBOperations(double totalAmount,
                                                                       List<TempBasalPair> insulinPeriod) {
 
-        new TempBasalMicrobolusOperations(0,totalAmount,insulinPeriod);
+        new TempBasalMicrobolusOperations(0, totalAmount, insulinPeriod);
         return null;
     }
 
@@ -294,15 +298,15 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
                                                    Profile profile, PumpEnactResult result) {
         double currentBasal = profile.getBasal();
         LocalTime currentTime = LocalTime.now();
-        Integer currentTas = currentTime.getMillisOfDay()/1000;
+        Integer currentTas = currentTime.getMillisOfDay() / 1000;
         Long endTas = currentTas + (durationInMinutes * 60l);
-        LinkedList<Profile.ProfileValue> basalProfilesFromTemp = extractTempProfiles(profile,endTas,currentTas);
+        LinkedList<Profile.ProfileValue> basalProfilesFromTemp = extractTempProfiles(profile, endTas, currentTas);
 
         List<TempBasalMicroBolusPair> operations = Collections.emptyList();
         List<TempBasalPair> insulinPeriod = Collections.emptyList();
         buildFirstLevelTempBasalMicroBolusOperations(percent, basalProfilesFromTemp, insulinPeriod);
 
-            //            if(profileDosage < pumpDescription.bolusStep){
+        //            if(profileDosage < pumpDescription.bolusStep){
 //                double bolusPercent = profileDosage / pumpDescription.bolusStep;
 //                if(bolusPercent>= 0.75){
 //
@@ -322,24 +326,24 @@ public class MedLinkMedtronicPumpPlugin  extends PluginBase implements PumpInter
         LinkedList<Profile.ProfileValue> tempBasalProfiles = new LinkedList<>();
         Profile.ProfileValue previousProfile = null;
         Profile.ProfileValue[] basalValues = profile.getBasalValues();
-        for (Profile.ProfileValue basalValue: basalValues) {
-            if(endTas < basalValue.timeAsSeconds){
-                if(endTas > previousProfile.timeAsSeconds) {
+        for (Profile.ProfileValue basalValue : basalValues) {
+            if (endTas < basalValue.timeAsSeconds) {
+                if (endTas > previousProfile.timeAsSeconds) {
                     tempBasalProfiles.add(basalValue);
                 }
                 break;
             }
-            if(currentTas<= basalValue.timeAsSeconds){
-                if(tempBasalProfiles.isEmpty()){
+            if (currentTas <= basalValue.timeAsSeconds) {
+                if (tempBasalProfiles.isEmpty()) {
                     tempBasalProfiles.add(basalValue);
-                } else  if(basalValue.value != previousProfile.value) {
+                } else if (basalValue.value != previousProfile.value) {
                     tempBasalProfiles.add(basalValue);
                 }
             }
             previousProfile = basalValue;
         }
-        if(endTas >= Constants.SECONDS_PER_DAY){
-            tempBasalProfiles.addAll(extractTempProfiles(profile,endTas - Constants.SECONDS_PER_DAY,0));
+        if (endTas >= Constants.SECONDS_PER_DAY) {
+            tempBasalProfiles.addAll(extractTempProfiles(profile, endTas - Constants.SECONDS_PER_DAY, 0));
         }
         return tempBasalProfiles;
     }
