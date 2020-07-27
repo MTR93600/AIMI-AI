@@ -32,7 +32,7 @@ import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.MidnightTime;
 
-public class Profile {
+public class  Profile {
     private static Logger log = LoggerFactory.getLogger(Profile.class);
 
     private JSONObject json;
@@ -493,6 +493,10 @@ public class Profile {
         if (basal_v == null)
             basal_v = convertToSparseArray(basal);
         return getValuesList(basal_v, null, new DecimalFormat("0.00"), MainApp.gs(R.string.profile_ins_units_per_hour));
+    }
+
+    public class TempProfileInfo(){
+
     }
 
     public class ProfileValue {

@@ -40,6 +40,7 @@ public class Constants {
     public static final double dailyLimitWarning = 0.95d;
 
     // Temp targets
+    public static final int SECONDS_PER_DAY = 24 * 60 * 60;
     public static final int defaultActivityTTDuration = 90; // min
     public static final double defaultActivityTTmgdl = 140d;
     public static final double defaultActivityTTmmol = 8d;
@@ -86,5 +87,7 @@ public class Constants {
     public static final double STATS_RANGE_LOW_MMOL = 3.9;
     public static final double STATS_RANGE_HIGH_MMOL = 10.0;
 
+    //Temp basal microbolus adaptation
+    public static final int MIN_INTERVAL_BETWEEN_TEMP_SMB = 5;
 
 }

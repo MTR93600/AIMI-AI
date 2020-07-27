@@ -14,14 +14,13 @@ public class TempBasalMicrobolusOperations {
 
     private static final Logger LOG = LoggerFactory.getLogger(L.PUMPCOMM);
 
+    public List<TempBasalMicroBolusPair> operations = Collections.emptyList();
     @Expose
-    private Integer remainingOperations=0;
+    private Integer remainingOperations=operations.size();
     @Expose
-    private double operationDose=0d;
+    private double totalDosage =0d;
     @Expose
     private Integer nextOperationInterval=0;
-    @Expose
-    private List<Integer> intervalBetweenDoses= Collections.emptyList();
     @Expose
     private Integer suspendedTime;
 
@@ -29,38 +28,42 @@ public class TempBasalMicrobolusOperations {
 
     }
 
-    public TempBasalMicrobolusOperations(Integer remainingOperations, double operationDose, List<Integer> intervalBetweenDoses) {
+    public TempBasalMicrobolusOperations(Integer remainingOperations, double totalDosage, List<TempBasalMicroBolusPair> operations) {
         this.remainingOperations = remainingOperations;
-        this.operationDose = operationDose;
-        this.intervalBetweenDoses = intervalBetweenDoses;
+        this.totalDosage = totalDosage;
+        this.operations = operations;
     }
 
     public Integer getRemainingOperations() {
         return remainingOperations;
     }
 
-    public double getOperationDose() {
-        return operationDose;
+    public double getTotalDosage() {
+        return totalDosage;
     }
 
-    public List<Integer> getIntervalBetweenDoses() {
-        return intervalBetweenDoses;
+    public List<TempBasalMicroBolusPair> getOperations() {
+        return operations;
     }
 
     @Override
     public String toString() {
         return "TempBasalMicrobolusOperations{" +
                 "remainingOperations=" + remainingOperations +
-                ", operationDose=" + operationDose +
+                ", operationDose=" + totalDosage +
                 ", nextOperationInterval=" + nextOperationInterval +
-                ", intervalBetweenDoses=" + intervalBetweenDoses +
+                ", operations=" + operations +
                 '}';
     }
 
-    public synchronized void updateOperations(Integer remainingOperations, double operationDose, List<Integer>  intervalBetweenDoses, Integer suspendedTime) {
+    public synchronized void updateOperations(Integer remainingOperations, double operationDose, List<TempBasalMicroBolusPair> operations, Integer suspendedTime) {
         this.remainingOperations = remainingOperations;
         this.suspendedTime = suspendedTime;
-        this.operationDose = operationDose;
-        this.intervalBetweenDoses = intervalBetweenDoses;
+        this.totalDosage = operationDose;
+        this.operations = operations;
+    }
+
+    public synchronized void clearOperations() {
+        this.operations.clear();
     }
 }
