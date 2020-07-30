@@ -388,7 +388,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                     MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin)pump;
                     if(convPlugin.isFakingTempsByMicroBolus()){
                         TempBasalMicrobolusOperations operations = convPlugin.getTempbasalMicrobolusOperations();
-                        operations.
+                        //operations.
                     }
                 }
                 result = usedAPS.getLastAPSResult();

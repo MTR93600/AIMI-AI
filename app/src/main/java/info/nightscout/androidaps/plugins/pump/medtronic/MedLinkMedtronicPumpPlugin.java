@@ -31,6 +31,8 @@ import info.nightscout.androidaps.logging.L;
 import info.nightscout.androidaps.plugins.common.ManufacturerType;
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomAction;
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomActionType;
+import info.nightscout.androidaps.plugins.pump.common.PumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
@@ -39,12 +41,13 @@ import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.receivers.KeepAliveReceiver;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.InstanceId;
+import info.nightscout.androidaps.utils.TimeChangeType;
 
 
 /**
  * Created by dirceu on 10.07.2020.
  */
-public class MedLinkMedtronicPumpPlugin extends PluginBase implements PumpInterface, MicrobolusPumpInterface {
+public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements PumpInterface, MicrobolusPumpInterface {
 
 
     private static Logger log = LoggerFactory.getLogger(info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin.class);
@@ -94,6 +97,22 @@ public class MedLinkMedtronicPumpPlugin extends PluginBase implements PumpInterf
         //no result, could read DB in the future?
         PumpEnactResult result = new PumpEnactResult();
         return result;
+    }
+
+    @Override public void initPumpStatusData() {
+
+    }
+
+    @Override public void onStartCustomActions() {
+
+    }
+
+    @Override public Class getServiceClass() {
+        return null;
+    }
+
+    @Override public PumpStatus getPumpStatusData() {
+        return null;
     }
 
     @Override
@@ -454,9 +473,29 @@ public class MedLinkMedtronicPumpPlugin extends PluginBase implements PumpInterf
 
     }
 
+    @Override public void timezoneOrDSTChanged(TimeChangeType timeChangeType) {
+
+    }
+
+    @Override public boolean isUnreachableAlertTimeoutExceeded(long alertTimeoutMilliseconds) {
+        return false;
+    }
+
+    @Override public boolean setNeutralTempAtFullHour() {
+        return false;
+    }
+
     @Override
     public boolean canHandleDST() {
         return true;
+    }
+
+    @Override protected PumpEnactResult deliverBolus(DetailedBolusInfo detailedBolusInfo) {
+        return null;
+    }
+
+    @Override protected void triggerUIChange() {
+
     }
 
     @Override
