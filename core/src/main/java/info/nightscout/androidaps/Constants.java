@@ -107,4 +107,5 @@ public class Constants {
      * so we add leeway to still accept given amount of older tokens
      */
     public static final int OTP_ACCEPT_OLD_TOKENS_COUNT = 1;
+    public static final Long SECONDS_PER_DAY = 24 * 60 *60l;
 }

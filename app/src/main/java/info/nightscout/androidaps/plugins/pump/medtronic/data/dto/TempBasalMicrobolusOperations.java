@@ -12,7 +12,7 @@ import info.nightscout.androidaps.logging.L;
 
 public class TempBasalMicrobolusOperations {
 
-    private static final Logger LOG = LoggerFactory.getLogger(L.PUMPCOMM);
+//    private static final Logger LOG = LoggerFactory.getLogger(L.PUMPCOMM);
 
     public List<TempBasalMicroBolusPair> operations = Collections.emptyList();
     @Expose

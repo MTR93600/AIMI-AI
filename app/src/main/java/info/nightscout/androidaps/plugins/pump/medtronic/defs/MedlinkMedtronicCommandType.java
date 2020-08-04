@@ -168,7 +168,6 @@ public enum MedlinkMedtronicCommandType implements Serializable {
     static {
         MedtronicCommandType.RFPowerOn.maxAllowedTime = 17000;
         MedtronicCommandType.RFPowerOn.allowedRetries = 0;
-        MedtronicCommandType.RFPowerOn.recordLength = 0;
         MedtronicCommandType.RFPowerOn.minimalBufferSizeToStartReading = 1;
 
         mapByCode = new HashMap<>();
@@ -337,11 +336,11 @@ public enum MedlinkMedtronicCommandType implements Serializable {
     }
 
 
-    public static MedtronicCommandType getByCode(byte code) {
+    public static MedlinkMedtronicCommandType getByCode(byte code) {
         if (mapByCode.containsKey(code)) {
             return mapByCode.get(code);
         } else {
-            return MedtronicCommandType.InvalidCommand;
+            return MedlinkMedtronicCommandType.InvalidCommand;
         }
     }
 

@@ -2,7 +2,7 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 
 import com.google.gson.annotations.Expose;
 
-import java.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 
 public class TempBasalMicroBolusPair {
     @Expose
