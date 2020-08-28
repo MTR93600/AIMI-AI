@@ -39,6 +39,10 @@ android {
     }
 }
 
+ext {
+    powermockVersion = "2.0.2"
+}
+
 dependencies {
     implementation project(':core')
     implementation project(':rileylink')
@@ -78,6 +82,11 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
     testImplementation 'junit:junit:4.13'
+    testImplementation "org.mockito:mockito-core:2.8.47"
+    testImplementation "org.powermock:powermock-api-mockito2:${powermockVersion}"
+    testImplementation "org.powermock:powermock-module-junit4-rule-agent:${powermockVersion}"
+    testImplementation "org.powermock:powermock-module-junit4-rule:${powermockVersion}"
+    testImplementation "org.powermock:powermock-module-junit4:${powermockVersion}"
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
