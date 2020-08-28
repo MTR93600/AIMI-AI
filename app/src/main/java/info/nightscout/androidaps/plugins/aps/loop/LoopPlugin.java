@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -63,6 +65,7 @@ import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
@@ -77,6 +80,8 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+
+import org.joda.time.LocalDateTime;
 
 @Singleton
 public class LoopPlugin extends PluginBase implements LoopInterface {
@@ -384,13 +389,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             APSInterface usedAPS = activePlugin.getActiveAPS();
             if (((PluginBase) usedAPS).isEnabled(PluginType.APS)) {
                 usedAPS.invoke(initiator, tempBasalFallback);
-                if (pump instanceof MedLinkMedtronicPumpPlugin){
-                    MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin)pump;
-                    if(convPlugin.isFakingTempsByMicroBolus()){
-                        TempBasalMicrobolusOperations operations = convPlugin.getTempbasalMicrobolusOperations();
-                        //operations.
-                    }
-                }
+                medlinkTempBasalCommand(pump, allowNotification,  result, profile);
                 result = usedAPS.getLastAPSResult();
             }
 
@@ -591,6 +590,54 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             rxBus.send(new EventLoopUpdateGui());
         } finally {
             getAapsLogger().debug(LTag.APS, "invoke end");
+        }
+    }
+
+    private void medlinkTempBasalCommand(PumpInterface pump, boolean allowNotification, APSResult result, Profile profile) {
+        if (pump instanceof MedLinkMedtronicPumpPlugin){
+
+            MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin)pump;
+            if(convPlugin.isFakingTempsByMicroBolus()){
+                TempBasalMicrobolusOperations tempBasalOperations = convPlugin.getTempbasalMicrobolusOperations();
+                TempBasalMicroBolusPair operation = tempBasalOperations.operations.getFirst();
+                LocalDateTime now = LocalDateTime.now();
+                if(now.plusMillis(1000).isAfter(operation.getOperationTime())){
+                    final APSResult resultAfterConstraints = result.newAndClone(injector);
+                    resultAfterConstraints.rateConstraint = new Constraint<>(resultAfterConstraints.rate);
+                    resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.rateConstraint, profile).value();
+
+//                            resultAfterConstraints.percentConstraint = new Constraint<>(resultAfterConstraints.percent);
+//                            resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.percentConstraint, profile).value();
+
+                    resultAfterConstraints.smbConstraint = new Constraint<>(resultAfterConstraints.smb);
+                    resultAfterConstraints.smb = operation.getBolusDosage();
+
+                    // safety check for multiple SMBs
+                    long lastBolusTime = treatmentsPlugin.getLastBolusTime();
+                    if (lastBolusTime != 0 && lastBolusTime + T.mins(3).msecs() > System.currentTimeMillis()) {
+                        getAapsLogger().debug(LTag.APS, "SMB requsted but still in 3 min interval");
+                        resultAfterConstraints.smb = 0;
+                    }
+                    applySMBRequest(resultAfterConstraints, new Callback() {
+                        @Override
+                        public void run() {
+                            //Callback is only called if a bolus was acutally requested
+                            if (result.enacted || result.success) {
+                                lastRun.setTbrSetByPump(result);
+                                lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                                lastRun.setLastTBREnact(DateUtil.now());
+                            } else {
+                                new Thread(() -> {
+                                    SystemClock.sleep(1000);
+                                    invoke("tempBasalFallback", allowNotification, true);
+                                }).start();
+                            }
+                            rxBus.send(new EventLoopUpdateGui());
+                        }
+                    });
+                }
+                //operations.
+            }
         }
     }
 

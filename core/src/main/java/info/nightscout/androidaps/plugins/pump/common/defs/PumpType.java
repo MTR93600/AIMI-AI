@@ -137,7 +137,7 @@ public enum PumpType {
             PumpCapability.BasalRate_Duration30minAllowed, //
             0.025d, 0.025d, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedtronicCapabilities),
 
-    Medlink_Medtronic_554_754_Veo("Medtronic 554/754 (Veo)", "554/754 (Veo)", Medtronic_523_723_Revel), // TODO
+    Medlink_Medtronic_554_754_Veo("Medtronic 554/754 (Veo)", "554/754 (Veo)", Medlink_Medtronic_523_723_Revel), // TODO
 
     Medtronic_640G("Medtronic 640G", ManufacturerType.Medtronic, "640G", 0.025d, null, //
             new DoseSettings(0.05d, 30, 8 * 60, 0.05d), //
