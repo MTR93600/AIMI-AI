@@ -68,4 +68,9 @@ public class TempBasalMicroBolusPair {
         return Objects.hash(interval, operationDuration, bolusDosage, operationTime, operationType);
     }
 
+    public TempBasalMicroBolusPair decreaseDosage(double toDecrease) {
+        return new TempBasalMicroBolusPair(operationDuration,bolusDosage - toDecrease,
+                operationTime, operationType);
+    }
+
 }

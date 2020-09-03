@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.json.JSONObject;
@@ -22,7 +23,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import dagger.android.AndroidInjector;
 import dagger.android.HasAndroidInjector;
@@ -32,6 +35,7 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.CommandQueueProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
@@ -110,6 +114,7 @@ public class MedlinkMedtronicPumpPluginTest {
             @Override protected PumpEnactResult buildPumpEnactResult() {
                 return result;
             }
+
         };
         PowerMockito.when(result.toString()).thenReturn("Mocked enactresult");
         Assert.assertNotNull("Plugin is null", plugin);
@@ -142,7 +147,7 @@ public class MedlinkMedtronicPumpPluginTest {
         plugin.setTempBasalPercent(150, 50, profile, true);
         TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
-        Assert.assertEquals("Need to have 2 operations", operations.operations.size(), 2);
+        Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
 
         double totaldose = 0d;
         for (TempBasalMicroBolusPair pair : operations.operations) {
@@ -198,9 +203,9 @@ public class MedlinkMedtronicPumpPluginTest {
     public void testSameDoseOperations() throws Exception {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
-        List<Integer> operationsList = plugin.buildOperations(10, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 1);
+        List<Double> operationsList = plugin.buildOperations(10, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.1d);
         Assert.assertArrayEquals("Same doses and operations", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -209,9 +214,9 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(20, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 2);
+        List<Double> operationsList = plugin.buildOperations(20, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.2d);
         Assert.assertArrayEquals("Twice doses for each operation", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -220,13 +225,13 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(4, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 0);
-        doseEqualsOperations[0] = 1;
-        doseEqualsOperations[3] = 1;
-        doseEqualsOperations[6] = 1;
-        doseEqualsOperations[9] = 1;
+        List<Double> operationsList = plugin.buildOperations(4, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0d);
+        doseEqualsOperations[0] = 0.1d;
+        doseEqualsOperations[3] = 0.1d;
+        doseEqualsOperations[6] = 0.1d;
+        doseEqualsOperations[9] = 0.1d;
         Assert.assertArrayEquals("Twice doses for each operation", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -235,10 +240,10 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(9, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 1);
-        doseEqualsOperations[5] = 0;
+        List<Double> operationsList = plugin.buildOperations(9, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.1d);
+        doseEqualsOperations[5] = 0d;
         Assert.assertArrayEquals("90% microdoses", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -247,11 +252,11 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(8, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 1);
-        doseEqualsOperations[2] = 0;
-        doseEqualsOperations[7] = 0;
+        List<Double> operationsList = plugin.buildOperations(8, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.1d);
+        doseEqualsOperations[2] = 0d;
+        doseEqualsOperations[7] = 0d;
         Assert.assertArrayEquals("80% of spaces with bolus", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -260,12 +265,12 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(7, 10, Collections.emptyList());
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 1);
-        doseEqualsOperations[3] = 0;
-        doseEqualsOperations[6] = 0;
-        doseEqualsOperations[9] = 0;
+        List<Double> operationsList = plugin.buildOperations(7, 10, Collections.emptyList());
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.1d);
+        doseEqualsOperations[3] = 0d;
+        doseEqualsOperations[6] = 0d;
+        doseEqualsOperations[9] = 0d;
         Assert.assertArrayEquals("70% of spaces with bolus", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -274,14 +279,36 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
 
-        List<Integer> operationsList = plugin.buildOperations(6, 10, Collections.emptyList());
+        List<Double> operationsList = plugin.buildOperations(6, 10, Collections.emptyList());
 
-        Integer[] doseEqualsOperations = new Integer[10];
-        Arrays.fill(doseEqualsOperations, 1);
-        doseEqualsOperations[1] = 0;
-        doseEqualsOperations[3] = 0;
-        doseEqualsOperations[7] = 0;
-        doseEqualsOperations[9] = 0;
+        Double[] doseEqualsOperations = new Double[10];
+        Arrays.fill(doseEqualsOperations, 0.1d);
+        doseEqualsOperations[1] = 0d;
+        doseEqualsOperations[3] = 0d;
+        doseEqualsOperations[6] = 0d;
+        doseEqualsOperations[8] = 0d;
+        Assert.assertArrayEquals("60% of spaces with bolus", doseEqualsOperations, operationsList.toArray());
+    }
+
+    @Test
+    public void test4728PctDoseOperations() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+
+        List<Double> operationsList = plugin.buildOperations(47, 28, Collections.emptyList());
+
+        Assert.assertEquals("Size should be 28", 28, operationsList.size());
+        Double[] doseEqualsOperations = new Double[28];
+        Arrays.fill(doseEqualsOperations, 0.2d);
+        doseEqualsOperations[1] = 0.1d;
+        doseEqualsOperations[4] = 0.1d;
+        doseEqualsOperations[7] = 0.1d;
+        doseEqualsOperations[10] = 0.1d;
+        doseEqualsOperations[13] = 0.1d;
+        doseEqualsOperations[16] = 0.1d;
+        doseEqualsOperations[19] = 0.1d;
+        doseEqualsOperations[22] = 0.1d;
+        doseEqualsOperations[25] = 0.1d;
         Assert.assertArrayEquals("60% of spaces with bolus", doseEqualsOperations, operationsList.toArray());
     }
 
@@ -324,6 +351,68 @@ public class MedlinkMedtronicPumpPluginTest {
         op[7] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(40), TempBasalMicroBolusPair.OperationType.BOLUS);
         op[8] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
         Assert.assertArrayEquals("Operations should be 15mins of distance", op, operations.operations.toArray());
+
+    }
+
+    @Test
+    public void testTempBasalIncrease400PctTwoPeriods() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(13300, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+
+        plugin.setTempBasalPercent(300, 150, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 30 operations", 30, operations.operations.size());
+        Double totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getBolusDosage).collect(Collectors.summingDouble(Double::doubleValue));
+        Assert.assertEquals("Total dosage should be 4.8ui", 4.8, totalDose, 0.1);
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getOperationTime).max(Comparator.comparing(
+                LocalDateTime::toLocalTime)).get();
+        Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(145));
+
+    }
+
+    @Test
+    public void testTempBasalIncrease400PctTreePeriods() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(300, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 30 operations", duration / 5, operations.operations.size());
+        Double totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getBolusDosage).collect(Collectors.summingDouble(Double::doubleValue));
+        Assert.assertEquals("Total dosage should be 9.8ui", 9.8, totalDose, 0.05);
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getOperationTime).max(Comparator.comparing(
+                LocalDateTime::toLocalTime)).get();
+        Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(205));
 
     }
 }

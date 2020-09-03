@@ -17,11 +17,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -56,6 +58,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
@@ -571,32 +574,62 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     private TempBasalMicrobolusOperations buildFirstLevelTempBasalMicroBolusOperations(
             Integer percent, LinkedList<Profile.ProfileValue> basalProfilesFromTemp, Integer durationInMinutes) {
-        List<TempBasalPair> insulinPeriod = new ArrayList<>();
-        Profile.ProfileValue previous = null;
+        List<TempBasalMicroBolusDTO> insulinPeriod = new ArrayList<>();
+        Profile.ProfileValue previousProfileValue = null;
+        int spentBasalTimeInSeconds = 0;
         Double totalAmount = 0d;
+        int durationInSeconds = durationInMinutes * 60;
         LocalDateTime time = getCurrentTime();
         int startedTime = time.getHourOfDay() * 3600 + time.getMinuteOfHour() * 60 + time.getSecondOfMinute();
         while (!basalProfilesFromTemp.isEmpty()) {
             Profile.ProfileValue currentProfileValue = basalProfilesFromTemp.pollFirst();
-            if (previous == null) {
-                previous = currentProfileValue;
-                int delta = 0;
-                if (basalProfilesFromTemp.isEmpty()) {
-                    delta = durationInMinutes;
-                    totalAmount = calcTotalAmount(percent, currentProfileValue.value, delta);
-                    TempBasalPair tempBasalPair = createTempBasalPair(totalAmount, delta);
-                    insulinPeriod.add(tempBasalPair);
-                    previous.timeAsSeconds = startedTime;
-                    continue;
-                }
+            if (previousProfileValue == null) {
+//                currentProfileValue.timeAsSeconds = startedTime;
+                previousProfileValue = currentProfileValue;
+
+//                int delta = 0;
+//                if (basalProfilesFromTemp.isEmpty()) {
+//                    delta = durationInSeconds;
+//                } else if (basalProfilesFromTemp.peekFirst().timeAsSeconds > startedTime + durationInSeconds) {
+//                    delta = currentProfileValue.timeAsSeconds - startedTime;
+//                } else {
+//                    delta = basalProfilesFromTemp.peekFirst().timeAsSeconds - (startedTime + durationInSeconds);
+//                }
+//                spentBasalTimeInSeconds += delta;
+//                totalAmount = calcTotalAmount(percent, currentProfileValue.value, delta / 60);
+//                TempBasalMicroBolusDTO tempBasalPair = createTempBasalPair(totalAmount, delta, currentProfileValue.timeAsSeconds);
+//                insulinPeriod.add(tempBasalPair);
+//
+//                continue;
             }
-            final Double deltaPreviousBasal = (currentProfileValue.timeAsSeconds
-                    - previous.timeAsSeconds) / 3600d;
-//            final Double deltaPreviousBasal = deltaPreviousBasalMinutes / (60d);
-            final double profileDosage = deltaPreviousBasal * previous.value * ((percent / 100) - 1);
-            totalAmount += profileDosage;
-            insulinPeriod.add(new TempBasalPair(profileDosage, false, deltaPreviousBasal.intValue()));
+
+//            int delta = 0;
+//            if (!basalProfilesFromTemp.isEmpty()) {
+//                Profile.ProfileValue nextProfile = basalProfilesFromTemp.peekFirst();
+//                if (startedTime + durationInSeconds > nextProfile.timeAsSeconds) {
+//                    delta = (nextProfile.timeAsSeconds - currentProfileValue.timeAsSeconds);
+//                } else {
+//                    delta = (startedTime + durationInSeconds - currentProfileValue.timeAsSeconds) ;
+//                }
+//            } else if(currentProfileValue.timeAsSeconds > (startedTime + durationInSeconds)){
+//                delta = (durationInSeconds - spentBasalTimeInSeconds);
+//            } else {
+//                delta = (currentProfileValue.timeAsSeconds - (startedTime + durationInSeconds));
+//            }
+//
+////            final Double deltaPreviousBasal = deltaPreviousBasalMinutes / (60d);
+//            final double profileDosage = calcTotalAmount(percent, currentProfileValue.value, delta / 60);
+//            totalAmount += profileDosage;
+//            insulinPeriod.add(new TempBasalMicroBolusDTO(profileDosage, false, delta));
+
+            TempBasalMicroBolusDTO tempBasalPair = calculateTempBasalDosage(durationInSeconds, startedTime + spentBasalTimeInSeconds,
+                    currentProfileValue, previousProfileValue, basalProfilesFromTemp, percent,
+                    durationInSeconds - spentBasalTimeInSeconds );
+            totalAmount += tempBasalPair.getInsulinRate();
+            spentBasalTimeInSeconds += tempBasalPair.getDurationMinutes() * 60;
+            insulinPeriod.add(tempBasalPair);
         }
+
 
         double roundedTotalAmount = new BigDecimal(totalAmount.toString()).setScale(1,
                 RoundingMode.HALF_UP).doubleValue();
@@ -614,8 +647,27 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     }
 
-    private TempBasalPair createTempBasalPair(Double totalAmount, Integer durationInMinutes) {
-        return new TempBasalPair(totalAmount, false, durationInMinutes);
+    private TempBasalMicroBolusDTO calculateTempBasalDosage(int durationInSeconds, int startedTime,
+                                                            Profile.ProfileValue currentProfileValue,
+                                                            Profile.ProfileValue previousProfileValue,
+                                                            LinkedList<Profile.ProfileValue> basalProfilesFromTemp,
+                                                            int percent, int remainingDurationInSeconds) {
+        int delta = 0;
+        if (basalProfilesFromTemp.isEmpty()) {
+            delta = remainingDurationInSeconds;
+        } else if (basalProfilesFromTemp.peekFirst().timeAsSeconds > startedTime + durationInSeconds) {
+            delta = currentProfileValue.timeAsSeconds - startedTime;
+        } else {
+            delta = basalProfilesFromTemp.peekFirst().timeAsSeconds - startedTime;
+        }
+        double profileDosage = calcTotalAmount(percent, currentProfileValue.value, delta / 60);
+        return createTempBasalPair(profileDosage, delta, currentProfileValue.timeAsSeconds);
+
+    }
+
+    private TempBasalMicroBolusDTO createTempBasalPair(Double totalAmount, Integer durationInSeconds, Integer startTime) {
+        return new TempBasalMicroBolusDTO(totalAmount, false, durationInSeconds / 60,
+                startTime, startTime + durationInSeconds);
     }
 
     private Double calcTotalAmount(Integer percent, double value, int durationInMinutes) {
@@ -627,73 +679,84 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     private TempBasalMicrobolusOperations buildTempBasalSMBOperations(double totalAmount,
-                                                                      List<TempBasalPair> insulinPeriod) {
+                                                                      List<TempBasalMicroBolusDTO> insulinPeriod) {
         TempBasalMicrobolusOperations result = new TempBasalMicrobolusOperations();
         LocalDateTime operationTime = getCurrentTime();
         double accumulatedNextPeriodDose = 0d;
-        for (TempBasalPair period : insulinPeriod) {
-            double periodDose = period.getInsulinRate() + accumulatedNextPeriodDose;
-            int time = period.getDurationMinutes();
+        double minDosage = 0d;
+        double roundedTotalAmount = new BigDecimal(totalAmount).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
+        for (TempBasalMicroBolusDTO period : insulinPeriod) {
+            double periodDose = period.getInsulinRate();// + accumulatedNextPeriodDose;
+            double roundedPeriodDose = new BigDecimal(periodDose).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
+            int time = (period.getEndTimeInSeconds() - period.getSartTimeInSeconds()) / 60;
             int periodAvailableOperations = time / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB;
             double minBolusDose = getPumpType().getBolusSize();
             if (periodDose >= minBolusDose) {
                 int doses = new BigDecimal(
                         new Double(periodDose / minBolusDose).toString()
                 ).setScale(0, RoundingMode.HALF_DOWN).intValue();
-                double doseAmount = new BigDecimal(totalAmount / doses).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
-                if (doses > periodAvailableOperations) {
-
-                } else {
-                    double doseInterval = periodAvailableOperations / (double) doses;
-                    //fazer a parte onde doses são menores que o intervalo
-                    //fazer a parte da
-                    double mod = periodAvailableOperations % doses;
-                    List<Integer> list = buildOperations(doses, periodAvailableOperations, Collections.emptyList());
-                    for (int dose : list) {
-                        if (dose == 1) {
-                            TempBasalMicroBolusPair pair = new TempBasalMicroBolusPair(0, doseAmount, operationTime, TempBasalMicroBolusPair.OperationType.BOLUS);
-                            result.operations.add(pair);
-                        }
-                        operationTime = operationTime.plusMinutes(Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB);
+                minDosage = new BigDecimal(periodDose / doses).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
+                List<Double> list = buildOperations(doses, periodAvailableOperations, Collections.emptyList());
+                //TODO convert build operations to return list of tempmicroboluspair
+                for (double dose : list) {
+                    if (dose > 0) {
+                        TempBasalMicroBolusPair pair = new TempBasalMicroBolusPair(0, dose, operationTime, TempBasalMicroBolusPair.OperationType.BOLUS);
+                        result.operations.add(pair);
                     }
-//                    for (int count = 0; count < doses; count++) {
-//                        TempBasalMicroBolusPair pair = null;
-//                        if (count == Math.floorDiv(doses, 2)) {
-//                            pair = new TempBasalMicroBolusPair(0, doseAmount + mod, operationTime, TempBasalMicroBolusPair.OperationType.BOLUS);
-//                        } else {
-//                            pair = new TempBasalMicroBolusPair(0, doseAmount, operationTime, TempBasalMicroBolusPair.OperationType.BOLUS);
-//                        }
-//
-//                    }
+                    operationTime = operationTime.plusMinutes(Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB);
                 }
             } else {
                 accumulatedNextPeriodDose += periodDose;
             }
         }
+        Double totalDose = result.operations.stream().map(TempBasalMicroBolusPair::getBolusDosage).collect(Collectors.summingDouble(Double::doubleValue));
+        if (totalDose > roundedTotalAmount && totalDose - roundedTotalAmount >= minDosage) {
+            long dosesToDecrease = Math.round((totalDose - roundedTotalAmount) / minDosage);
+            double maxDosage = result.operations.stream().map(
+                    TempBasalMicroBolusPair::getBolusDosage).max(Comparator.comparing(
+                    Double::valueOf)).get();
+            final double finalMinDosage = minDosage;
+            LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<>();
+
+            while (!result.operations.isEmpty()) {
+                TempBasalMicroBolusPair tmp = result.operations.pollFirst();
+                if (tmp.getBolusDosage() == maxDosage && dosesToDecrease > 0) {
+                    dosesToDecrease -= 1;
+                    operations.add(tmp.decreaseDosage(finalMinDosage));
+                } else {
+                    operations.add(tmp);
+                }
+            }
+
+
+            result.operations = operations;
+        }
         return result;
     }
 
-    private List<Integer> buildOperationsList(int doses, int operations, int dose) {
-        Integer[] result = new Integer[operations];
+    private List<Double> buildOperationsList(double doses, int operations, double dose) {
+        // tentar desenvolver este algoritmo com a quantidade de doses e operacoes, e espalhar as doses a cada x operacoes (provavel floor de op/doses)
+        Double[] result = new Double[operations];
         Arrays.fill(result, dose);
         return buildOperations(doses - operations, operations, Arrays.asList(result));
     }
 
-    protected List<Integer> buildOperations(int doses, int operations, List<Integer> list) {
+    protected List<Double> buildOperations(double doses, int operations, List<Double> list) {
         if (list.isEmpty()) {
-            Integer[] values = new Integer[operations];
-            Arrays.fill(values, 0);
+            Double[] values = new Double[operations];
+            Arrays.fill(values, 0d);
             list = Arrays.asList(values);
         }
         if (doses == 0) {
             return list;
         } else if (doses >= operations) {
-            List<Integer> returnValue;
-            if (list.isEmpty()) {
-                return buildOperationsList(doses, operations, 1);
+            if (operations == 0) {
+                List<Double> returnValue = new ArrayList<>();
+                returnValue.add(doses);
+                return returnValue;
             } else {
-                Integer val = list.get(0);
-                return buildOperationsList(doses, operations, val + 1);
+                Double val = list.get(0);
+                return buildOperationsList(doses, operations, val + getPumpType().getBolusSize());
             }
 //            return buildOperations(doses - operations, operations, returnValue);
         } else
@@ -702,38 +765,41 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                 double step = (double) operations / doses;
                 if (doses == 1) {
                     int position = Math.floorDiv(operations, 2);
-                    list.set(position, list.get(position) + 1);
+                    list.set(position, list.get(position) + getPumpType().getBolusSize());
                     return list;
                 }
                 if (step < 2.5) {
-                    int diff = operations - doses;
+                    double diff = operations - doses;
                     if (diff == 3) {
                         int newStep = Double.valueOf(Math.floor(operations * 0.33)).intValue();
 
                         int secondPosition = 2 * newStep;
                         int thirdPosition = 3 * newStep;
-                        return fillNot(list, newStep, secondPosition, thirdPosition);
+                        return fillTempSMBWithExclusions(list, newStep, secondPosition, thirdPosition);
                     } else if (diff == 2) {
                         int newStep = Double.valueOf(Math.floor(operations * 0.25)).intValue();
-                        int half = operations / diff;
+                        int half = (int)Math.round(operations / diff);
                         int secondPosition = half + newStep;
-                        return fillNot(list, newStep, secondPosition);
-                    } else if(diff == 1){
-                        return fillNot(list, Math.floorDiv(operations,2));
+                        return fillTempSMBWithExclusions(list, newStep, secondPosition);
+                    } else if (diff == 1) {
+                        return fillTempSMBWithExclusions(list, Math.floorDiv(operations, 2));
+                    } else {
+
+                        return fillNot2(list, step, doses);
                     }
 
                 }
                 double nextStep = step;
                 double value = 0d;
 
-                list.set(0, list.get(0) + 1);
+                list.set(0, list.get(0) + getPumpType().getBolusSize());
                 doses--;
 //                operations--;
                 for (int index = 1; index < operations; index++) {
                     if (doses > 0 && nextStep < index) {
                         doses--;
 //                        Stream
-                        list.set(index, list.get(index) + 1);
+                        list.set(index, list.get(index) + getPumpType().getBolusSize());
                         nextStep = index + step;
                         value = 0;
                     }
@@ -748,33 +814,59 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                     return buildOperations(doses, operations, list);
                 }
             } else {
-                int step = operations / doses;
-                int dif = operations - doses;
+                int step = (int)Math.round(operations / doses);
+//                int dif = (int)Math.round(operations - doses);
                 int walkedStep = 0;
-                List<Integer> result = new ArrayList<>();
-                result.add(1);
+                List<Double> result = new ArrayList<>();
+                result.add(getPumpType().getBolusSize());
                 doses--;
                 operations--;
                 for (int index = 0; index < operations; index++) {
                     if (doses > 0 && walkedStep == step) {
                         doses--;
-                        result.add(1);
+                        result.add(getPumpType().getBolusSize());
                         walkedStep = 0;
                     } else {
                         walkedStep++;
-                        result.add(0);
+                        result.add(0d);
                     }
                 }
                 return result;
             }
     }
 
-    private List<Integer> fillNot(List<Integer> list, Integer... exclusions) {
-        List<Integer> result = new ArrayList<>();
+
+    private List<Double> fillNot2(List<Double> list, double step, double doses) {
+        List<Double> result = new ArrayList<>();
         int index = 0;
-        for (Integer value : list) {
+        int stepIndex = 0;
+        for (Double value : list) {
+            double currentStep = step * stepIndex;
+            if (doses == 0d) {
+                result.add(value);
+            } else if (index == 0) {
+                stepIndex++;
+                result.add(value + getPumpType().getBolusSize());
+                doses--;
+            } else if (currentStep <= index) {
+                stepIndex++;
+                result.add(value + getPumpType().getBolusSize());
+                doses--;
+            } else {
+                result.add(value);
+            }
+
+            index++;
+        }
+        return result;
+    }
+
+    private List<Double> fillTempSMBWithExclusions(List<Double> list, Integer... exclusions) {
+        List<Double> result = new ArrayList<>();
+        int index = 0;
+        for (Double value : list) {
             if (!Arrays.asList(exclusions).contains(index)) {
-                result.add(value + 1);
+                result.add(value + getPumpType().getBolusSize());
             } else {
                 result.add(value);
             }
@@ -789,29 +881,12 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     private PumpEnactResult scheduleTempBasalBolus(Integer percent, Integer durationInMinutes,
                                                    Profile profile, PumpEnactResult result) {
-        double currentBasal = profile.getBasal();
         LocalDateTime currentTime = getCurrentTime();
         Integer currentTas = currentTime.getMillisOfDay() / 1000;
         Long endTas = currentTas + (durationInMinutes * 60l);
         LinkedList<Profile.ProfileValue> basalProfilesFromTemp = extractTempProfiles(profile, endTas, currentTas);
 
-        List<TempBasalMicroBolusPair> operations = Collections.emptyList();
-
         tempbasalMicrobolusOperations = buildFirstLevelTempBasalMicroBolusOperations(percent, basalProfilesFromTemp, durationInMinutes);
-
-        //            if(profileDosage < pumpDescription.bolusStep){
-//                double bolusPercent = profileDosage / pumpDescription.bolusStep;
-//                if(bolusPercent>= 0.75){
-//
-//                }
-//            }
-//            final double microBolusSteps = profileDosage / pumpDescription.bolusStep;
-//            final double bolusSteps = deltaPreviousBasalMinutes /
-//                    Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB;
-//            for (int index = 1; index < microBolusOperations; index ++){
-//                operations.add(new TempBasalMicroBolusPair(0,,))
-//            }
-
         return result;
     }
 
@@ -821,14 +896,17 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         Profile.ProfileValue[] basalValues = profile.getBasalValues();
         for (Profile.ProfileValue basalValue : basalValues) {
             if (endTas < basalValue.timeAsSeconds) {
-                if (previousProfile == null || endTas > previousProfile.timeAsSeconds) {
+                if (previousProfile == null || endTas > basalValue.timeAsSeconds) {
                     tempBasalProfiles.add(basalValue);
                 }
                 break;
             }
             if (currentTas <= basalValue.timeAsSeconds) {
                 if (tempBasalProfiles.isEmpty()) {
-                    tempBasalProfiles.add(basalValue);
+                    if (currentTas < basalValue.timeAsSeconds) {
+                        tempBasalProfiles.add(previousProfile);
+                    }
+                    tempBasalProfiles.add(basalValue);//estudar remover isso pra fora do if e tirar o else
                 } else if (basalValue.value != previousProfile.value) {
                     tempBasalProfiles.add(basalValue);
                 }
@@ -897,6 +975,10 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     @Override
     public PumpType model() {
         return PumpType.Medlink_Medtronic_554_754_Veo;
+    }
+
+    @Override public PumpType getPumpType() {
+        return super.getPumpType();
     }
 
     @Override
