@@ -601,7 +601,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                 TempBasalMicrobolusOperations tempBasalOperations = convPlugin.getTempbasalMicrobolusOperations();
                 TempBasalMicroBolusPair operation = tempBasalOperations.operations.getFirst();
                 LocalDateTime now = LocalDateTime.now();
-                if(now.plusMillis(1000).isAfter(operation.getOperationTime())){
+                if(now.plusMillis(1000).isAfter(operation.getTimeToRelease())){
                     final APSResult resultAfterConstraints = result.newAndClone(injector);
                     resultAfterConstraints.rateConstraint = new Constraint<>(resultAfterConstraints.rate);
                     resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.rateConstraint, profile).value();
@@ -610,7 +610,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
 //                            resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.percentConstraint, profile).value();
 
                     resultAfterConstraints.smbConstraint = new Constraint<>(resultAfterConstraints.smb);
-                    resultAfterConstraints.smb = operation.getBolusDosage();
+                    resultAfterConstraints.smb = operation.getDose().doubleValue();
 
                     // safety check for multiple SMBs
                     long lastBolusTime = treatmentsPlugin.getLastBolusTime();

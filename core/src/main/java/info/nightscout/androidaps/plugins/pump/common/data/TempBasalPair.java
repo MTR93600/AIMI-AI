@@ -44,11 +44,9 @@ public class TempBasalPair {
         this.durationMinutes = durationMinutes;
     }
 
-
     public boolean isPercent() {
         return isPercent;
     }
-
 
     public void setIsPercent(boolean yesIsPercent) {
         this.isPercent = yesIsPercent;
@@ -58,11 +56,9 @@ public class TempBasalPair {
         this.start = startTime;
     }
 
-
     public void setEndTime(Long endTime) {
         this.end = endTime;
     }
-
 
     @Override
     public String toString() {
