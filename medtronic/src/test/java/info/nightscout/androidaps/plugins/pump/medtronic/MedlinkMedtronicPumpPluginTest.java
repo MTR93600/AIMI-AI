@@ -5,7 +5,6 @@ import android.content.Context;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.json.JSONObject;
@@ -21,6 +20,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +35,6 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.CommandQueueProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
@@ -151,12 +150,12 @@ public class MedlinkMedtronicPumpPluginTest {
 
         double totaldose = 0d;
         for (TempBasalMicroBolusPair pair : operations.operations) {
-            totaldose += pair.getBolusDosage();
+            totaldose += pair.getDose().doubleValue();
         }
         Assert.assertEquals("Total dosage should be 0.2ui", totaldose, 0.2, 0d);
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[2];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
         Assert.assertArrayEquals("Operations should be 15mins of distance", operations.operations.toArray(), op);
 
     }
@@ -186,15 +185,15 @@ public class MedlinkMedtronicPumpPluginTest {
 
         double totaldose = 0d;
         for (TempBasalMicroBolusPair pair : operations.operations) {
-            totaldose += pair.getBolusDosage();
+            totaldose += pair.getDose().doubleValue();
         }
         Assert.assertEquals("Total dosage should be 0.4ui", 0.4d, totaldose, 0d);
         Assert.assertEquals("Total size should be 4", 4, operations.operations.size());
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[4];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[2] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[3] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
         Assert.assertArrayEquals("Operations should be 15mins of distance", op, operations.operations.toArray());
 
     }
@@ -336,20 +335,20 @@ public class MedlinkMedtronicPumpPluginTest {
 
         double totaldose = 0d;
         for (TempBasalMicroBolusPair pair : operations.operations) {
-            totaldose += pair.getBolusDosage();
+            totaldose += pair.getDose().doubleValue();
         }
         Assert.assertEquals("Total dosage should be 0.9ui", 0.9d, totaldose, 0.02d);
 
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[9];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(5), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[2] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(10), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[3] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[4] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(20), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[5] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[6] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(35), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[7] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(40), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[8] = new TempBasalMicroBolusPair(0, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(5), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(10), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[4] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(20), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[5] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[6] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(35), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[7] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(40), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[8] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
         Assert.assertArrayEquals("Operations should be 15mins of distance", op, operations.operations.toArray());
 
     }
@@ -375,18 +374,18 @@ public class MedlinkMedtronicPumpPluginTest {
         TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", 30, operations.operations.size());
-        Double totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getBolusDosage).collect(Collectors.summingDouble(Double::doubleValue));
-        Assert.assertEquals("Total dosage should be 4.8ui", 4.8, totalDose, 0.1);
+        BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Assert.assertEquals("Total dosage should be 4.8ui", 4.8d, totalDose.doubleValue(), 0.05);
 
         LocalDateTime maxOperationTime = operations.operations.stream().map(
-                TempBasalMicroBolusPair::getOperationTime).max(Comparator.comparing(
+                TempBasalMicroBolusPair::getTimeToRelease).max(Comparator.comparing(
                 LocalDateTime::toLocalTime)).get();
         Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(145));
 
     }
 
     @Test
-    public void testTempBasalIncrease400PctTreePeriods() throws Exception {
+    public void testTempBasalIncrease400PctFourPeriods() throws Exception {
         LocalDateTime time = buildTime();
         MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
         JSONObject json = new JSONObject(validProfile);
@@ -406,13 +405,160 @@ public class MedlinkMedtronicPumpPluginTest {
         TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", duration / 5, operations.operations.size());
-        Double totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getBolusDosage).collect(Collectors.summingDouble(Double::doubleValue));
-        Assert.assertEquals("Total dosage should be 9.8ui", 9.8, totalDose, 0.05);
+        BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Assert.assertEquals("Total dosage should be 9.8ui", 9.8, totalDose.doubleValue(), 0.05);
 
         LocalDateTime maxOperationTime = operations.operations.stream().map(
-                TempBasalMicroBolusPair::getOperationTime).max(Comparator.comparing(
+                TempBasalMicroBolusPair::getTimeToRelease).max(Comparator.comparing(
                 LocalDateTime::toLocalTime)).get();
         Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(205));
+
+    }
+
+
+    @Test
+    public void testTempBasalIncrease10PctFourPeriods() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(110, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 5 operations", 5, operations.operations.size());
+        BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Assert.assertEquals("Total dosage should be 0.5ui", 0.5, totalDose.doubleValue(), 0.05);
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getTimeToRelease).max(Comparator.comparing(
+                LocalDateTime::toLocalTime)).get();
+        Assert.assertEquals("Max operationtime should be 4:05", time.plusMinutes(180), maxOperationTime);
+
+    }
+
+    @Test
+    public void testTempBasalIncrease10PctTreePeriodsOverMidnight() throws Exception {
+        LocalDateTime time = buildTime().plusHours(22);
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(110, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
+        BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Assert.assertEquals("Total dosage should be 0.4ui", 0.4d, totalDose.doubleValue(), 0.05);
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getTimeToRelease).max(
+                LocalDateTime::compareTo).get();
+        Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(190));
+
+    }
+
+    @Test
+    public void testClearTempBasalValues() throws Exception {
+        LocalDateTime time = buildTime().plusHours(22);
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(110, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
+        plugin.setTempBasalPercent(100, 100, profile, true);
+        Assert.assertEquals("Need to have no operations", 0, operations.operations.size());
+
+    }
+
+    @Test
+    public void testTempBasalDecrease50Percent() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(50, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 4 operations", 42, operations.operations.size());
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getTimeToRelease).max(
+                LocalDateTime::compareTo).get();
+        Assert.assertEquals("Max operationtime should be 3:25", time.plusMinutes(205), maxOperationTime);
+
+    }
+
+    @Test
+    public void testTempBasalDecrease10Percent() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(90, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 4 operations", 42, operations.operations.size());
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getTimeToRelease).max(
+                LocalDateTime::compareTo).get();
+        Assert.assertEquals("Max operationtime should be 3:25", time.plusMinutes(205), maxOperationTime);
 
     }
 }

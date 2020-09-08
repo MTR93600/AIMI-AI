@@ -4,19 +4,21 @@ import com.google.gson.annotations.Expose;
 
 import org.joda.time.LocalDateTime;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class TempBasalMicroBolusPair {
     @Expose
     private Integer interval = 0;
     @Expose
-    private Integer operationDuration = 0;
+    private Integer duration;
     @Expose
-    private Double bolusDosage = 0d;
+    private BigDecimal dose;
 
     @Expose
-    private LocalDateTime operationTime;
-
+    private BigDecimal calculatedDose;
+    @Expose
+    private LocalDateTime timeToRelease;
     @Expose
     private OperationType operationType;
 
@@ -26,27 +28,40 @@ public class TempBasalMicroBolusPair {
         REACTIVATE
     }
 
-    public TempBasalMicroBolusPair(Integer operationDuration, Double bolusDosage, LocalDateTime operationTime, OperationType operationType) {
-        this.operationDuration = operationDuration;
-        this.bolusDosage = bolusDosage;
-        this.operationTime = operationTime;
+    public TempBasalMicroBolusPair(Integer duration, BigDecimal dose, BigDecimal calculatedDose, LocalDateTime timeToRelease, OperationType operationType) {
+        this.duration = duration;
+        this.dose = dose;
+        this.timeToRelease = timeToRelease;
         this.operationType = operationType;
+        this.calculatedDose = calculatedDose;
+    }
+
+    public TempBasalMicroBolusPair(Integer duration, Double dose, Double calculatedDose, LocalDateTime timeToRelease, OperationType operationType) {
+        this(duration, new BigDecimal(dose), new BigDecimal(calculatedDose), timeToRelease, operationType);
     }
 
     public Integer getInterval() {
         return interval;
     }
 
-    public Integer getOperationDuration() {
-        return operationDuration;
+    public Integer getDuration() {
+        return duration;
     }
 
-    public Double getBolusDosage() {
-        return bolusDosage;
+    public BigDecimal getDose() {
+        return dose;
     }
 
-    public LocalDateTime getOperationTime() {
-        return operationTime;
+    public LocalDateTime getTimeToRelease() {
+        return timeToRelease;
+    }
+
+    public BigDecimal getCalculatedDose() {
+        return calculatedDose;
+    }
+
+    public BigDecimal getDelta() {
+        return dose.subtract(calculatedDose);
     }
 
     public OperationType getOperationType() {
@@ -58,19 +73,19 @@ public class TempBasalMicroBolusPair {
         if (o == null || getClass() != o.getClass()) return false;
         TempBasalMicroBolusPair that = (TempBasalMicroBolusPair) o;
         return interval.equals(that.interval) &&
-                operationDuration.equals(that.operationDuration) &&
-                bolusDosage.equals(that.bolusDosage) &&
-                operationTime.equals(that.operationTime) &&
+                duration.equals(that.duration) &&
+                dose.equals(that.dose) &&
+                timeToRelease.equals(that.timeToRelease) &&
                 operationType == that.operationType;
     }
 
     @Override public int hashCode() {
-        return Objects.hash(interval, operationDuration, bolusDosage, operationTime, operationType);
+        return Objects.hash(interval, duration, dose, timeToRelease, operationType);
     }
 
     public TempBasalMicroBolusPair decreaseDosage(double toDecrease) {
-        return new TempBasalMicroBolusPair(operationDuration,bolusDosage - toDecrease,
-                operationTime, operationType);
+        return new TempBasalMicroBolusPair(duration, dose.subtract(new BigDecimal(toDecrease)), calculatedDose,
+                timeToRelease, operationType);
     }
 
 }
