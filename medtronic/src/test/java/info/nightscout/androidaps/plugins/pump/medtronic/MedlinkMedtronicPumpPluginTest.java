@@ -393,11 +393,7 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
@@ -425,11 +421,7 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
@@ -456,11 +448,7 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
@@ -487,11 +475,7 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
@@ -513,11 +497,7 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
@@ -542,23 +522,93 @@ public class MedlinkMedtronicPumpPluginTest {
         PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
         PowerMockito.when(profile.getBasal()).thenReturn(0.1);
 
-        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
-        basalValues[0] = profile.new ProfileValue(0, 0.5d);
-        basalValues[1] = profile.new ProfileValue(4200, 1d);
-        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
-        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(90, duration, profile, true);
         TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
-        Assert.assertEquals("Need to have 4 operations", 42, operations.operations.size());
+        Assert.assertEquals("Need to have 8 operations", 8, operations.operations.size());
 
         LocalDateTime maxOperationTime = operations.operations.stream().map(
                 TempBasalMicroBolusPair::getTimeToRelease).max(
                 LocalDateTime::compareTo).get();
-        Assert.assertEquals("Max operationtime should be 3:25", time.plusMinutes(205), maxOperationTime);
+        Assert.assertEquals("Max operationtime should be 3:50", time.plusMinutes(170), maxOperationTime);
 
     }
+
+    @Test
+    public void testTempBasalDecrease10Percent3Minutes() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 3;
+        plugin.setTempBasalPercent(90, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
+    }
+
+    @Test
+    public void testTempBasalDecrease10Percent38Minutes() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 38;
+        plugin.setTempBasalPercent(90, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
+    }
+
+    @Test
+    public void testTempBasalDecrease20Percent38Minutes() throws Exception {
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        JSONObject json = new JSONObject(validProfile);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = buildBasalProfile();
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 38;
+        plugin.setTempBasalPercent(80, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 0 operations", 4, operations.operations.size());
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getTimeToRelease).max(
+                LocalDateTime::compareTo).get();
+        Assert.assertEquals("Max operationtime should be 3:50", time.plusMinutes(15), maxOperationTime);
+
+    }
+
+    private Profile.ProfileValue[] buildBasalProfile() {
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[4];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+        basalValues[1] = profile.new ProfileValue(4200, 1d);
+        basalValues[2] = profile.new ProfileValue(7200, 1.5d);
+        basalValues[3] = profile.new ProfileValue(14400, 2d);
+        return basalValues;
+    }
 }
+
+//TODO fazer teste com periodos com baixa dosagem e veja onde a primeira aplicação se encaixa
+//TODO fazer teste com um periodo e crossmidnight

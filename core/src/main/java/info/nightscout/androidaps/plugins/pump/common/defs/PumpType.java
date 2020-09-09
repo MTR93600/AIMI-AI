@@ -318,7 +318,7 @@ public enum PumpType {
             return this.pumpCapability;
     }
 
-    public double getBolusSize() {
+    public Double getBolusSize() {
         return isParentSet() ? parent.bolusSize : bolusSize;
     }
 

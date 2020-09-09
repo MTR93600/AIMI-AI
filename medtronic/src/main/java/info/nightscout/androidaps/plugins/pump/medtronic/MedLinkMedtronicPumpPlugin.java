@@ -535,8 +535,8 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                     TempBasalMicroBolusPair.OperationType.SUSPEND));
             operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d, 0d,
                     operation, TempBasalMicroBolusPair.OperationType.REACTIVATE));
-            time = time.plusMinutes(2*suspensionIntervalInMinutes);
-            operation = operation.plusMinutes(2*suspensionIntervalInMinutes);
+            time = operation.plusMinutes(suspensionIntervalInMinutes);
+            operation = time.plusMinutes(suspensionInterval);
             totalSuspendedMinutes-=suspensionInterval;
         }
         if(totalSuspendedMinutes>=5){
@@ -547,14 +547,11 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     private PumpEnactResult scheduleSuspension(Integer percent, Integer durationInMinutes,
                                                Profile profile, PumpEnactResult result) {
-        Integer totalSuspendedMinutes = (int) Math.round(durationInMinutes * (1 - (percent / 100d)));
+        Double suspended = (durationInMinutes * (1 - (percent / 100d)))/10;
+        Integer totalSuspendedMinutes = new BigDecimal(suspended.toString()).setScale(0,RoundingMode.HALF_UP).multiply(new BigDecimal(10)).intValue();
+        //TODO arredondar suspensoes pra cima,
         if (totalSuspendedMinutes < Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB) {
-            Integer suspensions = 1;
-            Integer interval = durationInMinutes / suspensions;
-            LinkedList<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes, suspensions, interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
-                    operations, totalSuspendedMinutes);
+            return result;
         } else if (totalSuspendedMinutes % 5 == 0) {
             Integer suspensions = Double.valueOf(
                     (double)totalSuspendedMinutes / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB).intValue();
@@ -615,7 +612,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         BigDecimal roundedTotalAmount = new BigDecimal(totalAmount).setScale(1,
                 RoundingMode.HALF_UP);
         if (roundedTotalAmount.doubleValue() == getPumpType().getBolusSize()) {
-            LinkedList<TempBasalMicroBolusPair> tempBasalList = new LinkedList<TempBasalMicroBolusPair>();
+            LinkedList<TempBasalMicroBolusPair> tempBasalList = new LinkedList<>();
             tempBasalList.add(new TempBasalMicroBolusPair(0, totalAmount, totalAmount,
                     getCurrentTime().plusMinutes(durationInMinutes / 2),
                     TempBasalMicroBolusPair.OperationType.BOLUS));
@@ -715,13 +712,13 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     private LinkedList<TempBasalMicroBolusPair> excludeExtraDose(BigDecimal totalDose, BigDecimal totalAmount,
                                                                  TempBasalMicrobolusOperations result) {
-        int dosesToDecrease = totalDose.subtract(totalAmount).divide(new BigDecimal(getPumpType().getBolusSize()), RoundingMode.HALF_DOWN).intValue();
+        int dosesToDecrease = totalDose.subtract(totalAmount).divide(new BigDecimal(getPumpType().getBolusSize().toString()), RoundingMode.HALF_DOWN).intValue();
         final BigDecimal maxDosage = result.operations.stream().map(
                 TempBasalMicroBolusPair::getDose).max(BigDecimal::compareTo).get();
         final BigDecimal minDosage = result.operations.stream().map(
                 TempBasalMicroBolusPair::getDose).min(BigDecimal::compareTo).get();
         LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<>();
-        if(maxDosage == minDosage){
+        if(maxDosage.equals(minDosage)){
             Stream<TempBasalMicroBolusPair> sortedOperations = result.operations.stream().sorted((prev, curr) -> prev.getDelta().compareTo(curr.getDelta()));
             operations = sortedOperations.skip(dosesToDecrease).sorted((prev, curr) ->
                     prev.getTimeToRelease().compareTo(curr.getTimeToRelease())).
@@ -730,9 +727,9 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
             while (!result.operations.isEmpty()) {
                 TempBasalMicroBolusPair tmp = result.operations.pollFirst();
-                if (tmp.getDose() == maxDosage && dosesToDecrease > 0) {
+                if (tmp.getDose().equals(maxDosage) && dosesToDecrease > 0) {
                     dosesToDecrease -= 1;
-                    if (tmp.getDose().compareTo(new BigDecimal(getPumpType().getBolusSize())) == 1) {
+                    if (tmp.getDose().compareTo(new BigDecimal(getPumpType().getBolusSize().toString())) == 1) {
                         operations.add(tmp.decreaseDosage(getPumpType().getBolusSize()));
                     }
                 } else {
