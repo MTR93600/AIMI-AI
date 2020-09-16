@@ -13,13 +13,13 @@ import androidx.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -525,52 +525,103 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     private LinkedList<TempBasalMicroBolusPair> buildSuspensionScheduler(Integer totalSuspendedMinutes,
-                                                                         Integer suspensions, Integer suspensionIntervalInMinutes) {
-        LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<>();
-        LocalDateTime time = getCurrentTime();
-        int suspensionInterval = totalSuspendedMinutes/suspensions;
-        LocalDateTime operation = time.plusMinutes(suspensionInterval);
-        for (int index = 0; index < suspensions; index++) {
-            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d, 0d, time,
+                                                                         Integer suspensions,
+                                                                         Double operationInterval,
+                                                                         Integer durationInMinutes) {
+        double operationDuration = Double.valueOf(totalSuspendedMinutes) / Double.valueOf(suspensions);
+        if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
+            operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS;
+        }
+        double mod = operationDuration % Constants.INTERVAL_BETWEEN_OPERATIONS;
+        if ((mod / Constants.INTERVAL_BETWEEN_OPERATIONS) > 0.5) {
+            operationDuration += Constants.INTERVAL_BETWEEN_OPERATIONS - mod;
+        } else {
+            operationDuration -= mod;
+        }
+
+        LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<TempBasalMicroBolusPair>();
+
+        LocalDateTime startOperationTime = getCurrentTime();
+        LocalDateTime endOperationTime = startOperationTime.plusMinutes((int) operationDuration);
+        for (int oper = 0; oper < suspensions; oper += 1) {
+            operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d, 0d, startOperationTime,
                     TempBasalMicroBolusPair.OperationType.SUSPEND));
             operations.add(new TempBasalMicroBolusPair(totalSuspendedMinutes, 0d, 0d,
-                    operation, TempBasalMicroBolusPair.OperationType.REACTIVATE));
-            time = operation.plusMinutes(suspensionIntervalInMinutes);
-            operation = time.plusMinutes(suspensionInterval);
-            totalSuspendedMinutes-=suspensionInterval;
+                    endOperationTime, TempBasalMicroBolusPair.OperationType.REACTIVATE));
+            startOperationTime = startOperationTime.plusMinutes(operationInterval.intValue());
+            endOperationTime = endOperationTime.plusMinutes(operationInterval.intValue());
         }
-        if(totalSuspendedMinutes>=5){
-            throw new RuntimeException("missing suspensions");
+        double deltaMod = mod * suspensions;
+        LocalDateTime previousReleaseTime = null;
+        List<Integer> toRemove = new ArrayList<>();
+        int index = 0;
+        for (TempBasalMicroBolusPair operation : operations) {
+            if (previousReleaseTime != null && operation.getOperationType() ==
+                    TempBasalMicroBolusPair.OperationType.SUSPEND &&
+                    operation.getReleaseTime().compareTo(previousReleaseTime) >= 0) {
+                toRemove.add(index);
+                toRemove.add(index + 1);
+            }
+            if (deltaMod > Constants.INTERVAL_BETWEEN_OPERATIONS &&
+                    operation.getOperationType() == TempBasalMicroBolusPair.OperationType.REACTIVATE) {
+                operation.delayInMinutes(Constants.INTERVAL_BETWEEN_OPERATIONS);
+                previousReleaseTime = operation.getReleaseTime();
+                deltaMod -= Constants.INTERVAL_BETWEEN_OPERATIONS;
+            } else {
+                break;
+            }
+            index++;
+        }
+        Collections.reverse(toRemove);
+        for (int rem : toRemove) {
+            operations.remove(rem);
         }
         return operations;
     }
 
+
     private PumpEnactResult scheduleSuspension(Integer percent, Integer durationInMinutes,
                                                Profile profile, PumpEnactResult result) {
-        Double suspended = (durationInMinutes * (1 - (percent / 100d)))/10;
-        Integer totalSuspendedMinutes = new BigDecimal(suspended.toString()).setScale(0,RoundingMode.HALF_UP).multiply(new BigDecimal(10)).intValue();
+        Double suspended = (durationInMinutes * (1 - (percent / 100d))) / 10;
+        Integer totalSuspendedMinutes = new BigDecimal(suspended.toString()).multiply(new BigDecimal(10)).setScale(0, RoundingMode.HALF_UP).intValue();
+
         //TODO arredondar suspensoes pra cima,
-        if (totalSuspendedMinutes < Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB) {
+        if (totalSuspendedMinutes < Constants.INTERVAL_BETWEEN_OPERATIONS) {
             return result;
-        } else if (totalSuspendedMinutes % 5 == 0) {
-            Integer suspensions = Double.valueOf(
-                    (double)totalSuspendedMinutes / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB).intValue();
-            Integer interval = totalSuspendedMinutes / suspensions;
-            LinkedList<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes, suspensions, interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
-                    operations, totalSuspendedMinutes);
-        } else {
-            Integer suspensions = Double.valueOf(
-                    Double.valueOf(totalSuspendedMinutes) / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB).intValue();
-            Integer interval = durationInMinutes / suspensions;
-            Integer mod = interval % Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB;
-            interval-=mod;
+        }
+//        else if (totalSuspendedMinutes % 5 == 0) {
+//            Integer suspensions = Double.valueOf(
+//                    (double) totalSuspendedMinutes / Constants.INTERVAL_BETWEEN_OPERATIONS).intValue();
+//            Integer interval = totalSuspendedMinutes / suspensions;
+//            LinkedList<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
+//                    totalSuspendedMinutes, suspensions, interval, durationInMinutes);
+//            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
+//                    operations, totalSuspendedMinutes);
+//        }
+        else {
+            int suspensions;
+            double operationInterval;
+            if (totalSuspendedMinutes < durationInMinutes / 2) {
+                suspensions = new BigDecimal(totalSuspendedMinutes)
+                        .divide(new BigDecimal(Constants.INTERVAL_BETWEEN_OPERATIONS), RoundingMode.HALF_UP)
+                        .setScale(0, RoundingMode.HALF_UP).intValue();
+            } else {
+                int delta = durationInMinutes - totalSuspendedMinutes;
+                suspensions =  delta / Constants.INTERVAL_BETWEEN_OPERATIONS;
+                if(suspensions == 0){
+                    suspensions++;
+                }
+            }
+            operationInterval = durationInMinutes / suspensions;
+            double mod = operationInterval % Constants.INTERVAL_BETWEEN_OPERATIONS;
+            operationInterval -= mod;
+            double accumulatedDelta = suspensions * mod;
             //TODO need to reavaluate some cases, used floor here to avoid two possible up rounds
-            Integer suspensionsQuantity = (int) Math.round(totalSuspendedMinutes / durationInMinutes);
+//            int suspensionsQuantity;
+//            suspensionsQuantity = (int) Math.round(totalSuspendedMinutes / durationInMinutes);
             LinkedList<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes, suspensions, interval);
-            this.tempbasalMicrobolusOperations.updateOperations(suspensionsQuantity, 0d,
+                    totalSuspendedMinutes, suspensions, operationInterval, durationInMinutes);
+            this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
                     operations,
                     totalSuspendedMinutes);
         }
@@ -594,7 +645,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                 previousProfileValue = currentProfileValue;
             }
 
-            if (currentProfileValue.timeAsSeconds == 0 && currentStep>0) {
+            if (currentProfileValue.timeAsSeconds == 0 && currentStep > 0) {
                 startedTime = 0;
                 durationInSeconds -= spentBasalTimeInSeconds;
                 spentBasalTimeInSeconds = 0;
@@ -675,13 +726,13 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
             accumulatedNextPeriodDose += roundedPeriodDose - periodDose;
 //            }
             int time = (period.getEndTimeInSeconds() - period.getSartTimeInSeconds()) / 60;
-            int periodAvailableOperations = time / Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB;
+            int periodAvailableOperations = time / Constants.INTERVAL_BETWEEN_OPERATIONS;
             double minBolusDose = getPumpType().getBolusSize();
             if (roundedPeriodDose >= minBolusDose) {
                 int doses = new BigDecimal(
                         periodDose / minBolusDose
                 ).setScale(0, RoundingMode.HALF_DOWN).intValue();
-                BigDecimal calculatedDose = new BigDecimal(periodDose).divide(new BigDecimal(doses),2, RoundingMode.HALF_DOWN);
+                BigDecimal calculatedDose = new BigDecimal(periodDose).divide(new BigDecimal(doses), 2, RoundingMode.HALF_DOWN);
                 minDosage = new BigDecimal(periodDose / doses).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
                 List<Double> list = buildOperations(doses, periodAvailableOperations, Collections.emptyList());
                 //TODO convert build operations to return list of tempmicroboluspair
@@ -692,7 +743,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                                 TempBasalMicroBolusPair.OperationType.BOLUS);
                         result.operations.add(pair);
                     }
-                    operationTime = operationTime.plusMinutes(Constants.MIN_INTERVAL_BETWEEN_TEMP_SMB);
+                    operationTime = operationTime.plusMinutes(Constants.INTERVAL_BETWEEN_OPERATIONS);
                 }
             } else {
                 accumulatedNextPeriodDose += periodDose;
@@ -718,12 +769,12 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         final BigDecimal minDosage = result.operations.stream().map(
                 TempBasalMicroBolusPair::getDose).min(BigDecimal::compareTo).get();
         LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<>();
-        if(maxDosage.equals(minDosage)){
+        if (maxDosage.equals(minDosage)) {
             Stream<TempBasalMicroBolusPair> sortedOperations = result.operations.stream().sorted((prev, curr) -> prev.getDelta().compareTo(curr.getDelta()));
             operations = sortedOperations.skip(dosesToDecrease).sorted((prev, curr) ->
-                    prev.getTimeToRelease().compareTo(curr.getTimeToRelease())).
+                    prev.getReleaseTime().compareTo(curr.getReleaseTime())).
                     collect(Collectors.toCollection(LinkedList::new));
-        }else {
+        } else {
 
             while (!result.operations.isEmpty()) {
                 TempBasalMicroBolusPair tmp = result.operations.pollFirst();

@@ -18,9 +18,13 @@ public class TempBasalMicroBolusPair {
     @Expose
     private BigDecimal calculatedDose;
     @Expose
-    private LocalDateTime timeToRelease;
+    private LocalDateTime releaseTime;
     @Expose
     private OperationType operationType;
+
+    public void delayInMinutes(int delay) {
+        this.releaseTime = this.releaseTime.plusMinutes(delay);
+    }
 
     public enum OperationType {
         BOLUS,
@@ -28,16 +32,16 @@ public class TempBasalMicroBolusPair {
         REACTIVATE
     }
 
-    public TempBasalMicroBolusPair(Integer duration, BigDecimal dose, BigDecimal calculatedDose, LocalDateTime timeToRelease, OperationType operationType) {
+    public TempBasalMicroBolusPair(Integer duration, BigDecimal dose, BigDecimal calculatedDose, LocalDateTime releaseTime, OperationType operationType) {
         this.duration = duration;
         this.dose = dose;
-        this.timeToRelease = timeToRelease;
+        this.releaseTime = releaseTime;
         this.operationType = operationType;
         this.calculatedDose = calculatedDose;
     }
 
-    public TempBasalMicroBolusPair(Integer duration, Double dose, Double calculatedDose, LocalDateTime timeToRelease, OperationType operationType) {
-        this(duration, new BigDecimal(dose), new BigDecimal(calculatedDose), timeToRelease, operationType);
+    public TempBasalMicroBolusPair(Integer duration, Double dose, Double calculatedDose, LocalDateTime releaseTime, OperationType operationType) {
+        this(duration, new BigDecimal(dose), new BigDecimal(calculatedDose), releaseTime, operationType);
     }
 
     public Integer getInterval() {
@@ -52,8 +56,8 @@ public class TempBasalMicroBolusPair {
         return dose;
     }
 
-    public LocalDateTime getTimeToRelease() {
-        return timeToRelease;
+    public LocalDateTime getReleaseTime() {
+        return releaseTime;
     }
 
     public BigDecimal getCalculatedDose() {
@@ -75,17 +79,17 @@ public class TempBasalMicroBolusPair {
         return interval.equals(that.interval) &&
                 duration.equals(that.duration) &&
                 dose.equals(that.dose) &&
-                timeToRelease.equals(that.timeToRelease) &&
+                releaseTime.equals(that.releaseTime) &&
                 operationType == that.operationType;
     }
 
     @Override public int hashCode() {
-        return Objects.hash(interval, duration, dose, timeToRelease, operationType);
+        return Objects.hash(interval, duration, dose, releaseTime, operationType);
     }
 
     public TempBasalMicroBolusPair decreaseDosage(double toDecrease) {
         return new TempBasalMicroBolusPair(duration, dose.subtract(new BigDecimal(toDecrease)), calculatedDose,
-                timeToRelease, operationType);
+                releaseTime, operationType);
     }
 
 }
