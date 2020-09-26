@@ -6,6 +6,7 @@ import org.joda.time.LocalDateTime;
 
 
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
+import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
@@ -19,7 +20,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
  * Created by andy on 5/19/18.
  */
 
-public class RLHistoryItem {
+public class RLHistoryItem implements HistoryItem {
 
     //private MedtronicCommandType medtronicCommandType;
     protected LocalDateTime dateTime;

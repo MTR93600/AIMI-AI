@@ -39,6 +39,7 @@ import info.nightscout.androidaps.plugins.profile.ns.NSProfilePlugin
 import info.nightscout.androidaps.plugins.pump.combo.ComboPlugin
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightPlugin
 import info.nightscout.androidaps.plugins.pump.mdi.MDIPlugin
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityAAPSPlugin
@@ -148,93 +149,99 @@ abstract class PluginsModule {
     abstract fun bindMedtronicPumpPlugin(plugin: MedtronicPumpPlugin): PluginBase
 
     @Binds
-    @NotNSClient
+    @PumpDriver
     @IntoMap
     @IntKey(160)
+    abstract fun bindMedLinkMedtronicPumpPlugin(plugin: MedLinkMedtronicPumpPlugin): PluginBase
+
+    @Binds
+    @NotNSClient
+    @IntoMap
+    @IntKey(170)
     abstract fun bindMDIPlugin(plugin: MDIPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(170)
+    @IntKey(180)
     abstract fun bindVirtualPumpPlugin(plugin: VirtualPumpPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(190)
+    @IntKey(200)
     abstract fun bindLoopPlugin(plugin: LoopPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(210)
+    @IntKey(220)
     abstract fun bindOpenAPSAMAPlugin(plugin: OpenAPSAMAPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(220)
+    @IntKey(230)
     abstract fun bindOpenAPSSMBPlugin(plugin: OpenAPSSMBPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(230)
+    @IntKey(240)
     abstract fun bindNSProfilePlugin(plugin: NSProfilePlugin): PluginBase
 
     @Binds
     @NotNSClient
     @IntoMap
-    @IntKey(240)
+    @IntKey(250)
     abstract fun bindLocalProfilePlugin(plugin: LocalProfilePlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(250)
+    @IntKey(260)
     abstract fun bindAutomationPlugin(plugin: AutomationPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(260)
+    @IntKey(270)
     abstract fun bindTreatmentsPlugin(plugin: TreatmentsPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(265)
+    @IntKey(275)
     abstract fun bindSafetyPlugin(plugin: SafetyPlugin): PluginBase
 
     @Binds
     @NotNSClient
     @IntoMap
-    @IntKey(270)
+    @IntKey(280)
     abstract fun bindVersionCheckerPlugin(plugin: VersionCheckerPlugin): PluginBase
 
     @Binds
     @NotNSClient
     @IntoMap
-    @IntKey(280)
+    @IntKey(290)
     abstract fun bindSmsCommunicatorPlugin(plugin: SmsCommunicatorPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(290)
+    @IntKey(300)
     abstract fun bindStorageConstraintPlugin(plugin: StorageConstraintPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(300)
+    @IntKey(310)
     abstract fun bindSignatureVerifierPlugin(plugin: SignatureVerifierPlugin): PluginBase
 
     @Binds
     @APS
     @IntoMap
-    @IntKey(310)
+    @IntKey(320)
     abstract fun bindObjectivesPlugin(plugin: ObjectivesPlugin): PluginBase
 
     @Binds
@@ -246,97 +253,97 @@ abstract class PluginsModule {
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(330)
+    @IntKey(340)
     abstract fun bindWearPlugin(plugin: WearPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(340)
+    @IntKey(350)
     abstract fun bindStatusLinePlugin(plugin: StatusLinePlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(350)
+    @IntKey(360)
     abstract fun bindPersistentNotificationPlugin(plugin: PersistentNotificationPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(360)
+    @IntKey(370)
     abstract fun bindNSClientPlugin(plugin: NSClientPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(370)
+    @IntKey(380)
     abstract fun bindMaintenancePlugin(plugin: MaintenancePlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(380)
+    @IntKey(390)
     abstract fun bindDstHelperPlugin(plugin: DstHelperPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(390)
+    @IntKey(400)
     abstract fun bindDataBroadcastPlugin(plugin: DataBroadcastPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(400)
+    @IntKey(410)
     abstract fun bindXdripPlugin(plugin: XdripPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(410)
+    @IntKey(420)
     abstract fun bindNSClientSourcePlugin(plugin: NSClientSourcePlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(420)
+    @IntKey(430)
     abstract fun bindMM640gPlugin(plugin: MM640gPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(430)
+    @IntKey(440)
     abstract fun bindGlimpPlugin(plugin: GlimpPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(440)
+    @IntKey(450)
     abstract fun bindDexcomPlugin(plugin: DexcomPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(450)
+    @IntKey(460)
     abstract fun bindPoctechPlugin(plugin: PoctechPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(460)
+    @IntKey(470)
     abstract fun bindTomatoPlugin(plugin: TomatoPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(470)
+    @IntKey(480)
     abstract fun bindRandomBgPlugin(plugin: RandomBgPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(480)
+    @IntKey(490)
     abstract fun bindConfigBuilderPlugin(plugin: ConfigBuilderPlugin): PluginBase
 
     @Qualifier

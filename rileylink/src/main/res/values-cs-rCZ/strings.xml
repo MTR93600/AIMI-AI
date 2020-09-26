@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">ZASTAVIT</string>
     <string name="rileylink_scanner_selected_device">Vybráno</string>
     <string name="rileylink_scanner_title">Vyhledávání RileyLinku</string>
+    <string name="medlink_scanner_title">Vyhledávání MedLinku</string>
     <string name="location_yes">Povolit</string>
     <string name="location_no">Ne</string>
     <string name="rileylink_scanner_scanning">Vyhledávání</string>
@@ -17,6 +18,7 @@
     <string name="rileylink_status">Status RileyLink</string>
     <string name="medtronic_pump_status">Stav pumpy</string>
     <string name="title_activity_rileylink_settings">Nastavení RileyLink</string>
+    <string name="title_activity_medlink_settings">Nastavení MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Nastavená adresa</string>
     <string name="rileylink_connected_device">Připojené zařízení</string>

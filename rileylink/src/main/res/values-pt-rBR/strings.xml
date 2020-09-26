@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">PARAR</string>
     <string name="rileylink_scanner_selected_device">Seleccionado</string>
     <string name="rileylink_scanner_title">Procura RileyLink</string>
+    <string name="medlink_scanner_title">Procura MedLink</string>
     <string name="location_yes">Ativar</string>
     <string name="rileylink_scanner_scanning">A procurar</string>
     <string name="rileylink_scanner_scanning_finished">Procura terminada</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">Estado do RileyLink</string>
     <string name="medtronic_pump_status">Estado da Bomba</string>
     <string name="title_activity_rileylink_settings">Configurações do RileyLink</string>
+    <string name="title_activity_medlink_settings">Configurações do MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Endereço Configurado</string>
     <string name="rileylink_connected_device">Dispositivo Ligado</string>

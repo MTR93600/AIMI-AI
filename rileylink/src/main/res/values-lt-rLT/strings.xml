@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">STOP</string>
     <string name="rileylink_scanner_selected_device">Parinkta</string>
     <string name="rileylink_scanner_title">RileyLink skanavimas</string>
+    <string name="medlink_scanner_title">MedLink skanavimas</string>
     <string name="location_yes">Įjungti</string>
     <string name="rileylink_scanner_scanning">Skanuojama</string>
     <string name="rileylink_scanner_scanning_finished">Skanavimas baigtas</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">RileyLink statusas</string>
     <string name="medtronic_pump_status">Pompos statusas</string>
     <string name="title_activity_rileylink_settings">RileyLink parametrai</string>
+    <string name="title_activity_medlink_settings">MedLink parametrai</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Nustatytas adresas</string>
     <string name="rileylink_connected_device">Prijungtas įrenginys</string>

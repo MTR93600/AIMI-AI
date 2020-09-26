@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">AVBRYT</string>
     <string name="rileylink_scanner_selected_device">Vald</string>
     <string name="rileylink_scanner_title">Riley Link-sökning</string>
+    <string name="medlink_scanner_title">Med Link-sökning</string>
     <string name="location_yes">Aktivera</string>
     <string name="rileylink_scanner_scanning">Söker</string>
     <string name="rileylink_scanner_scanning_finished">Sökning avslutad</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">Riley Link Status</string>
     <string name="medtronic_pump_status">Pumpstatus</string>
     <string name="title_activity_rileylink_settings">Inställningar för Riley Link</string>
+    <string name="title_activity_medlink_settings">Inställningar för Med Link</string>
     <string name="rileylink_title">Riley Link</string>
     <string name="rileylink_configured_address">Konfigurerad adress</string>
     <string name="rileylink_connected_device">Ansluten enhet</string>

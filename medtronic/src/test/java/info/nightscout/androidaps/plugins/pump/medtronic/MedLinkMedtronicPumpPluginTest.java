@@ -9,6 +9,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.chrono.ISOChronology;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +54,7 @@ import static org.mockito.Mockito.mock;
 @PrepareForTest({MedLinkMedtronicPumpPlugin.class, AAPSLogger.class, RxBusWrapper.class,
         Context.class, ResourceHelper.class, android.util.Base64.class, ActivePluginProvider.class,
         SP.class, ISOChronology.class, DateTimeZone.class})
-public class MedlinkMedtronicPumpPluginTest {
+public class MedLinkMedtronicPumpPluginTest {
 
     private String validProfile = "{\"dia\":\"6\",\"carbratio\":[{\"time\":\"00:00\",\"value\":\"30\"}],\"carbs_hr\":\"20\",\"delay\":\"20\",\"sens\":[{\"time\":\"00:00\",\"value\":\"10\"},{\"time\":\"2:00\",\"value\":\"11\"}],\"timezone\":\"UTC\",\"basal\":[{\"time\":\"00:00\",\"value\":\"0.1\"}],\"target_low\":[{\"time\":\"00:00\",\"value\":\"4\"}],\"target_high\":[{\"time\":\"00:00\",\"value\":\"5\"}],\"startDate\":\"1970-01-01T00:00:00.000Z\",\"units\":\"mmol\"}";
 
@@ -97,6 +98,14 @@ public class MedlinkMedtronicPumpPluginTest {
     private LocalDateTime buildTime() {
         return new LocalDateTime(2020, 8, 10, 1, 00);
 
+    }
+
+    @Before
+    public void buildResult(){
+        String testComment = "MedlinkTest";
+        PowerMockito.when(resourceHelper.gs(R.string.medtronic_cmd_desc_set_tbr)).thenReturn(testComment);
+        PowerMockito.when(result.success(true)).thenReturn(result);
+        PowerMockito.when(result.comment(testComment)).thenReturn(result);
     }
 
     private MedLinkMedtronicPumpPlugin buildPlugin(LocalDateTime time) {
@@ -143,7 +152,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
 
         plugin.setTempBasalPercent(150, 50, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
 
@@ -179,7 +188,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
 
         plugin.setTempBasalPercent(200, 50, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
 
@@ -329,7 +338,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
 
         plugin.setTempBasalPercent(310, 50, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 9 operations", 9, operations.operations.size());
 
@@ -371,7 +380,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
 
         plugin.setTempBasalPercent(300, 150, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", 30, operations.operations.size());
         BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -398,7 +407,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(300, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", duration / 5, operations.operations.size());
         BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -426,7 +435,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(110, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 5 operations", 5, operations.operations.size());
         BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -435,7 +444,7 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime maxOperationTime = operations.operations.stream().map(
                 TempBasalMicroBolusPair::getReleaseTime).max(Comparator.comparing(
                 LocalDateTime::toLocalTime)).get();
-        Assert.assertEquals("Max operationtime should be 4:05", time.plusMinutes(180), maxOperationTime);
+        Assert.assertEquals("Max operationtime should be 4:00", time.plusMinutes(180), maxOperationTime);
 
     }
 
@@ -453,7 +462,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(110, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
         BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -462,9 +471,38 @@ public class MedlinkMedtronicPumpPluginTest {
         LocalDateTime maxOperationTime = operations.operations.stream().map(
                 TempBasalMicroBolusPair::getReleaseTime).max(
                 LocalDateTime::compareTo).get();
-        Assert.assertEquals("Max operationtime should be 3:25", maxOperationTime, time.plusMinutes(190));
+        Assert.assertEquals("Max operationtime should be 2:10", maxOperationTime, time.plusMinutes(190));
 
     }
+
+    @Test
+    public void testTempBasalIncrease10PctOnePeriodOverMidnight() throws Exception {
+        LocalDateTime time = buildTime().plusHours(22);
+        MedLinkMedtronicPumpPlugin plugin = buildPlugin(time);
+        PowerMockito.when(injector, "androidInjector").thenReturn((inj));
+        PowerMockito.doNothing().when(inj, "inject", any(PumpEnactResult.class));
+        PowerMockito.when(profile.getBasal()).thenReturn(0.1);
+
+        Profile.ProfileValue[] basalValues = new Profile.ProfileValue[1];
+        basalValues[0] = profile.new ProfileValue(0, 0.5d);
+
+        PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
+        Assert.assertNotNull("Profile is null", profile);
+        int duration = 210;
+        plugin.setTempBasalPercent(110, duration, profile, true);
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
+        Assert.assertNotNull("operations is null", operations);
+        Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
+        BigDecimal totalDose = operations.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Assert.assertEquals("Total dosage should be 0.4ui", 0.2d, totalDose.doubleValue(), 0.05);
+
+        LocalDateTime maxOperationTime = operations.operations.stream().map(
+                TempBasalMicroBolusPair::getReleaseTime).max(
+                LocalDateTime::compareTo).get();
+        Assert.assertEquals("Max operationtime should be 1:10", time.plusMinutes(130), maxOperationTime);
+
+    }
+
 
     @Test
     public void testClearTempBasalValues() throws Exception {
@@ -480,7 +518,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(110, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
         plugin.setTempBasalPercent(100, 100, profile, true);
@@ -502,7 +540,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(50, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 42 operations", 42, operations.operations.size());
 
@@ -527,7 +565,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
         plugin.setTempBasalPercent(90, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 8 operations", 8, operations.operations.size());
 
@@ -552,7 +590,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 3;
         plugin.setTempBasalPercent(90, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
     }
@@ -571,7 +609,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
         plugin.setTempBasalPercent(90, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
     }
@@ -590,7 +628,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
         plugin.setTempBasalPercent(80, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 4, operations.operations.size());
         LocalDateTime maxOperationTime = operations.operations.stream().map(
@@ -614,7 +652,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
         plugin.setTempBasalPercent(10, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
         LocalDateTime maxOperationTime = operations.operations.stream().map(
@@ -638,7 +676,7 @@ public class MedlinkMedtronicPumpPluginTest {
         Assert.assertNotNull("Profile is null", profile);
         int duration = 60;
         plugin.setTempBasalPercent(17, duration, profile, true);
-        TempBasalMicrobolusOperations operations = plugin.getTempbasalMicrobolusOperations();
+        TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 4, operations.operations.size());
         LocalDateTime maxOperationTime = operations.operations.stream().map(

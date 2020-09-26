@@ -33,7 +33,7 @@ public abstract class RileyLinkCommunicationManager {
 
     @Inject protected AAPSLogger aapsLogger;
     @Inject protected SP sp;
-    @Inject protected RileyLinkServiceData rileyLinkServiceData;
+    @Inject protected RileyLinkServiceData medLinkServiceData;
     @Inject protected ServiceTaskExecutor serviceTaskExecutor;
 
 
@@ -192,7 +192,7 @@ public abstract class RileyLinkCommunicationManager {
 
 
     public double tuneForDevice() {
-        return scanForDevice(rileyLinkServiceData.rileyLinkTargetFrequency.getScanFrequencies());
+        return scanForDevice(medLinkServiceData.rileyLinkTargetFrequency.getScanFrequencies());
     }
 
 
@@ -206,7 +206,7 @@ public abstract class RileyLinkCommunicationManager {
      */
     public boolean isValidFrequency(double frequency) {
 
-        double[] scanFrequencies = rileyLinkServiceData.rileyLinkTargetFrequency.getScanFrequencies();
+        double[] scanFrequencies = medLinkServiceData.rileyLinkTargetFrequency.getScanFrequencies();
 
         if (scanFrequencies.length == 1) {
             return Round.isSame(scanFrequencies[0], frequency);

@@ -474,11 +474,11 @@ public class MedtronicCommunicationManager extends RileyLinkCommunicationManager
     public byte[] createPumpMessageContent(RLMessageType type) {
         switch (type) {
             case PowerOn:
-                return medtronicUtil.buildCommandPayload(rileyLinkServiceData, MedtronicCommandType.RFPowerOn, //
+                return medtronicUtil.buildCommandPayload(medLinkServiceData, MedtronicCommandType.RFPowerOn, //
                         new byte[]{2, 1, (byte) receiverDeviceAwakeForMinutes}); // maybe this is better FIXME
 
             case ReadSimpleData:
-                return medtronicUtil.buildCommandPayload(rileyLinkServiceData, MedtronicCommandType.PumpModel, null);
+                return medtronicUtil.buildCommandPayload(medLinkServiceData, MedtronicCommandType.PumpModel, null);
         }
         return new byte[0];
     }
@@ -497,7 +497,7 @@ public class MedtronicCommunicationManager extends RileyLinkCommunicationManager
 
     private PumpMessage makePumpMessage(MedtronicCommandType messageType, MessageBody messageBody) {
         PumpMessage msg = new PumpMessage(aapsLogger);
-        msg.init(PacketType.Carelink, rileyLinkServiceData.pumpIDBytes, messageType, messageBody);
+        msg.init(PacketType.Carelink, medLinkServiceData.pumpIDBytes, messageType, messageBody);
         return msg;
     }
 

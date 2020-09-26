@@ -81,6 +81,14 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 RileyLinkConst.Intents.RileyLinkDisconnected, //
                 RileyLinkConst.Intents.RileyLinkNewAddressSet, //
                 RileyLinkConst.Intents.RileyLinkDisconnect));
+
+        // MedLink
+        this.broadcastIdentifiers.put("Med-Link", Arrays.asList( //
+                RileyLinkConst.Intents.RileyLinkDisconnected, //
+                RileyLinkConst.Intents.RileyLinkReady, //
+                RileyLinkConst.Intents.RileyLinkDisconnected, //
+                RileyLinkConst.Intents.RileyLinkNewAddressSet, //
+                RileyLinkConst.Intents.RileyLinkDisconnect));
     }
 
     private RileyLinkService getServiceInstance() {

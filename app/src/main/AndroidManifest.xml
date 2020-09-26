@@ -258,6 +258,10 @@
             android:name=".plugins.pump.medtronic.service.RileyLinkMedtronicService"
             android:enabled="true"
             android:exported="true" />
+        <service
+            android:name=".plugins.pump.medtronic.service.MedLinkMedtronicService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity android:name=".plugins.pump.medtronic.dialog.MedtronicHistoryActivity" />
 

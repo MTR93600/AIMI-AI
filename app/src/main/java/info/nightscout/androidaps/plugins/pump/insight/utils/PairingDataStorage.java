@@ -205,6 +205,5 @@ public class PairingDataStorage {
         setLastNonceSent(null);
         setFirmwareVersions(null);
         setSystemIdentification(null);
-        setMacAddress(null);
     }
 }

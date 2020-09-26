@@ -122,6 +122,8 @@ class PluginStore @Inject constructor(
 
         // PluginType.PUMP
         pluginsInCategory = getSpecificPluginsList(PluginType.PUMP)
+        aapsLogger.debug("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        aapsLogger.debug(pluginsInCategory.joinToString(","))
         activePump = getTheOneEnabledInArray(pluginsInCategory, PluginType.PUMP) as PumpInterface?
         if (activePump == null) {
             activePump = getDefaultPlugin(PluginType.PUMP) as PumpInterface

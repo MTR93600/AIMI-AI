@@ -2,6 +2,7 @@ package info.nightscout.androidaps.dependencyInjection
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCommunicationManager
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
@@ -10,6 +11,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.S
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioPacket
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioResponse
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.*
+import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask
 
@@ -17,7 +19,9 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask
 @Suppress("unused")
 abstract class MedtronicModule {
     @ContributesAndroidInjector abstract fun rileyLinkCommunicationManagerProvider(): RileyLinkCommunicationManager
+    @ContributesAndroidInjector abstract fun medLinkCommunicationManagerProvider(): MedLinkCommunicationManager
     @ContributesAndroidInjector abstract fun medtronicCommunicationManagerProvider(): MedtronicCommunicationManager
+    @ContributesAndroidInjector abstract fun medLinkMedtronicCommunicationManagerProvider(): MedLinkMedtronicCommunicationManager
     @ContributesAndroidInjector abstract fun medtronicUITaskProvider(): MedtronicUITask
     @ContributesAndroidInjector abstract fun serviceTaskProvider(): ServiceTask
     @ContributesAndroidInjector abstract fun pumpTaskProvider(): PumpTask

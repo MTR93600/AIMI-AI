@@ -6,7 +6,7 @@ import info.nightscout.androidaps.utils.T;
  * Created by mike on 07.06.2016.
  */
 public class Constants {
-    public static final int MIN_INTERVAL_BETWEEN_TEMP_SMB = 5;
+    public static final int INTERVAL_BETWEEN_OPERATIONS = 5;
     public static final String MGDL = "mg/dl"; // This is Nightscout's representation
     public static final String MMOL = "mmol";
 

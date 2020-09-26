@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Pentru asocierea cu pompa Medtronic este necesar un dispozitiv RileyLink și un anumit model de pompă</string>
+    <string name="description_pump_medtronic_medlink">Pentru asocierea cu pompa Medtronic este necesar un dispozitiv MedLink</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Număr serial pompă</string>
     <string name="medtronic_pump_type">Tip pompă</string>

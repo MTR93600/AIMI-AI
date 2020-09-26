@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Pomp integrasie vir Medtronic vereis RileyLink en spesifieke modelle</string>
+    <string name="description_pump_medtronic_medlink">Pomp integrasie vir Medtronic vereis MedLink</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Pomp Reeks Nommer</string>
     <string name="medtronic_pump_type">Pomp Tipe</string>

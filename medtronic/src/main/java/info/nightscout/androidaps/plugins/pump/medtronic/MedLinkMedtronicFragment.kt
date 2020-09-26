@@ -25,12 +25,12 @@ import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDevic
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.queue.events.EventQueueChanged
 import info.nightscout.androidaps.utils.DateUtil
@@ -54,10 +54,10 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     @Inject lateinit var activePlugin: ActivePluginProvider
     @Inject lateinit var medlinkMedtronicPlugin: MedLinkMedtronicPumpPlugin
     @Inject lateinit var warnColors: WarnColors
-    @Inject lateinit var rileyLinkUtil: RileyLinkUtil
-    @Inject lateinit var medtronicUtil: MedtronicUtil
+    @Inject lateinit var medLinkUtil: MedLinkUtil
+    @Inject lateinit var medLinkMedtronicUtil: MedLinkMedtronicUtil
     @Inject lateinit var medtronicPumpStatus: MedtronicPumpStatus
-    @Inject lateinit var rileyLinkServiceData: RileyLinkServiceData
+    @Inject lateinit var medinkServiceData: MedLinkServiceData
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 
@@ -172,20 +172,20 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = rileyLinkServiceData.rileyLinkServiceState.getResourceId(RileyLinkTargetDevice.MedtronicPump)
+        val resourceId = medinkServiceData.rileyLinkServiceState.getResourceId(RileyLinkTargetDevice.MedtronicPump)
         val rileyLinkError = medlinkMedtronicPlugin.medLinkService?.error
         medtronic_rl_status.text =
             when {
-                rileyLinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted   -> resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isConnecting                          -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError == null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                             -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
+                medinkServiceData.rileyLinkServiceState.isConnecting                        -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.rileyLinkServiceState.isError && rileyLinkError == null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                        -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
             }
         medtronic_rl_status.setTextColor(if (rileyLinkError != null) Color.RED else Color.WHITE)
 
         medtronic_errors.text =
-            rileyLinkServiceData.rileyLinkError?.let {
+            medinkServiceData.rileyLinkError?.let {
                 resourceHelper.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 
@@ -200,17 +200,17 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             PumpDeviceState.InvalidConfiguration -> medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
 
             PumpDeviceState.Active               -> {
-                val cmd = medtronicUtil.getCurrentCommand()
+                val cmd = medLinkMedtronicUtil.getCurrentCommand()
                 if (cmd == null)
                     medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
                 else {
                     aapsLogger.debug(LTag.PUMP, "Command: " + cmd)
                     val cmdResourceId = cmd.resourceId
                     if (cmd == MedtronicCommandType.GetHistoryData) {
-                        medtronic_pump_status.text = medtronicUtil.frameNumber?.let {
-                            resourceHelper.gs(cmdResourceId, medtronicUtil.pageNumber, medtronicUtil.frameNumber)
+                        medtronic_pump_status.text = medLinkMedtronicUtil.frameNumber?.let {
+                            resourceHelper.gs(cmdResourceId, medLinkMedtronicUtil.pageNumber, medLinkMedtronicUtil.frameNumber)
                         }
-                            ?: resourceHelper.gs(R.string.medtronic_cmd_desc_get_history_request, medtronicUtil.pageNumber)
+                            ?: resourceHelper.gs(R.string.medtronic_cmd_desc_get_history_request, medLinkMedtronicUtil.pageNumber)
                     } else {
                         medtronic_pump_status.text = " " + (cmdResourceId?.let { resourceHelper.gs(it) }
                             ?: cmd.getCommandDescription())

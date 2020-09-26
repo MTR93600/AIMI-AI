@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">중지</string>
     <string name="rileylink_scanner_selected_device">선택됨</string>
     <string name="rileylink_scanner_title">RileyLink 스캔</string>
+    <string name="medlink_scanner_title">MedLink 스캔</string>
     <string name="location_yes">활성화</string>
     <string name="rileylink_scanner_scanning">스캔중</string>
     <string name="rileylink_scanner_scanning_finished">스캔 완료</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">RileyLink 상태</string>
     <string name="medtronic_pump_status">펌프 상태</string>
     <string name="title_activity_rileylink_settings">RileyLink 설정</string>
+    <string name="title_activity_medlink_settings">MedLink 설정</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">구성된 주소</string>
     <string name="rileylink_connected_device">연결된 장치</string>

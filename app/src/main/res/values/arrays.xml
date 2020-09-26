@@ -146,6 +146,8 @@
         <item>754 (EU Fw. &lt;= 2.6A)</item>
         <item>554 (CA Fw. &lt;= 2.7A)</item>
         <item>754 (CA Fw. &lt;= 2.7A)</item>
+        <item>754 (CA Fw. > 2.7A)</item>
+        <item>754 (EU Fw. > 2.7A)</item>
     </string-array>
 
     <string-array name="medtronicPumpFreqArray">
@@ -167,6 +169,7 @@
     <string-array name="medtronicEncoding">
         <item>@string/medtronic_pump_encoding_4b6b_local</item>
         <item>@string/medtronic_pump_encoding_4b6b_rileylink</item>
+        <item>@string/medtronic_pump_encoding_medlink</item>
     </string-array>
 
     <string-array name="onOff">
@@ -177,6 +180,7 @@
     <string-array name="medtronicEncodingValues">
         <item>@string/key_medtronic_pump_encoding_4b6b_local</item>
         <item>@string/key_medtronic_pump_encoding_4b6b_rileylink</item>
+        <item>@string/key_medtronic_pump_encoding_medlink</item>
     </string-array>
 
     <string-array name="medtronicBatteryType">

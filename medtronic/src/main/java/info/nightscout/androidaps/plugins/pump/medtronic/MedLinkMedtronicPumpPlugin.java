@@ -9,6 +9,7 @@ import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
@@ -53,8 +54,9 @@ import info.nightscout.androidaps.plugins.pump.common.PumpPluginAbstract;
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask;
@@ -66,10 +68,10 @@ import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificationType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicStatusRefreshType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
-import info.nightscout.androidaps.plugins.pump.medtronic.service.RileyLinkMedtronicService;
+import info.nightscout.androidaps.plugins.pump.medtronic.service.MedLinkMedtronicService;
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicConst;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil;
-
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.TimeChangeType;
@@ -87,9 +89,9 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     private final MedtronicPumpStatus medtronicPumpStatus;
     private final MedtronicHistoryData medtronicHistoryData;
 
-    private final RileyLinkServiceData medlinkServiceData;
+    private final MedLinkServiceData medlinkServiceData;
 
-    private RileyLinkMedtronicService medlinkService;
+    private MedLinkMedtronicService medlinkService;
 
     private final ServiceTaskExecutor serviceTaskExecutor;
 
@@ -107,6 +109,10 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     private TempBasalMicrobolusOperations tempbasalMicrobolusOperations;
 
     private PumpDescription pumpDescription = new PumpDescription();
+    private Integer percent;
+    private Integer durationInMinutes;
+    private Profile profile;
+    private PumpEnactResult result;
 
     @Inject
     public MedLinkMedtronicPumpPlugin(
@@ -122,18 +128,18 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
             MedtronicUtil medtronicUtil,
             MedtronicPumpStatus medtronicPumpStatus,
             MedtronicHistoryData medtronicHistoryData,
-            RileyLinkServiceData rileyLinkServiceData,
+            MedLinkServiceData medLinkServiceData,
             ServiceTaskExecutor serviceTaskExecutor,
             DateUtil dateUtil
     ) {
 
         super(new PluginDescription() //
                         .mainType(PluginType.PUMP) //
-                        .fragmentClass(MedtronicFragment.class.getName()) //
-                        .pluginName(R.string.medtronic_name) //
-                        .shortName(R.string.medtronic_name_short) //
-                        .preferencesId(R.xml.pref_medtronic)
-                        .description(R.string.description_pump_medtronic), //
+                        .fragmentClass(MedLinkMedtronicFragment.class.getName()) //
+                        .pluginName(R.string.medlink_medtronic_name) //
+                        .shortName(R.string.medlink_medtronic_name_short) //
+                        .preferencesId(R.xml.pref_medtronic_medlink)
+                        .description(R.string.description_pump_medtronic_medlink), //
                 PumpType.Medlink_Medtronic_554_754_Veo, // we default to most basic model, correct model from config is loaded later
                 injector, resourceHelper, aapsLogger, commandQueue, rxBus, activePlugin, sp, context, fabricPrivacy, dateUtil
         );
@@ -142,7 +148,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         this.sp = sp;
         this.medtronicPumpStatus = medtronicPumpStatus;
         this.medtronicHistoryData = medtronicHistoryData;
-        this.medlinkServiceData = rileyLinkServiceData;
+        this.medlinkServiceData = medLinkServiceData;
         this.serviceTaskExecutor = serviceTaskExecutor;
         this.tempbasalMicrobolusOperations = new TempBasalMicrobolusOperations();
         displayConnectionMessages = false;
@@ -150,14 +156,15 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         serviceConnection = new ServiceConnection() {
 
             public void onServiceDisconnected(ComponentName name) {
-                aapsLogger.debug(LTag.PUMP, "RileyLinkMedtronicService is disconnected");
-//                    rileyLinkMedtronicService = null;
+                aapsLogger.debug(LTag.PUMP, "MedLinkMedtronicService is disconnected");
+                medlinkService = null;
             }
 
             public void onServiceConnected(ComponentName name, IBinder service) {
-                aapsLogger.debug(LTag.PUMP, "RileyLinkMedtronicService is connected");
-                RileyLinkMedtronicService.LocalBinder mLocalBinder = (RileyLinkMedtronicService.LocalBinder) service;
-//                    rileyLinkMedtronicService = mLocalBinder.getServiceInstance();
+                aapsLogger.debug(LTag.PUMP, "MedLinkMedtronicService is connected");
+                MedLinkMedtronicService.LocalBinder mLocalBinder = (MedLinkMedtronicService.LocalBinder) service;
+                medlinkService = mLocalBinder.getServiceInstance();
+                medlinkService.verifyConfiguration();
 
                 new Thread(() -> {
 
@@ -185,8 +192,51 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         return false;
     }
 
-    @Override public void initPumpStatusData() {
+    @Override
+    public void updatePreferenceSummary(@NotNull Preference pref) {
+        super.updatePreferenceSummary(pref);
 
+        if (pref.getKey().equals(getResourceHelper().gs(R.string.key_medlink_mac_address))) {
+            String value = sp.getStringOrNull(R.string.key_medlink_mac_address, null);
+            pref.setSummary(value == null ? getResourceHelper().gs(R.string.not_set_short) : value);
+        }
+    }
+
+    @Override public void initPumpStatusData() {
+        medtronicPumpStatus.lastConnection = sp.getLong(MedLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
+        medtronicPumpStatus.lastDataTime = medtronicPumpStatus.lastConnection;
+        medtronicPumpStatus.previousConnection = medtronicPumpStatus.lastConnection;
+
+        //if (rileyLinkMedtronicService != null) rileyLinkMedtronicService.verifyConfiguration();
+
+        aapsLogger.debug(LTag.PUMP, "initPumpStatusData: " + this.medtronicPumpStatus);
+
+        // this is only thing that can change, by being configured
+        pumpDescription.maxTempAbsolute = (medtronicPumpStatus.maxBasal != null) ? medtronicPumpStatus.maxBasal : 35.0d;
+
+        // set first Medtronic Pump Start
+        if (!sp.contains(MedtronicConst.Statistics.FirstPumpStart)) {
+            sp.putLong(MedtronicConst.Statistics.FirstPumpStart, System.currentTimeMillis());
+        }
+
+        migrateSettings();
+    }
+
+    private void migrateSettings() {
+
+        if ("US (916 MHz)".equals(sp.getString(MedLinkMedtronicConst.Prefs.PumpFrequency, "US (916 MHz)"))) {
+            sp.putString(MedLinkMedtronicConst.Prefs.PumpFrequency, getResourceHelper().gs(R.string.key_medtronic_pump_frequency_us_ca));
+        }
+
+//        String encoding = sp.getString(MedtronicConst.Prefs.Encoding, "RileyLink 4b6b Encoding");
+//
+//        if ("RileyLink 4b6b Encoding".equals(encoding)) {
+//            sp.putString(MedtronicConst.Prefs.Encoding, getResourceHelper().gs(R.string.key_medtronic_pump_encoding_4b6b_rileylink));
+//        }
+//
+//        if ("Local 4b6b Encoding".equals(encoding)) {
+//            sp.putString(MedtronicConst.Prefs.Encoding, getResourceHelper().gs(R.string.key_medtronic_pump_encoding_4b6b_local));
+//        }
     }
 
     @Override public void onStartCustomActions() {
@@ -194,11 +244,11 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     @Override public Class getServiceClass() {
-        return null;
+        return MedLinkMedtronicService.class;
     }
 
     @Override public PumpStatus getPumpStatusData() {
-        return null;
+        return medtronicPumpStatus;
     }
 
     @Override
@@ -251,7 +301,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     public void getPumpStatus() {
     }
 
-    public TempBasalMicrobolusOperations getTempbasalMicrobolusOperations() {
+    public TempBasalMicrobolusOperations getTempBasalMicrobolusOperations() {
         return tempbasalMicrobolusOperations;
     }
 
@@ -516,16 +566,17 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
     }
 
-    private PumpEnactResult clearTempBasal(PumpEnactResult result) {
-        //TODO implement
+    private PumpEnactResult clearTempBasal() {
+        PumpEnactResult result = buildPumpEnactResult();
         this.tempbasalMicrobolusOperations.clearOperations();
+        result.success = true;
+        result.comment = resourceHelper.gs(R.string.canceltemp);
         return result;
     }
 
     private LinkedList<TempBasalMicroBolusPair> buildSuspensionScheduler(Integer totalSuspendedMinutes,
                                                                          Integer suspensions,
-                                                                         Double operationInterval,
-                                                                         Integer durationInMinutes) {
+                                                                         Double operationInterval) {
         double operationDuration = Double.valueOf(totalSuspendedMinutes) / Double.valueOf(suspensions);
         if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
             operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS;
@@ -581,15 +632,17 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     private PumpEnactResult scheduleSuspension(Integer percent, Integer durationInMinutes,
-                                               Profile profile, PumpEnactResult result) {
-        Double suspended = (durationInMinutes * (1 - (percent / 100d))) / 10;
-        Integer totalSuspendedMinutes = new BigDecimal(suspended.toString()).multiply(new BigDecimal(10)).setScale(0, RoundingMode.HALF_UP).intValue();
+                                               Profile profile) {
+        this.percent = percent;
+        this.durationInMinutes = durationInMinutes;
+
+        double suspended = durationInMinutes * (1 - percent / 100d) / 10;
+        int totalSuspendedMinutes = new BigDecimal(Double.toString(suspended)).multiply(new BigDecimal(10)).setScale(0, RoundingMode.HALF_UP).intValue();
 
         if (totalSuspendedMinutes < Constants.INTERVAL_BETWEEN_OPERATIONS) {
             return result;
         } else {
             int suspensions;
-            double operationInterval;
             if (totalSuspendedMinutes < durationInMinutes / 2) {
                 suspensions = new BigDecimal(totalSuspendedMinutes)
                         .divide(new BigDecimal(Constants.INTERVAL_BETWEEN_OPERATIONS), RoundingMode.HALF_UP)
@@ -601,18 +654,18 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                     suspensions++;
                 }
             }
-            operationInterval = durationInMinutes / suspensions;
+            double operationInterval = Double.valueOf(durationInMinutes) / suspensions;
             double mod = operationInterval % Constants.INTERVAL_BETWEEN_OPERATIONS;
             operationInterval -= mod;
             //TODO need to reavaluate some cases, used floor here to avoid two possible up rounds
             LinkedList<TempBasalMicroBolusPair> operations = this.buildSuspensionScheduler(
-                    totalSuspendedMinutes, suspensions, operationInterval, durationInMinutes);
+                    totalSuspendedMinutes, suspensions, operationInterval);
             this.tempbasalMicrobolusOperations.updateOperations(suspensions, 0d,
                     operations,
                     totalSuspendedMinutes);
         }
         //criar fila de comandos aqui, esta fila deverá ser consumida a cada execução de checagem de status
-        return result;
+        return buildPumpEnactResult().success(true).comment(getResourceHelper().gs(R.string.medtronic_cmd_desc_set_tbr));
     }
 
     private TempBasalMicrobolusOperations buildFirstLevelTempBasalMicroBolusOperations(
@@ -637,8 +690,8 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                 durationInSeconds -= spentBasalTimeInSeconds;
                 spentBasalTimeInSeconds = 0;
             }
-            TempBasalMicroBolusDTO tempBasalPair = calculateTempBasalDosage(durationInSeconds, startedTime + spentBasalTimeInSeconds,
-                    currentProfileValue, previousProfileValue, basalProfilesFromTemp, percent,
+            TempBasalMicroBolusDTO tempBasalPair = calculateTempBasalDosage(startedTime + spentBasalTimeInSeconds,
+                    currentProfileValue, basalProfilesFromTemp, percent,
                     durationInSeconds - spentBasalTimeInSeconds);
             totalAmount += tempBasalPair.getInsulinRate();
             spentBasalTimeInSeconds += tempBasalPair.getDurationMinutes() * 60;
@@ -658,14 +711,13 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         } else if (roundedTotalAmount.doubleValue() < getPumpType().getBolusSize()) {
             return new TempBasalMicrobolusOperations(0, 0, new LinkedList<>());
         } else {
-            return buildTempBasalSMBOperations(roundedTotalAmount, insulinPeriod, startedTime);
+            return buildTempBasalSMBOperations(roundedTotalAmount, insulinPeriod);
         }
 
     }
 
-    private TempBasalMicroBolusDTO calculateTempBasalDosage(int durationInSeconds, int startedTime,
+    private TempBasalMicroBolusDTO calculateTempBasalDosage(int startedTime,
                                                             Profile.ProfileValue currentProfileValue,
-                                                            Profile.ProfileValue previousProfileValue,
                                                             LinkedList<Profile.ProfileValue> basalProfilesFromTemp,
                                                             int percent, int remainingDurationInSeconds) {
         int delta = 0;
@@ -697,8 +749,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     private TempBasalMicrobolusOperations buildTempBasalSMBOperations(BigDecimal totalAmount,
-                                                                      List<TempBasalMicroBolusDTO> insulinPeriod,
-                                                                      int startedTime) {
+                                                                      List<TempBasalMicroBolusDTO> insulinPeriod) {
         TempBasalMicrobolusOperations result = new TempBasalMicrobolusOperations();
         LocalDateTime operationTime = getCurrentTime();
         double minDosage = 0d;
@@ -730,9 +781,9 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         BigDecimal totalDose = result.operations.stream().map(TempBasalMicroBolusPair::getDose).reduce(BigDecimal.ZERO, BigDecimal::add);
         double doseDiff = totalDose.subtract(totalAmount).setScale(1,
                 RoundingMode.HALF_UP).doubleValue();
-        if (totalDose.compareTo(totalAmount) == 1 && doseDiff >= minDosage) {
+        if (totalDose.compareTo(totalAmount) > 0 && doseDiff >= minDosage) {
             result.operations = excludeExtraDose(totalDose, totalAmount, result);
-        } else if (totalAmount.compareTo(totalDose) == 1 && Math.abs(doseDiff) >= minDosage) {
+        } else if (totalAmount.compareTo(totalDose) > 0 && Math.abs(doseDiff) >= minDosage) {
             //TODO need a test to verify if this is reacheable
             throw new RuntimeException("Error in temp basal microbolus calculation, totalDose: " + totalDose + ", totalAmount " + totalAmount + ", profiles " + insulinPeriod);
         }
@@ -743,9 +794,9 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                                                                  TempBasalMicrobolusOperations result) {
         int dosesToDecrease = totalDose.subtract(totalAmount).divide(new BigDecimal(getPumpType().getBolusSize().toString()), RoundingMode.HALF_DOWN).intValue();
         final BigDecimal maxDosage = result.operations.stream().map(
-                TempBasalMicroBolusPair::getDose).max(BigDecimal::compareTo).get();
+                TempBasalMicroBolusPair::getDose).max(BigDecimal::compareTo).orElse(new BigDecimal(0));
         final BigDecimal minDosage = result.operations.stream().map(
-                TempBasalMicroBolusPair::getDose).min(BigDecimal::compareTo).get();
+                TempBasalMicroBolusPair::getDose).min(BigDecimal::compareTo).orElse(new BigDecimal(0));
         LinkedList<TempBasalMicroBolusPair> operations = new LinkedList<>();
         if (maxDosage.equals(minDosage)) {
             Stream<TempBasalMicroBolusPair> sortedOperations = result.operations.stream().sorted((prev, curr) -> prev.getDelta().compareTo(curr.getDelta()));
@@ -758,7 +809,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                 TempBasalMicroBolusPair tmp = result.operations.pollFirst();
                 if (tmp.getDose().equals(maxDosage) && dosesToDecrease > 0) {
                     dosesToDecrease -= 1;
-                    if (tmp.getDose().compareTo(new BigDecimal(getPumpType().getBolusSize().toString())) == 1) {
+                    if (tmp.getDose().compareTo(new BigDecimal(getPumpType().getBolusSize().toString())) > 0) {
                         operations.add(tmp.decreaseDosage(getPumpType().getBolusSize()));
                     }
                 } else {
@@ -816,7 +867,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         if (doses == 0) {
             return list;
         } else {
-            //TODO unreacheable code
+            //TODO unreachable code
             return buildOperations(doses, operations, list);
         }
     }
@@ -886,14 +937,14 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     }
 
     private PumpEnactResult scheduleTempBasalBolus(Integer percent, Integer durationInMinutes,
-                                                   Profile profile, PumpEnactResult result) {
+                                                   Profile profile) {
         LocalDateTime currentTime = getCurrentTime();
         int currentTas = currentTime.getMillisOfDay() / 1000;
         Long endTas = currentTas + (durationInMinutes * 60L);
         LinkedList<Profile.ProfileValue> basalProfilesFromTemp = extractTempProfiles(profile, endTas, currentTas);
 
         tempbasalMicrobolusOperations = buildFirstLevelTempBasalMicroBolusOperations(percent, basalProfilesFromTemp, durationInMinutes);
-        return result;
+        return buildPumpEnactResult().success(true).comment(getResourceHelper().gs(R.string.medtronic_cmd_desc_set_tbr));
     }
 
     private LinkedList<Profile.ProfileValue> extractTempProfiles(Profile profile, Long endTas, Integer currentTas) {
@@ -914,17 +965,16 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
                     if (currentTas < basalValue.timeAsSeconds) {
                         tempBasalProfiles.add(previousProfile);
                     }
-                    tempBasalProfiles.add(basalValue);//estudar remover isso pra fora do if e tirar o else
-                } else if (basalValue.value != previousProfile.value) {
+                    tempBasalProfiles.add(basalValue);
+                } else if (previousProfile == null || basalValue.value != previousProfile.value) {
                     tempBasalProfiles.add(basalValue);
                 }
             }
             previousProfile = basalValue;
         }
         if (endTas >= Constants.SECONDS_PER_DAY) {
-            if (tempBasalProfiles.isEmpty()) {
+            if (tempBasalProfiles.isEmpty() && previousProfile != null) {
                 previousProfile.timeAsSeconds = currentTas;
-//                endTas-=endTas-currentTas;
                 tempBasalProfiles.add(previousProfile);
             }
             tempBasalProfiles.addAll(extractTempProfiles(profile, endTas - Constants.SECONDS_PER_DAY, 0));
@@ -949,13 +999,13 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
     @NotNull @Override
     public PumpEnactResult setTempBasalPercent(Integer percent, Integer durationInMinutes, Profile profile, boolean enforceNew) {
 
-        PumpEnactResult result = buildPumpEnactResult();
+        PumpEnactResult result;
         if (percent == 100) {
-            result = clearTempBasal(result);
+            result = clearTempBasal();
         } else if (percent < 100) {
-            result = scheduleSuspension(percent, durationInMinutes, profile, result);
+            result = scheduleSuspension(percent, durationInMinutes, profile);
         } else {
-            result = scheduleTempBasalBolus(percent, durationInMinutes, profile, result);
+            result = scheduleTempBasalBolus(percent, durationInMinutes, profile);
         }
 //        result.success = false;
 //        result.comment = MainApp.gs(R.string.pumperror);
@@ -1004,7 +1054,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         return super.getPumpType();
     }
 
-    @Override
+    @NotNull @Override
     public String serialNumber() {
         return medtronicPumpStatus.serialNumber;
     }
@@ -1059,7 +1109,7 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
 
 
     @Nullable
-    public RileyLinkMedtronicService getMedLinkService() {
+    public MedLinkMedtronicService getMedLinkService() {
         return medlinkService;
     }
 

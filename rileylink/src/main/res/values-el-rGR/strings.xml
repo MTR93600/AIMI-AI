@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">STOP</string>
     <string name="rileylink_scanner_selected_device">Επιλεγμένο</string>
     <string name="rileylink_scanner_title">RileyLink Scan</string>
+    <string name="medlink_scanner_title">MedLink Scan</string>
     <string name="location_yes">Ενεργοποίηση</string>
     <string name="rileylink_scanner_scanning">Σάρωση</string>
     <string name="rileylink_scanner_scanning_finished">Η σάρωση ολοκληρώθηκε</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">Κατάσταση RileyLink</string>
     <string name="medtronic_pump_status">Κατάσταση Αντλίας</string>
     <string name="title_activity_rileylink_settings">Ρυθμίσεις RileyLink</string>
+    <string name="title_activity_medlink_settings">Ρυθμίσεις MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Διαμορφωμένη Διεύθυνση</string>
     <string name="rileylink_connected_device">Συνδεδεμένες συσκευές</string>

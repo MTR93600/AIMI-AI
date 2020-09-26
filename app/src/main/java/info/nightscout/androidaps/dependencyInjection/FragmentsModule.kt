@@ -32,6 +32,7 @@ import info.nightscout.androidaps.plugins.pump.combo.ComboFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusGeneralFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusHistoryFragment
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightFragment
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicFragment
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicFragment
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.RileyLinkStatusDeviceMedtronic
 import info.nightscout.androidaps.plugins.pump.omnipod.OmnipodFragment
@@ -65,6 +66,7 @@ abstract class FragmentsModule {
     @ContributesAndroidInjector abstract fun contributesLocalInsightFragment(): LocalInsightFragment
     @ContributesAndroidInjector abstract fun contributesLoopFragment(): LoopFragment
     @ContributesAndroidInjector abstract fun contributesMaintenanceFragment(): MaintenanceFragment
+    @ContributesAndroidInjector abstract fun contributesMedLinkMedtronicFragment(): MedLinkMedtronicFragment
     @ContributesAndroidInjector abstract fun contributesMedtronicFragment(): MedtronicFragment
     @ContributesAndroidInjector abstract fun contributesOmnipodFragment(): OmnipodFragment
     @ContributesAndroidInjector abstract fun contributesNSProfileFragment(): NSProfileFragment

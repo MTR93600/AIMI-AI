@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Integrácia pre pumpu Medtronic, požaduje sa RileyLink zariadenie a špecifický model pumpy.</string>
+    <string name="description_pump_medtronic_medlink">Integrácia pre pumpu Medtronic, požaduje sa MedLink.</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Sériové číslo pumpy</string>
     <string name="medtronic_pump_type">Typ pumpy</string>

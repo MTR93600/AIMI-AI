@@ -6,6 +6,7 @@
     <string name="rileylink_scanner_scan_stop">STOP</string>
     <string name="rileylink_scanner_selected_device">Selected</string>
     <string name="rileylink_scanner_title">RileyLink Scan</string>
+    <string name="medlink_scanner_title">MedLink Scan</string>
     <string name="location_yes">Enable</string>
     <string name="location_no">No</string>
     <string name="rileylink_scanner_scanning">Scanning</string>
@@ -19,6 +20,7 @@
     <string name="rileylink_status">RileyLink Status</string>
     <string name="medtronic_pump_status">Pump Status</string>
     <string name="title_activity_rileylink_settings">RileyLink Settings</string>
+    <string name="title_activity_medlink_settings">MedLink Settings</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Configured Address</string>
     <string name="rileylink_connected_device">Connected Device</string>
@@ -63,8 +65,10 @@
 
     <string name="key_medtronic_pump_encoding_4b6b_local" translatable="false">medtronic_pump_encoding_4b6b_local</string>
     <string name="key_medtronic_pump_encoding_4b6b_rileylink" translatable="false">medtronic_pump_encoding_4b6b_rileylink</string>
+    <string name="key_medtronic_pump_encoding_medlink" translatable="false">medtronic_pump_encoding_medlink</string>
 
     <string name="key_rileylink_mac_address" translatable="false">pref_rileylink_mac_address</string>
+    <string name="key_medlink_mac_address" translatable="false">pref_medlink_mac_address</string>
     <string name="key_medtronic_encoding" translatable="false">pref_medtronic_encoding</string>
 
     <string name="mdt_last_bolus" translatable="false">%1$.1f %2$s (%3$s)</string>

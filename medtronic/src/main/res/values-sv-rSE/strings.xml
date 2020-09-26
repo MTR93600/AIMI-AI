@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Pumpintegration för Medtronic. Kräver Riley Link-enhet och fungerar bara mot vissa pumpmodeller</string>
+    <string name="description_pump_medtronic_medlink">Pumpintegration för Medtronic. Kräver Med Link-enhet</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Serienummer på pumpen</string>
     <string name="medtronic_pump_type">Pumptyp</string>

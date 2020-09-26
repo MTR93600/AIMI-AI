@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Integrazione del microinfusore Medtronic, richiede un dispositivo RileyLink e uno specifico modello di microinfusore</string>
+    <string name="description_pump_medtronic_medlink">Integrazione del microinfusore Medtronic, richiede un dispositivo MedLink</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Numero seriale micro</string>
     <string name="medtronic_pump_type">Tipo micro</string>

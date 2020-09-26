@@ -229,9 +229,14 @@ public class RileyLinkBLEScanActivity extends NoSplashAppCompatActivity {
             } else {
 
                 String uuid = serviceUuids.get(0).getUuid().toString().toLowerCase();
-
+                String deviceName = result.getScanRecord().getDeviceName();
                 if (uuid.equals(GattAttributes.SERVICE_RADIO)) {
                     Log.i(TAG, "Found RileyLink with address: " + device.getAddress());
+                    mLeDeviceListAdapter.addDevice(result);
+                    return true;
+                } else if (deviceName == "MED-LINK" || deviceName == "MED-LINK-2" ||
+                        deviceName == "MED-LINK-3" || deviceName == "HMSoft") {
+                    Log.i(TAG, "Found Medlink with address: " + device.getAddress());
                     mLeDeviceListAdapter.addDevice(result);
                     return true;
                 } else {

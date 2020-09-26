@@ -9,7 +9,7 @@ import java.util.Map;
  * Author: Dirceu Semighini Filho
  */
 
-public enum MedlinkMedtronicDeviceType {
+public enum MedLinkMedtronicDeviceType {
     Unknown_Device, //
 
     // Pump
@@ -49,13 +49,13 @@ public enum MedlinkMedtronicDeviceType {
     //
     All;
 
-    static Map<String, MedlinkMedtronicDeviceType> mapByDescription;
+    static Map<String, MedLinkMedtronicDeviceType> mapByDescription;
 
     static {
 
         mapByDescription = new HashMap<>();
 
-        for (MedlinkMedtronicDeviceType minimedDeviceType : values()) {
+        for (MedLinkMedtronicDeviceType minimedDeviceType : values()) {
 
             if (!minimedDeviceType.isFamily) {
                 mapByDescription.put(minimedDeviceType.pumpModel, minimedDeviceType);
@@ -67,24 +67,24 @@ public enum MedlinkMedtronicDeviceType {
     private String pumpModel;
 
     private boolean isFamily;
-    private MedlinkMedtronicDeviceType[] familyMembers = null;
+    private MedLinkMedtronicDeviceType[] familyMembers = null;
 
 
-    MedlinkMedtronicDeviceType(String pumpModel) {
+    MedLinkMedtronicDeviceType(String pumpModel) {
         this.isFamily = false;
         this.pumpModel = pumpModel;
     }
 
 
-    MedlinkMedtronicDeviceType(MedlinkMedtronicDeviceType... familyMembers) {
+    MedLinkMedtronicDeviceType(MedLinkMedtronicDeviceType... familyMembers) {
         this.familyMembers = familyMembers;
         this.isFamily = true;
     }
 
 
-    public static boolean isSameDevice(MedlinkMedtronicDeviceType deviceWeCheck, MedlinkMedtronicDeviceType deviceSources) {
+    public static boolean isSameDevice(MedLinkMedtronicDeviceType deviceWeCheck, MedLinkMedtronicDeviceType deviceSources) {
         if (deviceSources.isFamily) {
-            for (MedlinkMedtronicDeviceType mdt : deviceSources.familyMembers) {
+            for (MedLinkMedtronicDeviceType mdt : deviceSources.familyMembers) {
                 if (mdt == deviceWeCheck)
                     return true;
             }
@@ -96,11 +96,11 @@ public enum MedlinkMedtronicDeviceType {
     }
 
 
-    public static MedlinkMedtronicDeviceType getByDescription(String desc) {
+    public static MedLinkMedtronicDeviceType getByDescription(String desc) {
         if (mapByDescription.containsKey(desc)) {
             return mapByDescription.get(desc);
         } else {
-            return MedlinkMedtronicDeviceType.Unknown_Device;
+            return MedLinkMedtronicDeviceType.Unknown_Device;
         }
     }
 
@@ -115,7 +115,7 @@ public enum MedlinkMedtronicDeviceType {
     }
 
 
-    public MedlinkMedtronicDeviceType[] getFamilyMembers() {
+    public MedLinkMedtronicDeviceType[] getFamilyMembers() {
         return familyMembers;
     }
 

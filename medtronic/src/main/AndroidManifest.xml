@@ -6,7 +6,10 @@
             android:name=".service.RileyLinkMedtronicService"
             android:enabled="true"
             android:exported="true" />
-
+        <service
+            android:name=".service.MedLinkMedtronicService"
+            android:enabled="true"
+            android:exported="true" />
         <activity android:name=".dialog.MedtronicHistoryActivity" />
 
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>

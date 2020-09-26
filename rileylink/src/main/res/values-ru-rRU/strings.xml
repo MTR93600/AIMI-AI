@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">СТОП</string>
     <string name="rileylink_scanner_selected_device">Выбрано</string>
     <string name="rileylink_scanner_title">Сканирование RileyLink</string>
+    <string name="medlink_scanner_title">Сканирование MedLink</string>
     <string name="location_yes">Включить</string>
     <string name="location_no">Нет</string>
     <string name="rileylink_scanner_scanning">Сканирование</string>
@@ -17,6 +18,7 @@
     <string name="rileylink_status">Статус RileyLink</string>
     <string name="medtronic_pump_status">Статус помпы</string>
     <string name="title_activity_rileylink_settings">Настройки RileyLink</string>
+    <string name="title_activity_medlink_settings">Настройки MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Настроенный адрес</string>
     <string name="rileylink_connected_device">Подключенное устройство</string>

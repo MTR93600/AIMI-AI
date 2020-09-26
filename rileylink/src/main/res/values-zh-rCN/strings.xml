@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">停止</string>
     <string name="rileylink_scanner_selected_device">已选择</string>
     <string name="rileylink_scanner_title">RileyLink 扫描</string>
+    <string name="medlink_scanner_title">MedLink 扫描</string>
     <string name="location_yes">启用</string>
     <string name="rileylink_scanner_scanning">扫描中</string>
     <string name="rileylink_scanner_scanning_finished">扫描完成</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">RileyLink 状态</string>
     <string name="medtronic_pump_status">泵状态</string>
     <string name="title_activity_rileylink_settings">RileyLink 设置</string>
+    <string name="title_activity_medlink_settings">MedLink 设置</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">已配置地址</string>
     <string name="rileylink_connected_device">已连接的设备</string>

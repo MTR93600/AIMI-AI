@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Medtronic (MDT) - Base -->
-    <string name="description_pump_medtronic">Integração de Bombas Medtronic, requer o dispositivo RileyLink e o Modelo de Bomba específico</string>
+    <string name="description_pump_medtronic">Integração de Bombas Medtronic, requer o dispositivo RileyLink e um Modelo de Bomba específico</string>
+    <string name="description_pump_medtronic_medlink">Integração de Bombas Medtronic, requer o dispositivo MedLink</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Número de série da Bomba</string>
     <string name="medtronic_pump_type">Tipo de Bomba</string>

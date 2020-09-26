@@ -5,6 +5,7 @@
     <string name="rileylink_scanner_scan_stop">DETENER</string>
     <string name="rileylink_scanner_selected_device">Seleccionado</string>
     <string name="rileylink_scanner_title">Escaneo de RileyLink</string>
+    <string name="medlink_scanner_title">Escaneo de MedLink</string>
     <string name="location_yes">Habilitar</string>
     <string name="rileylink_scanner_scanning">Buscando</string>
     <string name="rileylink_scanner_scanning_finished">Búsqueda Finalizada</string>
@@ -15,6 +16,7 @@
     <string name="rileylink_status">Estado RileyLink</string>
     <string name="medtronic_pump_status">Estado de Infusora</string>
     <string name="title_activity_rileylink_settings">Ajustes de RileyLink</string>
+    <string name="title_activity_medlink_settings">Ajustes de MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_configured_address">Dirección configurada</string>
     <string name="rileylink_connected_device">Dispositivo conectado</string>

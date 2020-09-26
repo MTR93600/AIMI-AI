@@ -14,6 +14,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".dialog.MedLinkBLEScanActivity">
+            <intent-filter>
+                <action android:name="info.nightscout.androidaps.plugins.PumpCommon.dialog.MedLinkBLEScanActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".hw.medlink.dialog.MedLinkStatusActivity"
+            android:label="@string/title_activity_medlink_settings"
+            android:theme="@style/Theme.AppCompat.NoTitle" />
         <activity
             android:name=".hw.rileylink.dialog.RileyLinkStatusActivity"
             android:label="@string/title_activity_rileylink_settings"

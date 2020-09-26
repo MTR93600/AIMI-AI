@@ -2,6 +2,7 @@
 <resources>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Интеграция с помпой Medtronic требует устройства RileyLink и специфическую модель помпы</string>
+    <string name="description_pump_medtronic_medlink">Интеграция с помпой Medtronic требует устройства MedLink</string>
     <!-- MDT Configuration -->
     <string name="medtronic_serial_number">Серийный номер помы</string>
     <string name="medtronic_pump_type">Тип помпы</string>
