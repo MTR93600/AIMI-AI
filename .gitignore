@@ -7,8 +7,8 @@
 *.apk
 build/
 .idea/*
-!.idea/codeStyles/
 .idea/codeStyles/Project.xml
+!.idea/codeStyles/
 full/
 debug/
 release/
