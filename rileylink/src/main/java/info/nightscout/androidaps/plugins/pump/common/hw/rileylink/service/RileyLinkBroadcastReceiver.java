@@ -21,8 +21,11 @@ import javax.inject.Inject;
 import dagger.android.DaggerBroadcastReceiver;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
+import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorPumpDevice;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
@@ -84,16 +87,18 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
         // MedLink
         this.broadcastIdentifiers.put("Med-Link", Arrays.asList( //
-                RileyLinkConst.Intents.RileyLinkDisconnected, //
-                RileyLinkConst.Intents.RileyLinkReady, //
-                RileyLinkConst.Intents.RileyLinkDisconnected, //
-                RileyLinkConst.Intents.RileyLinkNewAddressSet, //
-                RileyLinkConst.Intents.RileyLinkDisconnect));
+                MedLinkConst.Intents.RileyLinkDisconnected, //
+                MedLinkConst.Intents.RileyLinkReady, //
+                MedLinkConst.Intents.RileyLinkDisconnected, //
+                MedLinkConst.Intents.RileyLinkNewAddressSet, //
+                MedLinkConst.Intents.RileyLinkDisconnect));
     }
 
-    private RileyLinkService getServiceInstance() {
-        RileyLinkPumpDevice pumpDevice = (RileyLinkPumpDevice)activePlugin.getActivePump();
+    protected RileyLinkService getServiceInstance() {
+        PumpInterface pump = activePlugin.getActivePump();
+        RileyLinkPumpDevice pumpDevice = (RileyLinkPumpDevice) pump;
         return pumpDevice.getRileyLinkService();
+
     }
 
 
@@ -137,7 +142,7 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     }
 
 
-    private boolean processRileyLinkBroadcasts(String action, Context context) {
+    protected boolean processRileyLinkBroadcasts(String action, Context context) {
 
         RileyLinkService rileyLinkService = getServiceInstance();
 
@@ -178,6 +183,7 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             String RileylinkBLEAddress = sp.getString(RileyLinkConst.Prefs.RileyLinkAddress, "");
             if (RileylinkBLEAddress.equals("")) {
                 aapsLogger.error("No Rileylink BLE Address saved in app");
+                aapsLogger.error(sp.toString());
             } else {
                 // showBusy("Configuring Service", 50);
                 // rileyLinkBLE.findRileyLink(RileylinkBLEAddress);
@@ -238,5 +244,18 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
     public void unregisterBroadcasts(Context context) {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+    }
+
+    @Override public String toString() {
+        return "RileyLinkBroadcastReceiver{" +
+                "injector=" + injector +
+                ", sp=" + sp +
+                ", aapsLogger=" + aapsLogger +
+                ", rileyLinkServiceData=" + rileyLinkServiceData +
+                ", serviceTaskExecutor=" + serviceTaskExecutor +
+                ", activePlugin=" + activePlugin +
+                ", serviceInstance=" + serviceInstance +
+                ", broadcastIdentifiers=" + broadcastIdentifiers +
+                '}';
     }
 }

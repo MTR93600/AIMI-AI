@@ -85,7 +85,9 @@ public class RFSpy {
     // Call this after the RL services are discovered.
     // Starts an async task to read when data is available
     public void startReader() {
+        aapsLogger.debug("RFSpy start reader");
         rileyLinkBle.registerRadioResponseCountNotification(this::newDataIsAvailable);
+        aapsLogger.debug("RFSpy radio registered");
         reader.start();
     }
 
@@ -432,5 +434,9 @@ public class RFSpy {
             e.toString();
         }
         return resp;
+    }
+
+    public void initializeMedLink() {
+
     }
 }

@@ -10,6 +10,8 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCo
  */
 public class MedLinkMessage {
     public MedLinkMedtronicCommandType commandType;
+    private MedLinkMedtronicCommandType messageType;
+    private MessageBody messageBody;
 
     public MedLinkMessage(AAPSLogger aapsLogger, String s) {
 
@@ -39,11 +41,20 @@ public class MedLinkMessage {
         return null;
     }
 
-    public void init(PacketType carelink, byte[] pumpIDBytes, MedLinkMedtronicCommandType messageType, MessageBody messageBody) {
-
+    public void init(byte[] pumpIDBytes, MedLinkMedtronicCommandType messageType, MessageBody messageBody) {
+        this.messageType = messageType;
+        this.messageBody = messageBody;
     }
 
     public Object getResponseContent() {
         return null;
+    }
+
+    @Override public String toString() {
+        return "MedLinkMessage{" +
+                "commandType=" + commandType +
+                ", messageType=" + messageType +
+                ", messageBody=" + messageBody +
+                '}';
     }
 }

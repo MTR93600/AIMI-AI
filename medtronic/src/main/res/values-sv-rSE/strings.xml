@@ -33,6 +33,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Pumpfrekvens ej vald.</string>
     <string name="medtronic_error_pump_frequency_invalid">Pumpfrekvens stöds inte.</string>
     <string name="medtronic_error_rileylink_address_invalid">Riley Link adress felaktig.</string>
+    <string name="medtronic_error_medlink_address_invalid">Med Link adress felaktig.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Pumptypen verkar inte vara samma som den inställda.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Basalprofiler är inte aktiverade på pumpen. Aktivera det i pumpens menyer.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Fel basalprofiltyp inställt på pumpen (måste vara STD).</string>

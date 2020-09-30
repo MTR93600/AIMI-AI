@@ -33,6 +33,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Frequência de Bomba não definida.</string>
     <string name="medtronic_error_pump_frequency_invalid">Frequência da Bomba não suportada.</string>
     <string name="medtronic_error_rileylink_address_invalid">Endereço RileyLink inválido.</string>
+    <string name="medtronic_error_medlink_address_invalid">Endereço MedLink inválido.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">A bomba detectada não é a mesma que a bomba configurada.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">A configuração de perfis/padrões da basal não éstá ativada na bomba. Ative-a na bomba.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Perfil Basal definido na Bomba está incorrecto (deve ser STD).</string>

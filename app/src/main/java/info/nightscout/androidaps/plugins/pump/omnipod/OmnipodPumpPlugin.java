@@ -52,6 +52,7 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkService;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ResetRileyLinkConfigurationTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
@@ -400,6 +401,10 @@ public class OmnipodPumpPlugin extends PumpPluginAbstract implements OmnipodPump
         return false;
     }
 
+    @Override public void resetConfiguration() {
+        this.resetRileyLinkConfiguration();
+    }
+
 
     @Override
     public void resetRileyLinkConfiguration() {
@@ -421,6 +426,10 @@ public class OmnipodPumpPlugin extends PumpPluginAbstract implements OmnipodPump
     @Override
     public void triggerPumpConfigurationChangedEvent() {
         rxBus.send(new EventOmnipodPumpValuesChanged());
+    }
+
+    @Override public RileyLinkService getService() {
+        return getRileyLinkService();
     }
 
 

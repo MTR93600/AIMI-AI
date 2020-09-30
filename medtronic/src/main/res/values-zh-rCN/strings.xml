@@ -31,6 +31,7 @@
     <string name="medtronic_error_pump_frequency_not_set">未设置泵频率。</string>
     <string name="medtronic_error_pump_frequency_invalid">不支持该泵类型。</string>
     <string name="medtronic_error_rileylink_address_invalid">RileyLink 地址无效。</string>
+    <string name="medtronic_error_medlink_address_invalid">MedLink 地址无效。</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">检测到的泵类型与配置的类型不同。</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">在泵上未启用 基础率配置文件/模式设置。 请在泵上启用。</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">泵上设置的基础率配置文件不正确 (必须为 STD)。</string>

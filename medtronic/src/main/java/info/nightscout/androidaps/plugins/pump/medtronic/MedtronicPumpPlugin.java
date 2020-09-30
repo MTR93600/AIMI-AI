@@ -59,6 +59,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCons
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkService;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ResetRileyLinkConfigurationTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
@@ -84,6 +85,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPu
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState;
 import info.nightscout.androidaps.plugins.pump.medtronic.service.RileyLinkMedtronicService;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicPumpPluginInterface;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
@@ -98,7 +100,7 @@ import info.nightscout.androidaps.utils.sharedPreferences.SP;
  * @author Andy Rozman (andy.rozman@gmail.com)
  */
 @Singleton
-public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInterface, RileyLinkPumpDevice {
+public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInterface, RileyLinkPumpDevice, MedtronicPumpPluginInterface {
 
     private final SP sp;
     private final RileyLinkUtil rileyLinkUtil;
@@ -120,7 +122,7 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
     public static boolean isBusy = false;
     private List<Long> busyTimestamps = new ArrayList<>();
     private boolean hasTimeDateOrTimeZoneChanged = false;
-
+    private BolusDeliveryType bolusDeliveryType = BolusDeliveryType.Idle;
 
     @Inject
     public MedtronicPumpPlugin(
@@ -254,6 +256,10 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
         rxBus.send(new EventMedtronicPumpConfigurationChanged());
     }
 
+    @Override public RileyLinkService getService() {
+        return this.getRileyLinkService();
+    }
+
     private void migrateSettings() {
 
         if ("US (916 MHz)".equals(sp.getString(MedtronicConst.Prefs.PumpFrequency, "US (916 MHz)"))) {
@@ -371,6 +377,10 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
         }
 
         return false;
+    }
+
+    @Override public void resetConfiguration() {
+        this.resetRileyLinkConfiguration();
     }
 
 
@@ -727,15 +737,6 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
 
     protected void triggerUIChange() {
         rxBus.send(new EventMedtronicPumpValuesChanged());
-    }
-
-    private BolusDeliveryType bolusDeliveryType = BolusDeliveryType.Idle;
-
-    private enum BolusDeliveryType {
-        Idle, //
-        DeliveryPrepared, //
-        Delivering, //
-        CancelDelivery
     }
 
 
@@ -1552,6 +1553,7 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
                 if (rileyLinkMedtronicService.verifyConfiguration()) {
                     serviceTaskExecutor.startTask(new WakeAndTuneTask(getInjector()));
                 } else {
+                    aapsLogger.debug("Metronic Pump plugin intent");
                     Intent i = new Intent(context, ErrorHelperActivity.class);
                     i.putExtra("soundid", R.raw.boluserror);
                     i.putExtra("status", getResourceHelper().gs(R.string.medtronic_error_operation_not_possible_no_configuration));

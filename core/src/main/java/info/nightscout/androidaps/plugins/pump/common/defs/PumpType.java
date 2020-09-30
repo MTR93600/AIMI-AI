@@ -135,7 +135,7 @@ public enum PumpType {
             PumpTempBasalType.Absolute, //
             new DoseSettings(0.1d, 5, 24 * 60, 0d, 35d),
             PumpCapability.BasalRate_Duration30minAllowed, //
-            0.025d, 0.025d, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedtronicCapabilities),
+            0.025d, 0.025d, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedLinkMedtronicCapabilities),
 
     Medlink_Medtronic_523_723_Revel_Test("Medlink Medtronic 523/723 (Revel)",
             ManufacturerType.Medtronic, "523/723 (Revel) Medlink", 0.1d,

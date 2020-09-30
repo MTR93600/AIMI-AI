@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Fréquence de pompe non définie.</string>
     <string name="medtronic_error_pump_frequency_invalid">Fréquence de pompe non pris en charge.</string>
     <string name="medtronic_error_rileylink_address_invalid">Adresse RileyLink invalide.</string>
+    <string name="medtronic_error_meelink_address_invalid">Adresse MedLink invalide.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Le type de pompe détecté n\'est pas le même que le type configuré.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Le réglage des profils de basal n\'est pas activé sur la pompe. Activez-le sur la pompe.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Le profil Basal défini sur la pompe est incorrect (doit être STD).</string>

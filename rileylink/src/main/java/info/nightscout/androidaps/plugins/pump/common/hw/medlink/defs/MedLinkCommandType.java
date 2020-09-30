@@ -12,6 +12,10 @@ public enum MedLinkCommandType {
     GetState("S"), //
     StopStartPump("a"),
     Bolus("X"),
+    IsigHistory("I"),
+    BGHistory("C"),
+    BolusHistory("H"),
+    BaseSTDProfile("E")
     // screenshots z C, H, E, I
 //    GetVersion(2), //
 //    GetPacket(3), // aka Listen, receive

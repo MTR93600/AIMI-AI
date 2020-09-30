@@ -22,6 +22,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotifi
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
@@ -244,6 +245,10 @@ public class MedLinkMedtronicUtil {
 //        return buildCommandPayload(commandType.getValue(), parameters);
 //    }
 
+
+    public String buildCommandPayload(MedLinkCommandType command) {
+        return null;
+    }
 
     public byte[] buildCommandPayload(RileyLinkServiceData medLinkServiceData, MedLinkMedtronicCommandType commandType, byte[] parameters) {
         return buildCommandPayload(medLinkServiceData, (byte) commandType.commandCode, parameters);

@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Pumpen-Frequenz nicht angegeben.</string>
     <string name="medtronic_error_pump_frequency_invalid">Pumpen-Frequenz nicht unterstützt.</string>
     <string name="medtronic_error_rileylink_address_invalid">RileyLink Adresse ungültig.</string>
+    <string name="medtronic_error_medlink_address_invalid">MedLink Adresse ungültig.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Erkannter Pumpentyp entspricht nicht dem eingestellen Pumpentyp.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Einstellung für Basalprofile/-muster ist auf der Pumpe nicht aktiviert. Aktiviere es auf der Pumpe.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Das eingestellte Basalprofl der Pumpe ist falsch (muss STD sein).</string>

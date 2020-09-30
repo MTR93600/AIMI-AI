@@ -33,6 +33,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Nenastavená frekvencia pumpy.</string>
     <string name="medtronic_error_pump_frequency_invalid">Nepodporovaná frekvencia pumpy.</string>
     <string name="medtronic_error_rileylink_address_invalid">Neplatná adresa RileyLinku.</string>
+    <string name="medtronic_error_medlink_address_invalid">Neplatná adresa MedLinku.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Rozpoznaná pumpa je iného typu než nakonfigurovaná.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Nastavenie bazálnych profilov/vzorov nie je na pumpe povolené. Povoľte ich na pumpe.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Bazálny profil na pumpe je chybný (musí byť STD).</string>

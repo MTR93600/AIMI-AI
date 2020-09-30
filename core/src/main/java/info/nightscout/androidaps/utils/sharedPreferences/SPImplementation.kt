@@ -129,4 +129,8 @@ class SPImplementation @Inject constructor(
     override fun putString(key: String, value: String) =
         sharedPreferences.edit().putString(key, value).apply()
 
+    override fun toString(): String {
+        return "SPImplementation(sharedPreferences=$sharedPreferences, resourceHelper=$resourceHelper)"
+    }
+
 }

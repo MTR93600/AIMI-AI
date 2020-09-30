@@ -233,7 +233,7 @@ class MedtronicFragment : DaggerFragment() {
     private fun displayNotConfiguredDialog() {
         context?.let {
             OKDialog.show(it, resourceHelper.gs(R.string.medtronic_warning),
-                resourceHelper.gs(R.string.medtronic_error_operation_not_possible_no_configuration), null)
+                resourceHelper.gs(R.string.medtronic_error_operation_not_possible_no_configuration)+"Medtronic fragment", null)
         }
     }
 

@@ -52,4 +52,8 @@ class ResourceHelperImplementation @Inject constructor(private val context: Cont
     }
 
     override fun shortTextMode() : Boolean = !gb(R.bool.isTablet)
+    override fun toString(): String {
+        return "ResourceHelperImplementation(context=$context)"
+    }
+
 }

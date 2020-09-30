@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -222,10 +223,16 @@ public class RileyLinkBLE {
 
                     boolean rileyLinkFound = false;
 
+                    boolean medLinkFound = false;
                     for (BluetoothGattService service : services) {
                         final UUID uuidService = service.getUuid();
 
                         if (isAnyRileyLinkServiceFound(service)) {
+                            rileyLinkFound = true;
+                        }
+
+
+                        if (isAnyMedLinkServiceFound(service)) {
                             rileyLinkFound = true;
                         }
 
@@ -257,6 +264,16 @@ public class RileyLinkBLE {
                 }
             }
         };
+    }
+
+    private boolean isAnyMedLinkServiceFound(BluetoothGattService service) {
+        aapsLogger.debug(service.toString());
+//        aapsLogger.debug(String.join(", ",service.getCharacteristics().stream().map(BluetoothGattCharacteristic::getDescriptor).map(BluetoothGattDescriptor::describeContents).collect(Collectors.toList())));
+        aapsLogger.debug(String.join(", ",service.getIncludedServices().stream().map(BluetoothGattService::toString).collect(Collectors.toList())));
+        aapsLogger.debug(""+service.getInstanceId());
+        aapsLogger.debug(""+service.getType());
+
+        return false;
     }
 
 
@@ -540,6 +557,9 @@ public class RileyLinkBLE {
                             charaUUID);
                     mCurrentOperation = new CharacteristicReadOperation(aapsLogger, bluetoothConnectionGatt, chara);
                     mCurrentOperation.execute(this);
+                    aapsLogger.debug(LTag.PUMPBTCOMM,"Bluetooth communication");
+                    aapsLogger.debug(LTag.PUMPBTCOMM,String.valueOf(mCurrentOperation.getValue()));
+                    aapsLogger.debug(LTag.PUMPBTCOMM,String.valueOf(mCurrentOperation.getValue()));
                     if (mCurrentOperation.timedOut) {
                         rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
                     } else if (mCurrentOperation.interrupted) {

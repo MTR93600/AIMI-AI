@@ -20,8 +20,8 @@
 
         <ListPreference
             android:defaultValue="1"
-            android:entries="@array/medtronicPumpTypeArray"
-            android:entryValues="@array/medtronicPumpTypeArray"
+            android:entries="@array/medLinkMedtronicPumpTypeArray"
+            android:entryValues="@array/medLinkMedtronicPumpTypeArray"
             android:key="@string/key_medtronic_pump_type"
             android:title="@string/medtronic_pump_type" />
 

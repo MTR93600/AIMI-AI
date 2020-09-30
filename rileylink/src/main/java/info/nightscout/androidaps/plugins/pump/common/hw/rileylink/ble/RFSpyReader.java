@@ -87,6 +87,7 @@ public class RFSpyReader {
 
 
     public void start() {
+        aapsLogger.debug(LTag.PUMPBTCOMM, "RFSpyReader starting");
         readerTask = new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -97,6 +98,8 @@ public class RFSpyReader {
                 while (true) {
                     try {
                         acquireCount++;
+                        aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData before acquired (count=" + acquireCount + ") at t="
+                                + SystemClock.uptimeMillis());
                         waitForRadioData.acquire();
                         aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData acquired (count=" + acquireCount + ") at t="
                                 + SystemClock.uptimeMillis());

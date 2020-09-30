@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Частота помпы не задана.</string>
     <string name="medtronic_error_pump_frequency_invalid">Частота помпы не поддерживается.</string>
     <string name="medtronic_error_rileylink_address_invalid">Недопустимый адрес RileyLink.</string>
+    <string name="medtronic_error_medlink_address_invalid">Недопустимый адрес MedLink.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Обнаруженный тип помпы не соответствует настроенному.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Базальные профили/настройки шаблонов не включены в помпе. Включите их на помпе.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Базовый профиль на помпе неверный (должен быть STD).</string>

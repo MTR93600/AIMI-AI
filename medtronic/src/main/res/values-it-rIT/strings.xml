@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Frequenza micro non impostata.</string>
     <string name="medtronic_error_pump_frequency_invalid">Frequenza micro non supportata.</string>
     <string name="medtronic_error_rileylink_address_invalid">Indirizzo RileyLink non valido.</string>
+    <string name="medtronic_error_medlink_address_invalid">Indirizzo MedLink non valido.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Il tipo di micro rilevato non è uguale al tipo configurato.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">L\'impostazione di modelli/profili basali non è abilitata sul micro. Abilitala sul micro.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Il profilo basale impostato sul micro non è corretto (deve essere STD).</string>

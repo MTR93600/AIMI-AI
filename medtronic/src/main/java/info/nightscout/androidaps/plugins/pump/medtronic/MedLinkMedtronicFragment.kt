@@ -89,12 +89,14 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
                 startActivity(Intent(context, MedtronicHistoryActivity::class.java))
             } else {
+                aapsLogger.debug("medtronic history")
                 displayNotConfiguredDialog()
             }
         }
 
         medtronic_refresh.setOnClickListener {
             if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() != true) {
+                aapsLogger.debug("verifyConfiguration")
                 displayNotConfiguredDialog()
             } else {
                 medtronic_refresh.isEnabled = false
@@ -109,6 +111,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         medtronic_stats.setOnClickListener {
             if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
+                aapsLogger.debug("verifyconfiguration")
                 startActivity(Intent(context, RileyLinkStatusActivity::class.java))
             } else {
                 displayNotConfiguredDialog()
@@ -233,7 +236,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     private fun displayNotConfiguredDialog() {
         context?.let {
             OKDialog.show(it, resourceHelper.gs(R.string.medtronic_warning),
-                resourceHelper.gs(R.string.medtronic_error_operation_not_possible_no_configuration), null)
+                resourceHelper.gs(R.string.medtronic_error_operation_not_possible_no_configuration) + "fragment", null)
         }
     }
 

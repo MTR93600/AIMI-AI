@@ -65,6 +65,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Pump Frequency not set.</string>
     <string name="medtronic_error_pump_frequency_invalid">Pump Frequency unsupported.</string>
     <string name="medtronic_error_rileylink_address_invalid">RileyLink Address invalid.</string>
+    <string name="medtronic_error_medlink_address_invalid">Invalid MedLink address.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Pump type detected is not the same as configured type.</string>
 
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Basal profiles/patterns setting is not enabled on pump. Enable it on the pump.</string>

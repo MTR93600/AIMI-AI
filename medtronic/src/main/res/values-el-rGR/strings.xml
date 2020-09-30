@@ -29,6 +29,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Δεν ορίστηκε Συχνότητα Αντλίας.</string>
     <string name="medtronic_error_pump_frequency_invalid">Συχνότητα Αντλίας δεν υποστηρίζεται.</string>
     <string name="medtronic_error_rileylink_address_invalid">Διεύθυνση RileyLink μη έγκυρη.</string>
+    <string name="medtronic_error_Medlink_address_invalid">Διεύθυνση MedLink μη έγκυρη.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Ο τύπος αντλίας που ανιχνεύτηκε δεν είναι ο ίδιος με αυτόν που ορίστηκε.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Το βασικό προφίλ που ορίστηκε στην αντλία είναι λάθoς (πρέπει να είναι STD).</string>
     <string name="medtronic_error_pump_wrong_tbr_type_set">Λάθος τύπος TBR ορίστηκε στην αντλία (πρέπει να είναι Absolute).</string>

@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Frecvența pompei nesetată.</string>
     <string name="medtronic_error_pump_frequency_invalid">Frecvența pompei nesuportată.</string>
     <string name="medtronic_error_rileylink_address_invalid">Adresa RileyLink invalidă.</string>
+    <string name="medtronic_error_medlink_address_invalid">Adresa MedLink invalidă.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Tipul de pompă detectat nu corespunde cu cel configurat.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Setările de profil/șablon bazale nu sunt activate în pompă. Vă rugăm să le activați din pompă.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Tipul de profil bazal setat în pompă este incorect (trebuie să fie STD).</string>

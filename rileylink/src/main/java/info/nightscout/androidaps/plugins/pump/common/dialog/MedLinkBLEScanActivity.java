@@ -50,6 +50,10 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 // IMPORTANT: This activity needs to be called from RileyLinkSelectPreference (see pref_medtronic.xml as example)
+
+/**
+ * Created by dirceu on 9/20/20
+ */
 public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
 
     @Inject AAPSLogger aapsLogger;
@@ -57,13 +61,13 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
     @Inject RxBusWrapper rxBus;
     @Inject ResourceHelper resourceHelper;
     @Inject BlePreCheck blePrecheck;
-    @Inject MedLinkUtil rileyLinkUtil;
+    @Inject MedLinkUtil medLinkUtil;
     @Inject ActivePluginProvider activePlugin;
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 30241; // arbitrary.
     private static final int REQUEST_ENABLE_BT = 30242; // arbitrary
 
-    private static String TAG = "RileyLinkBLEScanActivity";
+    private static String TAG = "MedLinkBLEScanActivity";
 
     // Stops scanning after 30 seconds.
     private static final long SCAN_PERIOD = 30000;
@@ -178,7 +182,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
         }
 
         // disable currently selected RL, so that we can discover it
-        rileyLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.RileyLinkDisconnect, this);
+        medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.RileyLinkDisconnect, this);
     }
 
     private List<ScanFilter> buildFilters() {

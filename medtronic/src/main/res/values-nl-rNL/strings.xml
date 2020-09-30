@@ -34,6 +34,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Pomp frequentie niet ingesteld.</string>
     <string name="medtronic_error_pump_frequency_invalid">Pomp frequentie niet ondersteund.</string>
     <string name="medtronic_error_rileylink_address_invalid">RileyLink adres ongeldig.</string>
+    <string name="medtronic_error_medlink_address_invalid">MedLink adres ongeldig.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Gedetecteerde pomp type komt niet overeen met ingestelde pomp type.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">De instelling voor basaalprofielen/patronen is niet ingeschakeld op de pomp. Schakel het in op de pomp.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Basaalprofiel ingesteld op pomp is onjuist (moet STD zijn).</string>

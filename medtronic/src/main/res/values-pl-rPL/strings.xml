@@ -33,6 +33,7 @@
     <string name="medtronic_error_pump_frequency_not_set">Częstotliwość pompy nie ustawiona.</string>
     <string name="medtronic_error_pump_frequency_invalid">Częstotliwość pompy nie wspierana.</string>
     <string name="medtronic_error_rileylink_address_invalid">Adres RileyLink niewłaściwy.</string>
+    <string name="medtronic_error_medlink_address_invalid">Adres MedLink niewłaściwy.</string>
     <string name="medtronic_error_pump_type_set_differs_from_detected">Wykryty typ pompy jest inny niż ustawiony.</string>
     <string name="medtronic_error_pump_basal_profiles_not_enabled">Ustawienia bazy/ wzorców nie są włączone w pompie. Włącz je na pompie.</string>
     <string name="medtronic_error_pump_incorrect_basal_profile_selected">Profil bazowy ustawiony na pompie nie jest właściwy (musi być STD).</string>

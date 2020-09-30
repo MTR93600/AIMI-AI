@@ -7,6 +7,7 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
+import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 
 /**
@@ -40,12 +41,12 @@ public class DiscoverGattServicesTask extends ServiceTask {
             return;
         }
 
-        RileyLinkPumpDevice pumpDevice = (RileyLinkPumpDevice) activePlugin.getActivePump();
+        CommunicatorPumpDevice pumpDevice = (CommunicatorPumpDevice) activePlugin.getActivePump();
 
         if (needToConnect) {
-            pumpDevice.getRileyLinkService().getRileyLinkBLE().connectGatt();
+            pumpDevice.getService().getRileyLinkBLE().connectGatt();
         }
 
-        pumpDevice.getRileyLinkService().getRileyLinkBLE().discoverServices();
+        pumpDevice.getService().getRileyLinkBLE().discoverServices();
     }
 }
