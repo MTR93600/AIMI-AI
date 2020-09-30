@@ -45,6 +45,7 @@ import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -85,18 +86,17 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
     private String actionTitleStart, actionTitleStop;
     private MenuItem menuItem;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.medlink_scan_activity);
+        setContentView(R.layout.rileylink_scan_activity);
 
         // Initializes Bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
 
         mLeDeviceListAdapter = new LeDeviceListAdapter();
-        listBTScan = findViewById(R.id.medlink_listBTScan);
+        listBTScan = findViewById(R.id.rileylink_listBTScan);
         listBTScan.setAdapter(mLeDeviceListAdapter);
         listBTScan.setOnItemClickListener((parent, view, position, id) -> {
 
@@ -111,30 +111,15 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
 
             sp.putString(MedLinkConst.Prefs.MedLinkAddress, bleAddress);
 
-            PumpInterface activePump = activePlugin.getActivePump();
-
-            if (activePump.manufacturer() == ManufacturerType.Medtronic) {
-                RileyLinkPumpDevice rileyLinkPump = (RileyLinkPumpDevice) activePump;
-                rileyLinkPump.getRileyLinkService().verifyConfiguration(); // force reloading of address
-
-                rileyLinkPump.triggerPumpConfigurationChangedEvent();
-
-            } else if (activePlugin.getActivePump().manufacturer() == ManufacturerType.Insulet) {
-                if (activePump.model() == PumpType.Insulet_Omnipod_Dash) {
-                    aapsLogger.error("Omnipod Dash not yet implemented.");
-                } else {
-                    RileyLinkPumpDevice rileyLinkPump = (RileyLinkPumpDevice) activePump;
-                    rileyLinkPump.getRileyLinkService().verifyConfiguration(); // force reloading of address
-
-                    rileyLinkPump.triggerPumpConfigurationChangedEvent();
-                }
-            }
+            RileyLinkPumpDevice rileyLinkPump = (RileyLinkPumpDevice) activePlugin.getActivePump();
+            rileyLinkPump.getRileyLinkService().verifyConfiguration(); // force reloading of address
+            rileyLinkPump.triggerPumpConfigurationChangedEvent();
 
             finish();
         });
 
         toolbarBTScan = findViewById(R.id.rileylink_toolbarBTScan);
-        toolbarBTScan.setTitle(R.string.medlink_scanner_title);
+        toolbarBTScan.setTitle(R.string.rileylink_scanner_title);
         setSupportActionBar(toolbarBTScan);
 
         prepareForScanning();

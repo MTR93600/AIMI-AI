@@ -25,6 +25,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMe
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioPacket;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.WakeAndTuneTask;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
@@ -64,6 +65,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
     @Inject MedLinkMedtronicUtil medLinkMedtronicUtil;
     @Inject MedtronicPumpHistoryDecoder medtronicPumpHistoryDecoder;
 
+
     private final int MAX_COMMAND_TRIES = 3;
     private final int DEFAULT_TIMEOUT = 2000;
     private final long RILEYLINK_TIMEOUT = 15 * 60 * 1000; // 15 min
@@ -75,7 +77,6 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
 
     public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, RFSpy rfspy) {
-        super(injector, rfspy);
         medtronicPumpStatus.previousConnection = sp.getLong(
                 RileyLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
     }
@@ -475,11 +476,12 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
     public byte[] createPumpMessageContent(RLMessageType type) {
         switch (type) {
             case PowerOn:
-                return medLinkMedtronicUtil.buildCommandPayload(medLinkServiceData, MedLinkMedtronicCommandType.RFPowerOn, //
+
+                return medLinkMedtronicUtil.buildCommandPayload(rileyLinkServiceData, MedLinkMedtronicCommandType.RFPowerOn, //
                         new byte[]{2, 1, (byte) receiverDeviceAwakeForMinutes}); // maybe this is better FIXME
 
             case ReadSimpleData:
-                return medLinkMedtronicUtil.buildCommandPayload(medLinkServiceData, MedLinkMedtronicCommandType.PumpModel, null);
+                return medLinkMedtronicUtil.buildCommandPayload(rileyLinkServiceData, MedLinkMedtronicCommandType.PumpModel, null);
         }
         return new byte[0];
     }
@@ -501,7 +503,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
     private MedLinkMessage makePumpMessage(MedLinkMedtronicCommandType messageType, MessageBody messageBody) {
         MedLinkMessage  msg = new MedLinkMessage (aapsLogger);
-        msg.init(medLinkServiceData.pumpIDBytes, messageType, messageBody);
+        msg.init(rileyLinkServiceData.pumpIDBytes, messageType, messageBody);
         return msg;
     }
 
@@ -935,9 +937,9 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
     }
 
-    @Override public PumpStatus getPumpStatus() {
-        return medtronicPumpStatus;
-    }
+//    @Override public PumpStatus getPumpStatus() {
+//        return medtronicPumpStatus;
+//    }
 
     @Override public void wakeUp(boolean force) {
 //        super.wakeUp(force);

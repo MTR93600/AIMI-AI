@@ -3,7 +3,6 @@ package info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,10 +44,10 @@ public abstract class RileyLinkService extends DaggerService {
     @Inject protected ResourceHelper resourceHelper;
     @Inject protected RileyLinkServiceData rileyLinkServiceData;
     @Inject protected ActivePluginProvider activePlugin;
+    @Inject protected RileyLinkBLE rileyLinkBLE; // android-bluetooth management
+    @Inject protected RFSpy rfspy; // interface for RL xxx Mhz radio.
 
-    @NotNull protected RileyLinkBLE rileyLinkBLE; // android-bluetooth management, must be set in initRileyLinkServiceData
     protected BluetoothAdapter bluetoothAdapter;
-    protected RFSpy rfspy; // interface for RL xxx Mhz radio.
     protected RileyLinkBroadcastReceiver mBroadcastReceiver;
     protected RileyLinkBluetoothStateReceiver bluetoothStateReceiver;
 
@@ -82,14 +81,14 @@ public abstract class RileyLinkService extends DaggerService {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        //aapsLogger.warn(LTag.PUMPCOMM, "onUnbind");
+        //aapsLogger.warn(LTag.PUMPBTCOMM, "onUnbind");
         return super.onUnbind(intent);
     }
 
 
     @Override
     public void onRebind(Intent intent) {
-        //aapsLogger.warn(LTag.PUMPCOMM, "onRebind");
+        //aapsLogger.warn(LTag.PUMPBTCOMM, "onRebind");
         super.onRebind(intent);
     }
 
@@ -99,6 +98,7 @@ public abstract class RileyLinkService extends DaggerService {
         super.onDestroy();
         //LOG.error("I die! I die!");
 
+        // xyz rfspy.stopReader();
         rileyLinkBLE.disconnect(); // dispose of Gatt (disconnect and close)
 
         if (mBroadcastReceiver != null) {
@@ -112,21 +112,6 @@ public abstract class RileyLinkService extends DaggerService {
     }
 
 
-    /**
-     * Prefix for Device specific broadcast identifier prefix (for example MSG_PUMP_ for pump or
-     * MSG_POD_ for Omnipod)
-     *
-     * @return
-     */
-    public abstract String getDeviceSpecificBroadcastsIdentifierPrefix();
-
-
-    public abstract boolean handleDeviceSpecificBroadcasts(Intent intent);
-
-
-    public abstract void registerDeviceSpecificBroadcasts(IntentFilter intentFilter);
-
-
     public abstract RileyLinkCommunicationManager getDeviceCommunicationManager();
 
     // Here is where the wake-lock begins:
@@ -138,7 +123,7 @@ public abstract class RileyLinkService extends DaggerService {
 
 
     public boolean bluetoothInit() {
-        aapsLogger.debug(LTag.PUMPCOMM, "bluetoothInit: attempting to get an adapter");
+        aapsLogger.debug(LTag.PUMPBTCOMM, "bluetoothInit: attempting to get an adapter");
         rileyLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.BluetoothInitializing);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -168,10 +153,10 @@ public abstract class RileyLinkService extends DaggerService {
 
         if (rileyLinkBLE.isConnected()) {
             if (deviceAddress.equals(rileyLinkServiceData.rileylinkAddress)) {
-                aapsLogger.info(LTag.PUMPCOMM, "No change to RL address.  Not reconnecting.");
+                aapsLogger.info(LTag.PUMPBTCOMM, "No change to RL address.  Not reconnecting.");
                 return false;
             } else {
-                aapsLogger.warn(LTag.PUMPCOMM, "Disconnecting from old RL (" + rileyLinkServiceData.rileylinkAddress
+                aapsLogger.warn(LTag.PUMPBTCOMM, "Disconnecting from old RL (" + rileyLinkServiceData.rileylinkAddress
                         + "), reconnecting to new: " + deviceAddress);
 
                 rileyLinkBLE.disconnect();
@@ -183,7 +168,7 @@ public abstract class RileyLinkService extends DaggerService {
                 return true;
             }
         } else {
-            aapsLogger.debug(LTag.PUMPCOMM, "Using RL " + deviceAddress);
+            aapsLogger.debug(LTag.PUMPBTCOMM, "Using RL " + deviceAddress);
 
             if (rileyLinkServiceData.getRileyLinkServiceState() == RileyLinkServiceState.NotStarted) {
                 if (!bluetoothInit()) {
@@ -198,13 +183,6 @@ public abstract class RileyLinkService extends DaggerService {
             return true;
         }
     }
-
-
-    public void sendServiceTransportResponse(ServiceTransport transport, ServiceResult serviceResult) {
-    }
-
-
-
 
     // FIXME: This needs to be run in a session so that is interruptable, has a separate thread, etc.
     public void doTuneUpDevice() {
@@ -225,7 +203,7 @@ public abstract class RileyLinkService extends DaggerService {
         newFrequency = getDeviceCommunicationManager().tuneForDevice();
 
         if ((newFrequency != 0.0) && (newFrequency != lastGoodFrequency)) {
-            aapsLogger.info(LTag.PUMPCOMM, "Saving new pump frequency of {} MHz", newFrequency);
+            aapsLogger.info(LTag.PUMPBTCOMM, "Saving new pump frequency of {} MHz", newFrequency);
             sp.putDouble(RileyLinkConst.Prefs.LastGoodDeviceFrequency, newFrequency);
             rileyLinkServiceData.lastGoodFrequency = newFrequency;
             rileyLinkServiceData.tuneUpDone = true;

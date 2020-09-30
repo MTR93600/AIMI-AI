@@ -283,26 +283,12 @@ public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pu
         return false;
     }
 
-    @Override public void setIsBusy(boolean isBusy_) {
-        this.isBusy = isBusy_;
-    }
 
     @Override
     public boolean isBusy() {
         return isBusy;
     }
 
-    @Override public void resetConfiguration() {
-
-    }
-
-    @Override public boolean hasTuneUp() {
-        return false;
-    }
-
-    @Override public void doTuneUpDevice() {
-
-    }
 
     @Override public void triggerPumpConfigurationChangedEvent() {
 

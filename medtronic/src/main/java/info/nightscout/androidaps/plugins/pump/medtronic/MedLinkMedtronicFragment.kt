@@ -80,7 +80,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         medtronic_pumpstatus.setBackgroundColor(resourceHelper.gc(R.color.colorInitializingBorder))
 
-        medtronic_rl_status.text = resourceHelper.gs(RileyLinkServiceState.NotStarted.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+        medtronic_rl_status.text = resourceHelper.gs(RileyLinkServiceState.NotStarted.getResourceId())
 
         medtronic_pump_status.setTextColor(Color.WHITE)
         medtronic_pump_status.text = "{fa-bed}"
@@ -175,7 +175,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = medinkServiceData.rileyLinkServiceState.getResourceId(RileyLinkTargetDevice.MedtronicPump)
+        val resourceId = medinkServiceData.rileyLinkServiceState.getResourceId()
         val rileyLinkError = medlinkMedtronicPlugin.medLinkService?.error
         medtronic_rl_status.text =
             when {

@@ -13,7 +13,7 @@
     <string name="reset_db_confirm">Naozaj chcete vymazať databázu?</string>
     <string name="nav_exit">Ukončiť</string>
     <string name="ns_sync_use_absolute_title">Vždy používaj absolútne hodnoty bazálov</string>
-    <string name="alert_dialog_storage_permission_text">Prosím reštartuj svoj telefón, alebo reštartuj AndroidAPS zo systémových nastavení, v opačnom prípade AndroidAPS nebude mocť zapisovať údaje (dôležité kvôli sledovaniu a overovaniu, že algoritmus pracuje správne)!</string>
+    <string name="alert_dialog_storage_permission_text">Prosím reštartuj svoj telefón, alebo reštartuj AndroidAPS zo systémových nastavení \nv opačnom prípade AndroidAPS nebude mocť zapisovať údaje (dôležité kvôli sledovaniu a overovaniu, že algoritmus pracuje správne)!</string>
     <string name="alert_dialog_permission_battery_optimization_failed">Toto zariadenie zrejme neumožňuje vypnúť optimalizáciu batérie - môže dochádzať k problémom s výkonom.</string>
     <string name="description_actions">Niektoré tlačidlá na rýchly prístup do spoločných funkcií</string>
     <string name="description_config_builder">Používané na konfiguráciu aktívnych pluginov</string>
@@ -156,7 +156,7 @@
     <string name="overview_tempbasal_button">Dočasný bazál</string>
     <string name="overview_extendedbolus_button">Predĺžený bolus</string>
     <string name="configbuilder_nightscoutversion_label">Verzia Nightscoutu:</string>
-    <string name="missing_carbs">Chýba %1$dg</string>
+    <string name="missing_carbs">Chýba %1$d g</string>
     <string name="exported">Nastavenie exportované</string>
     <string name="export_to">Exportovať nastavenia do</string>
     <string name="import_from">Importovať nastavenia z</string>
@@ -174,6 +174,9 @@
     <string name="preferences_import_canceled">Import zrušený! Nastavenia neboli importované!</string>
     <string name="preferences_import_impossible">Nastavenia sa nedajú importovať!</string>
     <string name="goto_main_try_again">Prosím, vráťte se späť na hlavnú obrazovku a skúste to znovu.</string>
+    <string name="old_master_password">Staré hlavné heslo</string>
+    <string name="different_password_used">Tento súbor bol exportovaný a zašifrovaný iným hlavným heslom. Pre dešifrovanie súboru použite staré hlavné heslo.</string>
+    <string name="master_password_will_be_replaced">V dôsledku úspešného importu bude aktuálne hlavné heslo NAHRADENÉ týmto starým hlavným heslom!</string>
     <string name="preferences_import_list_title">Vyberte súbor, ktorý chcete importovať</string>
     <string name="check_preferences_before_import">Prosím skontrolujte nastavenia predtým, ako importujete:</string>
     <string name="check_preferences_cannot_import">Nastavenia nemôžu byť importované!</string>
@@ -235,10 +238,10 @@
     <string name="smscommunicator_remotebolusmindistance_summary">Minimálny počet minút, ktorý musí uplynúť medzi jedným vzdialeným bolusom a tým nasledujúcim</string>
     <string name="smscommunicator_remotebolusmindistance">Aspoň koľko minút musí uplynúť, medzi jedným vzdialeným bolusom a tým nasledujúcim</string>
     <string name="smscommunicator_remotebolusmindistance_caveat">Pre vašu bezpečnosť,  musíte pridať aspoň 2 telefónne čísla, aby ste zmenili toto prednastavenie.</string>
-    <string name="bolusdelivered">Bolus %1$.2fJI podaný úspešne</string>
-    <string name="bolusrequested">Podávanie %1$.2fJ inzulínu</string>
-    <string name="smscommunicator_bolusdelivered">Bolus %1$.2fJI podaný úspešne</string>
-    <string name="smscommunicator_mealbolusdelivered">Bolus %1$.2fJI podaný úspešne</string>
+    <string name="bolusdelivered">Bolus %1$.2f JI podaný úspešne</string>
+    <string name="bolusrequested">Podávanie %1$.2f J inzulínu</string>
+    <string name="smscommunicator_bolusdelivered">Bolus %1$.2f JI podaný úspešne</string>
+    <string name="smscommunicator_mealbolusdelivered">Bolus na jedlo %1$.2f JI podaný úspešne</string>
     <string name="smscommunicator_mealbolusdelivered_tt">Cieľ %1$s na %2$d minút</string>
     <string name="smscommunicator_tt_set">Cieľ %1$s na %2$d minút bol úspešne nastavený</string>
     <string name="smscommunicator_tt_canceled">Dočasný cieľ úspešne zrušený</string>
@@ -262,9 +265,9 @@
     <string name="smscommunicator_reconnect">Pumpa bola znovu pripojená</string>
     <string name="smscommunicator_remotecommandnotallowed">Príkazy na diaľku nie sú povolené</string>
     <string name="smscommunicator_remotebolusnotallowed">Diaľkovo ovládaný bolus nie je momentálne povolený. Skúste to neskôr.</string>
-    <string name="smscommunicator_basalreplywithcode">Pre spustenie bazálu %1$.2fJI/h na %2$d min odpovedzte SMS s kódom %3$s</string>
+    <string name="smscommunicator_basalreplywithcode">Pre spustenie bazálu %1$.2f JI/h na %2$d min odpovedzte SMS s kódom %3$s</string>
     <string name="smscommunicator_profilereplywithcode">Pre prepnutie profilu na %1$s %2$d%% odpovedzte SMS s kódom %3$s</string>
-    <string name="smscommunicator_extendedreplywithcode">Pre spustenie predĺženého bolusu %1$.2fJI na %2$d min odpovedzte SMS s kódom %3$s</string>
+    <string name="smscommunicator_extendedreplywithcode">Pre spustenie predĺženého bolusu %1$.2f JI na %2$d min odpovedzte SMS s kódom %3$s</string>
     <string name="smscommunicator_carbsreplywithcode">Pre zadanie %1$dg na %2$s odpovedz SMS kódom %3$s</string>
     <string name="smscommunicator_basalpctreplywithcode">Pre spustenie bazálu %1$d%% na %2$d min odpovedzte SMS s kódom %3$s</string>
     <string name="smscommunicator_suspendreplywithcode">Pre pozastavenie uzavretého okruhu na %1$d minút odpovedaj SMS s kódom %2$s</string>
@@ -273,7 +276,7 @@
     <string name="smscommunicator_loopdisablereplywithcode">Pre zakázanie uzavretého okruhu, odpovedzte SMS s kódom %1$s</string>
     <string name="smscommunicator_tempbasalset">Dočasný bazál %1$.2fJI/h spustený na %2$d minút</string>
     <string name="smscommunicator_extendedset">Predĺžený bolus %1$.2fJI na %2$d min úspešne spustený</string>
-    <string name="smscommunicator_carbsset">Sacharidy %1$dg zadané úspešne</string>
+    <string name="smscommunicator_carbsset">Sacharidy %1$d g zadané úspešne</string>
     <string name="smscommunicator_carbsfailed">Zadanie %1$dg sacharidov sa nepodarilo</string>
     <string name="smscommunicator_tempbasalset_percent">Dočasný bazál %1$d%% na %2$d minút úspešne spustený</string>
     <string name="smscommunicator_tempbasalfailed">Spustenie dočasného bazálu zlyhalo</string>
@@ -559,6 +562,7 @@
     <string name="pump_unreachable">Pumpa nedostupná</string>
     <string name="missed_bg_readings">Chýbajúce hodnoty glykémie</string>
     <string name="raise_notifications_as_android_notifications">Používať systémové notifikácie pre výstrahy a oznámenia</string>
+    <string name="gradually_increase_notification_volume">Postupne zvyšovať hlasitosť upozornení a oznámení</string>
     <string name="localalertsettings_title">Lokálne výstrahy</string>
     <string name="enable_missed_bg_readings_alert">Výstraha pri nedostupných hodnotách glykémie</string>
     <string name="enable_pump_unreachable_alert">Výstraha pri nedostupnej pumpe</string>
@@ -854,7 +858,7 @@
     <string name="code_compare">Zhodujú sa kódy zobrazené na tomto zariadení a na pumpe?</string>
     <string name="insight_pairing">Párovanie Insight</string>
     <string name="insight_local">Accu-Chek Insight</string>
-    <string name="insight_delivered">%1$.2fJI / %2$.2fJI podaných</string>
+    <string name="insight_delivered">%1$.2f JI / %2$.2f JI podaných</string>
     <string name="insight_alert_formatter">%1$s: %2$s</string>
     <string name="tube_changed">Hadička vymenená</string>
     <string name="pump_time_updated">Čas v pumpe bol aktualizovaný</string>
@@ -912,7 +916,7 @@
     <string name="short_status_extended">Predl. bolus: %1$.2f / %2$.2f JI na %3$d min</string>
     <string name="short_status_multiwave">Duálny bolus: %1$.2f / %2$.2f JI na %3$d min</string>
     <string name="short_status_tdd">CDD: %1$.2f</string>
-    <string name="short_status_reservoir">Zásobník: %1$.2fJI</string>
+    <string name="short_status_reservoir">Zásobník: %1$.2f JI</string>
     <string name="short_status_battery">Bat.: %1$d%%</string>
     <string name="max_recovery_duration">Max. doba trvania obnovenia [s]</string>
     <string name="min_recovery_duration">Min. doba trvania obnovenia [s]</string>
@@ -1055,8 +1059,8 @@
     <string name="sendsmsactionlabel">Poslať SMS: %1$s</string>
     <string name="sendsmsactiondescription">Poslať SMS na všetky čísla</string>
     <string name="sendsmsactiontext">Odoslať SMS s textom</string>
-    <string name="insulinFromCob"><![CDATA[COB vs IOB: <font color=\'%1$s\'>%2$+.2fU</font>]]></string>
-    <string name="bolusconstraintappliedwarning"><![CDATA[<font color=\'%1$s\'>Aplikované obmedzenie bolusu: %2$.2fJI na %3$.2fJI</font>]]></string>
+    <string name="cobvsiob">COB vs. IOB</string>
+    <string name="bolusconstraintappliedwarn">Použité obmedzenie bolusu: %1$.2f J na %2$.2f J</string>
     <string name="slowabsorptiondetected"><![CDATA[<font color=\'%1$s\'>!!!!! Detekovaná pomalá absorbcia sacharidov: %2$d%% času. Prekontrolujte kalkuláciu. COB môže byť úplne iné, môže byť podaného viac inzulínu!!!!!</font>]]></string>
     <string name="partialboluswizard">Podaj túto časť z výsledku kalkulácie [%]</string>
     <string name="deliverpartofboluswizard">Bolusová kalkulačka urobí výpočet, ale iba táto časť vypočítaného inzulínu je podaná. Pomáha pri SMB algoritme.</string>
@@ -1077,13 +1081,11 @@
     <string name="selected_profile">Vybrané:</string>
     <string name="unitsnosemicolon">Jednotky</string>
     <string name="doyouwantswitchprofile">Chcete prepnúť profil a zahodiť zmeny vykonané v aktuálnom profile?</string>
-    <string name="format_carbs">%1$dg</string>
     <string name="common_on">ZAP</string>
     <string name="common_off">VYP</string>
     <string name="objectives_button_unfinish">Vymazanie dokončené</string>
     <string name="objectives_button_unstart">Vymazanie začaté</string>
     <string name="doyouwantresetstart">Chcete resetovať začiatok cieľa? Môžete prísť o svoj pokrok.</string>
-    <string name="time_or_timezone_change">Zmena času a/alebo časovej zóny na pumpe</string>
     <string name="nopumpselected">Nie je vybraná žiadna pumpa</string>
     <string name="setupwizard_units_prompt">Vyberte jednotky, v ktorých chcete zobraziť hodnoty</string>
     <string name="ns_ploadlocalprofile">Odoslať zmeny lokálneho profilu do NS</string>
@@ -1135,12 +1137,15 @@
     <string name="loop_tbrexecution_time_label">Čas spustenia dočasného bazálu</string>
     <string name="insight_alert_notification_channel">Výstrahy pumpy Insight</string>
     <!-- SMS Communicator & OTP Authenticator -->
-    <string name="smscommunicator_code_from_authenticator_for" comment="This is continuation of sentence: To [ACTION] reply with code">z aplikácie Authenticator pre: %1$s</string>
+    <string name="smscommunicator_code_from_authenticator_for" comment="This is continuation of sentence: To [ACTION] reply with code">z aplikácie Authenticator pre: %1$s nasledované kódom PIN</string>
     <string name="smscommunicator_otp_enabled">Povoliť Autentifikátor</string>
     <string name="smscommunicator_otp_enabled_summary">Autentifikačné príkazy používajú jednorázové heslá generované Google Authenticator, alebo podobnými 2FA aplikáciami.</string>
-    <string name="smscommunicator_otp_pin">Ďalší PIN na konci tokenu</string>
+    <string name="smscommunicator_otp_pin">Ďalší povinný kód PIN na konci tokenu</string>
     <string name="smscommunicator_otp_pin_summary">Ďalšie číslice, ktoré by mali byť zapamätané a pridané na koniec každého vygenerovaného jednorázového hesla</string>
     <string name="smscomunicator_tab_otp_label">Nastavenie autentifikátora</string>
+    <string name="smscommunicator_code_verify_label">Kód pre kontrolu:</string>
+    <string name="smscommunicator_code_verify_hint">OTP + PIN</string>
+    <string name="smscommunicator_code_verify_info">Overovací kód sa skladá zo 6 číslic zobrazených aplikáciou Authenticator (známej ako OTP) nasledované 3, alebo viacerými číslicami povinného kódu PIN.</string>
     <string name="smscommunicator_otp_verify_label">OTP pre kontrolu:</string>
     <string name="smscommunicator_otp_reset_btn">Resetovať autentifikátory</string>
     <string name="smscommunicator_otp_reset_title">Resetovať autentifikačný kľúč</string>
@@ -1160,7 +1165,6 @@
     <string name="authorizationfailed">Autorizácia zlyhala</string>
     <string name="overview_show_absinsulin">Celkový inzulín</string>
     <string name="master_password_summary">Hlavné heslo sa používa na šifrovanie zálohy a na \"prebitie\" zabezpečenia v aplikácii. Dobre si ho zapamätajte, alebo uložte na bezpečnom mieste.</string>
-    <string name="passwords_dont_match">Heslá sa nezhodujú</string>
     <string name="current_master_password">Aktuálne hlavné heslo</string>
     <string name="statuslights">Indikátory stavu</string>
     <string name="statuslights_copy_ns">Kopírovať nastavenia z NS</string>
@@ -1169,123 +1173,6 @@
     <string name="buttonson_description">Tlačidlá sú vždy zobrazené v spodnej časti obrazovky</string>
     <string name="largedisplay_description">Veľký displej</string>
     <string name="skin">Vzhľad</string>
-    <!-- MDT Pump Status - removed when PodDeviceState is removed -->
-    <string name="medtronic_pump_status_never_contacted">Nikdy nepripojené</string>
-    <string name="medtronic_pump_status_waking_up">Prebúdzanie</string>
-    <string name="medtronic_pump_status_error_comm">Chyba komunikácie</string>
-    <string name="medtronic_pump_status_timeout_comm">Uplynul časový limit komunikácie</string>
-    <string name="medtronic_pump_status_pump_unreachable">Pumpa nedostupná</string>
-    <string name="medtronic_pump_status_invalid_config">Neplatná konfigurácia</string>
-    <string name="medtronic_pump_status_active">Aktívna</string>
-    <string name="medtronic_pump_status_sleeping">Spiaca</string>
-    <!-- Omnipod -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod">Integrácia pumpy pre Omnipod, vyžaduje zariadenie RileyLink (s firmwarom aspoň 2.0).</string>
-    <!-- Omnipod Configuration -->
-    <string name="omnipod_config_beep_bolus_enabled">Pípnutie pri boluse povolené</string>
-    <string name="omnipod_config_beep_basal_enabled">Pípnutie pri bazále povolené</string>
-    <string name="omnipod_config_beep_smb_enabled">Pípnutie pri SMB povolené</string>
-    <string name="omnipod_config_beep_tbr_enabled">Pípnutie pri TBR povolené</string>
-    <string name="omnipod_config_pod_debugging_options_enabled">Možnosti ladenia Podu povolené</string>
-    <string name="omnipod_config_timechange_enabled">Letný čas / Detekcia časového pásma povolená</string>
-    <!-- Omnipod - Fragment -->
-    <string name="omnipod_pod_mgmt">Správa Podu</string>
-    <string name="omnipod_pod_status">Stav Podu</string>
-    <string name="omnipod_reservoir_left">Zostáva %1$.2f JI</string>
-    <string name="omnipod_reservoir_over50">Viac ako 50 JI</string>
-    <string name="omnipod_pod_address">Adresa Podu</string>
-    <string name="omnipod_pod_expiry">Expirácia Podu</string>
-    <string name="omnipod_pod_name_no_info">Žiadne info</string>
-    <string name="omnipod_pod_no_pod_connected">Žiadny Pod nie je pripojený</string>
-    <string name="omnipod_pod_not_initalized">Nie je inicializovaný</string>
-    <string name="omnipod_pod_active_alerts">Výstrahy aktívneho Podu</string>
-    <string name="omnipod_ack_short">Potvrdiť výstrahu</string>
-    <!-- Omnipod - Dialogs -->
-    <string name="omnipod_frequency">Omnipod (433,91 MHz)</string>
-    <!-- Omnipod - Error -->
-    <string name="omnipod_error_operation_not_possible_no_configuration">Operácia nie je možná.\n\nNajskôr je nutné nakonfigurovať Omnipod, kým bude možné túto funkciu použiť.</string>
-    <string name="omnipod_error_operation_not_possible_no_profile">Operácia nie je možná.\n\n Je potrebné niekoľko minút počkať, pokiaľ sa AAPS nepokúsi prvý krát nastaviť profil.</string>
-    <string name="omnipod_error_illegal_init_action_type">Neplatný atribút PodInitActionType: %1$s</string>
-    <string name="omnipod_error_pod_not_attached">Žiadny aktívny Pod.</string>
-    <string name="omnipod_driver_error_setup_action_verification_failed">Overenie príkazu zlyhalo.</string>
-    <string name="omnipod_driver_error_unexpected_exception_type">Došlo k neočakávanej chybe. Nahláste ju! (typ: %1$s).</string>
-    <string name="omnipod_driver_error_invalid_parameters">Komunikácia zlyhala: boli prijaté neplatné vstupné parametre.</string>
-    <string name="omnipod_driver_error_communication_failed_timeout">Komunikácia zlyhala: časový limit vypršal.</string>
-    <string name="omnipod_driver_error_communication_failed_unexpected_exception">Komunikácia zlyhala: vyskytla sa neočakávaná chyba. Prosím, nahláste to!</string>
-    <string name="omnipod_driver_error_crc_mismatch">Komunikácia zlyhala: overenie integrity správy zlyhalo.</string>
-    <string name="omnipod_driver_error_invalid_packet_type">Komunikácia zlyhala: boli prijaté neplatné pakety z Podu.</string>
-    <string name="omnipod_driver_error_invalid_progress_state">Komunikácia zlyhala: Pod je v chybnom stave.</string>
-    <string name="omnipod_driver_error_invalid_response">Komunikácia zlyhala: bola prijatá neplatná odozva z Podu.</string>
-    <string name="omnipod_driver_error_invalid_message_sequence_number">Komunikácia zlyhala: bola prijatá správa s neplatným poradovým číslom z Podu.</string>
-    <string name="omnipod_driver_error_invalid_message_address">Komunikácia zlyhala: bola prijatá správa s neplatnou adresou z Podu.</string>
-    <string name="omnipod_driver_error_message_decoding_failed">Komunikácia zlyhala: nepodarilo se dekódovať správu z Podu.</string>
-    <string name="omnipod_driver_error_nonce_resync_failed">Komunikácia zlyhala: opakovaná synchronizácia Nonce hodnoty zlyhala.</string>
-    <string name="omnipod_driver_error_nonce_out_of_sync">Komunikácia zlyhala: hodnota Nonce nebola synchronizovaná.</string>
-    <string name="omnipod_driver_error_not_enough_data">Komunikácia zlyhala: nedostatok dát prijatých z Podu.</string>
-    <string name="omnipod_driver_error_pod_fault">Bola zistená chyba Podu (%1$03d %2$s). Deaktivujte Pod a spustite nový.</string>
-    <string name="omnipod_driver_error_pod_returned_error_response">Komunikácia zlyhala: Pod vrátil chybovú odozvu.</string>
-    <!-- Omnipod - Pod Mgmt -->
-    <string name="omnipod_pod_mgmt_title">Správa Podu</string>
-    <string name="omnipod_cmd_init_pod">Inicializovať Pod</string>
-    <string name="omnipod_cmd_deactivate_pod">Deaktivovať Pod</string>
-    <string name="omnipod_cmd_reset_pod">Resetovať Pod</string>
-    <string name="omnipod_cmd_pod_history">História Podu</string>
-    <string name="omnipod_cmd_set_bolus">Nastaviť bolus</string>
-    <string name="omnipod_cmd_cancel_bolus">Zrušiť bolus</string>
-    <string name="omnipod_cmd_set_tbr">Nastaviť dočasný bazál</string>
-    <string name="omnipod_cmd_cancel_tbr">Zrušiť dočasný bazál (interne ovládačom)</string>
-    <string name="omnipod_cmd_cancel_tbr_forced">Zrušiť dočasný bazál (nútene užívateľom)</string>
-    <string name="omnipod_cmd_set_basal_schedule">Nastaviť plán bazálu</string>
-    <string name="omnipod_cmd_get_pod_status">Zistiť stav Podu</string>
-    <string name="omnipod_cmd_get_pod_info">Zistiť informácie o Pode</string>
-    <string name="omnipod_cmd_set_time">Nastaviť čas</string>
-    <string name="omnipod_cmd_configure_alerts">Nastaviť výstrahy</string>
-    <string name="omnipod_cmd_acknowledge_alerts">Potvrdiť výstrahy</string>
-    <string name="omnipod_cmd_suspend_delivery">Pozastaviť dodávanie inzulínu</string>
-    <string name="omnipod_cmd_resume_delivery">Pokračovať v dodávaní inzulínu</string>
-    <string name="omnipod_cmd_unknown_entry">Neznáma položka</string>
-    <string name="omnipod_cmd_bolus_value">%1$.1f JI</string>
-    <string name="omnipod_cmd_bolus_value_with_carbs">%1$.1f JI, CH=%2$.1f g</string>
-    <string name="omnipod_cmd_tbr_value">Rýchlosť: %1$.1f JI, Doba trvania: %2$d min</string>
-    <string name="omnipod_cmd_reset_pod_desc">Keď stlačíš <b>OK</b>, bude pripojenie na Pod nútene prerušené a nebudete sa môcť k nemu už viac pripojiť. Urob tak iba vtedy, ak AAPS nemôže viac komunikovať s Podom. Ak stále môžete komunikovať s Podom, prosím použite možnosť <b>Deaktivovať Pod</b>.</string>
-    <string name="omnipod_cmd_pod_history_na">História Podu momentálne nie je dostupná.</string>
-    <string name="omnipod_init_pod_wizard_step1_title">Naplňte Pod</string>
-    <string name="omnipod_init_pod_wizard_step1_desc">\nNaplňte Pod dostatočným množstvom inzulínu na 3 dni.\n\nPočúvaj aj dve pípnutia počas plnenia. Tieto poukazujú na to, že Pod bol naplnený minimálnym množstvom 85 JI. Úplne vyprázdni striekačku, aj keď si počul dve pípnutia.\n\nKlikni &lt;bĎalej&lt;/b&gt; po tom, čo si naplnil Pod.\n\n&lt;b&gt;Poznámka:&lt;/b&gt; Neodstraňuj ešte ochranu ihly na Pode.</string>
-    <string name="omnipod_init_pod_wizard_step2_title">Plnenie</string>
-    <string name="omnipod_init_pod_wizard_step2_action_header">Pokús sa spárovať s novým Podom a naplň ho.\n\nKeď sú všetky položky zaškrtnuté, môžete stlačiť <b>Ďalej</b>.\n\n<b>Poznámka:</b> prosím držte teraz Pod veľmi blízko RileyLinku.</string>
-    <string name="omnipod_init_pod_wizard_step3_title">Pripevni Pod</string>
-    <string name="omnipod_init_pod_wizard_step3_desc">\nPripravte infúzny set. Odstráňte krytku ihly na Pode a ochranu samolepky a pripojte Pod k infúznemu setu. \n\nAk sa kanyla odlepí, prosím stlačte <b>Zrušiť</b> a zahoďte Váš Pod.\n\nStlačte <b>Ďalšia</b> na zavedenie kanyly a začiatok podávania bazálu.</string>
-    <string name="omnipod_init_pod_wizard_step4_title">Zavedenie kanyly</string>
-    <string name="omnipod_init_pod_wizard_step4_action_header">Pokúšam sa nastaviť počiatočnú bazálnu dávku a zaviesť kanylu.\n\nAk sú všetky položky označené, môžete stlačiť <b>Ďalší</b>.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_title">Informácie o Pode</string>
-    <string name="omnipod_init_pod_wizard_pod_info_init_pod_description">\nPod je teraz aktívny.\n\nVaša bazálna dávka je nastavená a kanyla bola zavedená.\n\nProsím skontrolujte, či bola kanyla zavedená správne a ak máte pocit, že nie, tak vymeňte Pod.</string>
-    <string name="omnipod_remove_pod_wizard_step1_title">Deaktivovať Pod</string>
-    <string name="omnipod_remove_pod_wizard_step1_desc">\nStlačte <b>Ďalej</b> pre deaktiváciu Podu.\n\n<b>Poznámka:</b> Toto preruší celkovo podávanie inzulínu a deaktivuje Pod.</string>
-    <string name="omnipod_remove_pod_wizard_step2_title">Deaktivácia Podu</string>
-    <string name="omnipod_remove_pod_wizard_step2_action_header">Deaktivujem Pod.\n\nKeď sú všetky položky zaškrtnuté, môžete stlačiť <b>Ďalej</b>.\n\n<b>Poznámka:</b> Ak deaktivácia neustále zlyháva, stlačte prosím <b>Zrušiť</b> a použite možnosť <b>Resetovať Pod</b>, na nútené obnovenie stavu Podu.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_remove_pod_description">Pod deaktivovaný.\n\nProsím odstráňte Pod z Vášho tela a zlikvidujte ho.</string>
-    <string name="omnipod_init_pod_pair_pod">Spárujte Pod</string>
-    <string name="omnipod_init_pod_prime_pod">Naplňte Pod</string>
-    <string name="omnipod_init_pod_fill_cannula">Naplňte kanylu</string>
-    <string name="omnipod_init_pod_set_basal_profile">Nastavte bazálny profil</string>
-    <string name="omnipod_deactivate_pod_cancel_delivery">Zrušte podávanie</string>
-    <string name="omnipod_deactivate_pod_deactivate_pod">Deaktivujte Pod</string>
-    <!-- Omnipod Dash -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod_dash">Integrácia pumpy pre Omnipod Dash.</string>
-    <string name="omnipod_alert_finish_pairing_reminder">Pripomienka ukončenia párovania</string>
-    <string name="omnipod_alert_finish_setup_reminder_reminder">Pripomienka ukončenia nastavenia</string>
-    <string name="omnipod_alert_expiration">Pod čoskoro expiruje</string>
-    <string name="omnipod_alert_expiration_advisory">Pod čoskoro expiruje</string>
-    <string name="omnipod_alert_shutdown_imminent">Vypnutie je bezprostredné</string>
-    <string name="omnipod_alert_low_reservoir">Nízka hladina zásobníka</string>
-    <string name="omnipod_alert_unknown_alert">Neznáma výstraha</string>
-    <string name="omnipod_error_set_basal_failed_uncertain">Nastavenie bazálu mohlo zlyhať. Podávanie môže byť pozastavené! Prosím, obnovte stav Podu.</string>
-    <string name="omnipod_error_set_temp_basal_failed_uncertain">Nastavenie dočasného bazálu mohlo zlyhať. Ak už bol spustený dočasný bazál, mohol byť zrušený! Prosím, obnovte stav Podu.</string>
-    <string name="omnipod_error_set_time_failed_uncertain">Nastavenie času mohlo zlyhať. Podávanie môže byť pozastavené! Prosím, obnovte stav Podu.</string>
-    <string name="omnipod_bolus_failed_uncertain">Nie je možné overiť, či bolo podávanie bolusu úspešné. Prosím overte, že váš Pod podáva bolus, alebo zrušte bolus.</string>
-    <string name="omnipod_rl_stats">Štatistiky RL</string>
-    <string name="omnipod_read_pulse_log_short">Pulse Log</string>
     <string name="comapareprofile">Porovnať profily</string>
     <string name="nav_profilehelper">Pomocník s profilom</string>
     <string name="motoldefaultprofile">Predvolený profil</string>
@@ -1297,4 +1184,34 @@
     <string name="formatwithweight">Vek: %1$.0f Hmotnosť: %2$.0f kg</string>
     <string name="basalpctfromtdd_label">% bazálu</string>
     <string name="dpvdefaultprofile">Predvolený DPV profil</string>
+    <string name="open_humans">Open Humans</string>
+    <string name="finishing_open_humans_setup">Dokončovanie nastavenia Open Humans...</string>
+    <string name="this_may_take_a_while">Môže to chvíľu trvať. Nevypínajte Váš telefón ani tento modul.</string>
+    <string name="setup_finished">Nastavenie dokončené</string>
+    <string name="your_phone_will_upload_data">Váš telefón čoskoro nahrá dáta na Open Humans.</string>
+    <string name="your_phone_is_upload_data">Váš telefón práve nahráva dáta na Open Humans.</string>
+    <string name="setup_failed">Nastavenie zlyhalo</string>
+    <string name="there_was_an_error">Vyskytla sa chyba. Prosím, skúste sa znova prihlásiť, aby ste mohli pokračovať. Prepáčte &amp; Ďakujem!</string>
+    <string name="open_humans_terms">Jedná sa o open source nástroj, ktorý skopíruje vaše dáta do Open Humans. Zachovávame práva na zdieľanie vašich údajov s tretími stranami bez vašeho výslovného povolenia. Dáta, ktoré projekt a aplikácia obdržia, sú identifikované pomocou náhodného ID užívateľa a budú bezpečne prenášané iba na účet Open Humans a len s vaším povolením. Môžete kedykoľvek zastaviť odosielanie a zmazať Vaše dáta prostredníctvom adresy www.openhumans.org.</string>
+    <string name="i_understand_and_agree">Rozumiem a potvrdzujem.</string>
+    <string name="login">Prihlásenie</string>
+    <string name="logout">Odhlásiť</string>
+    <string name="oh_logout_confirmation">Naozaj sa chceš odhlásiť a prestať tak prispievať údajmi vede?</string>
+    <string name="project_member_id">ID člena projektu: %s</string>
+    <string name="queue_size">Veľkosť fronty: %d</string>
+    <string name="terms_of_use">Podmienky používania</string>
+    <string name="not_logged_in">Neprihlásený</string>
+    <string name="you_need_to_accept_the_of_use_first">Musíte najskôr akceptovať podmienky používania.</string>
+    <string name="successfully_logged_in">Prihlásenie úspešné</string>
+    <string name="setup_will_continue_in_background">Nastavenie bude teraz dokončené na pozadí. Vďaka za odoslanie vašich údajov.\n\nProsím, ponechajte tento modul a Váš telefón na chvíľu zapnutý, kým sa dokončí nastavenie.</string>
+    <string name="completing_login">Dokončuje sa prihlasovanie…</string>
+    <string name="donate_your_data_to_science">Darujte svoje údaje vede</string>
+    <string name="open_humans_short">OH</string>
+    <string name="you_have_been_signed_out_of_open_humans">Boli ste odhlásený z Open Humans</string>
+    <string name="click_here_to_sign_in_again_if_this_wasnt_on_purpose">Kliknite sem, ak sa chcete prihlásiť znova, v prípade, že sa to nestalo omylom.</string>
+    <string name="only_upload_if_connected_to_wifi">Odoslať iba ak ste pripojený k Wi-Fi</string>
+    <string name="only_upload_if_charging">Odoslať iba pri nabíjaní</string>
+    <string name="worker_state">Stav procesu: %s</string>
+    <string name="uploaded_data">Odoslané údaje</string>
+    <string name="the_following_data_will_be_uploaded_to_your_open_humans_account">Nasledujúce dáta budú nahrané na váš účet Open Humans: hodnoty glykémie, udalosti starostlivosti (okrem poznámok), rozložené bolusy, prepnutia profilu, celkové denné dávky, dočasné bazály, nastavenia, verzie aplikácie, model zariadenia a rozmery obrazovky. Tajné, alebo súkromné informácie, ako je URL, alebo API heslo vašeho Nightscoutu, nahrané nebudú.</string>
 </resources>

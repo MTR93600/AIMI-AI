@@ -85,7 +85,7 @@ public class MLHistoryItem implements HistoryItem {
 
         switch (this.source) {
             case MedLink:
-                return "State: " + resourceHelper.gs(serviceState.getResourceId(targetDevice))
+                return "State: " + resourceHelper.gs(serviceState.getResourceId())
                         + (this.errorCode == null ? "" : ", Error Code: " + errorCode);
 
             case MedtronicPump:

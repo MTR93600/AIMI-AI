@@ -61,7 +61,7 @@ Eversense-appen.</string>
     <string name="tempbasals_iobtotal_label_string">IOB fr basal:</string>
     <string name="treatments_wizard_bg_label">BG</string>
     <string name="treatments_wizard_tt_label">TT</string>
-    <string name="treatments_wizard_carbs_label">KH</string>
+    <string name="treatments_wizard_carbs_label">Kolhydrater</string>
     <string name="treatments_wizard_correction_label">Korrektion</string>
     <string name="treatments_wizard_bolusiob_label">Bolus IOB</string>
     <string name="openapsma_run">Utför nu</string>
@@ -149,7 +149,7 @@ Eversense-appen.</string>
     <string name="careportal_newnstreatment_percent_label">Procent</string>
     <string name="careportal_newnstreatment_absolute_label">Absolut</string>
     <string name="careportal_newnstreatment_notes_label">Anteckning</string>
-    <string name="event_time_label">Tid för händelse</string>
+    <string name="event_time_label">När</string>
     <string name="careportal_newnstreatment_profile_label">Profil</string>
     <string name="careportal_newnstreatment_enteredby_title">Loggat av</string>
     <string name="careportal_newnstreatment_glucosetype">Glukostyp</string>
@@ -173,6 +173,11 @@ Eversense-appen.</string>
     <string name="password_preferences_decrypt_prompt">Du kommer att bli tillfrågad om huvudlösenordet som sedan kommer att användas för att avkryptera importerade inställningar.</string>
     <string name="preferences_export_canceled">Exporten avbröts. Inställningarna har INTE exporterats!</string>
     <string name="preferences_import_canceled">Importen avbröts. Inställningarna har inte importerats!</string>
+    <string name="preferences_import_impossible">Kan inte importera inställningar!</string>
+    <string name="goto_main_try_again">Vänligen gå tillbaka till huvudskärmen och försök igen.</string>
+    <string name="old_master_password">Gamla huvudlösenordet</string>
+    <string name="different_password_used">Den här filen har exporterats och krypterats med ett annat lösenord. Ange det gamla lösenordet för att dekryptera filen.</string>
+    <string name="master_password_will_be_replaced">OBS! Som ett resultat av en lyckad import, kommer det nuvarande huvudlösenordet att ersättas av det gamla huvudlösenordet!</string>
     <string name="preferences_import_list_title">Välj fil att importera</string>
     <string name="check_preferences_before_import">Vänligen kontrollera inställningarna innan du importerar:</string>
     <string name="check_preferences_cannot_import">Inställningarna kan inte importeras!</string>
@@ -225,7 +230,7 @@ Eversense-appen.</string>
     <string name="smscommunicator_allowednumbers_summary">+4670XXXXXXX; +4670YYYYYYY</string>
     <string name="smscommunicator_bolusreplywithcode">För att ge bolus %1$.2f enheter, svara med kod %2$s</string>
     <string name="smscommunicator_mealbolusreplywithcode">För att ge bolus %1$.2f enheter, svara med kod: %2$s</string>
-    <string name="smscommunicator_temptargetwithcode">För att sätta ett temporärt mål på %1$s, svara med kod: %2$s</string>
+    <string name="smscommunicator_temptargetwithcode">För att sätta ett temporärt mål på %1$s svara med kod %2$s</string>
     <string name="smscommunicator_temptargetcancel">För att avbryta temporärt mål, svara med kod: %1$s</string>
     <string name="smscommunicator_stopsmswithcode">För att inaktivera fjärrkommandon via SMS, svara med kod: %1$s \n\nTänk på att måste ha tillgång till huvudtelefonen för att kunna återaktivera.</string>
     <string name="smscommunicator_stoppedsms">Fjärrkommandon via SMS stoppas. För att återaktivera detta, använd Konfigurationsverktyget på huvudtelefonen.</string>
@@ -558,6 +563,7 @@ Eversense-appen.</string>
     <string name="pump_unreachable">Pumpen kan inte nås</string>
     <string name="missed_bg_readings">BG-värden saknas</string>
     <string name="raise_notifications_as_android_notifications">Systemaviseringar för larm &amp; info</string>
+    <string name="gradually_increase_notification_volume">Öka volymen gradvis för larm och aviseringar</string>
     <string name="localalertsettings_title">Lokala larm</string>
     <string name="enable_missed_bg_readings_alert">Varna om BG-data saknas</string>
     <string name="enable_pump_unreachable_alert">Varna om pumpen inte går att nå</string>
@@ -646,6 +652,7 @@ Eversense-appen.</string>
     <string name="enablesmbwithtemptarget">Använd SMB vid temp målvärde</string>
     <string name="enablesmbwithtemptarget_summary">Använd SMB när temp mål är satt, t ex Äta snart eller Träning</string>
     <string name="enablesmbwithhightemptarget">Använd SMB vid högt målvärde</string>
+    <string name="enablesmbwithhightemptarget_summary">Aktivera SMB när det finns högt temp mål aktivt (träning, över 100 mg/dl eller 5,5 mmol/l)</string>
     <string name="overview_insulin_label">Insulin</string>
     <string name="overview_carbs_label">Kolhydrater</string>
     <string name="overview_buttons_selection">Knappar</string>
@@ -679,6 +686,7 @@ Eversense-appen.</string>
     <string name="do_not_bolus_record_only">Ge ingen bolus, logga bara</string>
     <string name="category">Kategori</string>
     <string name="subcategory">Underkategori</string>
+    <string name="bolusrecordedonly">Bolus kommer bara att loggas. Inte levereras av pumpen</string>
     <string name="ns_autobackfill_summary">Hämta saknad BG-data från Nightscout</string>
     <string name="loop_smbsetbypump_label">SMB satt i pump</string>
     <string name="overview_show_activity">Insulinaktivitet (5m)</string>
@@ -795,6 +803,7 @@ Eversense-appen.</string>
     <string name="askforpermission">Be om behörighet</string>
     <string name="needsystemwindowpermission">Applikationen behöver förhöjd behörighet för aviseringar</string>
     <string name="needlocationpermission">Appen behöver platsåtkomst för bluetooth- och WiFi-identifiering</string>
+    <string name="needstoragepermission">Applikationen behöver lagringsbehörighet för att kunna lagra loggfiler och exportinställningar</string>
     <string name="request">Begäran</string>
     <string name="insulinsourcesetup">Konfigurera insticksprogram för insulin</string>
     <string name="exit">Avsluta</string>
@@ -838,7 +847,7 @@ Eversense-appen.</string>
     <string name="nsmalfunction">Fel på NSClient. Överväg att starta om NSClient och Nightscout-webbplatsen.</string>
     <string name="as">AS</string>
     <string name="versionavailable">Version %1$s tillgänglig</string>
-    <string name="time_offset">Tidsförskjutning</string>
+    <string name="time_offset">KH-tid</string>
     <string name="setupwizard_preferred_aps_mode">Föredraget APS-läge</string>
     <string name="treatments_wizard_total_label">Total</string>
     <string name="calculation_short">Kalkyl</string>
@@ -908,7 +917,7 @@ Eversense-appen.</string>
     <string name="short_status_extended">Förl: %1$.2f / %2$.2f U i %3$d min</string>
     <string name="short_status_multiwave">Kombi: %1$.2f / %2$.2f U i %3$d min</string>
     <string name="short_status_tdd">TDD: %1$.2f</string>
-    <string name="short_status_reservoir">Reser.: %1$.2fU</string>
+    <string name="short_status_reservoir">Res: %1$.2fU</string>
     <string name="short_status_battery">Batt.: %1$d%%</string>
     <string name="max_recovery_duration">Max paus mellan återanslutningsförsök [s]</string>
     <string name="min_recovery_duration">Min paus mellan återanslutningsförsök [s]</string>
@@ -1051,8 +1060,8 @@ Eversense-appen.</string>
     <string name="sendsmsactionlabel">Skicka SMS: %1$s</string>
     <string name="sendsmsactiondescription">Skicka SMS till alla nummer</string>
     <string name="sendsmsactiontext">Skicka SMS med text</string>
-    <string name="insulinFromCob"><![CDATA[COB vs IOB: <font color=\'%1$s\'>%2$+.2fU</font>]]></string>
-    <string name="bolusconstraintappliedwarning"><![CDATA[<font color=\'%1$s\'>Bolusbegränsning: %2$.2fU till %3$.2fU</font>]]></string>
+    <string name="cobvsiob">COB kontra IOB</string>
+    <string name="bolusconstraintappliedwarn">Bolusbegränsning tillämpad: %1$.2f U till %2$.2f U</string>
     <string name="slowabsorptiondetected"><![CDATA[<font color=\'%1$s\'>Varning! Långsam KH-absorption upptäckt %2$d%% av tiden. Dubbelkolla din beräkning. COB kan vara väldigt missvisande och du riskerar få för mycket insulin!</font>]]></string>
     <string name="partialboluswizard">Direkt bolus [%]</string>
     <string name="deliverpartofboluswizard">Bolusguiden utför beräkningar, men endast denna del av beräknat insulin levereras. Användbar med SMB-algoritm.</string>
@@ -1073,13 +1082,11 @@ Eversense-appen.</string>
     <string name="selected_profile">Valt:</string>
     <string name="unitsnosemicolon">Enheter</string>
     <string name="doyouwantswitchprofile">Vill du byta profil och ta bort ändringar som gjorts i den aktuella profilen?</string>
-    <string name="format_carbs">%1$dg</string>
     <string name="common_on">På</string>
     <string name="common_off">Av</string>
     <string name="objectives_button_unfinish">Rensa avslutade</string>
     <string name="objectives_button_unstart">Rensa påbörjade</string>
     <string name="doyouwantresetstart">Vill du starta om målet? Du kan förlora de steg du gjort hittills.</string>
-    <string name="time_or_timezone_change">Tid och/eller tidszonsändring på pump</string>
     <string name="nopumpselected">Ingen pump har valts</string>
     <string name="setupwizard_units_prompt">Välj enheter du vill visa värden i</string>
     <string name="ns_ploadlocalprofile">Överför lokala profiländringar till NS</string>
@@ -1090,6 +1097,7 @@ Eversense-appen.</string>
     <string name="clone_label">Kopiera</string>
     <string name="saveorresetchangesfirst">Spara eller återställa aktuella ändringar först</string>
     <string name="deletecurrentprofile">Ta bort aktuell profil?</string>
+    <string name="copytolocalprofile">Skapa ny lokal profil av denna?</string>
     <string name="profilenamecontainsdot">Profilnamnet innehåller punkter.\nDetta stöds inte av NS.\nProfil överförs inte till NS.</string>
     <string name="low_mark_comment">Nedre värdet för målområde (endast visning)</string>
     <string name="high_mark_comment">Övre värdet för målområde (endast visning)</string>
@@ -1103,6 +1111,7 @@ Eversense-appen.</string>
     <string name="nav_survey">Enkät</string>
     <string name="invalidage">Ogiltig inmatning (ålder)</string>
     <string name="invalidweight">Ogiltig inmatning (vikt)</string>
+    <string name="invalidpct">Ogiltig %-inmatning</string>
     <string name="tirformat"><![CDATA[<b>%1$s:</b> Låg: <b>%2$02d%%</b> Mål: <b>%3$02d%%</b> Hög: <b>%4$02d%%</b>]]></string>
     <string name="average">Medel</string>
     <string name="tir">TIR</string>
@@ -1129,10 +1138,8 @@ Eversense-appen.</string>
     <string name="loop_tbrexecution_time_label">Basalförändring utförd</string>
     <string name="insight_alert_notification_channel">Pumpvarningar Insight</string>
     <!-- SMS Communicator & OTP Authenticator -->
-    <string name="smscommunicator_code_from_authenticator_for" comment="This is continuation of sentence: To [ACTION] reply with code">från autentiseringsapp för: %1$s</string>
     <string name="smscommunicator_otp_enabled">Aktivera autentiseraren</string>
     <string name="smscommunicator_otp_enabled_summary">Autentisera kommandon med hjälp av engångslösenord som genererats av Google Authenticator eller liknande appar för tvåfaktorsautentisering.</string>
-    <string name="smscommunicator_otp_pin">Extra PIN-kod</string>
     <string name="smscommunicator_otp_pin_summary">Ytterligare siffror som ska memoreras och läggas till i slutet av varje genererat engångslösenord</string>
     <string name="smscomunicator_tab_otp_label">Konfiguration av tvåfaktorsautentisering</string>
     <string name="smscommunicator_otp_verify_label">Engångslösenord att kontrollera:</string>
@@ -1154,7 +1161,6 @@ Eversense-appen.</string>
     <string name="authorizationfailed">Behörighetskontroll misslyckades</string>
     <string name="overview_show_absinsulin">Absolut insulinmängd</string>
     <string name="master_password_summary">Huvudlösenordet används för att kryptera backuper och för att åsidosätta vissa säkerhetsfunktioner i applikationen. Kom ihåg det eller förvara det på ett säkert ställe.</string>
-    <string name="passwords_dont_match">Lösenorden stämmer inte överens</string>
     <string name="current_master_password">Nuvarande huvudlösenord</string>
     <string name="statuslights">Statuslampor</string>
     <string name="statuslights_copy_ns">Kopiera inställningar från NS</string>
@@ -1163,122 +1169,45 @@ Eversense-appen.</string>
     <string name="buttonson_description">Knappar visas alltid längst ned på skärmen</string>
     <string name="largedisplay_description">Stor skärm</string>
     <string name="skin">Tema</string>
-    <!-- MDT Pump Status - removed when PodDeviceState is removed -->
-    <string name="medtronic_pump_status_never_contacted">Aldrig ansluten</string>
-    <string name="medtronic_pump_status_waking_up">Väcker</string>
-    <string name="medtronic_pump_status_error_comm">Kommunikationsfel</string>
-    <string name="medtronic_pump_status_timeout_comm">Kommunikationstimeout</string>
-    <string name="medtronic_pump_status_pump_unreachable">Pumpen kan inte nås</string>
-    <string name="medtronic_pump_status_invalid_config">Felaktig konfigureration</string>
-    <string name="medtronic_pump_status_active">Aktiv</string>
-    <string name="medtronic_pump_status_sleeping">Sover</string>
-    <!-- Omnipod -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod">Pumpintegrering för Omnipod. Kräver Riley Link med minst v2-firmware.</string>
-    <!-- Omnipod Configuration -->
-    <string name="omnipod_config_beep_bolus_enabled">Boluspip aktiverade</string>
-    <string name="omnipod_config_beep_basal_enabled">Basalpip aktiverade</string>
-    <string name="omnipod_config_beep_smb_enabled">SMB-pip aktiverade</string>
-    <string name="omnipod_config_beep_tbr_enabled">Tempbasal-pip aktiverade</string>
-    <string name="omnipod_config_pod_debugging_options_enabled">Debug-alternativ aktiverade för pod</string>
-    <string name="omnipod_config_timechange_enabled">Automatisk avkänning av tidszon aktiverad</string>
-    <!-- Omnipod - Fragment -->
-    <string name="omnipod_pod_mgmt">Omnipod</string>
-    <string name="omnipod_pod_status">Pod-status</string>
-    <string name="omnipod_reservoir_left">%1$.2f U återstår</string>
-    <string name="omnipod_reservoir_over50">Över 50 U</string>
-    <string name="omnipod_pod_address">Podadress</string>
-    <string name="omnipod_pod_expiry">Pod går ut</string>
-    <string name="omnipod_pod_name_no_info">Ingen info</string>
-    <string name="omnipod_pod_no_pod_connected">Ingen pod ansluten</string>
-    <string name="omnipod_pod_not_initalized">Inte initierad</string>
-    <string name="omnipod_pod_active_alerts">Aktiva pod-varningar</string>
-    <string name="omnipod_ack_short">Ack-varningar</string>
-    <!-- Omnipod - Dialogs -->
-    <string name="omnipod_frequency">Omnipod (433.91 MHz)</string>
-    <!-- Omnipod - Error -->
-    <string name="omnipod_error_operation_not_possible_no_configuration">Operationen inte möjlig.\n\n Du måste konfigurera Omnipod innan du kan använda denna funktion.</string>
-    <string name="omnipod_error_operation_not_possible_no_profile">Operationen är inte möjlig.\n\n Du måste vänta några minuter, tills AAPS försöker ställa in profilen för första gången.</string>
-    <string name="omnipod_error_illegal_init_action_type">Ogiltig PodInitActionType: %1$s</string>
-    <string name="omnipod_error_pod_not_attached">Ingen aktiv pod.</string>
-    <string name="omnipod_driver_error_setup_action_verification_failed">Kommandoverifikation misslyckades.</string>
-    <string name="omnipod_driver_error_unexpected_exception_type">Ett oväntat fel uppstod. Vänligen rapportera! (typ: %1$s).</string>
-    <string name="omnipod_driver_error_invalid_parameters">Kommunikationsfel: Emottog ogiltiga indataparametrar.</string>
-    <string name="omnipod_driver_error_communication_failed_timeout">Kommunikationsfel: Timeout.</string>
-    <string name="omnipod_driver_error_communication_failed_unexpected_exception">Kommunikationsfel: Ett oväntat fel inträffade. Rapportera!</string>
-    <string name="omnipod_driver_error_crc_mismatch">Kommunikationsfel: Lyckades inte verifiera meddelandet.</string>
-    <string name="omnipod_driver_error_invalid_packet_type">Kommunikationsfel: Mottog ett ogiltigt datapaket från pod.</string>
-    <string name="omnipod_driver_error_invalid_progress_state">Kommunikationsfel: Pod är i fel tillstånd.</string>
-    <string name="omnipod_driver_error_invalid_response">Kommunikationsfel: Mottog ett felaktig svar från pod.</string>
-    <string name="omnipod_driver_error_invalid_message_sequence_number">Kommunikationsfel: Tog emot ett meddelande med ett ogiltigt sekvensnummer från podden.</string>
-    <string name="omnipod_driver_error_invalid_message_address">Kommunikationsfel: Tog emot ett meddelande med en ogiltig adress från podden.</string>
-    <string name="omnipod_driver_error_message_decoding_failed">Kommunikationsfel: Misslyckades avkoda meddelandet från pod.</string>
-    <string name="omnipod_driver_error_nonce_resync_failed">Kommunikationsfel: \"nonce resync\" misslyckades.</string>
-    <string name="omnipod_driver_error_nonce_out_of_sync">Kommunikationsfel: \"nonce\" är inte i synk.</string>
-    <string name="omnipod_driver_error_not_enough_data">Kommunikationsfel: Mottog inte tillräckligt mycket data från pod.</string>
-    <string name="omnipod_driver_error_pod_fault">Ett pod-fel (%1$03d %2$s) har upptäckts. Vänligen inaktivera din pod och starta en ny.</string>
-    <string name="omnipod_driver_error_pod_returned_error_response">Kommunikationsfel: Pod returnerade ett fel.</string>
-    <!-- Omnipod - Pod Mgmt -->
-    <string name="omnipod_pod_mgmt_title">Podhantering</string>
-    <string name="omnipod_cmd_init_pod">Initiera pod</string>
-    <string name="omnipod_cmd_deactivate_pod">Inaktivera pod</string>
-    <string name="omnipod_cmd_reset_pod">Återställ pod</string>
-    <string name="omnipod_cmd_pod_history">Pod-historik</string>
-    <string name="omnipod_cmd_set_bolus">Leverera bolus</string>
-    <string name="omnipod_cmd_cancel_bolus">Avbryt Bolus</string>
-    <string name="omnipod_cmd_set_tbr">Sätt temp basal</string>
-    <string name="omnipod_cmd_cancel_tbr">Avbryt temp basal (internt av drivrutinen)</string>
-    <string name="omnipod_cmd_cancel_tbr_forced">Avbryt temp basal (tvingat av användaren)</string>
-    <string name="omnipod_cmd_set_basal_schedule">Ange basaldoser</string>
-    <string name="omnipod_cmd_get_pod_status">Uppdatera pod-status</string>
-    <string name="omnipod_cmd_get_pod_info">Hämta Pod-information</string>
-    <string name="omnipod_cmd_set_time">Ställ in tid</string>
-    <string name="omnipod_cmd_configure_alerts">Konfigurera varningar</string>
-    <string name="omnipod_cmd_acknowledge_alerts">Bekräfta varningar</string>
-    <string name="omnipod_cmd_suspend_delivery">Pausa insulintillförsel</string>
-    <string name="omnipod_cmd_resume_delivery">Återuppta insulintillförsel</string>
-    <string name="omnipod_cmd_unknown_entry">Okänd post</string>
-    <string name="omnipod_cmd_bolus_value">%1$.1f U</string>
-    <string name="omnipod_cmd_bolus_value_with_carbs">%1$.1f U, KH=%2$.1f g</string>
-    <string name="omnipod_cmd_tbr_value">Dos: %1$.1f U, Duration: %2$d min</string>
-    <string name="omnipod_cmd_reset_pod_desc">Om du trycker på <b>OK</b>, kommer poddstatus att tvångsåterställas och du kommer inte att kunna kommunicera med podden längre. Gör det här bara om du inte kan kommunicera med podden. Om du fortfarande kan kommunicera med den, använd alternativet <b>Inaktivera pod</b>.</string>
-    <string name="omnipod_cmd_pod_history_na">Pod-historik är inte tillgänglig för tillfället.</string>
-    <string name="omnipod_init_pod_wizard_step1_title">Fyll pod</string>
-    <string name="omnipod_init_pod_wizard_step1_desc">\nFyll den nya podden med tillräckligt med insulin för 3 dagar.\n\nLyssna efter två pip under påfyllningsprocessen. Dessa anger att minimimängden 85U har nåtts. Var noga med att helt tömma påfyllningssprutan, även efter att ha hört de två pipen.\n\nNär påfyllningen är klar, tryck <b>Nästa</b>.\n\n<b>Notera:</b> Ta inte bort nålskyddet ännu.</string>
-    <string name="omnipod_init_pod_wizard_step2_title">Förfyllning</string>
-    <string name="omnipod_init_pod_wizard_step2_action_header">Försöker parkoppla den nya podden och förfylla den.\n\nNär alla steg är sluförda, kan du trycka på <b>Nästa</b>.\n\n<b>Notera:</b> Håll din riley link väldigt nära podden.</string>
-    <string name="omnipod_init_pod_wizard_step3_title">Fäst podden</string>
-    <string name="omnipod_init_pod_wizard_step3_desc">\nFörbered infusionsplatsen. Ta bort poddens nålskydd och fäst podden på infusionsplatsen.\n\nOm kanylen sticker ut, tryck på <b>Avbryt</b> och kasta din pod.\n\nTryck <b>Nästa</b> för att skjuta in kanylen och påbörja basaldoseringen.</string>
-    <string name="omnipod_init_pod_wizard_step4_title">Skjuter in kanylen</string>
-    <string name="omnipod_init_pod_wizard_step4_action_header">Försöker att ställa in basaldoser och skjuta in kanylen.\n\nNär alla steg är slutförda, kan du trycka på <b>Nästa</b>.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_title">Pod-info</string>
-    <string name="omnipod_init_pod_wizard_pod_info_init_pod_description">\nPodden är nu aktiverad.\n\nDina basaldoser har programmerats och kanylen har skjutits in in.\n\nKontrollera att kanylen sitter på rätt sätt och byt pod om den inte gjort det.</string>
-    <string name="omnipod_remove_pod_wizard_step1_title">Inaktivera pod</string>
-    <string name="omnipod_remove_pod_wizard_step1_desc">\nTryck på <b>Nästa</b> för att inaktivera podden.\n\n<b>OBS!</b> Det här stoppar all insulintillförsel och inaktiverar podden.</string>
-    <string name="omnipod_remove_pod_wizard_step2_title">Inaktiverar pod</string>
-    <string name="omnipod_remove_pod_wizard_step2_action_header">Inaktivering av pod\n\nNär alla steg är slutförda, kan du trycka på <b>Nästa</b>.\n\n<b>Notera:</b> Om inaktivering misslyckas ofta, tryck på <b>Avbryt</b> och använd alternativet <b>Återställ pod</b> för att tvångsåterställa podden.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_remove_pod_description">Pod inaktiverad.\n\nTa bort podden och kasta den.</string>
-    <string name="omnipod_init_pod_pair_pod">Parkoppla pod</string>
-    <string name="omnipod_init_pod_prime_pod">Förfyll pod</string>
-    <string name="omnipod_init_pod_fill_cannula">Fyll kanyl</string>
-    <string name="omnipod_init_pod_set_basal_profile">Sätt basalprofil</string>
-    <string name="omnipod_deactivate_pod_cancel_delivery">Avbryt leverans</string>
-    <string name="omnipod_deactivate_pod_deactivate_pod">Inaktivera pod</string>
-    <!-- Omnipod Dash -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod_dash">Pumpintegration för Omnipod Dash.</string>
-    <string name="omnipod_alert_finish_pairing_reminder">Påminnelse att slutföra parkoppling</string>
-    <string name="omnipod_alert_finish_setup_reminder_reminder">Påminnelse att slutföra installation</string>
-    <string name="omnipod_alert_expiration">Pod löper snart ut</string>
-    <string name="omnipod_alert_expiration_advisory">Pod kommer att gå ut inom kort</string>
-    <string name="omnipod_alert_shutdown_imminent">Pod kommer snart att stängas av</string>
-    <string name="omnipod_alert_low_reservoir">Låg reservoar</string>
-    <string name="omnipod_alert_unknown_alert">Okänd varning</string>
-    <string name="omnipod_error_set_basal_failed_uncertain">Inställning av basalprofil kan ha misslyckats. Leverans kan avbrytas! Vänligen uppdatera pod-status.</string>
-    <string name="omnipod_error_set_temp_basal_failed_uncertain">Inställning av temp basal kan ha misslyckats. Om det redan var en temp basal igång, kan den ha avbrutits! Vänligen uppdatera pod-status.</string>
-    <string name="omnipod_error_set_time_failed_uncertain">Tidsuppdateringen kan ha misslyckats. Leverans kan avbrytas! Vänligen uppdatera pod-status.</string>
-    <string name="omnipod_bolus_failed_uncertain">Det går inte att verifiera om bolusen är slutförd. Verifiera att din pod leverarar bolus eller avsluta bolus.</string>
-    <string name="omnipod_rl_stats">RL-statistik</string>
-    <string name="omnipod_read_pulse_log_short">Pulslogg</string>
+    <string name="comapareprofile">Jämför profiler</string>
     <string name="nav_profilehelper">Profilguide</string>
+    <string name="motoldefaultprofile">Standardprofil</string>
+    <string name="currentprofile">Nuvarande profil</string>
+    <string name="availableprofile">Tillgänglig profil</string>
+    <string name="profiletype">Profiltyp</string>
+    <string name="formatwithtdd">Ålder: %1$.0f TDD: %2$.0f U</string>
+    <string name="formatwittddandpct">Ålder: %1$.0f TDD: %2$.0f U %3$d%%</string>
+    <string name="formatwithweight">Ålder: %1$.0f Vikt: %2$.0f kg</string>
+    <string name="basalpctfromtdd_label">% av basal</string>
+    <string name="dpvdefaultprofile">DPV-standardprofil</string>
+    <string name="open_humans">Open Humans</string>
+    <string name="finishing_open_humans_setup">Slutför Open Humans-konfiguration…</string>
+    <string name="this_may_take_a_while">Det här kan ta ett tag. Avbryt inte den här processen.</string>
+    <string name="setup_finished">Konfigurationen slutförd</string>
+    <string name="your_phone_will_upload_data">Din telefon kommer att ladda upp data till Open Humans snart.</string>
+    <string name="your_phone_is_upload_data">Din telefon laddar upp data till Open Humans nu.</string>
+    <string name="setup_failed">Konfiguration misslyckades</string>
+    <string name="there_was_an_error">Ett fel uppstod. Försök att logga in igen för att fortsätta. Tack!</string>
+    <string name="open_humans_terms">Detta är ett open source-verktyg som kommer att ladda upp dina data till Open Humans. Vi förbehåller oss inga rättigheter att dela dina uppgifter med tredje part utan ditt uttryckliga tillstånd. De data som projektet och appen tar emot identifieras via ett slumpmässigt användar-ID och kommer endast att överföras på ett säkert sätt till ett Open Humans-konto om du tillåter det. Du kan när som helst sluta ladda upp och radera dina uppladdningsdata via www.openhumans.org.</string>
+    <string name="i_understand_and_agree">Jag förstår och instämmer.</string>
+    <string name="login">Logga in</string>
+    <string name="logout">Logga ut</string>
+    <string name="oh_logout_confirmation">Vill du verkligen logga ut och sluta donera data till vetenskapen?</string>
+    <string name="project_member_id">Projektmedlems-ID: %s</string>
+    <string name="queue_size">Köstorlek: %d</string>
+    <string name="terms_of_use">Användarvillkor</string>
+    <string name="not_logged_in">Inte inloggad</string>
+    <string name="you_need_to_accept_the_of_use_first">Du måste acceptera användarvillkoren först.</string>
+    <string name="successfully_logged_in">Inloggning lyckades</string>
+    <string name="setup_will_continue_in_background">Konfigurationen kommer att slutföras i bakgrunden nu. Tack för att du laddade upp dina data.\n\nBehåll det här appen och din telefon påslagen en stund till för installationen ska slutföras helt.</string>
+    <string name="completing_login">Slutför inloggning…</string>
+    <string name="donate_your_data_to_science">Donera dina data till vetenskapen</string>
+    <string name="open_humans_short">OH</string>
+    <string name="you_have_been_signed_out_of_open_humans">Du har loggats ut från Open Humans</string>
+    <string name="click_here_to_sign_in_again_if_this_wasnt_on_purpose">Klicka här om du vill logga in igen om det inte var meningen.</string>
+    <string name="only_upload_if_connected_to_wifi">Ladda bara upp om ansluten till WiFi</string>
+    <string name="only_upload_if_charging">Ladda bara upp vid laddning</string>
+    <string name="worker_state">Jobbstatus: %s</string>
+    <string name="uploaded_data">Uppladdad data</string>
+    <string name="the_following_data_will_be_uploaded_to_your_open_humans_account">Följande data kommer att överföras till ditt Open Humans-konto: Glukosvärden, careportalhändelser (utom anteckningar), utökade bolusar, profilbyten, totala dagliga doser, temp basaler, temp mål, inställningar, appversion, enhetsmodell och skärmstorlek. Hemlig eller privat information, t. ex. din Nightscout-adress eller API-hemlighet, kommer inte att överföras.</string>
 </resources>

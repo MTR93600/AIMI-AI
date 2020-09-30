@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    Keys-->
     <string name="key_enable_fabric" translatable="false">enable_fabric</string>
     <string name="key_language" translatable="false">language</string>
     <string name="key_units" translatable="false">units</string>
@@ -22,7 +23,9 @@
     <string name="key_ns_uploadlocalprofile" translatable="false">ns_uploadlocalprofile</string>
     <string name="key_btwatchdog" translatable="false">bt_watchdog</string>
     <string name="key_btwatchdog_lastbark" translatable="false">bt_watchdog_last</string>
-    <string name="pairing">Pairing</string>
+    <string name="key_pump_unreachable_threshold_minutes" translatable="false">pump_unreachable_threshold</string>
+    <string name="key_missed_bg_readings_threshold_minutes" translatable="false">missed_bg_readings_threshold</string>
+    <string name="key_gradually_increase_notification_volume" translatable="false">gradually_increase_notification_volume</string>
 
     <!--    General-->
     <string name="error">Error</string>
@@ -31,22 +34,24 @@
     <string name="profile_set_ok">Basal profile in pump updated</string>
     <string name="invalidinput">Invalid input data</string>
     <string name="tempbasaldeliveryerror">Tempbasal delivery error</string>
-    <string name="goingtodeliver">Going to deliver %1$.2fU</string>
+    <string name="goingtodeliver">Going to deliver %1$.2f U</string>
     <string name="waitingforpump">Waiting for pump</string>
     <string name="connectingfor">Connecting for %1$d s</string>
-    <string name="bolusdelivering">Delivering %1$.2fU</string>
+    <string name="bolusdelivering">Delivering %1$.2f U</string>
     <string name="handshaking">Handshaking</string>
     <string name="connecting">Connecting</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="disconnecting">Disconnecting</string>
     <string name="androidaps_start">AndroidAPS started</string>
-    <string name="formatinsulinunits">%1$.2fU</string>
+    <string name="formatinsulinunits1">%1$.1f U</string>
+    <string name="formatinsulinunits">%1$.2f U</string>
+    <string name="formatsignedinsulinunits">%1$+.2f U</string>
+    <string name="format_carbs">%1$d g</string>
     <string name="reservoirvalue">%1$.0f / %2$d U</string>
-    <string name="pump_basebasalrate">%1$.2fU/h</string>
+    <string name="pump_basebasalrate">%1$.2f U/h</string>
     <string name="format_hours">%1$.2f h</string>
     <string name="format_mins">%1$d mins</string>
-    <string name="format_mins_short">%1$dm</string>
     <string name="pumpbusy">Pump is busy</string>
     <string name="connectionerror">Pump connection error</string>
     <string name="youareonallowedlimit">You reached allowed limit</string>
@@ -86,6 +91,7 @@
     <string name="bluetooth">Bluetooth</string>
     <string name="btwatchdog_title">BT Watchdog</string>
     <string name="btwatchdog_summary">Switches off the phone\'s bluetooth for one second if no connection to the pump is possible. This may help on some phones where the bluetooth stack freezes.</string>
+    <string name="pairing">Pairing</string>
 
     <!--    Constraints-->
     <string name="limitingbasalratio">Limiting max basal rate to %1$.2f U/h because of %2$s</string>
@@ -109,8 +115,8 @@
     <string name="location_not_found_message">For Bluetooth discovery to work on newer devices, location must be enabled. AAPS does not track your location and it can be disabled after pairing is successful.</string>
 
     <!--    DateUtil-->
-    <string name="minago">%1$dm ago</string>
-    <string name="hoursago">%1$.1fh ago</string>
+    <string name="minago">%1$d m ago</string>
+    <string name="hoursago">%1$.1f h ago</string>
     <string name="shorthour">h</string>
     <string name="days">days</string>
     <string name="hours">hours</string>
@@ -126,6 +132,10 @@
     <string name="unit_weeks">weeks</string>
     <string name="shortminute">m</string>
     <string name="shortday">d</string>
+
+    <!--    Protection-->
+    <string name="wrongpassword">Wrong password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
 
     <!--    Profile-->
     <string name="basalprofilenotaligned">Basal values not aligned to hours: %1$s</string>
@@ -153,14 +163,15 @@
     <string name="zerovalueinprofile">Invalid profile: %1$s</string>
 
     <!--    Temptarget-->
-    <string name="mins">%1$dmin</string>
+    <string name="mins">%1$d min</string>
 
     <!--    TDD-->
-    <string name="tddformat"><![CDATA[<b>%1$s:</b> ∑: <b>%2$.2fU</b> Bol: <b>%3$.2fU</b> Bas: <b>%4$.2fU(%5$.0f%%)</b>]]></string>
-    <string name="tddwithcarbsformat"><![CDATA[<b>%1$s:</b> ∑: <b>%2$.2fU</b> Bol: <b>%3$.2fU</b> Bas: <b>%4$.2fU(%5$.0f%%)</b> Carbs: <b>%6$.0fg</b>]]></string>
+    <string name="tddformat"><![CDATA[<b>%1$s:</b> ∑: <b>%2$.2f U</b> Bol: <b>%3$.2f U</b> Bas: <b>%4$.2f U(%5$.0f%%)</b>]]></string>
+    <string name="tddwithcarbsformat"><![CDATA[<b>%1$s:</b> ∑: <b>%2$.2f U</b> Bol: <b>%3$.2f U</b> Bas: <b>%4$.2f U(%5$.0f%%)</b> Carbs: <b>%6$.0f g</b>]]></string>
 
     <!--    Translator-->
     <string name="careportal_bgcheck">BG Check</string>
+    <string name="careportal_mbg">Manual BG or Calibration</string>
     <string name="careportal_announcement">Announcement</string>
     <string name="careportal_note">Note</string>
     <string name="careportal_question">Question</string>
@@ -201,7 +212,7 @@
     <string name="smb_shortname">SMB</string>
 
     <!--    CarbsReq-->
-    <string name="carbsreq">%dg Additional Carbs Required Within %d Minutes</string>
+    <string name="carbsreq">%d g Additional Carbs Required Within %d Minutes</string>
 
     <!--    TDDStatsActivity-->
     <string name="stats">Stats</string>
@@ -272,7 +283,6 @@
     <!--    Notification(R.string.medtronic_history_group_notification), //-->
     <!--    Statistic(R.string.medtronic_history_group_statistic),-->
     <!--    Unknown(R.string.medtronic_history_group_unknown), //-->
-
 
 
 </resources>

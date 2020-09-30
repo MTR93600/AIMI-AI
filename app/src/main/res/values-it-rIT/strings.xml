@@ -156,7 +156,7 @@
     <string name="overview_tempbasal_button">Basale temporanea</string>
     <string name="overview_extendedbolus_button">Bolo esteso</string>
     <string name="configbuilder_nightscoutversion_label">Versione Nightscout:</string>
-    <string name="missing_carbs">Mancanti %1$dg</string>
+    <string name="missing_carbs">Mancanti %1$d g</string>
     <string name="exported">Preferenze esportate</string>
     <string name="export_to">Esportare impostazioni su</string>
     <string name="import_from">Importare impostazioni da</string>
@@ -168,12 +168,15 @@
     <string name="openapsma_maxbasal_summary">Questo valore è chiamato max basale nel contesto OpenAPS</string>
     <string name="openapsma_maxiob_title">Max IOB da basale a cui limitare OpenAPS [U]</string>
     <string name="openapsma_maxiob_summary">Questo valore è chiamato Max IOB nel contesto OpenAPS\nIndica l\'insulina massima in [U] che APS può erogare in contemporanea.</string>
-    <string name="password_preferences_encrypt_prompt">Ti verrà richiesta la password principale, che verrà utilizzata per crittografare le preferenze esportate.</string>
+    <string name="password_preferences_encrypt_prompt">Ti verrà richiesta la password master, che verrà utilizzata per crittografare le preferenze esportate.</string>
     <string name="password_preferences_decrypt_prompt">Ti verrà chiesta la password master, che è necessaria per decrittare le preferenze importate.</string>
     <string name="preferences_export_canceled">Esportazione annullata! Le preferenze NON sono state esportate!</string>
     <string name="preferences_import_canceled">Importazione annullata! Le preferenze NON sono state importate!</string>
     <string name="preferences_import_impossible">Impossibile importare le preferenze!</string>
     <string name="goto_main_try_again">Torna alla schermata principale e riprova.</string>
+    <string name="old_master_password">Password Master precedente</string>
+    <string name="different_password_used">Questo file è stato esportato e crittografato con una password master differente. Fornire la password master precedente per decrittare il file.</string>
+    <string name="master_password_will_be_replaced">Come risultato dell\'importazione riuscita, la password master corrente VERRÀ SOSTITUITA con la password master precedente contenuta nel file importato!</string>
     <string name="preferences_import_list_title">Seleziona il file da importare</string>
     <string name="check_preferences_before_import">Verifica le preferenze prima dell\'importazione:</string>
     <string name="check_preferences_cannot_import">Le preferenze non possono essere importate!</string>
@@ -235,10 +238,10 @@
     <string name="smscommunicator_remotebolusmindistance_summary">Numero minimo di minuti che devono trascorrere tra un bolo remoto e il successivo</string>
     <string name="smscommunicator_remotebolusmindistance">Quanti minuti devono trascorrere, almeno, tra un bolo e il successivo</string>
     <string name="smscommunicator_remotebolusmindistance_caveat">Per la tua sicurezza, per modificare questa preferenza hai bisogno di aggiungere almeno 2 numeri di telefono.</string>
-    <string name="bolusdelivered">Bolo di %1$.2fU erogato con successo</string>
+    <string name="bolusdelivered">Bolo di %1$.2f U erogato con successo</string>
     <string name="bolusrequested">Sto per erogare %1$.2fU</string>
-    <string name="smscommunicator_bolusdelivered">Bolo di %1$.2fU erogato con successo</string>
-    <string name="smscommunicator_mealbolusdelivered">Bolo pasto di %1$.2fU erogato con successo</string>
+    <string name="smscommunicator_bolusdelivered">Bolo di %1$.2f U erogato con successo</string>
+    <string name="smscommunicator_mealbolusdelivered">Bolo pasto di %1$.2f U erogato con successo</string>
     <string name="smscommunicator_mealbolusdelivered_tt">Target %1$s per %2$d minuti</string>
     <string name="smscommunicator_tt_set">Target %1$s per %2$d minuti impostato con successo</string>
     <string name="smscommunicator_tt_canceled">Temp-Target cancellato con successo</string>
@@ -262,9 +265,9 @@
     <string name="smscommunicator_reconnect">Micro riconnesso</string>
     <string name="smscommunicator_remotecommandnotallowed">Il comando da remoto non è permesso</string>
     <string name="smscommunicator_remotebolusnotallowed">Bolo remoto non disponibile. Riprova più tardi.</string>
-    <string name="smscommunicator_basalreplywithcode">Per avviare la basale %1$.2fU/h per %2$d min rispondi col codice %3$s</string>
+    <string name="smscommunicator_basalreplywithcode">Per avviare la basale %1$.2f U/h per %2$d min rispondi col codice %3$s</string>
     <string name="smscommunicator_profilereplywithcode">Per passare al profilo %1$s %2$d%% rispondi col codice %3$s</string>
-    <string name="smscommunicator_extendedreplywithcode">Per avviare il bolo esteso %1$.2fU/h per %2$d min rispondi col codice %3$s</string>
+    <string name="smscommunicator_extendedreplywithcode">Per avviare il bolo esteso %1$.2f U/h per %2$d min rispondi col codice %3$s</string>
     <string name="smscommunicator_carbsreplywithcode">Per inserire %1$dg a %2$s rispondi col codice %3$s</string>
     <string name="smscommunicator_basalpctreplywithcode">Per avviare la basale %1$d%% per %2$d min rispondi col codice %3$s</string>
     <string name="smscommunicator_suspendreplywithcode">Per sospendere il loop per %1$d minuti rispondi col codice %2$s</string>
@@ -273,7 +276,7 @@
     <string name="smscommunicator_loopdisablereplywithcode">Per disabilitare il loop rispondi col codice %1$s</string>
     <string name="smscommunicator_tempbasalset">Basale temporanea %1$.2fU/h per %2$d min avviata con successo</string>
     <string name="smscommunicator_extendedset">Bolo esteso %1$.2fU/h per %2$d min avviato con successo</string>
-    <string name="smscommunicator_carbsset">CHO %1$dg inseriti con successo</string>
+    <string name="smscommunicator_carbsset">CHO %1$d g inseriti con successo</string>
     <string name="smscommunicator_carbsfailed">Inserimento di %1$dg di CHO fallito</string>
     <string name="smscommunicator_tempbasalset_percent">Basale temporanea %1$d%% per %2$d min avviata con successo</string>
     <string name="smscommunicator_tempbasalfailed">Avvio basale temporanea fallito</string>
@@ -559,6 +562,7 @@
     <string name="pump_unreachable">Micro irraggiungibile</string>
     <string name="missed_bg_readings">Letture BG mancanti</string>
     <string name="raise_notifications_as_android_notifications">Usa le notifiche di sistema per gli avvisi</string>
+    <string name="gradually_increase_notification_volume">Aumenta gradualmente il volume per avvisi e notifiche</string>
     <string name="localalertsettings_title">Avvisi locali</string>
     <string name="enable_missed_bg_readings_alert">Avviso se non si ricevono dati BG</string>
     <string name="enable_pump_unreachable_alert">Avviso se il micro è irraggiungibile</string>
@@ -854,7 +858,7 @@
     <string name="code_compare">I codici mostrati su questo dispositivo e sul micro combaciano?</string>
     <string name="insight_pairing">Associazione Insight</string>
     <string name="insight_local">Accu-Chek Insight</string>
-    <string name="insight_delivered">%1$.2fU / %2$.2fU erogato</string>
+    <string name="insight_delivered">%1$.2f U / %2$.2f U erogato</string>
     <string name="insight_alert_formatter">%1$s: %2$s</string>
     <string name="tube_changed">Catetere sostituito</string>
     <string name="pump_time_updated">Ora del micro aggiornata</string>
@@ -912,7 +916,7 @@
     <string name="short_status_extended">Esteso: %1$.2f / %2$.2f U per %3$d min</string>
     <string name="short_status_multiwave">Multiwave: %1$.2f / %2$.2f U per %3$d min</string>
     <string name="short_status_tdd">TDD: %1$.2f</string>
-    <string name="short_status_reservoir">Serb.: %1$.2fU</string>
+    <string name="short_status_reservoir">Serb.: %1$.2f U</string>
     <string name="short_status_battery">Batt: %1$d%%</string>
     <string name="max_recovery_duration">Max. durata recupero [s]</string>
     <string name="min_recovery_duration">Min. durata recupero [s]</string>
@@ -1055,8 +1059,8 @@
     <string name="sendsmsactionlabel">Invia SMS: %1$s</string>
     <string name="sendsmsactiondescription">Invia SMS a tutti i numeri</string>
     <string name="sendsmsactiontext">Invia SMS con testo</string>
-    <string name="insulinFromCob"><![CDATA[COB vs IOB: <font color=\'%1$s\'>%2$+.2fU</font>]]></string>
-    <string name="bolusconstraintappliedwarning"><![CDATA[<font color=\'%1$s\'>Vincolo Bolo applicato: %2$.2fU a %3$.2fU</font>]]></string>
+    <string name="cobvsiob">COB vs IOB</string>
+    <string name="bolusconstraintappliedwarn">Vincolo bolo applicato: %1$.2f U a %2$.2f U</string>
     <string name="slowabsorptiondetected"><![CDATA[<font color=\'%1$s\'>!!!!! Rilevato assorbimento lento dei carboidrati: %2$d%% del tempo. Ricontrolla il tuo calcolo. COB potrebbero essere sovrastimati e potrebbe essere somministrata più insulina !!!!!</font>]]></string>
     <string name="partialboluswizard">Eroga parte del risultato del calcolatore [%]</string>
     <string name="deliverpartofboluswizard">Il calcolatore esegue il calcolo, ma solo questa parte dell\'insulina calcolata è erogata. Utile con algoritmo SMB.</string>
@@ -1077,13 +1081,11 @@
     <string name="selected_profile">Selezionato:</string>
     <string name="unitsnosemicolon">Unità</string>
     <string name="doyouwantswitchprofile">Vuoi cambiare profilo e scartare le modifiche apportate al profilo corrente?</string>
-    <string name="format_carbs">%1$dg</string>
     <string name="common_on">On</string>
     <string name="common_off">Off</string>
     <string name="objectives_button_unfinish">Cancella completamento</string>
     <string name="objectives_button_unstart">Cancella avvio</string>
     <string name="doyouwantresetstart">Vuoi resettare l\'avvio dell\'obiettivo? Potresti perdere i tuoi progressi.</string>
-    <string name="time_or_timezone_change">Cambio di ora e/o fuso orario sul micro</string>
     <string name="nopumpselected">Nessun micro selezionato</string>
     <string name="setupwizard_units_prompt">Seleziona le unità in cui vuoi visualizzare i valori</string>
     <string name="ns_ploadlocalprofile">Carica modifiche al profilo locale in NS</string>
@@ -1092,7 +1094,7 @@
     <string name="isf_short">ISF</string>
     <string name="target_short">TARG</string>
     <string name="clone_label">Clona</string>
-    <string name="saveorresetchangesfirst">Salva o reimposta prima le modifiche correnti</string>
+    <string name="saveorresetchangesfirst">Salva o resetta prima le modifiche correnti</string>
     <string name="deletecurrentprofile">Rimuovere il profilo corrente?</string>
     <string name="copytolocalprofile">Creare un nuovo profilo locale da questo profilo?</string>
     <string name="profilenamecontainsdot">Il nome profilo contiene dei punti.\nQuesto non è supportato da NS.\nIl profilo non viene caricato in NS.</string>
@@ -1135,12 +1137,14 @@
     <string name="loop_tbrexecution_time_label">Esecuzione basale temporanea (momento)</string>
     <string name="insight_alert_notification_channel">Avvisi micro Insight</string>
     <!-- SMS Communicator & OTP Authenticator -->
-    <string name="smscommunicator_code_from_authenticator_for" comment="This is continuation of sentence: To [ACTION] reply with code">da app autenticatore per: %1$s</string>
+    <string name="smscommunicator_code_from_authenticator_for" comment="This is continuation of sentence: To [ACTION] reply with code">da app autenticatore: %1$s seguito da PIN</string>
     <string name="smscommunicator_otp_enabled">Abilita autenticatore</string>
     <string name="smscommunicator_otp_enabled_summary">Autentica i comandi utilizzando OTP (One Time Password) generate da Google Authenticator o app 2FA simili.</string>
-    <string name="smscommunicator_otp_pin">PIN aggiuntivo a fine token</string>
+    <string name="smscommunicator_otp_pin">PIN obbligatorio aggiuntivo a fine token</string>
     <string name="smscommunicator_otp_pin_summary">Cifre aggiuntive che devono essere memorizzate e incollate alla fine di ogni OTP generata</string>
     <string name="smscomunicator_tab_otp_label">Configurazione autenticatore</string>
+    <string name="smscommunicator_code_verify_hint">OTP + PIN</string>
+    <string name="smscommunicator_code_verify_info">Il codice di verifica è composto da 6 cifre visualizzate dall\'app autenticatore (note come OTP) seguite da 3 o più cifre del PIN obbligatorio.</string>
     <string name="smscommunicator_otp_verify_label">OTP per verifica:</string>
     <string name="smscommunicator_otp_reset_btn">Resetta autenticatori</string>
     <string name="smscommunicator_otp_reset_title">Resetta chiave autenticatore</string>
@@ -1160,7 +1164,6 @@
     <string name="authorizationfailed">Autorizzazione fallita</string>
     <string name="overview_show_absinsulin">Insulina assoluta</string>
     <string name="master_password_summary">La password master viene utilizzata per la crittografia del backup e per gestire la sicurezza nell\'applicazione. Ricordala o conservala in un luogo sicuro.</string>
-    <string name="passwords_dont_match">Le password non coincidono</string>
     <string name="current_master_password">Password Master corrente</string>
     <string name="statuslights">Indicatori di stato</string>
     <string name="statuslights_copy_ns">Copia impostazioni da NS</string>
@@ -1169,123 +1172,6 @@
     <string name="buttonson_description">I tasti vengono sempre visualizzati nella parte inferiore dello schermo</string>
     <string name="largedisplay_description">Visualizzazione ampia</string>
     <string name="skin">Tema</string>
-    <!-- MDT Pump Status - removed when PodDeviceState is removed -->
-    <string name="medtronic_pump_status_never_contacted">Mai connesso</string>
-    <string name="medtronic_pump_status_waking_up">Risveglio</string>
-    <string name="medtronic_pump_status_error_comm">Errore nella comunicazione</string>
-    <string name="medtronic_pump_status_timeout_comm">Timeout della comunicazione</string>
-    <string name="medtronic_pump_status_pump_unreachable">Micro irraggiungibile</string>
-    <string name="medtronic_pump_status_invalid_config">Configurazione non valida</string>
-    <string name="medtronic_pump_status_active">Attivo</string>
-    <string name="medtronic_pump_status_sleeping">In sospensione</string>
-    <!-- Omnipod -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod">Integrazione del microinfusore Omnipod, richiede un dispositivo RileyLink (con almeno il firmware 2.0).</string>
-    <!-- Omnipod Configuration -->
-    <string name="omnipod_config_beep_bolus_enabled">BIP bolo abilitato</string>
-    <string name="omnipod_config_beep_basal_enabled">BIP basale abilitato</string>
-    <string name="omnipod_config_beep_smb_enabled">BIP SMB abilitato</string>
-    <string name="omnipod_config_beep_tbr_enabled">BIP TBR abilitato</string>
-    <string name="omnipod_config_pod_debugging_options_enabled">Opzioni debug pod abilitate</string>
-    <string name="omnipod_config_timechange_enabled">Rilevamento ora legale/fuso orario abilitato</string>
-    <!-- Omnipod - Fragment -->
-    <string name="omnipod_pod_mgmt">GSTN pod</string>
-    <string name="omnipod_pod_status">Stato pod</string>
-    <string name="omnipod_reservoir_left">%1$.2f U rimanenti</string>
-    <string name="omnipod_reservoir_over50">Oltre 50 U</string>
-    <string name="omnipod_pod_address">Indirizzo pod</string>
-    <string name="omnipod_pod_expiry">Scadenza pod</string>
-    <string name="omnipod_pod_name_no_info">No info</string>
-    <string name="omnipod_pod_no_pod_connected">Nessun pod connesso</string>
-    <string name="omnipod_pod_not_initalized">Non inizializzato</string>
-    <string name="omnipod_pod_active_alerts">Attiva avvisi pod</string>
-    <string name="omnipod_ack_short">Conferma avvisi</string>
-    <!-- Omnipod - Dialogs -->
-    <string name="omnipod_frequency">Omnipod (433.91 MHz)</string>
-    <!-- Omnipod - Error -->
-    <string name="omnipod_error_operation_not_possible_no_configuration">Operazione non possibile.\n\nDevi prima configurare Omnipod.</string>
-    <string name="omnipod_error_operation_not_possible_no_profile">Operazione non possibile.\n\n Devi attendere qualche minuto che AAPS imposti il profilo per la prima volta.</string>
-    <string name="omnipod_error_illegal_init_action_type">Illegal PodInitActionType: %1$s</string>
-    <string name="omnipod_error_pod_not_attached">Nessun pod attivo.</string>
-    <string name="omnipod_driver_error_setup_action_verification_failed">Verifica comando fallita.</string>
-    <string name="omnipod_driver_error_unexpected_exception_type">Si è verificato un errore imprevisto. Segnalalo! (%1$s).</string>
-    <string name="omnipod_driver_error_invalid_parameters">Comunicazione fallita: ricevuti parametri di input non validi.</string>
-    <string name="omnipod_driver_error_communication_failed_timeout">Comunicazione fallita: timeout.</string>
-    <string name="omnipod_driver_error_communication_failed_unexpected_exception">Comunicazione fallita: si è verificato un errore imprevisto. Segnalalo!</string>
-    <string name="omnipod_driver_error_crc_mismatch">Comunicazione fallita: verifica dell\'integrità del messaggio fallita.</string>
-    <string name="omnipod_driver_error_invalid_packet_type">Comunicazione fallita: ricevuto un pacchetto non valido dal pod.</string>
-    <string name="omnipod_driver_error_invalid_progress_state">Comunicazione fallita: il pod è in uno stato non corretto.</string>
-    <string name="omnipod_driver_error_invalid_response">Comunicazione fallita: ricevuta una risposta non valida dal pod.</string>
-    <string name="omnipod_driver_error_invalid_message_sequence_number">Comunicazione fallita: ricevuto dal pod un messaggio con una sequenza numerica non valida.</string>
-    <string name="omnipod_driver_error_invalid_message_address">Comunicazione fallita: ricevuto dal pod un messaggio con un indirizzo non valido.</string>
-    <string name="omnipod_driver_error_message_decoding_failed">Comunicazione fallita: non si è riuscito a decodificare il messaggio dal pod.</string>
-    <string name="omnipod_driver_error_nonce_resync_failed">Comunicazione fallita: risincronizzazione \'nonce\' non riuscita.</string>
-    <string name="omnipod_driver_error_nonce_out_of_sync">Comunicazione fallita: \'nonce\' non sincronizzato.</string>
-    <string name="omnipod_driver_error_not_enough_data">Comunicazione fallita: non abbastanza dati ricevuti dal pod.</string>
-    <string name="omnipod_driver_error_pod_fault">È stato rilevato un guasto al pod (%1$03d %2$s). Disattiva il tuo pod e avviane uno nuovo.</string>
-    <string name="omnipod_driver_error_pod_returned_error_response">Comunicazione fallita: il pod ha restituito una risposta di errore.</string>
-    <!-- Omnipod - Pod Mgmt -->
-    <string name="omnipod_pod_mgmt_title">Gestione pod</string>
-    <string name="omnipod_cmd_init_pod">Inizializza pod</string>
-    <string name="omnipod_cmd_deactivate_pod">Disattiva pod</string>
-    <string name="omnipod_cmd_reset_pod">Resetta pod</string>
-    <string name="omnipod_cmd_pod_history">Storico pod</string>
-    <string name="omnipod_cmd_set_bolus">Imposta bolo</string>
-    <string name="omnipod_cmd_cancel_bolus">Cancella bolo</string>
-    <string name="omnipod_cmd_set_tbr">Imposta basale temporanea</string>
-    <string name="omnipod_cmd_cancel_tbr">Cancella basale temporanea (internamente dal driver)</string>
-    <string name="omnipod_cmd_cancel_tbr_forced">Cancella basale temporanea (forzato da utente)</string>
-    <string name="omnipod_cmd_set_basal_schedule">Imposta piano basale</string>
-    <string name="omnipod_cmd_get_pod_status">Ottieni stato pod</string>
-    <string name="omnipod_cmd_get_pod_info">Ottieni info pod</string>
-    <string name="omnipod_cmd_set_time">Imposta ora</string>
-    <string name="omnipod_cmd_configure_alerts">Configurazione avvisi</string>
-    <string name="omnipod_cmd_acknowledge_alerts">Conferma avvisi</string>
-    <string name="omnipod_cmd_suspend_delivery">Sospendi erogazione</string>
-    <string name="omnipod_cmd_resume_delivery">Riprendi erogazione</string>
-    <string name="omnipod_cmd_unknown_entry">Inserimento sconosciuto</string>
-    <string name="omnipod_cmd_bolus_value">%1$.1f U</string>
-    <string name="omnipod_cmd_bolus_value_with_carbs">%1$.1f U, CH=%2$.1f g</string>
-    <string name="omnipod_cmd_tbr_value">Tasso: %1$.1f U, Durata: %2$d min</string>
-    <string name="omnipod_cmd_reset_pod_desc">Se premi <b>OK</b>, lo stato del pod verrà resettato forzatamente e non potrai più comunicare con il pod. Fallo solo se non riesci più a comunicare con il pod. Se puoi ancora a comunicare con il pod, utilizza l\'opzione <b>Disattiva pod</b> .</string>
-    <string name="omnipod_cmd_pod_history_na">Storico pod non disponibile al momento.</string>
-    <string name="omnipod_init_pod_wizard_step1_title">Riempi il pod</string>
-    <string name="omnipod_init_pod_wizard_step1_desc">\nRiempi il nuovo pod con abbastanza insulina per 3 giorni.\n\nResta in ascolto di due bip dal pod durante il processo di riempimento. Questi indicano che è stata inserita la quantità minima di 85U. Assicurati di svuotare completamente la siringa di riempimento, anche dopo aver sentito i due segnali acustici.\n\nDopo il riempimento del pod, premi <b>Avanti</b>.\n\n<b>Nota:</b> non rimuovere la protezione dell\'ago del pod in questo momento.</string>
-    <string name="omnipod_init_pod_wizard_step2_title">Caricamento</string>
-    <string name="omnipod_init_pod_wizard_step2_action_header">Prova associazione nuovo pod e caricamento.\n\nQuando tutti gli elementi sono stati controllati, puoi premere <b>Avanti</b>.\n\n<b>Nota:</b> mantieni il pod molto vicino al RileyLink in questo momento.</string>
-    <string name="omnipod_init_pod_wizard_step3_title">Collega il pod</string>
-    <string name="omnipod_init_pod_wizard_step3_desc">\nPrepara il sito di infusione. Rimuovi la protezione dell\'ago del pod e il supporto adesivo e attacca il pod al sito di infusione.\n\nSe la cannula fuoriesce premi <b>Annulla</b> e cambia il tuo pod.\n\nPremi <b>Avanti</b> per inserire la cannula e iniziare l\'erogazione della basale.</string>
-    <string name="omnipod_init_pod_wizard_step4_title">Inserimento cannula</string>
-    <string name="omnipod_init_pod_wizard_step4_action_header">Prova impostazione piano basale iniziale e inserimento cannula.\n\nQuando tutti gli elementi sono stati controllati, puoi premere <b>Avanti</b>.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_title">Info pod</string>
-    <string name="omnipod_init_pod_wizard_pod_info_init_pod_description">\nIl pod è adesso attivo.\n\nIl tuo piano basale è stato programmato e la cannula è stata inserita.\n\nVerifica che la cannula sia stata inserita correttamente e sostituisci il tuo pod se avverti il contrario.</string>
-    <string name="omnipod_remove_pod_wizard_step1_title">Disattiva pod</string>
-    <string name="omnipod_remove_pod_wizard_step1_desc">\nPremi <b>Avanti</b> per disattivare il pod.\n\n<b>Nota:</b> Questo sospenderà tutta l\'erogazione di insulina e disattiverà il pod.</string>
-    <string name="omnipod_remove_pod_wizard_step2_title">Disattivazione del pod</string>
-    <string name="omnipod_remove_pod_wizard_step2_action_header">Disattivazione del pod.\n\nQuando tutti gli elementi sono stati controllati, puoi premere <b>Avanti</b>.\n\n<b>Nota:</b> Se la disattivazione fallisce continuamente, premi <b>Annulla</b> e usa l\'opzione <b>Resetta pod</b> per resettare forzatamente lo stato del pod.</string>
-    <string name="omnipod_init_pod_wizard_pod_info_remove_pod_description">Pod disattivato.\n\nRimuovi il pod dal tuo corpo e gettalo.</string>
-    <string name="omnipod_init_pod_pair_pod">Associa pod</string>
-    <string name="omnipod_init_pod_prime_pod">Carica pod</string>
-    <string name="omnipod_init_pod_fill_cannula">Riempi cannula</string>
-    <string name="omnipod_init_pod_set_basal_profile">Imposta profilo basale</string>
-    <string name="omnipod_deactivate_pod_cancel_delivery">Cancella erogazione</string>
-    <string name="omnipod_deactivate_pod_deactivate_pod">Disattiva pod</string>
-    <!-- Omnipod Dash -->
-    <!-- Omnipod - Base -->
-    <string name="description_pump_omnipod_dash">Integrazione del microinfusore Omnipod Dash.</string>
-    <string name="omnipod_alert_finish_pairing_reminder">Fine promemoria associazione</string>
-    <string name="omnipod_alert_finish_setup_reminder_reminder">Fine promemoria configurazione</string>
-    <string name="omnipod_alert_expiration">Il pod scadrà presto</string>
-    <string name="omnipod_alert_expiration_advisory">Il pod scadrà presto</string>
-    <string name="omnipod_alert_shutdown_imminent">L\'arresto è imminente</string>
-    <string name="omnipod_alert_low_reservoir">Livello serbatoio basso</string>
-    <string name="omnipod_alert_unknown_alert">Avviso sconosciuto</string>
-    <string name="omnipod_error_set_basal_failed_uncertain">L\'impostazione del profilo basale potrebbe essere fallita. L\'erogazione potrebbe essere sospesa! Ricarica lo stato del pod.</string>
-    <string name="omnipod_error_set_temp_basal_failed_uncertain">L\'impostazione della basale temporanea potrebbe essere fallita. Se era già in esecuzione una basale temporanea, questa potrebbe essere stata cancellata! Ricarica lo stato del pod.</string>
-    <string name="omnipod_error_set_time_failed_uncertain">L\'impostazione dell\'ora potrebbe essere fallita. L\'erogazione potrebbe essere sospesa! Ricarica lo stato del pod.</string>
-    <string name="omnipod_bolus_failed_uncertain">Impossibile verificare che il bolo sia riuscito. Verifica che il tuo pod stia erogando il bolo oppure cancellalo.</string>
-    <string name="omnipod_rl_stats">Statistiche RL</string>
-    <string name="omnipod_read_pulse_log_short">Log impulsi</string>
     <string name="comapareprofile">Compara profili</string>
     <string name="nav_profilehelper">Assistente profilo</string>
     <string name="motoldefaultprofile">Profilo predefinito</string>
@@ -1297,4 +1183,34 @@
     <string name="formatwithweight">Età: %1$.0f Peso: %2$.0f kg</string>
     <string name="basalpctfromtdd_label">% di basale</string>
     <string name="dpvdefaultprofile">Profilo DPV predefinito</string>
+    <string name="open_humans">Open Humans</string>
+    <string name="finishing_open_humans_setup">Completamento configurazione Open Humans…</string>
+    <string name="this_may_take_a_while">Potrebbe volerci un po\' di tempo. Non spegnere il tuo telefono e non disattivare questo plugin.</string>
+    <string name="setup_finished">Configurazione completata</string>
+    <string name="your_phone_will_upload_data">Il tuo telefono caricherà a breve i dati su Open Humans.</string>
+    <string name="your_phone_is_upload_data">Il tuo telefono sta caricando ora i dati su Open Humans.</string>
+    <string name="setup_failed">Configurazione fallita</string>
+    <string name="there_was_an_error">Si è verificato un errore. Prova ad accedere di nuovo per procedere.</string>
+    <string name="open_humans_terms">Questo è uno strumento open source che copierà i tuoi dati su Open Humans. Non ci riserviamo alcun diritto di condividere i tuoi dati con terze parti senza la tua esplicita autorizzazione. I dati che il progetto e l\'app ricevono vengono identificati tramite un ID utente casuale e verranno trasmessi in modo sicuro a un account Open Humans solo con la tua autorizzazione per tale processo. Puoi interrompere il caricamento ed eliminare i dati di caricamento in qualsiasi momento tramite www.openhumans.org.</string>
+    <string name="i_understand_and_agree">Comprendo e accetto.</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="oh_logout_confirmation">Vuoi davvero fare il logout e smettere di donare dati alla scienza?</string>
+    <string name="project_member_id">Project Member ID: %s</string>
+    <string name="queue_size">Dimensione coda: %d</string>
+    <string name="terms_of_use">Termini di utilizzo</string>
+    <string name="not_logged_in">Accesso non effettuato</string>
+    <string name="you_need_to_accept_the_of_use_first">Devi prima accettare i termini di utilizzo.</string>
+    <string name="successfully_logged_in">Accesso riuscito</string>
+    <string name="setup_will_continue_in_background">La configurazione verrà ora completata in background. Grazie per il caricamento dei tuoi dati.\n\nPer completare la configurazione, mantieni questo plugin attivo e il telefono acceso per un po\' di tempo.</string>
+    <string name="completing_login">Completamento accesso…</string>
+    <string name="donate_your_data_to_science">Dona i tuoi dati alla scienza</string>
+    <string name="open_humans_short">OH</string>
+    <string name="you_have_been_signed_out_of_open_humans">Sei stato disconnesso da Open Humans</string>
+    <string name="click_here_to_sign_in_again_if_this_wasnt_on_purpose">Fare click qui per accedere di nuovo.</string>
+    <string name="only_upload_if_connected_to_wifi">Upload solo se connesso a WiFi</string>
+    <string name="only_upload_if_charging">Upload solo se in carica</string>
+    <string name="worker_state">Worker State: %s</string>
+    <string name="uploaded_data">Dati caricati</string>
+    <string name="the_following_data_will_be_uploaded_to_your_open_humans_account">I seguenti dati verranno caricati sul tuo account Open Humans: valori glicemia, eventi portale (eccetto note), boli estesi, cambi profilo, dosi giornaliere totali (TDD), basali temporanee, target temporanei, preferenze, versione dell\'applicazione, modello del dispositivo e dimensioni dello schermo. Informazioni segrete o private come l\'URL di Nightscout o l\'API secret non verranno caricate.</string>
 </resources>

@@ -118,7 +118,7 @@ public class MedLinkMedtronicService extends RileyLinkService {
         // get most recently used RileyLink address
         rileyLinkServiceData.rileylinkAddress = sp.getString(MedLinkConst.Prefs.MedLinkAddress, "");
         aapsLogger.debug("MedlinkADDRESS "+rileyLinkServiceData.rileylinkAddress);
-        rileyLinkBLE = new RileyLinkBLE(injector, this); // or this
+        rileyLinkBLE = new RileyLinkBLE(this); // or this
         rfspy = new RFSpy(injector, rileyLinkBLE);
         rfspy.startReader();
 
@@ -204,25 +204,25 @@ public class MedLinkMedtronicService extends RileyLinkService {
 
     // PumpInterface - REMOVE
 
-    public boolean isInitialized() {
-        return RileyLinkServiceState.isReady(rileyLinkServiceData.rileyLinkServiceState);
-    }
+//    public boolean isInitialized() {
+//        return RileyLinkServiceState.isReady(rileyLinkServiceData.rileyLinkServiceState);
+//    }
+//
+//
+//    @Override
+//    public String getDeviceSpecificBroadcastsIdentifierPrefix() {
+//        return null;
+//    }
 
 
-    @Override
-    public String getDeviceSpecificBroadcastsIdentifierPrefix() {
-        return null;
-    }
+//    public boolean handleDeviceSpecificBroadcasts(Intent intent) {
+//        return false;
+//    }
 
 
-    public boolean handleDeviceSpecificBroadcasts(Intent intent) {
-        return false;
-    }
-
-
-    @Override
-    public void registerDeviceSpecificBroadcasts(IntentFilter intentFilter) {
-    }
+//    @Override
+//    public void registerDeviceSpecificBroadcasts(IntentFilter intentFilter) {
+//    }
 
     public boolean verifyConfiguration() {
         try {

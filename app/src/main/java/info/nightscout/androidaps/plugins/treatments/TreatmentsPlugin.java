@@ -273,7 +273,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                 for (int pos = 0; pos < extendedBoluses.size(); pos++) {
                     ExtendedBolus e = extendedBoluses.get(pos);
                     if (e.date > time) continue;
-                    IobTotal calc = e.iobCalc(time);
+                    IobTotal calc = e.iobCalc(time, profile);
                     total.plus(calc);
                 }
             }
@@ -439,9 +439,9 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                         ExtendedBolus dummyExt = new ExtendedBolus(getInjector());
                         dummyExt.copyFrom(e);
                         dummyExt.cutEndTo(truncateTime);
-                        calc = dummyExt.iobCalc(time);
+                        calc = dummyExt.iobCalc(time, profile);
                     } else {
-                        calc = e.iobCalc(time);
+                        calc = e.iobCalc(time, profile);
                     }
                     totalExt.plus(calc);
                 }
@@ -470,8 +470,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             Treatment treatment = new Treatment(getInjector());
             treatment.date = i;
             treatment.insulin = running * 5.0 / 60.0; // 5 min chunk
-            Iob iob = treatment.iobCalc(i, profile.getDia());
-            total.iob += iob.iobContrib;
+            Iob iob = treatment.iobCalc(time, profile.getDia());
+            total.basaliob += iob.iobContrib;
             total.activity += iob.activityContrib;
         }
         return total;

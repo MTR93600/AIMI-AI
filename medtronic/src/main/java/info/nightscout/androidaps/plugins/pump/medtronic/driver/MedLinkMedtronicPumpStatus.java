@@ -167,7 +167,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
         return (errorDescription == null) ? "-" : errorDescription;
     }
 
-    @Override
+
     public <E> E getCustomData(String key, Class<E> clazz) {
         switch(key) {
             case "SERIAL_NUMBER":

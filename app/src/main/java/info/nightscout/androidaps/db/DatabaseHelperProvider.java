@@ -3,6 +3,7 @@ package info.nightscout.androidaps.db;
 import com.j256.ormlite.dao.CloseableIterator;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -16,7 +17,8 @@ import info.nightscout.androidaps.interfaces.DatabaseHelperInterface;
 @Singleton
 public class DatabaseHelperProvider implements DatabaseHelperInterface {
 
-    @Inject DatabaseHelperProvider() {}
+    @Inject DatabaseHelperProvider() {
+    }
 
     @NotNull @Override public List<BgReading> getAllBgreadingsDataFromTime(long mills, boolean ascending) {
         return MainApp.getDbHelper().getAllBgreadingsDataFromTime(mills, ascending);
@@ -27,6 +29,10 @@ public class DatabaseHelperProvider implements DatabaseHelperInterface {
     }
 
     @Override public void createOrUpdate(@NotNull DanaRHistoryRecord record) {
+        MainApp.getDbHelper().createOrUpdate(record);
+    }
+
+    @Override public void createOrUpdate(@NotNull OmnipodHistoryRecord record) {
         MainApp.getDbHelper().createOrUpdate(record);
     }
 
@@ -86,8 +92,16 @@ public class DatabaseHelperProvider implements DatabaseHelperInterface {
         return MainApp.getDbHelper().getTemporaryBasalsDataFromTime(mills, ascending);
     }
 
-    @NotNull @Override public CareportalEvent getCareportalEventFromTimestamp(long timestamp) {
+    @Override public CareportalEvent getCareportalEventFromTimestamp(long timestamp) {
         return MainApp.getDbHelper().getCareportalEventFromTimestamp(timestamp);
+    }
+
+    @NotNull @Override public List<OmnipodHistoryRecord> getAllOmnipodHistoryRecordsFromTimestamp(long timestamp, boolean ascending) {
+        return MainApp.getDbHelper().getAllOmnipodHistoryRecordsFromTimeStamp(timestamp, ascending);
+    }
+
+    @Nullable @Override public OmnipodHistoryRecord findOmnipodHistoryRecordByPumpId(long pumpId) {
+        return MainApp.getDbHelper().findOmnipodHistoryRecordByPumpId(pumpId);
     }
 
     @NotNull @Override public List<TDD> getTDDsForLastXDays(int days) {

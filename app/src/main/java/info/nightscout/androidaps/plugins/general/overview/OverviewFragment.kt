@@ -11,7 +11,6 @@ import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
-import android.util.TypedValue
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -112,6 +111,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
+
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var sp: SP
@@ -160,6 +160,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     private var carbAnimation: AnimationDrawable? = null
 
+    private val graphLock = Object()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
@@ -179,7 +181,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (smallWidth) overview_arrow?.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 35f)
         overview_pumpstatus?.setBackgroundColor(resourceHelper.gc(R.color.colorInitializingBorder))
 
         overview_notifications?.setHasFixedSize(false)
@@ -317,13 +318,13 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         if (childFragmentManager.isStateSaved) return
         activity?.let { activity ->
             when (v.id) {
-                R.id.overview_treatmentbutton   -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { TreatmentDialog().show(childFragmentManager, "Overview") }))
-                R.id.overview_wizardbutton      -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { WizardDialog().show(childFragmentManager, "Overview") }))
-                R.id.overview_insulinbutton     -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { InsulinDialog().show(childFragmentManager, "Overview") }))
+                R.id.overview_treatmentbutton -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { TreatmentDialog().show(childFragmentManager, "Overview") }))
+                R.id.overview_wizardbutton -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { WizardDialog().show(childFragmentManager, "Overview") }))
+                R.id.overview_insulinbutton -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { InsulinDialog().show(childFragmentManager, "Overview") }))
                 R.id.overview_quickwizardbutton -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { onClickQuickWizard() }))
-                R.id.overview_carbsbutton       -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { CarbsDialog().show(childFragmentManager, "Overview") }))
+                R.id.overview_carbsbutton -> protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable(Runnable { CarbsDialog().show(childFragmentManager, "Overview") }))
 
-                R.id.overview_cgmbutton         -> {
+                R.id.overview_cgmbutton -> {
                     if (xdripPlugin.isEnabled(PluginType.BGSOURCE))
                         openCgmApp("com.eveningoutpost.dexdrip")
                     else if (dexcomPlugin.isEnabled(PluginType.BGSOURCE)) {
@@ -349,7 +350,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                     }
                 }
 
-                R.id.overview_accepttempbutton  -> {
+                R.id.overview_accepttempbutton -> {
                     profileFunction.getProfile() ?: return
                     if (loopPlugin.isEnabled(PluginType.LOOP)) {
                         val lastRun = loopPlugin.lastRun
@@ -476,47 +477,48 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     }
 
-    @Synchronized
     private fun prepareGraphs() {
-        val numOfGraphs = overviewMenus.setting.size
+        synchronized(graphLock) {
+            val numOfGraphs = overviewMenus.setting.size
 
-        if (numOfGraphs != secondaryGraphs.size - 1) {
-            //aapsLogger.debug("New secondary graph count ${numOfGraphs-1}")
-            // rebuild needed
-            secondaryGraphs.clear()
-            secondaryGraphsLabel.clear()
-            overview_iobgraph.removeAllViews()
-            for (i in 1 until numOfGraphs) {
-                val relativeLayout = RelativeLayout(context)
-                relativeLayout.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            if (numOfGraphs != secondaryGraphs.size - 1) {
+                //aapsLogger.debug("New secondary graph count ${numOfGraphs-1}")
+                // rebuild needed
+                secondaryGraphs.clear()
+                secondaryGraphsLabel.clear()
+                overview_iobgraph.removeAllViews()
+                for (i in 1 until numOfGraphs) {
+                    val relativeLayout = RelativeLayout(context)
+                    relativeLayout.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-                val graph = GraphView(context)
-                graph.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, resourceHelper.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, resourceHelper.dpToPx(15), 0, resourceHelper.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = resourceHelper.gc(R.color.graphgrid)
-                graph.gridLabelRenderer?.reloadStyles()
-                graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
-                graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
-                graph.gridLabelRenderer?.numVerticalLabels = 3
-                graph.viewport.backgroundColor = Color.argb(20, 255, 255, 255) // 8% of gray
-                relativeLayout.addView(graph)
+                    val graph = GraphView(context)
+                    graph.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, resourceHelper.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, resourceHelper.dpToPx(15), 0, resourceHelper.dpToPx(10)) }
+                    graph.gridLabelRenderer?.gridColor = resourceHelper.gc(R.color.graphgrid)
+                    graph.gridLabelRenderer?.reloadStyles()
+                    graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
+                    graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
+                    graph.gridLabelRenderer?.numVerticalLabels = 3
+                    graph.viewport.backgroundColor = Color.argb(20, 255, 255, 255) // 8% of gray
+                    relativeLayout.addView(graph)
 
-                val label = TextView(context)
-                val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).also { it.setMargins(resourceHelper.dpToPx(30), resourceHelper.dpToPx(25), 0, 0) }
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
-                label.layoutParams = layoutParams
-                relativeLayout.addView(label)
-                secondaryGraphsLabel.add(label)
+                    val label = TextView(context)
+                    val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).also { it.setMargins(resourceHelper.dpToPx(30), resourceHelper.dpToPx(25), 0, 0) }
+                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+                    label.layoutParams = layoutParams
+                    relativeLayout.addView(label)
+                    secondaryGraphsLabel.add(label)
 
-                overview_iobgraph.addView(relativeLayout)
-                secondaryGraphs.add(graph)
+                    overview_iobgraph.addView(relativeLayout)
+                    secondaryGraphs.add(graph)
+                }
             }
         }
-
     }
 
     private fun scheduleUpdateGUI(from: String) {
         class UpdateRunnable : Runnable {
+
             override fun run() {
                 activity?.runOnUiThread {
                     updateGUI(from)
@@ -531,7 +533,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         scheduledUpdate = worker.schedule(task, 500, TimeUnit.MILLISECONDS)
     }
 
-    @Synchronized
     @SuppressLint("SetTextI18n")
     fun updateGUI(from: String) {
         aapsLogger.debug("UpdateGUI from $from")
@@ -567,12 +568,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
             overview_bg?.text = lastBG.valueToUnitsToString(units)
             overview_bg?.setTextColor(color)
-            overview_arrow?.text = lastBG.directionToSymbol(databaseHelper)
-            overview_arrow?.setTextColor(color)
+            overview_arrow?.setImageResource(lastBG.directionToIcon(databaseHelper))
+            overview_arrow?.setColorFilter(color)
 
             val glucoseStatus = GlucoseStatus(injector).glucoseStatusData
             if (glucoseStatus != null) {
-                overview_delta?.text = "${Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)}"
+                overview_delta?.text = Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
                 overview_deltashort?.text = Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
                 overview_avgdelta?.text = "${Profile.toSignedUnitsString(glucoseStatus.short_avgdelta, glucoseStatus.short_avgdelta * Constants.MGDL_TO_MMOLL, units)}\n${Profile.toSignedUnitsString(glucoseStatus.long_avgdelta, glucoseStatus.long_avgdelta * Constants.MGDL_TO_MMOLL, units)}"
             } else {
@@ -684,7 +685,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             ?: resourceHelper.gc(R.color.defaulttextcolor))
 
         overview_basebasal_icon?.setImageResource(R.drawable.ic_cp_basal_no_tbr)
-        val percentRate = activeTemp?.tempBasalConvertedToPercent(System.currentTimeMillis(), profile) ?:100
+        val percentRate = activeTemp?.tempBasalConvertedToPercent(System.currentTimeMillis(), profile)
+            ?: 100
         if (percentRate > 100) overview_basebasal_icon?.setImageResource(R.drawable.ic_cp_basal_tbr_high)
         if (percentRate < 100) overview_basebasal_icon?.setImageResource(R.drawable.ic_cp_basal_tbr_low)
 
@@ -751,7 +753,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
         if (config.APS && lastRun?.constraintsProcessed != null) {
             if (lastRun.constraintsProcessed!!.carbsReq > 0) {
-                //only display carbsreq when carbs havnt been entered recently
+                //only display carbsreq when carbs have not been entered recently
                 if (treatmentsPlugin.lastCarbTime < lastRun.lastAPSRun) {
                     cobText = cobText + " | " + lastRun.constraintsProcessed!!.carbsReq + " " + resourceHelper.gs(R.string.required)
                 }
@@ -810,13 +812,13 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 val endTime: Long
                 val apsResult = if (config.APS) lastRun?.constraintsProcessed else NSDeviceStatus.getAPSResult(injector)
                 if (predictionsAvailable && apsResult != null && overviewMenus.setting[0][OverviewMenus.CharType.PRE.ordinal]) {
-                    var predHours = (ceil(apsResult.latestPredictionsTime - System.currentTimeMillis().toDouble()) / (60 * 60 * 1000)).toInt()
-                    predHours = min(2, predHours)
-                    predHours = max(0, predHours)
-                    hoursToFetch = rangeToDisplay - predHours
+                    var predictionHours = (ceil(apsResult.latestPredictionsTime - System.currentTimeMillis().toDouble()) / (60 * 60 * 1000)).toInt()
+                    predictionHours = min(2, predictionHours)
+                    predictionHours = max(0, predictionHours)
+                    hoursToFetch = rangeToDisplay - predictionHours
                     toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
                     fromTime = toTime - T.hours(hoursToFetch.toLong()).msecs()
-                    endTime = toTime + T.hours(predHours.toLong()).msecs()
+                    endTime = toTime + T.hours(predictionHours.toLong()).msecs()
                 } else {
                     hoursToFetch = rangeToDisplay
                     toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
@@ -854,53 +856,57 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 graphData.addNowLine(now)
 
                 // ------------------ 2nd graph
-                for (g in 0 until secondaryGraphs.size) {
-                    val secondGraphData = GraphData(injector, secondaryGraphs[g], iobCobCalculatorPlugin, treatmentsPlugin)
-                    var useABSForScale = false
-                    var useIobForScale = false
-                    var useCobForScale = false
-                    var useDevForScale = false
-                    var useRatioForScale = false
-                    var useDSForScale = false
-                    var useIAForScale = false
-                    when {
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal]      -> useABSForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal]      -> useIobForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal]      -> useCobForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal]      -> useDevForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal]      -> useRatioForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal]      -> useIAForScale = true
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] -> useDSForScale = true
+                synchronized(graphLock) {
+                    for (g in 0 until min(secondaryGraphs.size, overviewMenus.setting.size + 1)) {
+                        val secondGraphData = GraphData(injector, secondaryGraphs[g], iobCobCalculatorPlugin, treatmentsPlugin)
+                        var useABSForScale = false
+                        var useIobForScale = false
+                        var useCobForScale = false
+                        var useDevForScale = false
+                        var useRatioForScale = false
+                        var useDSForScale = false
+                        var useIAForScale = false
+                        when {
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal]      -> useABSForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal]      -> useIobForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal]      -> useCobForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal]      -> useDevForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal]      -> useRatioForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal]      -> useIAForScale = true
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] -> useDSForScale = true
+                        }
+
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal]) secondGraphData.addAbsIob(fromTime, now, useABSForScale, 1.0)
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal]) secondGraphData.addIob(fromTime, now, useIobForScale, 1.0, overviewMenus.setting[g + 1][OverviewMenus.CharType.PRE.ordinal])
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal]) secondGraphData.addCob(fromTime, now, useCobForScale, if (useCobForScale) 1.0 else 0.5)
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal]) secondGraphData.addDeviations(fromTime, now, useDevForScale, 1.0)
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal]) secondGraphData.addRatio(fromTime, now, useRatioForScale, 1.0)
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal]) secondGraphData.addActivity(fromTime, endTime, useIAForScale, 0.8)
+                        if (overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] && buildHelper.isDev()) secondGraphData.addDeviationSlope(fromTime, now, useDSForScale, 1.0)
+
+                        // set manual x bounds to have nice steps
+                        secondGraphData.formatAxis(fromTime, endTime)
+                        secondGraphData.addNowLine(now)
+                        secondaryGraphsData.add(secondGraphData)
                     }
-
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal]) secondGraphData.addAbsIob(fromTime, now, useABSForScale, 1.0)
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal]) secondGraphData.addIob(fromTime, now, useIobForScale, 1.0, overviewMenus.setting[g + 1][OverviewMenus.CharType.PRE.ordinal])
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal]) secondGraphData.addCob(fromTime, now, useCobForScale, if (useCobForScale) 1.0 else 0.5)
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal]) secondGraphData.addDeviations(fromTime, now, useDevForScale, 1.0)
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal]) secondGraphData.addRatio(fromTime, now, useRatioForScale, 1.0)
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal]) secondGraphData.addActivity(fromTime, endTime, useIAForScale, 0.8)
-                    if (overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] && buildHelper.isDev()) secondGraphData.addDeviationSlope(fromTime, now, useDSForScale, 1.0)
-
-                    // set manual x bounds to have nice steps
-                    secondGraphData.formatAxis(fromTime, endTime)
-                    secondGraphData.addNowLine(now)
-                    secondaryGraphsData.add(secondGraphData)
                 }
             }
             // finally enforce drawing of graphs in UI thread
             graphData.performUpdate()
-            for (g in 0 until secondaryGraphsData.size) {
-                secondaryGraphsLabel[g].text = overviewMenus.enabledTypes(g + 1)
-                secondaryGraphs[g].visibility = (
-                    overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal] ||
-                        overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal]
-                    ).toVisibility()
-                secondaryGraphsData[g].performUpdate()
+            synchronized(graphLock) {
+                for (g in 0 until min(secondaryGraphs.size, overviewMenus.setting.size + 1)) {
+                    secondaryGraphsLabel[g].text = overviewMenus.enabledTypes(g + 1)
+                    secondaryGraphs[g].visibility = (
+                        overviewMenus.setting[g + 1][OverviewMenus.CharType.ABS.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.IOB.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.COB.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.DEV.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.SEN.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.ACT.ordinal] ||
+                            overviewMenus.setting[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal]
+                        ).toVisibility()
+                    secondaryGraphsData[g].performUpdate()
+                }
             }
         }
     }

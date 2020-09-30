@@ -2,18 +2,12 @@ package info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data;
 
 import org.joda.time.LocalDateTime;
 
-
-
-
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
-//import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType;
-//import info.nightscout.androidaps.plugins.pump.medtronic.defs.PumpDeviceState;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-//import info.nightscout.androidaps.plugins.pump.omnipod.defs.OmnipodCommandType;
 
 
 /**
@@ -22,7 +16,6 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 public class RLHistoryItem implements HistoryItem {
 
-    //private MedtronicCommandType medtronicCommandType;
     protected LocalDateTime dateTime;
     protected RLHistoryItemSource source;
     protected RileyLinkServiceState serviceState;
@@ -30,9 +23,8 @@ public class RLHistoryItem implements HistoryItem {
 
     protected RileyLinkTargetDevice targetDevice;
     protected PumpDeviceState pumpDeviceState;
-    //private OmnipodCommandType omnipodCommandType;
 
-    public RLHistoryItem(LocalDateTime dateTime,  RLHistoryItemSource source, RileyLinkTargetDevice targetDevice) {
+    public RLHistoryItem(LocalDateTime dateTime, RLHistoryItemSource source, RileyLinkTargetDevice targetDevice) {
         this.dateTime = dateTime;
         this.source = source;
         this.targetDevice = targetDevice;
@@ -47,7 +39,6 @@ public class RLHistoryItem implements HistoryItem {
         this.source = RLHistoryItemSource.RileyLink;
     }
 
-
     public RLHistoryItem(PumpDeviceState pumpDeviceState, RileyLinkTargetDevice targetDevice) {
         this.pumpDeviceState = pumpDeviceState;
         this.dateTime = new LocalDateTime();
@@ -55,63 +46,33 @@ public class RLHistoryItem implements HistoryItem {
         this.source = RLHistoryItemSource.MedtronicPump;
     }
 
-
-//    public RLHistoryItem(MedtronicCommandType medtronicCommandType) {
-//        this.dateTime = new LocalDateTime();
-//        this.medtronicCommandType = medtronicCommandType;
-//        source = RLHistoryItemSource.MedtronicCommand;
-//    }
-//
-//
-//    public RLHistoryItem(OmnipodCommandType omnipodCommandType) {
-//        this.dateTime = new LocalDateTime();
-//        this.omnipodCommandType = omnipodCommandType;
-//        source = RLHistoryItemSource.OmnipodCommand;
-//    }
-
-
     public LocalDateTime getDateTime() {
         return dateTime;
     }
-
 
     public RileyLinkServiceState getServiceState() {
         return serviceState;
     }
 
-
     public RileyLinkError getErrorCode() {
         return errorCode;
     }
 
-
     public String getDescription(ResourceHelper resourceHelper) {
-
-        // TODO extend when we have Omnipod
         switch (this.source) {
             case RileyLink:
-                return "State: " + resourceHelper.gs(serviceState.getResourceId(targetDevice))
+                return "State: " + resourceHelper.gs(serviceState.getResourceId())
                         + (this.errorCode == null ? "" : ", Error Code: " + errorCode);
-
             case MedtronicPump:
                 return resourceHelper.gs(pumpDeviceState.getResourceId());
-
-//            case MedtronicCommand:
-//                return medtronicCommandType.name();
-//
-//            case OmnipodCommand:
-//                return omnipodCommandType.name();
-
             default:
                 return "Unknown Description";
         }
     }
 
-
     public RLHistoryItemSource getSource() {
         return source;
     }
-
 
     public PumpDeviceState getPumpDeviceState() {
         return pumpDeviceState;
@@ -130,14 +91,12 @@ public class RLHistoryItem implements HistoryItem {
             this.desc = desc;
         }
 
-
         public String getDesc() {
             return desc;
         }
     }
 
     public static class Comparator implements java.util.Comparator<RLHistoryItem> {
-
         @Override
         public int compare(RLHistoryItem o1, RLHistoryItem o2) {
             return o2.dateTime.compareTo(o1.getDateTime());
