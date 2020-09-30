@@ -8,6 +8,7 @@
 build/
 .idea/*
 !.idea/codeStyles/
+.idea/codeStyles/Project.xml
 full/
 debug/
 release/
