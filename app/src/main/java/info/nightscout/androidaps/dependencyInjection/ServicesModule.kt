@@ -5,6 +5,7 @@ import dagger.android.ContributesAndroidInjector
 import info.nightscout.androidaps.plugins.general.nsclient.services.NSClientService
 import info.nightscout.androidaps.plugins.general.overview.notifications.DismissNotificationService
 import info.nightscout.androidaps.plugins.general.persistentNotification.DummyService
+import info.nightscout.androidaps.plugins.general.wear.tizenintegration.TizenUpdaterService
 import info.nightscout.androidaps.plugins.general.wear.wearintegration.WatchUpdaterService
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkService
 import info.nightscout.androidaps.plugins.pump.insight.InsightAlertService
@@ -26,6 +27,7 @@ abstract class ServicesModule {
     @ContributesAndroidInjector abstract fun contributesLocationService(): LocationService
     @ContributesAndroidInjector abstract fun contributesNSClientService(): NSClientService
     @ContributesAndroidInjector abstract fun contributesWatchUpdaterService(): WatchUpdaterService
+    @ContributesAndroidInjector abstract fun contributesTizenUpdaterService(): TizenUpdaterService
     @ContributesAndroidInjector abstract fun contributesInsightAlertService(): InsightAlertService
     @ContributesAndroidInjector abstract fun contributesInsightConnectionService(): InsightConnectionService
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService

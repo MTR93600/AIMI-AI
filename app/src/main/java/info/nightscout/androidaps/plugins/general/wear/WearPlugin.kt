@@ -15,6 +15,7 @@ import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBolusProgressIfRunning
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
+import info.nightscout.androidaps.plugins.general.wear.tizenintegration.TizenUpdaterService
 import info.nightscout.androidaps.plugins.general.wear.wearintegration.WatchUpdaterService
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -86,7 +87,7 @@ class WearPlugin @Inject constructor(
             .toObservable(EventRefreshOverview::class.java)
             .observeOn(Schedulers.io())
             .subscribe({
-                if (WatchUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)))
+                if (WatchUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)) || TizenUpdaterService.shouldReportLoopStatus(loopPlugin.get().isEnabled(PluginType.LOOP)))
                     sendDataToWatch(status = true, basals = false, bgValue = false)
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
@@ -98,6 +99,11 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 0)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
+
+                val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                intent2.putExtra("progresspercent", 0)
+                intent2.putExtra("progressstatus", status)
+                mainApp.startService(intent2)
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventDismissBolusProgressIfRunning::class.java)
@@ -113,6 +119,12 @@ class WearPlugin @Inject constructor(
                 intent.putExtra("progresspercent", 100)
                 intent.putExtra("progressstatus", status)
                 mainApp.startService(intent)
+
+                val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                intent.putExtra("progresspercent", 100)
+                intent.putExtra("progressstatus", status)
+                mainApp.startService(intent2)
+
             }) { fabricPrivacy.logException(it) })
         disposable.add(rxBus
             .toObservable(EventOverviewBolusProgress::class.java)
@@ -123,6 +135,11 @@ class WearPlugin @Inject constructor(
                     intent.putExtra("progresspercent", event.percent)
                     intent.putExtra("progressstatus", event.status)
                     mainApp.startService(intent)
+
+                    val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BOLUSPROGRESS)
+                    intent2.putExtra("progresspercent", event.percent)
+                    intent2.putExtra("progressstatus", event.status)
+                    mainApp.startService(intent2)
                 }
             }) { fabricPrivacy.logException(it) })
     }
@@ -138,12 +155,15 @@ class WearPlugin @Inject constructor(
             // only start service when this plugin is enabled
             if (bgValue) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java))
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java))
             }
             if (basals) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_SEND_BASALS))
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_BASALS))
             }
             if (status) {
                 mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_SEND_STATUS))
+                mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_STATUS))
             }
         }
     }
@@ -151,11 +171,13 @@ class WearPlugin @Inject constructor(
     fun resendDataToWatch() {
         //Log.d(TAG, "WR: WearPlugin:resendDataToWatch");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_RESEND))
+        mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_RESEND))
     }
 
     fun openSettings() {
         //Log.d(TAG, "WR: WearPlugin:openSettings");
         mainApp.startService(Intent(mainApp, WatchUpdaterService::class.java).setAction(WatchUpdaterService.ACTION_OPEN_SETTINGS))
+        mainApp.startService(Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_OPEN_SETTINGS))
     }
 
     fun requestNotificationCancel(actionString: String?) { //Log.d(TAG, "WR: WearPlugin:requestNotificationCancel");
@@ -163,6 +185,11 @@ class WearPlugin @Inject constructor(
             .setAction(WatchUpdaterService.ACTION_CANCEL_NOTIFICATION)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java)
+            .setAction(TizenUpdaterService.ACTION_CANCEL_NOTIFICATION)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
 
     fun requestActionConfirmation(title: String, message: String, actionString: String) {
@@ -171,6 +198,12 @@ class WearPlugin @Inject constructor(
         intent.putExtra("message", message)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_ACTIONCONFIRMATIONREQUEST)
+        intent2.putExtra("title", title)
+        intent2.putExtra("message", message)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
 
     fun requestChangeConfirmation(title: String, message: String, actionString: String) {
@@ -179,5 +212,11 @@ class WearPlugin @Inject constructor(
         intent.putExtra("message", message)
         intent.putExtra("actionstring", actionString)
         mainApp.startService(intent)
+
+        val intent2 = Intent(mainApp, TizenUpdaterService::class.java).setAction(TizenUpdaterService.ACTION_SEND_CHANGECONFIRMATIONREQUEST)
+        intent2.putExtra("title", title)
+        intent2.putExtra("message", message)
+        intent2.putExtra("actionstring", actionString)
+        mainApp.startService(intent2)
     }
 }
