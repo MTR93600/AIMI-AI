@@ -24,7 +24,6 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
@@ -85,13 +84,6 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 RileyLinkConst.Intents.RileyLinkNewAddressSet, //
                 RileyLinkConst.Intents.RileyLinkDisconnect));
 
-        // MedLink
-        this.broadcastIdentifiers.put("Med-Link", Arrays.asList( //
-                MedLinkConst.Intents.RileyLinkDisconnected, //
-                MedLinkConst.Intents.RileyLinkReady, //
-                MedLinkConst.Intents.RileyLinkDisconnected, //
-                MedLinkConst.Intents.RileyLinkNewAddressSet, //
-                MedLinkConst.Intents.RileyLinkDisconnect));
     }
 
     protected RileyLinkService getServiceInstance() {
@@ -160,10 +152,10 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             // sendIPCNotification(RT2Const.IPC.MSG_note_WakingPump);
 
             rileyLinkService.rileyLinkBLE.enableNotifications();
-            rileyLinkService.rfspy.startReader(); // call startReader from outside?
+            rileyLinkService.getRFSpy.startReader(); // call startReader from outside?
 
-            rileyLinkService.rfspy.initializeRileyLink();
-            String bleVersion = rileyLinkService.rfspy.getBLEVersionCached();
+            rileyLinkService.getRFSpy.initializeRileyLink();
+            String bleVersion = rileyLinkService.getRFSpy.getBLEVersionCached();
             RileyLinkFirmwareVersion rlVersion = rileyLinkServiceData.firmwareVersion;
 
 //            if (isLoggingEnabled())

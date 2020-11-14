@@ -35,6 +35,7 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.CommandQueueProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
@@ -69,7 +70,7 @@ public class MedLinkMedtronicPumpPluginTest {
     @Mock MedtronicUtil medtronicUtil;
     @Mock MedtronicPumpStatus medtronicPumpStatus;
     @Mock MedtronicHistoryData medtronicHistoryData;
-    @Mock RileyLinkServiceData rileyLinkServiceData;
+    @Mock MedLinkServiceData rileyLinkServiceData;
     @Mock DateUtil dateUtil;
     @Mock ServiceTaskExecutor serviceTaskExecutor;
     @Mock Profile profile;

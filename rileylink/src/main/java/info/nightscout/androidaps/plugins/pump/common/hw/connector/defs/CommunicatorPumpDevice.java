@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.connector.defs;
 
+import dagger.android.DaggerService;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkService;
 
 public interface CommunicatorPumpDevice {
@@ -16,6 +17,6 @@ public interface CommunicatorPumpDevice {
 
     void triggerPumpConfigurationChangedEvent();
 
-    RileyLinkService getService();
+    DaggerService getService();
 
 }

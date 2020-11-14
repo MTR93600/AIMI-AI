@@ -77,17 +77,17 @@ public enum MedLinkMedtronicCommandType implements Serializable // , MinimedComm
     // PumpId(113, "Pump Id", MinimedTargetType.PumpConfiguration, MedtronicDeviceType.All,
     // MinimedCommandParameterType.NoParameters), // init
 
-//    SetRealTimeClock(0x40, "Set Pump Time", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, //
-//            0), //
+    SetRealTimeClock(0x40, "Set Pump Time", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, //
+            0), //
 //
     GetRealTimeClock(112, "Get Pump Time", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, //
             7, R.string.medtronic_cmd_desc_get_time, MedLinkCommandType.GetState.code), // 0x70
 //
-//    GetBatteryStatus(0x72, "Get Battery Status", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters), //
-    // GetBattery((byte) 0x72), //
+    GetBatteryStatus(0x72, "Get Battery Status", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters), //
+     GetBattery((byte) 0x72), //
 
-//    GetRemainingInsulin(0x73, "Read Remaining Insulin", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, 2), // 115
-//
+    GetRemainingInsulin(0x73, "Read Remaining Insulin", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, 2), // 115
+
     SetBolus(0x42, "Set Bolus", MedtronicDeviceType.All, MinimedCommandParameterType.NoParameters, //
             0, R.string.medtronic_cmd_desc_set_bolus, MedLinkCommandType.Bolus.code), // 66
 //
@@ -228,7 +228,10 @@ public enum MedLinkMedtronicCommandType implements Serializable // , MinimedComm
     MedLinkMedtronicCommandType() {
         // this is for "fake" commands needed by AAPS MedtronicUITask
     }
-
+    MedLinkMedtronicCommandType(int code) {
+        // this is for "fake" commands needed by AAPS MedtronicUITask
+        this.command_type = (byte) code;
+    }
 
     //    MedtronicCommandType(int code, String description, MedtronicDeviceType devices,
 //            MinimedCommandParameterType parameterType) {
@@ -346,6 +349,13 @@ public enum MedLinkMedtronicCommandType implements Serializable // , MinimedComm
 
     }
 
+    MedLinkMedtronicCommandType(int code, String description, MedtronicDeviceType devices, MinimedCommandParameterType parameterType, int recordLength) {
+        this(code,description,devices,parameterType,recordLength,null);
+    }
+
+    MedLinkMedtronicCommandType(int code, String description, MedtronicDeviceType devices, MinimedCommandParameterType parameterType) {
+        this(code,description,devices,parameterType,0,null);
+    }
 
     private static HashMap<MedtronicDeviceType, String> getDeviceTypesArray(MedtronicDeviceType... types) {
         HashMap<MedtronicDeviceType, String> hashMap = new HashMap<MedtronicDeviceType, String>();

@@ -185,7 +185,7 @@ class BLEComm @Inject internal constructor(
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             // for v3 after initial handshake it's encrypted - useless
-            // aapsLogger.debug(LTag.PUMPBTCOMM, "onCharacteristicChanged: " + DanaRS_Packet.toHexString(characteristic.value))
+             aapsLogger.debug(LTag.PUMPBTCOMM, "kt onCharacteristicChanged: " + DanaRS_Packet.toHexString(characteristic.value))
             readDataParsing(characteristic.value)
         }
 

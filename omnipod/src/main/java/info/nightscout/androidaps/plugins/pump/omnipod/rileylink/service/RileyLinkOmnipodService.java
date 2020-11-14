@@ -74,7 +74,7 @@ public class RileyLinkOmnipodService extends RileyLinkService {
 
         rileyLinkServiceData.rileylinkAddress = sp.getString(RileyLinkConst.Prefs.RileyLinkAddress, "");
 
-        rfspy.startReader();
+        getRFSpy.startReader();
 
         aapsLogger.debug(LTag.PUMPBTCOMM, "RileyLinkOmnipodService newly constructed");
     }

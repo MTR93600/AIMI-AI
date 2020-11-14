@@ -22,6 +22,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.RLHistor
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BasalProfileStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType;
+import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
@@ -49,7 +50,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
 
     // statuses
     private PumpDeviceState pumpDeviceState = PumpDeviceState.NeverContacted;
-    public MedtronicDeviceType medtronicDeviceType = null;
+    public MedLinkMedtronicDeviceType medtronicDeviceType = null;
     public Date tempBasalStart;
     public Double tempBasalAmount = 0.0d;
 
@@ -120,10 +121,10 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
 
         medtronicPumpMap.put("522", PumpType.Medtronic_522_722);
         medtronicPumpMap.put("722", PumpType.Medtronic_522_722);
-        medtronicPumpMap.put("523", PumpType.Medtronic_523_723_Revel);
-        medtronicPumpMap.put("723", PumpType.Medtronic_523_723_Revel);
-        medtronicPumpMap.put("554", PumpType.Medtronic_554_754_Veo);
-        medtronicPumpMap.put("754", PumpType.Medtronic_554_754_Veo);
+        medtronicPumpMap.put("523", PumpType.Medlink_Medtronic_523_723_Revel);
+        medtronicPumpMap.put("723", PumpType.Medlink_Medtronic_523_723_Revel);
+        medtronicPumpMap.put("554", PumpType.Medlink_Medtronic_554_754_Veo);
+        medtronicPumpMap.put("754", PumpType.Medlink_Medtronic_554_754_Veo);
 
     }
 

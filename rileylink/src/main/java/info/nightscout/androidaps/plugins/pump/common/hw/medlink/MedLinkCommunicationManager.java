@@ -8,19 +8,20 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.CommunicationManager;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkCommunicationException;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.FrequencyScanResults;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.FrequencyTrial;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RFSpyResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMessage;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioPacket;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.RadioPacket;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkBLEError;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.WakeAndTuneTask;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.utils.Round;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -43,7 +44,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     private final int ALLOWED_PUMP_UNREACHABLE = 10 * 60 * 1000; // 10 minutes
 
     public final HasAndroidInjector injector;
-    protected final RFSpy rfspy;
+    protected final MedLinkRFSpy rfspy;
     protected int receiverDeviceAwakeForMinutes = 1; // override this in constructor of specific implementation
     protected String receiverDeviceID; // String representation of receiver device (ex. Pump (xxxxxx) or Pod (yyyyyy))
     protected long lastGoodReceiverCommunicationTime = 0;
@@ -53,7 +54,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     private int timeoutCount = 0;
 
 
-    public MedLinkCommunicationManager(HasAndroidInjector injector, RFSpy rfspy) {
+    public MedLinkCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfspy) {
         this.injector = injector;
         injector.androidInjector().inject(this);
         this.rfspy = rfspy;
@@ -183,7 +184,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
 
     @Override public void setRadioFrequencyForPump(double freqMHz) {
-        rfspy.setBaseFrequency(freqMHz);
+//        rfspy.setBaseFrequency(freqMHz);
     }
 
 
@@ -217,81 +218,82 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         wakeUp(receiverDeviceAwakeForMinutes, false);
         FrequencyScanResults results = new FrequencyScanResults();
 
-        for (int i = 0; i < frequencies.length; i++) {
-            int tries = 3;
-            FrequencyTrial trial = new FrequencyTrial();
-            trial.frequencyMHz = frequencies[i];
-            rfspy.setBaseFrequency(frequencies[i]);
+//        for (int i = 0; i < frequencies.length; i++) {
+//            int tries = 3;
+//            FrequencyTrial trial = new FrequencyTrial();
+//            trial.frequencyMHz = frequencies[i];
+//            rfspy.setBaseFrequency(frequencies[i]);
+//
+//            int sumRSSI = 0;
+//            for (int j = 0; j < tries; j++) {
+//
+//                byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData);
+//                RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(injector, pumpMsgContent), (byte) 0, (byte) 0,
+//                        (byte) 0, (byte) 0, 1250, (byte) 0);
+//                if (resp.wasTimeout()) {
+//                    aapsLogger.error(LTag.PUMPCOMM, "scanForPump: Failed to find pump at frequency {}", frequencies[i]);
+//                } else if (resp.looksLikeRadioPacket()) {
+//                    RadioResponse radioResponse = new RadioResponse(injector);
+//
+//                    try {
+//
+//                        radioResponse.init(resp.getRaw());
+//
+//                        if (radioResponse.isValid()) {
+//                            int rssi = calculateRssi(radioResponse.rssi);
+//                            sumRSSI += rssi;
+//                            trial.rssiList.add(rssi);
+//                            trial.successes++;
+//                        } else {
+//                            aapsLogger.warn(LTag.PUMPCOMM, "Failed to parse radio response: " + ByteUtil.shortHexString(resp.getRaw()));
+//                            trial.rssiList.add(-99);
+//                        }
+//
+//                    } catch (RileyLinkCommunicationException rle) {
+//                        aapsLogger.warn(LTag.PUMPCOMM, "Failed to decode radio response: " + ByteUtil.shortHexString(resp.getRaw()));
+//                        trial.rssiList.add(-99);
+//                    }
+//
+//                } else {
+//                    aapsLogger.error(LTag.PUMPCOMM, "scanForPump: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
+//                    trial.rssiList.add(-99);
+//                }
+//                trial.tries++;
+//            }
+//            sumRSSI += -99.0 * (trial.tries - trial.successes);
+//            trial.averageRSSI2 = (double) (sumRSSI) / (double) (trial.tries);
+//
+//            trial.calculateAverage();
+//
+//            results.trials.add(trial);
+//        }
 
-            int sumRSSI = 0;
-            for (int j = 0; j < tries; j++) {
-
-                byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData);
-                RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(injector, pumpMsgContent), (byte) 0, (byte) 0,
-                        (byte) 0, (byte) 0, 1250, (byte) 0);
-                if (resp.wasTimeout()) {
-                    aapsLogger.error(LTag.PUMPCOMM, "scanForPump: Failed to find pump at frequency {}", frequencies[i]);
-                } else if (resp.looksLikeRadioPacket()) {
-                    RadioResponse radioResponse = new RadioResponse(injector);
-
-                    try {
-
-                        radioResponse.init(resp.getRaw());
-
-                        if (radioResponse.isValid()) {
-                            int rssi = calculateRssi(radioResponse.rssi);
-                            sumRSSI += rssi;
-                            trial.rssiList.add(rssi);
-                            trial.successes++;
-                        } else {
-                            aapsLogger.warn(LTag.PUMPCOMM, "Failed to parse radio response: " + ByteUtil.shortHexString(resp.getRaw()));
-                            trial.rssiList.add(-99);
-                        }
-
-                    } catch (RileyLinkCommunicationException rle) {
-                        aapsLogger.warn(LTag.PUMPCOMM, "Failed to decode radio response: " + ByteUtil.shortHexString(resp.getRaw()));
-                        trial.rssiList.add(-99);
-                    }
-
-                } else {
-                    aapsLogger.error(LTag.PUMPCOMM, "scanForPump: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
-                    trial.rssiList.add(-99);
-                }
-                trial.tries++;
-            }
-            sumRSSI += -99.0 * (trial.tries - trial.successes);
-            trial.averageRSSI2 = (double) (sumRSSI) / (double) (trial.tries);
-
-            trial.calculateAverage();
-
-            results.trials.add(trial);
-        }
-
-        results.dateTime = System.currentTimeMillis();
-
-        StringBuilder stringBuilder = new StringBuilder("Scan results:\n");
-
-        for (int k = 0; k < results.trials.size(); k++) {
-            FrequencyTrial one = results.trials.get(k);
-
-            stringBuilder.append(String.format("Scan Result[%s]: Freq=%s, avg RSSI = %s\n", "" + k, ""
-                    + one.frequencyMHz, "" + one.averageRSSI + ", RSSIs =" + one.rssiList));
-        }
-
-        aapsLogger.info(LTag.PUMPCOMM, stringBuilder.toString());
-
-        results.sort(); // sorts in ascending order
-
-        FrequencyTrial bestTrial = results.trials.get(results.trials.size() - 1);
-        results.bestFrequencyMHz = bestTrial.frequencyMHz;
-        if (bestTrial.successes > 0) {
-            rfspy.setBaseFrequency(results.bestFrequencyMHz);
-            aapsLogger.debug(LTag.PUMPCOMM, "Best frequency found: " + results.bestFrequencyMHz);
-            return results.bestFrequencyMHz;
-        } else {
-            aapsLogger.error(LTag.PUMPCOMM, "No pump response during scan.");
-            return 0.0;
-        }
+//        results.dateTime = System.currentTimeMillis();
+//
+//        StringBuilder stringBuilder = new StringBuilder("Scan results:\n");
+//
+//        for (int k = 0; k < results.trials.size(); k++) {
+//            FrequencyTrial one = results.trials.get(k);
+//
+//            stringBuilder.append(String.format("Scan Result[%s]: Freq=%s, avg RSSI = %s\n", "" + k, ""
+//                    + one.frequencyMHz, "" + one.averageRSSI + ", RSSIs =" + one.rssiList));
+//        }
+//
+//        aapsLogger.info(LTag.PUMPCOMM, stringBuilder.toString());
+//
+//        results.sort(); // sorts in ascending order
+//
+//        FrequencyTrial bestTrial = results.trials.get(results.trials.size() - 1);
+//        results.bestFrequencyMHz = bestTrial.frequencyMHz;
+//        if (bestTrial.successes > 0) {
+//            rfspy.setBaseFrequency(results.bestFrequencyMHz);
+//            aapsLogger.debug(LTag.PUMPCOMM, "Best frequency found: " + results.bestFrequencyMHz);
+//            return results.bestFrequencyMHz;
+//        } else {
+//            aapsLogger.error(LTag.PUMPCOMM, "No pump response during scan.");
+        //Hardcoded frequency because medlink doesn't support frequency change
+            return RileyLinkTargetFrequency.Medtronic_US.getScanFrequencies()[1];
+//        }
     }
 
 
@@ -422,4 +424,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     public abstract PumpStatus getPumpStatus();
 
     public abstract boolean isDeviceReachable();
+
+
+    public abstract void setDoWakeUpBeforeCommand(boolean doWakeUp);
 }

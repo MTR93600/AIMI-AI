@@ -48,4 +48,5 @@
     <!-- RL Target Device -->
     <string name="rileylink_target_device_medtronic">Bomba Medtronic</string>
     <string name="rileylink_target_device_omnipod">Omnipod</string>
+    <string name="need_manual_profile_set">You need to change your pump profile to the Standard</string>
 </resources>

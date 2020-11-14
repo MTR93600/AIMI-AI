@@ -15,6 +15,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.connector.ConnectorUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.encoding.Encoding4b6b;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceResult;
@@ -31,7 +32,7 @@ public class MedLinkUtil implements ConnectorUtil {
     private List<MLHistoryItem> historyMedLink = new ArrayList<>();
     private ServiceTask currentTask;
 
-    private CommunicatorEncodingType encoding;
+    private CommunicatorEncodingType encoding = MedLinkEncodingType.FourByteSixByteLocal;
     private Encoding4b6b encoding4b6b;
 
     // TODO maybe not needed

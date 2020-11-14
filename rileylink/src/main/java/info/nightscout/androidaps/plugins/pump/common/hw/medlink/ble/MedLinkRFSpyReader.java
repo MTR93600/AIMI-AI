@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble;
+package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble;
 
 import android.os.AsyncTask;
 import android.os.SystemClock;
@@ -10,20 +10,19 @@ import java.util.concurrent.TimeUnit;
 
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.GattAttributes;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkEncodingType;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
 
 /**
- * Created by geoff on 5/26/16.
+ * Created by Dirceu on 06/10/20.
  */
-public class RFSpyReader {
-
+public class MedLinkRFSpyReader {
     private final AAPSLogger aapsLogger;
     private static AsyncTask<Void, Void, Void> readerTask;
-    private RileyLinkBLE rileyLinkBle;
+    private MedLinkBLE medLinkBle;
     private Semaphore waitForRadioData = new Semaphore(0, true);
     private LinkedBlockingQueue<byte[]> mDataQueue = new LinkedBlockingQueue<>();
     private int acquireCount = 0;
@@ -32,24 +31,24 @@ public class RFSpyReader {
     private static boolean isRunning = false;
 
 
-    RFSpyReader(AAPSLogger aapsLogger, RileyLinkBLE rileyLinkBle) {
+    MedLinkRFSpyReader(AAPSLogger aapsLogger, MedLinkBLE medLinkBle) {
         this.aapsLogger = aapsLogger;
-        // xyz setRileyLinkBle(rileyLinkBle);
-        this.rileyLinkBle = rileyLinkBle;
+        // xyz setRileyLinkBle(medLinkBle);
+        this.medLinkBle = medLinkBle;
     }
 
 
-    public void setRileyLinkBle(RileyLinkBLE rileyLinkBle) {
+    public void setMedLinkBle(MedLinkBLE medLinkBle) {
         if (readerTask != null) {
             readerTask.cancel(true);
         }
-        this.rileyLinkBle = rileyLinkBle;
+        this.medLinkBle = medLinkBle;
     }
 
-    void setRileyLinkEncodingType(RileyLinkEncodingType encodingType) {
+    void setMedLinkEncodingType(MedLinkEncodingType encodingType) {
         aapsLogger.debug("setRileyLinkEncodingType: " + encodingType);
-        stopAtNull = !(encodingType == RileyLinkEncodingType.Manchester || //
-                encodingType == RileyLinkEncodingType.FourByteSixByteRileyLink);
+//        stopAtNull = !(encodingType == RileyLinkEncodingType.Manchester || //
+//                encodingType == MedLinkEncodingType.FourByteSixByteLocal);
     }
 
 
@@ -85,9 +84,7 @@ public class RFSpyReader {
 
         aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData released(count=" + releaseCount + ") at t="
                 + SystemClock.uptimeMillis());
-        if(rileyLinkBle.isConnected()) {
-            waitForRadioData.release();
-        }
+        waitForRadioData.release();
     }
 
 
@@ -99,8 +96,8 @@ public class RFSpyReader {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                UUID serviceUUID = UUID.fromString(GattAttributes.SERVICE_RADIO);
-                UUID radioDataUUID = UUID.fromString(GattAttributes.CHARA_RADIO_DATA);
+                UUID serviceUUID = UUID.fromString(GattAttributes.SERVICE_UUID);
+                UUID radioDataUUID = UUID.fromString(GattAttributes.GATT_UUID);
                 BLECommOperationResult result;
                 while (isRunning) {
                     try {
@@ -112,7 +109,7 @@ public class RFSpyReader {
                                 + SystemClock.uptimeMillis());
                         SystemClock.sleep(100);
                         SystemClock.sleep(1);
-                        result = rileyLinkBle.readCharacteristic_blocking(serviceUUID, radioDataUUID);
+                        result = medLinkBle.readCharacteristic_blocking(serviceUUID, radioDataUUID);
                         SystemClock.sleep(100);
 
                         if (result.resultCode == BLECommOperationResult.RESULT_SUCCESS) {

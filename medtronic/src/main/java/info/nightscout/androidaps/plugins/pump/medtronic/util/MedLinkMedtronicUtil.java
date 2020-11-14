@@ -34,6 +34,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDe
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificationType;
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
@@ -58,14 +59,14 @@ public class MedLinkMedtronicUtil {
     private final AAPSLogger aapsLogger;
     private final RxBusWrapper rxBus;
     private final MedLinkUtil medlinkUtil;
-    private final MedtronicPumpStatus medtronicPumpStatus;
+    private final MedLinkMedtronicPumpStatus medtronicPumpStatus;
 
     @Inject
     public MedLinkMedtronicUtil(
             AAPSLogger aapsLogger,
             RxBusWrapper rxBus,
             MedLinkUtil medlinkUtil,
-            MedtronicPumpStatus medtronicPumpStatus
+            MedLinkMedtronicPumpStatus medtronicPumpStatus
     ) {
         this.aapsLogger = aapsLogger;
         this.rxBus = rxBus;
@@ -250,12 +251,12 @@ public class MedLinkMedtronicUtil {
         return null;
     }
 
-    public byte[] buildCommandPayload(RileyLinkServiceData medLinkServiceData, MedLinkMedtronicCommandType commandType, byte[] parameters) {
+    public byte[] buildCommandPayload(MedLinkServiceData medLinkServiceData, MedLinkMedtronicCommandType commandType, byte[] parameters) {
         return buildCommandPayload(medLinkServiceData, (byte) commandType.commandCode, parameters);
     }
 
 
-    public byte[] buildCommandPayload(RileyLinkServiceData medLinkServiceData, byte commandType, byte[] parameters) {
+    public byte[] buildCommandPayload(MedLinkServiceData medLinkServiceData, byte commandType, byte[] parameters) {
         // A7 31 65 51 C0 00 52
 
         byte commandLength = (byte) (parameters == null ? 2 : 2 + parameters.length);
@@ -404,10 +405,15 @@ public class MedLinkMedtronicUtil {
     }
 
     public MedLinkMedtronicDeviceType getMedtronicPumpModel() {
-        return MedLinkMedtronicDeviceType.valueOf(medtronicPumpStatus.medtronicDeviceType.getPumpModel());
+        //TODO review why this devicetype is null
+        if(medtronicPumpStatus.medtronicDeviceType == null){
+            return MedLinkMedtronicDeviceType.Medtronic_515;
+        }else {
+            return MedLinkMedtronicDeviceType.valueOf(medtronicPumpStatus.medtronicDeviceType.getPumpModel());
+        }
     }
 
-    public void setMedtronicPumpModel(MedtronicDeviceType medtronicPumpModel) {
+    public void setMedtronicPumpModel(MedLinkMedtronicDeviceType medtronicPumpModel) {
         this.medtronicPumpStatus.medtronicDeviceType = medtronicPumpModel;
     }
 

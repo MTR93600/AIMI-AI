@@ -1,5 +1,9 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import info.nightscout.androidaps.plugins.pump.medtronic.R;
 
 /**
@@ -10,7 +14,7 @@ public class MedLinkMedtronicConst {
 
     static final String Prefix = "AAPS.Medtronic.";
 
-    public static class Prefs {
+   public static class Prefs {
         public static final int PumpSerial = R.string.key_medtronic_serial;
         public static final int PumpType = R.string.key_medtronic_pump_type;
         public static final int PumpFrequency = R.string.key_medtronic_frequency;

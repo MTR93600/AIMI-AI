@@ -28,7 +28,7 @@ import info.nightscout.androidaps.utils.sharedPreferences.SP;
 /**
  * Created by mike on 21.02.2016.
  */
-public class UploadQueue implements UploadQueueInterface {
+public class  UploadQueue implements UploadQueueInterface {
     private final AAPSLogger aapsLogger;
     private final DatabaseHelperInterface databaseHelper;
     private final Context context;

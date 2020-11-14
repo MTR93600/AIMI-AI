@@ -1,6 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import info.nightscout.androidaps.plugins.pump.common.R;
 
 /**
@@ -10,13 +14,22 @@ import info.nightscout.androidaps.plugins.pump.common.R;
 
 public class MedLinkConst {
 
-    static final String Prefix = "AAPS.RileyLink.";
+    static final String Prefix = "AAPS.MedLink.";
+
+    public static final List<String> DEVICE_NAME = Collections.unmodifiableList(
+            new ArrayList<String>() {{
+                add("MED-LINK");
+                add("MED-LINK-2");
+                add("MED-LINK-3");
+                add("HMSoft");
+            }});
 
     public static class Intents {
 
-        public static final String RileyLinkReady = Prefix + "RileyLink_Ready";
+        public static final String MedLinkReady = Prefix + "MedLink_Ready";
+        public static final String CommandCompleted = Prefix + "Command_Completed";
         public static final String RileyLinkGattFailed = Prefix + "RileyLink_Gatt_Failed";
-
+        public static final String MedLinkConnected = Prefix + "MedLink_Connected";
         public static final String BluetoothConnected = Prefix + "Bluetooth_Connected";
         public static final String BluetoothReconnected = Prefix + "Bluetooth_Reconnected";
         public static final String BluetoothDisconnected = Prefix + "Bluetooth_Disconnected";
@@ -27,6 +40,8 @@ public class MedLinkConst {
         public static final String INTENT_NEW_rileylinkAddressKey = Prefix + "INTENT_NEW_rileylinkAddressKey";
         public static final String INTENT_NEW_pumpIDKey = Prefix + "INTENT_NEW_pumpIDKey";
         public static final String RileyLinkDisconnect = Prefix + "RileyLink_Disconnect";
+
+        public static final String  MedLinkConnectionError = Prefix + "RileyLink_Disconnect";
     }
 
     public static class Prefs {

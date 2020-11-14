@@ -10,23 +10,24 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.RadioPacket;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCommunicationManager;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkCommunicationException;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RFSpyResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMessage;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioPacket;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.WakeAndTuneTask;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
@@ -39,32 +40,33 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.CarelinkSh
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.GetHistoryPageCarelinkMessageBody;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.MedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.MessageBody;
-import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.PacketType;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.PumpAckMessageBody;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.PumpMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.PumpSettingDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by Dirceu on 17/09/20.
  * copied from {@link MedtronicCommunicationManager}
  */
-public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunicationManager {
+@Singleton
+public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationManager {
     @Inject MedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkMedtronicPumpPlugin medtronicPumpPlugin;
     @Inject MedtronicConverter medtronicConverter;
     @Inject MedLinkMedtronicUtil medLinkMedtronicUtil;
     @Inject MedtronicPumpHistoryDecoder medtronicPumpHistoryDecoder;
-
+    @Inject MedLinkRFSpy rfspy;
+    @Inject MedLinkServiceData medLinkServiceData;
 
     private final int MAX_COMMAND_TRIES = 3;
     private final int DEFAULT_TIMEOUT = 2000;
@@ -75,8 +77,14 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
     private boolean doWakeUpBeforeCommand = true;
 
+    @Inject
+    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfSpy) {
+        super(injector, rfSpy);
+    }
 
-    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, RFSpy rfspy) {
+    @Inject
+    public void onInit() {
+        // we can't do this in the constructor, as sp only gets injected after the constructor has returned
         medtronicPumpStatus.previousConnection = sp.getLong(
                 RileyLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
     }
@@ -116,18 +124,18 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
         if (state != PumpDeviceState.PumpUnreachable)
             medtronicPumpStatus.setPumpDeviceState(PumpDeviceState.WakingUp);
 
-        for (int retry = 0; retry < 5; retry++) {
+//        for (int retry = 0; retry < 5; retry++) {
 
-            aapsLogger.debug(LTag.PUMPCOMM, "isDeviceReachable. Waking pump... " + (retry != 0 ? " (retry " + retry + ")" : ""));
+            aapsLogger.debug(LTag.PUMPCOMM, "isDeviceReachable. Waking pump... first shot");
 
             boolean connected = connectToDevice();
 
             if (connected)
                 return true;
+//
+//            SystemClock.sleep(1000);
 
-            SystemClock.sleep(1000);
-
-        }
+//        }
 
         if (state != PumpDeviceState.PumpUnreachable)
             medtronicPumpStatus.setPumpDeviceState(PumpDeviceState.PumpUnreachable);
@@ -178,8 +186,8 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
                         Object dataResponse = medtronicConverter.convertResponse(medtronicPumpPlugin.getPumpDescription().pumpType, MedtronicCommandType.PumpModel,
                                 pumpResponse.getRawContent());
 
-                        MedtronicDeviceType pumpModel = (MedtronicDeviceType) dataResponse;
-                        boolean valid = (pumpModel != MedtronicDeviceType.Unknown_Device);
+                        MedLinkMedtronicDeviceType pumpModel = (MedLinkMedtronicDeviceType) dataResponse;
+                        boolean valid = (pumpModel != MedLinkMedtronicDeviceType.Unknown_Device);
 
                         if (medLinkMedtronicUtil.getMedtronicPumpModel() == null && valid) {
                             medLinkMedtronicUtil.setMedtronicPumpModel(pumpModel);
@@ -238,7 +246,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
         MedLinkMessage shortMessage = makePumpMessage(msg.commandType, new CarelinkShortMessageBody(new byte[]{0}));
         // look for ack from short message
         MedLinkMessage shortResponse = sendAndListen(shortMessage);
-        aapsLogger.debug(LTag.PUMPCOMM, "Short response: " +shortResponse.toString()+" to command: " +msg.commandType);
+        aapsLogger.debug(LTag.PUMPCOMM, "Short response: " + shortResponse.toString() + " to command: " + msg.commandType);
         if (shortResponse.commandType == MedLinkMedtronicCommandType.CommandACK) {
             if (debugSetCommands)
                 aapsLogger.debug(LTag.PUMPCOMM, "Run command with Args: Got ACK response");
@@ -323,7 +331,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
             RawHistoryPage rawHistoryPage = new RawHistoryPage(aapsLogger);
             // wakeUp(receiverDeviceAwakeForMinutes, false);
-            MedLinkMessage  getHistoryMsg = makePumpMessage(MedLinkMedtronicCommandType.GetHistoryData,
+            MedLinkMessage getHistoryMsg = makePumpMessage(MedLinkMedtronicCommandType.GetHistoryData,
                     new GetHistoryPageCarelinkMessageBody(pageNumber));
 
             aapsLogger.info(LTag.PUMPCOMM, "getPumpHistory: Page {}", pageNumber);
@@ -354,7 +362,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
             // aapsLogger.info(LTag.PUMPCOMM,"getPumpHistoryPage("+pageNumber+"): " + ByteUtil.shortHexString(firstResponse.getContents()));
 
-            MedLinkMessage  ackMsg = makePumpMessage(MedLinkMedtronicCommandType.CommandACK, new PumpAckMessageBody());
+            MedLinkMessage ackMsg = makePumpMessage(MedLinkMedtronicCommandType.CommandACK, new PumpAckMessageBody());
             GetHistoryPageCarelinkMessageBody currentResponse = new GetHistoryPageCarelinkMessageBody(firstResponse
                     .getMessageBody().getTxData());
             int expectedFrameNum = 1;
@@ -477,11 +485,12 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
         switch (type) {
             case PowerOn:
 
-                return medLinkMedtronicUtil.buildCommandPayload(rileyLinkServiceData, MedLinkMedtronicCommandType.RFPowerOn, //
+                return medLinkMedtronicUtil.buildCommandPayload(medLinkServiceData, MedLinkMedtronicCommandType.RFPowerOn, //
                         new byte[]{2, 1, (byte) receiverDeviceAwakeForMinutes}); // maybe this is better FIXME
 
             case ReadSimpleData:
-                return medLinkMedtronicUtil.buildCommandPayload(rileyLinkServiceData, MedLinkMedtronicCommandType.PumpModel, null);
+//                return medLinkMedtronicUtil.buildCommandPayload(medLinkServiceData, MedLinkMedtronicCommandType.RFPowerOn.PumpModel, null);
+                return MedLinkCommandType.GetState.getRaw();
         }
         return new byte[0];
     }
@@ -502,8 +511,8 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
 
     private MedLinkMessage makePumpMessage(MedLinkMedtronicCommandType messageType, MessageBody messageBody) {
-        MedLinkMessage  msg = new MedLinkMessage (aapsLogger);
-        msg.init(rileyLinkServiceData.pumpIDBytes, messageType, messageBody);
+        MedLinkMessage msg = new MedLinkMessage(aapsLogger);
+        msg.init(medLinkServiceData.pumpIDBytes, messageType, messageBody);
         return msg;
     }
 
@@ -643,6 +652,9 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 //    }
 
 
+    public void setPumpModel(){
+//        this.medLinkMedtronicUtil
+    }
     public MedLinkMedtronicDeviceType getPumpModel() {
 
         Object responseObject = sendAndGetResponseWithCheck(MedLinkMedtronicCommandType.PumpModel);
@@ -656,7 +668,9 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
         setPumpDeviceState(PumpDeviceState.WakingUp);
 
 //        byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
-        byte[] pumpMsgContent = MedLinkCommandType.Connect.code.getBytes();
+        byte[] pumpMsgContent =
+//                MedLinkCommandType.NoCommand.code.getBytes(UTF_8);
+                MedLinkCommandType.Connect.code.getBytes();
         rfspy.initializeMedLink();
 //        rfspy.initializeRileyLink();
         aapsLogger.info(LTag.PUMPCOMM, "before wakeup ");
@@ -667,6 +681,10 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
 
 //        nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);
+    }
+
+    @Override public PumpStatus getPumpStatus() {
+        return null;
     }
 
     public BasalProfile getBasalProfile() {
@@ -871,8 +889,8 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
                     wakeUp(false);
 
 //                if (debugSetCommands)
-                    aapsLogger.debug(LTag.PUMPCOMM, "{}: Body - {}", commandType.getCommandDescription(),
-                            ByteUtil.getHex(body));
+                aapsLogger.debug(LTag.PUMPCOMM, "{}: Body - {}", commandType.getCommandDescription(),
+                        ByteUtil.getHex(body));
 
                 MedLinkMessage msg = makePumpMessage(commandType, new CarelinkLongMessageBody(body));
 
@@ -915,7 +933,7 @@ public class MedLinkMedtronicCommunicationManager extends RileyLinkCommunication
 
         for (int retries = 0; retries <= MAX_COMMAND_TRIES; retries++) {
 
-            MedLinkMessage  responseMessage = null;
+            MedLinkMessage responseMessage = null;
 //            try {
 //                responseMessage = runCommandWithFrames(MedLinkMedtronicCommandType.SetBasalProfileSTD,
 //                        basalProfileFrames);

@@ -78,7 +78,7 @@ public class MedLinkServiceData {
             rileyLinkServiceState = newState;
             this.rileyLinkError = errorCode;
 
-            aapsLogger.info(LTag.PUMP, "RileyLink State Changed: {} {}", newState, errorCode == null ? "" : " - Error State: " + errorCode.name());
+            aapsLogger.info(LTag.PUMP, "MedLink State Changed: {} {}", newState, errorCode == null ? "" : " - Error State: " + errorCode.name());
 
             rileyLinkUtil.getRileyLinkHistory().add(new RLHistoryItem(rileyLinkServiceState, errorCode, targetDevice));
             rxBus.send(new EventRileyLinkDeviceStatusChange(newState, errorCode));

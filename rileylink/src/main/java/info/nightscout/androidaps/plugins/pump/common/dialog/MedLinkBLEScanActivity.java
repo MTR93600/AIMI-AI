@@ -35,17 +35,13 @@ import javax.inject.Inject;
 
 import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
-import info.nightscout.androidaps.plugins.common.ManufacturerType;
 import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -173,10 +169,10 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
     private List<ScanFilter> buildFilters() {
 
         List<ScanFilter> filters = new ArrayList<>();
-        filters.add(new ScanFilter.Builder().setDeviceName("MED-LINK").build());
-        filters.add(new ScanFilter.Builder().setDeviceName("MED-LINK-2").build());
-        filters.add(new ScanFilter.Builder().setDeviceName("MED-LINK-3").build());
-        filters.add(new ScanFilter.Builder().setDeviceName("MMSoft").build());
+        MedLinkConst.DEVICE_NAME.stream().forEach(s -> {
+            filters.add(new ScanFilter.Builder().setDeviceName(s).build());
+        });
+
         return filters;
     }
 
@@ -219,8 +215,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
 
             BluetoothDevice device = result.getDevice();
             String deviceName = device.getName().trim();
-            if (deviceName.equals("MED-LINK") || deviceName.equals("MED-LINK-2") ||
-                    deviceName.equals("MED-LINK-3") || deviceName.equals("HMSoft")) {
+            if (MedLinkConst.DEVICE_NAME.contains(deviceName)) {
                 Log.i(TAG, "Found Medlink with address: " + device.getAddress());
                 Toast.makeText(mContext, deviceName, Toast.LENGTH_SHORT).show();
                 mLeDeviceListAdapter.addDevice(result);
