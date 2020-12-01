@@ -14,7 +14,6 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.Reset;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.RileyLinkCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.SendAndListen;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.SetHardwareEncoding;
@@ -191,7 +190,7 @@ public class RFSpy {
         aapsLogger.debug(LTag.PUMPBTCOMM, "writeToData (raw={})", ByteUtil.shortHexString(prepended));
 
         BLECommOperationResult writeCheck = rileyLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID,
-                prepended);
+                bytes);
         if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
             aapsLogger.error(LTag.PUMPBTCOMM, "BLE Write operation failed, code=" + writeCheck.resultCode);
             return null; // will be a null (invalid) response

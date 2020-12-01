@@ -27,7 +27,7 @@ import info.nightscout.androidaps.utils.sharedPreferences.SP;
  * <p>
  * This class is intended to be run by the Service, for the Service. Not intended for clients to run.
  */
-public class InitializePumpManagerTask extends ServiceTask {
+public class InitializePumpManagerTask extends NotifiableTask {
 
     @Inject AAPSLogger aapsLogger;
     @Inject ActivePluginProvider activePlugin;
@@ -114,4 +114,7 @@ public class InitializePumpManagerTask extends ServiceTask {
         }
     }
 
+    @Override public void notiFyAnswer(String answer) {
+
+    }
 }

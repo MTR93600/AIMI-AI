@@ -4,20 +4,20 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.SystemClock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.data.Intervals;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
@@ -28,11 +28,14 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLink
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.CharacteristicReadOperation;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.CharacteristicWriteOperation;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by Dirceu on 30/09/20.
@@ -48,6 +51,7 @@ public class MedLinkBLE extends RileyLinkBLE {
     private boolean isConnected = false;
     private String pumpModel = null;
     private List<RemainingCommand> remainingCommands = new ArrayList<>();
+    private RemainingCommand currentCommand;
 
     @Inject
     public MedLinkBLE(final Context context) {
@@ -62,7 +66,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                 if (gattDebugEnabled) {
                     aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "onCharacteristicChanged "
                             + GattAttributes.lookup(characteristic.getUuid()) + " "
-                            + ByteUtil.getHex(characteristic.getValue()) + " "+
+                            + ByteUtil.getHex(characteristic.getValue()) + " " +
                             StringUtil.fromBytes(characteristic.getValue()));
 //                    if (characteristic.getUuid().equals(UUID.fromString(GattAttributes.CHARA_RADIO_RESPONSE_COUNT))) {
 //                        aapsLogger.debug(LTag.PUMPBTCOMM, "Response Count is " + ByteUtil.shortHexString(characteristic.getValue()));
@@ -70,39 +74,44 @@ public class MedLinkBLE extends RileyLinkBLE {
                 }
                 String answer = new String(characteristic.getValue());
                 addResponse(answer);
-                aapsLogger.debug("MedLink answer "+answer);
-                if(answer.contains("Powerdown") || answer.contains("AT+SLEEP")){
-                    aapsLogger.debug("MedLink off "+answer);
+                aapsLogger.debug("MedLink answer " + answer);
+                if (answer.contains("Powerdown") || answer.contains("AT+SLEEP")) {
+                    aapsLogger.debug("MedLink off " + answer);
                     setConnected(false);
                 }
-                if(answer.contains("Confirmed") || answer.contains("wake-up")){
-                    aapsLogger.debug("MedLink waked "+answer);
+                if (answer.contains("Confirmed") || answer.contains("wake-up")) {
+                    aapsLogger.debug("MedLink waked " + answer);
                 }
-                if(answer.contains("Error communication") ){
-                    aapsLogger.debug("MedLink waked "+answer);
+                if (answer.contains("Error communication")) {
+                    aapsLogger.debug("MedLink waked " + answer);
                     medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkError);
                 }
-                if(answer.contains("Medtronic")){
+                if (answer.contains("Medtronic")) {
                     setPumpModel(answer);
                 }
-                if(answer.toLowerCase().contains("eomeomeom")){
+                if (answer.toLowerCase().contains("eomeomeom")) {
                     String pumpResp = buildResp();
-                    aapsLogger.info(LTag.PUMPBTCOMM,pumpResp);
-                    medLinkUtil.sendBroadcastMessage(pumpResp.toString(),context);
+                    aapsLogger.info(LTag.PUMPBTCOMM, pumpResp);
+                    medLinkUtil.sendBroadcastMessage(pumpResp.toString(), context);
                 }
-                if(answer.contains("Wait for response") || answer.contains("OK+CONN")){
+                if (answer.contains("Wait for response") || answer.contains("OK+CONN")) {
                     //medLinkUtil.sendBroadcastMessage();
-                    aapsLogger.debug("MedLink answering "+answer);
-                    if(!remainingCommands.isEmpty() && remainingCommands.get(0).command != characteristic.getValue()) {
-                        writeCharacteristic_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), UUID.fromString(GattAttributes.GATT_UUID), MedLinkCommandType.Connect.getRaw());
+                    aapsLogger.debug("MedLink answering " + answer);
+                    if (!remainingCommands.isEmpty() && remainingCommands.get(0).command != characteristic.getValue()) {
+                        pumpResponse = new StringBuffer();
+                        writeCharacteristic_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), UUID.fromString(GattAttributes.GATT_UUID), MedLinkCommandType.Connect.getRaw(), false);
                     }
                 }
-                if(answer.equals("Ready")){
+                if (answer.trim().toLowerCase().contains("ready")) {
                     setConnected(true);
                     aapsLogger.debug("MedLink Ready");
-                    medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkReady);
+                    medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);
+                    processRemainingCommand();
                 }
-                if (radioResponseCountNotified != null) {
+                if (answer.trim().toLowerCase().contains("set bolus")) {
+                    writeCharacteristic_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), UUID.fromString(GattAttributes.GATT_UUID), MedLinkCommandType.Connect.getRaw(), false);
+                }
+                    if (radioResponseCountNotified != null) {
                     radioResponseCountNotified.run();
                 }
             }
@@ -140,7 +149,7 @@ public class MedLinkBLE extends RileyLinkBLE {
             @Override
             public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
                 super.onConnectionStateChange(gatt, status, newState);
-                aapsLogger.error(LTag.PUMPBTCOMM, "Statechange "+newState);
+                aapsLogger.error(LTag.PUMPBTCOMM, "Statechange " + newState);
                 // https://github.com/NordicSemiconductor/puck-central-android/blob/master/PuckCentral/app/src/main/java/no/nordicsemi/puckcentral/bluetooth/gatt/GattManager.java#L117
                 if (status == 133) {
                     aapsLogger.error(LTag.PUMPBTCOMM, "Got the status 133 bug, closing gatt");
@@ -262,7 +271,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                         medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.MedLinkReady, context);
                     } else {
                         mIsConnected = false;
-                        medLinkServiceData. setServiceState(RileyLinkServiceState.RileyLinkError,
+                        medLinkServiceData.setServiceState(RileyLinkServiceState.RileyLinkError,
                                 RileyLinkError.DeviceIsNotRileyLink);
                     }
 
@@ -294,9 +303,10 @@ public class MedLinkBLE extends RileyLinkBLE {
         };
     }
 
-    private void callback(){
+    private void callback() {
 //        medLinkUtil.sendAnswer(pumpResponse.toString());
     }
+
     private String buildResp() {
         return new StringBuffer(MedLinkConst.Intents.CommandCompleted).
                 append("\n").append(pumpResponse).toString();
@@ -333,8 +343,6 @@ public class MedLinkBLE extends RileyLinkBLE {
 
                         mCurrentOperation.execute(this);
                         aapsLogger.debug(LTag.PUMPBTCOMM, "Bluetooth communication");
-                        aapsLogger.debug(LTag.PUMPBTCOMM, String.valueOf(mCurrentOperation.getValue()));
-                        aapsLogger.debug(LTag.PUMPBTCOMM, String.valueOf(mCurrentOperation.getValue()));
                         if (mCurrentOperation.timedOut) {
                             rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
                         } else if (mCurrentOperation.interrupted) {
@@ -356,16 +364,153 @@ public class MedLinkBLE extends RileyLinkBLE {
         return rval;
     }
 
+    public BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID, byte[] command, boolean needToAcquire) {
+        aapsLogger.debug(LTag.PUMPBTCOMM, "commands");
+        aapsLogger.debug(LTag.PUMPBTCOMM, new String(command));
+        BLECommOperationResult rval = new BLECommOperationResult();
+        if (bluetoothConnectionGatt != null) {
+            rval.value = command;
+            aapsLogger.debug(LTag.PUMPBTCOMM, "command writen");
+            aapsLogger.debug(LTag.PUMPBTCOMM, new String(command, UTF_8));
+            try {
+                if (needToAcquire) {
+                    gattOperationSema.acquire();
+                }
+                SystemClock.sleep(1); // attempting to yield thread, to make sequence of events easier to follow
+            } catch (InterruptedException e) {
+                aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: interrupted waiting for gattOperationSema");
+                return rval;
+            }
+
+            if (mCurrentOperation != null) {
+                rval.resultCode = BLECommOperationResult.RESULT_BUSY;
+            } else {
+                if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
+                    // Catch if the service is not supported by the BLE device
+                    // GGW: Tue Jul 12 01:14:01 UTC 2016: This can also happen if the
+                    // app that created the bluetoothConnectionGatt has been destroyed/created,
+                    // e.g. when the user switches from portrait to landscape.
+                    rval.resultCode = BLECommOperationResult.RESULT_NONE;
+                    aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
+                    // TODO: 11/07/2016 UI update for user
+                    // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
+                } else {
+                    BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID)
+                            .getCharacteristic(charaUUID);
+                    mCurrentOperation = new CharacteristicWriteOperation(aapsLogger, bluetoothConnectionGatt, chara, command);
+                    int operations = 0;
+                    aapsLogger.info(LTag.PUMPBTCOMM, "" + command);
+                    aapsLogger.info(LTag.PUMPBTCOMM, "" + MedLinkCommandType.Connect.getRaw());
+                    aapsLogger.info(LTag.PUMPBTCOMM, "before is connected");
+                    aapsLogger.info(LTag.PUMPBTCOMM, "" + isConnected());
+                    aapsLogger.info(LTag.PUMPBTCOMM, "" + (command != MedLinkCommandType.Connect.getRaw()));
+                    while (!isConnected() && !Arrays.equals(command, MedLinkCommandType.Connect.getRaw()) && operations < 20) {
+                        //TODO try to change to future implementation
+                        SystemClock.sleep(500);
+                        operations++;
+                    }
+                    aapsLogger.info(LTag.PUMPBTCOMM, new String(command));
+                    aapsLogger.info(LTag.PUMPBTCOMM, "before execution");
+                    mCurrentOperation.execute(this);
+                    if (mCurrentOperation.timedOut) {
+                        rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
+                    } else if (mCurrentOperation.interrupted) {
+                        rval.resultCode = BLECommOperationResult.RESULT_INTERRUPTED;
+                    } else {
+                        rval.resultCode = BLECommOperationResult.RESULT_SUCCESS;
+                    }
+                }
+                mCurrentOperation = null;
+                if (needToAcquire) {
+                    gattOperationSema.release();
+                }
+            }
+        } else {
+            aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: not configured!");
+            rval.resultCode = BLECommOperationResult.RESULT_NOT_CONFIGURED;
+        }
+        if (rval.value == null) {
+            rval.value = getPumpResponse();
+        }
+
+        return rval;
+    }
+
+    public BLECommOperationResult doWriteCharacteristicBlocking(UUID serviceUUID, UUID charaUUID,  byte[] command, Function<String, String> resultActivity) {
+        aapsLogger.debug(LTag.PUMPBTCOMM,"commands");
+        aapsLogger.debug(LTag.PUMPBTCOMM,new String(command));
+        BLECommOperationResult rval = new BLECommOperationResult();
+        if (bluetoothConnectionGatt != null) {
+            rval.value = command;
+            aapsLogger.debug(LTag.PUMPBTCOMM,"command writen");
+            aapsLogger.debug(LTag.PUMPBTCOMM,new String(command,UTF_8));
+            try {
+                aapsLogger.debug(LTag.PUMPBTCOMM,"before acquire");
+                gattOperationSema.acquire();
+                aapsLogger.debug(LTag.PUMPBTCOMM,"after acquire");
+                SystemClock.sleep(1); // attempting to yield thread, to make sequence of events easier to follow
+            } catch (InterruptedException e) {
+                aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: interrupted waiting for gattOperationSema");
+                return rval;
+            }
+
+            if (mCurrentOperation != null) {
+                rval.resultCode = BLECommOperationResult.RESULT_BUSY;
+            } else {
+                if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
+                    // Catch if the service is not supported by the BLE device
+                    // GGW: Tue Jul 12 01:14:01 UTC 2016: This can also happen if the
+                    // app that created the bluetoothConnectionGatt has been destroyed/created,
+                    // e.g. when the user switches from portrait to landscape.
+                    rval.resultCode = BLECommOperationResult.RESULT_NONE;
+                    aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
+                    // TODO: 11/07/2016 UI update for user
+                    // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
+                } else {
+                    BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID)
+                            .getCharacteristic(charaUUID);
+                    mCurrentOperation = new CharacteristicWriteOperation(aapsLogger, bluetoothConnectionGatt, chara, command);
+                    int operations =0;
+                    aapsLogger.info(LTag.PUMPBTCOMM,new String(command));
+                    aapsLogger.info(LTag.PUMPBTCOMM,"before is connected");
+//                    while(!isConnected() && command != MedLinkCommandType.Connect.getRaw() && operations <20 ) {
+//                        //TODO try to change to future implementation
+//                        SystemClock.sleep(500);
+//                    }
+                    aapsLogger.info(LTag.PUMPBTCOMM,new String(command));
+                    aapsLogger.info(LTag.PUMPBTCOMM,"before execution");
+                    mCurrentOperation.execute(this);
+                    if (mCurrentOperation.timedOut) {
+                        rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
+                    } else if (mCurrentOperation.interrupted) {
+                        rval.resultCode = BLECommOperationResult.RESULT_INTERRUPTED;
+                    } else {
+                        rval.resultCode = BLECommOperationResult.RESULT_SUCCESS;
+                    }
+                }
+                mCurrentOperation = null;
+                gattOperationSema.release();
+            }
+        } else {
+            aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: not configured!");
+            rval.resultCode = BLECommOperationResult.RESULT_NOT_CONFIGURED;
+        }
+        if(rval.value == null){
+            rval.value = getPumpResponse();
+        }
+
+        return rval;
+    }
 
 
-    @Override public BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID, byte[] command) {
-        if(this.isConnected || Arrays.equals(command ,MedLinkCommandType.Connect.getRaw())) {
-            return super.writeCharacteristic_blocking(serviceUUID, charaUUID, command);
-        }else {
-            if(!gattConnected) {
+    public BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID, byte[] command, byte[] args, Function<String, String> resultActivity) {
+        if (this.isConnected || Arrays.equals(command, MedLinkCommandType.Connect.getRaw())) {
+            return doWriteCharacteristicBlocking(serviceUUID, charaUUID, command, resultActivity);
+        } else {
+            if (!gattConnected) {
                 connectGatt();
             }
-            this.addCommand(serviceUUID, charaUUID, command);
+            this.addCommand(serviceUUID, charaUUID, command, command);
             return this.processRemainingCommand();
         }
 
@@ -373,30 +518,43 @@ public class MedLinkBLE extends RileyLinkBLE {
 
     private BLECommOperationResult processRemainingCommand() {
         int index = 0;
-        while(!this.isConnected ){
+        aapsLogger.info(LTag.PUMPBTCOMM, "is this connected" + this.isConnected);
+        while (!this.isConnected) {
             SystemClock.sleep(500);
             index++;
-            if(index>20){
+            if (index > 20) {
                 BLECommOperationResult ret = new BLECommOperationResult();
                 ret.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
                 return ret;
             }
         }
         RemainingCommand remain = remainingCommands.get(0);
-        return writeCharacteristic_blocking(remain.serviceUUID, remain.charaUUID, remain.command);
+        this.currentCommand = remain;
+        aapsLogger.info(LTag.PUMPBTCOMM, "remaining command " + new String(remain.command));
+        return writeCharacteristic_blocking(remain.serviceUUID, remain.charaUUID, remain.command, false);
 
     }
 
-    private class RemainingCommand{
+    private class RemainingCommand {
         private final byte[] command;
         private final UUID charaUUID;
 
         private final UUID serviceUUID;
+        private final byte[] args;
 
-        private RemainingCommand(UUID serviceUUID, UUID charaUUID, byte[] command){
+        private RemainingCommand(UUID serviceUUID, UUID charaUUID, byte[] command, byte[] args) {
             this.serviceUUID = serviceUUID;
             this.charaUUID = charaUUID;
             this.command = command;
+            this.args = args;
+        }
+
+        public boolean hasArgs() {
+            return args != null && args.length > 0;
+        }
+
+        public byte[] getArgs() {
+            return args;
         }
 
         public byte[] getCommand() {
@@ -412,9 +570,10 @@ public class MedLinkBLE extends RileyLinkBLE {
         }
     }
 
-    private void addCommand(UUID serviceUUID, UUID charaUUID, byte[] command){
-        this.remainingCommands.add(new RemainingCommand(serviceUUID,charaUUID,command));
+    private void addCommand(UUID serviceUUID, UUID charaUUID, byte[] command, byte[] args) {
+        this.remainingCommands.add(new RemainingCommand(serviceUUID, charaUUID, command, args));
     }
+
     public boolean enableNotifications() {
         BLECommOperationResult result = setNotification_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), //
                 UUID.fromString(GattAttributes.GATT_UUID));
@@ -429,9 +588,8 @@ public class MedLinkBLE extends RileyLinkBLE {
         return isConnected;
     }
 
-    public void setConnected(boolean connected)
-    {
-        if(!connected){
+    public void setConnected(boolean connected) {
+        if (!connected) {
             this.pumpResponse = new StringBuffer();
         }
         isConnected = connected;
@@ -444,6 +602,7 @@ public class MedLinkBLE extends RileyLinkBLE {
 
     public void setPumpModel(String pumpModel) {
         this.pumpModel = pumpModel;
+//        medLinkUtil;
     }
 
     public void findMedLink(String RileyLinkAddress) {
@@ -470,4 +629,29 @@ public class MedLinkBLE extends RileyLinkBLE {
         super.close();
         setConnected(false);
     }
+
+    private class AsyncTaskExample extends AsyncTask<Byte[], String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            p = new ProgressDialog(MainActivity.this);
+//            p.setMessage("Please wait...It is downloading");
+//            p.setIndeterminate(false);
+//            p.setCancelable(false);
+//            p.show();
+        }
+
+        @Override
+        protected String doInBackground(Byte[]... command) {
+
+            return "bmImg";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+        }
+    }
+
 }

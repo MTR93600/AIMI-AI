@@ -50,18 +50,17 @@ public enum MedLinkCommandType {
     ;
 
     public final String code;
-    public final int insulinAmount;
+    public Double insulinAmount;
 
+//    MedLinkCommandType(MedLinkCommandType command, Double insulinAmount) {
+//        this.code = command.code;
+//        this.insulinAmount = insulinAmount;
+//    }
 
     MedLinkCommandType(String command) {
         this.code = command;
-        this.insulinAmount = 0;
     }
 
-    MedLinkCommandType(String command, int insulinAmount) {
-        this.code = command;
-        this.insulinAmount = insulinAmount;
-    }
 
     public byte[] getRaw() {
         if (this.insulinAmount > 0) {
@@ -89,4 +88,11 @@ public enum MedLinkCommandType {
         return ArrayUtils.toPrimitive(result.toArray(new Byte[result.size()]));
 
     }
+//
+//    public MedLinkCommandType buildBolusCommand(double minValueAmount) {
+//
+//
+//        return BolusAmount(Bolus.code,minValueAmount);
+//
+//    }
 }

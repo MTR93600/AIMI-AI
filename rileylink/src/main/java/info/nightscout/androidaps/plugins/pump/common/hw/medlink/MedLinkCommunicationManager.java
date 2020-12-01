@@ -1,5 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink;
 
+import java.util.function.Function;
+
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
@@ -12,7 +14,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSp
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkCommunicationException;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.FrequencyScanResults;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.FrequencyTrial;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RFSpyResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.RadioPacket;
@@ -62,23 +63,23 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
 
     // All pump communications go through this function.
-    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms)
+    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms,  BaseResultActivity resultActivity)
             throws RileyLinkCommunicationException {
         return sendAndListen(msg, timeout_ms, null);
     }
 
-    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, Integer extendPreamble_ms)
+    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, Integer extendPreamble_ms, BaseResultActivity resultActivity)
             throws RileyLinkCommunicationException {
-        return sendAndListen(msg, timeout_ms, 0, extendPreamble_ms);
+        return sendAndListen(msg, timeout_ms, 0, extendPreamble_ms, resultActivity);
     }
 
     // For backward compatibility
-    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, Integer extendPreamble_ms)
+    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, Integer extendPreamble_ms, BaseResultActivity resultActivity)
             throws RileyLinkCommunicationException {
-        return sendAndListen(msg, timeout_ms, repeatCount, 0, extendPreamble_ms);
+        return sendAndListen(msg, timeout_ms, repeatCount, 0, extendPreamble_ms, resultActivity);
     }
 
-    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms)
+    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms, BaseResultActivity resultActivity)
             throws RileyLinkCommunicationException {
 
         // internal flag
@@ -88,7 +89,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         }
 
         RFSpyResponse rfSpyResponse = rfspy.transmitThenReceive(new RadioPacket(injector, msg.getTxData()),
-                (byte) 0, (byte) repeatCount, (byte) 0, (byte) 0, timeout_ms, (byte) retryCount, extendPreamble_ms);
+                (byte) 0, (byte) repeatCount, (byte) 0, (byte) 0, timeout_ms, (byte) retryCount, extendPreamble_ms, resultActivity);
 
         RadioResponse radioResponse = rfSpyResponse.getRadioResponse(injector);
         RLMessage response = createResponseMessage(radioResponse.getPayload());
@@ -143,7 +144,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     // FIXME change wakeup
     // TODO we might need to fix this. Maybe make pump awake for shorter time (battery factor for pump) - Andy
-    @Override public void wakeUp(int duration_minutes, boolean force) {
+    public void wakeUp(int duration_minutes, boolean force, BaseResultActivity resultActivity) {
         // If it has been longer than n minutes, do wakeup. Otherwise assume pump is still awake.
         // **** FIXME: this wakeup doesn't seem to work well... must revisit
         // receiverDeviceAwakeForMinutes = duration_minutes;
@@ -158,7 +159,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
             byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
             RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(injector, pumpMsgContent), (byte) 0, (byte) 200,
-                    (byte) 0, (byte) 0, 25000, (byte) 0);
+                    (byte) 0, (byte) 0, 25000, (byte) 0, resultActivity);
             aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
 
             // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
@@ -310,12 +311,12 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     }
 
 
-    private int tune_tryFrequency(double freqMHz) {
+    private int tune_tryFrequency(double freqMHz, BaseResultActivity resultActivity) {
         rfspy.setBaseFrequency(freqMHz);
         // RLMessage msg = makeRLMessage(RLMessageType.ReadSimpleData);
         byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData);
         RadioPacket pkt = new RadioPacket(injector, pumpMsgContent);
-        RFSpyResponse resp = rfspy.transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, SCAN_TIMEOUT, (byte) 0);
+        RFSpyResponse resp = rfspy.transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, SCAN_TIMEOUT, (byte) 0, resultActivity);
         if (resp.wasTimeout()) {
             aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: no pump response at frequency {}", freqMHz);
         } else if (resp.looksLikeRadioPacket()) {
@@ -375,11 +376,12 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     private double quickTunePumpStep(double startFrequencyMHz, double stepSizeMHz) {
         aapsLogger.info(LTag.PUMPCOMM, "Doing quick radio tune for receiver ({})", receiverDeviceID);
         wakeUp(false);
-        int startRssi = tune_tryFrequency(startFrequencyMHz);
+        BaseResultActivity resultActivity = new BaseResultActivity();
+        int startRssi = tune_tryFrequency(startFrequencyMHz, resultActivity);
         double lowerFrequency = startFrequencyMHz - stepSizeMHz;
-        int lowerRssi = tune_tryFrequency(lowerFrequency);
+        int lowerRssi = tune_tryFrequency(lowerFrequency, resultActivity);
         double higherFrequency = startFrequencyMHz + stepSizeMHz;
-        int higherRssi = tune_tryFrequency(higherFrequency);
+        int higherRssi = tune_tryFrequency(higherFrequency, resultActivity);
 
         if ((higherRssi == 0.0) && (lowerRssi == 0.0) && (startRssi == 0.0)) {
             // we can't see the pump at all...

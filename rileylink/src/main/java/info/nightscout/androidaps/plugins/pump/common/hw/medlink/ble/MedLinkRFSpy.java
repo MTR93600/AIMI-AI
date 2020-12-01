@@ -3,6 +3,7 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble;
 import android.os.SystemClock;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,6 +14,7 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.SendAndListen;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.RileyLinkCommand;
@@ -27,7 +29,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.Rile
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
-import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -98,7 +99,7 @@ public class MedLinkRFSpy {
     public void initializeRileyLink() {
         bleVersion = getVersion();
         medLinkServiceData.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x;
-                //getFirmwareVersion();
+        //getFirmwareVersion();
     }
 
 
@@ -124,56 +125,56 @@ public class MedLinkRFSpy {
         }
     }
 
-    public boolean isRileyLinkStillAvailable() {
-        RileyLinkFirmwareVersion firmwareVersion = getFirmwareVersion();
-
-        return (firmwareVersion != RileyLinkFirmwareVersion.UnknownVersion);
-    }
-
-
-    private RileyLinkFirmwareVersion getFirmwareVersion() {
-
-        aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version. Get Version - Start");
-
-        for (int i = 0; i < 5; i++) {
-            // We have to call raw version of communication to get firmware version
-            // So that we can adjust other commands accordingly afterwords
-
-            byte[] getVersionRaw = getByteArray(RileyLinkCommandType.GetVersion.code);
-            byte[] response = writeToDataRaw(getVersionRaw, 5000);
-
-            aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version. GetVersion [response={}]", ByteUtil.shortHexString(response));
-
-            if (response != null) { // && response[0] == (byte) 0xDD) {
-
-                String versionString = StringUtil.fromBytes(response);
-
-                RileyLinkFirmwareVersion version = RileyLinkFirmwareVersion.getByVersionString(StringUtil
-                        .fromBytes(response));
-
-                aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version string: {}, resolved to {}.", versionString, version);
-
-                if (version != RileyLinkFirmwareVersion.UnknownVersion)
-                    return version;
-
-                SystemClock.sleep(1000);
-            }
-        }
-
-        aapsLogger.error(LTag.PUMPBTCOMM, "Firmware Version can't be determined. Checking with BLE Version [{}].", bleVersion);
-
-        if (bleVersion.contains(" 2.")) {
-            return RileyLinkFirmwareVersion.Version_2_0;
-        }
-
-        return RileyLinkFirmwareVersion.UnknownVersion;
-    }
+//    public boolean isRileyLinkStillAvailable() {
+//        RileyLinkFirmwareVersion firmwareVersion = getFirmwareVersion();
+//
+//        return (firmwareVersion != RileyLinkFirmwareVersion.UnknownVersion);
+//    }
 
 
-    private byte[] writeToDataRaw(byte[] bytes, int responseTimeout_ms) {
+//    private RileyLinkFirmwareVersion getFirmwareVersion() {
+//
+//        aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version. Get Version - Start");
+//
+//        for (int i = 0; i < 5; i++) {
+//            // We have to call raw version of communication to get firmware version
+//            // So that we can adjust other commands accordingly afterwords
+//
+//            byte[] getVersionRaw = getByteArray(RileyLinkCommandType.GetVersion.code);
+//            byte[] response = writeToDataRaw(getVersionRaw, 5000);
+//
+//            aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version. GetVersion [response={}]", ByteUtil.shortHexString(response));
+//
+//            if (response != null) { // && response[0] == (byte) 0xDD) {
+//
+//                String versionString = StringUtil.fromBytes(response);
+//
+//                RileyLinkFirmwareVersion version = RileyLinkFirmwareVersion.getByVersionString(StringUtil
+//                        .fromBytes(response));
+//
+//                aapsLogger.debug(LTag.PUMPBTCOMM, "Firmware Version string: {}, resolved to {}.", versionString, version);
+//
+//                if (version != RileyLinkFirmwareVersion.UnknownVersion)
+//                    return version;
+//
+//                SystemClock.sleep(1000);
+//            }
+//        }
+//
+//        aapsLogger.error(LTag.PUMPBTCOMM, "Firmware Version can't be determined. Checking with BLE Version [{}].", bleVersion);
+//
+//        if (bleVersion.contains(" 2.")) {
+//            return RileyLinkFirmwareVersion.Version_2_0;
+//        }
+//
+//        return RileyLinkFirmwareVersion.UnknownVersion;
+//    }
+
+
+    private byte[] writeToDataRaw(byte[] bytes, int responseTimeout_ms, Function<String, String> resultActivity) {
         SystemClock.sleep(100);
         // FIXME drain read queue?
-        aapsLogger.debug("writeToDataRaw "+new String(bytes));
+        aapsLogger.debug("writeToDataRaw " + new String(bytes));
         byte[] junkInBuffer = reader.poll(0);
 
         while (junkInBuffer != null) {
@@ -188,7 +189,7 @@ public class MedLinkRFSpy {
 //        aapsLogger.debug(LTag.PUMPBTCOMM, "writeToData (raw={})", ByteUtil.shortHexString(prepended));
 
         BLECommOperationResult writeCheck = medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID,
-                bytes);
+                bytes, new byte[0], resultActivity);
         if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
             aapsLogger.error(LTag.PUMPBTCOMM, "BLE Write operation failed, code=" + writeCheck.resultCode);
             return null; // will be a null (invalid) response
@@ -202,10 +203,11 @@ public class MedLinkRFSpy {
 
 
     // The caller has to know how long the RFSpy will be busy with what was sent to it.
-    private RFSpyResponse writeToData(RileyLinkCommand command, int responseTimeout_ms) {
+    private RFSpyResponse writeToData(RileyLinkCommand command, int responseTimeout_ms, Function<String, String> resultActivity) {
 
         byte[] bytes = command.getRaw();
-        byte[] rawResponse = writeToDataRaw(bytes, responseTimeout_ms);
+
+        byte[] rawResponse = writeToDataRaw(bytes, responseTimeout_ms, resultActivity);
 
         RFSpyResponse resp = new RFSpyResponse(command, rawResponse);
         if (rawResponse == null) {
@@ -262,18 +264,23 @@ public class MedLinkRFSpy {
 
 
     public RFSpyResponse transmitThenReceive(RadioPacket pkt, byte sendChannel, byte repeatCount, byte delay_ms,
-                                             byte listenChannel, int timeout_ms, byte retryCount) {
-        return transmitThenReceive(pkt, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms, retryCount, null);
+                                             byte listenChannel, int timeout_ms, byte retryCount, Function<String, String> resultActivity) {
+        return transmitThenReceive(pkt, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms, retryCount, null, resultActivity);
     }
 
+//
+//    public RFSpyResponse transmitThenReceive(RadioPacket pkt, int timeout_ms) {
+//        return transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, timeout_ms, (byte) 0);
+//    }
 
-    public RFSpyResponse transmitThenReceive(RadioPacket pkt, int timeout_ms) {
-        return transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, timeout_ms, (byte) 0);
+
+    public void transmitThenReceive(MedLinkCommandType command, byte[] args, Function<String, String> resultActivity) {
+        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, command.getRaw(), args, resultActivity);
+
     }
-
 
     public RFSpyResponse transmitThenReceive(RadioPacket pkt, byte sendChannel, byte repeatCount, byte delay_ms,
-                                             byte listenChannel, int timeout_ms, byte retryCount, Integer extendPreamble_ms) {
+                                             byte listenChannel, int timeout_ms, byte retryCount, Integer extendPreamble_ms, Function<String, String> resultActivity) {
 
         int sendDelay = repeatCount * delay_ms;
         int receiveDelay = timeout_ms * (retryCount + 1);
@@ -281,12 +288,13 @@ public class MedLinkRFSpy {
         SendAndListen command = new SendAndListen(injector, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms,
                 retryCount, extendPreamble_ms, pkt);
 
-        return writeToData(command, sendDelay + receiveDelay + EXPECTED_MAX_BLUETOOTH_LATENCY_MS);
+        return writeToData(command, sendDelay + receiveDelay + EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
     }
 
 
     private RFSpyResponse updateRegister(CC111XRegister reg, int val) {
-        RFSpyResponse resp = writeToData(new UpdateRegister(reg, (byte) val), EXPECTED_MAX_BLUETOOTH_LATENCY_MS);
+        Function<String, String> resultActivity = null;
+        RFSpyResponse resp = writeToData(new UpdateRegister(reg, (byte) val), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
         return resp;
     }
 
@@ -360,7 +368,8 @@ public class MedLinkRFSpy {
     private RFSpyResponse setPreamble(int preamble) {
         RFSpyResponse resp = null;
         try {
-            resp = writeToData(new SetPreamble(injector, preamble), EXPECTED_MAX_BLUETOOTH_LATENCY_MS);
+            Function<String, String> resultActivity= null;
+            resp = writeToData(new SetPreamble(injector, preamble), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
         } catch (Exception e) {
             aapsLogger.error("Failed to set preamble", e);
         }

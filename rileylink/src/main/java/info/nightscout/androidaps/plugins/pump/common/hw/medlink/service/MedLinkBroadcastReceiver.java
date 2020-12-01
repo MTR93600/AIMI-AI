@@ -167,7 +167,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             // sendIPCNotification(RT2Const.IPC.MSG_note_WakingPump);
 
             medLinkService.getMedLinkBLE().enableNotifications();
-            medLinkService.getMedLinkRFSpy().startReader(); // call startReader from outside?
+//            medLinkService.getMedLinkRFSpy().startReader(); // call startReader from outside?
 
             medLinkService.getMedLinkRFSpy().initializeRileyLink();
             String bleVersion = medLinkService.getMedLinkRFSpy().getBLEVersionCached();

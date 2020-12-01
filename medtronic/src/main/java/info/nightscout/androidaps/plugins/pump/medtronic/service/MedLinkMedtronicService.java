@@ -114,7 +114,7 @@ public class MedLinkMedtronicService extends MedLinkService {
         // get most recently used RileyLink address
         medLinkServiceData.rileylinkAddress = sp.getString(MedLinkConst.Prefs.MedLinkAddress, "");
 
-        getMedLinkRFSpy.startReader();
+//        getMedLinkRFSpy.startReader();
 
         // init rileyLinkCommunicationManager
         medtronicUIComm = new MedLinkMedtronicUIComm(injector, aapsLogger, medtronicUtil, medtronicUIPostprocessor, medtronicCommunicationManager);

@@ -7,10 +7,10 @@ import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.RLHistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
@@ -25,7 +25,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLin
 public class MedLinkServiceData {
 
     @Inject AAPSLogger aapsLogger;
-    @Inject RileyLinkUtil rileyLinkUtil;
+    @Inject MedLinkUtil medLinkUtil;
     @Inject RxBusWrapper rxBus;
 
     boolean tuneUpDone = false;
@@ -80,7 +80,7 @@ public class MedLinkServiceData {
 
             aapsLogger.info(LTag.PUMP, "MedLink State Changed: {} {}", newState, errorCode == null ? "" : " - Error State: " + errorCode.name());
 
-            rileyLinkUtil.getRileyLinkHistory().add(new RLHistoryItem(rileyLinkServiceState, errorCode, targetDevice));
+            medLinkUtil.getRileyLinkHistory().add(new MLHistoryItem(rileyLinkServiceState, errorCode, targetDevice));
             rxBus.send(new EventRileyLinkDeviceStatusChange(newState, errorCode));
 
             return null;

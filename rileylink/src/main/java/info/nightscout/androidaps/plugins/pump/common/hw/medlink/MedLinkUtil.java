@@ -91,6 +91,10 @@ public class MedLinkUtil implements ConnectorUtil {
         return historyMedLink;
     }
 
+    public List<MLHistoryItem> getMedLinkHistory() {
+        return historyMedLink;
+    }
+
     @Override public Encoding4b6b getEncoding4b6b() {
         return encoding4b6b;
     }

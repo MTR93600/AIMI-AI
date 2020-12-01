@@ -13,18 +13,16 @@ import android.os.SystemClock;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
@@ -497,7 +495,7 @@ public class RileyLinkBLE {
 
 
     // call from main
-    public BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID, byte[] command) {
+    public BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID,  byte[] command) {
         aapsLogger.debug(LTag.PUMPBTCOMM,"commands");
         aapsLogger.debug(LTag.PUMPBTCOMM,new String(command));
         BLECommOperationResult rval = new BLECommOperationResult();
@@ -506,7 +504,9 @@ public class RileyLinkBLE {
             aapsLogger.debug(LTag.PUMPBTCOMM,"command writen");
             aapsLogger.debug(LTag.PUMPBTCOMM,new String(command,UTF_8));
             try {
+                aapsLogger.debug(LTag.PUMPBTCOMM,"before acquire");
                 gattOperationSema.acquire();
+                aapsLogger.debug(LTag.PUMPBTCOMM,"after acquire");
                 SystemClock.sleep(1); // attempting to yield thread, to make sequence of events easier to follow
             } catch (InterruptedException e) {
                 aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: interrupted waiting for gattOperationSema");
@@ -530,10 +530,14 @@ public class RileyLinkBLE {
                             .getCharacteristic(charaUUID);
                     mCurrentOperation = new CharacteristicWriteOperation(aapsLogger, bluetoothConnectionGatt, chara, command);
                     int operations =0;
+                    aapsLogger.info(LTag.PUMPBTCOMM,new String(command));
+                    aapsLogger.info(LTag.PUMPBTCOMM,"before is connected");
                     while(!isConnected() && command != MedLinkCommandType.Connect.getRaw() && operations <20 ) {
                         //TODO try to change to future implementation
                         SystemClock.sleep(500);
                     }
+                    aapsLogger.info(LTag.PUMPBTCOMM,new String(command));
+                    aapsLogger.info(LTag.PUMPBTCOMM,"before execution");
                     mCurrentOperation.execute(this);
                     if (mCurrentOperation.timedOut) {
                         rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
@@ -557,7 +561,7 @@ public class RileyLinkBLE {
         return rval;
     }
 
-    private byte[] getPumpResponse() {
+    protected byte[] getPumpResponse() {
         byte[] result = StringUtils.join(this.pumpResponse, ",").getBytes();
         this.pumpResponse = new StringBuffer();
         return result;
