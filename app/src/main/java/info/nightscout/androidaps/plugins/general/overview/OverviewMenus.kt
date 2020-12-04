@@ -175,6 +175,88 @@ class OverviewMenus @Inject constructor(
         }
     }
 
+    fun setupPopupMenu(v: View) {
+        v.setOnClickListener {
+            val popup = PopupMenu(v.context, v)
+            when (v.id) {
+                R.id.overview_apsmode       -> {
+                    val pumpDescription: PumpDescription = activePlugin.activePump.pumpDescription
+                    if (profileFunction.isProfileValid("ContextMenuCreation")) {
+                        val item = popup.menu.add(resourceHelper.gs(R.string.loop))                 // title
+                        val title = item.title
+                        val s = SpannableString(title)
+                        s.setSpan( ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
+                        item.setTitle(s)
+                        if (loopPlugin.isEnabled(PluginType.LOOP)) {
+                            popup.menu.add(resourceHelper.gs(R.string.disableloop))
+                            if (!loopPlugin.isSuspended) {
+                                popup.menu.add(resourceHelper.gs(R.string.suspendloopfor1h))
+                                popup.menu.add(resourceHelper.gs(R.string.suspendloopfor2h))
+                                popup.menu.add(resourceHelper.gs(R.string.suspendloopfor3h))
+                                popup.menu.add(resourceHelper.gs(R.string.suspendloopfor10h))
+                            } else {
+                                if (!loopPlugin.isDisconnected) {
+                                    popup.menu.add(resourceHelper.gs(R.string.resume))
+                                }
+                            }
+                        }
+                        if (!loopPlugin.isEnabled(PluginType.LOOP)) {
+                            popup.menu.add(resourceHelper.gs(R.string.enableloop))
+                        }
+                        if (!loopPlugin.isDisconnected) {
+                            if (pumpDescription.tempDurationStep15mAllowed) popup.menu.add(resourceHelper.gs(R.string.disconnectpumpfor15m))
+                            if (pumpDescription.tempDurationStep30mAllowed) popup.menu.add(resourceHelper.gs(R.string.disconnectpumpfor30m))
+                            popup.menu.add(resourceHelper.gs(R.string.disconnectpumpfor1h))
+                            popup.menu.add(resourceHelper.gs(R.string.disconnectpumpfor2h))
+                            popup.menu.add(resourceHelper.gs(R.string.disconnectpumpfor3h))
+                        } else {
+                            popup.menu.add(resourceHelper.gs(R.string.reconnect))
+                        }
+                    }
+                }
+                R.id.overview_activeprofile -> {
+                    val item = popup.menu.add(resourceHelper.gs(R.string.profile))                // title
+                    val title = item.title
+                    val s = SpannableString(title)
+                    s.setSpan(ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
+                    item.setTitle(s)
+                    popup.menu.add(resourceHelper.gs(R.string.viewprofile))
+                    if (activePlugin.activeProfileInterface.profile != null) {
+                        popup.menu.add(resourceHelper.gs(R.string.careportal_profileswitch))
+                    }
+                }
+                R.id.overview_temptarget    -> {
+                    val item = popup.menu.add(resourceHelper.gs(R.string.careportal_temporarytarget))                   // title
+                    val title = item.title
+                    val s = SpannableString(title)
+                    s.setSpan(ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
+                    item.setTitle(s)
+                    popup.menu.add(resourceHelper.gs(R.string.custom))
+                    popup.menu.add(resourceHelper.gs(R.string.eatingsoon))
+                    popup.menu.add(resourceHelper.gs(R.string.activity))
+                    popup.menu.add(resourceHelper.gs(R.string.hypo))
+                    if (activePlugin.activeTreatments.tempTargetFromHistory != null) {
+                        popup.menu.add(resourceHelper.gs(R.string.cancel))
+                    }
+                }
+            }
+            popup.setOnMenuItemClickListener {
+                // Here I want call OverviewFragment.onContextItemSelected(it) (it could be another function that belongs to OverviewFragment)
+                // I need childFragmentManager and fragment's context to launch command
+                //
+                // Command to launch are in this module (see below) with or without OKDialog... Something like:
+                // onContextItemSelected(it, childFragmentManager)
+                // OKDialog.showConfirmation(requireContext(), resourceHelper.gs(R.string.confirm), item.title.toString(),
+                //                     Runnable {
+                //                         overviewMenus.onContextItemSelected(it, childFragmentManager)
+                //                     })
+
+                return@setOnMenuItemClickListener true
+            }
+            popup.show()
+        }
+    }
+
     fun createContextMenu(menu: ContextMenu, v: View) {
         when (v.id) {
             R.id.overview_apsmode       -> {

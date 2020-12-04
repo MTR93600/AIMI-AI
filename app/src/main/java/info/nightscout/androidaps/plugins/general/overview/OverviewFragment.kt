@@ -230,6 +230,10 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         overview_profileswitchbutton_nol?.setOnClickListener(this)
         overview_temptargetbutton_nol?.setOnClickListener(this)
 
+        overviewMenus.setupPopupMenu(overview_apsmode)
+        overviewMenus.setupPopupMenu(overview_activeprofile)
+        overviewMenus.setupPopupMenu(overview_temptarget)
+
     }
 
     override fun onPause() {
