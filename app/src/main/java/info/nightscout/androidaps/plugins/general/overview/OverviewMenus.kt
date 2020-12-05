@@ -38,6 +38,7 @@ import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.DefaultValueHelper
 import info.nightscout.androidaps.utils.ToastUtils
+import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
@@ -60,8 +61,7 @@ class OverviewMenus @Inject constructor(
     private val loopPlugin: LoopPlugin,
     private val config: Config
 ) {
-
-    enum class CharType(@StringRes val nameId: Int, @ColorRes val colorId: Int, val primary: Boolean, val secondary: Boolean, @StringRes val shortnameId: Int) {
+        enum class CharType(@StringRes val nameId: Int, @ColorRes val colorId: Int, val primary: Boolean, val secondary: Boolean, @StringRes val shortnameId: Int) {
         PRE(R.string.overview_show_predictions, R.color.prediction, primary = true, secondary = false, shortnameId = R.string.prediction_shortname),
         BAS(R.string.overview_show_basals, R.color.basal, primary = true, secondary = false,shortnameId = R.string.basal_shortname),
         ABS(R.string.overview_show_absinsulin, R.color.iob, primary = false, secondary = true,shortnameId = R.string.abs_insulin_shortname),
@@ -175,14 +175,14 @@ class OverviewMenus @Inject constructor(
         }
     }
 
-    fun setupPopupMenu(v: View) {
+    fun setupPopupMenu(v: View, context: Context, manager: FragmentManager) {
         v.setOnClickListener {
             val popup = PopupMenu(v.context, v)
             when (v.id) {
                 R.id.overview_apsmode       -> {
                     val pumpDescription: PumpDescription = activePlugin.activePump.pumpDescription
                     if (profileFunction.isProfileValid("ContextMenuCreation")) {
-                        val item = popup.menu.add(resourceHelper.gs(R.string.loop))                 // title
+                        val item = popup.menu.add(Menu.NONE,1,Menu.NONE,resourceHelper.gs(R.string.loop))                 // title
                         val title = item.title
                         val s = SpannableString(title)
                         s.setSpan( ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
@@ -215,7 +215,7 @@ class OverviewMenus @Inject constructor(
                     }
                 }
                 R.id.overview_activeprofile -> {
-                    val item = popup.menu.add(resourceHelper.gs(R.string.profile))                // title
+                    val item = popup.menu.add(Menu.NONE,1,Menu.NONE,resourceHelper.gs(R.string.profile))                // title
                     val title = item.title
                     val s = SpannableString(title)
                     s.setSpan(ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
@@ -226,7 +226,7 @@ class OverviewMenus @Inject constructor(
                     }
                 }
                 R.id.overview_temptarget    -> {
-                    val item = popup.menu.add(resourceHelper.gs(R.string.careportal_temporarytarget))                   // title
+                    val item = popup.menu.add(Menu.NONE,1,Menu.NONE,resourceHelper.gs(R.string.careportal_temporarytarget))                   // title
                     val title = item.title
                     val s = SpannableString(title)
                     s.setSpan(ForegroundColorSpan(resourceHelper.gc(R.color.colorAccent)), 0, s.length, 0)
@@ -241,16 +241,20 @@ class OverviewMenus @Inject constructor(
                 }
             }
             popup.setOnMenuItemClickListener {
-                // Here I want call OverviewFragment.onContextItemSelected(it) (it could be another function that belongs to OverviewFragment)
-                // I need childFragmentManager and fragment's context to launch command
-                //
-                // Command to launch are in this module (see below) with or without OKDialog... Something like:
-                // onContextItemSelected(it, childFragmentManager)
-                // OKDialog.showConfirmation(requireContext(), resourceHelper.gs(R.string.confirm), item.title.toString(),
-                //                     Runnable {
-                //                         overviewMenus.onContextItemSelected(it, childFragmentManager)
-                //                     })
+                if (it.itemId != 1) {
+                    when (it.title) {
+                        resourceHelper.gs(R.string.careportal_profileswitch),
+                        resourceHelper.gs(R.string.viewprofile),
+                        resourceHelper.gs(R.string.custom) -> onContextItemSelected(it, manager)
 
+                        else                               -> {
+                            OKDialog.showConfirmation(context, resourceHelper.gs(R.string.confirm), it.title.toString(),
+                                Runnable {
+                                    onContextItemSelected(it, manager)
+                                })
+                        }
+                    }
+                }
                 return@setOnMenuItemClickListener true
             }
             popup.show()
