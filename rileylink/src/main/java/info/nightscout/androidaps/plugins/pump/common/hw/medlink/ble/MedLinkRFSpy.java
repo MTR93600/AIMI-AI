@@ -11,9 +11,11 @@ import javax.inject.Singleton;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.SendAndListen;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
@@ -171,7 +173,7 @@ public class MedLinkRFSpy {
 //    }
 
 
-    private byte[] writeToDataRaw(byte[] bytes, int responseTimeout_ms, Function<String, String> resultActivity) {
+    private byte[] writeToDataRaw(byte[] bytes, int responseTimeout_ms, BaseResultActivity resultActivity) {
         SystemClock.sleep(100);
         // FIXME drain read queue?
         aapsLogger.debug("writeToDataRaw " + new String(bytes));
@@ -207,7 +209,7 @@ public class MedLinkRFSpy {
 
         byte[] bytes = command.getRaw();
 
-        byte[] rawResponse = writeToDataRaw(bytes, responseTimeout_ms, resultActivity);
+        byte[] rawResponse = writeToDataRaw(bytes, responseTimeout_ms, (BaseResultActivity) resultActivity);
 
         RFSpyResponse resp = new RFSpyResponse(command, rawResponse);
         if (rawResponse == null) {
@@ -274,8 +276,8 @@ public class MedLinkRFSpy {
 //    }
 
 
-    public void transmitThenReceive(MedLinkCommandType command, byte[] args, Function<String, String> resultActivity) {
-        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, command.getRaw(), args, resultActivity);
+    public void transmitThenReceive(MedLinkPumpMessage pumpMessage) {
+        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, pumpMessage.getCommandData(), pumpMessage.getArgumentData(), pumpMessage.getBaseResultActivity());
 
     }
 

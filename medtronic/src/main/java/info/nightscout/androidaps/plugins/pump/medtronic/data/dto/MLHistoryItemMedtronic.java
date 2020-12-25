@@ -3,10 +3,8 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 import org.joda.time.LocalDateTime;
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.RLHistoryItem;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 /**
@@ -15,9 +13,9 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
  */
 public class MLHistoryItemMedtronic extends MLHistoryItem {
 
-    private MedLinkMedtronicCommandType medtronicCommandType;
+    private MedLinkCommandType medtronicCommandType;
 
-    public MLHistoryItemMedtronic(MedLinkMedtronicCommandType medtronicCommandType) {
+    public MLHistoryItemMedtronic(MedLinkCommandType medtronicCommandType) {
         super(new LocalDateTime(), MLHistoryItemSource.MedtronicCommand, RileyLinkTargetDevice.MedtronicPump);
         this.medtronicCommandType = medtronicCommandType;
     }

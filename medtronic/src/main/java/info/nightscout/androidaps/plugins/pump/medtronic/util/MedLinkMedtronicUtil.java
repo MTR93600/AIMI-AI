@@ -49,7 +49,7 @@ public class MedLinkMedtronicUtil {
     private int ENVELOPE_SIZE = 4; // 0xA7 S1 S2 S3 CMD PARAM_COUNT [PARAMS]
     private static boolean lowLevelDebug = true;
     //private MedtronicDeviceType medtronicPumpModel;
-    private MedLinkMedtronicCommandType currentCommand;
+    private MedLinkCommandType currentCommand;
     private Map<String, PumpSettingDTO> settings;
     private int BIG_FRAME_LENGTH = 65;
     private int doneBit = 1 << 7;
@@ -417,11 +417,11 @@ public class MedLinkMedtronicUtil {
         this.medtronicPumpStatus.medtronicDeviceType = medtronicPumpModel;
     }
 
-    public MedLinkMedtronicCommandType getCurrentCommand() {
+    public MedLinkCommandType getCurrentCommand() {
         return this.currentCommand;
     }
 
-    public void setCurrentCommand(MedLinkMedtronicCommandType currentCommand) {
+    public void setCurrentCommand(MedLinkCommandType currentCommand) {
         this.currentCommand = currentCommand;
 
         if (currentCommand != null)
@@ -433,7 +433,7 @@ public class MedLinkMedtronicUtil {
     public Integer frameNumber;
 
 
-    public void setCurrentCommand(MedLinkMedtronicCommandType currentCommand, int pageNumber_, Integer frameNumber_) {
+    public void setCurrentCommand(MedLinkCommandType currentCommand, int pageNumber_, Integer frameNumber_) {
         pageNumber = pageNumber_;
         frameNumber = frameNumber_;
 

@@ -1,9 +1,12 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink;
 
-import java.util.function.Function;
+
 
 import javax.inject.Inject;
 
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
@@ -63,33 +66,33 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
 
     // All pump communications go through this function.
-    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms,  BaseResultActivity resultActivity)
+    protected MedLinkPumpMessage sendAndListen(MedLinkPumpMessage msg, int timeout_ms)
             throws RileyLinkCommunicationException {
         return sendAndListen(msg, timeout_ms, null);
     }
 
-    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, Integer extendPreamble_ms, BaseResultActivity resultActivity)
+    private MedLinkPumpMessage sendAndListen(MedLinkPumpMessage msg, int timeout_ms, Integer extendPreamble_ms)
             throws RileyLinkCommunicationException {
-        return sendAndListen(msg, timeout_ms, 0, extendPreamble_ms, resultActivity);
+        return sendAndListen(msg, timeout_ms, 0, extendPreamble_ms);
     }
 
     // For backward compatibility
-    private RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, Integer extendPreamble_ms, BaseResultActivity resultActivity)
+    private MedLinkPumpMessage sendAndListen(MedLinkPumpMessage msg, int timeout_ms, int repeatCount, Integer extendPreamble_ms)
             throws RileyLinkCommunicationException {
-        return sendAndListen(msg, timeout_ms, repeatCount, 0, extendPreamble_ms, resultActivity);
+        return sendAndListen(msg, timeout_ms, repeatCount, 0, extendPreamble_ms);
     }
 
-    protected RLMessage sendAndListen(RLMessage msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms, BaseResultActivity resultActivity)
+    protected MedLinkPumpMessage sendAndListen(MedLinkPumpMessage msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms)
             throws RileyLinkCommunicationException {
 
         // internal flag
         boolean showPumpMessages = true;
-        if (showPumpMessages) {
-            aapsLogger.info(LTag.PUMPCOMM, "Sent:" + ByteUtil.shortHexString(msg.getTxData()));
+        if (showPumpMessages && msg != null) {
+            aapsLogger.info(LTag.PUMPCOMM, "Sent:" + msg.commandType.toString());
         }
 
-        RFSpyResponse rfSpyResponse = rfspy.transmitThenReceive(new RadioPacket(injector, msg.getTxData()),
-                (byte) 0, (byte) repeatCount, (byte) 0, (byte) 0, timeout_ms, (byte) retryCount, extendPreamble_ms, resultActivity);
+        RFSpyResponse rfSpyResponse = rfspy.transmitThenReceive(new RadioPacket(injector, msg.getCommandData()),
+                (byte) 0, (byte) repeatCount, (byte) 0, (byte) 0, timeout_ms, (byte) retryCount, extendPreamble_ms, msg.getBaseResultActivity());
 
         RadioResponse radioResponse = rfSpyResponse.getRadioResponse(injector);
         RLMessage response = createResponseMessage(radioResponse.getPayload());
@@ -124,7 +127,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
             aapsLogger.info(LTag.PUMPCOMM, "Received:" + ByteUtil.shortHexString(rfSpyResponse.getRadioResponse(injector).getPayload()));
         }
 
-        return response;
+        return msg;
     }
 
 
@@ -344,20 +347,19 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     @Override public double quickTuneForPump(double startFrequencyMHz) {
         double betterFrequency = startFrequencyMHz;
         double stepsize = 0.05;
-        for (int tries = 0; tries < 4; tries++) {
+//        for (int tries = 0; tries < 4; tries++) {
             double evenBetterFrequency = quickTunePumpStep(betterFrequency, stepsize);
             if (evenBetterFrequency == 0.0) {
                 // could not see the pump at all.
                 // Try again at larger step size
                 stepsize += 0.05;
             } else {
-                if ((int) (evenBetterFrequency * 100) == (int) (betterFrequency * 100)) {
+                if ((int) (evenBetterFrequency * 100) != (int) (betterFrequency * 100)) {
                     // value did not change, so we're done.
-                    break;
+                    betterFrequency = evenBetterFrequency; // and go again.
                 }
-                betterFrequency = evenBetterFrequency; // and go again.
             }
-        }
+//        }
         if (betterFrequency == 0.0) {
             // we've failed... caller should try a full scan for pump
             aapsLogger.error(LTag.PUMPCOMM, "quickTuneForPump: failed to find pump");
@@ -376,7 +378,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     private double quickTunePumpStep(double startFrequencyMHz, double stepSizeMHz) {
         aapsLogger.info(LTag.PUMPCOMM, "Doing quick radio tune for receiver ({})", receiverDeviceID);
         wakeUp(false);
-        BaseResultActivity resultActivity = new BaseResultActivity();
+        BaseResultActivity resultActivity = new BaseStringAggregatorResultActivity(aapsLogger);
         int startRssi = tune_tryFrequency(startFrequencyMHz, resultActivity);
         double lowerFrequency = startFrequencyMHz - stepSizeMHz;
         int lowerRssi = tune_tryFrequency(lowerFrequency, resultActivity);

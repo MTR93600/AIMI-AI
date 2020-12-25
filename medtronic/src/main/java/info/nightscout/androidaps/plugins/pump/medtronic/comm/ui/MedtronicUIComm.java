@@ -46,7 +46,7 @@ public class MedtronicUIComm {
             aapsLogger.warn(LTag.PUMP, "Reply not received for " + commandType);
         }
 
-        task.postProcess(medtronicUIPostprocessor);
+//        task.postProcess(medtronicUIPostprocessor);
 
         return task;
 

@@ -82,8 +82,8 @@ public class MedLinkMedtronicHistoryData {
     private final MedtronicPumpHistoryDecoder medtronicPumpHistoryDecoder;
     private final DatabaseHelperInterface databaseHelper;
 
-    private List<PumpHistoryEntry> allHistory;
-    private List<PumpHistoryEntry> newHistory = null;
+    private List<PumpHistoryEntry> allHistory = new ArrayList<>();
+    private List<PumpHistoryEntry> newHistory = new ArrayList<>();
 
     private boolean isInit = false;
 
@@ -228,7 +228,7 @@ public class MedLinkMedtronicHistoryData {
             sort(this.newHistory);
         }
 
-        aapsLogger.debug(LTag.PUMP, "New History entries found: {}", this.newHistory.size());
+//        aapsLogger.debug(LTag.PUMP, "New History entries found: {}", this.newHistory.size());
 
         showLogs("List of history (after filtering): [" + this.newHistory.size() + "]", gson().toJson(this.newHistory));
 

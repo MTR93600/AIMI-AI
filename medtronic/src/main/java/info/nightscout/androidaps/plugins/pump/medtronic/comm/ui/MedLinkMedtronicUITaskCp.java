@@ -1,7 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.ui;
 
-import java.util.function.Function;
-
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
@@ -10,8 +8,7 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
@@ -25,7 +22,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUt
  * copied from {@link MedtronicUITask}
  */
 
-public class MedLinkMedtronicUITask {
+public class MedLinkMedtronicUITaskCp {
     //TODO build parsers here
 
     @Inject RxBusWrapper rxBus;
@@ -35,7 +32,7 @@ public class MedLinkMedtronicUITask {
 
     private final HasAndroidInjector injector;
 
-    public MedLinkMedtronicCommandType commandType;
+    public MedLinkCommandType commandType;
     public Object returnData;
     String errorDescription;
     // boolean invalid = false;
@@ -44,14 +41,14 @@ public class MedLinkMedtronicUITask {
     MedtronicUIResponseType responseType;
 
 
-    public MedLinkMedtronicUITask(HasAndroidInjector injector, MedLinkMedtronicCommandType commandType) {
+    public MedLinkMedtronicUITaskCp(HasAndroidInjector injector, MedLinkCommandType commandType) {
         this.injector = injector;
         this.injector.androidInjector().inject(this);
         this.commandType = commandType;
     }
 
 
-    public MedLinkMedtronicUITask(HasAndroidInjector injector, MedLinkMedtronicCommandType commandType, Object... parameters) {
+    public MedLinkMedtronicUITaskCp(HasAndroidInjector injector, MedLinkCommandType commandType, Object... parameters) {
         this.injector = injector;
         this.injector.androidInjector().inject(this);
         this.commandType = commandType;
@@ -59,42 +56,31 @@ public class MedLinkMedtronicUITask {
     }
 
 
-    public void execute(MedLinkMedtronicCommunicationManager communicationManager, MedLinkMedtronicUIPostprocessor medtronicUIPostprocessor) {
+    public void execute(MedLinkMedtronicCommunicationManager communicationManager) {
 
         aapsLogger.debug(LTag.PUMP, "MedtronicUITask: @@@ In execute. {}", commandType);
 
         switch (commandType) {
             case PumpModel: {
-                BaseResultActivity<String> activity = new ConnectionResultActivity(aapsLogger);
-                activity.addResult(s -> {
-                    if(s.toLowerCase().contains("eomeomeom")){
-                        rxBus.send(new EventMedtronicPumpValuesChanged());
-                    };
-                    return s;
-                });
-                returnData = communicationManager.getPumpModel(activity);
+//                returnData = communicationManager.getPumpModel();
             }
             break;
 //
-            case GetBasalProfileSTD: {
-                communicationManager.getBasalProfile(basalProfile -> {
-                    returnData = basalProfile;
-                    postProcess(medtronicUIPostprocessor);
-                    return basalProfile;
-                });
-            }
-            break;
+//            case GetBasalProfileSTD: {
+//                returnData = communicationManager.getBasalProfile();
+//            }
+//            break;
 //
 //            case GetRemainingInsulin: {
 //                returnData = communicationManager.getRemainingInsulin();
 //            }
 //            break;
 
-            case GetRealTimeClock: {
-                returnData = communicationManager.getPumpTime();
-                medtronicUtil.setPumpTime(null);
-            }
-            break;
+//            case GetRealTimeClock: {
+//                returnData = communicationManager.getPumpTime();
+//                medtronicUtil.setPumpTime(null);
+//            }
+//            break;
 
 //            case SetRealTimeClock: {
 //                returnData = communicationManager.setPumpTime();
@@ -120,13 +106,13 @@ public class MedLinkMedtronicUITask {
 //            break;
 
 
-            case Settings:
-            case Settings_512: {
-                returnData = communicationManager.getPumpSettings();
-            }
-            break;
+//            case Settings:
+//            case Settings_512: {
+//                returnData = communicationManager.getPumpSettings();
+//            }
+//            break;
 
-            case SetBolus: {
+            case Bolus: {
                 Double amount = getDoubleFromParameters(0);
 
                 if (amount != null)
@@ -210,7 +196,7 @@ public class MedLinkMedtronicUITask {
         aapsLogger.debug(LTag.PUMP, "MedtronicUITask: @@@ In execute. {}", commandType);
 
         if (responseType == MedtronicUIResponseType.Data) {
-            postprocessor.postProcessData(this);
+//            postprocessor.postProcessData(this);
         }
 
         if (responseType == MedtronicUIResponseType.Invalid) {

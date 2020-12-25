@@ -74,31 +74,32 @@ public class MedLinkMedtronicUIPostprocessor {
 //            }
 //            break;
 
-//            case GetBasalProfileSTD: {
-//                BasalProfile basalProfile = (BasalProfile) uiTask.returnData;
-//
-//                try {
-//                    Double[] profilesByHour = basalProfile.getProfilesByHour(medtronicPumpPlugin.getPumpDescription().pumpType);
-//
-//                    if (profilesByHour != null) {
-//                        medtronicPumpStatus.basalsByHour = profilesByHour;
-//                        medtronicPumpStatus.basalProfileStatus = BasalProfileStatus.ProfileOK;
-//                    } else {
-//                        uiTask.responseType = MedtronicUIResponseType.Error;
-//                        uiTask.errorDescription = "No profile found.";
-//                        aapsLogger.error("Basal Profile was NOT valid. [{}]", basalProfile.basalProfileToStringError());
-//                    }
-//                } catch (Exception ex) {
-//                    aapsLogger.error("Basal Profile was returned, but was invalid. [{}]", basalProfile.basalProfileToStringError());
-//                    uiTask.responseType = MedtronicUIResponseType.Error;
-//                    uiTask.errorDescription = "No profile found.";
-//                }
-//            }
-//            break;
+            case GetBasalProfileSTD: {
+                BasalProfile basalProfile = (BasalProfile) uiTask.returnData;
+
+                try {
+                    Double[] profilesByHour = basalProfile.getProfilesByHour(medtronicPumpPlugin.getPumpDescription().pumpType);
+
+                    if (profilesByHour != null) {
+                        medtronicPumpStatus.basalsByHour = profilesByHour;
+                        medtronicPumpStatus.basalProfileStatus = BasalProfileStatus.ProfileOK;
+                    } else {
+                        uiTask.responseType = MedtronicUIResponseType.Error;
+                        uiTask.errorDescription = "No profile found.";
+                        aapsLogger.error("Basal Profile was NOT valid. [{}]", basalProfile.basalProfileToStringError());
+                    }
+                } catch (Exception ex) {
+                    aapsLogger.error("Basal Profile was returned, but was invalid. [{}]", basalProfile.basalProfileToStringError());
+                    uiTask.responseType = MedtronicUIResponseType.Error;
+                    uiTask.errorDescription = "No profile found.";
+                }
+            }
+            break;
 
             case SetBolus: {
                 medtronicPumpStatus.lastBolusAmount = uiTask.getDoubleFromParameters(0);
                 medtronicPumpStatus.lastBolusTime = new Date();
+
             }
             break;
 

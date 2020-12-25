@@ -80,6 +80,7 @@ public class InitializePumpManagerTask extends NotifiableTask {
 //                medLinkCommunicationManager.setRadioFrequencyForPump(lastGoodFrequency);
 
 //                boolean foundThePump =
+//            medLinkCommunicationManager.getPumpStatus().lastConnection;
                   medLinkCommunicationManager.tryToConnectToDevice();
 
 //                if (foundThePump) {
@@ -102,7 +103,7 @@ public class InitializePumpManagerTask extends NotifiableTask {
 //                medLinkServiceData.lastGoodFrequency = lastGoodFrequency;
 //            }
 
-            medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkReady);
+//            medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkReady);
 //            medLinkServiceData.rileyLinkTargetFrequency = RileyLinkTargetFrequency.Omnipod; // TODO shouldn't be needed
 
 //            aapsLogger.info(LTag.PUMPBTCOMM, "Setting radio frequency to {} MHz", lastGoodFrequency);

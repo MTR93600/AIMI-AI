@@ -22,12 +22,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public enum MedLinkCommandType {
 
     NoCommand(""),
+    PumpModel("OK+CONN\r\n"),
     Connect("OK+CONN\r\n"),
-
     GetState("S\r\n"), //
     StopStartPump("a\r\n"),
     Bolus("X\r\n"),
-    BolusAmount("bolus "),
+    BolusAmount("BOLUS "),
+    StartPump("START"),
+    StopPump("STOP"),
     IsigHistory("I"),
     BGHistory("C"),
     BolusHistory("H"),
@@ -50,8 +52,12 @@ public enum MedLinkCommandType {
     ;
 
     public final String code;
-    public Double insulinAmount;
+    public Double insulinAmount = 0d;
+    public Integer resourceId = null;
 
+    public String getCommandDescription() {
+        return this.name();
+    }
 //    MedLinkCommandType(MedLinkCommandType command, Double insulinAmount) {
 //        this.code = command.code;
 //        this.insulinAmount = insulinAmount;
@@ -64,7 +70,7 @@ public enum MedLinkCommandType {
 
     public byte[] getRaw() {
         if (this.insulinAmount > 0) {
-            return this.code.getBytes(UTF_8);
+            return (this.code+this.insulinAmount.toString()).getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {
             return this.code.getBytes(UTF_8);
         } else {
