@@ -1,5 +1,7 @@
 package info.nightscout.androidaps.plugins.aps.openAPSAMA;
 
+import androidx.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import info.nightscout.androidaps.plugins.general.openhumans.OpenHumansUploader;
@@ -40,7 +41,7 @@ import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 public class DetermineBasalAdapterAMAJS {
-    private HasAndroidInjector injector;
+    private final HasAndroidInjector injector;
     @Inject AAPSLogger aapsLogger;
     @Inject ConstraintChecker constraintChecker;
     @Inject SP sp;
@@ -48,7 +49,7 @@ public class DetermineBasalAdapterAMAJS {
     @Inject TreatmentsPlugin treatmentsPlugin;
     @Inject OpenHumansUploader openHumansUploader;
 
-    private ScriptReader mScriptReader;
+    private final ScriptReader mScriptReader;
 
     private JSONObject mProfile;
     private JSONObject mGlucoseStatus;
@@ -128,7 +129,7 @@ public class DetermineBasalAdapterAMAJS {
                         setTempBasalFunctionsObj};
 
                 NativeObject jsResult = (NativeObject) determineBasalJS.call(rhino, scope, scope, params);
-                scriptDebug = LoggerCallback.getScriptDebug();
+                scriptDebug = LoggerCallback.Companion.getScriptDebug();
 
                 // Parse the jsResult object to a JSON-String
                 String result = NativeJSON.stringify(rhino, scope, jsResult, null, null).toString();

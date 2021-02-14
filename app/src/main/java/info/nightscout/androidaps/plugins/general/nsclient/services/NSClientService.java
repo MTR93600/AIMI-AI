@@ -68,9 +68,9 @@ import info.nightscout.androidaps.utils.JsonHelper;
 import info.nightscout.androidaps.utils.T;
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.androidaps.utils.rx.AapsSchedulers;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -78,6 +78,7 @@ import io.socket.emitter.Emitter;
 public class NSClientService extends DaggerService {
     @Inject HasAndroidInjector injector;
     @Inject AAPSLogger aapsLogger;
+    @Inject AapsSchedulers aapsSchedulers;
     @Inject NSSettingsStatus nsSettingsStatus;
     @Inject NSDeviceStatus nsDeviceStatus;
     @Inject DatabaseHelperInterface databaseHelper;
@@ -91,10 +92,10 @@ public class NSClientService extends DaggerService {
     @Inject DateUtil dateUtil;
     @Inject UploadQueue uploadQueue;
 
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     static public PowerManager.WakeLock mWakeLock;
-    private IBinder mBinder = new NSClientService.LocalBinder();
+    private final IBinder mBinder = new NSClientService.LocalBinder();
 
     static ProfileStore profileStore;
 
@@ -123,9 +124,9 @@ public class NSClientService extends DaggerService {
     private String nsAPIhashCode = "";
 
     private final ArrayList<Long> reconnections = new ArrayList<>();
-    private int WATCHDOG_INTERVAL_MINUTES = 2;
-    private int WATCHDOG_RECONNECT_IN = 15;
-    private int WATCHDOG_MAXCONNECTIONS = 5;
+    private final int WATCHDOG_INTERVAL_MINUTES = 2;
+    private final int WATCHDOG_RECONNECT_IN = 15;
+    private final int WATCHDOG_MAXCONNECTIONS = 5;
 
     public NSClientService() {
         super();
@@ -147,7 +148,7 @@ public class NSClientService extends DaggerService {
 
         disposable.add(rxBus
                 .toObservable(EventConfigBuilderChange.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     if (nsEnabled != nsClientPlugin.isEnabled(PluginType.GENERAL)) {
                         latestDateInReceivedData = 0;
@@ -158,7 +159,7 @@ public class NSClientService extends DaggerService {
         );
         disposable.add(rxBus
                 .toObservable(EventPreferenceChange.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     if (event.isChanged(resourceHelper, R.string.key_nsclientinternal_url) ||
                             event.isChanged(resourceHelper, R.string.key_nsclientinternal_api_secret) ||
@@ -172,7 +173,7 @@ public class NSClientService extends DaggerService {
         );
         disposable.add(rxBus
                 .toObservable(EventAppExit.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     aapsLogger.debug(LTag.NSCLIENT, "EventAppExit received");
                     destroy();
@@ -181,7 +182,7 @@ public class NSClientService extends DaggerService {
         );
         disposable.add(rxBus
                 .toObservable(EventNSClientRestart.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     latestDateInReceivedData = 0;
                     restart();
@@ -189,17 +190,17 @@ public class NSClientService extends DaggerService {
         );
         disposable.add(rxBus
                 .toObservable(NSAuthAck.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(this::processAuthAck, fabricPrivacy::logException)
         );
         disposable.add(rxBus
                 .toObservable(NSUpdateAck.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(this::processUpdateAck, fabricPrivacy::logException)
         );
         disposable.add(rxBus
                 .toObservable(NSAddAck.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(this::processAddAck, fabricPrivacy::logException)
         );
     }
@@ -322,7 +323,7 @@ public class NSClientService extends DaggerService {
         }
     }
 
-    private Emitter.Listener onConnect = new Emitter.Listener() {
+    private final Emitter.Listener onConnect = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             connectCounter++;
@@ -360,7 +361,7 @@ public class NSClientService extends DaggerService {
         }
     }
 
-    private Emitter.Listener onDisconnect = new Emitter.Listener() {
+    private final Emitter.Listener onDisconnect = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             aapsLogger.debug(LTag.NSCLIENT, "disconnect reason: {}", args);
@@ -412,7 +413,7 @@ public class NSClientService extends DaggerService {
         nsDevice = sp.getString("careportal_enteredby", "");
     }
 
-    private Emitter.Listener onError = new Emitter.Listener() {
+    private final Emitter.Listener onError = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             String msg = "Unknown Error";
@@ -423,7 +424,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onPing = new Emitter.Listener() {
+    private final Emitter.Listener onPing = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             rxBus.send(new EventNSClientNewLog("PING", "received"));
@@ -432,7 +433,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onAnnouncement = new Emitter.Listener() {
+    private final Emitter.Listener onAnnouncement = new Emitter.Listener() {
         /*
         {
         "level":0,
@@ -456,7 +457,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onAlarm = new Emitter.Listener() {
+    private final Emitter.Listener onAlarm = new Emitter.Listener() {
         /*
         {
         "level":1,
@@ -482,7 +483,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onUrgentAlarm = args -> {
+    private final Emitter.Listener onUrgentAlarm = args -> {
         JSONObject data;
         try {
             data = (JSONObject) args[0];
@@ -492,7 +493,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onClearAlarm = new Emitter.Listener() {
+    private final Emitter.Listener onClearAlarm = new Emitter.Listener() {
         /*
         {
         "clear":true,
@@ -516,7 +517,7 @@ public class NSClientService extends DaggerService {
         }
     };
 
-    private Emitter.Listener onDataUpdate = new Emitter.Listener() {
+    private final Emitter.Listener onDataUpdate = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             NSClientService.handler.post(() -> {

@@ -18,20 +18,20 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.PluginBase;
 import info.nightscout.androidaps.interfaces.PluginDescription;
 import info.nightscout.androidaps.interfaces.PluginType;
+import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.aps.loop.APSResult;
-import info.nightscout.androidaps.plugins.aps.loop.ScriptReader;
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui;
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateResultGui;
+import info.nightscout.androidaps.plugins.aps.loop.APSResult;
+import info.nightscout.androidaps.plugins.aps.loop.ScriptReader;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker;
-import info.nightscout.androidaps.interfaces.ProfileFunction;
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.data.AutosensData;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.AutosensResult;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.data.AutosensData;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
@@ -80,6 +80,7 @@ public class OpenAPSAMAPlugin extends PluginBase implements APSInterface {
         super(new PluginDescription()
                         .mainType(PluginType.APS)
                         .fragmentClass(OpenAPSAMAFragment.class.getName())
+                        .pluginIcon(R.drawable.ic_generic_icon)
                         .pluginName(R.string.openapsama)
                         .shortName(R.string.oaps_shortname)
                         .preferencesId(R.xml.pref_openapsama)
@@ -189,9 +190,9 @@ public class OpenAPSAMAPlugin extends PluginBase implements APSInterface {
         }
 
 
-        if (!hardLimits.checkOnlyHardLimits(profile.getDia(), "dia", hardLimits.getMINDIA(), hardLimits.getMAXDIA()))
+        if (!hardLimits.checkOnlyHardLimits(profile.getDia(), "dia", hardLimits.minDia(), hardLimits.maxDia()))
             return;
-        if (!hardLimits.checkOnlyHardLimits(profile.getIcTimeFromMidnight(Profile.secondsFromMidnight()), "carbratio", hardLimits.getMINIC(), hardLimits.getMAXIC()))
+        if (!hardLimits.checkOnlyHardLimits(profile.getIcTimeFromMidnight(Profile.secondsFromMidnight()), "carbratio", hardLimits.minIC(), hardLimits.maxIC()))
             return;
         if (!hardLimits.checkOnlyHardLimits(profile.getIsfMgdl(), "sens", hardLimits.getMINISF(), hardLimits.getMAXISF()))
             return;
@@ -237,15 +238,15 @@ public class OpenAPSAMAPlugin extends PluginBase implements APSInterface {
             lastAPSResult = null;
             lastAPSRun = 0;
         } else {
-            if (determineBasalResultAMA.rate == 0d && determineBasalResultAMA.duration == 0 && !treatmentsPlugin.isTempBasalInProgress())
-                determineBasalResultAMA.tempBasalRequested = false;
+            if (determineBasalResultAMA.getRate() == 0d && determineBasalResultAMA.getDuration() == 0 && !treatmentsPlugin.isTempBasalInProgress())
+                determineBasalResultAMA.setTempBasalRequested(false);
 
-            determineBasalResultAMA.iob = iobArray[0];
+            determineBasalResultAMA.setIob(iobArray[0]);
 
             long now = System.currentTimeMillis();
 
             try {
-                determineBasalResultAMA.json.put("timestamp", DateUtil.toISOString(now));
+                determineBasalResultAMA.getJson().put("timestamp", DateUtil.toISOString(now));
             } catch (JSONException e) {
                 aapsLogger.error(LTag.APS, "Unhandled exception", e);
             }

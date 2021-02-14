@@ -35,7 +35,7 @@ import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import info.nightscout.androidaps.utils.rx.AapsSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class LocalInsightFragment extends DaggerFragment implements View.OnClickListener {
@@ -45,8 +45,9 @@ public class LocalInsightFragment extends DaggerFragment implements View.OnClick
     @Inject ResourceHelper resourceHelper;
     @Inject FabricPrivacy fabricPrivacy;
     @Inject DateUtil dateUtil;
+    @Inject AapsSchedulers aapsSchedulers;
 
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     private static final boolean ENABLE_OPERATING_MODE_BUTTON = false;
 
@@ -80,7 +81,7 @@ public class LocalInsightFragment extends DaggerFragment implements View.OnClick
         super.onResume();
         disposable.add(rxBus
                 .toObservable(EventLocalInsightUpdateGUI.class)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(aapsSchedulers.getMain())
                 .subscribe(event -> updateGUI(), fabricPrivacy::logException)
         );
         updateGUI();

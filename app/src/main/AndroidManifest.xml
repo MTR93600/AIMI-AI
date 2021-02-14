@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="info.nightscout.androidaps">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -77,6 +78,10 @@
         <activity android:name=".activities.ProfileHelperActivity"
             android:theme="@style/ProfileHelperAppTheme" />
         <activity android:name=".activities.StatsActivity" />
+        <activity
+            android:name="com.google.firebase.auth.internal.FederatedSignInActivity"
+            tools:replace="android:launchMode"
+            android:launchMode="standard" />
 
         <!-- Receive new BG readings from other local apps -->
         <receiver
@@ -136,10 +141,6 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
-        <!-- Service processing incomming data -->
-        <service
-            android:name=".services.DataService"
-            android:exported="false" />
         <service
             android:name=".services.LocationService"
             android:exported="false" />

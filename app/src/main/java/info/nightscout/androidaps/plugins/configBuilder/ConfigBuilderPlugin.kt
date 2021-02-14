@@ -9,9 +9,10 @@ import info.nightscout.androidaps.events.EventRebuildTabs
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.logging.LTag
+import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.configBuilder.events.EventConfigBuilderUpdateGui
-import info.nightscout.androidaps.utils.alertDialogs.OKDialog.showConfirmation
+import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
 import java.util.*
@@ -25,13 +26,15 @@ class ConfigBuilderPlugin @Inject constructor(
     resourceHelper: ResourceHelper,
     private val sp: SP,
     private val rxBus: RxBusWrapper,
-    private val activePlugin: ActivePluginProvider
+    private val activePlugin: ActivePluginProvider,
+    private val uel: UserEntryLogger
 ) : PluginBase(PluginDescription()
     .mainType(PluginType.GENERAL)
     .fragmentClass(ConfigBuilderFragment::class.java.name)
     .showInList(true)
     .alwaysEnabled(true)
     .alwaysVisible(false)
+    .pluginIcon(R.drawable.ic_cogs)
     .pluginName(R.string.configbuilder)
     .shortName(R.string.configbuilder_shortname)
     .description(R.string.description_config_builder),
@@ -46,17 +49,17 @@ class ConfigBuilderPlugin @Inject constructor(
     }
 
     private fun setAlwaysEnabledPluginsEnabled() {
-        for (plugin in activePlugin.pluginsList) {
+        for (plugin in activePlugin.getPluginsList()) {
             if (plugin.pluginDescription.alwaysEnabled) plugin.setPluginEnabled(plugin.getType(), true)
         }
         storeSettings("setAlwaysEnabledPluginsEnabled")
     }
 
     override fun storeSettings(from: String) {
-        activePlugin.pluginsList
+        activePlugin.getPluginsList()
         aapsLogger.debug(LTag.CONFIGBUILDER, "Storing settings from: $from")
         activePlugin.verifySelectionInCategories()
-        for (p in activePlugin.pluginsList) {
+        for (p in activePlugin.getPluginsList()) {
             val type = p.getType()
             if (p.pluginDescription.alwaysEnabled && p.pluginDescription.alwaysVisible) continue
             if (p.pluginDescription.alwaysEnabled && p.pluginDescription.neverVisible) continue
@@ -82,7 +85,7 @@ class ConfigBuilderPlugin @Inject constructor(
 
     private fun loadSettings() {
         aapsLogger.debug(LTag.CONFIGBUILDER, "Loading stored settings")
-        for (p in activePlugin.pluginsList) {
+        for (p in activePlugin.getPluginsList()) {
             val type = p.getType()
             loadPref(p, type, true)
             if (p.getType() == PluginType.PUMP) {
@@ -110,7 +113,7 @@ class ConfigBuilderPlugin @Inject constructor(
     }
 
     fun logPluginStatus() {
-        for (p in activePlugin.pluginsList) {
+        for (p in activePlugin.getPluginsList()) {
             aapsLogger.debug(LTag.CONFIGBUILDER, p.name + ":" +
                 (if (p.isEnabled(PluginType.GENERAL)) " GENERAL" else "") +
                 (if (p.isEnabled(PluginType.TREATMENT)) " TREATMENT" else "") +
@@ -136,9 +139,10 @@ class ConfigBuilderPlugin @Inject constructor(
         if (allowHardwarePump || activity == null) {
             performPluginSwitch(changedPlugin, newState, type)
         } else {
-            showConfirmation(activity, resourceHelper.gs(R.string.allow_hardware_pump_text), Runnable {
+            OKDialog.showConfirmation(activity, resourceHelper.gs(R.string.allow_hardware_pump_text), Runnable {
                 performPluginSwitch(changedPlugin, newState, type)
                 sp.putBoolean("allow_hardware_pump", true)
+                uel.log("HW PUMP ALLOWED")
                 aapsLogger.debug(LTag.PUMP, "First time HW pump allowed!")
             }, Runnable {
                 rxBus.send(EventConfigBuilderUpdateGui())
@@ -147,7 +151,7 @@ class ConfigBuilderPlugin @Inject constructor(
         }
     }
 
-    fun performPluginSwitch(changedPlugin: PluginBase, enabled: Boolean, type: PluginType) {
+    override fun performPluginSwitch(changedPlugin: PluginBase, enabled: Boolean, type: PluginType) {
         changedPlugin.setPluginEnabled(type, enabled)
         changedPlugin.setFragmentVisible(type, enabled)
         processOnEnabledCategoryChanged(changedPlugin, type)

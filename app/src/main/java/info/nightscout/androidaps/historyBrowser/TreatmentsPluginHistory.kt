@@ -7,11 +7,13 @@ import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.nsclient.NSUpload
+import info.nightscout.androidaps.plugins.general.nsclient.UploadQueue
 import info.nightscout.androidaps.plugins.treatments.TreatmentService
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.androidaps.utils.sharedPreferences.SP
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +22,7 @@ import javax.inject.Singleton
 class TreatmentsPluginHistory @Inject constructor(
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
+    aapsSchedulers: AapsSchedulers,
     rxBus: RxBusWrapper,
     resourceHelper: ResourceHelper,
     context: Context,
@@ -27,8 +30,10 @@ class TreatmentsPluginHistory @Inject constructor(
     profileFunction: ProfileFunction,
     activePlugin: ActivePluginProvider,
     nsUpload: NSUpload,
-    fabricPrivacy: FabricPrivacy, dateUtil: DateUtil
-) : TreatmentsPlugin(injector, aapsLogger, rxBus, resourceHelper, context, sp, profileFunction, activePlugin, nsUpload, fabricPrivacy, dateUtil) {
+    fabricPrivacy: FabricPrivacy,
+    dateUtil: DateUtil,
+    uploadQueue: UploadQueue
+) : TreatmentsPlugin(injector, aapsLogger, rxBus, aapsSchedulers, resourceHelper, context, sp, profileFunction, activePlugin, nsUpload, fabricPrivacy, dateUtil, uploadQueue) {
 
     init {
         onStart()

@@ -47,9 +47,9 @@ import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.androidaps.utils.rx.AapsSchedulers;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by mike on 28.01.2018.
@@ -66,8 +66,9 @@ public abstract class AbstractDanaRExecutionService extends DaggerService {
     @Inject FabricPrivacy fabricPrivacy;
     @Inject DateUtil dateUtil;
     @Inject DatabaseHelperInterface databaseHelper;
+    @Inject AapsSchedulers aapsSchedulers;
 
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     protected String mDevName;
 
@@ -114,7 +115,7 @@ public abstract class AbstractDanaRExecutionService extends DaggerService {
         super.onCreate();
         disposable.add(rxBus
                 .toObservable(EventBTChange.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     if (event.getState() == EventBTChange.Change.DISCONNECT) {
                         aapsLogger.debug(LTag.PUMP, "Device was disconnected " + event.getDeviceName());//Device was disconnected
@@ -129,7 +130,7 @@ public abstract class AbstractDanaRExecutionService extends DaggerService {
         );
         disposable.add(rxBus
                 .toObservable(EventAppExit.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     aapsLogger.debug(LTag.PUMP, "EventAppExit received");
                     if (mSerialIOThread != null)
@@ -184,7 +185,7 @@ public abstract class AbstractDanaRExecutionService extends DaggerService {
     }
 
     protected void getBTSocketForSelectedPump() {
-        mDevName = sp.getString(resourceHelper.gs(R.string.key_danar_bt_name), "");
+        mDevName = sp.getString(R.string.key_danar_bt_name, "");
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (bluetoothAdapter != null) {

@@ -36,8 +36,8 @@ import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.utils.FabricPrivacy;
+import info.nightscout.androidaps.utils.rx.AapsSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by mike on 24.09.2017.
@@ -47,8 +47,9 @@ public class FoodService extends OrmLiteBaseService<DatabaseHelper> {
     @Inject AAPSLogger aapsLogger;
     @Inject RxBusWrapper rxBus;
     @Inject FabricPrivacy fabricPrivacy;
+    @Inject AapsSchedulers aapsSchedulers;
 
-    private CompositeDisposable disposable = new CompositeDisposable();
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     private static final ScheduledExecutorService foodEventWorker = Executors.newSingleThreadScheduledExecutor();
     private static ScheduledFuture<?> scheduledFoodEventPost = null;
@@ -59,7 +60,7 @@ public class FoodService extends OrmLiteBaseService<DatabaseHelper> {
         dbInitialize();
         disposable.add(rxBus
                 .toObservable(EventNsFood.class)
-                .observeOn(Schedulers.io())
+                .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
                     int mode = event.getMode();
                     JSONArray array = event.getFoods();

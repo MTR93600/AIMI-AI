@@ -42,18 +42,16 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 @Singleton
 public class DateUtil {
     private final Context context;
-    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DateUtil(Context context, ResourceHelper resourceHelper) {
+    public DateUtil(Context context) {
         this.context = context;
-        this.resourceHelper = resourceHelper;
     }
 
     /**
      * The date format in iso.
      */
-    private static String FORMAT_DATE_ISO_OUT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String FORMAT_DATE_ISO_OUT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     /**
      * Takes in an ISO date string of the following format:
@@ -193,10 +191,6 @@ public class DateUtil {
         return new DateTime(mills).toString(DateTimeFormat.forPattern(format));
     }
 
-    public static String timeFullString(long mills) {
-        return new DateTime(mills).toString(DateTimeFormat.fullTime());
-    }
-
     public String dateAndTimeString(Date date) {
         return dateString(date) + " " + timeString(date);
     }
@@ -222,7 +216,7 @@ public class DateUtil {
 
     public static String minAgoShort(long time) {
         int mins = (int) ((time - now()) / 1000 / 60);
-        return (mins > 0 ? "+" : "") + Integer.toString(mins);
+        return (mins > 0 ? "+" : "") + mins;
     }
 
     public static String hourAgo(long time, ResourceHelper resourceHelper) {
@@ -230,7 +224,7 @@ public class DateUtil {
         return resourceHelper.gs(R.string.hoursago, hours);
     }
 
-    private static LongSparseArray<String> timeStrings = new LongSparseArray<>();
+    private static final LongSparseArray<String> timeStrings = new LongSparseArray<>();
 
     public String timeStringFromSeconds(int seconds) {
         String cached = timeStrings.get(seconds);
@@ -277,10 +271,6 @@ public class DateUtil {
     public static boolean isOlderThan(long date, long minutes) {
         long diff = now() - date;
         return diff > T.mins(minutes).msecs();
-    }
-
-    public static GregorianCalendar gregorianCalendar() {
-        return new GregorianCalendar();
     }
 
     public static long getTimeZoneOffsetMs() {

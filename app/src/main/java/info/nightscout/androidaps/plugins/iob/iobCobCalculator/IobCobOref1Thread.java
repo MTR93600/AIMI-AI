@@ -18,15 +18,14 @@ import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.R;
 import info.nightscout.androidaps.data.IobTotal;
 import info.nightscout.androidaps.data.Profile;
-import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.TempTarget;
+import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.events.Event;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
+import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.SMBDefaults;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
-import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.data.AutosensData;
@@ -35,7 +34,6 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutos
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress;
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityAAPSPlugin;
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityWeightedAveragePlugin;
-import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.DecimalFormatter;
@@ -73,10 +71,10 @@ public class IobCobOref1Thread extends Thread {
     private final HasAndroidInjector injector;
     private final IobCobCalculatorPlugin iobCobCalculatorPlugin; // cannot be injected : HistoryBrowser uses different instance
     private final TreatmentsPlugin treatmentsPlugin;             // cannot be injected : HistoryBrowser uses different instance
-    private boolean bgDataReload;
-    private boolean limitDataToOldestAvailable;
-    private String from;
-    private long end;
+    private final boolean bgDataReload;
+    private final boolean limitDataToOldestAvailable;
+    private final String from;
+    private final long end;
 
     private PowerManager.WakeLock mWakeLock;
 
@@ -300,10 +298,7 @@ public class IobCobOref1Thread extends Thread {
 
                     // If mealCOB is zero but all deviations since hitting COB=0 are positive, exclude from autosens
                     if (autosensData.cob > 0 || autosensData.absorbing || autosensData.mealCarbs > 0) {
-                        if (deviation > 0)
-                            autosensData.absorbing = true;
-                        else
-                            autosensData.absorbing = false;
+                        autosensData.absorbing = deviation > 0;
                         // stop excluding positive deviations as soon as mealCOB=0 if meal has been absorbing for >5h
                         if (autosensData.mealStartCounter > 60 && autosensData.cob < 0.5) {
                             autosensData.absorbing = false;
@@ -329,10 +324,7 @@ public class IobCobOref1Thread extends Thread {
                         //if (iob.iob > currentBasal || uam ) {
                         if (iob.iob > 2 * currentBasal || autosensData.uam || autosensData.mealStartCounter < 9) {
                             autosensData.mealStartCounter++;
-                            if (deviation > 0)
-                                autosensData.uam = true;
-                            else
-                                autosensData.uam = false;
+                            autosensData.uam = deviation > 0;
                             if (!autosensData.type.equals("uam")) {
 //                                    process.stderr.write("u(");
                             }
