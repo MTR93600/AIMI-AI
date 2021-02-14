@@ -44,9 +44,11 @@ import info.nightscout.androidaps.Config;
 import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.data.GlucoseValueDataPoint;
 import info.nightscout.androidaps.data.IobTotal;
 import info.nightscout.androidaps.data.Profile;
-import info.nightscout.androidaps.db.BgReading;
+import info.nightscout.androidaps.database.AppRepository;
+import info.nightscout.androidaps.database.entities.GlucoseValue;
 import info.nightscout.androidaps.db.TemporaryBasal;
 import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
@@ -55,15 +57,18 @@ import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin;
+import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSDeviceStatus;
 import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.general.wear.WearPlugin;
+import info.nightscout.androidaps.plugins.general.wear.events.EventWearDoAction;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.receivers.ReceiverStatusStore;
 import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.DefaultValueHelper;
+import info.nightscout.androidaps.utils.GlucoseValueUtilsKt;
 import info.nightscout.androidaps.utils.SafeParse;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
@@ -75,6 +80,7 @@ public class TizenUpdaterService extends SAAgent {
     @Inject public WearPlugin wearPlugin;
     @Inject public ResourceHelper resourceHelper;
     @Inject public SP sp;
+    @Inject public RxBusWrapper rxBus;
     @Inject public ProfileFunction profileFunction;
     @Inject public DefaultValueHelper defaultValueHelper;
     @Inject public NSDeviceStatus nsDeviceStatus;
@@ -82,6 +88,7 @@ public class TizenUpdaterService extends SAAgent {
     @Inject public LoopPlugin loopPlugin;
     @Inject public IobCobCalculatorPlugin iobCobCalculatorPlugin;
     @Inject public TreatmentsPlugin treatmentsPlugin;
+    @Inject public AppRepository repository;
     @Inject public ActionStringHandler actionStringHandler;
     @Inject ReceiverStatusStore receiverStatusStore;
     @Inject Config config;
@@ -258,12 +265,12 @@ public class TizenUpdaterService extends SAAgent {
                 if (channelId==TIZEN_INITIATE_ACTIONSTRING_CH) {
                     String actionstring = new String(data);
                     aapsLogger.debug(LTag.TIZEN, "Tizen: " + actionstring);
-                    actionStringHandler.handleInitiate(actionstring);
+                    rxBus.send(new EventWearDoAction(actionstring));
                 }
                 if (channelId==TIZEN_CONFIRM_ACTIONSTRING_CH) {
                     String actionstring = new String(data);
                     aapsLogger.debug(LTag.TIZEN, "Tizen Confirm: " + actionstring);
-                    actionStringHandler.handleConfirmation(actionstring);
+                    rxBus.send(new EventWearDoAction(actionstring));
                 }
             } else { // todo: check if it a findpeers here
                 findPeers();
@@ -404,7 +411,7 @@ public class TizenUpdaterService extends SAAgent {
 
     public void sendData() {
 
-        BgReading lastBG = iobCobCalculatorPlugin.lastBg();
+        GlucoseValue lastBG = iobCobCalculatorPlugin.lastBg();
         // Log.d(TAG, logPrefix + "LastBg=" + lastBG);
         if (lastBG != null) {
             GlucoseStatus glucoseStatus = new GlucoseStatus(injector).getGlucoseStatusData();
@@ -430,23 +437,23 @@ public class TizenUpdaterService extends SAAgent {
         }
     }
 
-    private JSONObject dataMapSingleBG(BgReading lastBG, GlucoseStatus glucoseStatus) {
+    private JSONObject dataMapSingleBG(GlucoseValue lastBG, GlucoseStatus glucoseStatus) {
         String units = profileFunction.getUnits();
 
         double lowLine = defaultValueHelper.determineLowLine();
         double highLine = defaultValueHelper.determineHighLine();
 
         long sgvLevel = 0L;
-        if (lastBG.value > highLine) {
+        if (lastBG.getValue() > highLine) {
             sgvLevel = 1;
-        } else if (lastBG.value < lowLine) {
+        } else if (lastBG.getValue() < lowLine) {
             sgvLevel = -1;
         }
         try {
             JSONObject dataMap = new JSONObject();
-            dataMap.put("sgvString", lastBG.valueToUnitsToString(units));
+            dataMap.put("sgvString", GlucoseValueUtilsKt.valueToUnitsString(lastBG, units));
             dataMap.put("glucoseUnits", units);
-            dataMap.put("timestamp", lastBG.date);
+            dataMap.put("timestamp", lastBG.getTimestamp());
             if (glucoseStatus == null) {
                 dataMap.put("slopeArrow", "");
                 dataMap.put("delta", "--");
@@ -457,7 +464,7 @@ public class TizenUpdaterService extends SAAgent {
                 dataMap.put("avgDelta", deltastring(glucoseStatus.avgdelta, glucoseStatus.avgdelta * Constants.MGDL_TO_MMOLL, units));
             }
             dataMap.put("sgvLevel", sgvLevel);
-            dataMap.put("sgvDouble", lastBG.value);
+            dataMap.put("sgvDouble", lastBG.getValue());
             dataMap.put("high", highLine);
             dataMap.put("low", lowLine);
             return dataMap;
@@ -512,11 +519,11 @@ public class TizenUpdaterService extends SAAgent {
 
     public void resendData() {
         long startTime = System.currentTimeMillis() - (long) (60000 * 60 * 5.5);
-        BgReading last_bg = iobCobCalculatorPlugin.lastBg();
+        GlucoseValue last_bg = iobCobCalculatorPlugin.lastBg();
 
         if (last_bg == null) return;
 
-        List<BgReading> graph_bgs = MainApp.getDbHelper().getBgreadingsDataFromTime(startTime, true);
+        List<GlucoseValue> graph_bgs = repository.compatGetBgReadingsDataFromTime(startTime, true).blockingGet();
         GlucoseStatus glucoseStatus = new GlucoseStatus(injector).getGlucoseStatusData(true);
 
         if (!graph_bgs.isEmpty()) {
@@ -527,7 +534,7 @@ public class TizenUpdaterService extends SAAgent {
                     return;
                 }
                 final JSONArray dataMaps = new JSONArray();
-                for (BgReading bg : graph_bgs) {
+                for (GlucoseValue bg : graph_bgs) {
                     JSONObject dataMap = dataMapSingleBG(bg, glucoseStatus);
                     if (dataMap != null) {
                         dataMaps.put(dataMap);
@@ -675,13 +682,13 @@ public class TizenUpdaterService extends SAAgent {
             }
 
             final LoopPlugin.LastRun finalLastRun = loopPlugin.getLastRun();
-            if (sp.getBoolean("wear_predictions", true) && finalLastRun != null && finalLastRun.getRequest().hasPredictions && finalLastRun.getConstraintsProcessed() != null) {
-                List<BgReading> predArray = finalLastRun.getConstraintsProcessed().getPredictions();
+            if (sp.getBoolean("wear_predictions", true) && finalLastRun != null && finalLastRun.getRequest().getHasPredictions() && finalLastRun.getConstraintsProcessed() != null) {
+                List<GlucoseValueDataPoint> predArray = finalLastRun.getConstraintsProcessed().getPredictions();
 
                 if (!predArray.isEmpty()) {
-                    for (BgReading bg : predArray) {
-                        if (bg.value < 40) continue;
-                        predictions.put(predictionMap(bg.date, bg.value, bg.getPredectionColor()));
+                    for (GlucoseValueDataPoint bg : predArray) {
+                        if (bg.getData().getValue() < 40) continue;
+                        predictions.put(predictionMap(bg.getData().getTimestamp(), bg.getData().getValue(), bg.getPredictionColor()));
                     }
                 }
             }
