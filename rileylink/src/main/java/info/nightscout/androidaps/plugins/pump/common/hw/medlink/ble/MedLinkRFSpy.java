@@ -4,6 +4,8 @@ import android.os.SystemClock;
 
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -11,19 +13,14 @@ import javax.inject.Singleton;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.SendAndListen;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.RileyLinkCommand;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.SetPreamble;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.UpdateRegister;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RFSpyResponse;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.RadioPacket;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.CC111XRegister;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RXFilterMode;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkCommandType;
@@ -99,8 +96,13 @@ public class MedLinkRFSpy {
     // Here should go generic RL initialisation + protocol adjustments depending on
     // firmware version
     public void initializeRileyLink() {
-        bleVersion = getVersion();
-        medLinkServiceData.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x;
+        if(bleVersion==null) {
+            bleVersion = getVersion();
+        }
+        if(medLinkServiceData.firmwareVersion ==null) {
+            medLinkServiceData.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x;
+        }
+
         //getFirmwareVersion();
     }
 
@@ -173,10 +175,10 @@ public class MedLinkRFSpy {
 //    }
 
 
-    private byte[] writeToDataRaw(byte[] bytes, int responseTimeout_ms, BaseResultActivity resultActivity) {
+    private void writeToDataRaw(MedLinkPumpMessage msg, int responseTimeout_ms) {
         SystemClock.sleep(100);
         // FIXME drain read queue?
-        aapsLogger.debug("writeToDataRaw " + new String(bytes));
+        aapsLogger.debug("writeToDataRaw " + msg.getCommandType().code);
         byte[] junkInBuffer = reader.poll(0);
 
         while (junkInBuffer != null) {
@@ -190,51 +192,49 @@ public class MedLinkRFSpy {
 
 //        aapsLogger.debug(LTag.PUMPBTCOMM, "writeToData (raw={})", ByteUtil.shortHexString(prepended));
 
-        BLECommOperationResult writeCheck = medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID,
-                bytes, new byte[0], resultActivity);
-        if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
-            aapsLogger.error(LTag.PUMPBTCOMM, "BLE Write operation failed, code=" + writeCheck.resultCode);
-            return null; // will be a null (invalid) response
-        }
-        SystemClock.sleep(100);
+        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID,
+                msg);
+//        if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
+//            aapsLogger.error(LTag.PUMPBTCOMM, "BLE Write operation failed, code=" + writeCheck.resultCode);
+//            return null; // will be a null (invalid) response
+//        }
+//        SystemClock.sleep(100);
         // Log.i(TAG,ThreadUtil.sig()+String.format(" writeToData:(timeout %d) %s",(responseTimeout_ms),ByteUtil.shortHexString(prepended)));
-        byte[] rawResponse = reader.poll(responseTimeout_ms);
-        return rawResponse;
+//        byte[] rawResponse = reader.poll(responseTimeout_ms);
+//        return rawResponse;
 
     }
 
 
     // The caller has to know how long the RFSpy will be busy with what was sent to it.
-    private RFSpyResponse writeToData(RileyLinkCommand command, int responseTimeout_ms, Function<String, String> resultActivity) {
+    private <B> void writeToData(MedLinkPumpMessage<B> msg, int responseTimeout_ms) {
 
-        byte[] bytes = command.getRaw();
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> resultActivity = msg.getBaseCallBack();
 
-        byte[] rawResponse = writeToDataRaw(bytes, responseTimeout_ms, (BaseResultActivity) resultActivity);
-
-        RFSpyResponse resp = new RFSpyResponse(command, rawResponse);
-        if (rawResponse == null) {
-            aapsLogger.error(LTag.PUMPBTCOMM, "writeToData: No response from RileyLink");
-            notConnectedCount++;
-        } else {
-            if (resp.wasInterrupted()) {
-                aapsLogger.error(LTag.PUMPBTCOMM, "writeToData: RileyLink was interrupted");
-            } else if (resp.wasTimeout()) {
-                aapsLogger.error(LTag.PUMPBTCOMM, "writeToData: RileyLink reports timeout");
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> andThen = resultActivity.andThen(f -> {
+            Supplier<Stream<String>> answer = () -> f.getAnswer();
+            if (answer == null || answer.get().findFirst().isPresent()) {
+                aapsLogger.error(LTag.PUMPBTCOMM, "writeToData: No response from RileyLink");
                 notConnectedCount++;
-            } else if (resp.isOK()) {
-                aapsLogger.warn(LTag.PUMPBTCOMM, "writeToData: RileyLink reports OK");
-                resetNotConnectedCount();
             } else {
-                if (resp.looksLikeRadioPacket()) {
-                    // RadioResponse radioResp = resp.getRadioResponse();
-                    // byte[] responsePayload = radioResp.getPayload();
-                    aapsLogger.debug(LTag.PUMPBTCOMM, "writeToData: received radio response. Will decode at upper level");
+                String[] answers = answer.get().toArray(String[]::new);
+
+                if (!answers[answers.length-1].equals("eomeomeom") ||
+                        !answers[answers.length-1].equals("ready")) {
+                    aapsLogger.error(LTag.PUMPBTCOMM, "writeToData: RileyLink was interrupted");
+                } else {
+                    aapsLogger.warn(LTag.PUMPBTCOMM, "writeToData: RileyLink reports OK");
                     resetNotConnectedCount();
                 }
-                // Log.i(TAG, "writeToData: raw response is " + ByteUtil.shortHexString(rawResponse));
             }
-        }
-        return resp;
+            return f;
+        });
+        msg.setBaseCallBack(andThen);
+        writeToDataRaw(msg, responseTimeout_ms);
+
+//        RFSpyResponse resp = new RFSpyResponse(msg.getCommandData(), rawResponse);
+
+//        return resp;
     }
 
 
@@ -265,9 +265,9 @@ public class MedLinkRFSpy {
     }
 
 
-    public RFSpyResponse transmitThenReceive(RadioPacket pkt, byte sendChannel, byte repeatCount, byte delay_ms,
-                                             byte listenChannel, int timeout_ms, byte retryCount, Function<String, String> resultActivity) {
-        return transmitThenReceive(pkt, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms, retryCount, null, resultActivity);
+    public RFSpyResponse transmitThenReceive(MedLinkPumpMessage msg, byte sendChannel, byte repeatCount, byte delay_ms,
+                                             byte listenChannel, int timeout_ms, byte retryCount) {
+        return transmitThenReceive(msg, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms, retryCount);
     }
 
 //
@@ -277,35 +277,21 @@ public class MedLinkRFSpy {
 
 
     public void transmitThenReceive(MedLinkPumpMessage pumpMessage) {
-        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, pumpMessage.getCommandData(), pumpMessage.getArgumentData(), pumpMessage.getBaseResultActivity());
-
+        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, pumpMessage);
     }
-
-    public RFSpyResponse transmitThenReceive(RadioPacket pkt, byte sendChannel, byte repeatCount, byte delay_ms,
-                                             byte listenChannel, int timeout_ms, byte retryCount, Integer extendPreamble_ms, Function<String, String> resultActivity) {
-
-        int sendDelay = repeatCount * delay_ms;
-        int receiveDelay = timeout_ms * (retryCount + 1);
-
-        SendAndListen command = new SendAndListen(injector, sendChannel, repeatCount, delay_ms, listenChannel, timeout_ms,
-                retryCount, extendPreamble_ms, pkt);
-
-        return writeToData(command, sendDelay + receiveDelay + EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
-    }
-
 
     private RFSpyResponse updateRegister(CC111XRegister reg, int val) {
-        Function<String, String> resultActivity = null;
-        RFSpyResponse resp = writeToData(new UpdateRegister(reg, (byte) val), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
+//        BaseResultActivity resultActivity = null;
+        RFSpyResponse resp = null;
+//        writeToData(new UpdateRegister(reg, (byte) val), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
         return resp;
     }
 
-
     public void setBaseFrequency(double freqMHz) {
         int value = (int) (freqMHz * 1000000 / ((double) (RILEYLINK_FREQ_XTAL) / Math.pow(2.0, 16.0)));
-        updateRegister(CC111XRegister.freq0, (byte) (value & 0xff));
-        updateRegister(CC111XRegister.freq1, (byte) ((value >> 8) & 0xff));
-        updateRegister(CC111XRegister.freq2, (byte) ((value >> 16) & 0xff));
+//        updateRegister(CC111XRegister.freq0, (byte) (value & 0xff));
+//        updateRegister(CC111XRegister.freq1, (byte) ((value >> 8) & 0xff));
+//        updateRegister(CC111XRegister.freq2, (byte) ((value >> 16) & 0xff));
         aapsLogger.info(LTag.PUMPBTCOMM, "Set frequency to {} MHz", freqMHz);
 
         this.currentFrequencyMHz = freqMHz;
@@ -313,21 +299,18 @@ public class MedLinkRFSpy {
         configureRadioForRegion(medLinkServiceData.rileyLinkTargetFrequency);
     }
 
-
     private void configureRadioForRegion(RileyLinkTargetFrequency frequency) {
-
         // we update registers only on first run, or if region changed
         aapsLogger.error(LTag.PUMPBTCOMM, "RileyLinkTargetFrequency: " + frequency);
-
         switch (frequency) {
             case Medtronic_WorldWide: {
                 // updateRegister(CC111X_MDMCFG4, (byte) 0x59);
                 setRXFilterMode(RXFilterMode.Wide);
                 // updateRegister(CC111X_MDMCFG3, (byte) 0x66);
                 // updateRegister(CC111X_MDMCFG2, (byte) 0x33);
-                updateRegister(CC111XRegister.mdmcfg1, 0x62);
-                updateRegister(CC111XRegister.mdmcfg0, 0x1A);
-                updateRegister(CC111XRegister.deviatn, 0x13);
+//                updateRegister(CC111XRegister.mdmcfg1, 0x62);
+//                updateRegister(CC111XRegister.mdmcfg0, 0x1A);
+//                updateRegister(CC111XRegister.deviatn, 0x13);
                 setMedtronicEncoding();
             }
             break;
@@ -353,16 +336,13 @@ public class MedLinkRFSpy {
 
     private void setMedtronicEncoding() {
         MedLinkEncodingType encoding = MedLinkEncodingType.FourByteSixByteLocal;
-
 //        if (RileyLinkFirmwareVersion.isSameVersion(medLinkServiceData.firmwareVersion, RileyLinkFirmwareVersion.Version2AndHigher)) {
 //            if (sp.getString(RileyLinkConst.Prefs.Encoding, "None")
 //                    .equals(resourceHelper.gs(R.string.key_medtronic_pump_encoding_4b6b_rileylink))) {
 //                encoding = RileyLinkEncodingType.FourByteSixByteRileyLink;
 //            }
 //        }
-
         setRileyLinkEncoding(encoding);
-
         aapsLogger.debug(LTag.PUMPBTCOMM, "Set Encoding for Medtronic: " + encoding.name());
     }
 
@@ -370,14 +350,13 @@ public class MedLinkRFSpy {
     private RFSpyResponse setPreamble(int preamble) {
         RFSpyResponse resp = null;
         try {
-            Function<String, String> resultActivity= null;
-            resp = writeToData(new SetPreamble(injector, preamble), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
+            BaseCallback resultActivity= null;
+//            resp = writeToData(new SetPreamble(injector, preamble), EXPECTED_MAX_BLUETOOTH_LATENCY_MS, resultActivity);
         } catch (Exception e) {
             aapsLogger.error("Failed to set preamble", e);
         }
         return resp;
     }
-
 
     public RFSpyResponse setRileyLinkEncoding(MedLinkEncodingType encoding) {
         aapsLogger.debug("MedlinkRFSpy encoding call");
@@ -387,16 +366,13 @@ public class MedLinkRFSpy {
 //            reader.setMedLinkEncodingType(encoding);
 //            medLinkUtil.setEncoding(encoding);
 //        }
-
         return null;
     }
 
 
     private void setRXFilterMode(RXFilterMode mode) {
-
         byte drate_e = (byte) 0x9; // exponent of symbol rate (16kbps)
         byte chanbw = mode.value;
-
         updateRegister(CC111XRegister.mdmcfg4, (byte) (chanbw | drate_e));
     }
 

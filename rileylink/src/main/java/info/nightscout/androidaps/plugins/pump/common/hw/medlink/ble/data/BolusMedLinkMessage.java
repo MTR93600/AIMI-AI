@@ -1,20 +1,20 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 
 /**
  * Created by Dirceu on 21/12/20.
  */
-public class BolusMedLinkMessage extends MedLinkPumpMessage {
+public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     private static MedLinkCommandType bolusArgument = MedLinkCommandType.BolusAmount;
 
-    public BolusMedLinkMessage(AAPSLogger aapsLogger, double bolusAmount) {
-        super(aapsLogger, MedLinkCommandType.Bolus);
+    public BolusMedLinkMessage(double bolusAmount) {
+        super( MedLinkCommandType.Bolus);
         bolusArgument.insulinAmount = bolusAmount;
-        super.baseResultActivity = new BolusResultActivity(aapsLogger);
+        super.argument = bolusArgument;
+        super.baseCallBack = new BolusCallback();
 
     }
 }

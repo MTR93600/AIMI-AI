@@ -24,7 +24,7 @@ public enum PumpCapability {
     DanaWithHistoryCapabilities(Bolus, ExtendedBolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, StoreCarbInfo, TDD, ManualTDDLoad), //
     InsightCapabilities(Bolus, ExtendedBolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD, BasalRate30min), //
     MedtronicCapabilities(Bolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD), //
-    MedLinkMedtronicCapabilities(Bolus, TempBasal, Refill,ReplaceBattery,  TDD, BasalRate30min), //
+    MedLinkMedtronicCapabilities(Bolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD, BasalRate30min), //
     OmnipodCapabilities(Bolus, TempBasal, BasalProfileSet, BasalRate30min), //
 
     // BasalRates (separately grouped)

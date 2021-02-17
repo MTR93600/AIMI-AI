@@ -103,7 +103,7 @@ public enum MedLinkMedtronicCommandType implements Serializable // , MinimedComm
     // 512 Config
     PumpModel(141, "Pump Model", MedtronicDeviceType.Medtronic_512andHigher,
             MinimedCommandParameterType.NoParameters, //
-            5, R.string.medtronic_cmd_desc_get_model,MedLinkCommandType.NoCommand), // 0x8D
+            5, R.string.medtronic_cmd_desc_get_model,MedLinkCommandType.Connect), // 0x8D
 
     // BGTargets_512(140, "BG Targets", MinimedTargetType.PumpConfiguration, MedtronicDeviceType.Medtronic_512_712,
     // MinimedCommandParameterType.NoParameters), //
@@ -407,7 +407,7 @@ public enum MedLinkMedtronicCommandType implements Serializable // , MinimedComm
 
     //TODO check if is necessary to adapt to the new firmware pumps
     public static MedLinkMedtronicCommandType getSettings(MedLinkMedtronicDeviceType medtronicPumpModel) {
-        if (MedLinkMedtronicDeviceType.isSameDevice(medtronicPumpModel, MedLinkMedtronicDeviceType.Medtronic_512_712))
+        if (MedLinkMedtronicDeviceType.isSameDevice(medtronicPumpModel, MedLinkMedtronicDeviceType.MedLinkMedtronic_512_712))
             return MedLinkMedtronicCommandType.Settings_512;
         else
             return MedLinkMedtronicCommandType.Settings;

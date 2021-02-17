@@ -57,6 +57,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorP
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress
 import info.nightscout.androidaps.plugins.source.DexcomPlugin
+import info.nightscout.androidaps.plugins.source.MedLinkPlugin
 import info.nightscout.androidaps.plugins.source.XdripPlugin
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin
 import info.nightscout.androidaps.queue.CommandQueue
@@ -128,6 +129,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     @Inject lateinit var treatmentsPlugin: TreatmentsPlugin
     @Inject lateinit var iobCobCalculatorPlugin: IobCobCalculatorPlugin
     @Inject lateinit var dexcomPlugin: DexcomPlugin
+    @Inject lateinit var medlinkPlugin: MedLinkPlugin
     @Inject lateinit var xdripPlugin: XdripPlugin
     @Inject lateinit var notificationStore: NotificationStore
     @Inject lateinit var actionStringHandler: ActionStringHandler

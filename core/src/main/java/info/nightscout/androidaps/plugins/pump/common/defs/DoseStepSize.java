@@ -26,8 +26,8 @@ public enum DoseStepSize {
             new DoseStepSizeEntry(1f, 10f, 0.05f), //
             new DoseStepSizeEntry(10f, Double.MAX_VALUE, 0.1f)), //
 
-    MedlinkMedtronicVeoBasal( //
-            new DoseStepSizeEntry(0f, Double.MAX_VALUE, 0.1f) //
+    MedLinkMedtronicVeoBasal( //
+            new DoseStepSizeEntry(0f, Double.MAX_VALUE, 0.025f) //
     );
 
 

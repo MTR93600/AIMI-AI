@@ -33,7 +33,7 @@ public class MedLinkConst {
         public static final String BluetoothConnected = Prefix + "Bluetooth_Connected";
         public static final String BluetoothReconnected = Prefix + "Bluetooth_Reconnected";
         public static final String BluetoothDisconnected = Prefix + "Bluetooth_Disconnected";
-        public static final String RileyLinkDisconnected = Prefix + "RileyLink_Disconnected";
+        public static final String MedLinkDisconnected = Prefix + "MedLink_Disconnected";
 
         public static final String RileyLinkNewAddressSet = Prefix + "NewAddressSet";
 

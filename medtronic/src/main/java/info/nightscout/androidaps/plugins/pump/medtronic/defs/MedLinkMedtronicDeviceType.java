@@ -13,37 +13,42 @@ public enum MedLinkMedtronicDeviceType {
     Unknown_Device, //
 
     // Pump
-    Medtronic_511("511"), //
+    MedLinkMedtronic_511("511"), //
 
-    Medtronic_512("512"), //
-    Medtronic_712("712"), //
-    Medtronic_512_712(Medtronic_512, Medtronic_712), //
+    MedLinkMedtronic_512("512"), //
+    MedLinkMedtronic_712("712"), //
+    MedLinkMedtronic_512_712(MedLinkMedtronic_512, MedLinkMedtronic_712), //
 
-    Medtronic_515("515"), //
-    Medtronic_715("715"), //
-    Medtronic_515_715(Medtronic_515, Medtronic_715), //
+    MedLinkMedtronic_515("515"), //
+    MedLinkMedtronic_715("715"), //
+    MedLinkMedtronic_515_715(MedLinkMedtronic_515, MedLinkMedtronic_715), //
 
-    Medtronic_522("522"), //
-    Medtronic_722("722"), //
-    Medtronic_522_722(Medtronic_522, Medtronic_722), //
+    MedLinkMedtronic_522("522"), //
+    MedLinkMedtronic_722("722"), //
+    MedLinkMedtronic_522_722(MedLinkMedtronic_522, MedLinkMedtronic_722), //
 
-    Medtronic_523_Revel("523"), //
-    Medtronic_723_Revel("723"), //
+    MedLinkMedtronic_523_Revel("523"), //
+    MedLinkMedtronic_723_Revel("723"), //
 
-    Medtronic_554_Veo("554"), //
-    Medtronic_754_Veo("754"), //
+    MedLinkMedtronic_554_Veo("554"), //
+    MedLinkMedtronic_754_Veo("754"), //
 
-    Medtronic_512andHigher(Medtronic_512, Medtronic_712, Medtronic_515, Medtronic_715, Medtronic_522, Medtronic_722, //
-            Medtronic_523_Revel, Medtronic_723_Revel, Medtronic_554_Veo, Medtronic_754_Veo), //
+    MedLinkMedtronic_512andHigher(MedLinkMedtronic_512, MedLinkMedtronic_712, MedLinkMedtronic_515,
+            MedLinkMedtronic_715, MedLinkMedtronic_522, MedLinkMedtronic_722, //
+            MedLinkMedtronic_523_Revel, MedLinkMedtronic_723_Revel,
+            MedLinkMedtronic_554_Veo, MedLinkMedtronic_754_Veo), //
 
-    Medtronic_515andHigher(Medtronic_515, Medtronic_715, Medtronic_522, Medtronic_722, Medtronic_523_Revel, Medtronic_723_Revel, //
-            Medtronic_554_Veo, Medtronic_754_Veo), //
-    Medtronic_522andHigher(Medtronic_522, Medtronic_722, Medtronic_523_Revel, Medtronic_723_Revel, //
-            Medtronic_554_Veo, Medtronic_754_Veo), //
-    Medtronic_523andHigher(Medtronic_523_Revel, Medtronic_723_Revel, Medtronic_554_Veo, //
-            Medtronic_754_Veo), //
+    MedLinkMedtronic_515andHigher(MedLinkMedtronic_515, MedLinkMedtronic_715, MedLinkMedtronic_522,
+            MedLinkMedtronic_722, MedLinkMedtronic_523_Revel, MedLinkMedtronic_723_Revel, //
+            MedLinkMedtronic_554_Veo, MedLinkMedtronic_754_Veo), //
+    MedLinkMedtronic_522andHigher(MedLinkMedtronic_522, MedLinkMedtronic_722,
+            MedLinkMedtronic_523_Revel, MedLinkMedtronic_723_Revel, //
+            MedLinkMedtronic_554_Veo, MedLinkMedtronic_754_Veo), //
+    MedLinkMedtronic_523andHigher(MedLinkMedtronic_523_Revel, MedLinkMedtronic_723_Revel,
+            MedLinkMedtronic_554_Veo, //
+            MedLinkMedtronic_754_Veo), //
 
-    Medtronic_554andHigher(Medtronic_554_Veo, Medtronic_754_Veo), //
+    MedLinkMedtronic_554andHigher(MedLinkMedtronic_554_Veo, MedLinkMedtronic_754_Veo), //
 
 
     //
@@ -125,7 +130,7 @@ public enum MedLinkMedtronicDeviceType {
 //    }
 
     public boolean isMedtronic_523orHigher() {
-        return isSameDevice(this, Medtronic_523andHigher);
+        return isSameDevice(this, MedLinkMedtronic_523andHigher);
     }
 
 

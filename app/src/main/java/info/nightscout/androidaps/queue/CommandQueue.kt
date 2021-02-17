@@ -115,7 +115,7 @@ class CommandQueue @Inject constructor(
                 profileFunction.getProfile()?.let {
                     setProfile(it, object : Callback() {
                         override fun run() {
-                            if (!result.success) {
+                             if (!result.success) {
                                 val i = Intent(context, ErrorHelperActivity::class.java)
                                 i.putExtra("soundid", R.raw.boluserror)
                                 i.putExtra("status", result.comment)

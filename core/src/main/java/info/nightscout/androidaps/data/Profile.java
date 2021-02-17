@@ -42,20 +42,20 @@ public class Profile {
 
     private JSONObject json;
     private String units;
-    private double dia;
-    private TimeZone timeZone;
+    protected double dia;
+    protected TimeZone timeZone;
     private JSONArray isf;
-    private LongSparseArray<Double> isf_v; // oldest at index 0
+    protected LongSparseArray<Double> isf_v; // oldest at index 0
     private JSONArray ic;
-    private LongSparseArray<Double> ic_v; // oldest at index 0
+    protected LongSparseArray<Double> ic_v; // oldest at index 0
     private JSONArray basal;
-    private LongSparseArray<Double> basal_v; // oldest at index 0
+    protected LongSparseArray<Double> basal_v; // oldest at index 0
     private JSONArray targetLow;
-    private LongSparseArray<Double> targetLow_v; // oldest at index 0
+    protected LongSparseArray<Double> targetLow_v; // oldest at index 0
     private JSONArray targetHigh;
-    private LongSparseArray<Double> targetHigh_v; // oldest at index 0
+    protected LongSparseArray<Double> targetHigh_v; // oldest at index 0
 
-    private int percentage;
+    protected int percentage;
     private int timeshift;
 
     protected boolean isValid;

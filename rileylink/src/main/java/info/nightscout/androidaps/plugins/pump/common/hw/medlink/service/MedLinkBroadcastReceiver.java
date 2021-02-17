@@ -71,9 +71,8 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
         // MedLink
         this.broadcastIdentifiers.put("MedLink", Arrays.asList( //
-                MedLinkConst.Intents.RileyLinkDisconnected, //
+                MedLinkConst.Intents.MedLinkDisconnected, //
                 MedLinkConst.Intents.MedLinkReady, //
-                MedLinkConst.Intents.RileyLinkDisconnected, //
                 MedLinkConst.Intents.RileyLinkNewAddressSet, //
                 MedLinkConst.Intents.RileyLinkDisconnect));
     }
@@ -154,8 +153,8 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     protected boolean processMedLinkBroadcasts(String action, Context context) {
         MedLinkService medLinkService = getServiceInstance();
         aapsLogger.debug("processMedLinkBroadcasts "+action );
-        if (action.equals(MedLinkConst.Intents.RileyLinkDisconnected)) {
-            aapsLogger.debug("M");
+        if (action.equals(MedLinkConst.Intents.MedLinkDisconnected)) {
+
             if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.RileyLinkUnreachable);
             } else {
@@ -209,6 +208,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);
             return true;
         }else if(action.equals(MedLinkConst.Intents.MedLinkConnectionError)){
+            aapsLogger.info(LTag.PUMP, "pump unreachable");
             medLinkServiceData.setServiceState(RileyLinkServiceState.PumpConnectorError,
                     RileyLinkError.NoContactWithDevice);
             processMedLinkBroadcasts(RileyLinkConst.IPC.MSG_PUMP_tunePump, context);

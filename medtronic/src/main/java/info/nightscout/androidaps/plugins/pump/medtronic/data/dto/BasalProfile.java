@@ -36,7 +36,7 @@ public class BasalProfile {
     private static final boolean DEBUG_BASALPROFILE = false;
     @Expose
     private byte[] mRawData; // store as byte array to make transport (via parcel) easier
-    private List<BasalProfileEntry> listEntries;
+    protected List<BasalProfileEntry> listEntries;
 
 
     public BasalProfile(AAPSLogger aapsLogger) {

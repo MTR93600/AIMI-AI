@@ -5,6 +5,7 @@ import dagger.android.ContributesAndroidInjector
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUITask
+import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUITaskCp
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask
 
 @Module
@@ -12,4 +13,5 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask
 abstract class MedLinkMedtronicModule {
     @ContributesAndroidInjector abstract fun medtronicCommunicationManagerProvider(): MedLinkMedtronicCommunicationManager
     @ContributesAndroidInjector abstract fun medtronicUITaskProvider(): MedLinkMedtronicUITask
+    @ContributesAndroidInjector abstract fun medtronicUITaskProviderCp(): MedLinkMedtronicUITaskCp
 }

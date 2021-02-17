@@ -8,6 +8,8 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 
 import androidx.core.app.NotificationCompat;
@@ -603,9 +605,26 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                 LocalDateTime now = LocalDateTime.now();
                 if(now.plusMillis(1000).isAfter(operation.getReleaseTime())){
                     final APSResult resultAfterConstraints = result.newAndClone(injector);
+
                     resultAfterConstraints.rateConstraint = new Constraint<>(resultAfterConstraints.rate);
                     resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.rateConstraint, profile).value();
 
+                    Callback callback = new Callback() {
+                        @Override
+                        public void run() {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+//                                    callback = null;
+//                                    updateGUI();
+                                lastRun.setLastAPSRun(System.currentTimeMillis());
+                                rxBus.send(new EventLoopUpdateGui());
+                            });
+                        }
+                    };
+                    if(operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.SUSPEND)){
+                        commandQueue.stopPump(callback);
+                    }else if(operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.REACTIVATE)){
+                        commandQueue.startPump(callback);
+                    }
 //                            resultAfterConstraints.percentConstraint = new Constraint<>(resultAfterConstraints.percent);
 //                            resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.percentConstraint, profile).value();
 

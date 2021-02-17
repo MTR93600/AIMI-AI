@@ -43,6 +43,7 @@ import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
+import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
@@ -204,7 +205,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
                         added = true;
                 }
                 aapsLogger.info(LTag.APS,"result size "+ String.join(",", results.stream().map(ScanResult::toString).collect(Collectors.toList())));
-                Toast.makeText(mContext, "result size"+ String.join(",", results.stream().map(ScanResult::toString).collect(Collectors.toList())), Toast.LENGTH_SHORT).show();
+                ToastUtils.showToastInUiThread(mContext, "result size"+ String.join(",", results.stream().map(ScanResult::toString).collect(Collectors.toList())), Toast.LENGTH_SHORT);
                 if (added)
                     mLeDeviceListAdapter.notifyDataSetChanged();
             });
@@ -217,7 +218,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             String deviceName = device.getName().trim();
             if (MedLinkConst.DEVICE_NAME.contains(deviceName)) {
                 Log.i(TAG, "Found Medlink with address: " + device.getAddress());
-                Toast.makeText(mContext, deviceName, Toast.LENGTH_SHORT).show();
+                ToastUtils.showToastInUiThread(mContext, deviceName, Toast.LENGTH_SHORT);
                 mLeDeviceListAdapter.addDevice(result);
                 return true;
             } else {
@@ -237,8 +238,8 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
         @Override
         public void onScanFailed(int errorCode) {
             Log.e("Scan Failed", "Error Code: " + errorCode);
-            Toast.makeText(mContext, resourceHelper.gs(R.string.rileylink_scanner_scanning_error, errorCode),
-                    Toast.LENGTH_LONG).show();
+            ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.rileylink_scanner_scanning_error, errorCode),
+                    Toast.LENGTH_LONG);
         }
 
     };
@@ -261,7 +262,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
                     mScanning = false;
                     mLEScanner.stopScan(mScanCallback2);
                     aapsLogger.debug("scanLeDevice: Scanning Stop");
-                    Toast.makeText(mContext, R.string.rileylink_scanner_scanning_finished, Toast.LENGTH_SHORT).show();
+                    ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.rileylink_scanner_scanning_finished, 40), Toast.LENGTH_SHORT);
                     menuItem.setTitle(actionTitleStart);
                 }
             }, SCAN_PERIOD);
@@ -269,7 +270,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             mScanning = true;
             mLEScanner.startScan(filters, settings, mScanCallback2);
             aapsLogger.debug("scanLeDevice: Scanning Start");
-            Toast.makeText(this, R.string.rileylink_scanner_scanning, Toast.LENGTH_SHORT).show();
+            ToastUtils.showToastInUiThread(this, resourceHelper.gs(R.string.rileylink_scanner_scanning), Toast.LENGTH_SHORT);
 
             menuItem.setTitle(actionTitleStop);
 

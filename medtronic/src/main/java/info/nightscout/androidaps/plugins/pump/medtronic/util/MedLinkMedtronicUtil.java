@@ -407,9 +407,9 @@ public class MedLinkMedtronicUtil {
     public MedLinkMedtronicDeviceType getMedtronicPumpModel() {
         //TODO review why this devicetype is null
         if(medtronicPumpStatus.medtronicDeviceType == null){
-            return MedLinkMedtronicDeviceType.Medtronic_515;
+            return MedLinkMedtronicDeviceType.MedLinkMedtronic_515;
         }else {
-            return MedLinkMedtronicDeviceType.valueOf(medtronicPumpStatus.medtronicDeviceType.getPumpModel());
+            return medtronicPumpStatus.medtronicDeviceType;
         }
     }
 

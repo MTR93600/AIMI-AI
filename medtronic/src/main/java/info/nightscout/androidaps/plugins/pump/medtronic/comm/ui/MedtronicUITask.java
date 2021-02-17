@@ -200,6 +200,9 @@ public class MedtronicUITask {
             postprocessor.postProcessData(this);
         }
 
+        aapsLogger.info(LTag.PUMP,"pump response type");
+        aapsLogger.info(LTag.PUMP,responseType.name());
+
         if (responseType == MedtronicUIResponseType.Invalid) {
             rxBus.send(new EventRileyLinkDeviceStatusChange(PumpDeviceState.ErrorWhenCommunicating,
                     "Unsupported command in MedtronicUITask"));

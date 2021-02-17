@@ -88,7 +88,7 @@ public class MedtronicPumpStatus extends info.nightscout.androidaps.plugins.pump
             createMedtronicDeviceTypeMap();
 
         this.lastConnection = sp.getLong(MedtronicConst.Statistics.LastGoodPumpCommunicationTime, 0L);
-        this.lastDataTime = this.lastConnection;
+        this.lastDateTime = this.lastConnection;
     }
 
 

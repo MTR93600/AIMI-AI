@@ -29,6 +29,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCo
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIComm;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIPostprocessor;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType;
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicConst;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
@@ -42,7 +43,7 @@ public class MedLinkMedtronicService extends MedLinkService {
     @Inject MedLinkMedtronicPumpPlugin medtronicPumpPlugin;
     @Inject MedLinkMedtronicUtil medtronicUtil;
     @Inject MedLinkMedtronicUIPostprocessor medtronicUIPostprocessor;
-    @Inject MedtronicPumpStatus medtronicPumpStatus;
+    @Inject MedLinkMedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkBLE medlinkBLE;
     @Inject MedLinkMedtronicCommunicationManager medtronicCommunicationManager;
     private MedLinkMedtronicUIComm medtronicUIComm;

@@ -85,6 +85,24 @@ public class NSUpload {
         this.databaseHelper = databaseHelper;
     }
 
+    public void uploadEnliteData(TemporaryBasal temporaryBasal, Double originalExtendedAmount) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("ISIG", CareportalEvent.TEMPBASAL);
+            data.put("uptime", temporaryBasal.durationInMinutes);
+            data.put("calibarion_factor", temporaryBasal.absoluteRate);
+            data.put("bg", temporaryBasal.absoluteRate);
+            data.put("type", temporaryBasal.absoluteRate);
+            if (temporaryBasal.pumpId != 0)
+                data.put("pumpId", temporaryBasal.pumpId);
+            data.put("created_at", DateUtil.toISOString(temporaryBasal.date));
+            data.put("enteredBy", "openaps://" + "AndroidAPS");
+            uploadQueue.add(new DbRequest("dbAdd", "enlite_data", data));
+        } catch (JSONException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+    }
+
     public void uploadTempBasalStartAbsolute(TemporaryBasal temporaryBasal, Double originalExtendedAmount) {
         try {
             JSONObject data = new JSONObject();

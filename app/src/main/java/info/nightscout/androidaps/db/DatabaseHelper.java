@@ -62,6 +62,7 @@ import info.nightscout.androidaps.plugins.pump.insight.database.InsightBolusID;
 import info.nightscout.androidaps.plugins.pump.insight.database.InsightHistoryOffset;
 import info.nightscout.androidaps.plugins.pump.insight.database.InsightPumpID;
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin;
+import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.JsonHelper;
 import info.nightscout.androidaps.utils.PercentageSplitter;
 import info.nightscout.androidaps.utils.T;
@@ -385,6 +386,21 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return rounded;
     }
     // -------------------  BgReading handling -----------------------
+
+    public boolean thisBGNeedUpdate(BgReading bgReading) {
+        try {
+            bgReading.date = roundDateToSec(bgReading.date);
+            BgReading old = getDaoBgReadings().queryForId(bgReading.date);
+            double diff = 0d;
+            if(old !=null) {
+                diff = Math.abs(old.raw - bgReading.raw);
+            }
+            return old == null || (diff > 1);
+        } catch (SQLException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+        return true;
+    }
 
     public boolean createIfNotExists(BgReading bgReading, String from) {
         try {
@@ -1670,6 +1686,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
         return Collections.emptyList();
     }
+
     @Nullable
     private ProfileSwitch getLastProfileSwitchWithoutDuration() {
         try {

@@ -31,6 +31,7 @@ import info.nightscout.androidaps.plugins.source.DexcomPlugin;
 import info.nightscout.androidaps.plugins.source.EversensePlugin;
 import info.nightscout.androidaps.plugins.source.GlimpPlugin;
 import info.nightscout.androidaps.plugins.source.MM640gPlugin;
+import info.nightscout.androidaps.plugins.source.MedLinkPlugin;
 import info.nightscout.androidaps.plugins.source.NSClientSourcePlugin;
 import info.nightscout.androidaps.plugins.source.PoctechPlugin;
 import info.nightscout.androidaps.plugins.source.TomatoPlugin;
@@ -47,6 +48,7 @@ public class DataService extends DaggerIntentService {
     @Inject NSUpload nsUpload;
     @Inject SmsCommunicatorPlugin smsCommunicatorPlugin;
     @Inject DexcomPlugin dexcomPlugin;
+    @Inject MedLinkPlugin medlinkPlugin;
     @Inject EversensePlugin eversensePlugin;
     @Inject GlimpPlugin glimpPlugin;
     @Inject MM640gPlugin mm640GPlugin;

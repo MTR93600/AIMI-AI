@@ -2,10 +2,15 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink;
 
 
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import javax.inject.Inject;
 
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.AAPSLogger;
@@ -14,19 +19,14 @@ import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.CommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkCommunicationException;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.FrequencyScanResults;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RFSpyResponse;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.RadioPacket;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RadioResponse;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkBLEError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.utils.Round;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
@@ -82,50 +82,64 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         return sendAndListen(msg, timeout_ms, repeatCount, 0, extendPreamble_ms);
     }
 
-    protected MedLinkPumpMessage sendAndListen(MedLinkPumpMessage msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms)
+    protected <B> MedLinkPumpMessage sendAndListen(MedLinkPumpMessage<B> msg, int timeout_ms, int repeatCount, int retryCount, Integer extendPreamble_ms)
             throws RileyLinkCommunicationException {
 
         // internal flag
-        boolean showPumpMessages = true;
-        if (showPumpMessages && msg != null) {
-            aapsLogger.info(LTag.PUMPCOMM, "Sent:" + msg.commandType.toString());
+        if (msg != null) {
+            aapsLogger.info(LTag.PUMPCOMM, "Sent:" + msg.getCommandType().code);
         }
 
-        RFSpyResponse rfSpyResponse = rfspy.transmitThenReceive(new RadioPacket(injector, msg.getCommandData()),
-                (byte) 0, (byte) repeatCount, (byte) 0, (byte) 0, timeout_ms, (byte) retryCount, extendPreamble_ms, msg.getBaseResultActivity());
-
-        RadioResponse radioResponse = rfSpyResponse.getRadioResponse(injector);
-        RLMessage response = createResponseMessage(radioResponse.getPayload());
-
-        if (response.isValid()) {
-            // Mark this as the last time we heard from the pump.
-            rememberLastGoodDeviceCommunicationTime();
-        } else {
-            aapsLogger.warn(LTag.PUMPCOMM, "isDeviceReachable. Response is invalid ! [interrupted={}, timeout={}, unknownCommand={}, invalidParam={}]", rfSpyResponse.wasInterrupted(),
-                    rfSpyResponse.wasTimeout(), rfSpyResponse.isUnknownCommand(), rfSpyResponse.isInvalidParam());
-
-            if (rfSpyResponse.wasTimeout()) {
-                if (hasTunning()) {
-                    timeoutCount++;
-
-                    long diff = System.currentTimeMillis() - getPumpStatus().lastConnection;
-
-                    if (diff > ALLOWED_PUMP_UNREACHABLE) {
-                        aapsLogger.warn(LTag.PUMPCOMM, "We reached max time that Pump can be unreachable. Starting Tuning.");
-                        serviceTaskExecutor.startTask(new WakeAndTuneTask(injector));
-                        timeoutCount = 0;
-                    }
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> function = msg.getBaseCallBack().andThen(f ->{
+            Supplier<Stream<String>> answer = () -> f.getAnswer();
+            if(f.getErrors() == null || f.getErrors().isEmpty()){
+                rememberLastGoodDeviceCommunicationTime();
+            }else{
+                aapsLogger.warn(LTag.PUMPCOMM, "isDeviceReachable. Response is invalid ! [errors={}", f.getErrors());
+                if(answer.get().anyMatch(ans -> ans.contains("at+sleep")) || answer.get().anyMatch(ans -> ans.contains("powerdown"))){
+//                    throw new RileyLinkCommunicationException(RileyLinkBLEError.Timeout);
+                    f.addError(MedLinkStandardReturn.ParsingError.Timeout);
+                }else if(answer.get().anyMatch(ans -> ans.contains("wake up not confirmed")) || answer.get().anyMatch(ans -> ans.equals(""))){ //TODO look for ex error
+                    f.addError(MedLinkStandardReturn.ParsingError.Interrupted);
                 }
-
-                throw new RileyLinkCommunicationException(RileyLinkBLEError.Timeout);
-            } else if (rfSpyResponse.wasInterrupted()) {
-                throw new RileyLinkCommunicationException(RileyLinkBLEError.Interrupted);
             }
-        }
+            return f;
+        });
+        msg.setBaseCallBack(function);
+        rfspy.transmitThenReceive(msg);
 
-        if (showPumpMessages) {
-            aapsLogger.info(LTag.PUMPCOMM, "Received:" + ByteUtil.shortHexString(rfSpyResponse.getRadioResponse(injector).getPayload()));
-        }
+//        RadioResponse radioResponse = rfSpyResponse.getRadioResponse(injector);
+//        RLMessage response = createResponseMessage(radioResponse.getPayload());
+//
+//        if (response.isValid()) {
+//            // Mark this as the last time we heard from the pump.
+//            rememberLastGoodDeviceCommunicationTime();
+//        } else {
+//            aapsLogger.warn(LTag.PUMPCOMM, "isDeviceReachable. Response is invalid ! [interrupted={}, timeout={}, unknownCommand={}, invalidParam={}]", rfSpyResponse.wasInterrupted(),
+//                    rfSpyResponse.wasTimeout(), rfSpyResponse.isUnknownCommand(), rfSpyResponse.isInvalidParam());
+//
+//            if (rfSpyResponse.wasTimeout()) {
+//                if (hasTunning()) {
+//                    timeoutCount++;
+//
+//                    long diff = System.currentTimeMillis() - getPumpStatus().lastConnection;
+//
+//                    if (diff > ALLOWED_PUMP_UNREACHABLE) {
+//                        aapsLogger.warn(LTag.PUMPCOMM, "We reached max time that Pump can be unreachable. Starting Tuning.");
+//                        serviceTaskExecutor.startTask(new WakeAndTuneTask(injector));
+//                        timeoutCount = 0;
+//                    }
+//                }
+//
+//                throw new RileyLinkCommunicationException(RileyLinkBLEError.Timeout);
+//            } else if (rfSpyResponse.wasInterrupted()) {
+//                throw new RileyLinkCommunicationException(RileyLinkBLEError.Interrupted);
+//            }
+//        }
+//
+//        if (showPumpMessages) {
+//            aapsLogger.info(LTag.PUMPCOMM, "Received:" + ByteUtil.shortHexString(rfSpyResponse.getRadioResponse(injector).getPayload()));
+//        }
 
         return msg;
     }
@@ -147,7 +161,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     // FIXME change wakeup
     // TODO we might need to fix this. Maybe make pump awake for shorter time (battery factor for pump) - Andy
-    public void wakeUp(int duration_minutes, boolean force, BaseResultActivity resultActivity) {
+    public  <B> void wakeUp(int duration_minutes, boolean force, Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>  resultActivity) {
         // If it has been longer than n minutes, do wakeup. Otherwise assume pump is still awake.
         // **** FIXME: this wakeup doesn't seem to work well... must revisit
         // receiverDeviceAwakeForMinutes = duration_minutes;
@@ -160,10 +174,10 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         if (System.currentTimeMillis() > nextWakeUpRequired) {
             aapsLogger.info(LTag.PUMPCOMM, "Waking pump...");
 
-            byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
-            RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(injector, pumpMsgContent), (byte) 0, (byte) 200,
-                    (byte) 0, (byte) 0, 25000, (byte) 0, resultActivity);
-            aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
+//            byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
+
+            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.GetState,MedLinkCommandType.NoCommand,resultActivity));
+//            aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
 
             // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
 
@@ -314,31 +328,31 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     }
 
 
-    private int tune_tryFrequency(double freqMHz, BaseResultActivity resultActivity) {
-        rfspy.setBaseFrequency(freqMHz);
+    private int tune_tryFrequency(double freqMHz, BaseCallback resultActivity) {
+//        rfspy.setBaseFrequency(freqMHz);
         // RLMessage msg = makeRLMessage(RLMessageType.ReadSimpleData);
         byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData);
         RadioPacket pkt = new RadioPacket(injector, pumpMsgContent);
-        RFSpyResponse resp = rfspy.transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, SCAN_TIMEOUT, (byte) 0, resultActivity);
-        if (resp.wasTimeout()) {
-            aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: no pump response at frequency {}", freqMHz);
-        } else if (resp.looksLikeRadioPacket()) {
-            RadioResponse radioResponse = new RadioResponse(injector);
-            try {
-                radioResponse.init(resp.getRaw());
-
-                if (radioResponse.isValid()) {
-                    aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: saw response level {} at frequency {}", radioResponse.rssi, freqMHz);
-                    return calculateRssi(radioResponse.rssi);
-                } else {
-                    aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: invalid radio response:"
-                            + ByteUtil.shortHexString(radioResponse.getPayload()));
-                }
-
-            } catch (RileyLinkCommunicationException e) {
-                aapsLogger.warn(LTag.PUMPCOMM, "Failed to decode radio response: " + ByteUtil.shortHexString(resp.getRaw()));
-            }
-        }
+//        RFSpyResponse resp = rfspy.transmitThenReceive(pkt, (byte) 0, (byte) 0, (byte) 0, (byte) 0, SCAN_TIMEOUT, (byte) 0, resultActivity);
+//        if (resp.wasTimeout()) {
+//            aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: no pump response at frequency {}", freqMHz);
+//        } else if (resp.looksLikeRadioPacket()) {
+//            RadioResponse radioResponse = new RadioResponse(injector);
+//            try {
+//                radioResponse.init(resp.getRaw());
+//
+//                if (radioResponse.isValid()) {
+//                    aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: saw response level {} at frequency {}", radioResponse.rssi, freqMHz);
+//                    return calculateRssi(radioResponse.rssi);
+//                } else {
+//                    aapsLogger.warn(LTag.PUMPCOMM, "tune_tryFrequency: invalid radio response:"
+//                            + ByteUtil.shortHexString(radioResponse.getPayload()));
+//                }
+//
+//            } catch (RileyLinkCommunicationException e) {
+//                aapsLogger.warn(LTag.PUMPCOMM, "Failed to decode radio response: " + ByteUtil.shortHexString(resp.getRaw()));
+//            }
+//        }
 
         return 0;
     }
@@ -346,31 +360,32 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     @Override public double quickTuneForPump(double startFrequencyMHz) {
         double betterFrequency = startFrequencyMHz;
-        double stepsize = 0.05;
-//        for (int tries = 0; tries < 4; tries++) {
-            double evenBetterFrequency = quickTunePumpStep(betterFrequency, stepsize);
-            if (evenBetterFrequency == 0.0) {
-                // could not see the pump at all.
-                // Try again at larger step size
-                stepsize += 0.05;
-            } else {
-                if ((int) (evenBetterFrequency * 100) != (int) (betterFrequency * 100)) {
-                    // value did not change, so we're done.
-                    betterFrequency = evenBetterFrequency; // and go again.
-                }
-            }
+        wakeUp(false);
+//        double stepsize = 0.05;
+////        for (int tries = 0; tries < 4; tries++) {
+//            double evenBetterFrequency = quickTunePumpStep(betterFrequency, stepsize);
+//            if (evenBetterFrequency == 0.0) {
+//                // could not see the pump at all.
+//                // Try again at larger step size
+//                stepsize += 0.05;
+//            } else {
+//                if ((int) (evenBetterFrequency * 100) != (int) (betterFrequency * 100)) {
+//                    // value did not change, so we're done.
+//                    betterFrequency = evenBetterFrequency; // and go again.
+//                }
+//            }
+////        }
+//        if (betterFrequency == 0.0) {
+//            // we've failed... caller should try a full scan for pump
+//            aapsLogger.error(LTag.PUMPCOMM, "quickTuneForPump: failed to find pump");
+//        } else {
+//            rfspy.setBaseFrequency(betterFrequency);
+//            if (betterFrequency != startFrequencyMHz) {
+//                aapsLogger.info(LTag.PUMPCOMM, "quickTuneForPump: new frequency is {}MHz", betterFrequency);
+//            } else {
+//                aapsLogger.info(LTag.PUMPCOMM, "quickTuneForPump: pump frequency is the same: {}MHz", startFrequencyMHz);
+//            }
 //        }
-        if (betterFrequency == 0.0) {
-            // we've failed... caller should try a full scan for pump
-            aapsLogger.error(LTag.PUMPCOMM, "quickTuneForPump: failed to find pump");
-        } else {
-            rfspy.setBaseFrequency(betterFrequency);
-            if (betterFrequency != startFrequencyMHz) {
-                aapsLogger.info(LTag.PUMPCOMM, "quickTuneForPump: new frequency is {}MHz", betterFrequency);
-            } else {
-                aapsLogger.info(LTag.PUMPCOMM, "quickTuneForPump: pump frequency is the same: {}MHz", startFrequencyMHz);
-            }
-        }
         return betterFrequency;
     }
 
@@ -378,7 +393,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
     private double quickTunePumpStep(double startFrequencyMHz, double stepSizeMHz) {
         aapsLogger.info(LTag.PUMPCOMM, "Doing quick radio tune for receiver ({})", receiverDeviceID);
         wakeUp(false);
-        BaseResultActivity resultActivity = new BaseStringAggregatorResultActivity(aapsLogger);
+        BaseCallback resultActivity = new BaseStringAggregatorCallback();
         int startRssi = tune_tryFrequency(startFrequencyMHz, resultActivity);
         double lowerFrequency = startFrequencyMHz - stepSizeMHz;
         int lowerRssi = tune_tryFrequency(lowerFrequency, resultActivity);
@@ -404,7 +419,10 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         lastGoodReceiverCommunicationTime = System.currentTimeMillis();
 
         sp.putLong(MedLinkConst.Prefs.LastGoodDeviceCommunicationTime, lastGoodReceiverCommunicationTime);
-        getPumpStatus().setLastCommunicationToNow();
+        if(getPumpStatus() != null) {
+            getPumpStatus().setLastCommunicationToNow();
+        }
+
     }
 
 
@@ -431,4 +449,8 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
 
     public abstract void setDoWakeUpBeforeCommand(boolean doWakeUp);
+
+    public abstract boolean getBGHistory();
+
+    public abstract boolean getBolusHistory();
 }

@@ -75,7 +75,7 @@ class RealPumpTest {
         sp.putBoolean(R.string.key_setupwizard_processed, true)
         sp.putString(R.string.key_aps_mode, "closed")
         MainApp.getDbHelper().resetDatabases()
-        MainApp.devBranch = false
+        // MainApp.devBranch = false
     }
 
     private fun preparePlugins() {

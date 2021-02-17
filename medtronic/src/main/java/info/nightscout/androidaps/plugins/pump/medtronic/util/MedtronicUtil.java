@@ -429,6 +429,9 @@ public class MedtronicUtil {
             setCurrentCommand(currentCommand);
         }
 
+        aapsLogger.info(LTag.PUMP,"pump deviceState");
+        aapsLogger.info(LTag.PUMP,medtronicPumpStatus.getPumpDeviceState().name());
+
         rxBus.send(new EventRileyLinkDeviceStatusChange(medtronicPumpStatus.getPumpDeviceState()));
     }
 

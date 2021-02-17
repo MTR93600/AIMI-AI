@@ -12,15 +12,19 @@ import javax.inject.Singleton;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.PumpSettingDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BasalProfileStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificationType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicUIResponseType;
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
+import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged;
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
@@ -36,18 +40,18 @@ public class MedLinkMedtronicUIPostprocessor {
     private final AAPSLogger aapsLogger;
     private final RxBusWrapper rxBus;
     private final ResourceHelper resourceHelper;
-    private final MedtronicUtil medtronicUtil;
-    private final MedtronicPumpStatus medtronicPumpStatus;
-    private final MedtronicPumpPlugin medtronicPumpPlugin;
+    private final MedLinkMedtronicUtil medtronicUtil;
+    private final MedLinkMedtronicPumpStatus medtronicPumpStatus;
+    private final MedLinkMedtronicPumpPlugin medtronicPumpPlugin;
 
     @Inject
     public MedLinkMedtronicUIPostprocessor(
             AAPSLogger aapsLogger,
             RxBusWrapper rxBus,
             ResourceHelper resourceHelper,
-            MedtronicUtil medtronicUtil,
-            MedtronicPumpStatus medtronicPumpStatus,
-            MedtronicPumpPlugin medtronicPumpPlugin) {
+            MedLinkMedtronicUtil medtronicUtil,
+            MedLinkMedtronicPumpStatus medtronicPumpStatus,
+            MedLinkMedtronicPumpPlugin medtronicPumpPlugin) {
         this.aapsLogger = aapsLogger;
         this.rxBus = rxBus;
         this.resourceHelper = resourceHelper;
@@ -75,7 +79,8 @@ public class MedLinkMedtronicUIPostprocessor {
 //            break;
 
             case GetBasalProfileSTD: {
-                BasalProfile basalProfile = (BasalProfile) uiTask.returnData;
+                MedLinkStandardReturn<BasalProfile> returned = (MedLinkStandardReturn<BasalProfile>) uiTask.returnData;
+                BasalProfile basalProfile = returned.getFunctionResult();
 
                 try {
                     Double[] profilesByHour = basalProfile.getProfilesByHour(medtronicPumpPlugin.getPumpDescription().pumpType);
@@ -83,6 +88,7 @@ public class MedLinkMedtronicUIPostprocessor {
                     if (profilesByHour != null) {
                         medtronicPumpStatus.basalsByHour = profilesByHour;
                         medtronicPumpStatus.basalProfileStatus = BasalProfileStatus.ProfileOK;
+                        rxBus.send(new EventMedtronicPumpValuesChanged());
                     } else {
                         uiTask.responseType = MedtronicUIResponseType.Error;
                         uiTask.errorDescription = "No profile found.";
@@ -167,6 +173,9 @@ public class MedLinkMedtronicUIPostprocessor {
                 //aapsLogger.error(LTag.PUMP, "Post-processing not implemented for {}.", uiTask.commandType.name());
 
         }
+        aapsLogger.info(LTag.PUMPBTCOMM,uiTask.commandType.command.code);
+        aapsLogger.info(LTag.PUMPBTCOMM,uiTask.commandType.commandDescription);
+        rxBus.send(new EventMedtronicPumpValuesChanged());
 
     }
 

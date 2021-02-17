@@ -3,6 +3,8 @@ package info.nightscout.androidaps.plugins.pump.medtronic.comm.ui;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
@@ -50,6 +52,26 @@ public class MedLinkMedtronicUIComm {
 //        return task;
 //
 //    }
+
+    public synchronized MedLinkMedtronicUITaskCp executeCommandCP(MedLinkPumpMessage pumpMessage) {
+
+        aapsLogger.info(LTag.PUMP, "Execute Command: " + pumpMessage.getCommandType().code);
+
+        MedLinkMedtronicUITaskCp task = new MedLinkMedtronicUITaskCp(injector, pumpMessage);
+
+        medtronicUtil.setCurrentCommand(pumpMessage.getCommandType());
+
+        task.execute(medtronicCommunicationManager, medtronicUIPostprocessor);
+
+        if (!task.isReceived()) {
+            aapsLogger.warn(LTag.PUMP, "Reply not received for " + pumpMessage.getCommandType());
+        }
+
+//        task.postProcess(medtronicUIPostprocessor);
+        return task;
+
+    }
+
     public synchronized MedLinkMedtronicUITask executeCommand(MedLinkMedtronicCommandType commandType, Object... parameters) {
 
         aapsLogger.info(LTag.PUMP, "Execute Command: " + commandType.name());

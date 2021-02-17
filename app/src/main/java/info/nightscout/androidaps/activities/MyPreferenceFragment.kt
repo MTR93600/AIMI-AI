@@ -46,11 +46,7 @@ import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityAAPSPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityOref1Plugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityWeightedAveragePlugin
-import info.nightscout.androidaps.plugins.source.DexcomPlugin
-import info.nightscout.androidaps.plugins.source.EversensePlugin
-import info.nightscout.androidaps.plugins.source.GlimpPlugin
-import info.nightscout.androidaps.plugins.source.PoctechPlugin
-import info.nightscout.androidaps.plugins.source.TomatoPlugin
+import info.nightscout.androidaps.plugins.source.*
 import info.nightscout.androidaps.utils.SafeParse
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog.show
 import info.nightscout.androidaps.utils.protection.PasswordCheck
@@ -89,6 +85,7 @@ class MyPreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChang
     @Inject lateinit var sensitivityOref1Plugin: SensitivityOref1Plugin
     @Inject lateinit var sensitivityWeightedAveragePlugin: SensitivityWeightedAveragePlugin
     @Inject lateinit var dexcomPlugin: DexcomPlugin
+    @Inject lateinit var medlinkPlugin: MedLinkPlugin
     @Inject lateinit var eversensePlugin: EversensePlugin
     @Inject lateinit var glimpPlugin: GlimpPlugin
     @Inject lateinit var poctechPlugin: PoctechPlugin

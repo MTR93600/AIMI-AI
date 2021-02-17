@@ -1,6 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.ui;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -10,8 +12,9 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseResultActivity;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionResultActivity;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
@@ -26,6 +29,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUt
  */
 
 public class MedLinkMedtronicUITask {
+    private BolusMedLinkMessage pumpMessage;
     //TODO build parsers here
 
     @Inject RxBusWrapper rxBus;
@@ -58,6 +62,11 @@ public class MedLinkMedtronicUITask {
         this.parameters = parameters;
     }
 
+    public MedLinkMedtronicUITask(HasAndroidInjector injector, BolusMedLinkMessage pumpMessage) {
+        this.injector = injector;
+        this.pumpMessage = pumpMessage;
+    }
+
 
     public void execute(MedLinkMedtronicCommunicationManager communicationManager, MedLinkMedtronicUIPostprocessor medtronicUIPostprocessor) {
 
@@ -65,11 +74,12 @@ public class MedLinkMedtronicUITask {
 
         switch (commandType) {
             case PumpModel: {
-                BaseResultActivity<String> activity = new ConnectionResultActivity(aapsLogger);
-                activity.addResult(s -> {
-                    if(s.toLowerCase().contains("eomeomeom")){
+                Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = new ConnectionCallback().andThen(s -> {
+                    if(s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))){
                         rxBus.send(new EventMedtronicPumpValuesChanged());
-                    };
+                    }
+
+
                     return s;
                 });
                 returnData = communicationManager.getPumpModel(activity);
@@ -161,14 +171,14 @@ public class MedLinkMedtronicUITask {
 
         }
 
-        if (responseType == null) {
-            if (returnData == null) {
-                errorDescription = communicationManager.getErrorResponse();
-                this.responseType = MedtronicUIResponseType.Error;
-            } else {
-                this.responseType = MedtronicUIResponseType.Data;
-            }
-        }
+//        if (responseType == null) {
+//            if (returnData == null) {
+//                errorDescription = communicationManager.getErrorResponse();
+//                this.responseType = MedtronicUIResponseType.Error;
+//            } else {
+//                this.responseType = MedtronicUIResponseType.Data;
+//            }
+//        }
 
     }
 
@@ -209,10 +219,12 @@ public class MedLinkMedtronicUITask {
 
         aapsLogger.debug(LTag.PUMP, "MedtronicUITask: @@@ In execute. {}", commandType);
 
-        if (responseType == MedtronicUIResponseType.Data) {
+//        if (responseType == MedtronicUIResponseType.Data) {
             postprocessor.postProcessData(this);
-        }
+//        }
 
+        aapsLogger.info(LTag.PUMP,"pump response type");
+//        aapsLogger.info(LTag.PUMP,responseType.name());
         if (responseType == MedtronicUIResponseType.Invalid) {
             rxBus.send(new EventRileyLinkDeviceStatusChange(PumpDeviceState.ErrorWhenCommunicating,
                     "Unsupported command in MedtronicUITask"));

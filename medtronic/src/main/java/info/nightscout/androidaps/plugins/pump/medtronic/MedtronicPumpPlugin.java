@@ -219,7 +219,7 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
     public void initPumpStatusData() {
 
         medtronicPumpStatus.lastConnection = sp.getLong(RileyLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
-        medtronicPumpStatus.lastDataTime = medtronicPumpStatus.lastConnection;
+        medtronicPumpStatus.lastDateTime = medtronicPumpStatus.lastConnection;
         medtronicPumpStatus.previousConnection = medtronicPumpStatus.lastConnection;
 
         //if (rileyLinkMedtronicService != null) rileyLinkMedtronicService.verifyConfiguration();
@@ -967,7 +967,6 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
         if (isPumpNotReachable()) {
 
             setRefreshButtonEnabled(true);
-
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
@@ -1266,6 +1265,10 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
         scheduleNextRefresh(refreshType, 0);
     }
 
+
+    @Override protected void onStop() {
+        super.onStop();
+    }
 
     private void scheduleNextRefresh(MedtronicStatusRefreshType refreshType, int additionalTimeInMinutes) {
         switch (refreshType) {

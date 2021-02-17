@@ -76,6 +76,17 @@ public class BgReading implements DataPointWithLabelInterface {
         _id = sgv.getId();
     }
 
+    public BgReading(HasAndroidInjector injector, long bgDate, double bg, Double filtered, long previousDate, double previousBG) {
+        injector.androidInjector().inject(this);
+        date = bgDate;
+        value = bg;
+        raw = filtered != null ? filtered : value;
+        this.direction = calculateDirection(bgDate, previousDate, bg, previousBG);
+//        _id = sgv.getId();
+    }
+
+
+
     public Double valueToUnits(String units) {
         if (units.equals(Constants.MGDL))
             return value;
@@ -300,15 +311,19 @@ public class BgReading implements DataPointWithLabelInterface {
             previous = bgReadingsList.get(1);
         }
 
+        return calculateDirection(current.date, previous.date, current.value, previous.value);
+    }
+
+    public String calculateDirection(long currentDate, long previousDate, double currentValue, double previousValue){
         double slope;
 
         // Avoid division by 0
-        if (current.date == previous.date)
+        if (currentDate == previousDate)
             slope = 0;
         else
-            slope = (previous.value - current.value) / (previous.date - current.date);
+            slope = (previousValue - currentValue) / (previousDate - currentDate);
 
-        aapsLogger.error(LTag.GLUCOSE, "Slope is :" + slope + " delta " + (previous.value - current.value) + " date difference " + (current.date - previous.date));
+        aapsLogger.error(LTag.GLUCOSE, "Slope is :" + slope + " delta " + (previousValue - currentValue) + " date difference " + (currentDate - previousDate));
 
         double slope_by_minute = slope * 60000;
         String arrow = "NONE";

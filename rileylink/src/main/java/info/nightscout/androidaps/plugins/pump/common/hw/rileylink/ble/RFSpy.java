@@ -430,13 +430,4 @@ public class RFSpy {
         if (this.currentFrequencyMHz != null)
             this.setBaseFrequency(this.currentFrequencyMHz);
     }
-
-
-    public void stopReader() {
-        reader.stop();
-    }
-
-    public void initializeMedLink() {
-
-    }
 }

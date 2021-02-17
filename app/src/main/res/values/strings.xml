@@ -676,6 +676,7 @@
     <string name="eversense">Eversense App (patched)</string>
     <string name="dexcomg5_nsupload_title">Upload BG data to NS</string>
     <string name="key_dexcomg5_nsupload" translatable="false">dexcomg5_nsupload</string>
+    <string name="key_medlink_nsupload" translatable="false">medlink_nsupload</string>
     <string name="bgsource_upload">BG upload settings</string>
     <string name="wear_detailed_delta_title">Show detailed delta</string>
     <string name="wear_detailed_delta_summary">Show delta with one more decimal place</string>
@@ -690,6 +691,7 @@
     <string name="carbsReqThreshold_summary">Minimum grams of carbs to display a carbs suggestion alert. Carbs suggestions below this number will not trigger a notification.</string>
     <string name="dexcomg5_xdripupload_title">Send BG data to xDrip+</string>
     <string name="key_dexcomg5_xdripupload" translatable="false">dexcomg5_xdripupload</string>
+    <string name="key_medlink_xdripupload" translatable="false">medlink_xdripupload</string>
     <string name="dexcomg5_xdripupload_summary">In xDrip+ select 640g/Eversense data source</string>
     <string name="nsclientbg">NSClient BG</string>
     <string name="overview_editquickwizard_usebg">BG calculation</string>
@@ -1132,6 +1134,9 @@
     <string name="automation">Automation</string>
 
     <string name="profile_total">== ∑  %1$s U</string>
+    <string name="key_medlink_lognssensorchange" translatable="false">medlink_lognssensorchange</string>
+    <string name="medlink_lognssensorchange_title">Log sensor change to NS</string>
+    <string name="medlink_lognssensorchange_summary">Create event \"Sensor Change\" in NS automaticaly on sensor start</string>
     <string name="key_dexcom_lognssensorchange" translatable="false">dexcom_lognssensorchange</string>
     <string name="dexcom_lognssensorchange_title">Log sensor change to NS</string>
     <string name="dexcom_lognssensorchange_summary">Create event \"Sensor Change\" in NS automaticaly on sensor start</string>
@@ -1201,7 +1206,9 @@
     <string name="new_version_warning">New version for at least %1$d days available! Fallback to LGS after %2$d days, loop will be disabled after %3$d days</string>
     <string name="twohours">2h</string>
 
+    <string name="medlink_app_patched">MedLink reader (patched)</string>
     <string name="dexcom_app_patched">Dexcom App (patched)</string>
+    <string name="medlink_short">MLAR</string>
     <string name="dexcom_short">DXCM</string>
     <string name="description_source_dexcom">Receive BG values from the patched Dexcom app.</string>
 

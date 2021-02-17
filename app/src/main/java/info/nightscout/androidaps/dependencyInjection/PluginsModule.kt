@@ -327,30 +327,36 @@ abstract class PluginsModule {
     @AllConfigs
     @IntoMap
     @IntKey(460)
-    abstract fun bindPoctechPlugin(plugin: PoctechPlugin): PluginBase
+    abstract fun bindMedLinkPlugin(plugin: MedLinkPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
     @IntKey(470)
-    abstract fun bindTomatoPlugin(plugin: TomatoPlugin): PluginBase
+    abstract fun bindPoctechPlugin(plugin: PoctechPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
     @IntKey(480)
+    abstract fun bindTomatoPlugin(plugin: TomatoPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(490)
     abstract fun bindRandomBgPlugin(plugin: RandomBgPlugin): PluginBase
 
     @Binds
     @NotNSClient
     @IntoMap
-    @IntKey(490)
+    @IntKey(500)
     abstract fun bindOpenHumansPlugin(plugin: OpenHumansUploader): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(500)
+    @IntKey(510)
     abstract fun bindConfigBuilderPlugin(plugin: ConfigBuilderPlugin): PluginBase
 
     @Qualifier

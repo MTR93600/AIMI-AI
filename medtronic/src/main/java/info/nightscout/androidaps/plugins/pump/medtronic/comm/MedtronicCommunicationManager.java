@@ -203,7 +203,7 @@ public class MedtronicCommunicationManager extends RileyLinkCommunicationManager
 
                         } else {
                             if (state != PumpDeviceState.PumpUnreachable)
-                                medtronicPumpStatus.setPumpDeviceState(PumpDeviceState.PumpUnreachable);
+                                medtronicPumpStatus.setPumpDeviceState(state);
                         }
 
                     }

@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
+import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.CareportalEvent;
 import info.nightscout.androidaps.db.DbObjectBase;
 import info.nightscout.androidaps.db.ExtendedBolus;
@@ -1551,7 +1552,6 @@ public class MedLinkMedtronicHistoryData {
     private boolean isEmpty(PumpHistoryEntryType... entryTypes) {
         return (entryTypes == null || (entryTypes.length == 1 && entryTypes[0] == null));
     }
-
 
     private String getLogPrefix() {
         return "MedtronicHistoryData::";

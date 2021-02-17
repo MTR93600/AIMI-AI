@@ -27,13 +27,16 @@ public enum MedLinkCommandType {
     GetState("S\r\n"), //
     StopStartPump("a\r\n"),
     Bolus("X\r\n"),
-    BolusAmount("BOLUS "),
+    BolusAmount("BOLUS"),
     StartPump("START"),
     StopPump("STOP"),
     IsigHistory("I"),
     BGHistory("C"),
     BolusHistory("H"),
-    BaseSTDProfile("E\r\n"),
+    ActiveBasalProfile("E\r\n"),
+    BaseProfile("F\r\n"),
+    Calibrate("k\r\n"),
+    CalibrateValue("kal"),
     Enter("\r\n")//Current Active Profile
     // screenshots z C, H, E, I
 //    GetVersion(2), //
@@ -70,7 +73,13 @@ public enum MedLinkCommandType {
 
     public byte[] getRaw() {
         if (this.insulinAmount > 0) {
-            return (this.code+this.insulinAmount.toString()).getBytes(UTF_8);
+            StringBuffer buff = new StringBuffer(this.code);
+            buff.append(" ");
+            if(this.insulinAmount < 10d) {
+              buff.append(" ");
+            }
+            buff.append(this.insulinAmount.toString());
+            return buff.toString().getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {
             return this.code.getBytes(UTF_8);
         } else {

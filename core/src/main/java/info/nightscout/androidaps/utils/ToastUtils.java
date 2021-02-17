@@ -83,6 +83,11 @@ public class ToastUtils {
         });
     }
 
+    public static void showToastInUiThread(final Context ctx, final String string, int toastLength) {
+        Handler mainThread = new Handler(Looper.getMainLooper());
+        mainThread.post(() -> Toast.makeText(ctx, string, toastLength).show());
+    }
+
     public static void showToastInUiThread(final Context ctx, final String string) {
         Handler mainThread = new Handler(Looper.getMainLooper());
         mainThread.post(() -> Toast.makeText(ctx, string, Toast.LENGTH_SHORT).show());

@@ -26,10 +26,12 @@ import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPu
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.queue.events.EventQueueChanged
@@ -56,7 +58,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     @Inject lateinit var warnColors: WarnColors
     @Inject lateinit var medLinkUtil: MedLinkUtil
     @Inject lateinit var medLinkMedtronicUtil: MedLinkMedtronicUtil
-    @Inject lateinit var medtronicPumpStatus: MedtronicPumpStatus
+    @Inject lateinit var medtronicPumpStatus: MedLinkMedtronicPumpStatus
     @Inject lateinit var medinkServiceData: MedLinkServiceData
 
     private var disposable: CompositeDisposable = CompositeDisposable()
@@ -112,7 +114,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         medtronic_stats.setOnClickListener {
             if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
                 aapsLogger.debug("verifyconfiguration")
-                startActivity(Intent(context, RileyLinkStatusActivity::class.java))
+                startActivity(Intent(context, MedLinkStatusActivity::class.java))
             } else {
                 displayNotConfiguredDialog()
             }
