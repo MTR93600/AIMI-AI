@@ -161,7 +161,7 @@ class LocalProfileFragment : DaggerFragment() {
             if (localProfilePlugin.isEdited) {
                 activity?.let { OKDialog.show(it, "", resourceHelper.gs(R.string.saveorresetchangesfirst)) }
             } else {
-                uel.log("NEW PROFILE")
+                uel.log(resourceHelper.gs(R.string.key_new_profile))
                 localProfilePlugin.addNewProfile()
                 build()
             }
@@ -171,7 +171,7 @@ class LocalProfileFragment : DaggerFragment() {
             if (localProfilePlugin.isEdited) {
                 activity?.let { OKDialog.show(it, "", resourceHelper.gs(R.string.saveorresetchangesfirst)) }
             } else {
-                uel.log("CLONE PROFILE", localProfilePlugin.currentProfile()?.name ?: "")
+                uel.log(resourceHelper.gs(R.string.key_uel_clone_profile), localProfilePlugin.currentProfile()?.name ?: "")
                 localProfilePlugin.cloneProfile()
                 build()
             }
@@ -180,7 +180,7 @@ class LocalProfileFragment : DaggerFragment() {
         binding.profileRemove.setOnClickListener {
             activity?.let { activity ->
                 OKDialog.showConfirmation(activity, resourceHelper.gs(R.string.deletecurrentprofile), {
-                    uel.log("REMOVE PROFILE", localProfilePlugin.currentProfile()?.name ?: "")
+                    uel.log(resourceHelper.gs(R.string.key_uel_remove_profile), localProfilePlugin.currentProfile()?.name ?: "")
                     localProfilePlugin.removeCurrentProfile()
                     build()
                 }, null)
