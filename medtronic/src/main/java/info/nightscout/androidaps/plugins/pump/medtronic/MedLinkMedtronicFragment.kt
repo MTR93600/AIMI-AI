@@ -30,7 +30,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkS
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.queue.Callback

@@ -105,20 +105,26 @@ public class MedLinkBLE extends RileyLinkBLE {
                                                 final BluetoothGattCharacteristic characteristic) {
                 super.onCharacteristicChanged(gatt, characteristic);
                 latestReceivedAnswer = System.currentTimeMillis();
-                aapsLogger.debug(LTag.PUMPBTCOMM, "onCharchanged ");
-                if (gattDebugEnabled) {
-                    aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "onCharacteristicChanged "
-                            + GattAttributes.lookup(characteristic.getUuid()) + " "
-                            + ByteUtil.getHex(characteristic.getValue()) + " " +
-                            StringUtil.fromBytes(characteristic.getValue()));
-//                    if (characteristic.getUuid().equals(UUID.fromString(GattAttributes.CHARA_RADIO_RESPONSE_COUNT))) {
-//                        aapsLogger.debug(LTag.PUMPBTCOMM, "Response Count is " + ByteUtil.shortHexString(characteristic.getValue()));
-//                    }
-                }
+//                if(StringUtil.fromBytes(characteristic.getValue()).toLowerCase().contains("ready")) {
+//                 aapsLogger.info(LTag.PUMPBTCOMM, StringUtil.fromBytes(characteristic.getValue()));
+//                }
+//                if (gattDebugEnabled) {
+//                    aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "onCharacteristicChanged "
+//                            + GattAttributes.lookup(characteristic.getUuid()) + " "
+//                            + ByteUtil.getHex(characteristic.getValue()) + " " +
+//                            StringUtil.fromBytes(characteristic.getValue()));
+////                    if (characteristic.getUuid().equals(UUID.fromString(GattAttributes.CHARA_RADIO_RESPONSE_COUNT))) {
+////                        aapsLogger.debug(LTag.PUMPBTCOMM, "Response Count is " + ByteUtil.shortHexString(characteristic.getValue()));
+////                    }
+//                }
                 if (radioResponseCountNotified != null) {
                     radioResponseCountNotified.run();
                 }
                 String answer = new String(characteristic.getValue()).toLowerCase();
+                if(pumpResponse.length()==0){
+                    pumpResponse.append(System.currentTimeMillis());
+                    pumpResponse.append("\n");
+                }
                 pumpResponse.append(answer);
                 if (answer.trim().equals("powerdown")) {
                     if(currentCommand!= null && currentCommand.command ==
@@ -165,13 +171,13 @@ public class MedLinkBLE extends RileyLinkBLE {
                     }
                     return;
                 }
-                if (answer.trim().toLowerCase().contains("ready")) {
+                if (answer.trim().contains("ready")) {
                     release();
                     setConnected(true);
-                    aapsLogger.debug("MedLink Ready");
+                    aapsLogger.info(LTag.PUMPBTCOMM,"MedLink Ready");
                     if (currentCommand != null) {
-                        aapsLogger.debug("Applying");
-                        aapsLogger.debug(new String(currentCommand.command));
+                        aapsLogger.info(LTag.PUMPBTCOMM,"Applying");
+                        aapsLogger.info(LTag.PUMPBTCOMM,new String(currentCommand.command));
                         applyResponse(pumpResponse.toString());
                         pumpResponse = new StringBuffer();
                         currentCommand = null;
@@ -255,7 +261,7 @@ public class MedLinkBLE extends RileyLinkBLE {
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
-                        medLinkUtil.sendBroadcastMessage(RileyLinkConst.Intents.BluetoothConnected, context);
+                        medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.BluetoothConnected, context);
                     } else {
                         aapsLogger.debug(LTag.PUMPBTCOMM, "BT State connected, GATT status {} ({})", status, getGattStatusMessage(status));
                     }
@@ -606,9 +612,11 @@ public class MedLinkBLE extends RileyLinkBLE {
                     aapsLogger.info(LTag.PUMPBTCOMM, "" + rval.resultCode);
                 }
 
-                mCurrentOperation.gattOperationCompletionCallback(charaUUID, new byte[0]);
-                aapsLogger.info(LTag.PUMPBTCOMM,"nulling currentoperation");
-                mCurrentOperation = null;
+                if(mCurrentOperation != null) {
+                    mCurrentOperation.gattOperationCompletionCallback(charaUUID, new byte[0]);
+                    aapsLogger.info(LTag.PUMPBTCOMM,"nulling currentoperation");
+                    mCurrentOperation = null;
+                }
 
             }
         } else {
@@ -971,7 +979,8 @@ public class MedLinkBLE extends RileyLinkBLE {
         } else {
             aapsLogger.info(LTag.PUMPBTCOMM, remainingCommands.stream().map(f ->
                     new String(f.command)).collect(Collectors.joining()));
-            medLinkConnect();
+            SystemClock.sleep(5000l);
+            processRemainingCommand();
         }
     }
 

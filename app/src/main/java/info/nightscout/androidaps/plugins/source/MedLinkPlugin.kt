@@ -3,6 +3,7 @@ package info.nightscout.androidaps.plugins.source
 import android.content.Intent
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.Config
+import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.MainApp
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.db.BgReading
@@ -88,32 +89,34 @@ class MedLinkPlugin @Inject constructor(
                     }
                 }
             }
-            // val meters = intent.getBundleExtra("meters")
-            // for (i in 0 until meters.size()) {
-            //     val meter = meters.getBundle(i.toString())
-            //     meter?.let {
-            //         val timestamp = it.getLong("timestamp") * 1000
-            //         val now = DateUtil.now()
-            //         if (timestamp > now - T.months(1).msecs() && timestamp < now)
-            //             if (MainApp.getDbHelper().getCareportalEventFromTimestamp(timestamp) == null) {
-            //                 val jsonObject = JSONObject()
-            //                 jsonObject.put("enteredBy", "AndroidAPS-MedLink$sensorType")
-            //                 jsonObject.put("created_at", DateUtil.toISOString(timestamp))
-            //                 jsonObject.put("eventType", CareportalEvent.BGCHECK)
-            //                 jsonObject.put("glucoseType", "Finger")
-            //                 jsonObject.put("glucose", meter.getInt("meterValue"))
-            //                 jsonObject.put("units", Constants.MGDL)
-            //
-            //                 val careportalEvent = CareportalEvent(injector)
-            //                 careportalEvent.date = timestamp
-            //                 careportalEvent.source = Source.USER
-            //                 careportalEvent.eventType = CareportalEvent.BGCHECK
-            //                 careportalEvent.json = jsonObject.toString()
-            //                 MainApp.getDbHelper().createOrUpdate(careportalEvent)
-            //                 nsUpload.uploadCareportalEntryToNS(jsonObject)
-            //             }
-            //     }
-            // }
+            val meters = intent.getBundleExtra("meters")
+            for (i in 0 until meters.size()) {
+                val meter = meters.getBundle(i.toString())
+                meter?.let {
+                    val timestamp = it.getLong("timestamp")
+                    aapsLogger.info(LTag.DATABASE, "meters timestamp $timestamp")
+                    val now = DateUtil.now()
+                    if (timestamp > now - T.months(1).msecs() && timestamp < now)
+                        if (MainApp.getDbHelper().getCareportalEventFromTimestamp(timestamp) == null) {
+                            val jsonObject = JSONObject()
+                            jsonObject.put("enteredBy", "AndroidAPS-MedLink$sensorType")
+                            jsonObject.put("created_at", DateUtil.toISOString(timestamp))
+                            jsonObject.put("eventType", CareportalEvent.BGCHECK)
+                            jsonObject.put("glucoseType", "Finger")
+                            jsonObject.put("glucose", meter.getDouble("meterValue"))
+                            jsonObject.put("units", Constants.MGDL)
+                            jsonObject.put("mills", timestamp)
+
+                            val careportalEvent = CareportalEvent(injector)
+                            careportalEvent.date = timestamp
+                            careportalEvent.source = Source.USER
+                            careportalEvent.eventType = CareportalEvent.BGCHECK
+                            careportalEvent.json = jsonObject.toString()
+                            MainApp.getDbHelper().createOrUpdate(careportalEvent)
+                            nsUpload.uploadCareportalEntryToNS(jsonObject)
+                        }
+                }
+            }
             if (sp.getBoolean(R.string.key_medlink_lognssensorchange, false) && intent.hasExtra("sensorInsertionTime")) {
                 intent.extras?.let {
                     val sensorInsertionTime = it.getLong("sensorInsertionTime") * 1000

@@ -450,7 +450,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     public abstract void setDoWakeUpBeforeCommand(boolean doWakeUp);
 
-    public abstract boolean getBGHistory();
+    public abstract boolean getBGHistory(MedLinkPumpMessage pumpMessage);
 
     public abstract boolean getBolusHistory();
 }

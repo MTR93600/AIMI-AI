@@ -32,6 +32,7 @@ public enum MedLinkCommandType {
     StopPump("STOP"),
     IsigHistory("I"),
     BGHistory("C"),
+    PreviousBGHistory("T"),
     BolusHistory("H"),
     ActiveBasalProfile("E\r\n"),
     BaseProfile("F\r\n"),

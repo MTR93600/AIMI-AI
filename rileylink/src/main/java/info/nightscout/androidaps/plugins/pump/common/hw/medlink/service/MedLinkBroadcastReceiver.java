@@ -60,8 +60,8 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
         // Bluetooth
         this.broadcastIdentifiers.put("Bluetooth", Arrays.asList( //
-                RileyLinkConst.Intents.BluetoothConnected, //
-                RileyLinkConst.Intents.BluetoothReconnected));
+                MedLinkConst.Intents.BluetoothConnected, //
+                MedLinkConst.Intents.BluetoothReconnected));
 
         // TuneUp
         this.broadcastIdentifiers.put("TuneUp", Arrays.asList( //
@@ -86,13 +86,13 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
     public boolean processBluetoothBroadcasts(String action) {
 
-        if (action.equals(RileyLinkConst.Intents.BluetoothConnected)) {
+        if (action.equals(MedLinkConst.Intents.BluetoothConnected)) {
             aapsLogger.debug(LTag.PUMPBTCOMM, "Bluetooth - Connected");
             serviceTaskExecutor.startTask(new DiscoverGattServicesTask(injector));
 
             return true;
 
-        } else if (action.equals(RileyLinkConst.Intents.BluetoothReconnected)) {
+        } else if (action.equals(MedLinkConst.Intents.BluetoothReconnected)) {
             aapsLogger.debug(LTag.PUMPBTCOMM, "Bluetooth - Reconnecting");
 
             getServiceInstance().bluetoothInit();

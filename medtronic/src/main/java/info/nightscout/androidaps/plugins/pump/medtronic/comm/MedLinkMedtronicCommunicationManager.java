@@ -28,7 +28,6 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage;
@@ -336,7 +335,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     }
 
 
-    private void runCommandWithArgs(MedLinkCommandType command, MedLinkCommandType args, BaseCallback resultActivity) throws RileyLinkCommunicationException {
+    private void runCommandWithArgs(MedLinkCommandType command, MedLinkCommandType args,
+                                    Function resultActivity) throws RileyLinkCommunicationException {
         rfspy.transmitThenReceive(makePumpMessage(command, args, resultActivity));
         //TODO avaliar este retorno
 
@@ -983,19 +983,15 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                 resultActivity);
     }
 
-    public boolean getBGHistory() {
-        BaseCallback resultActivity = new BGHistoryCallback(injector, medLinkPumpPlugin);
-        return setCommand(MedLinkCommandType.BGHistory, MedLinkCommandType.NoCommand, resultActivity);
+    public boolean getBGHistory(MedLinkPumpMessage pumpMessage) {
+        return setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
+                pumpMessage.getBaseCallBack());
     }
 
-    public Boolean setBolus(double units) {
-
-        aapsLogger.info(LTag.PUMPCOMM, "setBolus: " + units);
-
-        BaseCallback resultActivity = new BolusCallback();
-        MedLinkCommandType bolusCommand = MedLinkCommandType.BolusAmount;
-        bolusCommand.insulinAmount = units;
-        return setCommand(MedLinkCommandType.Bolus, bolusCommand, resultActivity);
+    public Boolean setBolus(MedLinkPumpMessage pumpMessage) {
+        aapsLogger.info(LTag.PUMPCOMM, "setBolus: " + pumpMessage);
+        return setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
+                pumpMessage.getBaseCallBack());
 
     }
 
@@ -1037,7 +1033,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     }
 
 
-    private boolean setCommand(MedLinkCommandType commandType, MedLinkCommandType args, BaseCallback resultActivity) {
+    public boolean setCommand(MedLinkCommandType commandType, MedLinkCommandType args, Function resultActivity) {
 
 //        for (int retries = 0; retries <= MAX_COMMAND_TRIES; retries++) {
 

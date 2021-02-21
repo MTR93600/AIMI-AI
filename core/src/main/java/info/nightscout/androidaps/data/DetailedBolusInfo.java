@@ -14,6 +14,12 @@ import info.nightscout.androidaps.db.Source;
  */
 
 public class DetailedBolusInfo {
+    private enum BolusType {
+        NORMAL,
+        EXTENDED
+    }
+    public BolusType bolusType = BolusType.NORMAL;
+    public int durationInMinutes = 0;
     public long date = System.currentTimeMillis();
     public long lastKnownBolusTime;
     public String eventType = CareportalEvent.MEALBOLUS;

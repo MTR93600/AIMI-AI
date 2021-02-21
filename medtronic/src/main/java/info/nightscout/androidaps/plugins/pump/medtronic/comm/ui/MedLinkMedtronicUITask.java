@@ -139,8 +139,8 @@ public class MedLinkMedtronicUITask {
             case SetBolus: {
                 Double amount = getDoubleFromParameters(0);
 
-                if (amount != null)
-                    returnData = communicationManager.setBolus(amount);
+//                if (amount != null)
+//                    returnData = communicationManager.setBolus(amount);
             }
             break;
 

@@ -37,7 +37,6 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
     @Override public MedLinkStandardReturn<Stream<DetailedBolusInfo>> apply(Supplier<Stream<String>> ans) {
         Iterator<String> answers = ans.get().iterator();
         aapsLogger.info(LTag.PUMPBTCOMM, "Bolus history");
-        ans.get().forEachOrdered(f -> System.out.println(f));
         while (answers.hasNext() && !answers.next().contains("bolus history:")) {
 
         }
@@ -68,7 +67,7 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
         while (answers.hasNext() && !answers.next().contains("bolus:")) {
 
         }
-        Pattern bolusDatePattern = Pattern.compile("\\d{2}:\\d{2}\\s+\\d{2}‑\\d{2}‑\\d{4}");
+        Pattern bolusDatePattern = Pattern.compile("\\d{2}:\\d{2}\\s+\\d{2}-\\d{2}-\\d{4}");
         if (answers.hasNext()) {
             Matcher bolusDateMatcher = bolusDatePattern.matcher(answers.next());
             if (bolusDateMatcher.find()) {
@@ -80,7 +79,7 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
                 bolusInfo.insulin = processBolusData(answers, "given bl:");
                 bolusInfo.source = Source.PUMP;
                 bolusInfo.pumpId = Long.parseLong(
-                        medLinkPumpPlugin.getPumpInfo().getConnectedDeviceSerialNumber());
+                        medLinkPumpPlugin.getMedLinkService().getMedLinkServiceData().pumpID);
                 Double setBolus = processBolusData(answers, "set bl:");
                 String isFromBolusWizard = answers.next();
                 if (isFromBolusWizard.contains("enter from bolus wizard")) {
@@ -118,7 +117,7 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
 //23:39:17.874 Bolus:
 //23:39:17.903 Time:  21:52  15‑02‑2021
 //23:39:17.941 Given BL:  1.500 U
-//23:39:17.942 Set BL:  1.500 U
+//23:39:17.942 Set BL:  1.discoverSer500 U
 //23:39:17.978 Time PD:  0.0h  IOB:  5.200 U
 //23:39:18.053
 

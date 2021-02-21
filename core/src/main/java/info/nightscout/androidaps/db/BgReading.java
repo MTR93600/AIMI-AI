@@ -76,12 +76,14 @@ public class BgReading implements DataPointWithLabelInterface {
         _id = sgv.getId();
     }
 
-    public BgReading(HasAndroidInjector injector, long bgDate, double bg, Double filtered, long previousDate, double previousBG) {
+    public BgReading(HasAndroidInjector injector, long bgDate, double bg, Double filtered,
+                     long previousDate, double previousBG, int source) {
         injector.androidInjector().inject(this);
         date = bgDate;
         value = bg;
         raw = filtered != null ? filtered : value;
         this.direction = calculateDirection(bgDate, previousDate, bg, previousBG);
+        this.source = source;
 //        _id = sgv.getId();
     }
 
@@ -168,6 +170,7 @@ public class BgReading implements DataPointWithLabelInterface {
                 ", value=" + value +
                 ", direction=" + direction +
                 ", raw=" + raw +
+                ", source=" + source +
                 '}';
     }
 

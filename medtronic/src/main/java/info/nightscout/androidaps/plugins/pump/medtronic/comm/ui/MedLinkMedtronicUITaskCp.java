@@ -66,15 +66,16 @@ public class MedLinkMedtronicUITaskCp {
         aapsLogger.debug(LTag.PUMP, "MedtronicUITask: @@@ In execute. {}", pumpMessage);
 
         switch (pumpMessage.getCommandType()) {
-            case GetState:{
+            case GetState: {
                 communicationManager.getStatusData();
             }
             break;
             case PumpModel: {
                 Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = new ConnectionCallback().andThen(s -> {
-                    if(s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))){
+                    if (s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))) {
                         rxBus.send(new EventMedtronicPumpValuesChanged());
-                    };
+                    }
+                    ;
                     return s;
                 });
                 returnData = communicationManager.getPumpModel(activity);
@@ -89,7 +90,7 @@ public class MedLinkMedtronicUITaskCp {
                 });
             }
             break;
-            case BolusHistory:{
+            case BolusHistory: {
                 returnData = communicationManager.getBolusHistory();
             }
             break;
@@ -140,7 +141,7 @@ public class MedLinkMedtronicUITaskCp {
                 Double amount = pumpMessage.getArgument().insulinAmount;
 
                 if (amount != null && amount != 0d)
-                    returnData = communicationManager.setBolus(amount);
+                    returnData = communicationManager.setBolus(pumpMessage);
             }
             break;
 
@@ -162,9 +163,10 @@ public class MedLinkMedtronicUITaskCp {
 //                        (LocalDateTime) parameters[1]);
 //            }
 //            break;
-
-            case BGHistory:{
-                communicationManager.getBGHistory();
+            case PreviousBGHistory:
+            case BGHistory: {
+                communicationManager.setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
+                        pumpMessage.getBaseCallBack());
             }
             break;
             default: {
@@ -227,7 +229,7 @@ public class MedLinkMedtronicUITaskCp {
 //            postprocessor.postProcessData(this);
         }
 
-        aapsLogger.info(LTag.PUMP,"pump response type");
+        aapsLogger.info(LTag.PUMP, "pump response type");
 //        aapsLogger.info(LTag.PUMP,responseType.name());
 
         if (responseType == MedtronicUIResponseType.Invalid) {

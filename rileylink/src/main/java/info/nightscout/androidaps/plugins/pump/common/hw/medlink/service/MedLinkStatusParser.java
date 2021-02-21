@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.db.BgReading;
+import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
@@ -264,7 +265,7 @@ public class MedLinkStatusParser {
                 if(bgDate != null) {
                     BgReading reading = new BgReading(injector,
                             bgDate.getTime(), bg, null, pumpStatus.lastBGTimestamp,
-                            pumpStatus.latestBG);
+                            pumpStatus.latestBG, Source.PUMP);
                     pumpStatus.reading = reading;
                 }
                 pumpStatus.lastBGTimestamp = bgDate.getTime();

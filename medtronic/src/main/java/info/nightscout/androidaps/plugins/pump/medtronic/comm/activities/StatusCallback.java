@@ -39,7 +39,7 @@ public class StatusCallback extends BaseStatusCallback {
         String[] messages = answer.toArray(String[]::new);
         if (f.getAnswer().anyMatch(m -> m.contains("eomeomeom"))) {
             aapsLogger.debug("eomomom");
-            medLinkPumpPlugin.setLastCommunicationToNow();
+            medLinkPumpStatus.lastConnection = Long.parseLong(messages[0]);
             MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
             MedLinkStatusParser.parseStatus(messages, pumpStatus, medLinkPumpPlugin.getInjector());
             aapsLogger.debug("Pumpstatus");
