@@ -326,7 +326,7 @@ public class BgReading implements DataPointWithLabelInterface {
         else
             slope = (previousValue - currentValue) / (previousDate - currentDate);
 
-        aapsLogger.error(LTag.GLUCOSE, "Slope is :" + slope + " delta " + (previousValue - currentValue) + " date difference " + (currentDate - previousDate));
+//        aapsLogger.error(LTag.GLUCOSE, "Slope is :" + slope + " delta " + (previousValue - currentValue) + " date difference " + (currentDate - previousDate));
 
         double slope_by_minute = slope * 60000;
         String arrow = "NONE";
@@ -346,7 +346,7 @@ public class BgReading implements DataPointWithLabelInterface {
         } else if (slope_by_minute <= (40)) {
             arrow = "DoubleUp";
         }
-        aapsLogger.error(LTag.GLUCOSE, "Direction set to: " + arrow);
+//        aapsLogger.error(LTag.GLUCOSE, "Direction set to: " + arrow);
         return arrow;
     }
 }

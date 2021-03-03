@@ -97,7 +97,7 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
             Matcher matcher = bgLinePattern.matcher(f);
             //BG: 68 15:35 00‑00‑2000
             Optional<BGHistory> bgHistory = Optional.empty();
-            if (matcher.find()) {
+            if ((f.length() == 25 || f.length() == 26 ) && matcher.find()) {
                 String data = matcher.group(0);
 
 //                Double bg = Double.valueOf(data.substring(3, 6).trim());
@@ -116,11 +116,11 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
                     bgDate = formatter.parse(dtMatcher.group(0));
                     Date firstDate = new Date();
                     firstDate.setTime(0l);
-                    aapsLogger.info(LTag.PUMPBTCOMM, f);
+//                    aapsLogger.info(LTag.PUMPBTCOMM, f);
                     if(f.trim().startsWith("cl:")){
                         bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate, Source.USER));
                     }else {
-                        if (bgDate.toInstant().isAfter(new Date().toInstant().minus(Duration.ofDays(1))) || bgDate.toInstant().isBefore(new Date().toInstant().plus(Duration.ofMinutes(5)))) {
+                        if (bgDate.toInstant().isAfter(new Date().toInstant().minus(Duration.ofDays(2))) && bgDate.toInstant().isBefore(new Date().toInstant().plus(Duration.ofMinutes(5)))) {
                             bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate,
                                     Source.PUMP));
                         }
@@ -131,7 +131,6 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
                 }
                 return bgHistory;
             }
-            bgHistory = Optional.empty();
             return bgHistory;
         }).filter(Optional::isPresent).map(Optional::get);
         Stream<BGHistory> sorted = bgs.sorted((b, a) -> (int) (b.getTimestamp() - a.getTimestamp()));

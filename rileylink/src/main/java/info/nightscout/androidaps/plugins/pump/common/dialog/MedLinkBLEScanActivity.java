@@ -42,6 +42,7 @@ import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
@@ -108,9 +109,9 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
 
             sp.putString(MedLinkConst.Prefs.MedLinkAddress, bleAddress);
 
-            RileyLinkPumpDevice rileyLinkPump = (RileyLinkPumpDevice) activePlugin.getActivePump();
-            rileyLinkPump.getRileyLinkService().verifyConfiguration(); // force reloading of address
-            rileyLinkPump.triggerPumpConfigurationChangedEvent();
+            MedLinkPumpDevice medlinkPumpDevice = (MedLinkPumpDevice) activePlugin.getActivePump();
+            medlinkPumpDevice.getRileyLinkService().verifyConfiguration(); // force reloading of address
+            medlinkPumpDevice.triggerPumpConfigurationChangedEvent();
 
             finish();
         });

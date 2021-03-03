@@ -638,7 +638,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             creatOrUpdateResult = getService().createOrUpdateMedtronic(treatment, false);
 
         boolean newRecordCreated = creatOrUpdateResult.newRecord;
-        //log.debug("Adding new Treatment record" + treatment.toString());
+        getAapsLogger().debug("Adding new Treatment record" + treatment.toString());
+
         if (detailedBolusInfo.carbTime != 0) {
 
             Treatment carbsTreatment = new Treatment();

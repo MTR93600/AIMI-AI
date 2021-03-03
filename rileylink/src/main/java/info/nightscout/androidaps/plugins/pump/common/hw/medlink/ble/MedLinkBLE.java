@@ -57,6 +57,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class MedLinkBLE extends RileyLinkBLE {
 
     private boolean executing;
+    private boolean replay = false;
+    private long lastTryToClose = 0l;
+    private int tryingToClose = 0;
+    private boolean btNotSupported;
 
     private class Resp {
         private final String command;
@@ -121,13 +125,13 @@ public class MedLinkBLE extends RileyLinkBLE {
                     radioResponseCountNotified.run();
                 }
                 String answer = new String(characteristic.getValue()).toLowerCase();
-                if(pumpResponse.length()==0){
-                    pumpResponse.append(System.currentTimeMillis());
-                    pumpResponse.append("\n");
+                if (pumpResponse.length() == 0) {
+                    pumpResponse.append(String.valueOf(System.currentTimeMillis()) + "\n");
                 }
                 pumpResponse.append(answer);
+//                pumpResponse.append("\n");
                 if (answer.trim().equals("powerdown")) {
-                    if(currentCommand!= null && currentCommand.command ==
+                    if (currentCommand != null && currentCommand.command ==
                             MedLinkCommandType.BolusHistory.getRaw()) {
                         applyResponse(answer);
                     }
@@ -172,12 +176,13 @@ public class MedLinkBLE extends RileyLinkBLE {
                     return;
                 }
                 if (answer.trim().contains("ready")) {
+                    tryingToClose=0;
                     release();
                     setConnected(true);
-                    aapsLogger.info(LTag.PUMPBTCOMM,"MedLink Ready");
+                    aapsLogger.info(LTag.PUMPBTCOMM, "MedLink Ready");
                     if (currentCommand != null) {
-                        aapsLogger.info(LTag.PUMPBTCOMM,"Applying");
-                        aapsLogger.info(LTag.PUMPBTCOMM,new String(currentCommand.command));
+                        aapsLogger.info(LTag.PUMPBTCOMM, "Applying");
+                        aapsLogger.info(LTag.PUMPBTCOMM, new String(currentCommand.command));
                         applyResponse(pumpResponse.toString());
                         pumpResponse = new StringBuffer();
                         currentCommand = null;
@@ -277,9 +282,9 @@ public class MedLinkBLE extends RileyLinkBLE {
                     } else {
                         medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.MedLinkDisconnected, context);
                     }
-                    acquire();
+//                    acquire();
                     close();
-                    release();
+//                    release();
                     aapsLogger.warn(LTag.PUMPBTCOMM, "MedLink Disconnected.");
                 } else {
                     aapsLogger.warn(LTag.PUMPBTCOMM, "Some other state: (status={},newState={})", status, newState);
@@ -395,17 +400,21 @@ public class MedLinkBLE extends RileyLinkBLE {
     }
 
     private void applyResponse(String pumpResp) {
-        Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n"));
-        if (currentCommand != null && currentCommand.getFunction() != null) {
-            aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
-            currentCommand.getFunction().apply(sup);
-        } else if (!this.resultActivity.isEmpty()) {
-            Resp resp = this.resultActivity.get(0);
-            aapsLogger.info(LTag.PUMPBTCOMM, resp.toString());
-            resp.getFunc().apply(sup);
-        }
-        if (!this.resultActivity.isEmpty()) {
-            this.resultActivity.remove(0);
+        try {
+            Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n"));
+            if (currentCommand != null && currentCommand.getFunction() != null) {
+//                aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
+                currentCommand.getFunction().apply(sup);
+            } else if (!this.resultActivity.isEmpty()) {
+                Resp resp = this.resultActivity.get(0);
+//                aapsLogger.info(LTag.PUMPBTCOMM, resp.toString());
+                resp.getFunc().apply(sup);
+            }
+            if (!this.resultActivity.isEmpty()) {
+                this.resultActivity.remove(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -437,10 +446,12 @@ public class MedLinkBLE extends RileyLinkBLE {
                 if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
                     // Catch if the service is not supported by the BLE device
                     rval.resultCode = BLECommOperationResult.RESULT_NONE;
+                    btNotSupported = true;
                     aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
+                    btNotSupported = false;
                     BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID).getCharacteristic(
                             charaUUID);
                     if (chara != null) {
@@ -580,6 +591,8 @@ public class MedLinkBLE extends RileyLinkBLE {
                     // e.g. when the user switches from portrait to landscape.
                     rval.resultCode = BLECommOperationResult.RESULT_NONE;
                     aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
+                    close();
+                    return  rval;
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
@@ -612,9 +625,9 @@ public class MedLinkBLE extends RileyLinkBLE {
                     aapsLogger.info(LTag.PUMPBTCOMM, "" + rval.resultCode);
                 }
 
-                if(mCurrentOperation != null) {
+                if (mCurrentOperation != null) {
                     mCurrentOperation.gattOperationCompletionCallback(charaUUID, new byte[0]);
-                    aapsLogger.info(LTag.PUMPBTCOMM,"nulling currentoperation");
+                    aapsLogger.info(LTag.PUMPBTCOMM, "nulling currentoperation");
                     mCurrentOperation = null;
                 }
 
@@ -685,7 +698,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                 }
                 if (remainingCommands.isEmpty()) {
                     mCurrentOperation.gattOperationCompletionCallback(charaUUID, new byte[0]);
-                    aapsLogger.info(LTag.PUMPBTCOMM,"nulling currentoperation");
+                    aapsLogger.info(LTag.PUMPBTCOMM, "nulling currentoperation");
                     mCurrentOperation = null;
                     aapsLogger.info(LTag.PUMPBTCOMM, "before release");
 //                    gattOperationSema.release();
@@ -773,6 +786,8 @@ public class MedLinkBLE extends RileyLinkBLE {
         aapsLogger.info(LTag.PUMPBTCOMM, "is this connected" + this.isConnected);
         if (!this.isConnected) {
             medLinkConnect();
+        } else if(this.latestReceivedAnswer > 0 && System.currentTimeMillis() - this.latestReceivedAnswer > 8000){
+            close();
         }
         while (!this.isConnected) {
             SystemClock.sleep(500);
@@ -880,6 +895,8 @@ public class MedLinkBLE extends RileyLinkBLE {
                     // Catch if the service is not supported by the BLE device
                     rval.resultCode = BLECommOperationResult.RESULT_NONE;
                     aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
+                    this.replay = true;
+//                    close();
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
@@ -906,7 +923,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                         rval.resultCode = BLECommOperationResult.RESULT_SUCCESS;
                     }
                 }
-                aapsLogger.info(LTag.PUMPBTCOMM,"nulling currentoperation");
+                aapsLogger.info(LTag.PUMPBTCOMM, "nulling currentoperation");
                 mCurrentOperation = null;
                 gattOperationSema.release();
                 this.executing = false;
@@ -961,7 +978,19 @@ public class MedLinkBLE extends RileyLinkBLE {
         setConnected(false);
     }
 
-    public void close() {
+    public synchronized void close() {
+        if(System.currentTimeMillis() - lastTryToClose < 20000 ){
+            this.tryingToClose++;
+        }
+
+        if(tryingToClose > 5){
+            medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.MedLinkDisconnected, context);
+            return;
+        } else if(tryingToClose > 2 && btNotSupported) {
+            medLinkConnect();
+            return;
+        }
+        this.lastTryToClose = System.currentTimeMillis();
         disconnect();
         super.close();
         if (remainingCommands.isEmpty()) {
@@ -974,6 +1003,7 @@ public class MedLinkBLE extends RileyLinkBLE {
             latestReceivedAnswer = 0l;
             latestReceivedCommand = 0l;
             release();
+            tryingToClose=0;
 //        mCurrentOperation = null;
 //        gattOperationSema.release();
         } else {

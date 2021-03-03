@@ -81,35 +81,37 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
                 bolusInfo.pumpId = Long.parseLong(
                         medLinkPumpPlugin.getMedLinkService().getMedLinkServiceData().pumpID);
                 Double setBolus = processBolusData(answers, "set bl:");
-                String isFromBolusWizard = answers.next();
-                if (isFromBolusWizard.contains("enter from bolus wizard")) {
-                    String bg = answers.next();
-                    if (bg.contains("glucose")) {
-                        Pattern bgPattern = Pattern.compile("\\d{1,3}");
-                        Matcher bgMatcher = bgPattern.matcher(bg);
-                        if (bgMatcher.find()) {
-                            bolusInfo.glucose = Double.parseDouble(bgMatcher.group(0));
+                if (answers.hasNext()) {
+                    String isFromBolusWizard = answers.next();
+                    if (isFromBolusWizard.contains("enter from bolus wizard")) {
+                        String bg = answers.next();
+                        if (bg.contains("glucose")) {
+                            Pattern bgPattern = Pattern.compile("\\d{1,3}");
+                            Matcher bgMatcher = bgPattern.matcher(bg);
+                            if (bgMatcher.find()) {
+                                bolusInfo.glucose = Double.parseDouble(bgMatcher.group(0));
+                            }
+                        }
+
+                        while (answers.hasNext() && !isFromBolusWizard.contains("food")) {
+                            isFromBolusWizard = answers.next();
+                        }
+                        Pattern carbsPattern = Pattern.compile("\\d{1,3}");
+                        Matcher carbsMatcher = carbsPattern.matcher(isFromBolusWizard);
+                        if (carbsMatcher.find()) {
+                            bolusInfo.carbs = Integer.parseInt(carbsMatcher.group(0));
+
+                        }
+                    } else if (isFromBolusWizard.contains("pd") && !isFromBolusWizard.contains("0.0h")) {
+                        Pattern squareBolusPattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}");
+                        Matcher squareBolusMatcher = squareBolusPattern.matcher(isFromBolusWizard);
+                        if (squareBolusMatcher.find()) {
+                            squareBolusMatcher.group(0);
                         }
                     }
-
-                    while (answers.hasNext() && !isFromBolusWizard.contains("food")) {
-                        isFromBolusWizard = answers.next();
-                    }
-                    Pattern carbsPattern = Pattern.compile("\\d{1,3}");
-                    Matcher carbsMatcher = carbsPattern.matcher(isFromBolusWizard);
-                    if (carbsMatcher.find()) {
-                        bolusInfo.carbs = Integer.parseInt(carbsMatcher.group(0));
-
-                    }
-                } else if (isFromBolusWizard.contains("pd") && !isFromBolusWizard.contains("0.0h")) {
-                    Pattern squareBolusPattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}");
-                    Matcher squareBolusMatcher = squareBolusPattern.matcher(isFromBolusWizard);
-                    if(squareBolusMatcher.find()){
-                        squareBolusMatcher.group(0);
-                    }
+                    aapsLogger.info(LTag.DATABASE, bolusInfo.toString());
+                    return Optional.of(bolusInfo);
                 }
-                aapsLogger.info(LTag.DATABASE, bolusInfo.toString());
-                return Optional.of(bolusInfo);
             }
         }
         return Optional.empty();
