@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Medtronic (MDT) - Base -->
-    <string name="medtronic_name" translatable="false">Medtronic-Riley</string>
-    <string name="medlink_medtronic_name" translatable="false">Medtronic-MedLink</string>
+    <string name="medtronic_name" translatable="false">Medtronic</string>
+    <string name="medlink_medtronic_name" translatable="false">Medtronic</string>
     <string name="medtronic_name_short" translatable="false">MDT</string>
     <string name="medlink_medtronic_name_short" translatable="false">MDT-ML</string>
     <string name="description_pump_medtronic">Pump integration for Medtronic, requires RileyLink device and specific Pump Model</string>
@@ -120,7 +120,10 @@
     <string name="medtronic_notification_check_time_date">Pump clock update needed</string> <!-- combo_notification_check_time_date -->
     <string name="common_on">On</string>
     <string name="common_off">Off</string>
+    <string name="mdt_last_bolus" translatable="false">%1$.1f %2$s (%3$s)</string>
     <string name="pump_time_updated">Pump time updated</string>
     <string name="key_set_neutral_temps" translatable="false">set_neutral_temps</string>
+    <string name="set_neutral_temps_title">Set neutral temp basals</string>
+    <string name="set_neutral_temps_summary">If enabled, it will cancel a temporary basal before the end of each hour. This method can help stop some pumps beeping/vibrating on the hour.</string>
 
 </resources>

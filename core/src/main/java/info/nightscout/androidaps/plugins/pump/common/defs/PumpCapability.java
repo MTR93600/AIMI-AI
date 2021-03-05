@@ -26,6 +26,7 @@ public enum PumpCapability {
     MedtronicCapabilities(Bolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD), //
     MedLinkMedtronicCapabilities(Bolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD, BasalRate30min), //
     OmnipodCapabilities(Bolus, TempBasal, BasalProfileSet, BasalRate30min), //
+    YpsomedCapabilities(Bolus, ExtendedBolus, TempBasal, BasalProfileSet, Refill, ReplaceBattery, TDD, ManualTDDLoad),
 
     // BasalRates (separately grouped)
     BasalRate_Duration15minAllowed, //

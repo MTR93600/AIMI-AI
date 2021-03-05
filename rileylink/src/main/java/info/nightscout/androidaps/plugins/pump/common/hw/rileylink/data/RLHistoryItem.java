@@ -84,7 +84,7 @@ public class RLHistoryItem implements HistoryItem {
         MedtronicCommand("Medtronic"), //
         OmnipodCommand("Omnipod");
 
-        private String desc;
+        private final String desc;
 
 
         RLHistoryItemSource(String desc) {

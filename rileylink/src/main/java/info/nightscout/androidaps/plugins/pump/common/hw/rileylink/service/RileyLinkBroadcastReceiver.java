@@ -86,9 +86,8 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
     }
 
-    protected RileyLinkService getServiceInstance() {
-        PumpInterface pump = activePlugin.getActivePump();
-        RileyLinkPumpDevice pumpDevice = (RileyLinkPumpDevice) pump;
+    private RileyLinkService getServiceInstance() {
+        RileyLinkPumpDevice pumpDevice = (RileyLinkPumpDevice) activePlugin.getActivePump();
         return pumpDevice.getRileyLinkService();
 
     }
@@ -147,7 +146,6 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
             return true;
         } else if (action.equals(RileyLinkConst.Intents.RileyLinkReady)) {
-
             aapsLogger.warn(LTag.PUMPBTCOMM, "RileyLinkConst.Intents.RileyLinkReady");
             // sendIPCNotification(RT2Const.IPC.MSG_note_WakingPump);
 
@@ -158,13 +156,12 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             String bleVersion = rileyLinkService.getRFSpy.getBLEVersionCached();
             RileyLinkFirmwareVersion rlVersion = rileyLinkServiceData.firmwareVersion;
 
-//            if (isLoggingEnabled())
             aapsLogger.debug(LTag.PUMPBTCOMM, "RfSpy version (BLE113): " + bleVersion);
             rileyLinkService.rileyLinkServiceData.versionBLE113 = bleVersion;
 
 //            if (isLoggingEnabled())
             aapsLogger.debug(LTag.PUMPBTCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
-            this.rileyLinkServiceData.versionCC110 = rlVersion;
+            this.rileyLinkServiceData.firmwareVersion = rlVersion;
 
             ServiceTask task = new InitializePumpManagerTask(injector, context);
             serviceTaskExecutor.startTask(task);
@@ -186,7 +183,6 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             return true;
         } else if (action.equals(RileyLinkConst.Intents.RileyLinkDisconnect)) {
             rileyLinkService.disconnectRileyLink();
-
             return true;
         } else {
             return false;

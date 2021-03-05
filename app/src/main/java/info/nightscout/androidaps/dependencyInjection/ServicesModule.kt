@@ -11,6 +11,7 @@ import info.nightscout.androidaps.plugins.pump.insight.InsightAlertService
 import info.nightscout.androidaps.plugins.pump.insight.connection_service.InsightConnectionService
 import info.nightscout.androidaps.plugins.pump.medtronic.service.MedLinkMedtronicService
 import info.nightscout.androidaps.plugins.pump.medtronic.service.RileyLinkMedtronicService
+import info.nightscout.androidaps.plugins.pump.omnipod.rileylink.service.RileyLinkOmnipodService
 import info.nightscout.androidaps.services.AlarmSoundService
 import info.nightscout.androidaps.services.DataService
 import info.nightscout.androidaps.services.LocationService
@@ -31,4 +32,5 @@ abstract class ServicesModule {
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService
     @ContributesAndroidInjector abstract fun contributesRileyLinkMedtronicService(): RileyLinkMedtronicService
     @ContributesAndroidInjector abstract fun contributesMedLinkMedtronicService(): MedLinkMedtronicService
+    @ContributesAndroidInjector abstract fun contributesRileyLinkOmnipodService(): RileyLinkOmnipodService
 }

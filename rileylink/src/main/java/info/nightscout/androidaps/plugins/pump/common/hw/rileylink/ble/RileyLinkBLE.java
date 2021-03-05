@@ -36,6 +36,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLin
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
+import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 /**
  * Created by geoff on 5/26/16.
@@ -47,6 +48,7 @@ public class RileyLinkBLE {
     @Inject protected AAPSLogger aapsLogger;
     @Inject RileyLinkServiceData rileyLinkServiceData;
     @Inject RileyLinkUtil rileyLinkUtil;
+    @Inject SP sp;
 
     protected StringBuffer pumpResponse = new StringBuffer();
 
@@ -156,8 +158,8 @@ public class RileyLinkBLE {
 
                 } else if ((newState == BluetoothProfile.STATE_CONNECTING) || //
                         (newState == BluetoothProfile.STATE_DISCONNECTING)) {
-                    aapsLogger.debug(LTag.PUMPBTCOMM,"We are in {} state.", status == BluetoothProfile.STATE_CONNECTING ? "Connecting" :
-                     "Disconnecting");
+                    aapsLogger.debug(LTag.PUMPBTCOMM, "We are in {} state.", status == BluetoothProfile.STATE_CONNECTING ? "Connecting" :
+                            "Disconnecting");
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     rileyLinkUtil.sendBroadcastMessage(RileyLinkConst.Intents.RileyLinkDisconnected, context);
                     if (manualDisconnect)
@@ -399,6 +401,17 @@ public class RileyLinkBLE {
             if (gattDebugEnabled) {
                 aapsLogger.debug(LTag.PUMPBTCOMM, "Gatt Connected.");
             }
+
+            String deviceName = bluetoothConnectionGatt.getDevice().getName();
+            if (StringUtils.isNotEmpty(deviceName)) {
+                // Update stored name upon connecting (also for backwards compatibility for device where a name was not yet stored)
+                sp.putString(RileyLinkConst.Prefs.RileyLinkName, deviceName);
+            } else {
+                sp.remove(RileyLinkConst.Prefs.RileyLinkName);
+            }
+
+            rileyLinkServiceData.rileyLinkName = deviceName;
+            rileyLinkServiceData.rileyLinkAddress = bluetoothConnectionGatt.getDevice().getAddress();
         }
     }
 

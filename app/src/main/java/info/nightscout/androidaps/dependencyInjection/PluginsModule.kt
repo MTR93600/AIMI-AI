@@ -31,6 +31,7 @@ import info.nightscout.androidaps.plugins.general.persistentNotification.Persist
 import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin
 import info.nightscout.androidaps.plugins.general.wear.WearPlugin
 import info.nightscout.androidaps.plugins.general.xdripStatusline.StatusLinePlugin
+import info.nightscout.androidaps.plugins.insulin.InsulinLyumjevPlugin
 import info.nightscout.androidaps.plugins.insulin.InsulinOrefFreePeakPlugin
 import info.nightscout.androidaps.plugins.insulin.InsulinOrefRapidActingPlugin
 import info.nightscout.androidaps.plugins.insulin.InsulinOrefUltraRapidActingPlugin
@@ -42,6 +43,7 @@ import info.nightscout.androidaps.plugins.pump.insight.LocalInsightPlugin
 import info.nightscout.androidaps.plugins.pump.mdi.MDIPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin
+import info.nightscout.androidaps.plugins.pump.omnipod.OmnipodPumpPlugin
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityAAPSPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityOref1Plugin
@@ -82,6 +84,12 @@ abstract class PluginsModule {
     @IntoMap
     @IntKey(40)
     abstract fun bindInsulinOrefUltraRapidActingPlugin(plugin: InsulinOrefUltraRapidActingPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(42)
+    abstract fun bindInsulinLyumjevPlugin(plugin: InsulinLyumjevPlugin): PluginBase
 
     @Binds
     @AllConfigs
@@ -152,6 +160,12 @@ abstract class PluginsModule {
     @Binds
     @PumpDriver
     @IntoMap
+    @IntKey(155)
+    abstract fun bindOmnipodPumpPlugin(plugin: OmnipodPumpPlugin): PluginBase
+
+    @Binds
+    @PumpDriver
+    @IntoMap
     @IntKey(160)
     abstract fun bindMedLinkMedtronicPumpPlugin(plugin: MedLinkMedtronicPumpPlugin): PluginBase
 
@@ -198,7 +212,7 @@ abstract class PluginsModule {
     abstract fun bindLocalProfilePlugin(plugin: LocalProfilePlugin): PluginBase
 
     @Binds
-    @APS
+    @AllConfigs
     @IntoMap
     @IntKey(260)
     abstract fun bindAutomationPlugin(plugin: AutomationPlugin): PluginBase

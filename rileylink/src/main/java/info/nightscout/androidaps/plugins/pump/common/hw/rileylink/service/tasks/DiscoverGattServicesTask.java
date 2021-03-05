@@ -16,7 +16,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.Riley
  */
 public class DiscoverGattServicesTask extends ServiceTask {
 
-    @Inject ActivePluginProvider activePlugin;
+
     @Inject AAPSLogger aapsLogger;
 
     public boolean needToConnect = false;
@@ -35,9 +35,15 @@ public class DiscoverGattServicesTask extends ServiceTask {
 
     @Override
     public void run() {
+
+        if (!isRileyLinkDevice()) {
+            return;
+        }
+
         CommunicatorPumpDevice pumpDevice = (CommunicatorPumpDevice) activePlugin.getActivePump();
         boolean isRiley = pumpDevice.getService() instanceof RileyLinkService;
         boolean isMedLink = pumpDevice.getService() instanceof MedLinkService;
+
         if (needToConnect) {
             if(isRiley){
                 ((RileyLinkService)pumpDevice.getService()).getRileyLinkBLE().connectGatt();
