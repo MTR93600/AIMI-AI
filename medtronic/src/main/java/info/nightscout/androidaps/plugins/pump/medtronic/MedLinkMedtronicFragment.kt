@@ -26,6 +26,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPu
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
@@ -210,7 +211,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
                 else {
                     aapsLogger.debug(LTag.PUMP, "Command: " + cmd)
                     val cmdResourceId = cmd.resourceId
-                    if (cmd == MedtronicCommandType.GetHistoryData) {
+                    if (cmd == MedLinkCommandType.GetState) {
                         medtronic_pump_status.text = medLinkMedtronicUtil.frameNumber?.let {
                             resourceHelper.gs(cmdResourceId, medLinkMedtronicUtil.pageNumber, medLinkMedtronicUtil.frameNumber)
                         }

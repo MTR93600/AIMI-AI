@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
@@ -24,6 +25,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLin
 @Singleton
 public class MedLinkServiceData {
 
+    public Integer batteryLevel;
     @Inject AAPSLogger aapsLogger;
     @Inject MedLinkUtil medLinkUtil;
     @Inject RxBusWrapper rxBus;
@@ -35,19 +37,20 @@ public class MedLinkServiceData {
     public RileyLinkTargetFrequency rileyLinkTargetFrequency;
 
     public String rileylinkAddress;
+    public String rileylinkName;
     long lastTuneUpTime = 0L;
     public Double lastGoodFrequency;
 
     // bt version
     public String versionBLE113;
     // radio version
-    public RileyLinkFirmwareVersion versionCC110;
-
-    public RileyLinkTargetDevice targetDevice;
+    public String versionCC110;
 
     // Medtronic Pump
     public String pumpID;
     public byte[] pumpIDBytes;
+
+    public RileyLinkTargetDevice targetDevice;
 
     @Inject
     public MedLinkServiceData() {}
@@ -81,7 +84,7 @@ public class MedLinkServiceData {
             aapsLogger.info(LTag.PUMP, "MedLink State Changed: {} {}", newState, errorCode == null ? "" : " - Error State: " + errorCode.name());
 
             medLinkUtil.getRileyLinkHistory().add(new MLHistoryItem(rileyLinkServiceState, errorCode, targetDevice));
-            rxBus.send(new EventRileyLinkDeviceStatusChange(newState, errorCode));
+            rxBus.send(new EventRileyLinkDeviceStatusChange(targetDevice, newState, errorCode));
 
             return null;
 

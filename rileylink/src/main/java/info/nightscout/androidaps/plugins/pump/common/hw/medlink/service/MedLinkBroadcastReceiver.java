@@ -178,7 +178,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
 //            if (isLoggingEnabled())
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
-            this.medLinkServiceData.versionCC110 = rlVersion;
+            this.medLinkServiceData.versionCC110 = rlVersion.name();
 
             ServiceTask task = new InitializePumpManagerTask(injector, context);
             serviceTaskExecutor.startTask(task);

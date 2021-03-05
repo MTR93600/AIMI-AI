@@ -6,5 +6,5 @@
     <item
         android:id="@+id/medlink_miScan"
         app:showAsAction="ifRoom"
-        android:title="@string/rileylink_scanner_scan_scan"></item>
+        android:title="@string/medlink_scanner_title"></item>
 </menu>

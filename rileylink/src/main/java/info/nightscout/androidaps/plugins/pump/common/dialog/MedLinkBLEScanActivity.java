@@ -87,14 +87,14 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.rileylink_scan_activity);
+        setContentView(R.layout.medlink_scan_activity);
 
         // Initializes Bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mHandler = new Handler();
 
         mLeDeviceListAdapter = new LeDeviceListAdapter();
-        listBTScan = findViewById(R.id.rileylink_listBTScan);
+        listBTScan = findViewById(R.id.medlink_listBTScan);
         listBTScan.setAdapter(mLeDeviceListAdapter);
         listBTScan.setOnItemClickListener((parent, view, position, id) -> {
 
@@ -104,7 +104,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
                 mLEScanner.stopScan(mScanCallback2);
             }
 
-            TextView textview = view.findViewById(R.id.rileylink_device_address);
+            TextView textview = view.findViewById(R.id.riley_link_ble_config_scan_item_device_address);
             String bleAddress = textview.getText().toString();
 
             sp.putString(MedLinkConst.Prefs.MedLinkAddress, bleAddress);
@@ -117,7 +117,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
         });
 
         toolbarBTScan = findViewById(R.id.rileylink_toolbarBTScan);
-        toolbarBTScan.setTitle(R.string.rileylink_scanner_title);
+        toolbarBTScan.setTitle(R.string.medlink_scanner_title);
         setSupportActionBar(toolbarBTScan);
 
         prepareForScanning();
@@ -128,8 +128,8 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_medlink_ble_scan, menu);
 
-        actionTitleStart = resourceHelper.gs(R.string.rileylink_scanner_scan_scan);
-        actionTitleStop = resourceHelper.gs(R.string.rileylink_scanner_scan_stop);
+        actionTitleStart = resourceHelper.gs(R.string.medlink_scanner_title);
+        actionTitleStop = resourceHelper.gs(R.string.riley_link_ble_config_scan_stop);
 
         menuItem = menu.getItem(0);
 
@@ -239,7 +239,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
         @Override
         public void onScanFailed(int errorCode) {
             Log.e("Scan Failed", "Error Code: " + errorCode);
-            ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.rileylink_scanner_scanning_error, errorCode),
+            ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.riley_link_ble_config_scan_error, errorCode),
                     Toast.LENGTH_LONG);
         }
 
@@ -263,7 +263,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
                     mScanning = false;
                     mLEScanner.stopScan(mScanCallback2);
                     aapsLogger.debug("scanLeDevice: Scanning Stop");
-                    ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.rileylink_scanner_scanning_finished, 40), Toast.LENGTH_SHORT);
+                    ToastUtils.showToastInUiThread(mContext, resourceHelper.gs(R.string.riley_link_ble_config_scan_finished, 40), Toast.LENGTH_SHORT);
                     menuItem.setTitle(actionTitleStart);
                 }
             }, SCAN_PERIOD);
@@ -271,7 +271,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             mScanning = true;
             mLEScanner.startScan(filters, settings, mScanCallback2);
             aapsLogger.debug("scanLeDevice: Scanning Start");
-            ToastUtils.showToastInUiThread(this, resourceHelper.gs(R.string.rileylink_scanner_scanning), Toast.LENGTH_SHORT);
+            ToastUtils.showToastInUiThread(this, resourceHelper.gs(R.string.riley_link_ble_config_scan_scanning), Toast.LENGTH_SHORT);
 
             menuItem.setTitle(actionTitleStop);
 
@@ -281,7 +281,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
                 mLEScanner.stopScan(mScanCallback2);
 
                 aapsLogger.debug("scanLeDevice: Scanning Stop 2");
-                Toast.makeText(this, R.string.rileylink_scanner_scanning_finished, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.riley_link_ble_config_scan_finished, Toast.LENGTH_SHORT).show();
 
                 menuItem.setTitle(actionTitleStart);
             }
@@ -346,10 +346,10 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             ViewHolder viewHolder;
             // General ListView optimization code.
             if (view == null) {
-                view = mInflator.inflate(R.layout.rileylink_scan_item, null);
+                view = mInflator.inflate(R.layout.riley_link_ble_config_scan_item, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = view.findViewById(R.id.rileylink_device_address);
-                viewHolder.deviceName = view.findViewById(R.id.rileylink_device_name);
+                viewHolder.deviceAddress = view.findViewById(R.id.riley_link_ble_config_currently_selected_riley_link_address);
+                viewHolder.deviceName = view.findViewById(R.id.riley_link_ble_config_currently_selected_riley_link_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
@@ -367,7 +367,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             if (currentlySelectedAddress.equals(device.getAddress())) {
                 // viewHolder.deviceName.setTextColor(getColor(R.color.secondary_text_light));
                 // viewHolder.deviceAddress.setTextColor(getColor(R.color.secondary_text_light));
-                deviceName += " (" + getResources().getString(R.string.rileylink_scanner_selected_device) + ")";
+                deviceName += " (" + getResources().getString(R.string.riley_link_ble_config_scan_selected) + ")";
             }
 
             viewHolder.deviceName.setText(deviceName);
