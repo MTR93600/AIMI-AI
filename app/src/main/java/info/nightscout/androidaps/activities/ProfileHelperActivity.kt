@@ -131,6 +131,7 @@ class ProfileHelperActivity : NoSplashAppCompatActivity() {
 
         // Default profile
         binding.copytolocalprofile.setOnClickListener {
+            storeValues()
             val age = ageUsed[tabSelected]
             val weight = weightUsed[tabSelected]
             val tdd = tddUsed[tabSelected]
@@ -139,7 +140,10 @@ class ProfileHelperActivity : NoSplashAppCompatActivity() {
             else defaultProfileDPV.profile(age, tdd, pct / 100.0, profileFunction.getUnits())
             profile?.let {
                 OKDialog.showConfirmation(this, resourceHelper.gs(R.string.careportal_profileswitch), resourceHelper.gs(R.string.copytolocalprofile), Runnable {
-                    localProfilePlugin.addProfile(localProfilePlugin.copyFrom(it, "DefaultProfile" + dateUtil.dateAndTimeAndSecondsString(dateUtil._now())))
+                    localProfilePlugin.addProfile(localProfilePlugin.copyFrom(it, "DefaultProfile " +
+                        dateUtil.dateAndTimeAndSecondsString(dateUtil._now())
+                            .replace(".", "/")
+                    ))
                     rxBus.send(EventLocalProfileChanged())
                 })
             }
@@ -289,7 +293,7 @@ class ProfileHelperActivity : NoSplashAppCompatActivity() {
     }
 
     private fun setBackgroundColorOnSelected(tab: Int) {
-        binding.menu1.setBackgroundColor(resourceHelper.gc(if (tab == 1) R.color.defaultbackground else R.color.tabBgColorSelected))
+        binding.menu1.setBackgroundColor(resourceHelper.gc(if (tab == 1) R.color.defaultbackground else R.color.tempbasal))
         binding.menu2.setBackgroundColor(resourceHelper.gc(if (tab == 0) R.color.defaultbackground else R.color.examinedProfile))
     }
 }

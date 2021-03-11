@@ -17,7 +17,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBo
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
 import info.nightscout.androidaps.plugins.general.wear.tizenintegration.TizenUpdaterService
 import info.nightscout.androidaps.plugins.general.wear.wearintegration.WatchUpdaterService
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
+import info.nightscout.androidaps.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers

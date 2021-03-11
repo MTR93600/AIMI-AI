@@ -1,6 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,23 @@ public class TempBasalPair extends info.nightscout.androidaps.plugins.pump.commo
         this.isPercent = isPercent;
     }
 
+
+    /**
+     * This constructor is for use with PumpHistoryDecoder
+     *
+     * @param rateByte0
+     * @param startTimeByte
+     * @param isPercent
+     */
+    public TempBasalPair(byte rateByte0, byte rateByte1, int startTimeByte, boolean isPercent) {
+        if (isPercent) {
+            this.insulinRate = rateByte0;
+        } else {
+            this.insulinRate = ByteUtil.toInt(rateByte1, rateByte0) * 0.025;
+        }
+        this.durationMinutes = startTimeByte * 30;
+        this.isPercent = isPercent;
+    }
 
     public TempBasalPair(AAPSLogger aapsLogger, byte[] response) {
         super();
@@ -120,7 +137,7 @@ public class TempBasalPair extends info.nightscout.androidaps.plugins.pump.commo
     }
 
 
-    @NotNull @Override
+    @NonNull @Override
     public String toString() {
         return "TempBasalPair [" + "Rate=" + insulinRate + ", DurationMinutes=" + durationMinutes + ", IsPercent="
                 + isPercent + "]";

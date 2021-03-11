@@ -24,7 +24,7 @@ import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.overview.OverviewMenus
 import info.nightscout.androidaps.plugins.general.overview.graphData.GraphData
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensBgLoaded
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
+import info.nightscout.androidaps.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.DefaultValueHelper
@@ -270,7 +270,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             val end = start + T.hours(rangeToDisplay.toLong()).msecs()
             iobCobCalculatorPluginHistory.stopCalculation(from)
             iobCobCalculatorPluginHistory.clearCache()
-            iobCobCalculatorPluginHistory.runCalculation(from, end, true, false, eventCustomCalculationFinished)
+            iobCobCalculatorPluginHistory.runCalculation(from, end, bgDataReload = true, limitDataToOldestAvailable = false, cause = eventCustomCalculationFinished)
         }
     }
 
@@ -345,8 +345,8 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
                                 menuChartSettings[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] -> useDSForScale = true
                             }
 
-                            var alignIobScale = menuChartSettings[g + 1][OverviewMenus.CharType.ABS.ordinal] && menuChartSettings[g + 1][OverviewMenus.CharType.IOB.ordinal]
-                            var alignDevBgiScale = menuChartSettings[g + 1][OverviewMenus.CharType.DEV.ordinal] && menuChartSettings[g + 1][OverviewMenus.CharType.BGI.ordinal]
+                            val alignIobScale = menuChartSettings[g + 1][OverviewMenus.CharType.ABS.ordinal] && menuChartSettings[g + 1][OverviewMenus.CharType.IOB.ordinal]
+                            val alignDevBgiScale = menuChartSettings[g + 1][OverviewMenus.CharType.DEV.ordinal] && menuChartSettings[g + 1][OverviewMenus.CharType.BGI.ordinal]
 
                             if (menuChartSettings[g + 1][OverviewMenus.CharType.ABS.ordinal]) secondGraphData.addAbsIob(fromTime, toTime, useABSForScale, 1.0)
                             if (menuChartSettings[g + 1][OverviewMenus.CharType.IOB.ordinal]) secondGraphData.addIob(fromTime, toTime, useIobForScale, 1.0, menuChartSettings[g + 1][OverviewMenus.CharType.PRE.ordinal], alignIobScale)
@@ -365,7 +365,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
                 }
 
                 // set manual x bounds to have nice steps
-                graphData.setNumVerticalLables()
+                graphData.setNumVerticalLabels()
                 graphData.formatAxis(fromTime, toTime)
             }
             // finally enforce drawing of graphs in UI thread

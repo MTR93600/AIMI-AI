@@ -3,10 +3,10 @@ package info.nightscout.androidaps.plugins.treatments
 import android.content.Context
 import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.MainApp
 import info.nightscout.androidaps.TestBaseWithProfile
-import info.nightscout.androidaps.db.DatabaseHelper
+import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.db.TemporaryBasal
+import info.nightscout.androidaps.interfaces.DatabaseHelperInterface
 import info.nightscout.androidaps.plugins.general.nsclient.NSUpload
 import info.nightscout.androidaps.plugins.general.nsclient.UploadQueue
 import info.nightscout.androidaps.plugins.insulin.InsulinOrefRapidActingPlugin
@@ -21,20 +21,21 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 
+@Suppress("SpellCheckingInspection")
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(FabricPrivacy::class, MainApp::class, DatabaseHelper::class)
+@PrepareForTest(FabricPrivacy::class, DatabaseHelperInterface::class, AppRepository::class)
 class TreatmentsPluginTest : TestBaseWithProfile() {
 
     @Mock lateinit var context: Context
     @Mock lateinit var sp: SP
-    @Mock lateinit var databaseHelper: DatabaseHelper
     @Mock lateinit var treatmentService: TreatmentService
     @Mock lateinit var nsUpload: NSUpload
     @Mock lateinit var uploadQueue: UploadQueue
+    @Mock lateinit var repository: AppRepository
+    @Mock lateinit var databaseHelper: DatabaseHelperInterface
 
     val injector = HasAndroidInjector {
         AndroidInjector {
@@ -43,24 +44,22 @@ class TreatmentsPluginTest : TestBaseWithProfile() {
                 it.activePlugin = activePluginProvider
                 it.profileFunction = profileFunction
                 it.sp = sp
+                it.dateUtil = DateUtil(context)
             }
         }
     }
 
-    lateinit var insulinOrefRapidActingPlugin: InsulinOrefRapidActingPlugin
-    lateinit var sot: TreatmentsPlugin
+    private lateinit var insulinOrefRapidActingPlugin: InsulinOrefRapidActingPlugin
+    private lateinit var sot: TreatmentsPlugin
 
     @Before
     fun prepare() {
-        PowerMockito.mockStatic(MainApp::class.java)
-        `when`(MainApp.getDbHelper()).thenReturn(databaseHelper)
-
         insulinOrefRapidActingPlugin = InsulinOrefRapidActingPlugin(profileInjector, resourceHelper, profileFunction, rxBus, aapsLogger)
 
         `when`(profileFunction.getProfile(ArgumentMatchers.anyLong())).thenReturn(validProfile)
         `when`(activePluginProvider.activeInsulin).thenReturn(insulinOrefRapidActingPlugin)
 
-        sot = TreatmentsPlugin(profileInjector, aapsLogger, rxBus, aapsSchedulers, resourceHelper, context, sp, profileFunction, activePluginProvider, nsUpload, fabricPrivacy, dateUtil, uploadQueue)
+        sot = TreatmentsPlugin(profileInjector, aapsLogger, rxBus, aapsSchedulers, resourceHelper, context, sp, profileFunction, activePluginProvider, nsUpload, fabricPrivacy, dateUtil, uploadQueue, databaseHelper, repository)
         sot.service = treatmentService
     }
 
@@ -77,7 +76,7 @@ class TreatmentsPluginTest : TestBaseWithProfile() {
     }
 
     @Test
-    fun `90% TBR and should produce less absolute insulin`() {
+    fun `90pct TBR and should produce less absolute insulin`() {
         val now = DateUtil.now()
         val tbrs: MutableList<TemporaryBasal> = ArrayList()
         `when`(databaseHelper.getTemporaryBasalsDataFromTime(ArgumentMatchers.anyLong(), ArgumentMatchers.anyBoolean())).thenReturn(tbrs)
@@ -91,7 +90,7 @@ class TreatmentsPluginTest : TestBaseWithProfile() {
     }
 
     @Test
-    fun `110% TBR and should produce 10% more absolute insulin`() {
+    fun `110pct TBR and should produce 10pct more absolute insulin`() {
         val now = DateUtil.now()
         val tbrs: MutableList<TemporaryBasal> = ArrayList()
         `when`(databaseHelper.getTemporaryBasalsDataFromTime(ArgumentMatchers.anyLong(), ArgumentMatchers.anyBoolean())).thenReturn(tbrs)

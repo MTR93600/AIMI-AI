@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <PreferenceCategory
-        android:key="wearplugin"
+        android:key="@string/key_wear_settings"
         android:title="@string/wear_settings"
         app:initialExpandedChildrenCount="0">
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_wear_control"
@@ -19,33 +21,39 @@
             <PreferenceCategory
                 android:title="@string/wear_wizard_settings">
 
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="@string/key_wear_control"
+                android:key="@string/key_wearwizard_bg"
+                android:title="@string/treatments_wizard_bg_label" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="@string/key_wearwizard_bg"
+                android:key="@string/key_wearwizard_tt"
+                android:title="@string/treatments_wizard_tt_label" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="@string/key_wear_control"
+                android:key="@string/key_wearwizard_trend"
+                android:title="@string/treatments_wizard_bgtrend_label" />
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="@string/key_wear_control"
+                android:key="@string/key_wearwizard_cob"
+                android:title="@string/treatments_wizard_cob_label" />
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="@string/key_wear_control"
+                android:key="@string/key_wearwizard_bolusiob"
+                android:title="@string/treatments_wizard_bolusiob_label" />
+
                 <CheckBoxPreference
                     android:defaultValue="true"
-                    android:key="@string/key_wearwizard_bg"
-                    android:title="@string/treatments_wizard_bg_label" />
-
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="@string/key_wearwizard_tt"
-                    android:title="@string/treatments_wizard_tt_label" />
-
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="@string/key_wearwizard_trend"
-                    android:title="@string/treatments_wizard_bgtrend_label" />
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="@string/key_wearwizard_cob"
-                    android:title="@string/treatments_wizard_cob_label" />
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="@string/key_wearwizard_bolusiob"
-                    android:title="@string/treatments_wizard_bolusiob_label" />
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
+                    android:dependency="@string/key_wear_control"
                     android:key="@string/key_wearwizard_basaliob"
                     android:title="@string/treatments_wizard_basaliob_label" />
 

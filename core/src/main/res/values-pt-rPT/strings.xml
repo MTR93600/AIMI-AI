@@ -69,6 +69,40 @@
     <string name="pairing">A Emparelhar</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="loopdisabled">LOOP DESATIVADO POR RESTRIÇÕES</string>
+    <string name="bolusdelivered">Bólus %1$.2f U administrado com sucesso</string>
+    <string name="virtualpump_resultok">OK</string>
+    <string name="novalidbasalrate">Nenhum valor de basal válido foi lido da bomba</string>
+    <string name="limitingmaxiob">A limitar IOB máx. para %1$.1f U porque %2$s</string>
+    <string name="unsafeusage">uso não seguro</string>
+    <string name="pump_unreachable">Bomba inacessível</string>
+    <string name="extended_bolus">Bólus Prolongado</string>
+    <string name="pump_time_updated">Hora da bomba actualizada</string>
+    <string name="exit">Sair</string>
+    <string name="serial_number">Número de Série</string>
+    <string name="removerecord">Remover registo</string>
+    <string name="loopisdisabled">Loop está desactivado</string>
+    <string name="alarm">Alarme</string>
+    <string name="disableloop">Desactivar Loop</string>
+    <string name="enableloop">Activar Loop</string>
+    <string name="resumeloop">Retomar loop</string>
+    <string name="suspendloop">Suspender loop</string>
+    <string name="duration_min_label">Duração [min]</string>
+    <string name="notification">Notificação</string>
+    <string name="noprofile">Sem perfil carregado do NS</string>
+    <string name="exists">existe</string>
+    <string name="notexists">não existe</string>
+    <string name="glucose">Glicose</string>
+    <string name="iob">IOB</string>
+    <string name="cob">COB</string>
+    <string name="name_short">Nome:</string>
+    <string name="time">Hora</string>
+    <string name="ns_wifi_ssids">SSID WiFi</string>
+    <string name="loading">A carregar …</string>
+    <string name="event_time_label">Hora do Evento</string>
+    <string name="notes_label">Notas</string>
+    <string name="remove_button">Remover</string>
+    <string name="addnew">Adicionar novo</string>
     <!--    Constraints-->
     <string name="limitingbasalratio">A basal máx está limitada a %1$.2f U/h por %2$s</string>
     <string name="pumplimit">limite bomba</string>
@@ -84,6 +118,7 @@
     <string name="dismiss">DISPENSAR</string>
     <!--    BlePreCheck-->
     <string name="ble_not_supported">Bluetooth Low Energy não suportado.</string>
+    <string name="ble_not_supported_or_not_paired">Bluetooth Low Energy não suportado ou dispositivo não emparalhado.</string>
     <string name="ble_not_enabled">Bluetooth não está activado.</string>
     <string name="location_not_found_title">Localização Não Está Activa</string>
     <string name="location_not_found_message">Para a Pesquisa Bluetooth funcionar em dispositivos mais recentes, a localização deve ser activada. AAPS não acompanha a sua localização e pode ser desactivada após o emparelhamento bem-sucedido.</string>
@@ -235,14 +270,14 @@
     <string name="preferences_import_list_title">Seleccione o ficheiro para importação</string>
     <string name="metadata_warning_different_flavour">As preferências foram criadas com uma variante diferente do AAPS (%1$s) enquanto tem: %2$s.\n\nAlgumas definições podem estar ausentes ou inválidas - após a importação, por favor verifique e actualize suas preferências.</string>
     <string name="metadata_warning_different_device">Preferências foram criadas num dispositivo diferente. Não há problema se estiver a importar de telefone diferente/antigo, mas se certifique que as preferências importadas estão corretas!</string>
-    <string name="metadata_warning_outdated_format">Está a usar formato ultrapassado herdado a partir de versões antigas do AAPS, o que não é seguro! Use-o apenas como um último recurso, se não tiver uma exportação no actual no formato JSON.</string>
+    <string name="metadata_warning_outdated_format">Está a utilizar formato ultrapassado herdado a partir de versões antigas do AAPS, o que não é seguro! Utilize-o apenas como um último recurso, se não tiver uma exportação no actual no formato JSON.</string>
     <string name="metadata_warning_old_export">Preferências importadas já são %1$s dias antigas! Talvez tenha preferências mais actualizadas ou escolheu o ficheiro errado? Lembre-se de exportar preferências regularmente!</string>
     <string name="metadata_warning_date_format">Formato de data-hora inválido!</string>
     <string name="metadata_warning_different_version">Preferências de uma versão menor diferente de aplicação. Está OK se está a importar após o upgrade, mas verifique após a importação se as preferências ainda estão correctas!</string>
     <string name="metadata_urgent_different_version">Preferências de uma versão principal diferente de aplicação. As principais versões diferem significativamente e podem ter preferências incompatíveis! Certifique-se depois de importar que as preferências ainda estão corretas!</string>
     <string name="prefdecrypt_settings_tampered">Ficheiro de definições adulterado</string>
     <string name="prefdecrypt_settings_secure">Ficheiro de definições é seguro</string>
-    <string name="prefdecrypt_settings_unencrypted">A usar um formato de definições não seguro e não encriptado</string>
+    <string name="prefdecrypt_settings_unencrypted">A utilizar um formato de definições não seguro e não encriptado</string>
     <string name="prefdecrypt_wrong_json">Erro de formato JSON, campo necessário ausente (formato, conteúdo, metadados ou segurança)</string>
     <string name="prefdecrypt_wrong_password">Erro ao desencriptar, a senha inserida não pode desencriptar o ficheiro</string>
     <string name="prefdecrypt_issue_missing_file_hash">Ficheiro de verificação (hash) em falta, não é possível verificar a autenticidade das definições!</string>
@@ -257,6 +292,14 @@
     <string name="versionavailable">Disponível %1$s disponível</string>
     <!-- Permissions -->
     <string name="alert_dialog_storage_permission_text">Por favor, reinicie o telefone ou reinicie o AndroidAPS a partir das Definições do Sistema \ncaso contrário, o AndroidAPS não terá registo (importante para controlar e verificar se os algoritmos estão a funcionar correctamente)!</string>
+    <!-- WeekdayPicker -->
+    <string name="monday_short">S</string>
+    <string name="tuesday_short">T</string>
+    <string name="wednesday_short">Qa</string>
+    <string name="thursday_short">Qi</string>
+    <string name="friday_short">Se</string>
+    <string name="saturday_short">Sa</string>
+    <string name="sunday_short">D</string>
     <plurals name="days">
         <item quantity="one">%1$d dia</item>
         <item quantity="other">%1$d dias</item>

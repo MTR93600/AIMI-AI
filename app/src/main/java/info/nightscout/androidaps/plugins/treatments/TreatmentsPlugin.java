@@ -8,8 +8,6 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,6 @@ import javax.inject.Singleton;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.Constants;
-import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
 import info.nightscout.androidaps.activities.ErrorHelperActivity;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
@@ -26,27 +23,28 @@ import info.nightscout.androidaps.data.Intervals;
 import info.nightscout.androidaps.data.Iob;
 import info.nightscout.androidaps.data.IobTotal;
 import info.nightscout.androidaps.data.NonOverlappingIntervals;
-import info.nightscout.androidaps.data.OverlappingIntervals;
 import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.ProfileIntervals;
+import info.nightscout.androidaps.database.AppRepository;
 import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.ProfileSwitch;
 import info.nightscout.androidaps.db.Source;
-import info.nightscout.androidaps.db.TempTarget;
 import info.nightscout.androidaps.db.TemporaryBasal;
 import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.events.EventReloadProfileSwitchData;
 import info.nightscout.androidaps.events.EventReloadTempBasalData;
 import info.nightscout.androidaps.events.EventReloadTreatmentData;
-import info.nightscout.androidaps.events.EventTempTargetChange;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
+import info.nightscout.androidaps.interfaces.DatabaseHelperInterface;
 import info.nightscout.androidaps.interfaces.PluginBase;
 import info.nightscout.androidaps.interfaces.PluginDescription;
 import info.nightscout.androidaps.interfaces.PluginType;
 import info.nightscout.androidaps.interfaces.ProfileFunction;
 import info.nightscout.androidaps.interfaces.ProfileStore;
 import info.nightscout.androidaps.interfaces.PumpInterface;
+import info.nightscout.androidaps.interfaces.TreatmentServiceInterface;
 import info.nightscout.androidaps.interfaces.TreatmentsInterface;
+import info.nightscout.androidaps.interfaces.UpdateReturn;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
@@ -79,10 +77,12 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     private final UploadQueue uploadQueue;
     private final FabricPrivacy fabricPrivacy;
     private final DateUtil dateUtil;
+    private final DatabaseHelperInterface databaseHelper;
+    private final AppRepository repository;
 
     private final CompositeDisposable disposable = new CompositeDisposable();
 
-    protected TreatmentService service;
+    protected TreatmentServiceInterface service;
 
     private IobTotal lastTreatmentCalculation;
     private IobTotal lastTempBasalsCalculation;
@@ -90,7 +90,6 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     private final ArrayList<Treatment> treatments = new ArrayList<>();
     private final Intervals<TemporaryBasal> tempBasals = new NonOverlappingIntervals<>();
     private final Intervals<ExtendedBolus> extendedBoluses = new NonOverlappingIntervals<>();
-    private final Intervals<TempTarget> tempTargets = new OverlappingIntervals<>();
     private final ProfileIntervals<ProfileSwitch> profiles = new ProfileIntervals<>();
 
     @Inject
@@ -107,7 +106,9 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             NSUpload nsUpload,
             FabricPrivacy fabricPrivacy,
             DateUtil dateUtil,
-            UploadQueue uploadQueue
+            UploadQueue uploadQueue,
+            DatabaseHelperInterface databaseHelper,
+            AppRepository repository
     ) {
         super(new PluginDescription()
                         .mainType(PluginType.TREATMENT)
@@ -131,6 +132,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         this.dateUtil = dateUtil;
         this.nsUpload = nsUpload;
         this.uploadQueue = uploadQueue;
+        this.databaseHelper = databaseHelper;
+        this.repository = repository;
     }
 
     @Override
@@ -157,12 +160,6 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                         fabricPrivacy::logException
                 ));
         disposable.add(rxBus
-                .toObservable(EventTempTargetChange.class)
-                .observeOn(aapsSchedulers.getIo())
-                .subscribe(event -> initializeTempTargetData(range()),
-                        fabricPrivacy::logException
-                ));
-        disposable.add(rxBus
                 .toObservable(EventReloadTempBasalData.class)
                 .observeOn(aapsSchedulers.getIo())
                 .subscribe(event -> {
@@ -180,7 +177,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         super.onStop();
     }
 
-    public TreatmentService getService() {
+    @Override
+    public TreatmentServiceInterface getService() {
         return this.service;
     }
 
@@ -195,7 +193,6 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         initializeTempBasalData(range);
         initializeTreatmentData(range);
         initializeExtendedBolusData(range);
-        initializeTempTargetData(range);
         initializeProfileSwitchData(range);
     }
 
@@ -210,7 +207,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     private void initializeTempBasalData(long range) {
         getAapsLogger().debug(LTag.DATATREATMENTS, "initializeTempBasalData");
         synchronized (tempBasals) {
-            tempBasals.reset().add(MainApp.getDbHelper().getTemporaryBasalsDataFromTime(DateUtil.now() - range, false));
+            tempBasals.reset().add(databaseHelper.getTemporaryBasalsDataFromTime(DateUtil.now() - range, false));
         }
 
     }
@@ -218,22 +215,15 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     private void initializeExtendedBolusData(long range) {
         getAapsLogger().debug(LTag.DATATREATMENTS, "initializeExtendedBolusData");
         synchronized (extendedBoluses) {
-            extendedBoluses.reset().add(MainApp.getDbHelper().getExtendedBolusDataFromTime(DateUtil.now() - range, false));
+            extendedBoluses.reset().add(databaseHelper.getExtendedBolusDataFromTime(DateUtil.now() - range, false));
         }
 
-    }
-
-    private void initializeTempTargetData(long range) {
-        getAapsLogger().debug(LTag.DATATREATMENTS, "initializeTempTargetData");
-        synchronized (tempTargets) {
-            tempTargets.reset().add(MainApp.getDbHelper().getTemptargetsDataFromTime(DateUtil.now() - range, false));
-        }
     }
 
     private void initializeProfileSwitchData(long range) {
         getAapsLogger().debug(LTag.DATATREATMENTS, "initializeProfileSwitchData");
         synchronized (profiles) {
-            profiles.reset().add(MainApp.getDbHelper().getProfileSwitchData(DateUtil.now() - range, false));
+            profiles.reset().add(databaseHelper.getProfileSwitchData(DateUtil.now() - range, false));
         }
     }
 
@@ -260,8 +250,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                 if (!t.isValid) continue;
                 if (t.date > time) continue;
                 Iob tIOB = t.iobCalc(time, dia);
-                total.iob += tIOB.iobContrib;
-                total.activity += tIOB.activityContrib;
+                total.iob += tIOB.getIobContrib();
+                total.activity += tIOB.getActivityContrib();
                 if (t.insulin > 0 && t.date > total.lastBolusTime)
                     total.lastBolusTime = t.date;
                 if (!t.isSMB) {
@@ -270,7 +260,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                     long timeSinceTreatment = time - t.date;
                     long snoozeTime = t.date + (long) (timeSinceTreatment * sp.getDouble(R.string.key_openapsama_bolussnooze_dia_divisor, 2.0));
                     Iob bIOB = t.iobCalc(snoozeTime, dia);
-                    total.bolussnooze += bIOB.iobContrib;
+                    total.bolussnooze += bIOB.getIobContrib();
                 }
             }
         }
@@ -398,11 +388,11 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         } else {
             uploadQueue.removeID("dbAdd", tempBasalId);
         }
-        MainApp.getDbHelper().delete(tempBasal);
+        databaseHelper.delete(tempBasal);
     }
 
     @Override
-    public boolean isInHistoryExtendedBoluslInProgress() {
+    public boolean isInHistoryExtendedBolusInProgress() {
         return getExtendedBolusFromHistory(System.currentTimeMillis()) != null; //TODO:  crosscheck here
     }
 
@@ -422,7 +412,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         PumpInterface pumpInterface = activePlugin.getActivePump();
 
         synchronized (tempBasals) {
-            for (Integer pos = 0; pos < tempBasals.size(); pos++) {
+            for (int pos = 0; pos < tempBasals.size(); pos++) {
                 TemporaryBasal t = tempBasals.get(pos);
                 if (t.date > time) continue;
                 IobTotal calc;
@@ -486,8 +476,8 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             treatment.date = i;
             treatment.insulin = running * 5.0 / 60.0; // 5 min chunk
             Iob iob = treatment.iobCalc(time, profile.getDia());
-            total.basaliob += iob.iobContrib;
-            total.activity += iob.activityContrib;
+            total.basaliob += iob.getIobContrib();
+            total.activity += iob.getActivityContrib();
         }
         return total;
     }
@@ -573,7 +563,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     @Override
     public boolean addToHistoryExtendedBolus(ExtendedBolus extendedBolus) {
         //log.debug("Adding new ExtentedBolus record" + extendedBolus.log());
-        boolean newRecordCreated = MainApp.getDbHelper().createOrUpdate(extendedBolus);
+        boolean newRecordCreated = databaseHelper.createOrUpdate(extendedBolus);
         if (newRecordCreated) {
             if (extendedBolus.durationInMinutes == 0) {
                 if (activePlugin.getActivePump().isFakingTempsByExtendedBoluses())
@@ -607,7 +597,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     @Override
     public boolean addToHistoryTempBasal(TemporaryBasal tempBasal) {
         //log.debug("Adding new TemporaryBasal record" + tempBasal.toString());
-        boolean newRecordCreated = MainApp.getDbHelper().createOrUpdate(tempBasal);
+        boolean newRecordCreated = databaseHelper.createOrUpdate(tempBasal);
         if (newRecordCreated) {
             if (tempBasal.durationInMinutes == 0)
                 nsUpload.uploadTempBasalEnd(tempBasal.date, false, tempBasal.pumpId);
@@ -620,9 +610,9 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     }
 
     public TreatmentUpdateReturn createOrUpdateMedtronic(Treatment treatment, boolean fromNightScout) {
-        TreatmentService.UpdateReturn resultRecord = getService().createOrUpdateMedtronic(treatment, fromNightScout);
+        UpdateReturn resultRecord = getService().createOrUpdateMedtronic(treatment, fromNightScout);
 
-        return new TreatmentUpdateReturn(resultRecord.success, resultRecord.newRecord);
+        return new TreatmentUpdateReturn(resultRecord.getSuccess(), resultRecord.getNewRecord());
     }
 
     // return true if new record is created
@@ -643,7 +633,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             treatment.carbs = detailedBolusInfo.carbs;
         treatment.mealBolus = treatment.carbs > 0;
         treatment.boluscalc = detailedBolusInfo.boluscalc != null ? detailedBolusInfo.boluscalc.toString() : null;
-        TreatmentService.UpdateReturn creatOrUpdateResult;
+        UpdateReturn creatOrUpdateResult;
 
         getAapsLogger().debug(medtronicPump && MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: addToHistoryTreatment::treatment={} " + treatment);
 
@@ -652,7 +642,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         else
             creatOrUpdateResult = getService().createOrUpdateMedtronic(treatment, false);
 
-        boolean newRecordCreated = creatOrUpdateResult.newRecord;
+        boolean newRecordCreated = creatOrUpdateResult.getNewRecord();
         //log.debug("Adding new Treatment record" + treatment.toString());
         if (detailedBolusInfo.carbTime != 0) {
 
@@ -673,7 +663,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         if (newRecordCreated && detailedBolusInfo.isValid)
             nsUpload.uploadTreatmentRecord(detailedBolusInfo);
 
-        if (!allowUpdate && !creatOrUpdateResult.success) {
+        if (!allowUpdate && !creatOrUpdateResult.getSuccess()) {
             getAapsLogger().error("Treatment could not be added to DB", new Exception());
 
             String status = String.format(resourceHelper.gs(R.string.error_adding_treatment_message), treatment.insulin, (int) treatment.carbs, dateUtil.dateAndTimeString(treatment.date));
@@ -708,36 +698,6 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         return oldestTime;
     }
 
-    @Nullable
-    @Override
-    public TempTarget getTempTargetFromHistory() {
-        synchronized (tempTargets) {
-            return tempTargets.getValueByInterval(System.currentTimeMillis());
-        }
-    }
-
-    @Nullable
-    @Override
-    public TempTarget getTempTargetFromHistory(long time) {
-        synchronized (tempTargets) {
-            return tempTargets.getValueByInterval(time);
-        }
-    }
-
-    @Override
-    public Intervals<TempTarget> getTempTargetsFromHistory() {
-        synchronized (tempTargets) {
-            return new OverlappingIntervals<>(tempTargets);
-        }
-    }
-
-    @Override
-    public void addToHistoryTempTarget(TempTarget tempTarget) {
-        //log.debug("Adding new TemporaryBasal record" + profileSwitch.log());
-        MainApp.getDbHelper().createOrUpdate(tempTarget);
-        nsUpload.uploadTempTarget(tempTarget, profileFunction);
-    }
-
     @Override
     @Nullable
     public ProfileSwitch getProfileSwitchFromHistory(long time) {
@@ -757,12 +717,12 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     public void addToHistoryProfileSwitch(ProfileSwitch profileSwitch) {
         //log.debug("Adding new TemporaryBasal record" + profileSwitch.log());
         rxBus.send(new EventDismissNotification(Notification.PROFILE_SWITCH_MISSING));
-        MainApp.getDbHelper().createOrUpdate(profileSwitch);
-        nsUpload.uploadProfileSwitch(profileSwitch);
+        databaseHelper.createOrUpdate(profileSwitch);
+        nsUpload.uploadProfileSwitch(profileSwitch, profileSwitch.date);
     }
 
     @Override
-    public void doProfileSwitch(@NotNull final ProfileStore profileStore, @NotNull final String profileName, final int duration, final int percentage, final int timeShift, final long date) {
+    public void doProfileSwitch(@NonNull final ProfileStore profileStore, @NonNull final String profileName, final int duration, final int percentage, final int timeShift, final long date) {
         ProfileSwitch profileSwitch = profileFunction.prepareProfileSwitch(profileStore, profileName, duration, percentage, timeShift, date);
         addToHistoryProfileSwitch(profileSwitch);
         if (percentage == 90 && duration == 10)

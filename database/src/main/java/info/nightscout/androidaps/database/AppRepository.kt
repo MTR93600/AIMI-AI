@@ -2,6 +2,7 @@ package info.nightscout.androidaps.database
 
 import info.nightscout.androidaps.database.entities.GlucoseValue
 import info.nightscout.androidaps.database.entities.TemporaryTarget
+import info.nightscout.androidaps.database.entities.TherapyEvent
 import info.nightscout.androidaps.database.entities.UserEntry
 import info.nightscout.androidaps.database.interfaces.DBEntry
 import info.nightscout.androidaps.database.transactions.Transaction
@@ -23,8 +24,6 @@ class AppRepository @Inject internal constructor(
     private val changeSubject = PublishSubject.create<List<DBEntry>>()
 
     fun changeObservable(): Observable<List<DBEntry>> = changeSubject.subscribeOn(Schedulers.io())
-
-    val databaseVersion = DATABASE_VERSION
 
     /**
      * Executes a transaction ignoring its result
@@ -88,16 +87,25 @@ class AppRepository @Inject internal constructor(
             .subscribeOn(Schedulers.io())
 
     // TEMP TARGETS
-    fun compatGetTemporaryTargetData(): List<TemporaryTarget> =
-        database.temporaryTargetDao.compatGetTemporaryTargetData()
+    fun compatGetTemporaryTargetData(): Single<List<TemporaryTarget>> =
+        database.temporaryTargetDao.getTemporaryTargetData()
+            .subscribeOn(Schedulers.io())
 
-    fun compatGetTemporaryTargetDataFromTime(timestamp: Long, ascending: Boolean): Single<List<TemporaryTarget>> =
-        database.temporaryTargetDao.compatGetTemporaryTargetDataFromTime(timestamp)
+    fun getTemporaryTargetDataFromTime(timestamp: Long, ascending: Boolean): Single<List<TemporaryTarget>> =
+        database.temporaryTargetDao.getTemporaryTargetDataFromTime(timestamp)
             .map { if (!ascending) it.reversed() else it }
             .subscribeOn(Schedulers.io())
 
-    fun findTemporaryTargetByNSIdSingle(nsId: String): Single<ValueWrapper<TemporaryTarget>> =
-        database.temporaryTargetDao.findByNSIdMaybe(nsId).toWrappedSingle()
+    fun getTemporaryTargetDataIncludingInvalidFromTime(timestamp: Long, ascending: Boolean): Single<List<TemporaryTarget>> =
+        database.temporaryTargetDao.getTemporaryTargetDataIncludingInvalidFromTime(timestamp)
+            .map { if (!ascending) it.reversed() else it }
+            .subscribeOn(Schedulers.io())
+
+    fun findTemporaryTargetByNSIdSingle(nsId: String): TemporaryTarget? =
+        database.temporaryTargetDao.findByNSId(nsId)
+
+    fun findTemporaryTargetByTimestamp(timestamp: Long): TemporaryTarget? =
+        database.temporaryTargetDao.findByTimestamp(timestamp)
 
     fun getModifiedTemporaryTargetsDataFromId(lastId: Long): Single<List<TemporaryTarget>> =
         database.temporaryTargetDao.getModifiedFrom(lastId)
@@ -105,6 +113,14 @@ class AppRepository @Inject internal constructor(
 
     fun getTemporaryTargetsCorrespondingLastHistoryRecord(lastId: Long): TemporaryTarget? =
         database.temporaryTargetDao.getLastHistoryRecord(lastId)
+
+    fun getTemporaryTargetActiveAt(timestamp: Long): Single<ValueWrapper<TemporaryTarget>> =
+        database.temporaryTargetDao.getTemporaryTargetActiveAt(timestamp)
+            .subscribeOn(Schedulers.io())
+            .toWrappedSingle()
+
+    fun deleteAllTempTargetEntries() =
+        database.temporaryTargetDao.deleteAllEntries()
 
     // USER ENTRY
     fun getAllUserEntries(): Single<List<UserEntry>> =
@@ -114,6 +130,45 @@ class AppRepository @Inject internal constructor(
     fun insert(word: UserEntry) {
         database.userEntryDao.insert(word)
     }
+
+    // THERAPY EVENT
+    fun getTherapyEventDataFromTime(timestamp: Long, ascending: Boolean): Single<List<TherapyEvent>> =
+        database.therapyEventDao.getTherapyEventDataFromTime(timestamp)
+            .map { if (!ascending) it.reversed() else it }
+            .subscribeOn(Schedulers.io())
+
+    fun getTherapyEventDataFromTime(timestamp: Long, type: TherapyEvent.Type, ascending: Boolean): Single<List<TherapyEvent>> =
+        database.therapyEventDao.getTherapyEventDataFromTime(timestamp, type)
+            .map { if (!ascending) it.reversed() else it }
+            .subscribeOn(Schedulers.io())
+
+    fun getTherapyEventDataIncludingInvalidFromTime(timestamp: Long, ascending: Boolean): Single<List<TherapyEvent>> =
+        database.therapyEventDao.getTherapyEventDataIncludingInvalidFromTime(timestamp)
+            .map { if (!ascending) it.reversed() else it }
+            .subscribeOn(Schedulers.io())
+
+    @Suppress("unused")
+    fun getValidTherapyEventsByType(type: TherapyEvent.Type): List<TherapyEvent> =
+        database.therapyEventDao.getValidByType(type)
+
+    fun deleteAllTherapyEventsEntries() =
+        database.therapyEventDao.deleteAllEntries()
+
+    fun getLastTherapyRecord(type: TherapyEvent.Type): Single<ValueWrapper<TherapyEvent>> =
+        database.therapyEventDao.getLastTherapyRecord(type).toWrappedSingle()
+            .subscribeOn(Schedulers.io())
+
+    fun getTherapyEventByTimestamp(type: TherapyEvent.Type, timestamp: Long): TherapyEvent? =
+        database.therapyEventDao.findByTimestamp(type, timestamp)
+
+    fun compatGetTherapyEventDataFromTime(timestamp: Long, ascending: Boolean): Single<List<TherapyEvent>> =
+        database.therapyEventDao.compatGetTherapyEventDataFromTime(timestamp)
+            .map { if (!ascending) it.reversed() else it }
+            .subscribeOn(Schedulers.io())
+
+    fun compatGetTherapyEventDataFromToTime(from: Long, to: Long): Single<List<TherapyEvent>> =
+        database.therapyEventDao.compatGetTherapyEventDataFromToTime(from, to)
+            .subscribeOn(Schedulers.io())
 
 }
 

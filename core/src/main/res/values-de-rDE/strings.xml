@@ -2,6 +2,7 @@
 <resources>
     <!--    Keys-->
     <!--    General-->
+    <string name="refresh">Aktualisieren</string>
     <string name="error">Fehler</string>
     <string name="not_set_short">Nicht angegeben</string>
     <string name="failedupdatebasalprofile">Fehler beim Aktualisieren des Basalprofils</string>
@@ -68,6 +69,40 @@
     <string name="pairing">Koppeln</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="loopdisabled">LOOP DEAKTIVIERT DURCH BESCHRÄNKUNGEN</string>
+    <string name="bolusdelivered">Bolus %1$.2f IE erfolgreich abgegeben</string>
+    <string name="virtualpump_resultok">OK</string>
+    <string name="novalidbasalrate">Von der Pumpe konnte keine gültige Basalrate eingelesen werden.</string>
+    <string name="limitingmaxiob">Begrenze max. IOB auf %1$.1f IE wegen %2$s</string>
+    <string name="unsafeusage">Unsichere Benutzung</string>
+    <string name="pump_unreachable">Pumpe nicht erreichbar</string>
+    <string name="extended_bolus">Verzögerter Bolus</string>
+    <string name="pump_time_updated">Pumpenzeit aktualisiert</string>
+    <string name="exit">Verlassen</string>
+    <string name="serial_number">Seriennummer</string>
+    <string name="removerecord">Eintrag löschen</string>
+    <string name="loopisdisabled">Loop ist deaktiviert.</string>
+    <string name="alarm">Alarm</string>
+    <string name="disableloop">Loop deaktivieren</string>
+    <string name="enableloop">Loop aktivieren</string>
+    <string name="resumeloop">Loop fortsetzen</string>
+    <string name="suspendloop">Loop pausieren</string>
+    <string name="duration_min_label">Dauer [min]</string>
+    <string name="notification">Benachrichtigung</string>
+    <string name="noprofile">Bisher noch kein Profil von Nightscout geladen</string>
+    <string name="exists">vorhanden</string>
+    <string name="notexists">nicht vorhanden</string>
+    <string name="glucose">Glukose</string>
+    <string name="iob">IOB</string>
+    <string name="cob">COB</string>
+    <string name="name_short">Name:</string>
+    <string name="time">Zeit</string>
+    <string name="ns_wifi_ssids">WLAN SSID</string>
+    <string name="loading">Lade…</string>
+    <string name="event_time_label">Ereignis-Zeit</string>
+    <string name="notes_label">Notizen</string>
+    <string name="remove_button">Löschen</string>
+    <string name="addnew">Weiteren hinzufügen</string>
     <!--    Constraints-->
     <string name="limitingbasalratio">Begrenzung der max. Basalrate auf %1$.2f IE/h wegen %2$s</string>
     <string name="pumplimit">Limit der Pumpe</string>
@@ -83,6 +118,7 @@
     <string name="dismiss">VERWERFEN</string>
     <!--    BlePreCheck-->
     <string name="ble_not_supported">Bluetooth-Low-Energy nicht unterstützt.</string>
+    <string name="ble_not_supported_or_not_paired">Bluetooth Low Energy nicht unterstützt oder Gerät nicht verbunden.</string>
     <string name="ble_not_enabled">Bluetooth nicht aktiviert.</string>
     <string name="location_not_found_title">Standortdienst ist nicht aktiviert</string>
     <string name="location_not_found_message">Auf neueren Geräten muss für die Bluetooth-Erkennung der Standortdienst aktiviert sein. AAPS speichert keine Standortdaten und der Dienst kann nach erfolgreichem Pairing wieder deaktiviert werden.</string>
@@ -256,6 +292,14 @@
     <string name="versionavailable">Version %1$s ist verfügbar.</string>
     <!-- Permissions -->
     <string name="alert_dialog_storage_permission_text">Bitte starte dein Telefon neu oder starte AndroidAPS in den System-Einstellungen neu.\nAndernfalls wird AndroidAPS nichts protokollieren (wichtig zum Nachverfolgen und Verifizieren, dass der Algorithmus korrekt funktioniert)!</string>
+    <!-- WeekdayPicker -->
+    <string name="monday_short">Mo</string>
+    <string name="tuesday_short">Di</string>
+    <string name="wednesday_short">Mi</string>
+    <string name="thursday_short">Do</string>
+    <string name="friday_short">Fr</string>
+    <string name="saturday_short">Sa</string>
+    <string name="sunday_short">So</string>
     <plurals name="days">
         <item quantity="one">%1$d Tag</item>
         <item quantity="other">%1$d Tage</item>

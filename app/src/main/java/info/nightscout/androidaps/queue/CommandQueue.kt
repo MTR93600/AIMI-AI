@@ -84,7 +84,7 @@ import javax.inject.Singleton
  */
 
 @Singleton
-class CommandQueue @Inject constructor(
+open class CommandQueue @Inject constructor(
     private val injector: HasAndroidInjector,
     private val aapsLogger: AAPSLogger,
     private val rxBus: RxBusWrapper,
@@ -128,7 +128,7 @@ class CommandQueue @Inject constructor(
     }
 
     private fun executingNowError(): PumpEnactResult =
-        PumpEnactResult(injector).success(false).enacted(false).comment(resourceHelper.gs(R.string.executingrightnow))
+        PumpEnactResult(injector).success(false).enacted(false).comment(R.string.executingrightnow)
 
     override fun isRunning(type: CommandType): Boolean = performing?.commandType == type
 
@@ -145,7 +145,7 @@ class CommandQueue @Inject constructor(
 
     @Suppress("SameParameterValue")
     @Synchronized
-    private fun isLastScheduled(type: CommandType): Boolean {
+    fun isLastScheduled(type: CommandType): Boolean {
         synchronized(queue) {
             if (queue.size > 0 && queue[queue.size - 1].commandType == type) {
                 return true
@@ -187,17 +187,23 @@ class CommandQueue @Inject constructor(
     // After new command added to the queue
     // start thread again if not already running
     @Synchronized
-    private fun notifyAboutNewCommand() {
-        while (thread != null && thread!!.state != Thread.State.TERMINATED && thread!!.waitingForDisconnect) {
-            aapsLogger.debug(LTag.PUMPQUEUE, "Waiting for previous thread finish")
-            SystemClock.sleep(500)
-        }
+    open fun notifyAboutNewCommand() {
+        waitForFinishedThread()
         if (thread == null || thread!!.state == Thread.State.TERMINATED) {
             thread = QueueThread(this, context, aapsLogger, rxBus, activePlugin.get(), resourceHelper, sp)
             thread!!.start()
             aapsLogger.debug(LTag.PUMPQUEUE, "Starting new thread")
         } else {
             aapsLogger.debug(LTag.PUMPQUEUE, "Thread is already running")
+        }
+    }
+
+    fun waitForFinishedThread() {
+        thread?.let { thread ->
+            while (thread.state != Thread.State.TERMINATED && thread.waitingForDisconnect) {
+                aapsLogger.debug(LTag.PUMPQUEUE, "Waiting for previous thread finish")
+                SystemClock.sleep(500)
+            }
         }
     }
 
@@ -374,7 +380,7 @@ class CommandQueue @Inject constructor(
         if (!buildHelper.isEngineeringModeOrRelease()) {
             val notification = Notification(Notification.NOT_ENG_MODE_OR_RELEASE, resourceHelper.gs(R.string.not_eng_mode_or_release), Notification.URGENT)
             rxBus.send(EventNewNotification(notification))
-            callback?.result(PumpEnactResult(injector).success(false).enacted(false).comment(resourceHelper.gs(R.string.not_eng_mode_or_release)))?.run()
+            callback?.result(PumpEnactResult(injector).success(false).enacted(false).comment(R.string.not_eng_mode_or_release)))?.run()
             return false
         }
         */
@@ -384,7 +390,7 @@ class CommandQueue @Inject constructor(
             if (basalValue.value < activePlugin.get().activePump.pumpDescription.basalMinimumRate) {
                 val notification = Notification(Notification.BASAL_VALUE_BELOW_MINIMUM, resourceHelper.gs(R.string.basalvaluebelowminimum), Notification.URGENT)
                 rxBus.send(EventNewNotification(notification))
-                callback?.result(PumpEnactResult(injector).success(false).enacted(false).comment(resourceHelper.gs(R.string.basalvaluebelowminimum)))?.run()
+                callback?.result(PumpEnactResult(injector).success(false).enacted(false).comment(R.string.basalvaluebelowminimum))?.run()
                 return false
             }
         }
@@ -454,12 +460,12 @@ class CommandQueue @Inject constructor(
 
     // returns true if command is queued
     override fun loadTDDs(callback: Callback?): Boolean {
-        if (isRunning(CommandType.LOAD_HISTORY)) {
+        if (isRunning(CommandType.LOAD_TDD)) {
             callback?.result(executingNowError())?.run()
             return false
         }
         // remove all unfinished
-        removeAll(CommandType.LOAD_HISTORY)
+        removeAll(CommandType.LOAD_TDD)
         // add new command to queue
         add(CommandLoadTDDs(injector, callback))
         notifyAboutNewCommand()

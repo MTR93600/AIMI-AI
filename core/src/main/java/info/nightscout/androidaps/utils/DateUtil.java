@@ -51,7 +51,7 @@ public class DateUtil {
     /**
      * The date format in iso.
      */
-    private static final String FORMAT_DATE_ISO_OUT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String FORMAT_DATE_ISO_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /**
      * Takes in an ISO date string of the following format:
@@ -139,12 +139,12 @@ public class DateUtil {
                 hours -= 12;
             if ((m.group(3).equals(" p.m.") || m.group(3).equals(" PM") || m.group(3).equals("PM")) && !(m.group(1).equals("12")))
                 hours += 12;
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.HOUR_OF_DAY, hours);
-            c.set(Calendar.MINUTE, minutes);
-            c.set(Calendar.SECOND, 0);
-            c.set(Calendar.MILLISECOND, 0);
-            retval = c.getTimeInMillis();
+            DateTime t = new DateTime()
+                    .withHourOfDay(hours)
+                    .withMinuteOfHour(minutes)
+                    .withSecondOfMinute(0)
+                    .withMillisOfSecond(0);
+            retval = t.getMillis();
         }
         return retval;
     }
@@ -253,6 +253,12 @@ public class DateUtil {
 
     public long _now() {
         return System.currentTimeMillis();
+    }
+
+    public long nowWithoutMilliseconds() {
+        long n = System.currentTimeMillis();
+        n = n - n % 1000;
+        return n;
     }
 
     public static long now() {

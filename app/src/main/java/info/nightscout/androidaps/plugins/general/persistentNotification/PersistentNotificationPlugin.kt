@@ -16,21 +16,19 @@ import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.androidNotification.NotificationHolder
-import info.nightscout.androidaps.utils.androidNotification.openAppIntent
 import info.nightscout.androidaps.utils.resources.IconsProvider
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import info.nightscout.androidaps.utils.valueToUnitsString
+import info.nightscout.androidaps.utils.extensions.valueToUnitsString
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("PrivatePropertyName")
+@Suppress("PrivatePropertyName", "DEPRECATION")
 @Singleton
 class PersistentNotificationPlugin @Inject constructor(
     injector: HasAndroidInjector,
@@ -43,10 +41,10 @@ class PersistentNotificationPlugin @Inject constructor(
     private val iobCobCalculatorPlugin: IobCobCalculatorPlugin,
     private val rxBus: RxBusWrapper,
     private val context: Context,
-    private val notificationHolder: NotificationHolder,
+    private val notificationHolder: NotificationHolderInterface,
     private val dummyServiceHelper: DummyServiceHelper,
     private val iconsProvider: IconsProvider,
-    private val databaseHelper: DatabaseHelperInterface
+    private val glucoseStatusProvider: GlucoseStatusProvider
 ) : PluginBase(PluginDescription()
     .mainType(PluginType.GENERAL)
     .neverVisible(true)
@@ -134,13 +132,13 @@ class PersistentNotificationPlugin @Inject constructor(
             var line1aa: String
             val units = profileFunction.getUnits()
             val lastBG = iobCobCalculatorPlugin.lastBg()
-            val glucoseStatus = GlucoseStatus(injector).glucoseStatusData
+            val glucoseStatus = glucoseStatusProvider.glucoseStatusData
             if (lastBG != null) {
                 line1aa = lastBG.valueToUnitsString(units)
                 line1 = line1aa
                 if (glucoseStatus != null) {
                     line1 += ("  Δ" + Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
-                        + " avgΔ" + Profile.toSignedUnitsString(glucoseStatus.avgdelta, glucoseStatus.avgdelta * Constants.MGDL_TO_MMOLL, units))
+                        + " avgΔ" + Profile.toSignedUnitsString(glucoseStatus.shortAvgDelta, glucoseStatus.shortAvgDelta * Constants.MGDL_TO_MMOLL, units))
                     line1aa += "  " + lastBG.trendArrow.symbol
                 } else {
                     line1 += " " +
@@ -216,7 +214,7 @@ class PersistentNotificationPlugin @Inject constructor(
                 .setUnreadConversation(unreadConversationBuilder.build()))
         }
         /// End Android Auto
-        builder.setContentIntent(openAppIntent(context))
+        builder.setContentIntent(notificationHolder.openAppIntent(context))
         val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = builder.build()
         mNotificationManager.notify(notificationHolder.notificationID, notification)

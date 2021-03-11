@@ -69,6 +69,40 @@
     <string name="pairing">Сопряжение</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="loopdisabled">ЗЦ ОТМЕНЕН ОГРАНИЧЕНИЯМИ</string>
+    <string name="bolusdelivered">Болюс %1$.2f ед. подан успешно</string>
+    <string name="virtualpump_resultok">ОК</string>
+    <string name="novalidbasalrate">На помпе не найдены валидные записи о базалe</string>
+    <string name="limitingmaxiob">Ограничение максимума активного инсулина IOB до %1$.1f U из-за %2$s</string>
+    <string name="unsafeusage">небезопасное применение</string>
+    <string name="pump_unreachable">Помпа недоступна</string>
+    <string name="extended_bolus">Пролонгированный болюс</string>
+    <string name="pump_time_updated">Время на помпе обновлено</string>
+    <string name="exit">Выйти</string>
+    <string name="serial_number">Серийный номер</string>
+    <string name="removerecord">Удалить запись</string>
+    <string name="loopisdisabled">Зцикл не работает</string>
+    <string name="alarm">Оповещения об опасности</string>
+    <string name="disableloop">Деактивировать цикличность</string>
+    <string name="enableloop">Активировать цикличность</string>
+    <string name="resumeloop">Возобновить цикл</string>
+    <string name="suspendloop">Приостановить цикл</string>
+    <string name="duration_min_label">Длительность (мин)</string>
+    <string name="notification">Уведомление</string>
+    <string name="noprofile">Профиль еще не загружен из NS</string>
+    <string name="exists">существует</string>
+    <string name="notexists">не существует</string>
+    <string name="glucose">Гликемия</string>
+    <string name="iob">IOB акт инс</string>
+    <string name="cob">АктУгл COB</string>
+    <string name="name_short">Имя:</string>
+    <string name="time">Время</string>
+    <string name="ns_wifi_ssids">SSID для Wi-Fi</string>
+    <string name="loading">Загрузка…</string>
+    <string name="event_time_label">Время события</string>
+    <string name="notes_label">Заметки</string>
+    <string name="remove_button">Удалить</string>
+    <string name="addnew">Добавить новый</string>
     <!--    Constraints-->
     <string name="limitingbasalratio">Макс базальный уровень ограничен до %1$.2f ед/ч вследствие %2$s</string>
     <string name="pumplimit">лимит помпы</string>
@@ -84,6 +118,7 @@
     <string name="dismiss">ОТКЛОНИТЬ</string>
     <!--    BlePreCheck-->
     <string name="ble_not_supported">Bluetooth с низким энергопотреблением не поддерживается.</string>
+    <string name="ble_not_supported_or_not_paired">Bluetooth Low Energy не поддерживается или устройство не сопряжено.</string>
     <string name="ble_not_enabled">Bluetooth не включен.</string>
     <string name="location_not_found_title">Геолокация не включена</string>
     <string name="location_not_found_message">Для обнаружения Bluetooth на новых устройствах необходимо включить геолокацию. AAPS не отслеживает ваше местоположение и может быть отключен после успешного сопряжения.</string>
@@ -257,6 +292,14 @@
     <string name="versionavailable">Доступна версия %1$s</string>
     <!-- Permissions -->
     <string name="alert_dialog_storage_permission_text">Перезагрузите телефон или перезапустите AndroidAPS из системных настроек \n иначе AndroidAPS не будет вести лог (важно для отслеживания и проверки алгоритмов)!</string>
+    <!-- WeekdayPicker -->
+    <string name="monday_short">Пн</string>
+    <string name="tuesday_short">Вт</string>
+    <string name="wednesday_short">Ср</string>
+    <string name="thursday_short">Чт</string>
+    <string name="friday_short">Пт</string>
+    <string name="saturday_short">Сб</string>
+    <string name="sunday_short">Вс</string>
     <plurals name="days">
         <item quantity="one">%1$d день</item>
         <item quantity="few">%1$d дня</item>

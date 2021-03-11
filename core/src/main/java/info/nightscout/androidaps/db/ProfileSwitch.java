@@ -125,12 +125,12 @@ public class ProfileSwitch implements Interval, DataPointWithLabelInterface {
     /**
      * Note: the name returned here is used as the PS name when uploading to NS. When such a PS is retrieved
      * again from NS, the added parts must be removed again, see
-     * {@link info.nightscout.androidaps.utils.PercentageSplitter#pureName}
+     * {PercentageSplitter#pureName}
      */
     public String getCustomizedName() {
         String name = profileName;
         if (Constants.LOCAL_PROFILE.equals(name)) {
-            name = DecimalFormatter.to2Decimal(getProfileObject().percentageBasalSum()) + "U ";
+            name = DecimalFormatter.INSTANCE.to2Decimal(getProfileObject().percentageBasalSum()) + "U ";
         }
         if (isCPP) {
             name += "(" + percentage + "%";

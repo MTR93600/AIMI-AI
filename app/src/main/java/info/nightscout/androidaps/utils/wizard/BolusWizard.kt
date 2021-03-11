@@ -6,14 +6,13 @@ import android.text.Spanned
 import com.google.common.base.Joiner
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.Config
-import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.ErrorHelperActivity
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.data.Profile
-import info.nightscout.androidaps.db.CareportalEvent
+import info.nightscout.androidaps.database.entities.TemporaryTarget
+import info.nightscout.androidaps.database.entities.TherapyEvent
 import info.nightscout.androidaps.db.Source
-import info.nightscout.androidaps.db.TempTarget
 import info.nightscout.androidaps.events.EventRefreshOverview
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.AAPSLogger
@@ -22,18 +21,11 @@ import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
-import info.nightscout.androidaps.plugins.general.automation.AutomationEvent
-import info.nightscout.androidaps.plugins.general.automation.AutomationPlugin
-import info.nightscout.androidaps.plugins.general.automation.actions.ActionAlarm
-import info.nightscout.androidaps.plugins.general.automation.elements.Comparator
-import info.nightscout.androidaps.plugins.general.automation.elements.InputDelta
-import info.nightscout.androidaps.plugins.general.automation.triggers.TriggerBg
-import info.nightscout.androidaps.plugins.general.automation.triggers.TriggerConnector
-import info.nightscout.androidaps.plugins.general.automation.triggers.TriggerDelta
-import info.nightscout.androidaps.plugins.general.automation.triggers.TriggerTime
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
 import info.nightscout.androidaps.queue.Callback
+import info.nightscout.androidaps.utils.CarbTimer
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.HtmlHelper
 import info.nightscout.androidaps.utils.Round
@@ -44,7 +36,6 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
 import org.json.JSONException
 import org.json.JSONObject
-import java.text.DecimalFormat
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.abs
@@ -63,10 +54,11 @@ class BolusWizard @Inject constructor(
     @Inject lateinit var commandQueue: CommandQueueProvider
     @Inject lateinit var loopPlugin: LoopPlugin
     @Inject lateinit var iobCobCalculatorPlugin: IobCobCalculatorPlugin
-    @Inject lateinit var automationPlugin: AutomationPlugin
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var config: Config
     @Inject lateinit var uel: UserEntryLogger
+    @Inject lateinit var carbTimer: CarbTimer
+    @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
 
     init {
         injector.androidInjector().inject(this)
@@ -116,7 +108,7 @@ class BolusWizard @Inject constructor(
     // Input
     lateinit var profile: Profile
     lateinit var profileName: String
-    var tempTarget: TempTarget? = null
+    var tempTarget: TemporaryTarget? = null
     var carbs: Int = 0
     var cob: Double = 0.0
     var bg: Double = 0.0
@@ -136,7 +128,7 @@ class BolusWizard @Inject constructor(
     @JvmOverloads
     fun doCalc(profile: Profile,
                profileName: String,
-               tempTarget: TempTarget?,
+               tempTarget: TemporaryTarget?,
                carbs: Int,
                cob: Double,
                bg: Double,
@@ -178,8 +170,8 @@ class BolusWizard @Inject constructor(
         targetBGLow = Profile.fromMgdlToUnits(profile.targetLowMgdl, profileFunction.getUnits())
         targetBGHigh = Profile.fromMgdlToUnits(profile.targetHighMgdl, profileFunction.getUnits())
         if (useTT && tempTarget != null) {
-            targetBGLow = Profile.fromMgdlToUnits(tempTarget.low, profileFunction.getUnits())
-            targetBGHigh = Profile.fromMgdlToUnits(tempTarget.high, profileFunction.getUnits())
+            targetBGLow = Profile.fromMgdlToUnits(tempTarget.lowTarget, profileFunction.getUnits())
+            targetBGHigh = Profile.fromMgdlToUnits(tempTarget.highTarget, profileFunction.getUnits())
         }
         if (useBg && bg > 0) {
             bgDiff = when {
@@ -191,10 +183,10 @@ class BolusWizard @Inject constructor(
         }
 
         // Insulin from 15 min trend
-        glucoseStatus = GlucoseStatus(injector).glucoseStatusData
+        glucoseStatus = glucoseStatusProvider.glucoseStatusData
         glucoseStatus?.let {
             if (useTrend) {
-                trend = it.short_avgdelta
+                trend = it.shortAvgDelta
                 insulinFromTrend = Profile.fromMgdlToUnits(trend, profileFunction.getUnits()) * 3 / sens
             }
         }
@@ -346,7 +338,7 @@ class BolusWizard @Inject constructor(
         val confirmMessage = confirmMessageAfterConstraints(advisor = true)
         OKDialog.showConfirmation(ctx, resourceHelper.gs(R.string.boluswizard), confirmMessage, {
             DetailedBolusInfo().apply {
-                eventType = CareportalEvent.CORRECTIONBOLUS
+                eventType = TherapyEvent.Type.CORRECTION_BOLUS.text
                 insulin = insulinAfterConstraints
                 carbs = 0.0
                 context = ctx
@@ -363,7 +355,7 @@ class BolusWizard @Inject constructor(
                             if (!result.success) {
                                 ErrorHelperActivity.runAlarm(ctx, result.comment, resourceHelper.gs(R.string.treatmentdeliveryerror), R.raw.boluserror)
                             } else
-                                scheduleEatReminder()
+                                carbTimer.scheduleEatReminder()
                         }
                     })
                 }
@@ -410,7 +402,7 @@ class BolusWizard @Inject constructor(
                     }
                 }
                 DetailedBolusInfo().apply {
-                    eventType = CareportalEvent.BOLUSWIZARD
+                    eventType = TherapyEvent.Type.BOLUS_WIZARD.text
                     insulin = insulinAfterConstraints
                     carbs = this@BolusWizard.carbs.toDouble()
                     context = ctx
@@ -434,57 +426,9 @@ class BolusWizard @Inject constructor(
                     }
                 }
                 if (useAlarm && carbs > 0 && carbTime > 0) {
-                    scheduleReminder(dateUtil._now() + T.mins(carbTime.toLong()).msecs())
+                    carbTimer.scheduleReminder(dateUtil._now() + T.mins(carbTime.toLong()).msecs())
                 }
             }
         })
-    }
-
-    private fun scheduleEatReminder() {
-        val event = AutomationEvent(injector).apply {
-            title = resourceHelper.gs(R.string.bolusadvisor)
-            readOnly = true
-            systemAction = true
-            autoRemove = true
-            trigger = TriggerConnector(injector, TriggerConnector.Type.OR).apply {
-
-                // Bg under 180 mgdl and dropping by 15 mgdl
-                list.add(TriggerConnector(injector, TriggerConnector.Type.AND).apply {
-                    list.add(TriggerBg(injector, 180.0, Constants.MGDL, Comparator.Compare.IS_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, -15.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.DELTA), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, -8.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.SHORT_AVERAGE), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                })
-                // Bg under 160 mgdl and dropping by 9 mgdl
-                list.add(TriggerConnector(injector, TriggerConnector.Type.AND).apply {
-                    list.add(TriggerBg(injector, 160.0, Constants.MGDL, Comparator.Compare.IS_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, -9.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.DELTA), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, -5.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.SHORT_AVERAGE), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                })
-                // Bg under 145 mgdl and dropping
-                list.add(TriggerConnector(injector, TriggerConnector.Type.AND).apply {
-                    list.add(TriggerBg(injector, 145.0, Constants.MGDL, Comparator.Compare.IS_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, 0.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.DELTA), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                    list.add(TriggerDelta(injector, InputDelta(injector, 0.0, -360.0, 360.0, 1.0, DecimalFormat("0"), InputDelta.DeltaType.SHORT_AVERAGE), Constants.MGDL, Comparator.Compare.IS_EQUAL_OR_LESSER))
-                })
-            }
-            actions.add(ActionAlarm(injector, resourceHelper.gs(R.string.time_to_eat)))
-        }
-
-        automationPlugin.addIfNotExists(event)
-    }
-
-    private fun scheduleReminder(time: Long) {
-        val event = AutomationEvent(injector).apply {
-            title = resourceHelper.gs(R.string.timetoeat)
-            readOnly = true
-            systemAction = true
-            autoRemove = true
-            trigger = TriggerConnector(injector, TriggerConnector.Type.AND).apply {
-                list.add(TriggerTime(injector, time))
-            }
-            actions.add(ActionAlarm(injector, resourceHelper.gs(R.string.timetoeat)))
-        }
-
-        automationPlugin.addIfNotExists(event)
     }
 }

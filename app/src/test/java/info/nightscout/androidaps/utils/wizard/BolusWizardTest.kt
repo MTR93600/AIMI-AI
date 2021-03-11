@@ -16,6 +16,7 @@ import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin
@@ -31,10 +32,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 
 @RunWith(PowerMockRunner::class)
-@PrepareForTest(ConstraintChecker::class, VirtualPumpPlugin::class)
+@PrepareForTest(ConstraintChecker::class, VirtualPumpPlugin::class, IobCobCalculatorPlugin::class)
 class BolusWizardTest : TestBase() {
 
-    private val PUMP_BOLUS_STEP = 0.1
+    private val pumpBolusStep = 0.1
 
     @Mock lateinit var resourceHelper: ResourceHelper
     @Mock lateinit var profileFunction: ProfileFunction
@@ -59,14 +60,12 @@ class BolusWizardTest : TestBase() {
                 it.commandQueue = commandQueue
                 it.loopPlugin = loopPlugin
                 it.iobCobCalculatorPlugin = iobCobCalculatorPlugin
-            }
-            if (it is GlucoseStatus) {
-                it.aapsLogger = aapsLogger
-                it.iobCobCalculatorPlugin = iobCobCalculatorPlugin
+                it.glucoseStatusProvider = GlucoseStatusProvider(aapsLogger = aapsLogger, iobCobCalculatorPlugin = iobCobCalculatorPlugin)
             }
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun setupProfile(targetLow: Double, targetHigh: Double, insulinSensitivityFactor: Double, insulinToCarbRatio: Double): Profile {
         val profile = Mockito.mock(Profile::class.java)
         `when`(profile.targetLowMgdl).thenReturn(targetLow)
@@ -81,7 +80,7 @@ class BolusWizardTest : TestBase() {
         `when`(treatmentsPlugin.lastCalculationTempBasals).thenReturn(IobTotal(System.currentTimeMillis()))
         `when`(activePlugin.activePump).thenReturn(virtualPumpPlugin)
         val pumpDescription = PumpDescription()
-        pumpDescription.bolusStep = PUMP_BOLUS_STEP
+        pumpDescription.bolusStep = pumpBolusStep
         `when`(virtualPumpPlugin.pumpDescription).thenReturn(pumpDescription)
 
         Mockito.doAnswer { invocation: InvocationOnMock ->
@@ -94,9 +93,9 @@ class BolusWizardTest : TestBase() {
         /** Should calculate the same bolus when different blood glucose but both in target range  */
     fun shouldCalculateTheSameBolusWhenBGsInRange() {
         val profile = setupProfile(4.0, 8.0, 20.0, 12.0)
-        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 4.2, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 4.2, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForBg42 = bw.calculatedTotalInsulin
-        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForBg54 = bw.calculatedTotalInsulin
         Assert.assertEquals(bolusForBg42, bolusForBg54, 0.01)
     }
@@ -104,9 +103,9 @@ class BolusWizardTest : TestBase() {
     @Test
     fun shouldCalculateHigherBolusWhenHighBG() {
         val profile = setupProfile(4.0, 8.0, 20.0, 12.0)
-        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 9.8, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 9.8, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForHighBg = bw.calculatedTotalInsulin
-        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForBgInRange = bw.calculatedTotalInsulin
         Assert.assertTrue(bolusForHighBg > bolusForBgInRange)
     }
@@ -114,9 +113,9 @@ class BolusWizardTest : TestBase() {
     @Test
     fun shouldCalculateLowerBolusWhenLowBG() {
         val profile = setupProfile(4.0, 8.0, 20.0, 12.0)
-        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 3.6, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        var bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 3.6, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForLowBg = bw.calculatedTotalInsulin
-        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, true, true, true, true, false, false, false, false)
+        bw = BolusWizard(injector).doCalc(profile, "", null, 20, 0.0, 5.4, 0.0, 100.0, useBg = true, useCob = true, includeBolusIOB = true, includeBasalIOB = true, useSuperBolus = false, useTT = false, useTrend = false, useAlarm = false)
         val bolusForBgInRange = bw.calculatedTotalInsulin
         Assert.assertTrue(bolusForLowBg < bolusForBgInRange)
     }

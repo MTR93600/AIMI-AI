@@ -12,7 +12,7 @@
     <string name="goingtodeliver">%1$.2f U vont être injectées</string>
     <string name="waitingforpump">Attente connection pompe</string>
     <string name="connectingfor">Connexion à %1$d en cours</string>
-    <string name="bolusdelivering">%1$.2f U en cours d\'injection</string>
+    <string name="bolusdelivering">%1$.2f U ont été injectées</string>
     <string name="handshaking">Connexion</string>
     <string name="connecting">Connection en cours</string>
     <string name="connected">Connectée</string>
@@ -39,7 +39,7 @@
     <string name="stop">Arrêt</string>
     <string name="carbs">Glucides</string>
     <string name="invalidprofile">Profil incorrect !!!</string>
-    <string name="noprofileset">PAS DE PROFIL DÉFINI</string>
+    <string name="noprofileset">PAS DE PROFIL SELECTIONNÉ</string>
     <string name="date"> Date</string>
     <string name="units_label">Unités</string>
     <string name="dia_label">DAI</string>
@@ -69,6 +69,40 @@
     <string name="pairing">Appairage</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string name="loopdisabled">BOUCLE DÉSACTIVÉE PAR RESTRICTIONS</string>
+    <string name="bolusdelivered">Bolus de %1$.2f U délivré avec succès</string>
+    <string name="virtualpump_resultok">OK</string>
+    <string name="novalidbasalrate">Aucun débit basal valide lu depuis la pompe</string>
+    <string name="limitingmaxiob">Limiter l’IA max %1$.1f U en raison de %2$s</string>
+    <string name="unsafeusage">utilisation dangereuse</string>
+    <string name="pump_unreachable">Pompe hors de portée</string>
+    <string name="extended_bolus">Bolus étendu</string>
+    <string name="pump_time_updated">Mise à jour de l\'heure de la pompe</string>
+    <string name="exit">Quitter</string>
+    <string name="serial_number">Numéro de série</string>
+    <string name="removerecord">Supprimer l\'enregistrement</string>
+    <string name="loopisdisabled">La Boucle est désactivée</string>
+    <string name="alarm">Alarme</string>
+    <string name="disableloop">Désactiver la Boucle</string>
+    <string name="enableloop">Activer la Boucle</string>
+    <string name="resumeloop">Reprendre la boucle</string>
+    <string name="suspendloop">Suspendre la boucle</string>
+    <string name="duration_min_label">Durée [min]</string>
+    <string name="notification">Notification</string>
+    <string name="noprofile">Pas encore de profil téléchargé depuis NS</string>
+    <string name="exists">existe</string>
+    <string name="notexists">n\'existe pas</string>
+    <string name="glucose">Glycémie</string>
+    <string name="iob">IA</string>
+    <string name="cob">GA</string>
+    <string name="name_short">Nom :</string>
+    <string name="time">Heure</string>
+    <string name="ns_wifi_ssids">SSID WiFi</string>
+    <string name="loading">Chargement…</string>
+    <string name="event_time_label">Heure événement</string>
+    <string name="notes_label">Notes</string>
+    <string name="remove_button">Supprimer</string>
+    <string name="addnew">Ajouter</string>
     <!--    Constraints-->
     <string name="limitingbasalratio">Limiter le débit de basal max à %1$.2f U/h à cause de %2$s</string>
     <string name="pumplimit">Limite de la pompe</string>
@@ -84,6 +118,7 @@
     <string name="dismiss">REJETER</string>
     <!--    BlePreCheck-->
     <string name="ble_not_supported">Bluetooth Low Energy non pris en charge.</string>
+    <string name="ble_not_supported_or_not_paired">Bluetooth Low Energy non pris en charge ou appareil non appairé.</string>
     <string name="ble_not_enabled">Bluetooth désactivé.</string>
     <string name="location_not_found_title">Localisation désactivée</string>
     <string name="location_not_found_message">La localisation doit être activée sur les nouveaux appareils pour que la recherche Bluetooth fonctionne. AAPS n\'enregistre pas votre localisation et la localisation peut être désactivée après l\'appairage.</string>
@@ -257,6 +292,14 @@
     <string name="versionavailable">Version %1$s disponible</string>
     <!-- Permissions -->
     <string name="alert_dialog_storage_permission_text">Redémarrez votre smartphone ou redémarrez AndroidAPS depuis les paramètres système\nsinon AndroidAPS n\'aura pas de fichiers log (il est important de suivre et vérifier que les algorithmes fonctionnent correctement)!</string>
+    <!-- WeekdayPicker -->
+    <string name="monday_short">L</string>
+    <string name="tuesday_short">M</string>
+    <string name="wednesday_short">M</string>
+    <string name="thursday_short">J</string>
+    <string name="friday_short">V</string>
+    <string name="saturday_short">S</string>
+    <string name="sunday_short">D</string>
     <plurals name="days">
         <item quantity="one">%1$d jour</item>
         <item quantity="other">%1$d jours</item>
