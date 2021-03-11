@@ -61,20 +61,23 @@ import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSDeviceStatus;
 import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.general.wear.WearPlugin;
-import info.nightscout.androidaps.plugins.general.wear.events.EventWearDoAction;
+import info.nightscout.androidaps.plugins.general.wear.events.EventWearConfirmAction;
+import info.nightscout.androidaps.plugins.general.wear.events.EventWearInitiateAction;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus;
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
 import info.nightscout.androidaps.receivers.ReceiverStatusStore;
 import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.DefaultValueHelper;
-import info.nightscout.androidaps.utils.GlucoseValueUtilsKt;
 import info.nightscout.androidaps.utils.SafeParse;
 import info.nightscout.androidaps.utils.ToastUtils;
+import info.nightscout.androidaps.utils.extensions.GlucoseValueUtilsKt;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 public class TizenUpdaterService extends SAAgent {
+    @Inject public GlucoseStatusProvider glucoseStatusProvider;
     @Inject public HasAndroidInjector injector;
     @Inject public AAPSLogger aapsLogger;
     @Inject public WearPlugin wearPlugin;
@@ -89,7 +92,6 @@ public class TizenUpdaterService extends SAAgent {
     @Inject public IobCobCalculatorPlugin iobCobCalculatorPlugin;
     @Inject public TreatmentsPlugin treatmentsPlugin;
     @Inject public AppRepository repository;
-    @Inject public ActionStringHandler actionStringHandler;
     @Inject ReceiverStatusStore receiverStatusStore;
     @Inject Config config;
 
@@ -214,18 +216,15 @@ public class TizenUpdaterService extends SAAgent {
     protected void onPeerAgentsUpdated(SAPeerAgent[] peerAgents, int result) {
         final SAPeerAgent[] peers = peerAgents;
         final int status = result;
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (peers != null) {
-                    if (status == SAAgent.PEER_AGENT_AVAILABLE) {
-                        Log.e(TAG, "TIZEN PEER_AGENT_AVAILABLE");
-                        Toast.makeText(getApplicationContext(), "PEER_AGENT_AVAILABLE", Toast.LENGTH_LONG).show();
-                        findPeers();
-                    } else {
-                        Log.e(TAG, "TIZEN PEER_AGENT_UNAVAILABLE");
-                        Toast.makeText(getApplicationContext(), "PEER_AGENT_UNAVAILABLE", Toast.LENGTH_LONG).show();
-                    }
+        mHandler.post(() -> {
+            if (peers != null) {
+                if (status == SAAgent.PEER_AGENT_AVAILABLE) {
+                    Log.e(TAG, "TIZEN PEER_AGENT_AVAILABLE");
+                    Toast.makeText(getApplicationContext(), "PEER_AGENT_AVAILABLE", Toast.LENGTH_LONG).show();
+                    findPeers();
+                } else {
+                    Log.e(TAG, "TIZEN PEER_AGENT_UNAVAILABLE");
+                    Toast.makeText(getApplicationContext(), "PEER_AGENT_UNAVAILABLE", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -265,12 +264,12 @@ public class TizenUpdaterService extends SAAgent {
                 if (channelId==TIZEN_INITIATE_ACTIONSTRING_CH) {
                     String actionstring = new String(data);
                     aapsLogger.debug(LTag.TIZEN, "Tizen: " + actionstring);
-                    rxBus.send(new EventWearDoAction(actionstring));
+                    rxBus.send(new EventWearInitiateAction(actionstring));
                 }
                 if (channelId==TIZEN_CONFIRM_ACTIONSTRING_CH) {
                     String actionstring = new String(data);
                     aapsLogger.debug(LTag.TIZEN, "Tizen Confirm: " + actionstring);
-                    rxBus.send(new EventWearDoAction(actionstring));
+                    rxBus.send(new EventWearConfirmAction(actionstring));
                 }
             } else { // todo: check if it a findpeers here
                 findPeers();
@@ -388,8 +387,8 @@ public class TizenUpdaterService extends SAAgent {
                 }
             });
         }
+*/
 
- */
         return Service.START_STICKY;
     }
 
@@ -414,7 +413,7 @@ public class TizenUpdaterService extends SAAgent {
         GlucoseValue lastBG = iobCobCalculatorPlugin.lastBg();
         // Log.d(TAG, logPrefix + "LastBg=" + lastBG);
         if (lastBG != null) {
-            GlucoseStatus glucoseStatus = new GlucoseStatus(injector).getGlucoseStatusData();
+            GlucoseStatus glucoseStatus = glucoseStatusProvider.getGlucoseStatusData();
 
             if (mConnectionHandler != null && !mConnectionHandler.isConnected() ) {
                 tizenApiConnect();
@@ -459,9 +458,9 @@ public class TizenUpdaterService extends SAAgent {
                 dataMap.put("delta", "--");
                 dataMap.put("avgDelta", "--");
             } else {
-                dataMap.put("slopeArrow", slopeArrow(glucoseStatus.delta));
-                dataMap.put("delta", deltastring(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units));
-                dataMap.put("avgDelta", deltastring(glucoseStatus.avgdelta, glucoseStatus.avgdelta * Constants.MGDL_TO_MMOLL, units));
+                dataMap.put("slopeArrow", slopeArrow(glucoseStatus.getDelta()));
+                dataMap.put("delta", deltastring(glucoseStatus.getDelta(), glucoseStatus.getDelta() * Constants.MGDL_TO_MMOLL, units));
+                dataMap.put("avgDelta", deltastring(glucoseStatus.getShortAvgDelta(), glucoseStatus.getShortAvgDelta() * Constants.MGDL_TO_MMOLL, units));
             }
             dataMap.put("sgvLevel", sgvLevel);
             dataMap.put("sgvDouble", lastBG.getValue());
@@ -485,15 +484,15 @@ public class TizenUpdaterService extends SAAgent {
         boolean detailed = sp.getBoolean(R.string.key_wear_detailed_delta, false);
         if (units.equals(Constants.MGDL)) {
             if (detailed) {
-                deltastring += DecimalFormatter.to1Decimal(Math.abs(deltaMGDL));
+                deltastring += DecimalFormatter.INSTANCE.to1Decimal(Math.abs(deltaMGDL));
             } else {
-                deltastring += DecimalFormatter.to0Decimal(Math.abs(deltaMGDL));
+                deltastring += DecimalFormatter.INSTANCE.to0Decimal(Math.abs(deltaMGDL));
             }
         } else {
             if (detailed) {
-                deltastring += DecimalFormatter.to2Decimal(Math.abs(deltaMMOL));
+                deltastring += DecimalFormatter.INSTANCE.to2Decimal(Math.abs(deltaMMOL));
             } else {
-                deltastring += DecimalFormatter.to1Decimal(Math.abs(deltaMMOL));
+                deltastring += DecimalFormatter.INSTANCE.to1Decimal(Math.abs(deltaMMOL));
             }
         }
         return deltastring;
@@ -524,7 +523,7 @@ public class TizenUpdaterService extends SAAgent {
         if (last_bg == null) return;
 
         List<GlucoseValue> graph_bgs = repository.compatGetBgReadingsDataFromTime(startTime, true).blockingGet();
-        GlucoseStatus glucoseStatus = new GlucoseStatus(injector).getGlucoseStatusData(true);
+        GlucoseStatus glucoseStatus = glucoseStatusProvider.getGlucoseStatusData();
 
         if (!graph_bgs.isEmpty()) {
             try {
@@ -904,8 +903,8 @@ public class TizenUpdaterService extends SAAgent {
                 treatmentsPlugin.updateTotalIOBTempBasals();
                 IobTotal basalIob = treatmentsPlugin.getLastCalculationTempBasals().round();
 
-                iobSum = DecimalFormatter.to2Decimal(bolusIob.iob + basalIob.basaliob);
-                iobDetail = "(" + DecimalFormatter.to2Decimal(bolusIob.iob) + "|" + DecimalFormatter.to2Decimal(basalIob.basaliob) + ")";
+                iobSum = DecimalFormatter.INSTANCE.to2Decimal(bolusIob.iob + basalIob.basaliob);
+                iobDetail = "(" + DecimalFormatter.INSTANCE.to2Decimal(bolusIob.iob) + "|" + DecimalFormatter.INSTANCE.to2Decimal(basalIob.basaliob) + ")";
                 cobString = iobCobCalculatorPlugin.getCobInfo(false, "WatcherUpdaterService").generateCOBString();
                 currentBasal = generateBasalString();
 
@@ -913,7 +912,7 @@ public class TizenUpdaterService extends SAAgent {
 
 
                 double bgi = -(bolusIob.activity + basalIob.activity) * 5 * Profile.fromMgdlToUnits(profile.getIsfMgdl(), profileFunction.getUnits());
-                bgiString = "" + ((bgi >= 0) ? "+" : "") + DecimalFormatter.to1Decimal(bgi);
+                bgiString = "" + ((bgi >= 0) ? "+" : "") + DecimalFormatter.INSTANCE.to1Decimal(bgi);
 
                 status = generateStatusString(profile, currentBasal, iobSum, iobDetail, bgiString);
             }
@@ -1038,7 +1037,7 @@ public class TizenUpdaterService extends SAAgent {
             if (sp.getBoolean(R.string.key_danar_visualizeextendedaspercentage, false)) {
                 basalStringResult = "100%";
             } else {
-                basalStringResult = DecimalFormatter.to2Decimal(profile.getBasal()) + "U/h";
+                basalStringResult = DecimalFormatter.INSTANCE.to2Decimal(profile.getBasal()) + "U/h";
             }
         }
         return basalStringResult;

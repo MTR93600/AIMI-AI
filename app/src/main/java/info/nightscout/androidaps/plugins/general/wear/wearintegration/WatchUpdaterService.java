@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
-import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.Config;
 import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.R;
