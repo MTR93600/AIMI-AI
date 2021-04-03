@@ -157,6 +157,8 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
             if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
                 medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.RileyLinkUnreachable);
+//                medLinkServiceData.activePlugin
+                //TODO schedule bg reading
             } else {
                 medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.BluetoothDisabled);
             }

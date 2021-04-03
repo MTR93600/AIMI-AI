@@ -348,8 +348,8 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             if (view == null) {
                 view = mInflator.inflate(R.layout.riley_link_ble_config_scan_item, null);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = view.findViewById(R.id.riley_link_ble_config_currently_selected_riley_link_address);
-                viewHolder.deviceName = view.findViewById(R.id.riley_link_ble_config_currently_selected_riley_link_name);
+                viewHolder.deviceAddress = view.findViewById(R.id.riley_link_ble_config_scan_item_device_address);
+                viewHolder.deviceName = view.findViewById(R.id.riley_link_ble_config_scan_item_device_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();

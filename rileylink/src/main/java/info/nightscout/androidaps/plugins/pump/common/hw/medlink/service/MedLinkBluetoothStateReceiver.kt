@@ -20,8 +20,7 @@ class MedLinkBluetoothStateReceiver : DaggerBroadcastReceiver() {
         super.onReceive(context, intent)
         val action = intent.action
         if (action != null) {
-            val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-            when (state) {
+            when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
                 BluetoothAdapter.STATE_OFF, BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_TURNING_ON -> {
                 }
 

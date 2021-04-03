@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.data;
 
+import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 
@@ -23,7 +24,18 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
         super(pumpType);
     }
 
+    public long getLastBGTimestamp() {
+        return lastBGTimestamp;
+    }
+
     public long lastBGTimestamp;
     public double latestBG;
+
+    public DetailedBolusInfo getLastBolusInfo(){
+        DetailedBolusInfo result = new DetailedBolusInfo();
+        result.insulin = lastBolusAmount;
+        result.deliverAt = lastBolusTime.getTime();
+        return result;
+    }
 }
 

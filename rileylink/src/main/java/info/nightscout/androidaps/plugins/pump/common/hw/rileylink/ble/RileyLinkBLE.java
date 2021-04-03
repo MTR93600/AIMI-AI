@@ -48,7 +48,7 @@ public class RileyLinkBLE {
     @Inject protected AAPSLogger aapsLogger;
     @Inject RileyLinkServiceData rileyLinkServiceData;
     @Inject RileyLinkUtil rileyLinkUtil;
-    @Inject SP sp;
+    @Inject protected SP sp;
 
     protected StringBuffer pumpResponse = new StringBuffer();
 
@@ -618,5 +618,9 @@ public class RileyLinkBLE {
         }
 
         return statusMessage;
+    }
+
+    public void writeDescriptor(BluetoothGattDescriptor descr) {
+
     }
 }

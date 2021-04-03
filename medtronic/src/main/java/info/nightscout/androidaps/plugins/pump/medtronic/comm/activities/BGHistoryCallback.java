@@ -25,7 +25,6 @@ import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
-import info.nightscout.androidaps.utils.Either;
 
 /**
  * Created by Dirceu on 24/01/21.

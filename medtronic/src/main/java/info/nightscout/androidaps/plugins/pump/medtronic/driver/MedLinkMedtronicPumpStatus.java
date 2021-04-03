@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
@@ -45,7 +46,6 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     public String pumpFrequency = null;
     public Double maxBolus;
     public Double maxBasal;
-
 
 
     // statuses
@@ -197,8 +197,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
         rxBus.send(new EventRileyLinkDeviceStatusChange(pumpDeviceState));
     }
 
-    public boolean needToGetBGHdistory(){
-        long validBG = lastBGTimestamp + 5390000l;
-        return lastDateTime > (validBG) || System.currentTimeMillis() > validBG;
+    public boolean needToGetBGHistory(){
+        return lastDateTime - lastBGTimestamp > 360000;
     }
 }

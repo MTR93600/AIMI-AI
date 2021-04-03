@@ -216,7 +216,9 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 
 
         aapsLogger.info(LTag.PUMPBTCOMM, "connect to device");
-        getStatusData();
+//        getStatusData();
+
+
 //        aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(rfSpyResponse.getRaw()));
 
 //        if (rfSpyResponse.wasTimeout()) {
@@ -285,11 +287,10 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         return false;
     }
 
-    public void getStatusData() {
+    public void getStatusData(MedLinkPumpMessage pumpMessage) {
 
-        Function<Supplier<Stream<String>>, MedLinkStandardReturn<MedLinkPumpStatus>> callback =
-                new StatusCallback(aapsLogger,
-                        medLinkPumpPlugin, medtronicPumpStatus);
+        aapsLogger.info(LTag.PUMPBTCOMM, "Getting status data");
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn> callback = pumpMessage.getBaseCallBack();
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<MedLinkPumpStatus>> function = callback.andThen(f -> {
             aapsLogger.error("andThen " + f.getAnswer().collect(Collectors.joining()));
             Supplier<Stream<String>> answerLines = () -> f.getAnswer();
@@ -314,7 +315,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             }
             return f;
         });
-        rfspy.transmitThenReceive(new MedLinkPumpMessage(MedLinkCommandType.GetState, MedLinkCommandType.NoCommand, function));
+        pumpMessage.setBaseCallBack(function);
+        rfspy.transmitThenReceive(pumpMessage);
     }
 
     private void processPumpData(Stream<String> answerLines) {
@@ -619,21 +621,29 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 //    }
 
     private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType, Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> result) {
-        return new MedLinkPumpMessage<B>(messageType, MedLinkCommandType.NoCommand, result);
+        return new MedLinkPumpMessage<B>(messageType, MedLinkCommandType.NoCommand,
+                result,
+                medLinkServiceData,
+                aapsLogger);
     }
 
 
     private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
                                                       MedLinkCommandType argument,
                                                       Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseResultActivity) {
-        return new MedLinkPumpMessage<B>(messageType, argument, baseResultActivity);
+        return new MedLinkPumpMessage<B>(messageType, argument, baseResultActivity,
+                medLinkServiceData,
+                aapsLogger);
     }
 
     private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
                                                       MedLinkCommandType argument,
                                                       Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseResultActivity,
                                                       Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argResultActivity) {
-        return new BasalMedLinkMessage<>(messageType, argument, baseResultActivity, argResultActivity);
+        return new BasalMedLinkMessage<>(messageType, argument, baseResultActivity,
+                argResultActivity,
+                medLinkServiceData,
+                aapsLogger);
     }
 
 //    private MedLinkPumpMessage sendAndGetResponse(MedLinkCommandType commandType) throws RileyLinkCommunicationException {
@@ -793,7 +803,10 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             }
             return s;
         });
-        rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.Connect, MedLinkCommandType.NoCommand, activity
+        rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.Connect,
+                MedLinkCommandType.NoCommand, activity,
+                medLinkServiceData,
+                aapsLogger
         ));
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
         //nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);

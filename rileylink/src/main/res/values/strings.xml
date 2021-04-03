@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
+    <string name="need_manual_profile_set">You need to change your pump profile to the Standard</string>
     <string name="medlink_scanner_title">MedLink Scan</string>
     <!-- RL keys -->
     <string name="key_medtronic_pump_encoding_4b6b_local" translatable="false">medtronic_pump_encoding_4b6b_local</string>

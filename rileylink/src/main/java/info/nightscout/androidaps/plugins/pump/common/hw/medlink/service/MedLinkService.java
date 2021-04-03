@@ -226,6 +226,7 @@ public abstract class MedLinkService extends DaggerService {
     public void disconnectRileyLink() {
 
         if (medLinkBLE.isConnected()) {
+            aapsLogger.info(LTag.PUMPBTCOMM, "disconnectingMedlink");
             medLinkBLE.disconnect();
             medLinkServiceData.rileylinkAddress = null;
         }

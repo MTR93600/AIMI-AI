@@ -81,7 +81,10 @@ public class InitializePumpManagerTask extends NotifiableTask {
 
 //                boolean foundThePump =
 //            medLinkCommunicationManager.getPumpStatus().lastConnection;
-                  medLinkCommunicationManager.tryToConnectToDevice();
+                  if(System.currentTimeMillis() -
+                          medLinkCommunicationManager.getPumpStatus().lastConnection > 300000){
+                      medLinkCommunicationManager.wakeUp(false);
+                  }
 
 //                if (foundThePump) {
 //                    medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);

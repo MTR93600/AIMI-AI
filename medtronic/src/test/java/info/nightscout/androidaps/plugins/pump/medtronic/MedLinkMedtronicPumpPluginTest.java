@@ -36,24 +36,25 @@ import info.nightscout.androidaps.interfaces.CommandQueueProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.MedLinkMedtronicHistoryData;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
+import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-
+//@PowerMockIgnore({ "org.powermock.*", "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*" })
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MedLinkMedtronicPumpPlugin.class, AAPSLogger.class, RxBusWrapper.class,
         Context.class, ResourceHelper.class, android.util.Base64.class, ActivePluginProvider.class,
@@ -105,7 +106,7 @@ public class MedLinkMedtronicPumpPluginTest {
     }
 
     @Before
-    public void buildResult(){
+    public void buildResult() {
         String testComment = "MedlinkTest";
         PowerMockito.when(resourceHelper.gs(R.string.medtronic_cmd_desc_set_tbr)).thenReturn(testComment);
         PowerMockito.when(result.success(true)).thenReturn(result);
@@ -125,6 +126,7 @@ public class MedLinkMedtronicPumpPluginTest {
             @Override protected PumpEnactResult buildPumpEnactResult() {
                 return result;
             }
+
 
         };
         PowerMockito.when(result.toString()).thenReturn("Mocked enactresult");
@@ -699,7 +701,71 @@ public class MedLinkMedtronicPumpPluginTest {
         basalValues[3] = profile.new ProfileValue(14400, 2d);
         return basalValues;
     }
-}
-
-//TODO fazer teste com periodos com baixa dosagem e veja onde a primeira aplicação se encaixa
+    //TODO fazer teste com periodos com baixa dosagem e veja onde a primeira aplicação se encaixa
 //TODO fazer teste com um periodo e crossmidnight
+
+    private long timeInMillis = 1597021200000l;
+    private MedLinkMedtronicPumpPlugin buildPumpPlugin(MedLinkMedtronicPumpStatus pumpStatus){
+        LocalDateTime time = buildTime();
+        MedLinkMedtronicPumpPlugin plug = PowerMockito.mock(MedLinkMedtronicPumpPlugin.class);
+        PowerMockito.when(plug.getPumpStatusData()).thenReturn(pumpStatus);
+        PowerMockito.when(plug.getTimeInFutureFromMinutes(anyInt())).thenCallRealMethod();
+        PowerMockito.when(plug.getTimeInMs(anyInt())).thenCallRealMethod();
+        PowerMockito.when(plug.getCurrentTime()).thenReturn(time);
+
+        PowerMockito.when(plug.scheduleNextReadState()).thenCallRealMethod();
+        PowerMockito.when(plug.scheduleNextRefresh(any(MedLinkMedtronicStatusRefreshType.class),
+                anyInt()))
+                .thenCallRealMethod();
+        return plug;
+    }
+
+    @Test
+    public void testNextCommandSchedulePumpSameTime() throws Exception {
+        MedLinkMedtronicPumpStatus pumpStatus = PowerMockito.mock(MedLinkMedtronicPumpStatus.class);
+        MedLinkMedtronicPumpPlugin plug = buildPumpPlugin(pumpStatus);
+        PowerMockito.when(pumpStatus.getLastBGTimestamp()).thenReturn(timeInMillis + 60000);
+        PowerMockito.when(pumpStatus.getLastDateTime()).thenReturn(timeInMillis + 60000);
+        plug.scheduleNextReadState();
+        verify(plug, times(1)).workWithStatusRefresh(eq(MedLinkMedtronicPumpPlugin.StatusRefreshAction.Add),
+                eq(MedLinkMedtronicStatusRefreshType.PumpHistory),eq(timeInMillis + 360000));
+
+    }
+
+    @Test
+    public void testNextCommandSchedulePumpUpFront1Min() throws Exception {
+        MedLinkMedtronicPumpStatus pumpStatus = PowerMockito.mock(MedLinkMedtronicPumpStatus.class);
+        MedLinkMedtronicPumpPlugin plug = buildPumpPlugin(pumpStatus);
+
+        PowerMockito.when(pumpStatus.getLastBGTimestamp()).thenReturn(timeInMillis + 60000);
+        PowerMockito.when(pumpStatus.getLastDateTime()).thenReturn(timeInMillis + 120000);
+
+        plug.scheduleNextReadState();
+        verify(plug, times(1)).workWithStatusRefresh(eq(MedLinkMedtronicPumpPlugin.StatusRefreshAction.Add),
+                eq(MedLinkMedtronicStatusRefreshType.PumpHistory),eq(timeInMillis + 300000));
+
+    }
+
+    @Test
+    public void testNextCommandSchedulePumpUpFront2Min() throws Exception {
+        MedLinkMedtronicPumpStatus pumpStatus = PowerMockito.mock(MedLinkMedtronicPumpStatus.class);
+        MedLinkMedtronicPumpPlugin plug = buildPumpPlugin(pumpStatus);
+        PowerMockito.when(pumpStatus.getLastBGTimestamp()).thenReturn(timeInMillis + 60000);
+        PowerMockito.when(pumpStatus.getLastDateTime()).thenReturn(timeInMillis + 180000);
+        plug.scheduleNextReadState();
+        verify(plug, times(1)).workWithStatusRefresh(eq(MedLinkMedtronicPumpPlugin.StatusRefreshAction.Add),
+                eq(MedLinkMedtronicStatusRefreshType.PumpHistory),eq(timeInMillis + 240000));
+    }
+
+    @Test
+    public void testNextCommandSchedulePumpUpFront8Min() throws Exception {
+        MedLinkMedtronicPumpStatus pumpStatus = PowerMockito.mock(MedLinkMedtronicPumpStatus.class);
+        MedLinkMedtronicPumpPlugin plug = buildPumpPlugin(pumpStatus);
+        PowerMockito.when(pumpStatus.getLastBGTimestamp()).thenReturn(timeInMillis + 60000);
+        PowerMockito.when(pumpStatus.getLastDateTime()).thenReturn(timeInMillis + 9*60000);
+        plug.scheduleNextReadState();
+        verify(plug, times(1)).workWithStatusRefresh(eq(MedLinkMedtronicPumpPlugin.StatusRefreshAction.Add),
+                eq(MedLinkMedtronicStatusRefreshType.PumpHistory),eq(timeInMillis + 180000));
+    }
+
+}

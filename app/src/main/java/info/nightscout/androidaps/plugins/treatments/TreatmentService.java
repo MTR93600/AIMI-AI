@@ -477,9 +477,7 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
 
         try {
             treatment.date = databaseHelper.roundDateToSec(treatment.date);
-
             Treatment existingTreatment = getRecord(treatment.pumpId, treatment.date);
-
             if (MedtronicHistoryData.doubleBolusDebug)
                 aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic:: existingTreatment={}", treatment);
 
@@ -604,13 +602,9 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
     }
 
     public Treatment getRecord(long pumpId, long date) {
-
         Treatment record = null;
-
-        if (pumpId > 0) {
-
+        if (pumpId > 0 && date == 0l) {
             record = getPumpRecordById(pumpId);
-
             if (record != null) {
                 return record;
             }

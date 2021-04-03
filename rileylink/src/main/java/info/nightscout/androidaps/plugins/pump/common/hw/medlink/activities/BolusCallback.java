@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.logging.AAPSLogger;
+import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
 
 /**
@@ -14,43 +15,44 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
  */
 public class BolusCallback extends BaseCallback<String> {
 
-//    private final RxBusWrapper rxBus;
+    private final AAPSLogger aapsLogger;
+    //    private final RxBusWrapper rxBus;
     private Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s\\d{1,2}:\\d{1,2}\\s\\d{2}\\S", Pattern.CASE_INSENSITIVE);
     private Pattern deliveringBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
 
 
-    public BolusCallback(){//RxBusWrapper rxBus) {
+    public BolusCallback(AAPSLogger aapsLogger){//RxBusWrapper rxBus) {
         super();
+        this.aapsLogger = aapsLogger;
 //        this.rxBus = rxBus;
     }
 
     @Override public MedLinkStandardReturn<String> apply(Supplier<Stream<String>> answers) {
-
+        aapsLogger.info(LTag.PUMPBTCOMM, "BolusCallback");
         //TODO fix error response
         AtomicReference<String> pumpResponse = new AtomicReference<>();
         if (answers.get().filter(f -> f.toLowerCase().contains("pump is not delivering a bolus")).findFirst().isPresent()) {
             answers.get().filter(f -> f.toLowerCase().contains("recent bolus bl")).findFirst().map(f -> {
                 Matcher matcher = deliveredBolusPattern.matcher(f);
-                if (matcher.find()) {
-                    pumpResponse.set(PumpResponses.BolusDelivered.getAnswer());
-                } else {
-                    pumpResponse.set(PumpResponses.UnknowAnswer.getAnswer() + f);
-                }
-                return pumpResponse.get();
+                pumpResponse.set(matchBolus(matcher, f));
+                return pumpResponse;
             });
         } else if (answers.get().filter(f -> f.toLowerCase().contains("pump is delivering a bolus")).findFirst().isPresent()) {
             answers.get().filter(f -> f.toLowerCase().contains("recent bolus bl")).findFirst().map(f -> {
                 Matcher matcher = deliveringBolusPattern.matcher(f);
-
-                if (matcher.find()) {
-                    pumpResponse.set( PumpResponses.DeliveringBolus.getAnswer());
-                } else {
-                    pumpResponse.set( PumpResponses.UnknowAnswer.getAnswer() + f);
-                }
-                return pumpResponse.get();
+                pumpResponse.set(matchBolus(matcher, f));
+                return pumpResponse;
             });
         }
         return  new MedLinkStandardReturn<>(answers,pumpResponse.get());
+    }
+
+    private String matchBolus(Matcher matcher, String f) {
+        if (matcher.find()) {
+            return PumpResponses.BolusDelivered.getAnswer();
+        } else {
+            return PumpResponses.UnknowAnswer.getAnswer() + f;
+        }
     }
 
 }

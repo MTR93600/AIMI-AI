@@ -267,8 +267,8 @@ public class MedLinkStatusParser {
                             bgDate.getTime(), bg, null, pumpStatus.lastBGTimestamp,
                             pumpStatus.latestBG, Source.PUMP);
                     pumpStatus.reading = reading;
+                    pumpStatus.lastBGTimestamp = bgDate.getTime();
                 }
-                pumpStatus.lastBGTimestamp = bgDate.getTime();
                 pumpStatus.latestBG = bg;
             }
         }

@@ -176,7 +176,11 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
 //            byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
 
-            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.GetState,MedLinkCommandType.NoCommand,resultActivity));
+            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.GetState,
+                    MedLinkCommandType.NoCommand,
+                    resultActivity,
+                    medLinkServiceData,
+                    aapsLogger));
 //            aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
 
             // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!

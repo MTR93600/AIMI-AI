@@ -87,18 +87,19 @@ public class MedLinkRFSpy {
     // Starts an async task to read when data is available
     public void startReader() {
 //        aapsLogger.debug("RFSpy start reader");
-        medLinkBle.registerRadioResponseCountNotification(this::newDataIsAvailable);
+//        medLinkBle.registerRadioResponseCountNotification(this::newDataIsAvailable);
+
 //        aapsLogger.debug("RFSpy radio registered");
-        reader.start();
+//        reader.start();
     }
 
 
     // Here should go generic RL initialisation + protocol adjustments depending on
     // firmware version
     public void initializeRileyLink() {
-        if(bleVersion==null) {
-            bleVersion = getVersion();
-        }
+//        if(bleVersion==null) {
+//            bleVersion = getVersion();
+//        }
         if(medLinkServiceData.firmwareVersion ==null) {
             medLinkServiceData.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x;
         }

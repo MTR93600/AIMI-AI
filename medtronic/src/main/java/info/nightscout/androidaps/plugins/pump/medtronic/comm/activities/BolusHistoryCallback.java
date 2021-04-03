@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
@@ -37,6 +38,7 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
     @Override public MedLinkStandardReturn<Stream<DetailedBolusInfo>> apply(Supplier<Stream<String>> ans) {
         Iterator<String> answers = ans.get().iterator();
         aapsLogger.info(LTag.PUMPBTCOMM, "Bolus history");
+        aapsLogger.info(LTag.PUMPBTCOMM, ans.get().collect(Collectors.joining()));
         while (answers.hasNext() && !answers.next().contains("bolus history:")) {
 
         }
@@ -109,7 +111,6 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
                             squareBolusMatcher.group(0);
                         }
                     }
-                    aapsLogger.info(LTag.DATABASE, bolusInfo.toString());
                     return Optional.of(bolusInfo);
                 }
             }

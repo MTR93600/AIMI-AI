@@ -5,9 +5,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.Profile;
+import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 
 /**
  * Created by Dirceu on 05/02/21.
@@ -21,9 +23,11 @@ public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<B>> baseCallBack,
                                Function<Supplier<Stream<String>>,
-                                       MedLinkStandardReturn<Profile>> profileCallback
+                                       MedLinkStandardReturn<Profile>> profileCallback,
+                               MedLinkServiceData medLinkServiceData,
+                               AAPSLogger aapsLogger
                                ) {
-        super(commandType, argument, baseCallBack);
+        super(commandType, argument, baseCallBack,medLinkServiceData, aapsLogger);
         this.argCallBack = profileCallback;
     }
 

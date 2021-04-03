@@ -67,7 +67,7 @@ public class MedLinkMedtronicUITaskCp {
 
         switch (pumpMessage.getCommandType()) {
             case GetState: {
-                communicationManager.getStatusData();
+                communicationManager.getStatusData(pumpMessage);
             }
             break;
             case PumpModel: {

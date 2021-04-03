@@ -68,4 +68,11 @@ public abstract class PumpStatus {
 
     public abstract String getErrorInfo();
 
+    public long getLastConnection() {
+        return lastConnection;
+    }
+
+    public long getLastDateTime() {
+        return lastDateTime;
+    }
 }

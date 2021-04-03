@@ -7,6 +7,7 @@ import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStatusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser;
@@ -41,35 +42,35 @@ public class StatusCallback extends BaseStatusCallback {
             aapsLogger.debug("eomomom");
             medLinkPumpStatus.lastConnection = Long.parseLong(messages[0]);
             MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
-            MedLinkStatusParser.parseStatus(messages, pumpStatus, medLinkPumpPlugin.getInjector());
+            MedLinkStatusParser.parseStatus(messages, medLinkPumpStatus, medLinkPumpPlugin.getInjector());
             aapsLogger.debug("Pumpstatus");
             aapsLogger.debug(pumpStatus.toString());
 
             medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
-            medLinkPumpStatus.batteryRemaining = pumpStatus.batteryRemaining;
-            medLinkPumpStatus.reservoirRemainingUnits = pumpStatus.reservoirRemainingUnits;
-            medLinkPumpStatus.lastBolusAmount = pumpStatus.lastBolusAmount;
-            medLinkPumpStatus.lastBolusTime = pumpStatus.lastBolusTime;
-            medLinkPumpStatus.activeProfileName = pumpStatus.activeProfileName;
-            medLinkPumpStatus.currentBasal = pumpStatus.currentBasal;
-            medLinkPumpStatus.dailyTotalUnits = pumpStatus.dailyTotalUnits;
-            medLinkPumpStatus.lastBGTimestamp = pumpStatus.lastBGTimestamp;
+
+//            medLinkPumpStatus.batteryRemaining = pumpStatus.batteryRemaining;
+//            medLinkPumpStatus.reservoirRemainingUnits = pumpStatus.reservoirRemainingUnits;
+//            medLinkPumpStatus.lastBolusAmount = pumpStatus.lastBolusAmount;
+//            medLinkPumpStatus.lastBolusTime = pumpStatus.lastBolusTime;
+//            medLinkPumpStatus.activeProfileName = pumpStatus.activeProfileName;
+//            medLinkPumpStatus.currentBasal = pumpStatus.currentBasal;
+//            medLinkPumpStatus.dailyTotalUnits = pumpStatus.dailyTotalUnits;
+//            medLinkPumpStatus.lastBGTimestamp = pumpStatus.lastBGTimestamp;
             medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
-            medLinkPumpStatus.lastDateTime = pumpStatus.lastDateTime;
-            medLinkPumpStatus.tempBasalRatio = pumpStatus.tempBasalRatio;
-            medLinkPumpStatus.tempBasalInProgress = pumpStatus.tempBasalInProgress;
-            medLinkPumpStatus.tempBasalRemainMin = pumpStatus.tempBasalRemainMin;
-            medLinkPumpStatus.tempBasalStart = pumpStatus.tempBasalStart;
+//            medLinkPumpStatus.lastDateTime = pumpStatus.lastDateTime;
+//            medLinkPumpStatus.tempBasalRatio = pumpStatus.tempBasalRatio;
+//            medLinkPumpStatus.tempBasalInProgress = pumpStatus.tempBasalInProgress;
+//            medLinkPumpStatus.tempBasalRemainMin = pumpStatus.tempBasalRemainMin;
+//            medLinkPumpStatus.tempBasalStart = pumpStatus.tempBasalStart;
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
             aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
             medLinkPumpStatus.setLastCommunicationToNow();
-            medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
             aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.reading);
             if (pumpStatus.reading != null) {
                 medLinkPumpPlugin.handleNewBgData(pumpStatus.reading);
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
-            }else{
+            } else {
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.FAILED;
             }
             medLinkPumpPlugin.sendPumpUpdateEvent();
