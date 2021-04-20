@@ -166,7 +166,7 @@ public class MedLinkMedtronicUITaskCp {
             case PreviousBGHistory:
             case BGHistory: {
                 communicationManager.setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
-                        pumpMessage.getBaseCallBack());
+                        pumpMessage.getBaseCallback(), pumpMessage.getArgCallback());
             }
             break;
             default: {

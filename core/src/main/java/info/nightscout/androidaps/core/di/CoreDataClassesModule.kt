@@ -20,6 +20,8 @@ abstract class CoreDataClassesModule {
     @ContributesAndroidInjector abstract fun profileInjector(): Profile
     @ContributesAndroidInjector abstract fun profileStoreInjector(): ProfileStore
     @ContributesAndroidInjector abstract fun bgReadingInjector(): BgReading
+    @ContributesAndroidInjector abstract fun bgSensorDataInjector(): SensorDataReading
+    @ContributesAndroidInjector abstract fun bgCalFactDataInjector(): CalibrationFactorReading
     @ContributesAndroidInjector abstract fun treatmentInjector(): Treatment
     @ContributesAndroidInjector abstract fun profileSwitchInjector(): ProfileSwitch
     @ContributesAndroidInjector abstract fun temporaryBasalInjector(): TemporaryBasal

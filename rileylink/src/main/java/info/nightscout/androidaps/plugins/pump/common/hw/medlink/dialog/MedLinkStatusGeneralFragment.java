@@ -17,6 +17,7 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
@@ -91,7 +92,7 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
     @Override public void refreshData() {
         RileyLinkTargetDevice targetDevice = medLinkServiceData.targetDevice;
 
-        this.connectionStatus.setText(resourceHelper.gs(medLinkServiceData.rileyLinkServiceState.getResourceId()));
+        this.connectionStatus.setText(resourceHelper.gs(medLinkServiceData.medLinkServiceState.getResourceId()));
 
         // BS FIXME rileyLinkServiceData is injected so I suppose it cannot be null?
         if (medLinkServiceData != null) {
@@ -106,8 +107,8 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
                 batteryLevelRow.setVisibility(View.GONE);
             }
 
-            RileyLinkError rileyLinkError = medLinkServiceData.rileyLinkError;
-            this.connectionError.setText(rileyLinkError == null ? PLACEHOLDER : resourceHelper.gs(rileyLinkError.getResourceId(targetDevice)));
+            MedLinkError medLinkError = medLinkServiceData.medLinkError;
+            this.connectionError.setText(medLinkError == null ? PLACEHOLDER : resourceHelper.gs(medLinkError.getResourceId(targetDevice)));
 
             this.firmwareVersion.setText(resourceHelper.gs(R.string.rileylink_firmware_version_value,
                     Optional.ofNullable(medLinkServiceData.versionBLE113).orElse(PLACEHOLDER), Optional.ofNullable(medLinkServiceData.versionCC110).orElse(PLACEHOLDER)));

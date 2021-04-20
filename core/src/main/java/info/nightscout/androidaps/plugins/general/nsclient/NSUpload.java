@@ -31,6 +31,7 @@ import info.nightscout.androidaps.db.CareportalEvent;
 import info.nightscout.androidaps.db.DbRequest;
 import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.ProfileSwitch;
+import info.nightscout.androidaps.db.SensorDataReading;
 import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.db.TempTarget;
 import info.nightscout.androidaps.db.TemporaryBasal;
@@ -88,23 +89,7 @@ public class NSUpload {
         this.databaseHelper = databaseHelper;
     }
 
-    public void uploadEnliteData(TemporaryBasal temporaryBasal, Double originalExtendedAmount) {
-        try {
-            JSONObject data = new JSONObject();
-            data.put("ISIG", CareportalEvent.TEMPBASAL);
-            data.put("uptime", temporaryBasal.durationInMinutes);
-            data.put("calibarion_factor", temporaryBasal.absoluteRate);
-            data.put("bg", temporaryBasal.absoluteRate);
-            data.put("type", temporaryBasal.absoluteRate);
-            if (temporaryBasal.pumpId != 0)
-                data.put("pumpId", temporaryBasal.pumpId);
-            data.put("created_at", DateUtil.toISOString(temporaryBasal.date));
-            data.put("enteredBy", "openaps://" + "AndroidAPS");
-            uploadQueue.add(new DbRequest("dbAdd", "enlite_data", data));
-        } catch (JSONException e) {
-            aapsLogger.error("Unhandled exception", e);
-        }
-    }
+
 
     public void uploadTempBasalStartAbsolute(TemporaryBasal temporaryBasal, Double originalExtendedAmount) {
         try {
@@ -418,6 +403,26 @@ public class NSUpload {
             aapsLogger.error("Unhandled exception", e);
         }
         uploadQueue.add(new DbRequest("dbAdd", "treatments", data));
+    }
+
+    public void uploadEnliteData(SensorDataReading sensorDataReading, String from) {
+        try {
+            JSONObject data = new JSONObject();
+            data.put("device", from);
+            data.put("date", sensorDataReading.date);
+            data.put("dateString", DateUtil.toISOString(sensorDataReading.date));
+            data.put("sgv", sensorDataReading.bgValue);
+            data.put("direction", sensorDataReading.direction);
+            data.put("type", "sgv");
+            data.put("isig", sensorDataReading.isig);
+            data.put("delta_since_last_bg", sensorDataReading.deltaSinceLastBG);
+            data.put("sensor_uptime", sensorDataReading.sensorUptime);
+            data.put("calibration_factor", sensorDataReading.calibrationFactor);
+            data.put("created_at", DateUtil.toISOString(System.currentTimeMillis()));
+            uploadQueue.add(new DbRequest("dbAdd", "entries", data));
+        } catch (JSONException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
     }
 
     public void uploadBg(BgReading reading, String source) {

@@ -2,6 +2,7 @@
 <resources>
     <!-- RL keys -->
     <string name="medlink_scanner_title">Procura MedLink</string>
+    <string name="medlink_status">Estado do MedLink</string>
     <!-- RL BLE Config -->
     <!-- RL Status Page -->
     <string name="rileylink_settings_tab1">Definições</string>

@@ -28,7 +28,7 @@ import info.nightscout.androidaps.utils.T;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 @DatabaseTable(tableName = "BgReadings")
-public class BgReading implements DataPointWithLabelInterface {
+public class BgReading extends BgConversion implements DataPointWithLabelInterface {
     @Inject public AAPSLogger aapsLogger;
     @Inject public DefaultValueHelper defaultValueHelper;
     @Inject public ProfileFunction profileFunction;
@@ -82,18 +82,15 @@ public class BgReading implements DataPointWithLabelInterface {
         date = bgDate;
         value = bg;
         raw = filtered != null ? filtered : value;
+        this.previousDate = previousDate;
+        this.previousBG = previousBG;
         this.direction = calculateDirection(bgDate, previousDate, bg, previousBG);
         this.source = source;
 //        _id = sgv.getId();
     }
 
-
-
     public Double valueToUnits(String units) {
-        if (units.equals(Constants.MGDL))
-            return value;
-        else
-            return value * Constants.MGDL_TO_MMOLL;
+        return super.valueToUnits(value, units);
     }
 
     public String valueToUnitsToString(String units) {
@@ -234,7 +231,7 @@ public class BgReading implements DataPointWithLabelInterface {
 
     @Override
     public double getY() {
-        return valueToUnits(profileFunction.getUnits());
+        return valueToUnits(value, profileFunction.getUnits());
     }
 
     @Override
@@ -273,9 +270,9 @@ public class BgReading implements DataPointWithLabelInterface {
         int color = resourceHelper.gc(R.color.inrange);
         if (isPrediction())
             return getPredectionColor();
-        else if (valueToUnits(units) < lowLine)
+        else if (valueToUnits(value, units) < lowLine)
             color = resourceHelper.gc(R.color.low);
-        else if (valueToUnits(units) > highLine)
+        else if (valueToUnits(value, units) > highLine)
             color = resourceHelper.gc(R.color.high);
         return color;
     }
@@ -318,13 +315,10 @@ public class BgReading implements DataPointWithLabelInterface {
     }
 
     public String calculateDirection(long currentDate, long previousDate, double currentValue, double previousValue){
-        double slope;
+        double slope = calculateSlope(currentDate, previousDate, currentValue, previousValue);
 
         // Avoid division by 0
-        if (currentDate == previousDate)
-            slope = 0;
-        else
-            slope = (previousValue - currentValue) / (previousDate - currentDate);
+
 
 //        aapsLogger.error(LTag.GLUCOSE, "Slope is :" + slope + " delta " + (previousValue - currentValue) + " date difference " + (currentDate - previousDate));
 
@@ -349,4 +343,5 @@ public class BgReading implements DataPointWithLabelInterface {
 //        aapsLogger.error(LTag.GLUCOSE, "Direction set to: " + arrow);
         return arrow;
     }
+
 }

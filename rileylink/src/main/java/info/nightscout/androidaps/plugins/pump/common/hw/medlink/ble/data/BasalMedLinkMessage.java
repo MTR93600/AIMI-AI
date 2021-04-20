@@ -31,7 +31,7 @@ public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
         this.argCallBack = profileCallback;
     }
 
-    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> getArgCallBack() {
-        return argCallBack;
-    }
+//    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> getArgCallback() {
+//        return argCallBack;
+//    }
 }

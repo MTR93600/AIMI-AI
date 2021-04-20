@@ -3,6 +3,7 @@
     <!-- RL keys -->
     <!-- RL BLE Config -->
     <string name="medlink_scanner_title">MedLink 扫描</string>
+    <string name="medlink_status">MedLink 状态</string>
     <!-- RL Status Page -->
     <string name="rileylink_settings_tab1">设置</string>
     <string name="rileylink_settings_tab2">历史</string>

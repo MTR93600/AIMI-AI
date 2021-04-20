@@ -59,7 +59,7 @@ public class MedLinkProfileParser {
         buffer.append(",");
         addData(buffer, "units", true);
         addData(buffer, units, false);
-        if(pumpPlugin.getBasalProfile()!=null) {
+        if (pumpPlugin.getBasalProfile() != null) {
             buffer = parseBasal(pumpPlugin.getBasalProfile().listEntries, buffer);
         }
         buffer.append("}");
@@ -96,61 +96,68 @@ public class MedLinkProfileParser {
 
 
     private StringBuffer parseBGTargets(Iterator<String> profileData, StringBuffer buffer) {
-        StringBuffer targetHigh = new StringBuffer();
-        addData(targetHigh, "target_high", true);
-        targetHigh.append("[");
-        StringBuffer targetLow = new StringBuffer();
-        addData(targetLow, "target_low", true);
-        targetLow.append("[");
-        String ratioText = profileData.next();
-        String toAppend = "";
-        while (!ratioText.contains("ready")) {
-            targetHigh.append(toAppend);
-            targetLow.append(toAppend);
-            int grIndex = ratioText.indexOf("-");
-            int separatorIndex = ratioText.indexOf(":") + 1;
-            int fromIndex = ratioText.indexOf("from");
-            aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + separatorIndex + " " + grIndex);
-            Integer lowerRate = Integer.valueOf(ratioText.substring(separatorIndex, grIndex).trim());
-            Integer higherRate = Integer.valueOf(ratioText.substring(grIndex + 1, fromIndex).trim());
+        StringBuffer result = buffer;
+        if(profileData.hasNext()) {
+            StringBuffer targetHigh = new StringBuffer();
+            addData(targetHigh, "target_high", true);
+            targetHigh.append("[");
+            StringBuffer targetLow = new StringBuffer();
+            addData(targetLow, "target_low", true);
+            targetLow.append("[");
+            String ratioText = profileData.next();
+            String toAppend = "";
+            while (!ratioText.contains("ready")) {
+                targetHigh.append(toAppend);
+                targetLow.append(toAppend);
+                int grIndex = ratioText.indexOf("-");
+                int separatorIndex = ratioText.indexOf(":") + 1;
+                int fromIndex = ratioText.indexOf("from");
+                aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + separatorIndex + " " + grIndex);
+                Integer lowerRate = Integer.valueOf(ratioText.substring(separatorIndex, grIndex).trim());
+                Integer higherRate = Integer.valueOf(ratioText.substring(grIndex + 1, fromIndex).trim());
 
-            Matcher matcher = hourPattern.matcher(ratioText);
-            if (matcher.find()) {
-                String hour = matcher.group(0);
-                addTimeValue(targetHigh, hour, higherRate);
-                addTimeValue(targetLow, hour, lowerRate);
-                toAppend = ",";
-            } else {
-                aapsLogger.info(LTag.PUMPBTCOMM, "bg target matcher doesn't found hour");
+                Matcher matcher = hourPattern.matcher(ratioText);
+                if (matcher.find()) {
+                    String hour = matcher.group(0);
+                    addTimeValue(targetHigh, hour, higherRate);
+                    addTimeValue(targetLow, hour, lowerRate);
+                    toAppend = ",";
+                } else {
+                    aapsLogger.info(LTag.PUMPBTCOMM, "bg target matcher doesn't found hour");
+                }
+                ratioText = profileData.next();
             }
-            ratioText = profileData.next();
+            targetHigh.append("]");
+            targetLow.append("]");
+            result = buffer.append(",").append(targetHigh).append(",").append(targetLow);
         }
-        targetHigh.append("]");
-        targetLow.append("]");
-        return buffer.append(",").append(targetHigh).append(",").append(targetLow);
+
+        return result;
     }
 
     private StringBuffer parseInsulinSensitivity(Iterator<String> profileData, StringBuffer buffer) {
-        String ratioText = profileData.next();
-        buffer.append(",");
-        addData(buffer, "sens", true);
-        buffer.append("[");
-        String toAppend = "";
-        while (!ratioText.contains("bg targets")) {
-            buffer.append(toAppend);
-            int separatorIndex = ratioText.indexOf(":") + 1;
-            this.units = ratioText.substring(separatorIndex + 4, ratioText.indexOf("from")).trim();
-            Integer insulinSensitivity = Integer.valueOf(ratioText.substring(separatorIndex, separatorIndex + 4).trim());
-            Matcher matcher = hourPattern.matcher(ratioText);
-            if (matcher.find()) {
-                String hour = matcher.group(0);
-                addTimeValue(buffer, hour, insulinSensitivity);
-                toAppend = ",";
+        if(profileData.hasNext()) {
+            String ratioText = profileData.next();
+            buffer.append(",");
+            addData(buffer, "sens", true);
+            buffer.append("[");
+            String toAppend = "";
+            while (!ratioText.contains("bg targets")) {
+                buffer.append(toAppend);
+                int separatorIndex = ratioText.indexOf(":") + 1;
+                this.units = ratioText.substring(separatorIndex + 4, ratioText.indexOf("from")).trim();
+                Integer insulinSensitivity = Integer.valueOf(ratioText.substring(separatorIndex, separatorIndex + 4).trim());
+                Matcher matcher = hourPattern.matcher(ratioText);
+                if (matcher.find()) {
+                    String hour = matcher.group(0);
+                    addTimeValue(buffer, hour, insulinSensitivity);
+                    toAppend = ",";
 //                result.add(new InsulinSensitivity(insulinSensitivity, hour));
-            } else {
-                aapsLogger.info(LTag.PUMPBTCOMM, "insulinsensitivity matcher doesn't found hour");
+                } else {
+                    aapsLogger.info(LTag.PUMPBTCOMM, "insulinsensitivity matcher doesn't found hour");
+                }
+                ratioText = profileData.next();
             }
-            ratioText = profileData.next();
         }
         return buffer.append("]");
     }
@@ -170,47 +177,50 @@ public class MedLinkProfileParser {
     }
 
     private StringBuffer parseCarbRatio(Iterator<String> profileText, StringBuffer buffer) {
-        buffer.append(",");
-        buffer = addData(buffer, "carbratio", true);
+        if(profileText.hasNext()) {
+            buffer.append(",");
+            buffer = addData(buffer, "carbratio", true);
 
-        String carbRatio = profileText.next();
-        if (carbRatio.contains("carb ratios")) {
-            String ratioText = profileText.next();
-            String toAppend = "";
-            buffer.append("[");
-            while (!ratioText.contains("insulin sensitivities")) {
-                int grIndex = ratioText.indexOf("gr/u");
-                int separatorIndex = ratioText.indexOf(":") + 1;
-                aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + separatorIndex + " " +
-                        grIndex);
-                Integer ratio = Integer.valueOf(ratioText.substring(separatorIndex, grIndex).trim());
-                Matcher matcher = hourPattern.matcher(ratioText);
-                if (matcher.find()) {
-                    String hour = matcher.group(0);
-                    buffer.append(toAppend);
-                    addTimeValue(buffer, hour, ratio);
-                    toAppend = ",";
-                } else {
-                    aapsLogger.info(LTag.PUMPBTCOMM, "carbratio matcher doesn't found hour");
+            String carbRatio = profileText.next();
+            if (carbRatio.contains("carb ratios")) {
+                String ratioText = profileText.next();
+                String toAppend = "";
+                buffer.append("[");
+                while (!ratioText.contains("insulin sensitivities")) {
+                    int grIndex = ratioText.indexOf("gr/u");
+                    int separatorIndex = ratioText.indexOf(":") + 1;
+                    aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + separatorIndex + " " +
+                            grIndex);
+                    Integer ratio = Integer.valueOf(ratioText.substring(separatorIndex, grIndex).trim());
+                    Matcher matcher = hourPattern.matcher(ratioText);
+                    if (matcher.find()) {
+                        String hour = matcher.group(0);
+                        buffer.append(toAppend);
+                        addTimeValue(buffer, hour, ratio);
+                        toAppend = ",";
+                    } else {
+                        aapsLogger.info(LTag.PUMPBTCOMM, "carbratio matcher doesn't found hour");
+                    }
+
+                    ratioText = getNextValideLine(profileText);
                 }
-
-                ratioText = getNextValideLine(profileText);
+                buffer.append("]");
+            } else {
+                aapsLogger.info(LTag.PUMPBTCOMM, "profile doesn't have carb ratios");
             }
-            buffer.append("]");
-        } else {
-            aapsLogger.info(LTag.PUMPBTCOMM, "profile doesn't have carb ratios");
         }
         return buffer;
     }
 
-    private String getNextValideLine(Iterator<String> profileText){
+    private String getNextValideLine(Iterator<String> profileText) {
         String ratioText = profileText.next();
-        if(ratioText.contains("error command")){
+        if (ratioText.contains("error command")) {
             return getNextValideLine(profileText);
-        }else{
+        } else {
             return ratioText;
         }
     }
+
     private void addTimeValue(StringBuffer buffer, String hour, Object ratio) {
         buffer.append("{");
         addData(buffer, "time", true);
@@ -222,27 +232,29 @@ public class MedLinkProfileParser {
     }
 
     private void parseBolusWizardSettings(Iterator<String> profileText) {
-        WizardSettings result = new WizardSettings();
-        String maxBolusText = profileText.next();
-        Pattern pattern = Pattern.compile("\\d+\\.\\d");
-        if (maxBolusText.contains("max. bolus")) {
-            Matcher matcher = pattern.matcher(maxBolusText);
-            if (matcher.find()) {
-                result.maxBolus = Double.parseDouble(matcher.group(0));
+        if (profileText.hasNext()) {
+            WizardSettings result = new WizardSettings();
+            String maxBolusText = profileText.next();
+            Pattern pattern = Pattern.compile("\\d+\\.\\d");
+            if (maxBolusText.contains("max. bolus")) {
+                Matcher matcher = pattern.matcher(maxBolusText);
+                if (matcher.find()) {
+                    result.maxBolus = Double.parseDouble(matcher.group(0));
+                }
             }
-        }
-        String easyBolusStepText = profileText.next();
+            String easyBolusStepText = profileText.next();
 
-        if (easyBolusStepText.contains("easy bolus")) {
-            Matcher matcher = pattern.matcher(easyBolusStepText);
-            if (matcher.find()) {
-                result.easyBolusStep = Double.parseDouble(matcher.group(0));
+            if (easyBolusStepText.contains("easy bolus")) {
+                Matcher matcher = pattern.matcher(easyBolusStepText);
+                if (matcher.find()) {
+                    result.easyBolusStep = Double.parseDouble(matcher.group(0));
+                }
             }
-        }
 
-        if (result.maxBolus == 0d && result.easyBolusStep == 0d) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "Failed to parse max and bolus step " +
-                    maxBolusText + " " + easyBolusStepText);
+            if (result.maxBolus == 0d && result.easyBolusStep == 0d) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "Failed to parse max and bolus step " +
+                        maxBolusText + " " + easyBolusStepText);
+            }
         }
     }
 }

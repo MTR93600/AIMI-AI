@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="medlink_status">Κατάσταση MedLink</string>
     <!-- RL keys -->
     <!-- RL BLE Config -->
     <!-- RL Status Page -->

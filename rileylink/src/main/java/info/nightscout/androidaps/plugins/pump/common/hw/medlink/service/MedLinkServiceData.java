@@ -6,19 +6,18 @@ import javax.inject.Singleton;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
-import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
+import info.nightscout.androidaps.plugins.pump.common.events.EventMedLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 
 
 /**
- * Created by Dirceu on 24/09/2018.
+ * Created by Dirceu on 24/09/2020.
  * copied from RileyLinkServiceData
  */
 
@@ -31,8 +30,8 @@ public class MedLinkServiceData {
     @Inject RxBusWrapper rxBus;
 
     boolean tuneUpDone = false;
-    public RileyLinkError rileyLinkError;
-    public RileyLinkServiceState rileyLinkServiceState = RileyLinkServiceState.NotStarted;
+    public MedLinkError medLinkError;
+    public info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState medLinkServiceState = info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState.NotStarted;
     public RileyLinkFirmwareVersion firmwareVersion;
     public RileyLinkTargetFrequency rileyLinkTargetFrequency;
 
@@ -60,36 +59,41 @@ public class MedLinkServiceData {
         this.pumpIDBytes = pumpIdBytes;
     }
 
-    public void setRileyLinkServiceState(RileyLinkServiceState newState) {
+    public void setMedLinkServiceState(MedLinkServiceState newState) {
         setServiceState(newState, null);
     }
 
-    public RileyLinkServiceState getRileyLinkServiceState() {
+    public MedLinkServiceState getMedLinkServiceState() {
         return workWithServiceState(null, null, false);
     }
 
 
-    public void setServiceState(RileyLinkServiceState newState, RileyLinkError errorCode) {
+    public void setServiceState(MedLinkServiceState newState, MedLinkError errorCode) {
         workWithServiceState(newState, errorCode, true);
     }
 
 
-    private synchronized RileyLinkServiceState workWithServiceState(RileyLinkServiceState newState, RileyLinkError errorCode, boolean set) {
+    private synchronized MedLinkServiceState workWithServiceState(MedLinkServiceState newState,
+                                                                  MedLinkError errorCode, boolean set) {
 
         if (set) {
 
-            rileyLinkServiceState = newState;
-            this.rileyLinkError = errorCode;
+            medLinkServiceState = newState;
+            this.medLinkError = errorCode;
 
             aapsLogger.info(LTag.PUMP, "MedLink State Changed: {} {}", newState, errorCode == null ? "" : " - Error State: " + errorCode.name());
 
-            medLinkUtil.getRileyLinkHistory().add(new MLHistoryItem(rileyLinkServiceState, errorCode, targetDevice));
-            rxBus.send(new EventRileyLinkDeviceStatusChange(targetDevice, newState, errorCode));
+            medLinkUtil.getRileyLinkHistory().add(new MLHistoryItem(medLinkServiceState, errorCode,
+                    targetDevice));
+            rxBus.send(new EventMedLinkDeviceStatusChange(targetDevice, newState, errorCode));
 
             return null;
 
         } else {
-            return rileyLinkServiceState;
+            if(MedLinkServiceState.PumpConnectorReady == newState){
+
+            }
+            return medLinkServiceState;
         }
 
     }

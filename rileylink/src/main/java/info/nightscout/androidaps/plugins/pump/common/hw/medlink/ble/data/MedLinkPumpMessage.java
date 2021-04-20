@@ -1,17 +1,13 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data;
 
-import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 
 /**
  * Created by Dirceu on 25/09/20.
@@ -20,8 +16,10 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 {
     private final MedLinkCommandType commandType;
 
+    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> argCallback;
+
     protected MedLinkCommandType argument;
-    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallBack;
+    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback;
     private final AAPSLogger aapsLogger;
     private final MedLinkServiceData medLinkServiceData;
     protected StringBuffer pumpResponse = new StringBuffer();
@@ -37,14 +35,30 @@ public class MedLinkPumpMessage<B> //implements RLMessage
     public MedLinkPumpMessage(MedLinkCommandType commandType,
                               MedLinkCommandType argument,
                               Function<Supplier<Stream<String>>,
-                              MedLinkStandardReturn<B>> baseCallBack,
+                              MedLinkStandardReturn<B>> baseCallback,
                               MedLinkServiceData medLinkServiceData,
                               AAPSLogger aapsLogger) {
         this.argument = argument;
         this.commandType = commandType;
-        this.baseCallBack = baseCallBack;
+        this.baseCallback = baseCallback;
         this.medLinkServiceData = medLinkServiceData;
         this.aapsLogger = aapsLogger;
+    }
+
+    public MedLinkPumpMessage(MedLinkCommandType commandType,
+                              MedLinkCommandType argument,
+                              Function<Supplier<Stream<String>>,
+                                      MedLinkStandardReturn<B>> baseCallback,
+                              Function<Supplier<Stream<String>>,
+                                      MedLinkStandardReturn<B>> argCallback,
+                              MedLinkServiceData medLinkServiceData,
+                              AAPSLogger aapsLogger) {
+        this.argument = argument;
+        this.commandType = commandType;
+        this.baseCallback = baseCallback;
+        this.medLinkServiceData = medLinkServiceData;
+        this.aapsLogger = aapsLogger;
+        this.argCallback = argCallback;
     }
 
     public MedLinkCommandType getCommandType() {
@@ -69,15 +83,16 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 
     }
 
-    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> getBaseCallBack() {
-        return baseCallBack;
+    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> getBaseCallback() {
+        return baseCallback;
     }
 
-    public void setBaseCallBack(Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallBack) {
-        this.baseCallBack = baseCallBack;
+    public void setBaseCallback(Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback) {
+        this.baseCallback = baseCallback;
     }
 
-
-
+    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> getArgCallback() {
+        return argCallback;
+    }
 
 }

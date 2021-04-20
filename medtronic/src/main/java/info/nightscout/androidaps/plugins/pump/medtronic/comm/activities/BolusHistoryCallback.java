@@ -25,7 +25,8 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlu
 /**
  * Created by Dirceu on 15/02/21.
  */
-public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>> {
+public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>,
+        Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
     private MedLinkMedtronicPumpPlugin medLinkPumpPlugin;

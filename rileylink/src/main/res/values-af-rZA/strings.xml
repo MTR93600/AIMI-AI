@@ -4,6 +4,7 @@
     <!-- RL BLE Config -->
     <!-- RL Status Page -->
     <string name="medlink_scanner_title">MedLink Skan</string>
+    <string name="medlink_status">MedLink Status</string>
     <string name="rileylink_settings_tab1">Instellings</string>
     <string name="rileylink_settings_tab2">Geskiedenis</string>
     <string name="rileylink_status">RileyLink Status</string>

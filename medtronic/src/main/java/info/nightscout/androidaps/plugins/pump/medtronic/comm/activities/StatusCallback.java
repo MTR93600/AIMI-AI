@@ -7,7 +7,6 @@ import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStatusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser;
@@ -20,8 +19,8 @@ import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronic
 public class StatusCallback extends BaseStatusCallback {
     private final AAPSLogger aapsLogger;
 
-    private MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
-    private MedLinkMedtronicPumpStatus medLinkPumpStatus;
+    private final  MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
+    private final MedLinkMedtronicPumpStatus medLinkPumpStatus;
 
     public StatusCallback(AAPSLogger aapsLogger,
                           MedLinkMedtronicPumpPlugin medLinkPumpPlugin, MedLinkMedtronicPumpStatus medLinkPumpStatus) {
@@ -66,9 +65,10 @@ public class StatusCallback extends BaseStatusCallback {
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
             aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
             medLinkPumpStatus.setLastCommunicationToNow();
-            aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.reading);
-            if (pumpStatus.reading != null) {
-                medLinkPumpPlugin.handleNewBgData(pumpStatus.reading);
+            aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading);
+            if (pumpStatus.bgReading != null) {
+//                medLinkPumpPlugin.handleNewBgData(pumpStatus.bgReading);
+                medLinkPumpPlugin.handleNewSensorData(pumpStatus.sensorDataReading);
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
             } else {
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.FAILED;
@@ -79,7 +79,7 @@ public class StatusCallback extends BaseStatusCallback {
         } else {
             aapsLogger.debug("Apply last message" + messages[messages.length - 1]);
             medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.PumpUnreachable);
-            String errorMessage = PumpDeviceState.PumpUnreachable.name();
+//            String errorMessage = PumpDeviceState.PumpUnreachable.name();
             f.addError(MedLinkStandardReturn.ParsingError.Unreachable);
         }
         return f;

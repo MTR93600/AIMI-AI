@@ -2,6 +2,7 @@
 <resources>
     <!-- RL keys -->
     <string name="medlink_scanner_title">MedLink Scan</string>
+    <string name="medlink_status">MedLink Status</string>
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Scannen</string>
     <string name="riley_link_ble_config_scan_stop">Stop</string>

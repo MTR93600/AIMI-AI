@@ -30,6 +30,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBo
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.queue.commands.*
 import info.nightscout.androidaps.queue.commands.Command.CommandType
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -255,10 +256,33 @@ class CommandQueue @Inject constructor(
         detailedBolusInfo.insulin = constraintChecker.applyBolusConstraints(Constraint(detailedBolusInfo.insulin)).value()
         detailedBolusInfo.carbs = constraintChecker.applyCarbsConstraints(Constraint(detailedBolusInfo.carbs.toInt())).value().toDouble()
         // add new command to queue
+        if(activePlugin.get().activePump is MedLinkMedtronicPumpPlugin){
+         addMedLinkBolus(detailedBolusInfo, callback, type)
+        }else {
+            if (detailedBolusInfo.isSMB) {
+                add(CommandSMBBolus(injector, detailedBolusInfo, callback))
+            } else {
+                add(CommandBolus(injector, detailedBolusInfo, callback, type))
+                aapsLogger.info(LTag.EVENTS, "Bolusing "+type)
+                if (type == CommandType.BOLUS) { // Bring up bolus progress dialog (start here, so the dialog is shown when the bolus is requested,
+                    // not when the Bolus command is starting. The command closes the dialog upon completion).
+                    showBolusProgressDialog(detailedBolusInfo.insulin, detailedBolusInfo.context)
+                    // Notify Wear about upcoming bolus
+                    rxBus.send(EventBolusRequested(detailedBolusInfo.insulin))
+                }
+            }
+        }
+        notifyAboutNewCommand()
+        return true
+    }
+
+    private fun addMedLinkBolus(detailedBolusInfo: DetailedBolusInfo, callback: Callback?,
+                                type: CommandType) {
         if (detailedBolusInfo.isSMB) {
             add(CommandSMBBolus(injector, detailedBolusInfo, callback))
         } else {
-            add(CommandBolus(injector, detailedBolusInfo, callback, type))
+            add(MedLinkCommandBolus(injector, detailedBolusInfo, callback, type))
+            aapsLogger.info(LTag.EVENTS, "bolusing "+type)
             if (type == CommandType.BOLUS) { // Bring up bolus progress dialog (start here, so the dialog is shown when the bolus is requested,
                 // not when the Bolus command is starting. The command closes the dialog upon completion).
                 showBolusProgressDialog(detailedBolusInfo.insulin, detailedBolusInfo.context)
@@ -266,8 +290,6 @@ class CommandQueue @Inject constructor(
                 rxBus.send(EventBolusRequested(detailedBolusInfo.insulin))
             }
         }
-        notifyAboutNewCommand()
-        return true
     }
 
     override fun stopPump(callback: Callback?) {

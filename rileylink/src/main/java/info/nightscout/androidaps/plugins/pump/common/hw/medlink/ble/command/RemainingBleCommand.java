@@ -29,7 +29,7 @@ public class RemainingBleCommand {
 
     }
 
-    public Function<Object, MedLinkStandardReturn> getFunction() {
+    public Function getFunction() {
         return function;
     }
 

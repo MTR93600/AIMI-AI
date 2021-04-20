@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 /**
  * Created by Dirceu on 26/11/20.
  */
-public abstract class BaseCallback<B> implements Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> {
+public abstract class BaseCallback<B,A> implements Function<A, MedLinkStandardReturn<B>> {
 
     public BaseCallback(){
     }
@@ -23,7 +23,7 @@ public abstract class BaseCallback<B> implements Function<Supplier<Stream<String
 //    }
 
 
-    @Override public MedLinkStandardReturn<B> apply(Supplier<Stream<String>> streamSupplier) {
+    @Override public MedLinkStandardReturn<B> apply(A streamSupplier) {
 
         return null;
     }

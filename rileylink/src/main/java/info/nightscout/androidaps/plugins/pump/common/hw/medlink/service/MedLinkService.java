@@ -20,13 +20,11 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCommunicationManager;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkBluetoothStateReceiver;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
@@ -56,6 +54,7 @@ public abstract class MedLinkService extends DaggerService {
     public void onCreate() {
         super.onCreate();
 
+        aapsLogger.info(LTag.EVENTS,"OnCreate medlinkservice");
         medLinkUtil.setEncoding(getEncoding());
         initRileyLinkServiceData();
 
@@ -124,20 +123,22 @@ public abstract class MedLinkService extends DaggerService {
 
     public boolean bluetoothInit() {
         aapsLogger.debug(LTag.PUMPBTCOMM, "bluetoothInit: attempting to get an adapter");
-        medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.BluetoothInitializing);
+        medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.BluetoothInitializing);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (bluetoothAdapter == null) {
             aapsLogger.error("Unable to obtain a BluetoothAdapter.");
-            medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
+            medLinkServiceData.setServiceState(MedLinkServiceState.BluetoothError,
+                    MedLinkError.NoBluetoothAdapter);
         } else {
 
             if (!bluetoothAdapter.isEnabled()) {
                 aapsLogger.error("Bluetooth is not enabled.");
-                medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.BluetoothDisabled);
+                medLinkServiceData.setServiceState(MedLinkServiceState.BluetoothError,
+                        MedLinkError.BluetoothDisabled);
             } else {
-                medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.BluetoothReady);
+                medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.BluetoothReady);
                 return true;
             }
         }
@@ -149,7 +150,7 @@ public abstract class MedLinkService extends DaggerService {
     // returns true if our Rileylink configuration changed
     public boolean reconfigureCommunicator(String deviceAddress) {
 
-        medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkInitializing);
+        medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.MedLinkInitializing);
 
         if (medLinkBLE.isConnected()) {
             if (deviceAddress.equals(medLinkServiceData.rileylinkAddress)) {
@@ -168,11 +169,11 @@ public abstract class MedLinkService extends DaggerService {
                 return true;
             }
         } else {
-            aapsLogger.debug(LTag.PUMPBTCOMM, "Using RL " + deviceAddress);
+            aapsLogger.debug(LTag.PUMPBTCOMM, "Using ML " + deviceAddress);
 
-            if (medLinkServiceData.getRileyLinkServiceState() == RileyLinkServiceState.NotStarted) {
+            if (medLinkServiceData.getMedLinkServiceState() == MedLinkServiceState.NotStarted) {
                 if (!bluetoothInit()) {
-                    aapsLogger.error("RileyLink can't get activated, Bluetooth is not functioning correctly. {}",
+                    aapsLogger.error("MedLink can't get activated, Bluetooth is not functioning correctly. {}",
                             getError() != null ? getError().name() : "Unknown error (null)");
                     return false;
                 }
@@ -187,7 +188,7 @@ public abstract class MedLinkService extends DaggerService {
     // FIXME: This needs to be run in a session so that is interruptable, has a separate thread, etc.
     public void doTuneUpDevice() {
         aapsLogger.debug("DoTuneIp");
-        medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.TuneUpDevice);
+        medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.TuneUpDevice);
         setPumpDeviceState(PumpDeviceState.Sleeping);
 
         double lastGoodFrequency = 0.0d;
@@ -212,10 +213,11 @@ public abstract class MedLinkService extends DaggerService {
         aapsLogger.debug("New pump frequency "+newFrequency);
         if (newFrequency == 0.0d) {
             // error tuning pump, pump not present ??
-            medLinkServiceData.setServiceState(RileyLinkServiceState.PumpConnectorError, RileyLinkError.TuneUpOfDeviceFailed);
+            medLinkServiceData.setServiceState(MedLinkServiceState.PumpConnectorError,
+                    MedLinkError.TuneUpOfDeviceFailed);
         } else {
             getDeviceCommunicationManager().clearNotConnectedCount();
-            medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);
+            medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
         }
     }
     public abstract void setPumpDeviceState(PumpDeviceState pumpDeviceState);
@@ -231,7 +233,7 @@ public abstract class MedLinkService extends DaggerService {
             medLinkServiceData.rileylinkAddress = null;
         }
 
-        medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.BluetoothReady);
+        medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.BluetoothReady);
     }
 
     @NotNull public MedLinkBLE getMedLinkBLE() {
@@ -252,9 +254,9 @@ public abstract class MedLinkService extends DaggerService {
         }
     }
 
-    public RileyLinkError getError() {
+    public MedLinkError getError() {
         if (medLinkServiceData != null)
-            return medLinkServiceData.rileyLinkError;
+            return medLinkServiceData.medLinkError;
         else
             return null;
     }

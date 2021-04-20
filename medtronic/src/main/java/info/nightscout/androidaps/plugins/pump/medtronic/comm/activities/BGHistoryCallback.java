@@ -5,6 +5,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,18 +30,20 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlu
 /**
  * Created by Dirceu on 24/01/21.
  */
-public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
+public class BGHistoryCallback extends BaseCallback<Stream<BgReading>,Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
+    private final boolean handleBG;
     private HasAndroidInjector injector;
     private MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
 
     public BGHistoryCallback(HasAndroidInjector injector,
                              MedLinkMedtronicPumpPlugin medLinkPumpPlugin,
-                             AAPSLogger aapsLogger) {
+                             AAPSLogger aapsLogger, boolean handleBG) {
         this.injector = injector;
         this.medLinkPumpPlugin = medLinkPumpPlugin;
         this.aapsLogger = aapsLogger;
+        this.handleBG = handleBG;
     }
 
     private class BGHistoryAccumulator {
@@ -90,13 +93,21 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
     @Override public MedLinkStandardReturn<Stream<BgReading>> apply(Supplier<Stream<String>> ans) {
 
 
+        BgReading[] readings = parseAnswer(ans);
+        if(handleBG) {
+            medLinkPumpPlugin.handleNewBgData(readings);
+        }
+        return new MedLinkStandardReturn<>(ans, Arrays.stream(readings), Collections.emptyList());
+    }
+
+    public BgReading[] parseAnswer(Supplier<Stream<String>> ans) {
         Stream<String> answers = ans.get();
         Stream<BGHistory> bgs = answers.map(f -> {
             Pattern bgLinePattern = Pattern.compile("[bg|cl]:\\s?\\d{2,3}\\s+\\d{1,2}:\\d{2}\\s+\\d{2}-\\d{2}-\\d{4}");
             Matcher matcher = bgLinePattern.matcher(f);
             //BG: 68 15:35 00‑00‑2000
             Optional<BGHistory> bgHistory = Optional.empty();
-            if ((f.length() == 25 || f.length() == 26 ) && matcher.find()) {
+            if ((f.length() == 25 || f.length() == 26) && matcher.find()) {
                 String data = matcher.group(0);
 
 //                Double bg = Double.valueOf(data.substring(3, 6).trim());
@@ -116,9 +127,9 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
                     Date firstDate = new Date();
                     firstDate.setTime(0l);
 //                    aapsLogger.info(LTag.PUMPBTCOMM, f);
-                    if(f.trim().startsWith("cl:")){
+                    if (f.trim().startsWith("cl:")) {
                         bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate, Source.USER));
-                    }else {
+                    } else {
                         if (bgDate.toInstant().isAfter(new Date().toInstant().minus(Duration.ofDays(2))) && bgDate.toInstant().isBefore(new Date().toInstant().plus(Duration.ofMinutes(5)))) {
                             bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate,
                                     Source.PUMP));
@@ -147,11 +158,11 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>> {
                     f.lastBGDate.getTime(), f.lastBG, f.source);
 
         });
-        if(result.get().findFirst().isPresent()){
+        if (result.get().findFirst().isPresent()) {
             medLinkPumpPlugin.getPumpStatusData().lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
         }
-        medLinkPumpPlugin.handleNewBgData(result.get().toArray(BgReading[]::new));
 
-        return new MedLinkStandardReturn<>(ans, result.get(), Collections.emptyList());
+        return result.get().toArray(BgReading[]::new);
+
     }
 }

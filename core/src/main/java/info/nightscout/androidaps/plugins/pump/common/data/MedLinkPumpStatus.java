@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.common.data;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.db.BgReading;
+import info.nightscout.androidaps.db.SensorDataReading;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 
 /**
@@ -10,13 +11,16 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 public abstract class MedLinkPumpStatus extends PumpStatus {
 
     public Integer sensorAge;
+    public Double isig;
+    public Double calibrationFactor;
 
     public enum BGReadingStatus{
         SUCCESS,
         FAILED
     }
 
-    public BgReading reading;
+    public SensorDataReading sensorDataReading;
+    public BgReading bgReading;
     public BGReadingStatus lastReadingStatus = BGReadingStatus.FAILED;
     public BGReadingStatus currentReadingStatus = BGReadingStatus.FAILED;
 

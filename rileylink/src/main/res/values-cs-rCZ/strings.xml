@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="medlink_scanner_title">MedLink Skan</string>
+    <string name="medlink_status">Status MedLink</string>
     <!-- RL keys -->
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Skenovat</string>

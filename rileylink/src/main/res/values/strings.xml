@@ -4,6 +4,19 @@
 
     <string name="need_manual_profile_set">You need to change your pump profile to the Standard</string>
     <string name="medlink_scanner_title">MedLink Scan</string>
+    <string name="medlink_status">MedLink Status</string>
+
+    <string name="medlink_state_rl_init">MedLink Initialization…</string>
+    <string name="medlink_state_rl_error">MedLink Error</string>
+    <string name="medlink_state_pc_tune_up">Tuning up MedLink and Pump</string>
+    <string name="medlink_state_pc_error">Problem connecting to Pump</string>
+    <string name="medlink_state_connected">Connected</string>
+    <string name="medlink_state_rl_ready">MedLink ready</string>
+
+    <!-- RL Errors -->
+    <string name="medlink_error_not_rl">Device is not MedLink</string>
+    <string name="medlink_error_unreachable">MedLink unreachable</string>
+
     <!-- RL keys -->
     <string name="key_medtronic_pump_encoding_4b6b_local" translatable="false">medtronic_pump_encoding_4b6b_local</string>
     <string name="key_medtronic_pump_encoding_4b6b_rileylink" translatable="false">medtronic_pump_encoding_4b6b_rileylink</string>

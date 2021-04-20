@@ -18,15 +18,14 @@ import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedtronicHistoryActivity
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
@@ -44,7 +43,7 @@ import info.nightscout.androidaps.utils.extensions.plusAssign
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.medtronic_fragment.*
+import kotlinx.android.synthetic.main.medlink_medtronic_fragment.*
 import javax.inject.Inject
 
 class MedLinkMedtronicFragment : DaggerFragment() {
@@ -177,20 +176,20 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = medinkServiceData.rileyLinkServiceState.getResourceId()
+        val resourceId = medinkServiceData.medLinkServiceState.getResourceId()
         val rileyLinkError = medlinkMedtronicPlugin.medLinkService?.error
         medtronic_rl_status.text =
             when {
-                medinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
-                medinkServiceData.rileyLinkServiceState.isConnecting                        -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.rileyLinkServiceState.isError && rileyLinkError == null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                        -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isConnecting                      -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && rileyLinkError == null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                      -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
             }
         medtronic_rl_status.setTextColor(if (rileyLinkError != null) Color.RED else Color.WHITE)
 
         medtronic_errors.text =
-            medinkServiceData.rileyLinkError?.let {
+            medinkServiceData.medLinkError?.let {
                 resourceHelper.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 

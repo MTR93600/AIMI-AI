@@ -161,13 +161,13 @@ abstract class PluginsModule {
     @PumpDriver
     @IntoMap
     @IntKey(155)
-    abstract fun bindOmnipodPumpPlugin(plugin: OmnipodPumpPlugin): PluginBase
+    abstract fun bindMedLinkMedtronicPumpPlugin(plugin: MedLinkMedtronicPumpPlugin): PluginBase
 
     @Binds
     @PumpDriver
     @IntoMap
     @IntKey(160)
-    abstract fun bindMedLinkMedtronicPumpPlugin(plugin: MedLinkMedtronicPumpPlugin): PluginBase
+    abstract fun bindOmnipodPumpPlugin(plugin: OmnipodPumpPlugin): PluginBase
 
     @Binds
     @NotNSClient

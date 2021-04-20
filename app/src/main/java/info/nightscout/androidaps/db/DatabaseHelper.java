@@ -3,6 +3,7 @@ package info.nightscout.androidaps.db;
 import android.content.Context;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.Sensor;
 
 import androidx.annotation.Nullable;
 
@@ -16,6 +17,7 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +63,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventNewHi
 import info.nightscout.androidaps.plugins.pump.insight.database.InsightBolusID;
 import info.nightscout.androidaps.plugins.pump.insight.database.InsightHistoryOffset;
 import info.nightscout.androidaps.plugins.pump.insight.database.InsightPumpID;
+import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.CalibrationFactor;
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.JsonHelper;
@@ -149,6 +152,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, InsightPumpID.class);
             TableUtils.createTableIfNotExists(connectionSource, OmnipodHistoryRecord.class);
             TableUtils.createTableIfNotExists(connectionSource, OHQueueItem.class);
+            TableUtils.createTableIfNotExists(connectionSource, SensorDataReading.class);
+            TableUtils.createTableIfNotExists(connectionSource, CalibrationFactorReading.class);
             database.execSQL("INSERT INTO sqlite_sequence (name, seq) SELECT \"" + DATABASE_INSIGHT_BOLUS_IDS + "\", " + System.currentTimeMillis() + " " +
                     "WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = \"" + DATABASE_INSIGHT_BOLUS_IDS + "\")");
             database.execSQL("INSERT INTO sqlite_sequence (name, seq) SELECT \"" + DATABASE_INSIGHT_PUMP_IDS + "\", " + System.currentTimeMillis() + " " +
@@ -227,6 +232,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, ProfileSwitch.class, true);
             TableUtils.dropTable(connectionSource, TDD.class, true);
             TableUtils.dropTable(connectionSource, OmnipodHistoryRecord.class, true);
+            TableUtils.dropTable(connectionSource, SensorDataReading.class, true);
+            TableUtils.dropTable(connectionSource, CalibrationFactorReading.class, true);
             TableUtils.createTableIfNotExists(connectionSource, TempTarget.class);
             TableUtils.createTableIfNotExists(connectionSource, BgReading.class);
             TableUtils.createTableIfNotExists(connectionSource, DanaRHistoryRecord.class);
@@ -237,6 +244,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, ProfileSwitch.class);
             TableUtils.createTableIfNotExists(connectionSource, TDD.class);
             TableUtils.createTableIfNotExists(connectionSource, OmnipodHistoryRecord.class);
+            TableUtils.createTableIfNotExists(connectionSource, SensorDataReading.class);
+            TableUtils.createTableIfNotExists(connectionSource, CalibrationFactorReading.class);
             updateEarliestDataChange(0);
         } catch (SQLException e) {
             aapsLogger.error("Unhandled exception", e);
@@ -331,6 +340,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return getDao(BgReading.class);
     }
 
+    private Dao<SensorDataReading, Long> getDaoSensReadings() throws SQLException {
+        return getDao(SensorDataReading.class);
+    }
+
+    private Dao<CalibrationFactorReading, Long> getDaoCalFactorReadings() throws SQLException {
+        return getDao(CalibrationFactorReading.class);
+    }
+
     private Dao<DanaRHistoryRecord, String> getDaoDanaRHistory() throws SQLException {
         return getDao(DanaRHistoryRecord.class);
     }
@@ -392,7 +409,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             bgReading.date = roundDateToSec(bgReading.date);
             BgReading old = getDaoBgReadings().queryForId(bgReading.date);
             double diff = 0d;
-            if(old !=null) {
+            if (old != null) {
                 diff = Math.abs(old.raw - bgReading.raw);
             }
             return old == null || (diff > 1);
@@ -409,16 +426,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             if (old == null) {
                 getDaoBgReadings().create(bgReading);
                 openHumansUploader.enqueueBGReading(bgReading);
-                aapsLogger.debug(LTag.DATABASE, "BG: New record from: " + from + " " + bgReading.toString());
+//                aapsLogger.debug(LTag.DATABASE, "BG: New record from: " + from + " " + bgReading.toString());
                 scheduleBgChange(bgReading);
                 return true;
             }
             if (!old.isEqual(bgReading)) {
-                aapsLogger.debug(LTag.DATABASE, "BG: Similiar found: " + old.toString());
+//                aapsLogger.debug(LTag.DATABASE, "BG: Similiar found: " + old.toString());
                 old.copyFrom(bgReading);
                 getDaoBgReadings().update(old);
                 openHumansUploader.enqueueBGReading(old);
-                aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: " + from + " New data: " + old.toString());
+//                aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: " + from + " New data: " + old.toString());
                 scheduleBgHistoryChange(old.date); // trigger cache invalidation
                 return false;
             }
@@ -433,7 +450,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             getDaoBgReadings().update(bgReading);
             openHumansUploader.enqueueBGReading(bgReading);
-            aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: "+ bgReading.toString());
+            aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: " + bgReading.toString());
             scheduleBgHistoryChange(bgReading.date); // trigger cache invalidation
         } catch (SQLException e) {
             aapsLogger.error("Unhandled exception", e);
@@ -2138,5 +2155,109 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             aapsLogger.error("Unhandled exception", e);
         }
         return 0L;
+    }
+
+    public boolean thisSensNeedUpdate(@NotNull SensorDataReading sensReading) {
+        try {
+            sensReading.date = roundDateToSec(sensReading.date);
+            return getDaoSensReadings().queryForId(sensReading.date) == null;
+        } catch (SQLException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+        return true;
+    }
+
+    public boolean createIfNotExists(SensorDataReading sensReading, String from) {
+        try {
+            sensReading.date = roundDateToSec(sensReading.date);
+            SensorDataReading old = getDaoSensReadings().queryForId(sensReading.date);
+            if (old == null) {
+                getDaoSensReadings().create(sensReading);
+//                openHumansUploader.enqueueBGReading(sensReading);
+//                aapsLogger.debug(LTag.DATABASE, "BG: New record from: " + from + " " + bgReading.toString());
+
+                return true;
+            }
+            if (!old.isEqual(sensReading)) {
+//                aapsLogger.debug(LTag.DATABASE, "BG: Similiar found: " + old.toString());
+                old.copyFrom(sensReading);
+                getDaoSensReadings().update(old);
+
+//                aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: " + from + " New data: " + old.toString());
+                scheduleBgHistoryChange(old.date); // trigger cache invalidation
+                return false;
+            }
+        } catch (SQLException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+        return false;
+    }
+
+    public boolean createIfNotExists(CalibrationFactorReading calibrationFactorReading, String from) {
+        try {
+            calibrationFactorReading.setCalibrationFactor(roundDateToSec(calibrationFactorReading.getDate()));
+            CalibrationFactorReading old = getDaoCalFactorReadings().queryForId(calibrationFactorReading.getDate());
+            if (old == null) {
+                getDaoCalFactorReadings().create(calibrationFactorReading);
+//                aapsLogger.debug(LTag.DATABASE, "BG: New record from: " + from + " " + bgReading.toString());
+
+                return true;
+            }
+            if (!old.isEqual(calibrationFactorReading)) {
+//                aapsLogger.debug(LTag.DATABASE, "BG: Similiar found: " + old.toString());
+                old.copyFrom(calibrationFactorReading);
+                getDaoCalFactorReadings().update(old);
+
+//                aapsLogger.debug(LTag.DATABASE, "BG: Updating record from: " + from + " New data: " + old.toString());
+                scheduleBgHistoryChange(old.getDate()); // trigger cache invalidation
+                return false;
+            }
+        } catch (SQLException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+        return false;
+    }
+
+    public int getSensorAge() {
+        try {
+            QueryBuilder<CareportalEvent, Long> queryBuilder;
+
+            queryBuilder = getDaoCareportalEvents().queryBuilder()
+                    .orderBy("date", false);
+            Where where = queryBuilder.where();
+            where.eq("eventType", CareportalEvent.SENSORCHANGE);
+
+            PreparedQuery<CareportalEvent> preparedQuery = queryBuilder.prepare();
+            CareportalEvent careportalEvent = getDaoCareportalEvents().queryForFirst(preparedQuery);
+            if (careportalEvent != null) {
+                Long delta = System.currentTimeMillis() - careportalEvent.date;
+                return Long.valueOf(delta / 60000).intValue();
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return 0;
+    }
+
+    public CalibrationFactorReading getCalibrationFactor(long timestamp) {
+        CalibrationFactorReading result = null;
+        try {
+            long low = timestamp - 46800000;
+            Dao<CalibrationFactorReading, Long> dao = getDaoCalFactorReadings();
+            QueryBuilder<CalibrationFactorReading, Long> builder = dao.queryBuilder();
+            builder.orderBy("date", false);
+            Where<CalibrationFactorReading, Long> where = builder.where();
+            where.between("date", low, timestamp);
+            PreparedQuery<CalibrationFactorReading> prepared = builder.prepare();
+            List<CalibrationFactorReading> queryResult = dao.query(prepared);
+            if (queryResult.isEmpty()) {
+                result =  queryResult.get(0);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            return result;
+        }
     }
 }

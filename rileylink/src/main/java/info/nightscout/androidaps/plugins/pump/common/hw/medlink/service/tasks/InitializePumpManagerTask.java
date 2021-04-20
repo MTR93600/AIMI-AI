@@ -12,14 +12,10 @@ import info.nightscout.androidaps.plugins.common.ManufacturerType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceTransport;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
-import info.nightscout.androidaps.utils.Round;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 
 /**
@@ -68,12 +64,13 @@ public class InitializePumpManagerTask extends NotifiableTask {
 
         MedLinkCommunicationManager medLinkCommunicationManager = ((MedLinkPumpDevice) activePlugin.getActivePump()).getMedLinkService().getDeviceCommunicationManager();
 
+        aapsLogger.info(LTag.PUMPBTCOMM,activePlugin.getActivePump().manufacturer().getDescription());
         if (activePlugin.getActivePump().manufacturer() == ManufacturerType.Medtronic) {
 
 //            if ((lastGoodFrequency > 0.0d)
 //                    && medLinkCommunicationManager.isValidFrequency(lastGoodFrequency)) {
 
-                medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.RileyLinkReady);
+                medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.MedLinkReady);
 
 //                aapsLogger.info(LTag.PUMPBTCOMM, "Setting radio frequency to {} MHz", lastGoodFrequency);
 
@@ -113,7 +110,7 @@ public class InitializePumpManagerTask extends NotifiableTask {
 
 //            medLinkCommunicationManager.setRadioFrequencyForPump(lastGoodFrequency);
 
-            medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);
+            medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
 
         }
     }

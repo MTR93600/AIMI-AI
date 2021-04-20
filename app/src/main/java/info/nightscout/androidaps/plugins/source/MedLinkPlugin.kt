@@ -7,7 +7,9 @@ import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.MainApp
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.db.BgReading
+import info.nightscout.androidaps.db.CalibrationFactorReading
 import info.nightscout.androidaps.db.CareportalEvent
+import info.nightscout.androidaps.db.SensorDataReading
 import info.nightscout.androidaps.db.Source
 import info.nightscout.androidaps.interfaces.BgSourceInterface
 import info.nightscout.androidaps.interfaces.PluginBase
@@ -35,6 +37,7 @@ class MedLinkPlugin @Inject constructor(
     config: Config
 ) : PluginBase(PluginDescription()
     .mainType(PluginType.BGSOURCE)
+    .pluginIcon(R.drawable.ic_minilink)
     .fragmentClass(BGSourceFragment::class.java.name)
     .pluginName(R.string.medlink_app_patched)
     .shortName(R.string.dexcom_short)
@@ -67,6 +70,7 @@ class MedLinkPlugin @Inject constructor(
         try {
             val sensorType = intent.getStringExtra("sensorType") ?: ""
             val glucoseValues = intent.getBundleExtra("glucoseValues")
+            val isigValues = intent.getBundleExtra("isigValues")
             for (i in 0 until glucoseValues.size()) {
                 glucoseValues.getBundle(i.toString())?.let { glucoseValue ->
                     val bgReading = BgReading()
@@ -76,16 +80,51 @@ class MedLinkPlugin @Inject constructor(
                     bgReading.raw = 0.0
                     var dbHelper = MainApp.getDbHelper();
                     // aapsLogger.info(LTag.DATABASE, "bgneedupdate? "+dbHelper.thisBGNeedUpdate(bgReading))
-                    if(dbHelper.thisBGNeedUpdate(bgReading)) {
+                    if (dbHelper.thisBGNeedUpdate(bgReading)) {
                         if (dbHelper.createIfNotExists(bgReading, "MedLink$sensorType")) {
-                            if (sp.getBoolean(R.string.key_medlink_nsupload, false)) {
-
+                            if (sp.getBoolean(R.string.key_medlink_nsupload, false) &&
+                                (isigValues == null || isigValues.size() == 0)) {
                                 nsUpload.uploadBg(bgReading, "AndroidAPS-MedLink$sensorType")
                             }
                             if (sp.getBoolean(R.string.key_medlink_xdripupload, false)) {
                                 nsUpload.sendToXdrip(bgReading)
                             }
                         }
+                    }
+                }
+            }
+            if (isigValues != null) {
+                for (i in 0 until isigValues.size()) {
+                    isigValues.getBundle(i.toString())?.let { isigValue ->
+                        var dbHelper = MainApp.getDbHelper();
+                        val sensReading = SensorDataReading()
+                        sensReading.bgValue = isigValue.getDouble("value")
+                        sensReading.direction = isigValue.getString("direction")
+                        sensReading.date = isigValue.getLong("date")
+                        sensReading.isig = isigValue.getDouble("isig")
+                        sensReading.deltaSinceLastBG = isigValue.getDouble("delta")
+                        sensReading.sensorUptime = dbHelper.sensorAge;
+                        if(isigValue.getDouble("calibrationFactor") == 0.0){
+                            sensReading.calibrationFactor = dbHelper.getCalibrationFactor(sensReading.date)?.calibrationFactor ?: 0.0;
+                        }else {
+                            sensReading.calibrationFactor = isigValue.getDouble("calibrationFactor")
+                        }
+                        // aapsLogger.info(LTag.DATABASE, "bgneedupdate? "+dbHelper.thisBGNeedUpdate(bgReading))
+                        if (dbHelper.thisSensNeedUpdate(sensReading)) {
+                            if (dbHelper.createIfNotExists(sensReading, "MedLink$sensorType")) {
+                                if (sp.getBoolean(R.string.key_medlink_nsupload, false)) {
+                                    //
+                                    nsUpload.uploadEnliteData(sensReading, "AndroidAPS-MedLink$sensorType")
+                                }
+                                // if (sp.getBoolean(R.string.key_medlink_xdripupload, false)) {
+                                //     nsUpload.sendToXdrip(sensReading)
+                                // }
+                            }
+                        }
+                        val calibrationFactor = CalibrationFactorReading()
+                        calibrationFactor.date = isigValue.getLong("date")
+                        calibrationFactor.calibrationFactor = isigValue.getDouble("calibrationFactor")
+                        dbHelper.createIfNotExists(calibrationFactor, "MedLink$sensorType")
                     }
                 }
             }
@@ -117,6 +156,7 @@ class MedLinkPlugin @Inject constructor(
                         }
                 }
             }
+
             if (sp.getBoolean(R.string.key_medlink_lognssensorchange, false) && intent.hasExtra("sensorInsertionTime")) {
                 intent.extras?.let {
                     val sensorInsertionTime = it.getLong("sensorInsertionTime") * 1000

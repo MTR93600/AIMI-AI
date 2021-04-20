@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- RL keys -->
-    <string name="medlink_scanner_title">MedLink 스캔</string>
+    <string name="medlink_scanner_title">MedLink skanavimas</string>
+    <string name="medlink_status">MedLink statusas</string>
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Skanuoti</string>
     <string name="riley_link_ble_config_scan_stop">Stop</string>

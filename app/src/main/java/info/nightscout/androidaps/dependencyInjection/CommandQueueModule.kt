@@ -11,6 +11,7 @@ abstract class CommandQueueModule {
 
     @ContributesAndroidInjector abstract fun commandQueueInjector(): CommandQueue
     @ContributesAndroidInjector abstract fun commandBolusInjector(): CommandBolus
+    @ContributesAndroidInjector abstract fun medLinkCommandBolusInjector(): MedLinkCommandBolus
     @ContributesAndroidInjector abstract fun commandCancelExtendedBolusInjector(): CommandCancelExtendedBolus
     @ContributesAndroidInjector abstract fun commandCancelTempBasalInjector(): CommandCancelTempBasal
     @ContributesAndroidInjector abstract fun commandExtendedBolusInjector(): CommandExtendedBolus

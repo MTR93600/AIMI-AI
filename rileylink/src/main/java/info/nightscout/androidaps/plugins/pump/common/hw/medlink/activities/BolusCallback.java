@@ -13,7 +13,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
 /**
  * Created by Dirceu on 21/12/20.
  */
-public class BolusCallback extends BaseCallback<String> {
+public class BolusCallback extends BaseCallback<String,Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
     //    private final RxBusWrapper rxBus;

@@ -19,7 +19,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkBasalPr
 /**
  * Created by Dirceu on 22/12/20.
  */
-public class BasalCallback extends BaseCallback<BasalProfile> {
+public class BasalCallback extends BaseCallback<BasalProfile,Supplier<Stream<String>>> {
     private final MedLinkMedtronicPumpPlugin medLinkMedtronicPumpPlugin;
     private final MedLinkBasalProfileParser medLinkBasalProfileParser;
     private final AAPSLogger aapsLogger;

@@ -11,7 +11,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedL
 /**
  * Created by Dirceu on 19/01/21.
  */
-public class ChangeStatusCallback extends BaseCallback<PumpDriverState> {
+public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<Stream<String>>> {
     private final OperationType type;
 
     public enum OperationType{

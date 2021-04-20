@@ -27,6 +27,7 @@ public class MedLinkConst {
     public static class Intents {
 
         public static final String MedLinkReady = Prefix + "MedLink_Ready";
+        public static final String MedLinkReadyServiceDiscovered = Prefix + "MedLink_ServiceDiscovered";
         public static final String CommandCompleted = Prefix + "Command_Completed";
         public static final String RileyLinkGattFailed = Prefix + "RileyLink_Gatt_Failed";
         public static final String MedLinkConnected = Prefix + "MedLink_Connected";

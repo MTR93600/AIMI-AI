@@ -4,8 +4,9 @@ import org.joda.time.LocalDateTime;
 
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
@@ -21,8 +22,8 @@ public class MLHistoryItem implements HistoryItem {
     //private MedtronicCommandType medtronicCommandType;
     protected LocalDateTime dateTime;
     protected MLHistoryItemSource source;
-    protected RileyLinkServiceState serviceState;
-    protected RileyLinkError errorCode;
+    protected MedLinkServiceState serviceState;
+    protected MedLinkError errorCode;
 
     protected RileyLinkTargetDevice targetDevice;
     protected PumpDeviceState pumpDeviceState;
@@ -34,7 +35,7 @@ public class MLHistoryItem implements HistoryItem {
         this.targetDevice = targetDevice;
     }
 
-    public MLHistoryItem(RileyLinkServiceState serviceState, RileyLinkError errorCode,
+    public MLHistoryItem(MedLinkServiceState serviceState, MedLinkError errorCode,
                          RileyLinkTargetDevice targetDevice) {
         this.targetDevice = targetDevice;
         this.dateTime = new LocalDateTime();
@@ -71,12 +72,12 @@ public class MLHistoryItem implements HistoryItem {
     }
 
 
-    public RileyLinkServiceState getServiceState() {
+    public MedLinkServiceState getServiceState() {
         return serviceState;
     }
 
 
-    public RileyLinkError getErrorCode() {
+    public MedLinkError getErrorCode() {
         return errorCode;
     }
 

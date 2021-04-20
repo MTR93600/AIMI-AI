@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 /**
  * Created by Dirceu on 05/12/20.
  */
-public class BaseStringAggregatorCallback extends BaseCallback<String> {
+public class BaseStringAggregatorCallback extends BaseCallback<String,Supplier<Stream<String>>> {
     public BaseStringAggregatorCallback() {
         super();
     }

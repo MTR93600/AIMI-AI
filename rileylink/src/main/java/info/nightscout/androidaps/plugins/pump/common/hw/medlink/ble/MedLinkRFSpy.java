@@ -210,7 +210,7 @@ public class MedLinkRFSpy {
     // The caller has to know how long the RFSpy will be busy with what was sent to it.
     private <B> void writeToData(MedLinkPumpMessage<B> msg, int responseTimeout_ms) {
 
-        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> resultActivity = msg.getBaseCallBack();
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> resultActivity = msg.getBaseCallback();
 
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> andThen = resultActivity.andThen(f -> {
             Supplier<Stream<String>> answer = () -> f.getAnswer();
@@ -230,7 +230,7 @@ public class MedLinkRFSpy {
             }
             return f;
         });
-        msg.setBaseCallBack(andThen);
+        msg.setBaseCallback(andThen);
         writeToDataRaw(msg, responseTimeout_ms);
 
 //        RFSpyResponse resp = new RFSpyResponse(msg.getCommandData(), rawResponse);

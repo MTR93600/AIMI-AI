@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.db.BgReading;
+import info.nightscout.androidaps.db.SensorDataReading;
 import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 
@@ -23,6 +24,7 @@ public class MedLinkStatusParser {
 
     private static Pattern dateTimeFullPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{4}\\s\\d{2}:\\d{2}");
     private static Pattern dateTimePartialPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}");
+    private static boolean bgUpdated = false;
 
     public static MedLinkPumpStatus parseStatus(String[] pumpAnswer, MedLinkPumpStatus pumpStatus, HasAndroidInjector injector) {
 
@@ -47,15 +49,15 @@ public class MedLinkStatusParser {
 //        18:36:49.496 Square bolus: 0.0u delivered: 0.000u
         moveIterator(messageIterator);
 //        18:36:49.532 Square bolus time: 0h:00m / 0h:00m
-        moveIterator(messageIterator);
+        MedLinkPumpStatus isigStatus = parseISIG(messageIterator, lastBolusStatus);
 //        18:36:49.570 ISIG: 20.62nA
-        moveIterator(messageIterator);
+        MedLinkPumpStatus calibrationFactorStatus = parseCalibrationFactor(messageIterator, isigStatus, injector);
 //        18:36:49.607 Calibration factor: 6.419
         moveIterator(messageIterator);
 //        18:36:49.681 Next calibration time:  5:00
         moveIterator(messageIterator);
 //        18:36:49.683 Sensor uptime: 1483min
-        MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, lastBolusStatus);
+        MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, calibrationFactorStatus);
 //        18:36:49.719 BG target:  75‑160
         MedLinkPumpStatus batteryStatus = parseBatteryVoltage(messageIterator, sageStatus);
 //        18:36:49.832 Pump battery voltage: 1.43V
@@ -88,6 +90,46 @@ public class MedLinkStatusParser {
 //        moveIterator(messageIterator);
 //        18:36:50.471 EomEomEom
         return pumpState;
+    }
+
+    private static MedLinkPumpStatus parseCalibrationFactor(Iterator<String> messageIterator,
+                                                            MedLinkPumpStatus pumpStatus,
+                                                            HasAndroidInjector injector) {
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+            //        18:36:49.607 Calibration factor: 6.419
+            if (currentLine.contains("calibration factor:")) {
+                Pattern pattern = Pattern.compile("\\d+\\.\\d+");
+                Matcher matcher = pattern.matcher(currentLine);
+                if (matcher.find()) {
+                    pumpStatus.calibrationFactor = Double.valueOf(matcher.group());
+                }
+                if (bgUpdated) {
+                    pumpStatus.sensorDataReading = new SensorDataReading(injector,
+                            pumpStatus.bgReading, pumpStatus.isig,
+                            pumpStatus.calibrationFactor);
+                    bgUpdated = false;
+                }
+            }
+        }
+        return pumpStatus;
+    }
+
+    private static MedLinkPumpStatus parseISIG(Iterator<String> messageIterator,
+                                               MedLinkPumpStatus pumpStatus) {
+
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+            // 18:36:49.570 ISIG: 20.62nA
+            if (currentLine.contains("isig:")) {
+                Pattern pattern = Pattern.compile("\\d+\\.\\d+");
+                Matcher matcher = pattern.matcher(currentLine);
+                if (matcher.find()) {
+                    pumpStatus.isig = Double.valueOf(matcher.group());
+                }
+            }
+        }
+        return pumpStatus;
     }
 
     private static MedLinkPumpStatus parsePumpState(MedLinkPumpStatus pumpStatus,
@@ -260,13 +302,13 @@ public class MedLinkStatusParser {
             Matcher matcher = bgLinePattern.matcher(currentLine);
             if (matcher.find()) {
                 String matched = matcher.group(0);
-                Double bg = Double.valueOf(matched.substring(3));
+                double bg = Double.parseDouble(matched.substring(3));
                 Date bgDate = parseDateTime(currentLine, dateTimePartialPattern, false);
-                if(bgDate != null) {
-                    BgReading reading = new BgReading(injector,
+                if (bgDate != null) {
+                    bgUpdated = true;
+                    pumpStatus.bgReading = new BgReading(injector,
                             bgDate.getTime(), bg, null, pumpStatus.lastBGTimestamp,
                             pumpStatus.latestBG, Source.PUMP);
-                    pumpStatus.reading = reading;
                     pumpStatus.lastBGTimestamp = bgDate.getTime();
                 }
                 pumpStatus.latestBG = bg;

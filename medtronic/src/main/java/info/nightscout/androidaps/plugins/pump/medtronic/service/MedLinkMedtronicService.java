@@ -17,11 +17,9 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBluetoothStateReceiver;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBroadcastReceiver;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkBluetoothStateReceiver;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.R;
@@ -30,7 +28,6 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtroni
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIPostprocessor;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicConst;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
@@ -67,6 +64,7 @@ public class MedLinkMedtronicService extends MedLinkService {
     @Override public void onCreate() {
         AndroidInjection.inject(this);
 //        medLinkUtil.setEncoding(getEncoding());
+        aapsLogger.info(LTag.EVENTS,"OnCreate medlinkmedtronicservice");
         initRileyLinkServiceData();
 
         mBroadcastReceiver = new MedLinkBroadcastReceiver(this);
@@ -96,7 +94,7 @@ public class MedLinkMedtronicService extends MedLinkService {
     }
 
     public boolean isInitialized() {
-        return medLinkServiceData.rileyLinkServiceState.isReady();
+        return medLinkServiceData.medLinkServiceState.isReady();
     }
 
     /**
@@ -104,9 +102,9 @@ public class MedLinkMedtronicService extends MedLinkService {
      */
     public void initRileyLinkServiceData() {
 
-        frequencies = new String[2];
-        frequencies[0] = resourceHelper.gs(R.string.key_medtronic_pump_frequency_us_ca);
-        frequencies[1] = resourceHelper.gs(R.string.key_medtronic_pump_frequency_worldwide);
+//        frequencies = new String[2];
+//        frequencies[0] = resourceHelper.gs(R.string.key_medtronic_pump_frequency_us_ca);
+//        frequencies[1] = resourceHelper.gs(R.string.key_medtronic_pump_frequency_worldwide);
 
         medLinkServiceData.targetDevice = RileyLinkTargetDevice.MedtronicPump;
 
@@ -115,7 +113,7 @@ public class MedLinkMedtronicService extends MedLinkService {
         // get most recently used RileyLink address
         medLinkServiceData.rileylinkAddress = sp.getString(MedLinkConst.Prefs.MedLinkAddress, "");
 
-        getMedLinkRFSpy.startReader();
+//        getMedLinkRFSpy.startReader();
 
         // init rileyLinkCommunicationManager
         medtronicUIComm = new MedLinkMedtronicUIComm(injector, aapsLogger, medtronicUtil, medtronicUIPostprocessor, medtronicCommunicationManager);
@@ -273,29 +271,15 @@ public class MedLinkMedtronicService extends MedLinkService {
 
             String pumpFrequency = sp.getStringOrNull(MedLinkMedtronicConst.Prefs.PumpFrequency, null);
 
-            if (pumpFrequency == null) {
-                aapsLogger.debug(LTag.PUMPBTCOMM,"Pump frequency is not set");
-                medtronicPumpStatus.errorDescription = resourceHelper.gs(R.string.medtronic_error_pump_frequency_not_set);
-                return false;
-            } else {
-                if (!pumpFrequency.equals(frequencies[0]) && !pumpFrequency.equals(frequencies[1])) {
-                    aapsLogger.debug(LTag.PUMPBTCOMM,"Unsupported pump frequency "+pumpFrequency);
-                    medtronicPumpStatus.errorDescription = resourceHelper.gs(R.string.medtronic_error_pump_frequency_invalid);
-                    return false;
-                } else {
-                    medtronicPumpStatus.pumpFrequency = pumpFrequency;
-                    boolean isFrequencyUS = pumpFrequency.equals(frequencies[0]);
-                    aapsLogger.debug(LTag.PUMPBTCOMM,"Pump frequency "+pumpFrequency);
-                    RileyLinkTargetFrequency newTargetFrequency = isFrequencyUS ? //
-                            RileyLinkTargetFrequency.Medtronic_US
-                            : RileyLinkTargetFrequency.Medtronic_WorldWide;
-
-                    if (medLinkServiceData.rileyLinkTargetFrequency != newTargetFrequency) {
-                        medLinkServiceData.rileyLinkTargetFrequency = newTargetFrequency;
-                    }
-
-                }
-            }
+//            if (pumpFrequency == null) {
+//                aapsLogger.debug(LTag.PUMPBTCOMM,"Pump frequency is not set");
+//                medtronicPumpStatus.errorDescription = resourceHelper.gs(R.string.medtronic_error_pump_frequency_not_set);
+//                return false;
+//            } else {
+//
+//
+//
+//            }
 
             String rileyLinkAddress = sp.getStringOrNull(MedLinkConst.Prefs.MedLinkAddress, null);
 

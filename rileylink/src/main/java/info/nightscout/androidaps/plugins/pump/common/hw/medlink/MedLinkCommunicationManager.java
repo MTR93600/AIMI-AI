@@ -90,7 +90,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
             aapsLogger.info(LTag.PUMPCOMM, "Sent:" + msg.getCommandType().code);
         }
 
-        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> function = msg.getBaseCallBack().andThen(f ->{
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> function = msg.getBaseCallback().andThen(f ->{
             Supplier<Stream<String>> answer = () -> f.getAnswer();
             if(f.getErrors() == null || f.getErrors().isEmpty()){
                 rememberLastGoodDeviceCommunicationTime();
@@ -105,7 +105,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
             }
             return f;
         });
-        msg.setBaseCallBack(function);
+        msg.setBaseCallback(function);
         rfspy.transmitThenReceive(msg);
 
 //        RadioResponse radioResponse = rfSpyResponse.getRadioResponse(injector);

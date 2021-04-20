@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="medlink_scanner_title">MedLink 스캔</string>
+    <string name="medlink_status">MedLink 상태</string>
     <!-- RL BLE Scanning -->
     <string name="rileylink_scanner_scan_scan">스캔</string>
     <string name="rileylink_scanner_scan_stop">중지</string>

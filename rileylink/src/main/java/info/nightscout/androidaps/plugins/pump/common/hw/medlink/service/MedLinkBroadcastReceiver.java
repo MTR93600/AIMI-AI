@@ -21,7 +21,9 @@ import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
@@ -156,11 +158,13 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
         if (action.equals(MedLinkConst.Intents.MedLinkDisconnected)) {
 
             if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.RileyLinkUnreachable);
+                medLinkServiceData.setServiceState(MedLinkServiceState.BluetoothError,
+                        MedLinkError.MedLinkUnreachable);
 //                medLinkServiceData.activePlugin
                 //TODO schedule bg reading
             } else {
-                medLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.BluetoothDisabled);
+                medLinkServiceData.setServiceState(MedLinkServiceState.BluetoothError,
+                        MedLinkError.BluetoothDisabled);
             }
             return true;
         } else if (action.equals(MedLinkConst.Intents.MedLinkReady)) {
@@ -207,12 +211,12 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
             return true;
         } else if(action.equals(MedLinkConst.Intents.MedLinkConnected)){
-            medLinkServiceData.setRileyLinkServiceState(RileyLinkServiceState.PumpConnectorReady);
+            medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
             return true;
         }else if(action.equals(MedLinkConst.Intents.MedLinkConnectionError)){
             aapsLogger.info(LTag.PUMP, "pump unreachable");
-            medLinkServiceData.setServiceState(RileyLinkServiceState.PumpConnectorError,
-                    RileyLinkError.NoContactWithDevice);
+            medLinkServiceData.setServiceState(MedLinkServiceState.PumpConnectorError,
+                    MedLinkError.NoContactWithDevice);
             processMedLinkBroadcasts(RileyLinkConst.IPC.MSG_PUMP_tunePump, context);
             return true;
         } else {

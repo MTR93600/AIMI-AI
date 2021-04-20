@@ -176,8 +176,8 @@ class MedtronicFragment : DaggerFragment() {
         val rileyLinkError = medtronicPumpPlugin.rileyLinkService?.error
         medtronic_rl_status.text =
             when {
-                rileyLinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted   -> resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isConnecting                          -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
+                rileyLinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
+                rileyLinkServiceData.rileyLinkServiceState.isConnecting                                                                                                            -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
                 rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError == null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
                 rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
                 else                                                                             -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
