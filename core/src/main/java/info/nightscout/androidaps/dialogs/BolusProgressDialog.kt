@@ -63,7 +63,7 @@ class BolusProgressDialog : DaggerDialogFragment() {
     private var _binding: DialogBolusprogressBinding? = null
 
     // This property is only valid between onCreateView and
-    // onDestroyView.
+    // onDestroyView. test
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
