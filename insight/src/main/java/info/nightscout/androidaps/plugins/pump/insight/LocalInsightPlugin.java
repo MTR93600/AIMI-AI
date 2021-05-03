@@ -590,7 +590,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                 bolusingEvent.setPercent(0);
                 rxBus.send(bolusingEvent);
                 int trials = 0;
-                long timestamp = dateUtil.now();
                 aapsLogger.debug(LTag.PUMP, "XXXX set Bolus: " + dateUtil.dateAndTimeAndSecondsString(dateUtil.now()) + " amount: " + insulin);
                 while (true) {
                     synchronized ($bolusLock) {
@@ -725,8 +724,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         if (percent == 100) return cancelTempBasal(true);
         else if (percent > 250) percent = 250;
         try {
-            readHistory();
-            fetchStatus();
             if (activeTBR != null) {
                 ChangeTBRMessage message = new ChangeTBRMessage();
                 message.setDuration(durationInMinutes);
@@ -745,6 +742,8 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     .enacted(true)
                     .comment(R.string.virtualpump_resultok);
             aapsLogger.debug(LTag.PUMP, "XXXX Set Temp Basal timestamp: " + dateUtil.now() + " rate: " + percent + " duration: " + durationInMinutes);
+            readHistory();
+            fetchStatus();
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while setting TBR: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
             result.comment(ExceptionTranslator.getString(context, e));
