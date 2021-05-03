@@ -566,7 +566,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
     @NonNull @Override
     public PumpEnactResult deliverTreatment(DetailedBolusInfo detailedBolusInfo) {
         if (detailedBolusInfo.insulin == 0 || detailedBolusInfo.carbs > 0) {
-            throw new IllegalArgumentException(detailedBolusInfo.toString(), new Exception());
+            //throw new IllegalArgumentException(detailedBolusInfo.toString(), new Exception());
         }
         PumpEnactResult result = new PumpEnactResult(getInjector());
         double insulin = Math.round(detailedBolusInfo.insulin / 0.01) * 0.01;
@@ -592,13 +592,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                 int trials = 0;
                 long timestamp = dateUtil.now();
                 aapsLogger.debug(LTag.PUMP, "XXXX set Bolus: " + dateUtil.dateAndTimeAndSecondsString(dateUtil.now()) + " amount: " + insulin);
-                pumpSync.syncBolusWithPumpId(
-                        timestamp,
-                        detailedBolusInfo.insulin,
-                        detailedBolusInfo.getBolusType(),
-                        bolusID,
-                        PumpType.ACCU_CHEK_INSIGHT,
-                        serialNumber());
                 while (true) {
                     synchronized ($bolusLock) {
                         if (bolusCancelled) break;
@@ -751,26 +744,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     .success(true)
                     .enacted(true)
                     .comment(R.string.virtualpump_resultok);
-            long now = dateUtil.now();
-            pumpSync.syncTemporaryBasalWithPumpId(
-                    now,
-                    percent,
-                    T.mins(durationInMinutes).msecs(),
-                    false,
-                    PumpSync.TemporaryBasalType.NORMAL,
-                    now + 2000,
-                    PumpType.ACCU_CHEK_INSIGHT,
-                    serialNumber()
-            );
-            lastTbr = new PumpSync.PumpState.TemporaryBasal(
-                    now,
-                    T.mins(durationInMinutes).msecs(),
-                    percent,
-                    false,
-                    PumpSync.TemporaryBasalType.NORMAL,
-                    now,
-                    now + 2000                   // Offset +1500msec (I saw that we could have about 1s offset between time of action and time in history)
-            );
             aapsLogger.debug(LTag.PUMP, "XXXX Set Temp Basal timestamp: " + dateUtil.now() + " rate: " + percent + " duration: " + durationInMinutes);
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while setting TBR: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
@@ -833,13 +806,13 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         PumpEnactResult result = new PumpEnactResult(getInjector());
         PumpEnactResult cancelEBResult = null;
         if (isFakingTempsByExtendedBoluses()) cancelEBResult = cancelExtendedBolusOnly();
-        readHistory();                                                                              // move readHistory before cancelTempBasalOnly
         PumpEnactResult cancelTBRResult = cancelTempBasalOnly();
         result.success((cancelEBResult == null || (cancelEBResult != null && cancelEBResult.getSuccess())) && cancelTBRResult.getSuccess());
         result.enacted((cancelEBResult != null && cancelEBResult.getEnacted()) || cancelTBRResult.getEnacted());
         result.comment(cancelEBResult != null ? cancelEBResult.getComment() : cancelTBRResult.getComment());
         try {
             fetchStatus();
+            readHistory();
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception after canceling TBR: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
         } catch (InsightException e) {
@@ -861,21 +834,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             confirmAlert(AlertType.WARNING_36);
             alertService.ignore(null);
             result.comment(R.string.virtualpump_resultok);
-            long now = dateUtil.now();
-            pumpSync.syncStopTemporaryBasalWithPumpId(
-                    now,
-                    now,
-                    PumpType.ACCU_CHEK_INSIGHT,
-                    serialNumber()
-            );
-            lastTbr = new PumpSync.PumpState.TemporaryBasal(
-                    now,
-                    0L,
-                    100.0,
-                    false,
-                    PumpSync.TemporaryBasalType.NORMAL,
-                    now,
-                    now + 2000);
             aapsLogger.debug(LTag.PUMP, "XXXX cancel Temp Basal time: " + dateUtil.dateAndTimeAndSecondsString(dateUtil.now()));
         } catch (NoActiveTBRToCanceLException e) {
             result.success(true);
@@ -922,12 +880,6 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     alertService.ignore(null);
                     result.enacted(true).success(true);
                     aapsLogger.debug(LTag.PUMP, "XXXX cancel Extended Bolus time: " + dateUtil.dateAndTimeAndSecondsString(dateUtil.now()) + " BolusId: " + activeBolus.getBolusID());
-                    long now = dateUtil.now();                          // syncStopExtendedBolusWithPumpId added here to avoid Extended Bolus shown in aaps before next readHistory
-                    pumpSync.syncStopExtendedBolusWithPumpId(
-                            now,
-                            now,
-                            PumpType.ACCU_CHEK_INSIGHT,
-                            serialNumber());
                 }
             }
             result.success(true).comment(R.string.virtualpump_resultok);
