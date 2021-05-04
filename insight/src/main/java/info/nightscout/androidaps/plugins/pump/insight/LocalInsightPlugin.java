@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -742,6 +743,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     .enacted(true)
                     .comment(R.string.virtualpump_resultok);
             aapsLogger.debug(LTag.PUMP, "XXXX Set Temp Basal timestamp: " + dateUtil.now() + " rate: " + percent + " duration: " + durationInMinutes);
+            TimeUnit.MILLISECONDS.sleep(500);
             readHistory();
             fetchStatus();
         } catch (AppLayerErrorException e) {
