@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="medlink_delivered">%1$.2f U / %2$.2f U delivered</string>
     <!-- Medtronic (MDT) - Base -->
     <string name="medtronic_name" translatable="false">Medtronic</string>
     <string name="medlink_medtronic_name" translatable="false">Medtronic</string>

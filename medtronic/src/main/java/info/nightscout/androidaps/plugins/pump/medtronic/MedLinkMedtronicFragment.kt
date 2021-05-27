@@ -73,7 +73,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.medtronic_fragment, container, false)
+        return inflater.inflate(R.layout.medlink_medtronic_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -214,7 +214,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
                         medtronic_pump_status.text = medLinkMedtronicUtil.frameNumber?.let {
                             resourceHelper.gs(cmdResourceId, medLinkMedtronicUtil.pageNumber, medLinkMedtronicUtil.frameNumber)
                         }
-                            ?: resourceHelper.gs(R.string.medtronic_cmd_desc_get_history_request, medLinkMedtronicUtil.pageNumber)
+                            ?: resourceHelper.gs(R.string.medtronic_cmd_desc_get_settings)
                     } else {
                         medtronic_pump_status.text = " " + (cmdResourceId?.let { resourceHelper.gs(it) }
                             ?: cmd.getCommandDescription())
@@ -318,5 +318,17 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
         medtronic_errors.text = medtronicPumpStatus.errorInfo
+
+        //totalDailyInsulin
+        val todayTotalUnits = medtronicPumpStatus.todayTotalUnits
+        val yesterdayTotalUnits = medtronicPumpStatus.yesterdayTotalUnits
+        aapsLogger.info(LTag.EVENTS, "today yesterday$todayTotalUnits $yesterdayTotalUnits")
+        if (todayTotalUnits != null && yesterdayTotalUnits != null) {
+            medtronic_total_insulin.text = "$todayTotalUnits/$yesterdayTotalUnits"
+        } else {
+            medtronic_lastbolus.text = ""
+        }
     }
+
+
 }
