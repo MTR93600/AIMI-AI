@@ -18,15 +18,16 @@ public class RemainingBleCommand {
 
     private final UUID serviceUUID;
     private final Function function;
+    private final boolean hasArgument;
 //        private final String commandCode;
 
     public RemainingBleCommand(UUID serviceUUID, UUID charaUUID,
-                             byte[] command, Function func) {
+                             byte[] command, Function func, boolean hasArgument) {
         this.serviceUUID = serviceUUID;
         this.charaUUID = charaUUID;
         this.command = command;
         this.function = func;
-
+        this.hasArgument = hasArgument;
     }
 
     public Function getFunction() {
@@ -53,5 +54,9 @@ public class RemainingBleCommand {
         return "RemainingBleCommand{" +
                 "command=" + new String(command, StandardCharsets.UTF_8) +
                 '}';
+    }
+
+    public boolean hasArg() {
+        return hasArgument;
     }
 }

@@ -115,7 +115,7 @@ public class PumpDescription {
 
         isTempBasalCapable = pumpCapability.hasCapability(PumpCapability.TempBasal);
 
-        if (pumpType.getPumpTempBasalType() == PumpTempBasalType.Percent) {
+        if (pumpType.getPumpTempBasalType().equals(PumpTempBasalType.Percent)) {
             tempBasalStyle = PERCENT;
             maxTempPercent = pumpType.getTbrSettings().getMaxDose().intValue();
             tempPercentStep = (int) pumpType.getTbrSettings().getStep();

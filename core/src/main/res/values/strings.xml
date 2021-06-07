@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--    Keys-->
+    <string name="total_insulin_label">Total daily insulin td/ytd</string>
+
     <string name="key_enable_fabric" translatable="false">enable_fabric</string>
     <string name="key_language" translatable="false">language</string>
     <string name="key_units" translatable="false">units</string>
@@ -120,6 +122,9 @@
     <string name="location_not_found_message">For Bluetooth discovery to work on newer devices, location must be enabled. AAPS does not track your location and it can be disabled after pairing is successful.</string>
 
     <!--    DateUtil-->
+    <string name="minafter">After %1$d mins</string>
+    <string name="hoursafter">After %1$.1f hours</string>
+
     <string name="minago">%1$d m ago</string>
     <string name="hoursago">%1$.1f h ago</string>
     <string name="shorthour">h</string>

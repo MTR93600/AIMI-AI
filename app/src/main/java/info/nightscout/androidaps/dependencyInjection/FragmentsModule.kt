@@ -31,6 +31,8 @@ import info.nightscout.androidaps.plugins.insulin.InsulinFragment
 import info.nightscout.androidaps.plugins.profile.local.LocalProfileFragment
 import info.nightscout.androidaps.plugins.profile.ns.NSProfileFragment
 import info.nightscout.androidaps.plugins.pump.combo.ComboFragment
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusGeneralFragment
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusHistoryFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusGeneralFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusHistoryFragment
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightFragment
@@ -131,4 +133,10 @@ abstract class FragmentsModule {
     abstract fun contributesRileyLinkStatusHistoryFragment(): RileyLinkStatusHistoryFragment
     @ContributesAndroidInjector
     abstract fun contributesRileyLinkStatusDeviceMedtronic(): RileyLinkStatusDeviceMedtronic
+
+    @ContributesAndroidInjector
+    abstract fun contributesMedLinkStatusGeneral(): MedLinkStatusGeneralFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributesMedLinkStatusHistoryFragment(): MedLinkStatusHistoryFragment
 }

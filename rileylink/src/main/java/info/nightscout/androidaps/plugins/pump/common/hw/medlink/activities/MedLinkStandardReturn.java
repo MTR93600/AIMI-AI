@@ -25,7 +25,7 @@ public class MedLinkStandardReturn<B> {
     }
 
     public MedLinkStandardReturn(Supplier<Stream<String>> answer, B functionResult, List<ParsingError> errors) {
-        this.answer = () -> answer.get().map(String::toLowerCase);
+        this.answer = answer;
         this.functionResult = functionResult;
         this.errors = errors;
     }

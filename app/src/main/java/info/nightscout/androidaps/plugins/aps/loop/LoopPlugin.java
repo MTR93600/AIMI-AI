@@ -19,7 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -37,6 +36,7 @@ import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.PumpEnactResult;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.CareportalEvent;
+import info.nightscout.androidaps.db.MedLinkTemporaryBasal;
 import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.db.TemporaryBasal;
 import info.nightscout.androidaps.events.EventAcceptOpenLoopChange;
@@ -67,6 +67,8 @@ import info.nightscout.androidaps.plugins.general.overview.notifications.Notific
 import info.nightscout.androidaps.plugins.general.wear.ActionStringHandler;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished;
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
@@ -388,7 +390,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             APSInterface usedAPS = activePlugin.getActiveAPS();
             if (((PluginBase) usedAPS).isEnabled(PluginType.APS)) {
                 usedAPS.invoke(initiator, tempBasalFallback);
-                medlinkTempBasalCommand(pump, allowNotification,  result, profile);
+//                medlinkTempBasalCommand(pump, allowNotification,  result, profile);
                 result = usedAPS.getLastAPSResult();
             }
 
@@ -446,7 +448,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                 return;
             }
 
-            if (pump.isSuspended()) {
+            if (pump.isSuspended() && !(pump instanceof MedLinkPumpDevice)) {
                 getAapsLogger().debug(LTag.APS, resourceHelper.gs(R.string.pumpsuspended));
                 rxBus.send(new EventLoopSetLastRunGui(resourceHelper.gs(R.string.pumpsuspended)));
                 return;
@@ -596,14 +598,14 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
     }
 
     private void medlinkTempBasalCommand(PumpInterface pump, boolean allowNotification, APSResult result, Profile profile) {
-        if (pump instanceof MedLinkMedtronicPumpPlugin){
+        if (pump instanceof MedLinkMedtronicPumpPlugin) {
 
-            MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin)pump;
-            if(convPlugin.isFakingTempsByMicroBolus()){
+            MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin) pump;
+            if (convPlugin.isFakingTempsByMicroBolus()) {
                 TempBasalMicrobolusOperations tempBasalOperations = convPlugin.getTempBasalMicrobolusOperations();
                 TempBasalMicroBolusPair operation = tempBasalOperations.operations.getFirst();
                 LocalDateTime now = LocalDateTime.now();
-                if(now.plusMillis(1000).isAfter(operation.getReleaseTime())){
+                if (now.plusMillis(1000).isAfter(operation.getReleaseTime())) {
                     final APSResult resultAfterConstraints = result.newAndClone(injector);
 
                     resultAfterConstraints.rateConstraint = new Constraint<>(resultAfterConstraints.rate);
@@ -620,9 +622,9 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                             });
                         }
                     };
-                    if(operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.SUSPEND)){
+                    if (operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.SUSPEND)) {
                         commandQueue.stopPump(callback);
-                    }else if(operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.REACTIVATE)){
+                    } else if (operation.getOperationType().equals(TempBasalMicroBolusPair.OperationType.REACTIVATE)) {
                         commandQueue.startPump(callback);
                     }
 //                            resultAfterConstraints.percentConstraint = new Constraint<>(resultAfterConstraints.percent);
@@ -661,7 +663,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
     }
 
     public void disableCarbSuggestions(int duartionMinutes) {
-        carbsSuggestionsSuspendedUntil = System.currentTimeMillis() + (duartionMinutes*60*1000);
+        carbsSuggestionsSuspendedUntil = System.currentTimeMillis() + (duartionMinutes * 60 * 1000);
         dismissSuggestion();
     }
 
@@ -726,6 +728,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
 
     private void applyTBRRequest(APSResult request, Profile profile, Callback callback) {
 
+        getAapsLogger().info(LTag.APS, "aplytbrrequest " + request.tempBasalRequested);
         if (!request.tempBasalRequested) {
             if (callback != null) {
                 callback.result(new PumpEnactResult(getInjector()).enacted(false).success(true).comment(resourceHelper.gs(R.string.nochangerequested))).run();
@@ -736,19 +739,22 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
         PumpInterface pump = activePlugin.getActivePump();
 
         if (!pump.isInitialized()) {
-            getAapsLogger().debug(LTag.APS, "applyAPSRequest: " + resourceHelper.gs(R.string.pumpNotInitialized));
+            getAapsLogger().info(LTag.APS, "applyAPSRequest: " + resourceHelper.gs(R.string.pumpNotInitialized));
             if (callback != null) {
                 callback.result(new PumpEnactResult(getInjector()).comment(resourceHelper.gs(R.string.pumpNotInitialized)).enacted(false).success(false)).run();
             }
             return;
         }
 
-        if (pump.isSuspended()) {
+        if (pump.isSuspended() && !(pump instanceof  MedLinkPumpDevice)) {
             getAapsLogger().debug(LTag.APS, "applyAPSRequest: " + resourceHelper.gs(R.string.pumpsuspended));
-            if (callback != null) {
-                callback.result(new PumpEnactResult(getInjector()).comment(resourceHelper.gs(R.string.pumpsuspended)).enacted(false).success(false)).run();
+
+            if (!(pump instanceof MedLinkPumpPluginAbstract)) {
+                if (callback != null) {
+                    callback.result(new PumpEnactResult(getInjector()).comment(resourceHelper.gs(R.string.pumpsuspended)).enacted(false).success(false)).run();
+                }
+                return;
             }
-            return;
         }
 
         getAapsLogger().debug(LTag.APS, "applyAPSRequest: " + request.toString());
@@ -784,14 +790,28 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
         } else {
             if ((request.rate == 0 && request.duration == 0) || Math.abs(request.rate - pump.getBaseBasalRate()) < pump.getPumpDescription().basalStep) {
                 if (activeTemp != null) {
-                    getAapsLogger().debug(LTag.APS, "applyAPSRequest: cancelTempBasal()");
-                    commandQueue.cancelTempBasal(false, callback);
+                    if (activePlugin.getActivePump() instanceof MedLinkPumpDevice) {
+                        commandQueue.cancelTempBasal(true, callback);
+                    } else {
+                        getAapsLogger().debug(LTag.APS, "applyAPSRequest: cancelTempBasal()");
+                        commandQueue.cancelTempBasal(false, callback);
+                    }
                 } else {
                     getAapsLogger().debug(LTag.APS, "applyAPSRequest: Basal set correctly");
                     if (callback != null) {
                         callback.result(new PumpEnactResult(getInjector()).absolute(request.rate).duration(0)
                                 .enacted(false).success(true).comment(resourceHelper.gs(R.string.basal_set_correctly))).run();
                     }
+                }
+            } else if (activePlugin.getActivePump() instanceof MedLinkPumpDevice) {
+                if (activeTemp != null && (request.percent == 100 || Math.abs(request.rate - pump.getBaseBasalRate()) < pump.getPumpDescription().basalStep)) {
+                    commandQueue.cancelTempBasal(false, callback);
+                } else if (activeTemp != null && Math.abs(request.rate - pump.getBaseBasalRate()) >= pump.getPumpDescription().basalStep) {
+                    commandQueue.tempBasalAbsolute(request.rate, request.duration,
+                            false, profile, callback);
+                } else if (activeTemp == null) {
+                    commandQueue.tempBasalAbsolute(request.rate, request.duration,
+                            false, profile, callback);
                 }
             } else if (activeTemp != null
                     && activeTemp.getPlannedRemainingMinutes() > 5
@@ -803,8 +823,14 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                             .enacted(false).success(true).duration(activeTemp.getPlannedRemainingMinutes())
                             .comment(resourceHelper.gs(R.string.let_temp_basal_run))).run();
                 }
-            } else {
-                getAapsLogger().debug(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()");
+            }
+//            else if (request.rate == profile.getBasal()) {
+//                getAapsLogger().info(LTag.APS, "applyAPSRequest: cancelTempBasal()");
+//                pump.cancelTempBasal(true);
+//            }
+            else {
+                getAapsLogger().info(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()");
+                getAapsLogger().info(LTag.APS, "" + request.rate + " " + pump.getBaseBasalRate());
                 commandQueue.tempBasalAbsolute(request.rate, request.duration, false, profile, callback);
             }
         }
@@ -817,7 +843,12 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
 
         PumpInterface pump = activePlugin.getActivePump();
 
-        long lastBolusTime = treatmentsPlugin.getLastBolusTime();
+        long lastBolusTime = 0l;
+        if (pump instanceof MedLinkPumpDevice) {
+            lastBolusTime = treatmentsPlugin.getLastNonTBRBolusTime();
+        } else {
+            lastBolusTime = treatmentsPlugin.getLastBolusTime();
+        }
         if (lastBolusTime != 0 && lastBolusTime + 3 * 60 * 1000 > System.currentTimeMillis()) {
             getAapsLogger().debug(LTag.APS, "SMB requested but still in 3 min interval");
             if (callback != null) {
@@ -836,7 +867,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             return;
         }
 
-        if (pump.isSuspended()) {
+        if (pump.isSuspended() && !(pump instanceof MedLinkPumpDevice)) {
             getAapsLogger().debug(LTag.APS, "applySMBRequest: " + resourceHelper.gs(R.string.pumpsuspended));
             if (callback != null) {
                 callback.result(new PumpEnactResult(getInjector()).comment(resourceHelper.gs(R.string.pumpsuspended)).enacted(false).success(false)).run();

@@ -35,7 +35,7 @@ public abstract class PumpStatus {
     public String iob = null;
 
     // TDD
-    public Double dailyTotalUnits;
+    public Double todayTotalUnits;
     public String maxDailyTotalUnits;
     public boolean validBasalRateProfileSelectedOnPump = true;
     public ProfileStore profileStore;

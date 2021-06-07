@@ -14,6 +14,7 @@ import info.nightscout.androidaps.db.Source;
  */
 
 public class DetailedBolusInfo {
+
     private enum BolusType {
         NORMAL,
         EXTENDED
@@ -37,6 +38,8 @@ public class DetailedBolusInfo {
     public long deliverAt = 0;             // SMB should be delivered within 1 min from this time
     public String notes = null;
 
+    public boolean isTBR; // is a tbr emulation (medink only)
+
     public DetailedBolusInfo copy() {
         DetailedBolusInfo n = new DetailedBolusInfo();
         n.date = date;
@@ -52,6 +55,7 @@ public class DetailedBolusInfo {
         n.context = context;
         n.pumpId = pumpId;
         n.isSMB = isSMB;
+        n.isTBR = isTBR;
         n.deliverAt = deliverAt;
         n.notes = notes;
         return n;

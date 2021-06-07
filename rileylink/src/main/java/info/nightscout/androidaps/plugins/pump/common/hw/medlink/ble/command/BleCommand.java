@@ -5,11 +5,8 @@ import android.os.Looper;
 import android.util.Pair;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.db.BgReading;
@@ -21,20 +18,22 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by Dirceu on 23/03/21.
  */
 public abstract class BleCommand implements Runnable {
 
-    private final AAPSLogger aapsLogger;
+    protected final AAPSLogger aapsLogger;
+    private boolean isLastMessageEom = false;
     private final MedLinkServiceData medLinkServiceData;
     private final Handler handler;
     private Runnable runnable;
     protected StringBuffer pumpResponse = new StringBuffer();
-    private MedLinkStandardReturn<Stream> lastResult;
+    //    private MedLinkStandardReturn<Stream> lastResult;
+    private boolean partOfReady;
 
     public BleCommand(AAPSLogger aapsLogger, MedLinkServiceData medlinkServiceData) {
         this.aapsLogger = aapsLogger;
@@ -47,7 +46,9 @@ public abstract class BleCommand implements Runnable {
         this.runnable = runnable;
     }
 
-    public void characteristicChanged(String answer, MedLinkBLE bleComm) {
+    public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {
+//        aapsLogger.info(LTag.PUMPBTCOMM,"char changed");
+
         RemainingBleCommand currentCommand = bleComm.getCurrentCommand();
         if (pumpResponse.length() == 0) {
             pumpResponse.append(System.currentTimeMillis()).append("\n");
@@ -55,6 +56,8 @@ public abstract class BleCommand implements Runnable {
         pumpResponse.append(answer);
 //                pumpResponse.append("\n");
         if (answer.trim().equals("powerdown")) {
+            isLastMessageEom = false;
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
             if (currentCommand != null &&
                     currentCommand.getCommand() != null) {
                 if (Arrays.equals(currentCommand.getCommand(),
@@ -64,31 +67,37 @@ public abstract class BleCommand implements Runnable {
                 } else if (Arrays.equals(currentCommand.getCommand(),
                         MedLinkCommandType.Connect.getRaw())) {
                     String answers = pumpResponse.toString();
-                    if (answer.contains("ready") && !answers.contains("confirmed pump wake up")) {
+                    if (!answers.contains("ready") && !answers.contains("confirmed pump wake up")) {
                         medLinkServiceData.setServiceState(MedLinkServiceState.PumpConnectorError,
                                 MedLinkError.MedLinkUnreachable);
                     }
                 }
             }
-
-            aapsLogger.debug("MedLink off " + answer);
+            pumpResponse = new StringBuffer();
+            aapsLogger.info(LTag.PUMPBTCOMM, "MedLink off " + answer);
             bleComm.retryCommand();
             return;
         }
         if (answer.contains("error communication")) {
-            aapsLogger.debug("MedLink waked " + answer);
+            isLastMessageEom = false;
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.MedLinkError);
+
         }
         if (answer.contains("medtronic")) {
+            isLastMessageEom = false;
             bleComm.setPumpModel(answer);
         }
-        if (answer.contains("ready")) {//|| answer.contains("eomeomeom")) {
+
+
+        if ((partOfReady && (lastCommand + answer).contains("ready")) || answer.contains("ready") || answer.contains("eomeomeom")) {
 //                    release();
+
+            aapsLogger.info(LTag.PUMPBTCOMM, "ready command");
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
 //            medLinkServiceData
 //            medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
             bleComm.setConnected(true);
-            bleComm.setConnectAdded(false);
             if (currentCommand != null &&
                     !Arrays.equals(currentCommand.getCommand()
                             , MedLinkCommandType.NoCommand.getRaw())) {
@@ -97,26 +106,39 @@ public abstract class BleCommand implements Runnable {
 
                 aapsLogger.info(LTag.PUMPBTCOMM, "Applying");
                 aapsLogger.info(LTag.PUMPBTCOMM, new String(currentCommand.getCommand()));
-                aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
+
                 applyResponse(pumpResponse.toString(), currentCommand, bleComm);
                 pumpResponse = new StringBuffer();
 
             }
             aapsLogger.info(LTag.PUMPBTCOMM, "completing command");
             aapsLogger.info(LTag.PUMPBTCOMM, answer);
-            bleComm.completedCommand();
+            if (!isLastMessageEom) {
+                bleComm.completedCommand();
+            }
+            if (answer.contains("eomeomeom")) {
+                isLastMessageEom = true;
+            } else {
+                isLastMessageEom = false;
+            }
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
 //            bleComm.nextCommand();
             return;
         }
         if (answer.trim().contains("ok+conn")) {
+            isLastMessageEom = false;
             //medLinkUtil.sendBroadcastMessage();
 //                    if(remainingCommands.isEmpty()) {
 //                    release();
 
 //                    }
 
-            if (bleComm.needToAddConnectCommand()) {
+            if (bleComm.getCurrentCommand() != null &&
+                    bleComm.getCurrentCommand().getCommand() != null &&
+                    Arrays.equals(MedLinkCommandType.Connect.getRaw(), bleComm.getCurrentCommand().getCommand())) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "clearing command");
+//                bleComm.clearCommands();
+            } else if (bleComm.needToAddConnectCommand()) {
                 aapsLogger.info(LTag.PUMPBTCOMM, "added ok");
                 bleComm.addExecuteConnectCommand();
             } else {
@@ -124,42 +146,67 @@ public abstract class BleCommand implements Runnable {
             }
             bleComm.setConnected(false);
             aapsLogger.info(LTag.PUMPBTCOMM, "completing command");
-            aapsLogger.info(LTag.PUMPBTCOMM, answer);
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
             bleComm.nextCommand();
+            return;
+        }
+        String answers = pumpResponse.toString();
+        if (answers.contains("check pump status") && (answers.contains("pump suspend state") ||
+                answers.contains("pump normal state"))) {
+            isLastMessageEom = false;
+            aapsLogger.info(LTag.PUMPBTCOMM, "status command");
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
+            pumpResponse = new StringBuffer();
+            bleComm.completedCommand();
+            return;
+        }
+
+        wasLastCommandPartOfReady(answer);
+//        aapsLogger.info(LTag.PUMPBTCOMM, answer);
+    }
+
+    protected void wasLastCommandPartOfReady(String answer) {
+        if (answer.endsWith("r") || answer.endsWith("re") || answer.endsWith("rea")
+                || answer.endsWith("read")) {
+            this.partOfReady = true;
+        } else {
+            this.partOfReady = false;
         }
     }
 
     private void applyResponse(String pumpResp, RemainingBleCommand currentCommand, MedLinkBLE bleComm) {
-
+        byte[] command = currentCommand.getCommand();
+        Function function = currentCommand.getFunction();
         handler.post(() -> {
             try {
                 aapsLogger.info(LTag.PUMPBTCOMM, "posting command");
                 Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n"));
-                if (!Arrays.equals(currentCommand.getCommand(), MedLinkCommandType.NoCommand.getRaw()) &&
-                        currentCommand.getFunction() != null) {
+                if (!Arrays.equals(command, MedLinkCommandType.NoCommand.getRaw()) &&
+                        function != null) {
 //                aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
-                    Function func = currentCommand.getFunction().andThen(f -> {
+                    Function func = function.andThen(f -> {
                         if (pumpResp.contains("ready")) {
                             bleComm.applyClose();
                         }
                         return f;
                     });
-                    if (Arrays.equals(currentCommand.getCommand(), MedLinkCommandType.IsigHistory.getRaw())) {
+                    MedLinkStandardReturn<Stream> lastResult = null;
+                    if (Arrays.equals(command, MedLinkCommandType.IsigHistory.getRaw())) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "posting isig");
-                        Object result = func.apply(new Pair<Supplier<Stream<String>>, Supplier<Stream<BgReading>>>(sup,
-                                () -> lastResult.getFunctionResult()));
-                        if(result == null){
+                        MedLinkStandardReturn<Stream> finalLastResult = lastResult;
+                        Object result = func.apply(sup);
+                        if (result == null) {
                             bleComm.retryCommand();
                         }
-                    } else if (!Arrays.equals(currentCommand.getCommand(), MedLinkCommandType.Connect.getRaw())) {
-                        lastResult = (MedLinkStandardReturn<Stream>) func.apply(sup);
+                    } else if (!Arrays.equals(command, MedLinkCommandType.Connect.getRaw())) {
+                        func.apply(sup);
                     }
-                    aapsLogger.info(LTag.PUMPBTCOMM, new String(currentCommand.getCommand()));
+                    aapsLogger.info(LTag.PUMPBTCOMM, new String(command));
 
                 } else {
                     aapsLogger.info(LTag.PUMPBTCOMM, "function not called");
-                    aapsLogger.info(LTag.PUMPBTCOMM, "" + currentCommand.getFunction());
-                    aapsLogger.info(LTag.PUMPBTCOMM, new String(currentCommand.getCommand()));
+                    aapsLogger.info(LTag.PUMPBTCOMM, "" + function);
+                    aapsLogger.info(LTag.PUMPBTCOMM, new String(command));
                 }
 //            else if (!this.resultActivity.isEmpty()) {
 //                MedLinkBLE.Resp resp = this.resultActivity.get(0);

@@ -9,9 +9,14 @@ import info.nightscout.androidaps.queue.commands.*
 @Suppress("unused")
 abstract class CommandQueueModule {
 
+    @ContributesAndroidInjector abstract fun medLinkCommandBolusInjector(): MedLinkCommandBolus
+    @ContributesAndroidInjector abstract fun medLinkCommandSMBBolusInjector(): MedLinkCommandSMBBolus
+    @ContributesAndroidInjector abstract fun medLinkCommandTempBasalPercentInjector(): MedLinkCommandBasalPercent
+    @ContributesAndroidInjector abstract fun medLinkCommandTempBasalAbsoluteInjector(): MedLinkCommandBasalAbsolute
+    @ContributesAndroidInjector abstract fun medLinkCommandCancelTempBasalInjector(): MedLinkCommandCancelTempBasal
+
     @ContributesAndroidInjector abstract fun commandQueueInjector(): CommandQueue
     @ContributesAndroidInjector abstract fun commandBolusInjector(): CommandBolus
-    @ContributesAndroidInjector abstract fun medLinkCommandBolusInjector(): MedLinkCommandBolus
     @ContributesAndroidInjector abstract fun commandCancelExtendedBolusInjector(): CommandCancelExtendedBolus
     @ContributesAndroidInjector abstract fun commandCancelTempBasalInjector(): CommandCancelTempBasal
     @ContributesAndroidInjector abstract fun commandExtendedBolusInjector(): CommandExtendedBolus

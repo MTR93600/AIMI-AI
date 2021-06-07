@@ -21,6 +21,7 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
 
 /**
  * Created by Dirceu on 15/02/21.
@@ -81,8 +82,8 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
                 bolusInfo.deliverAt = bolusInfo.date;
                 bolusInfo.insulin = processBolusData(answers, "given bl:");
                 bolusInfo.source = Source.PUMP;
-                bolusInfo.pumpId = Long.parseLong(
-                        medLinkPumpPlugin.getMedLinkService().getMedLinkServiceData().pumpID);
+//                bolusInfo.pumpId = Long.parseLong(
+//                        medLinkPumpPlugin.getMedLinkService().getMedLinkServiceData().pumpID);
                 Double setBolus = processBolusData(answers, "set bl:");
                 if (answers.hasNext()) {
                     String isFromBolusWizard = answers.next();

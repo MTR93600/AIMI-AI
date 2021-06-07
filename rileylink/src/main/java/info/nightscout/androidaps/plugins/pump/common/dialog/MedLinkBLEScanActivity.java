@@ -43,7 +43,6 @@ import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -165,7 +164,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
         }
 
         // disable currently selected RL, so that we can discover it
-        medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.RileyLinkDisconnect, this);
+        medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.MedLinkDisconnect, this);
     }
 
     private List<ScanFilter> buildFilters() {
@@ -189,6 +188,7 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             runOnUiThread(() -> {
                 if (addDevice(scanRecord))
                     mLeDeviceListAdapter.notifyDataSetChanged();
+                aapsLogger.info(LTag.APS,scanRecord.getScanRecord().toString());
             });
         }
 

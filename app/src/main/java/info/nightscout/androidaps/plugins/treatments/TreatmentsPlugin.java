@@ -56,8 +56,10 @@ import info.nightscout.androidaps.plugins.general.nsclient.UploadQueue;
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.AutosensResult;
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.MedtronicHistoryData;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.T;
@@ -198,7 +200,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     }
 
     private void initializeTreatmentData(long range) {
-        getAapsLogger().debug(LTag.DATATREATMENTS, "initializeTreatmentData");
+        getAapsLogger().error(LTag.DATATREATMENTS, "initializeTreatmentData");
         synchronized (treatments) {
             treatments.clear();
             treatments.addAll(getService().getTreatmentDataFromTime(DateUtil.now() - range, false));
@@ -340,6 +342,18 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     @Override
     public long getLastBolusTime() {
         Treatment last = getService().getLastBolus(false);
+        if (last == null) {
+            getAapsLogger().debug(LTag.DATATREATMENTS, "Last bolus time: NOTHING FOUND");
+            return 0;
+        } else {
+            getAapsLogger().debug(LTag.DATATREATMENTS, "Last bolus time: " + dateUtil.dateAndTimeString(last.date));
+            return last.date;
+        }
+    }
+
+
+    public long getLastNonTBRBolusTime() {
+        Treatment last = getService().getLastNonTBRBolus(false);
         if (last == null) {
             getAapsLogger().debug(LTag.DATATREATMENTS, "Last bolus time: NOTHING FOUND");
             return 0;
@@ -558,6 +572,10 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         ExtendedBolus eb = getExtendedBolusFromHistory(time);
         if (eb != null && activePlugin.getActivePump().isFakingTempsByExtendedBoluses())
             return new TemporaryBasal(eb);
+        if(activePlugin.getActivePump() instanceof MedLinkPumpDevice){
+            MedLinkPumpPluginAbstract pump = (MedLinkPumpPluginAbstract)activePlugin.getActivePump();
+            return pump.getTemporaryBasal();
+        }
         return null;
     }
 
@@ -605,8 +623,11 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     @Override
     public boolean addToHistoryTempBasal(TemporaryBasal tempBasal) {
         //log.debug("Adding new TemporaryBasal record" + tempBasal.toString());
+        getAapsLogger().info(LTag.EVENTS, "Adding new TemporaryBasal record" + tempBasal.toString());
         boolean newRecordCreated = MainApp.getDbHelper().createOrUpdate(tempBasal);
         if (newRecordCreated) {
+            getAapsLogger().info(LTag.EVENTS,"addingtotemphistory");
+            getAapsLogger().info(LTag.EVENTS,tempBasal.toString());
             if (tempBasal.durationInMinutes == 0)
                 nsUpload.uploadTempBasalEnd(tempBasal.date, false, tempBasal.pumpId);
             else if (tempBasal.isAbsolute)
@@ -614,6 +635,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             else
                 nsUpload.uploadTempBasalStartPercent(tempBasal, profileFunction.getProfile(tempBasal.date));
         }
+        getAapsLogger().info(LTag.EVENTS,"added");
         return newRecordCreated;
     }
 
@@ -627,8 +649,10 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
     @Override
     public boolean addToHistoryTreatment(DetailedBolusInfo detailedBolusInfo, boolean allowUpdate) {
         boolean medtronicPump = activePlugin.getActivePump() instanceof MedtronicPumpPlugin;
+        boolean medLinkMedtronicPump = activePlugin.getActivePump() instanceof
+                MedLinkMedtronicPumpPlugin;
 
-        getAapsLogger().debug(MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: addToHistoryTreatment::isMedtronicPump={} " + medtronicPump);
+//        getAapsLogger().error(LTag.DATATREATMENTS,MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: addToHistoryTreatment::isMedtronicPump={} " + medtronicPump);
 
         Treatment treatment = new Treatment();
         treatment.date = detailedBolusInfo.date;
@@ -637,21 +661,26 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         treatment.insulin = detailedBolusInfo.insulin;
         treatment.isValid = detailedBolusInfo.isValid;
         treatment.isSMB = detailedBolusInfo.isSMB;
+        treatment.isTBR = detailedBolusInfo.isTBR;
         if (detailedBolusInfo.carbTime == 0)
             treatment.carbs = detailedBolusInfo.carbs;
         treatment.mealBolus = treatment.carbs > 0;
         treatment.boluscalc = detailedBolusInfo.boluscalc != null ? detailedBolusInfo.boluscalc.toString() : null;
         TreatmentService.UpdateReturn creatOrUpdateResult;
 
-        getAapsLogger().debug(medtronicPump && MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: addToHistoryTreatment::treatment={} " + treatment);
 
-        if (!medtronicPump)
-            creatOrUpdateResult = getService().createOrUpdate(treatment);
-        else
+//        getAapsLogger().error(medtronicPump && MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: addToHistoryTreatment::treatment={} " + treatment);
+
+        if (medtronicPump)
             creatOrUpdateResult = getService().createOrUpdateMedtronic(treatment, false);
-
+        else if(medLinkMedtronicPump)
+            creatOrUpdateResult = getService().createOrUpdateMedtronicMedLink(treatment, false);
+        else
+            creatOrUpdateResult = getService().createOrUpdate(treatment);
+        nsUpload.sendToXdrip(detailedBolusInfo);
         boolean newRecordCreated = creatOrUpdateResult.newRecord;
-        getAapsLogger().debug("Adding new Treatment record" + treatment.toString());
+        getAapsLogger().error(LTag.DATATREATMENTS, "Adding new Treatment record" + treatment.toString());
+        getAapsLogger().error(LTag.DATATREATMENTS, "Adding new Treatment record" + creatOrUpdateResult);
 
         if (detailedBolusInfo.carbTime != 0) {
 
@@ -661,7 +690,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
             carbsTreatment.date = detailedBolusInfo.date + detailedBolusInfo.carbTime * 60 * 1000L + 1000L; // add 1 sec to make them different records
             carbsTreatment.carbs = detailedBolusInfo.carbs;
 
-            getAapsLogger().debug(medtronicPump && MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: carbTime!=0, creating second treatment. CarbsTreatment={}" + carbsTreatment);
+//            getAapsLogger().error(LTag.DATATREATMENTS,medtronicPump && MedtronicHistoryData.doubleBolusDebug, LTag.DATATREATMENTS, "DoubleBolusDebug: carbTime!=0, creating second treatment. CarbsTreatment={}" + carbsTreatment);
 
             if (!medtronicPump)
                 getService().createOrUpdate(carbsTreatment);
@@ -669,6 +698,7 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
                 getService().createOrUpdateMedtronic(carbsTreatment, false);
             //log.debug("Adding new Treatment record" + carbsTreatment);
         }
+//        getAapsLogger().info(LTag.DATATREATMENTS, "newRecord? "+newRecordCreated);
         if (newRecordCreated && detailedBolusInfo.isValid)
             nsUpload.uploadTreatmentRecord(detailedBolusInfo);
 

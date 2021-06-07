@@ -16,6 +16,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Conn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicUIResponseType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
@@ -67,6 +68,17 @@ public class MedLinkMedtronicUITaskCp {
 
         switch (pumpMessage.getCommandType()) {
             case GetState: {
+                pumpMessage.getBaseCallback().andThen(f -> {
+                    if(medtronicPumpStatus.batteryVoltage != null){
+                        BatteryStatusDTO batteryStatus = new BatteryStatusDTO();
+                        batteryStatus.batteryStatusType =
+                                BatteryStatusDTO.BatteryStatusType.Unknown;
+                        batteryStatus.voltage = medtronicPumpStatus.batteryVoltage;
+                        medtronicPumpStatus.batteryRemaining =
+                                batteryStatus.getCalculatedPercent(medtronicPumpStatus.batteryType);
+                    }
+                   return f;
+                });
                 communicationManager.getStatusData(pumpMessage);
             }
             break;
@@ -75,7 +87,7 @@ public class MedLinkMedtronicUITaskCp {
                     if (s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))) {
                         rxBus.send(new EventMedtronicPumpValuesChanged());
                     }
-                    ;
+
                     return s;
                 });
                 returnData = communicationManager.getPumpModel(activity);
@@ -91,7 +103,7 @@ public class MedLinkMedtronicUITaskCp {
             }
             break;
             case BolusHistory: {
-                returnData = communicationManager.getBolusHistory();
+                returnData = communicationManager.getBolusHistory(pumpMessage);
             }
             break;
 //
@@ -164,11 +176,13 @@ public class MedLinkMedtronicUITaskCp {
 //            }
 //            break;
             case PreviousBGHistory:
+            case StopStartPump:
             case BGHistory: {
                 communicationManager.setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
                         pumpMessage.getBaseCallback(), pumpMessage.getArgCallback());
             }
             break;
+
             default: {
                 aapsLogger.warn(LTag.PUMP, "This commandType is not supported (yet) - {}.", pumpMessage);
                 // invalid = true;

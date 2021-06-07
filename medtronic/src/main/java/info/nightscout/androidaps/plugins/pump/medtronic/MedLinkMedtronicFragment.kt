@@ -44,9 +44,11 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.medlink_medtronic_fragment.*
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 class MedLinkMedtronicFragment : DaggerFragment() {
+
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var resourceHelper: ResourceHelper
@@ -182,9 +184,9 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             when {
                 medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
                 medinkServiceData.medLinkServiceState.isConnecting                      -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && rileyLinkError == null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                      -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && rileyLinkError == null -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && rileyLinkError != null -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                    -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
             }
         medtronic_rl_status.setTextColor(if (rileyLinkError != null) Color.RED else Color.WHITE)
 
@@ -195,7 +197,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         when (medtronicPumpStatus.pumpDeviceState) {
             null,
-            PumpDeviceState.Sleeping             -> medtronic_pump_status.text = "{fa-bed}   " // + pumpStatus.pumpDeviceState.name());
+            PumpDeviceState.Sleeping -> medtronic_pump_status.text = "{fa-bed}   " // + pumpStatus.pumpDeviceState.name());
             PumpDeviceState.NeverContacted,
             PumpDeviceState.WakingUp,
             PumpDeviceState.PumpUnreachable,
@@ -203,7 +205,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             PumpDeviceState.TimeoutWhenCommunicating,
             PumpDeviceState.InvalidConfiguration -> medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
 
-            PumpDeviceState.Active               -> {
+            PumpDeviceState.Active -> {
                 val cmd = medLinkMedtronicUtil.getCurrentCommand()
                 if (cmd == null)
                     medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
@@ -222,7 +224,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
                 }
             }
 
-            else   -> aapsLogger.warn(LTag.PUMP, "Unknown pump state: " + medtronicPumpStatus.pumpDeviceState)
+            else                                 -> aapsLogger.warn(LTag.PUMP, "Unknown pump state: " + medtronicPumpStatus.pumpDeviceState)
         }
 
         val status = commandQueue.spannedStatus()
@@ -307,6 +309,8 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         // battery
         if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
             medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  "
+        // } else if (medtronicPumpStatus.batteryType == BatteryType.LiPo) {
+        //     medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + String.format(" %.2f V", medtronicPumpStatus.batteryVoltage)
         } else {
             medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
         }
@@ -328,7 +332,35 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         } else {
             medtronic_lastbolus.text = ""
         }
-    }
 
+        //DeviceBattery
+        val deviceBatteryRemaining = medtronicPumpStatus.deviceBatteryRemaining
+        val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
+        aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
+
+        medtronic_devicestate_battery.text = "{fa-battery-" + medtronicPumpStatus.deviceBatteryRemaining / 25 + "}  " + medtronicPumpStatus.deviceBatteryRemaining + "%";
+
+        warnColors.setColorInverse(medtronic_pumpstate_battery, medtronicPumpStatus.deviceBatteryRemaining.toDouble(), 25.0, 10.0)
+
+        // next calibration
+        if (medtronicPumpStatus.nextCalibration != null) {
+            val agoMsc =  medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli() - System.currentTimeMillis()
+            val calibrationMinAgo = agoMsc.toDouble() / 60.0 / 1000.0
+
+            val ago: String
+            if (agoMsc < 60 * 1000) {
+                ago = resourceHelper.gs(R.string.medtronic_pump_connected_now)
+            } else if (calibrationMinAgo < 60) {
+                ago = DateUtil.minAfter(resourceHelper, medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli())
+            } else {
+                ago = DateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), resourceHelper)
+            }
+            medtronic_nextcalibration.text = resourceHelper.gs( R.string.mdt_next_calibration , ago, medtronicPumpStatus.nextCalibration.toLocalTime())
+            warnColors.setColorInverse(medtronic_nextcalibration, calibrationMinAgo, 60.0, 30.0)
+        } else {
+            medtronic_nextcalibration.text = ""
+        }
+
+    }
 
 }

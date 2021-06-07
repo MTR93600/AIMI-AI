@@ -43,9 +43,11 @@ import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicro
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
+import info.nightscout.androidaps.queue.Callback;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import kotlin.jvm.functions.Function1;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -157,7 +159,7 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
 
-        plugin.setTempBasalPercent(150, 50, profile, true);
+        plugin.setTempBasalPercent(150, 50, profile, true, f -> f);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
@@ -168,8 +170,9 @@ public class MedLinkMedtronicPumpPluginTest {
         }
         Assert.assertEquals("Total dosage should be 0.2ui", totaldose, 0.2, 0d);
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[2];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
+        Function1 callback = f -> f;
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
         Assert.assertArrayEquals("Operations should be 15mins of distance", operations.operations.toArray(), op);
 
     }
@@ -193,7 +196,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
 
-        plugin.setTempBasalPercent(200, 50, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(200, 50, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
@@ -205,10 +209,10 @@ public class MedLinkMedtronicPumpPluginTest {
         Assert.assertEquals("Total dosage should be 0.4ui", 0.4d, totaldose, 0d);
         Assert.assertEquals("Total size should be 4", 4, operations.operations.size());
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[4];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
         Assert.assertArrayEquals("Operations should be 15mins of distance", op, operations.operations.toArray());
 
     }
@@ -343,7 +347,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
 
-        plugin.setTempBasalPercent(310, 50, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(310, 50, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 9 operations", 9, operations.operations.size());
@@ -355,15 +360,15 @@ public class MedLinkMedtronicPumpPluginTest {
         Assert.assertEquals("Total dosage should be 0.9ui", 0.9d, totaldose, 0.02d);
 
         TempBasalMicroBolusPair[] op = new TempBasalMicroBolusPair[9];
-        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(5), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(10), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[4] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(20), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[5] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[6] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(35), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[7] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(40), TempBasalMicroBolusPair.OperationType.BOLUS);
-        op[8] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS);
+        op[0] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time, TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[1] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(5), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[2] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(10), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[3] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(15), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[4] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(20), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[5] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(30), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[6] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(35), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[7] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(40), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
+        op[8] = new TempBasalMicroBolusPair(0, 0.1, 0.1, time.plusMinutes(45), TempBasalMicroBolusPair.OperationType.BOLUS, callback);
         Assert.assertArrayEquals("Operations should be 15mins of distance", op, operations.operations.toArray());
 
     }
@@ -385,7 +390,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
 
-        plugin.setTempBasalPercent(300, 150, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(300, 150, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", 30, operations.operations.size());
@@ -412,7 +418,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(300, duration, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(300, duration, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 30 operations", duration / 5, operations.operations.size());
@@ -440,7 +447,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(110, duration, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(110, duration, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 5 operations", 5, operations.operations.size());
@@ -467,7 +475,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(110, duration, profile, true);
+        Function1 callback = f -> f;
+        plugin.setTempBasalPercent(110, duration, profile, true, callback);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
@@ -495,7 +504,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(110, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(110, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
@@ -523,11 +533,12 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(110, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(110, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 4 operations", 4, operations.operations.size());
-        plugin.setTempBasalPercent(100, 100, profile, true);
+        plugin.setTempBasalPercent(100, 100, profile, true, func);
         Assert.assertEquals("Need to have no operations", 0, operations.operations.size());
 
     }
@@ -545,7 +556,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(50, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(50, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 42 operations", 42, operations.operations.size());
@@ -570,7 +582,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 210;
-        plugin.setTempBasalPercent(90, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(90, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 8 operations", 8, operations.operations.size());
@@ -595,7 +608,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 3;
-        plugin.setTempBasalPercent(90, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(90, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
@@ -614,7 +628,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
-        plugin.setTempBasalPercent(90, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(90, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 0, operations.operations.size());
@@ -633,7 +648,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
-        plugin.setTempBasalPercent(80, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(80, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 0 operations", 4, operations.operations.size());
@@ -657,7 +673,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 38;
-        plugin.setTempBasalPercent(10, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(10, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 2, operations.operations.size());
@@ -681,7 +698,8 @@ public class MedLinkMedtronicPumpPluginTest {
         PowerMockito.when(profile.getBasalValues()).thenReturn(basalValues);
         Assert.assertNotNull("Profile is null", profile);
         int duration = 60;
-        plugin.setTempBasalPercent(17, duration, profile, true);
+        Function1 func = f -> f;
+        plugin.setTempBasalPercent(17, duration, profile, true, func);
         TempBasalMicrobolusOperations operations = plugin.getTempBasalMicrobolusOperations();
         Assert.assertNotNull("operations is null", operations);
         Assert.assertEquals("Need to have 2 operations", 4, operations.operations.size());

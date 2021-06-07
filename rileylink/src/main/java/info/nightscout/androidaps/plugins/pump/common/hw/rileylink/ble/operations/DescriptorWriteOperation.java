@@ -39,21 +39,21 @@ public class DescriptorWriteOperation extends BLECommOperation {
     @Override
     public void execute(RileyLinkBLE comm) {
         descr.setValue(value);
-        gatt.writeDescriptor(descr);
+        comm.writeDescriptor(descr);
         // wait here for callback to notify us that value was read.
-//        try {
-//            boolean didAcquire = operationComplete.tryAcquire(getGattOperationTimeout_ms(), TimeUnit.MILLISECONDS);
-//            if (didAcquire) {
-//                SystemClock.sleep(1); // This is to allow the IBinder thread to exit before we continue, allowing easier
-//                // understanding of the sequence of events.
-//                // success
-//            } else {
-//                aapsLogger.error(LTag.PUMPBTCOMM, "Timeout waiting for descriptor write operation to complete");
-//                timedOut = true;
-//            }
-//        } catch (InterruptedException e) {
-//            aapsLogger.error(LTag.PUMPBTCOMM, "Interrupted while waiting for descriptor write operation to complete");
-//            interrupted = true;
-//        }
+        try {
+            boolean didAcquire = operationComplete.tryAcquire(getGattOperationTimeout_ms(), TimeUnit.MILLISECONDS);
+            if (didAcquire) {
+                SystemClock.sleep(1); // This is to allow the IBinder thread to exit before we continue, allowing easier
+                // understanding of the sequence of events.
+                // success
+            } else {
+                aapsLogger.error(LTag.PUMPBTCOMM, "Timeout waiting for descriptor write operation to complete");
+                timedOut = true;
+            }
+        } catch (InterruptedException e) {
+            aapsLogger.error(LTag.PUMPBTCOMM, "Interrupted while waiting for descriptor write operation to complete");
+            interrupted = true;
+        }
     }
 }

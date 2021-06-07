@@ -63,7 +63,8 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
     public boolean mealBolus = true; // true for meal bolus , false for correction bolus
     @DatabaseField
     public boolean isSMB = false;
-
+    @DatabaseField
+    public boolean isTBR = false;
     @DatabaseField
     public int insulinInterfaceID = InsulinInterface.InsulinType.OREF_RAPID_ACTING.getValue(); // currently unused, will be used in the future
     @DatabaseField
@@ -90,6 +91,7 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
         treatment.pumpId = JsonHelper.safeGetLong(json, "pumpId");
         treatment._id = json.getString("_id");
         treatment.isSMB = JsonHelper.safeGetBoolean(json, "isSMB");
+        treatment.isTBR = JsonHelper.safeGetBoolean(json, "isTBR");
         if (json.has("eventType")) {
             treatment.mealBolus = !json.get("eventType").equals("Correction Bolus");
             double carbs = treatment.carbs;
@@ -112,6 +114,7 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
                 ", date= " + dateUtil.dateAndTimeString(date) +
                 ", isValid= " + isValid +
                 ", isSMB= " + isSMB +
+                ", isTBR= " + isTBR +
                 ", _id= " + _id +
                 ", pumpId= " + pumpId +
                 ", insulin= " + insulin +
@@ -144,6 +147,8 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
             return false;
         if (isSMB != other.isSMB)
             return false;
+        if (isTBR != other.isTBR)
+            return false;
         if (!Objects.equals(_id, other._id))
             return false;
         return true;
@@ -159,6 +164,8 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
         if (mealBolus != other.mealBolus)
             return false;
         if (isSMB != other.isSMB)
+            return false;
+        if (isTBR != other.isTBR)
             return false;
         if (!Objects.equals(_id, other._id))
             return false;
@@ -216,6 +223,7 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
         mealBolus = t.mealBolus;
         pumpId = t.pumpId;
         isSMB = t.isSMB;
+        isTBR = t.isTBR;
     }
 
     public void copyBasics(Treatment t) {
@@ -243,7 +251,8 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
     @Override
     public String getLabel() {
         String label = "";
-        if (insulin > 0) label += DecimalFormatter.toPumpSupportedBolus(insulin, activePlugin.getActivePump(), resourceHelper);
+        if (insulin > 0)
+            label += DecimalFormatter.toPumpSupportedBolus(insulin, activePlugin.getActivePump(), resourceHelper);
         if (carbs > 0)
             label += "~" + resourceHelper.gs(R.string.format_carbs, (int) carbs);
         return label;
@@ -271,7 +280,9 @@ public class Treatment implements DataPointWithLabelInterface, DbObjectBase {
     public int getColor() {
         if (isSMB)
             return resourceHelper.gc(R.color.tempbasal);
-        else if (isValid)
+        else if (carbs != 0d)
+            return resourceHelper.gc(R.color.carbs);
+        if (isValid)
             return Color.CYAN;
         else
             return resourceHelper.gc(android.R.color.holo_red_light);

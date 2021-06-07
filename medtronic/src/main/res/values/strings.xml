@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="key_medlink_init_command" translatable="false">pref_medlink_init_command</string>
+    <string name="medlink_init_commands">Commands to be executed on first connect</string>
+
+    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>
+    <string name="key_medlink_init_commands_last_bg_history" translatable="false">medlink_init_commands_last_bg_history</string>
+    <string name="key_medlink_init_commands_penultimate_bg_history" translatable="false">medlink_init_commands_penultimate_bg_history</string>
+    <string name="key_medlink_init_commands_last_bolus_history" translatable="false">medlink_init_commands_last_bolus_history</string>
+    <string name="medlink_init_commands_last_bolus_history">Last Bolus History Page(H)</string>
+    <string name="medlink_init_commands_penultimate_bg_history">Penultimate BG History Page(C1 and I1)</string>
+    <string name="medlink_init_commands_profile">Profile Data (D and F)</string>
+    <string name="medlink_init_commands_last_bg_history">Last BG History Page(C and I)</string>
+
+    <string name="key_medlink_init_commands" translatable="false">medlink_init_commands</string>
     <string name="medlink_delivered">%1$.2f U / %2$.2f U delivered</string>
     <!-- Medtronic (MDT) - Base -->
     <string name="medtronic_name" translatable="false">Medtronic</string>
     <string name="medlink_medtronic_name" translatable="false">Medtronic</string>
     <string name="medtronic_name_short" translatable="false">MDT</string>
     <string name="medlink_medtronic_name_short" translatable="false">MDT-ML</string>
+    <string name="mdt_next_calibration" translatable="false">%1$s at %2$s</string>
+
     <string name="description_pump_medtronic">Pump integration for Medtronic, requires RileyLink device and specific Pump Model</string>
     <string name="description_pump_medtronic_medlink">Pump integration for Medtronic, requires MedLink device</string>
 
@@ -126,5 +141,8 @@
     <string name="key_set_neutral_temps" translatable="false">set_neutral_temps</string>
     <string name="set_neutral_temps_title">Set neutral temp basals</string>
     <string name="set_neutral_temps_summary">If enabled, it will cancel a temporary basal before the end of each hour. This method can help stop some pumps beeping/vibrating on the hour.</string>
+    <string name="pump_battery_label">Pump Battery</string>
+    <string name="device_battery_label">Device Battery</string>
+    <string name="next_calibration_label">Next Calibration</string>
 
 </resources>

@@ -25,41 +25,44 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlu
 /**
  * Created by Dirceu on 15/04/21.
  */
-public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>, Pair<Supplier<Stream<String>>, Supplier<Stream<BgReading>>>> {
+public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>, Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
     private final boolean handleBG;
-    private HasAndroidInjector injector;
-    private MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
+    private final BGHistoryCallback bgHistoryCallback;
+    private final HasAndroidInjector injector;
+    private final MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
 
     public IsigHistoryCallback(HasAndroidInjector injector,
                                MedLinkMedtronicPumpPlugin medLinkPumpPlugin,
-                               AAPSLogger aapsLogger, boolean handleBG) {
+                               AAPSLogger aapsLogger, boolean handleBG, BGHistoryCallback bgHistoryCallback) {
         this.injector = injector;
         this.medLinkPumpPlugin = medLinkPumpPlugin;
         this.aapsLogger = aapsLogger;
         this.handleBG = handleBG;
+        this.bgHistoryCallback = bgHistoryCallback;
     }
 
 
-    @Override public MedLinkStandardReturn<Stream<SensorDataReading>> apply(Pair<Supplier<Stream<String>>, Supplier<Stream<BgReading>>> ans) {
+    @Override public MedLinkStandardReturn<Stream<SensorDataReading>> apply(Supplier<Stream<String>> ans) {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
-        Stream<String> toParse = ans.first.get();
+        Stream<String> toParse = ans.get();
         aapsLogger.info(LTag.PUMPBTCOMM, "isig2");
-        Supplier<Stream<BgReading>> bgReadings = () -> ans.second.get();
-        aapsLogger.info(LTag.PUMPBTCOMM, "isig3");
-        SensorDataReading[] readings = parseAnswer(() -> toParse, bgReadings);
-        medLinkPumpPlugin.handleNewSensorData(readings);
-        if (handleBG) {
-//            medLinkPumpPlugin.handleNewBgData(readings);
+
+        SensorDataReading[] readings = parseAnswer(() -> toParse, bgHistoryCallback.getReadings());
+        if(readings!=null) {
+            medLinkPumpPlugin.handleNewSensorData(readings);
         }
+//        if (handleBG) {
+//            medLinkPumpPlugin.handleNewBgData(readings);
+//        }
         return new MedLinkStandardReturn<>(() -> toParse, Arrays.stream(readings), Collections.emptyList());
     }
 
-    public SensorDataReading[] parseAnswer(Supplier<Stream<String>> ans, Supplier<Stream<BgReading>> bgReadings) {
+    public SensorDataReading[] parseAnswer(Supplier<Stream<String>> ans, BgReading[] bgReadings) {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
         Iterator<String> answers = ans.get().iterator();
-        Integer memAddress = 0;
+        int memAddress = 0;
 //        answers.iterator();
         List<Double> isigs = new ArrayList<>();
         while (answers.hasNext() && memAddress == 0) {
@@ -69,7 +72,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
                 Pattern memPatter = Pattern.compile("\\d{3}");
                 Matcher memMatcher = memPatter.matcher(line);
                 if (memMatcher.find()) {
-                    memAddress = Integer.valueOf(memMatcher.group(0));
+                    memAddress = Integer.parseInt(memMatcher.group(0));
                 }
             }
         }
@@ -93,8 +96,9 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
                 Pattern isigPat = Pattern.compile("\\d+\\.\\d+");
 
                 Matcher isigMatcher = isigPat.matcher(data);
-                isigMatcher.find();
-                isigs.add(Double.valueOf(isigMatcher.group(0)));
+                if(isigMatcher.find()) {
+                    isigs.add(Double.valueOf(isigMatcher.group(0)));
+                }
             } else if (line.trim().length() > 0 && !line.trim().equals("ready") && !line.contains("end of data") && !line.contains("beginning of data")) {
                 aapsLogger.info(LTag.PUMPBTCOMM, "isig failed");
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + line.trim().length());
@@ -107,22 +111,22 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
         isigs.forEach(f -> aapsLogger.info(LTag.PUMPBTCOMM, f.toString()));
         Collections.reverse(isigs);
-        List<BgReading> bgReadingsList = Arrays.asList(bgReadings.get().toArray(BgReading[]::new));
-        SensorDataReading[] result = new SensorDataReading[bgReadingsList.size()];
+
+        SensorDataReading[] result = new SensorDataReading[bgReadings.length];
         aapsLogger.info(LTag.PUMPBTCOMM, "isigs s" + isigs.size());
-        aapsLogger.info(LTag.PUMPBTCOMM, "readings s" + bgReadingsList.size());
+        aapsLogger.info(LTag.PUMPBTCOMM, "readings s" + bgReadings.length);
 //        if (isigs.size() == bgReadingsList.size()) {
         int delta = 0;
         int count = 0;
         for (; count < isigs.size(); count++) {
-            BgReading reading = getReading(bgReadingsList, count, delta);
+            BgReading reading = getReading(bgReadings, count, delta);
             if (reading == null) {
                 break;
             }
             if (reading.source == Source.USER) {
                 result[count + delta] = new SensorDataReading(injector, reading, 0d, 0d);
                 delta++;
-                reading = bgReadingsList.get(count + delta);
+                reading = bgReadings[count + delta];
                 if (reading == null) {
                     break;
                 }
@@ -135,9 +139,10 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         if (result.length > 0 && result[0] != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "adding isigs");
 //            medLinkPumpPlugin.handleNewSensorData(result);
-        }
-        if (count + delta == result.length) {
             return result;
+//        }
+//        if (count + delta == result.length) {
+//            return result;
         } else {
             return null;
         }
@@ -165,12 +170,10 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
 //
 //        return result.get().toArray(BgReading[]::new);
 
-
-
-    private BgReading getReading(List<BgReading> bgReadingsList, int count, int delta) {
-        if (count + delta > bgReadingsList.size()) {
+    private BgReading getReading(BgReading[] bgReadingsList, int count, int delta) {
+        if (count + delta >= bgReadingsList.length) {
             return null;
-        } else return bgReadingsList.get(count + delta);
+        } else return bgReadingsList[count + delta];
     }
 
 }

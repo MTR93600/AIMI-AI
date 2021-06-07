@@ -35,6 +35,7 @@ import info.nightscout.androidaps.db.SensorDataReading;
 import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.db.TempTarget;
 import info.nightscout.androidaps.db.TemporaryBasal;
+import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.interfaces.DatabaseHelperInterface;
 import info.nightscout.androidaps.interfaces.IobCobCalculatorInterface;
 import info.nightscout.androidaps.interfaces.LoopInterface;
@@ -88,7 +89,6 @@ public class NSUpload {
         this.runningConfiguration = runningConfiguration;
         this.databaseHelper = databaseHelper;
     }
-
 
 
     public void uploadTempBasalStartAbsolute(TemporaryBasal temporaryBasal, Double originalExtendedAmount) {
@@ -483,6 +483,56 @@ public class NSUpload {
         }
 
     }
+
+    public void sendToXdrip(DetailedBolusInfo detailedBolusInfo) {
+        final String XDRIP_PLUS_NS_EMULATOR = "com.eveningoutpost.dexdrip.NS_EMULATOR";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+
+        final JSONArray entriesBody = new JSONArray();
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("eventType", detailedBolusInfo.eventType);
+            if (detailedBolusInfo.insulin != 0d) data.put("insulin", detailedBolusInfo.insulin);
+            if (detailedBolusInfo.carbs != 0d) data.put("carbs", (int) detailedBolusInfo.carbs);
+            data.put("created_at", DateUtil.toISOString(detailedBolusInfo.date));
+            data.put("date", detailedBolusInfo.date);
+            data.put("isSMB", detailedBolusInfo.isSMB);
+            if (detailedBolusInfo.pumpId != 0)
+                data.put("pumpId", detailedBolusInfo.pumpId);
+            if (detailedBolusInfo.glucose != 0d)
+                data.put("glucose", detailedBolusInfo.glucose);
+            if (!detailedBolusInfo.glucoseType.equals(""))
+                data.put("glucoseType", detailedBolusInfo.glucoseType);
+            if (detailedBolusInfo.boluscalc != null)
+                data.put("boluscalc", detailedBolusInfo.boluscalc);
+            if (detailedBolusInfo.carbTime != 0)
+                data.put("preBolus", detailedBolusInfo.carbTime);
+            if (!StringUtils.isEmpty(detailedBolusInfo.notes)) {
+                data.put("notes", detailedBolusInfo.notes);
+            }
+        } catch (JSONException e) {
+            aapsLogger.error("Unhandled exception", e);
+        }
+        entriesBody.put(data);
+
+        final Bundle bundle = new Bundle();
+        bundle.putString("action", "add");
+        bundle.putString("collection", "treatments");
+        bundle.putString("data", entriesBody.toString());
+        final Intent intent = new Intent(XDRIP_PLUS_NS_EMULATOR);
+        intent.putExtras(bundle).addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        context.sendBroadcast(intent);
+        List<ResolveInfo> receivers = context.getPackageManager().queryBroadcastReceivers(intent, 0);
+        if (receivers.size() < 1) {
+            aapsLogger.debug("No xDrip receivers found. ");
+        } else {
+            aapsLogger.debug(receivers.size() + " xDrip receivers");
+        }
+
+
+    }
+
 
     public void sendToXdrip(BgReading bgReading) {
         final String XDRIP_PLUS_NS_EMULATOR = "com.eveningoutpost.dexdrip.NS_EMULATOR";

@@ -26,8 +26,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPum
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.DiscoverGattServicesTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
@@ -76,7 +74,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 MedLinkConst.Intents.MedLinkDisconnected, //
                 MedLinkConst.Intents.MedLinkReady, //
                 MedLinkConst.Intents.RileyLinkNewAddressSet, //
-                MedLinkConst.Intents.RileyLinkDisconnect));
+                MedLinkConst.Intents.MedLinkDisconnect));
     }
 
      protected MedLinkService getServiceInstance() {

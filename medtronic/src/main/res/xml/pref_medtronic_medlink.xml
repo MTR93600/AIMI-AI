@@ -26,6 +26,13 @@
             android:title="@string/medtronic_pump_type" />
 
 
+        <MultiSelectListPreference
+            android:entries="@array/medlinkInitCommandsArray"
+            android:entryValues="@array/medlinkInitCommandsValues"
+            android:key="@string/key_medlink_init_command"
+            android:title="@string/medlink_init_commands"
+            android:dialogTitle="@string/medlink_init_commands" />
+
         <ListPreference
             android:defaultValue="@string/key_medtronic_pump_frequency_us_ca"
             android:entries="@array/medtronicPumpFreqArray"

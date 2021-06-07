@@ -119,6 +119,21 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
         return null;
     }
 
+    public UpdateReturn createOrUpdateMedtronicMedLink(Treatment treatment, boolean fromNightScout) {
+        if (MedtronicHistoryData.doubleBolusDebug)
+            aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic:: originalTreatment={}, fromNightScout={}", treatment, fromNightScout);
+
+        try {
+            treatment.date = databaseHelper.roundDateToSec(treatment.date);
+            Treatment existingTreatment = getRecord(treatment.pumpId, treatment.date);
+            return commonMedtronicMethod(treatment, existingTreatment, fromNightScout);
+
+        } catch (SQLException e) {
+            aapsLogger.error("Unhandled SQL exception: {}", e.getMessage(), e);
+        }
+        return new UpdateReturn(false, false);
+    }
+
     class TreatmentDaoWrapper {
         private final Dao<Treatment, Long> wrapped;
 
@@ -471,54 +486,56 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
 
 
     public UpdateReturn createOrUpdateMedtronic(Treatment treatment, boolean fromNightScout) {
-
         if (MedtronicHistoryData.doubleBolusDebug)
             aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic:: originalTreatment={}, fromNightScout={}", treatment, fromNightScout);
-
         try {
             treatment.date = databaseHelper.roundDateToSec(treatment.date);
             Treatment existingTreatment = getRecord(treatment.pumpId, treatment.date);
-            if (MedtronicHistoryData.doubleBolusDebug)
-                aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic:: existingTreatment={}", treatment);
-
-            if (existingTreatment == null) {
-                getDao().create(treatment);
-                aapsLogger.debug(LTag.DATATREATMENTS, "New record from: " + Source.getString(treatment.source) + " " + treatment.toString());
-                DatabaseHelper.updateEarliestDataChange(treatment.date);
-                scheduleTreatmentChange(treatment, true);
-                return new UpdateReturn(true, true);
-            } else {
-
-                if (existingTreatment.date == treatment.date) {
-                    if (MedtronicHistoryData.doubleBolusDebug)
-                        aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic::(existingTreatment.date==treatment.date)");
-
-                    // we will do update only, if entry changed
-                    if (!optionalTreatmentCopy(existingTreatment, treatment, fromNightScout)) {
-                        return new UpdateReturn(true, false);
-                    }
-                    getDao().update(existingTreatment);
-                    DatabaseHelper.updateEarliestDataChange(existingTreatment.date);
-                    scheduleTreatmentChange(treatment, true);
-                    return new UpdateReturn(true, false);
-                } else {
-                    if (MedtronicHistoryData.doubleBolusDebug)
-                        aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic::(existingTreatment.date != treatment.date)");
-
-                    // date is different, we need to remove entry
-                    getDao().delete(existingTreatment);
-                    optionalTreatmentCopy(existingTreatment, treatment, fromNightScout);
-                    getDao().create(existingTreatment);
-                    DatabaseHelper.updateEarliestDataChange(existingTreatment.date);
-                    scheduleTreatmentChange(treatment, true);
-                    return new UpdateReturn(true, false); //updating a pump treatment with another one from the pump is not counted as clash
-                }
-            }
+            return commonMedtronicMethod(existingTreatment, treatment, fromNightScout);
 
         } catch (SQLException e) {
             aapsLogger.error("Unhandled SQL exception: {}", e.getMessage(), e);
         }
         return new UpdateReturn(false, false);
+    }
+
+    private UpdateReturn commonMedtronicMethod(Treatment treatment, Treatment existingTreatment, boolean fromNightScout) throws SQLException {
+        if (MedtronicHistoryData.doubleBolusDebug)
+            aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic:: existingTreatment={}", treatment);
+
+        if (existingTreatment == null) {
+            getDao().create(treatment);
+            aapsLogger.debug(LTag.DATATREATMENTS, "New record from: " + Source.getString(treatment.source) + " " + treatment.toString());
+            DatabaseHelper.updateEarliestDataChange(treatment.date);
+            scheduleTreatmentChange(treatment, true);
+            return new UpdateReturn(true, true);
+        } else {
+
+            if (existingTreatment.date == treatment.date) {
+                if (MedtronicHistoryData.doubleBolusDebug)
+                    aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic::(existingTreatment.date==treatment.date)");
+
+                // we will do update only, if entry changed
+                if (!optionalTreatmentCopy(existingTreatment, treatment, fromNightScout)) {
+                    return new UpdateReturn(true, false);
+                }
+                getDao().update(existingTreatment);
+                DatabaseHelper.updateEarliestDataChange(existingTreatment.date);
+                scheduleTreatmentChange(treatment, true);
+                return new UpdateReturn(true, false);
+            } else {
+                if (MedtronicHistoryData.doubleBolusDebug)
+                    aapsLogger.debug(LTag.DATATREATMENTS, "DoubleBolusDebug: createOrUpdateMedtronic::(existingTreatment.date != treatment.date)");
+
+                // date is different, we need to remove entry
+                getDao().delete(existingTreatment);
+                optionalTreatmentCopy(existingTreatment, treatment, fromNightScout);
+                getDao().create(existingTreatment);
+                DatabaseHelper.updateEarliestDataChange(existingTreatment.date);
+                scheduleTreatmentChange(treatment, true);
+                return new UpdateReturn(true, false); //updating a pump treatment with another one from the pump is not counted as clash
+            }
+        }
     }
 
 
@@ -536,6 +553,13 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
         if (oldTreatment.isSMB != newTreatment.isSMB) {
             if (!oldTreatment.isSMB) {
                 oldTreatment.isSMB = newTreatment.isSMB;
+                changed = true;
+            }
+        }
+
+        if (oldTreatment.isTBR != newTreatment.isTBR) {
+            if (!oldTreatment.isTBR) {
+                oldTreatment.isTBR = newTreatment.isTBR;
                 changed = true;
             }
         }
@@ -655,6 +679,31 @@ public class TreatmentService extends OrmLiteBaseService<DatabaseHelper> {
             where.gt("insulin", 0);
             where.and().le("date", DateUtil.now());
             where.and().eq("isValid", true);
+            if (excludeSMB) where.and().eq("isSMB", false);
+            queryBuilder.orderBy("date", false);
+            queryBuilder.limit(1L);
+
+            List<Treatment> result = getDao().query(queryBuilder.prepare());
+            if (result.isEmpty())
+                return null;
+            return result.get(0);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns the newest record with insulin > 0
+     */
+    @Nullable
+    public Treatment getLastNonTBRBolus(boolean excludeSMB) {
+        try {
+            QueryBuilder<Treatment, Long> queryBuilder = getDao().queryBuilder();
+            Where where = queryBuilder.where();
+            where.gt("insulin", 0);
+            where.and().le("date", DateUtil.now());
+            where.and().eq("isValid", true);
+            where.and().ne("isTBR",false);
             if (excludeSMB) where.and().eq("isSMB", false);
             queryBuilder.orderBy("date", false);
             queryBuilder.limit(1L);

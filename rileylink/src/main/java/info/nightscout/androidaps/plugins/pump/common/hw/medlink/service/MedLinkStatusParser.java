@@ -2,6 +2,12 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.service;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -24,11 +30,13 @@ public class MedLinkStatusParser {
 
     private static Pattern dateTimeFullPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{4}\\s\\d{2}:\\d{2}");
     private static Pattern dateTimePartialPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}");
+    private static Pattern timePartialPattern = Pattern.compile("\\d{1,2}:\\d{2}");
     private static boolean bgUpdated = false;
 
     public static MedLinkPumpStatus parseStatus(String[] pumpAnswer, MedLinkPumpStatus pumpStatus, HasAndroidInjector injector) {
 
 //        13‑12‑2020 18:36  54%
+
         Iterator<String> messageIterator = Arrays.stream(pumpAnswer).map(f -> f.toLowerCase()).iterator();
         String message = null;
         while (messageIterator.hasNext()) {
@@ -53,12 +61,13 @@ public class MedLinkStatusParser {
 //        18:36:49.570 ISIG: 20.62nA
         MedLinkPumpStatus calibrationFactorStatus = parseCalibrationFactor(messageIterator, isigStatus, injector);
 //        18:36:49.607 Calibration factor: 6.419
-        moveIterator(messageIterator);
+        MedLinkPumpStatus nextCalibrationStatus = parseNextCalibration(messageIterator, calibrationFactorStatus, injector);
 //        18:36:49.681 Next calibration time:  5:00
-        moveIterator(messageIterator);
+//        moveIterator(messageIterator);
 //        18:36:49.683 Sensor uptime: 1483min
-        MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, calibrationFactorStatus);
+        MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, nextCalibrationStatus);
 //        18:36:49.719 BG target:  75‑160
+        moveIterator(messageIterator);
         MedLinkPumpStatus batteryStatus = parseBatteryVoltage(messageIterator, sageStatus);
 //        18:36:49.832 Pump battery voltage: 1.43V
         MedLinkPumpStatus reservoirStatus = parseReservoir(messageIterator, batteryStatus);
@@ -66,14 +75,13 @@ public class MedLinkStatusParser {
 //        18:36:49.907 Reservoir:  66.12u
         MedLinkPumpStatus basalStatus = parseCurrentBasal(messageIterator, reservoirStatus);
 //        18:36:49.982 Basal scheme: STD
-        moveIterator(messageIterator);
+//        moveIterator(messageIterator);
 //        18:36:49.983 Basal: 0.600u/h
         MedLinkPumpStatus tempBasalStatus = parseTempBasal(messageIterator, basalStatus);
-
 //        18:36:50.020 TBR: 100%   0h:00m
-        MedLinkPumpStatus dailyTotal = parseTodayInsulin(messageIterator, tempBasalStatus);
+        MedLinkPumpStatus dailyTotal = parseDayInsulin(messageIterator, tempBasalStatus);
 //        18:36:50.058 Insulin today: 37.625u
-        moveIterator(messageIterator);
+        MedLinkPumpStatus yesterdayTotal = parseDayInsulin(messageIterator, dailyTotal);
 //        18:36:50.095 Insulin yesterday: 48.625u
         moveIterator(messageIterator);
 
@@ -85,11 +93,38 @@ public class MedLinkStatusParser {
 //        moveIterator(messageIterator);
 //        18:36:50.282 Insulin duration time: 3h
 //        moveIterator(messageIterator);
-        MedLinkPumpStatus pumpState = parsePumpState(dailyTotal, messageIterator);
+        MedLinkPumpStatus pumpState = parsePumpState(yesterdayTotal, messageIterator);
 //        18:36:50.448 Pump status: NORMAL
 //        moveIterator(messageIterator);
 //        18:36:50.471 EomEomEom
         return pumpState;
+    }
+
+    private static MedLinkPumpStatus parseNextCalibration(Iterator<String> messageIterator,
+                                                          MedLinkPumpStatus pumpStatus,
+                                                          HasAndroidInjector injector) {
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+            //        18:36:49.681 Next calibration time:  5:00
+            if (currentLine.contains("next calibration time:")) {
+                Pattern pattern = Pattern.compile("\\d{1,2}\\:\\d{2}");
+                Matcher matcher = pattern.matcher(currentLine);
+                if (matcher.find()) {
+                    String nextCalibration = matcher.group();
+                    String[] hourMinute = nextCalibration.split(":");
+                    String hour = hourMinute[0];
+                    String minute = hourMinute[1];
+                    pumpStatus.nextCalibration = parseTime(currentLine, timePartialPattern);
+                }
+//                if (bgUpdated) {
+//                    pumpStatus.sensorDataReading = new SensorDataReading(injector,
+//                            pumpStatus.bgReading, pumpStatus.isig,
+//                            pumpStatus.calibrationFactor);
+//                    bgUpdated = false;
+//                }
+            }
+        }
+        return pumpStatus;
     }
 
     private static MedLinkPumpStatus parseCalibrationFactor(Iterator<String> messageIterator,
@@ -140,9 +175,9 @@ public class MedLinkStatusParser {
             String currentLine = messageIterator.next();
             if (currentLine.contains("pump status")) {
                 String status = currentLine.split(":")[1];
-                if (status.equals("normal")) {
+                if (status.contains("normal")) {
                     pumpStatus.pumpStatusType = PumpStatusType.Running;
-                } else if (status.equals("suspend")) {
+                } else if (status.contains("suspend")) {
                     pumpStatus.pumpStatusType = PumpStatusType.Suspended;
                 }
                 break;
@@ -169,16 +204,21 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseTodayInsulin(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseDayInsulin(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        Insulin today: 37.625u
+            Pattern reservoirPattern = Pattern.compile("\\d+\\.\\d+u");
+            Matcher matcher = reservoirPattern.matcher(currentLine);
             if (currentLine.contains("insulin today:")) {
-                Pattern reservoirPattern = Pattern.compile("\\d+\\.\\d+u");
-                Matcher matcher = reservoirPattern.matcher(currentLine);
                 if (matcher.find()) {
                     String totalInsulinToday = matcher.group();
-                    pumpStatus.dailyTotalUnits = Double.parseDouble(totalInsulinToday.substring(0, totalInsulinToday.length() - 1));
+                    pumpStatus.todayTotalUnits = Double.parseDouble(totalInsulinToday.substring(0, totalInsulinToday.length() - 1));
+                }
+            } else if (currentLine.contains("insulin yesterday:")) {
+                if (matcher.find()) {
+                    String totalInsulinToday = matcher.group();
+                    pumpStatus.yesterdayTotalUnits = Double.parseDouble(totalInsulinToday.substring(0, totalInsulinToday.length() - 1));
                 }
             }
         }
@@ -258,12 +298,11 @@ public class MedLinkStatusParser {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             if (currentLine.contains("pump battery voltage")) {
-                Pattern lastBolusPattern = Pattern.compile("\\d\\.\\d{1,2}V");
+                Pattern lastBolusPattern = Pattern.compile("\\d\\.\\d{1,2}v");
                 Matcher matcher = lastBolusPattern.matcher(currentLine);
                 if (matcher.find()) {
                     String batteryVoltage = matcher.group();
                     pumpStatus.batteryVoltage = Double.valueOf(batteryVoltage.substring(0, batteryVoltage.length() - 1));
-
                 }
             }
         }
@@ -333,7 +372,7 @@ public class MedLinkStatusParser {
             Matcher batteryMatcher = battery.matcher(currentLine);
             if (batteryMatcher.find()) {
                 String percentage = batteryMatcher.group(0);
-                pumpStatus.batteryRemaining = Integer.parseInt(percentage.substring(0, percentage.length() - 1));
+                pumpStatus.deviceBatteryRemaining = Integer.parseInt(percentage.substring(0, percentage.length() - 1));
             }
         }
         return pumpStatus;
@@ -356,16 +395,39 @@ public class MedLinkStatusParser {
         }
     }
 
+    private static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+    private static ZonedDateTime parseTime(String currentLine, Pattern pattern) {
+        Matcher matcher = pattern.matcher(currentLine);
+        if (matcher.find()) {
+            String timeString = matcher.group(0);
+            if (timeString.length() < 5) {
+                timeString = "0"+timeString ;
+            }
+            LocalTime time = LocalTime.parse(timeString, timeFormatter);
+            LocalDateTime result;
+            if (LocalTime.now().isAfter(time)) {
+                result = LocalDateTime.of(LocalDate.now().plusDays(1), time);
+            } else {
+                result = LocalDateTime.of(LocalDate.now(), time);
+            }
+            return result.atZone(ZoneOffset.systemDefault());
+        } else {
+            return null;
+
+        }
+    }
+
     public boolean partialMatch(MedLinkPumpStatus pumpStatus) {
         return pumpStatus.lastDateTime != 0 || pumpStatus.lastBolusTime != null ||
                 pumpStatus.batteryVoltage != 0d ||
                 pumpStatus.reservoirRemainingUnits != 0.0d || pumpStatus.currentBasal != 0.0d ||
-                pumpStatus.dailyTotalUnits != null;
+                pumpStatus.todayTotalUnits != null;
     }
 
     public boolean fullMatch(MedLinkPumpStatus pumpStatus) {
         return pumpStatus.lastDateTime != 0 && pumpStatus.lastBolusTime != null &&
                 pumpStatus.batteryVoltage != 0d &&
-                pumpStatus.dailyTotalUnits != null;
+                pumpStatus.todayTotalUnits != null;
     }
 }

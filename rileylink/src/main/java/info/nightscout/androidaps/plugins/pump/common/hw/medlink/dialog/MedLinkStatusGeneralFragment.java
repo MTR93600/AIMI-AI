@@ -18,6 +18,7 @@ import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
@@ -114,24 +115,24 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
                     Optional.ofNullable(medLinkServiceData.versionBLE113).orElse(PLACEHOLDER), Optional.ofNullable(medLinkServiceData.versionCC110).orElse(PLACEHOLDER)));
         }
 
-        RileyLinkPumpDevice rileyLinkPumpDevice = (RileyLinkPumpDevice) activePlugin.getActivePump();
-        RileyLinkPumpInfo rileyLinkPumpInfo = rileyLinkPumpDevice.getPumpInfo();
+        MedLinkPumpDevice medLinkPumpDevice = (MedLinkPumpDevice) activePlugin.getActivePump();
+//        RileyLinkPumpInfo rileyLinkPumpInfo = medLinkPumpDevice.getPumpInfo();
         this.deviceType.setText(targetDevice.getResourceId());
         if (targetDevice == RileyLinkTargetDevice.MedtronicPump) {
             this.connectedDeviceDetails.setVisibility(View.VISIBLE);
             this.configuredDeviceModel.setText(activePlugin.getActivePump().getPumpDescription().pumpType.getDescription());
-            this.connectedDeviceModel.setText(rileyLinkPumpInfo.getConnectedDeviceModel());
+//            this.connectedDeviceModel.setText(rileyLinkPumpInfo.getConnectedDeviceModel());
         } else {
             this.connectedDeviceDetails.setVisibility(View.GONE);
         }
-        this.serialNumber.setText(rileyLinkPumpInfo.getConnectedDeviceSerialNumber());
-        this.pumpFrequency.setText(rileyLinkPumpInfo.getPumpFrequency());
+//        this.serialNumber.setText(rileyLinkPumpInfo.getConnectedDeviceSerialNumber());
+//        this.pumpFrequency.setText(rileyLinkPumpInfo.getPumpFrequency());
 
         if (medLinkServiceData.lastGoodFrequency != null) {
             this.lastUsedFrequency.setText(resourceHelper.gs(R.string.rileylink_pump_frequency_value, medLinkServiceData.lastGoodFrequency));
         }
 
-        long lastConnectionTimeMillis = rileyLinkPumpDevice.getLastConnectionTimeMillis();
+        long lastConnectionTimeMillis = medLinkPumpDevice.getLastConnectionTimeMillis();
         if (lastConnectionTimeMillis == 0) {
             this.lastDeviceContact.setText(resourceHelper.gs(R.string.riley_link_ble_config_connected_never));
         } else {

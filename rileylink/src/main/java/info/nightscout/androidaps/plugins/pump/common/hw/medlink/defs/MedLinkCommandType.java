@@ -2,16 +2,11 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
-import info.nightscout.androidaps.utils.DecimalFormatter;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -28,12 +23,12 @@ public enum MedLinkCommandType {
     StopStartPump("a\r\n"),
     Bolus("X\r\n"),
     BolusAmount("BOLUS"),
-    StartPump("START"),
-    StopPump("STOP"),
-    IsigHistory("I"),
-    BGHistory("C"),
-    PreviousBGHistory("T"),
-    BolusHistory("H"),
+    StartPump("START\r\n"),
+    StopPump("STOP\r\n"),
+    IsigHistory("I\r\n"),
+    BGHistory("C\r\n"),
+    PreviousBGHistory("T\r\n"),
+    BolusHistory("H\r\n"),
     ActiveBasalProfile("E\r\n"),
     BaseProfile("F\r\n"),
     Calibrate("k\r\n"),
@@ -71,15 +66,15 @@ public enum MedLinkCommandType {
         this.code = command;
     }
 
-
     public byte[] getRaw() {
         if (this.insulinAmount > 0) {
-            StringBuffer buff = new StringBuffer(this.code);
+            StringBuilder buff = new StringBuilder(this.code);
             buff.append(" ");
             if(this.insulinAmount < 10d) {
               buff.append(" ");
             }
             buff.append(this.insulinAmount.toString());
+            buff.append("\r\n");
             return buff.toString().getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {
             return this.code.getBytes(UTF_8);

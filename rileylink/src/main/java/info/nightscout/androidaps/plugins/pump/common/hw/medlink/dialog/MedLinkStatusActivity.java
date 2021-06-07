@@ -19,11 +19,6 @@ import javax.inject.Inject;
 import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
 import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusGeneralFragment;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusHistoryFragment;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 public class MedLinkStatusActivity extends NoSplashAppCompatActivity {
@@ -65,8 +60,8 @@ public class MedLinkStatusActivity extends NoSplashAppCompatActivity {
     public void setupViewPager() {
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        sectionsPagerAdapter.addFragment(new RileyLinkStatusGeneralFragment(), resourceHelper.gs(R.string.rileylink_settings_tab1));
-        sectionsPagerAdapter.addFragment(new RileyLinkStatusHistoryFragment(), resourceHelper.gs(R.string.rileylink_settings_tab2));
+        sectionsPagerAdapter.addFragment(new MedLinkStatusGeneralFragment(), resourceHelper.gs(R.string.rileylink_settings_tab1));
+        sectionsPagerAdapter.addFragment(new MedLinkStatusGeneralFragment(), resourceHelper.gs(R.string.rileylink_settings_tab2));
         viewPager.setAdapter(sectionsPagerAdapter);
     }
 

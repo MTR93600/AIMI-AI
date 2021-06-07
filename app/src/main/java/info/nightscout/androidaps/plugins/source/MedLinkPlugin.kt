@@ -30,7 +30,7 @@ import javax.inject.Singleton
 class MedLinkPlugin @Inject constructor(
     injector: HasAndroidInjector,
     private val sp: SP,
-    private val mainApp: MainApp,
+    // private val mainApp: MainApp,
     resourceHelper: ResourceHelper,
     aapsLogger: AAPSLogger,
     private val nsUpload: NSUpload,
@@ -78,7 +78,7 @@ class MedLinkPlugin @Inject constructor(
                     bgReading.direction = glucoseValue.getString("direction")
                     bgReading.date = glucoseValue.getLong("date")
                     bgReading.raw = 0.0
-                    var dbHelper = MainApp.getDbHelper();
+                    val dbHelper = MainApp.getDbHelper()
                     // aapsLogger.info(LTag.DATABASE, "bgneedupdate? "+dbHelper.thisBGNeedUpdate(bgReading))
                     if (dbHelper.thisBGNeedUpdate(bgReading)) {
                         if (dbHelper.createIfNotExists(bgReading, "MedLink$sensorType")) {
@@ -96,16 +96,24 @@ class MedLinkPlugin @Inject constructor(
             if (isigValues != null) {
                 for (i in 0 until isigValues.size()) {
                     isigValues.getBundle(i.toString())?.let { isigValue ->
-                        var dbHelper = MainApp.getDbHelper();
+                        val dbHelper = MainApp.getDbHelper()
+
+                        val bgReading = BgReading()
+                        bgReading.value = isigValue.getDouble("value")
+                        bgReading.direction = isigValue.getString("direction")
+                        bgReading.date = isigValue.getLong("date")
+                        bgReading.raw = 0.0
+
                         val sensReading = SensorDataReading()
                         sensReading.bgValue = isigValue.getDouble("value")
                         sensReading.direction = isigValue.getString("direction")
                         sensReading.date = isigValue.getLong("date")
                         sensReading.isig = isigValue.getDouble("isig")
                         sensReading.deltaSinceLastBG = isigValue.getDouble("delta")
-                        sensReading.sensorUptime = dbHelper.sensorAge;
+                        sensReading.sensorUptime = dbHelper.sensorAge
+                        sensReading.bgReading = bgReading
                         if(isigValue.getDouble("calibrationFactor") == 0.0){
-                            sensReading.calibrationFactor = dbHelper.getCalibrationFactor(sensReading.date)?.calibrationFactor ?: 0.0;
+                            sensReading.calibrationFactor = dbHelper.getCalibrationFactor(sensReading.date)?.calibrationFactor ?: 0.0
                         }else {
                             sensReading.calibrationFactor = isigValue.getDouble("calibrationFactor")
                         }
@@ -116,9 +124,9 @@ class MedLinkPlugin @Inject constructor(
                                     //
                                     nsUpload.uploadEnliteData(sensReading, "AndroidAPS-MedLink$sensorType")
                                 }
-                                // if (sp.getBoolean(R.string.key_medlink_xdripupload, false)) {
-                                //     nsUpload.sendToXdrip(sensReading)
-                                // }
+                                if (sp.getBoolean(R.string.key_medlink_xdripupload, false)) {
+                                    nsUpload.sendToXdrip(sensReading.bgReading)
+                                }
                             }
                         }
                         val calibrationFactor = CalibrationFactorReading()

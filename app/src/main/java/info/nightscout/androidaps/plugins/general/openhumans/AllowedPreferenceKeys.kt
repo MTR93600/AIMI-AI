@@ -69,7 +69,7 @@ private val allowedKeys = """
     maintenance
     maintenance_logs_amount
     pref_medtronic_pump_type
-    pref_medtronic_frequency
+    pref_medtronic_frequency 
     pref_medtronic_max_basal
     pref_medtronic_max_bolus
     pref_medtronic_bolus_delay
@@ -206,4 +206,5 @@ private val allowedKeys = """
     xdripstatus
     xdripstatus_detailediob
     xdripstatus_showbgi
+    pref_medlink_inic_command
 """.trimIndent().split("\n").filterNot { it.isBlank() }.map { it.toUpperCase() }

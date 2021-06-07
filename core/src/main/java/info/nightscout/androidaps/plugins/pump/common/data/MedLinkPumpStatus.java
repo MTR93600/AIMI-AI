@@ -1,5 +1,11 @@
 package info.nightscout.androidaps.plugins.pump.common.data;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.SensorDataReading;
@@ -13,6 +19,10 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
     public Integer sensorAge;
     public Double isig;
     public Double calibrationFactor;
+    public Double yesterdayTotalUnits;
+    public double deviceBatteryVoltage;
+    public int deviceBatteryRemaining;
+    public ZonedDateTime nextCalibration;
 
     public enum BGReadingStatus{
         SUCCESS,

@@ -25,7 +25,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 @DatabaseTable(tableName = "SensorDataReadings")
 public class SensorDataReading extends BgConversion implements DataPointWithLabelInterface {
 
-    private BgReading bgReading;
+    public BgReading bgReading;
     @Inject public AAPSLogger aapsLogger;
     @Inject public DefaultValueHelper defaultValueHelper;
     @Inject public ProfileFunction profileFunction;

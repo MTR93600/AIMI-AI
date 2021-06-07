@@ -220,6 +220,11 @@ public class DateUtil {
         return resourceHelper.gs(R.string.minago, mins);
     }
 
+    public static String minAfter(ResourceHelper resourceHelper, long time) {
+        int mins = (int) (time - (now() ) / 1000 / 60);
+        return resourceHelper.gs(R.string.minafter, mins);
+    }
+
     public static String minAgoShort(long time) {
         int mins = (int) ((time - now()) / 1000 / 60);
         return (mins > 0 ? "+" : "") + mins;
@@ -228,6 +233,11 @@ public class DateUtil {
     public static String hourAgo(long time, ResourceHelper resourceHelper) {
         double hours = (now() - time) / 1000d / 60 / 60;
         return resourceHelper.gs(R.string.hoursago, hours);
+    }
+
+    public static String hourAfter(long time, ResourceHelper resourceHelper) {
+        double hours = (time - now()) / 1000d / 60 / 60;
+        return resourceHelper.gs(R.string.hoursafter, hours);
     }
 
     private static final LongSparseArray<String> timeStrings = new LongSparseArray<>();

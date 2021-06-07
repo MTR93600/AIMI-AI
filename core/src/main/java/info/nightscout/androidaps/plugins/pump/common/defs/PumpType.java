@@ -127,7 +127,7 @@ public enum PumpType {
             null, //
             new DoseSettings(0.1d, 30, 8 * 60, 0.1d), //
             PumpTempBasalType.Percent, //
-            new DoseSettings(0.025d, 5, 24 * 60, 0d, 35d),
+            new DoseSettings(0.1d, 5, 24 * 60, 0d, 35d),
             PumpCapability.BasalRate_Duration30minAllowed, //
             0.025d, 0.025d, DoseStepSize.MedLinkMedtronicVeoBasal, PumpCapability.MedLinkMedtronicCapabilities),
 
@@ -136,7 +136,7 @@ public enum PumpType {
             null, //
             new DoseSettings(0.05d, 30, 8 * 60, 0.05d), //
             PumpTempBasalType.Percent, //
-            new DoseSettings(1d, 5, 24 * 60, 0d, 35d),
+            new DoseSettings(0.1d, 5, 24 * 60, 0d, 35d),
             PumpCapability.BasalRate_Duration30minAllowed, //
             0.025d, 0.025d, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedtronicCapabilities),
 

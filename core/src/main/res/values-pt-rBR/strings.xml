@@ -80,6 +80,8 @@
     <string name="location_not_found_title">Localização Não Está Activada</string>
     <string name="location_not_found_message">Para que a procura de Bluetooth funcione em aparelhos mais recentes, a localização tem que ser activada. A app não rastreia a sua localização e pode ser desativada depois de um emparelhamento bem sucedido.</string>
     <!--    DateUtil-->
+    <string name="minafter">Daqui a %1$d minutos</string>
+    <string name="hoursafter">Daqui a %1$.1f horas</string>
     <string name="shorthour">h</string>
     <string name="days">dias</string>
     <string name="hours">horas</string>

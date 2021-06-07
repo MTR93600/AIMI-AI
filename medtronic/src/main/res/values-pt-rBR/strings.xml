@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="mdt_next_calibration" translatable="false">%1$s às %2$s</string>
     <!-- Medtronic (MDT) - Base -->
     <string name="description_pump_medtronic">Integração de Bombas Medtronic, requer o dispositivo RileyLink e um Modelo de Bomba específico</string>
     <string name="description_pump_medtronic_medlink">Integração de Bombas Medtronic, requer o dispositivo MedLink</string>

@@ -24,6 +24,7 @@ public class MedLinkMedtronicConst {
         public static final int Encoding = R.string.key_medtronic_encoding;
         public static final int BatteryType = R.string.key_medtronic_battery_type;
         public static final int BolusDebugEnabled = R.string.key_medtronic_bolus_debug;
+        public static final int PumpInitCommands = R.string.key_medlink_init_command;
     }
 
     public class Statistics {

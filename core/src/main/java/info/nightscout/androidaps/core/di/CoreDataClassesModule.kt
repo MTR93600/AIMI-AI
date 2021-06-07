@@ -27,4 +27,6 @@ abstract class CoreDataClassesModule {
     @ContributesAndroidInjector abstract fun temporaryBasalInjector(): TemporaryBasal
     @ContributesAndroidInjector abstract fun careportalEventInjector(): CareportalEvent
     @ContributesAndroidInjector abstract fun extendedBolusInjector(): ExtendedBolus
+
+    @ContributesAndroidInjector abstract fun temporaryMedLinkBasalInjector(): MedLinkTemporaryBasal
 }

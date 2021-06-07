@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
-import java.util.function.Function;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.core.R;
@@ -45,7 +44,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * Created by andy on 23.04.18.
@@ -422,6 +421,7 @@ public abstract class PumpPluginAbstract extends PumpPluginBase implements PumpI
                 EventOverviewBolusProgress bolusingEvent = EventOverviewBolusProgress.INSTANCE;
                 bolusingEvent.setT(new Treatment());
                 bolusingEvent.getT().isSMB = detailedBolusInfo.isSMB;
+                bolusingEvent.getT().isTBR = detailedBolusInfo.isTBR;
                 bolusingEvent.setPercent(100);
                 rxBus.send(bolusingEvent);
 

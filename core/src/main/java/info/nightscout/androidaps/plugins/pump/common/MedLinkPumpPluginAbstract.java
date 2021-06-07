@@ -2,6 +2,8 @@ package info.nightscout.androidaps.plugins.pump.common;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -9,7 +11,9 @@ import java.util.function.Function;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.core.R;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
+import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.PumpEnactResult;
+import info.nightscout.androidaps.db.TemporaryBasal;
 import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.interfaces.ActivePluginProvider;
 import info.nightscout.androidaps.interfaces.CommandQueueProvider;
@@ -29,7 +33,9 @@ import kotlin.jvm.functions.Function1;
 /**
  * Created by Dirceu on 06/04/21.
  */
-public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract{
+public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract {
+
+    public abstract TemporaryBasal getTemporaryBasal();
 
     protected MedLinkPumpPluginAbstract(PluginDescription pluginDescription, PumpType pumpType, HasAndroidInjector injector, ResourceHelper resourceHelper, AAPSLogger aapsLogger, CommandQueueProvider commandQueue, RxBusWrapper rxBus, ActivePluginProvider activePlugin, SP sp, Context context, FabricPrivacy fabricPrivacy, DateUtil dateUtil) {
         super(pluginDescription, pumpType, injector, resourceHelper, aapsLogger, commandQueue, rxBus, activePlugin, sp, context, fabricPrivacy, dateUtil);
@@ -46,7 +52,7 @@ public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract{
                         .comment(getResourceHelper().gs(R.string.invalidinput)));
             } else if (detailedBolusInfo.insulin > 0) {
                 // bolus needed, ask pump to deliver it
-                deliverBolus(detailedBolusInfo ,func);
+                deliverBolus(detailedBolusInfo, func);
             } else {
                 //if (MedtronicHistoryData.doubleBolusDebug)
                 //    aapsLogger.debug("DoubleBolusDebug: deliverTreatment::(carb only entry)");
@@ -57,6 +63,7 @@ public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract{
                 EventOverviewBolusProgress bolusingEvent = EventOverviewBolusProgress.INSTANCE;
                 bolusingEvent.setT(new Treatment());
                 bolusingEvent.getT().isSMB = detailedBolusInfo.isSMB;
+                bolusingEvent.getT().isTBR = detailedBolusInfo.isTBR;
                 bolusingEvent.setPercent(100);
                 rxBus.send(bolusingEvent);
 
@@ -73,4 +80,5 @@ public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract{
 
     protected abstract void deliverBolus(DetailedBolusInfo detailedBolusInfo,
                                          @NotNull Function1<? super PumpEnactResult, Unit> func);
+
 }

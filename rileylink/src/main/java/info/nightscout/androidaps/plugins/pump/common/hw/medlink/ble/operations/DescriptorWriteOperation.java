@@ -36,7 +36,10 @@ public class DescriptorWriteOperation extends BLECommOperation {
     @Override
     public void execute(MedLinkBLE comm) {
         descr.setValue(value);
-        gatt.writeDescriptor(descr);
+        synchronized (gatt) {
+            if (gatt != null)
+                gatt.writeDescriptor(descr);
+        }
         // wait here for callback to notify us that value was read.
 //        try {
 //            boolean didAcquire = operationComplete.tryAcquire(getGattOperationTimeout_ms(), TimeUnit.MILLISECONDS);

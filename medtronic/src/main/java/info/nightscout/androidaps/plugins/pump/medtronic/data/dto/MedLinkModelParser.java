@@ -15,15 +15,14 @@ public class MedLinkModelParser {
 
     public static MedLinkStandardReturn<MedLinkMedtronicDeviceType> parse(Supplier<Stream<String>> connection) {
         Optional<String> modelOpt = connection.get().filter(f -> f.startsWith("medtronic")).findFirst();
-        if(modelOpt.isPresent()){
-            if(modelOpt.get().equals("medtronic veo")){
-                return new MedLinkStandardReturn<>(connection,MedLinkMedtronicDeviceType.MedLinkMedtronic_554_Veo);
-            }else if(modelOpt.get().equals("medtronic 722")){
-                return new MedLinkStandardReturn<>(connection,MedLinkMedtronicDeviceType.MedLinkMedtronic_512_712);
+        if (modelOpt.isPresent()) {
+            if (modelOpt.get().equals("medtronic veo")) {
+                return new MedLinkStandardReturn<>(connection, MedLinkMedtronicDeviceType.MedLinkMedtronic_554_Veo);
+            } else if (modelOpt.get().equals("medtronic 722")) {
+                return new MedLinkStandardReturn<>(connection, MedLinkMedtronicDeviceType.MedLinkMedtronic_512_712);
             }
-
-        }else{
-            return new MedLinkStandardReturn<>(connection,MedLinkMedtronicDeviceType.Unknown_Device, MedLinkStandardReturn.ParsingError.ModelParsingError);
+        } else {
+            return new MedLinkStandardReturn<>(connection, MedLinkMedtronicDeviceType.Unknown_Device, MedLinkStandardReturn.ParsingError.ModelParsingError);
         }
         return null;
     }

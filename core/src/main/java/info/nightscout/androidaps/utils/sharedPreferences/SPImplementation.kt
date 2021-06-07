@@ -133,4 +133,9 @@ class SPImplementation @Inject constructor(
         return "SPImplementation(sharedPreferences=$sharedPreferences, resourceHelper=$resourceHelper)"
     }
 
+    override fun getStringSet(key: String, defaultValue: MutableSet<String>): MutableSet<String> {
+        return sharedPreferences.getStringSet(key, defaultValue)
+    }
+
+
 }

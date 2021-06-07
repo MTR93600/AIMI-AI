@@ -10,6 +10,7 @@ import info.nightscout.androidaps.interfaces.PluginBase
 import info.nightscout.androidaps.interfaces.PluginDescription
 import info.nightscout.androidaps.interfaces.PluginType
 import info.nightscout.androidaps.logging.AAPSLogger
+import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
@@ -104,6 +105,7 @@ class WearPlugin @Inject constructor(
             .toObservable(EventDismissBolusProgressIfRunning::class.java)
             .observeOn(Schedulers.io())
             .subscribe({ event: EventDismissBolusProgressIfRunning ->
+                aapsLogger.info(LTag.PUMPQUEUE, "dismissed")
                 if (event.result == null) return@subscribe
                 val status: String = if (event.result!!.success) {
                     resourceHelper.gs(R.string.success)

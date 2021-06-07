@@ -25,12 +25,12 @@ class MedLinkCommandBolus(
 
     override fun execute() {
         val pump = activePlugin.activePump
-
+        aapsLogger.info(LTag.PUMPQUEUE, "Command bolus plugin: ${pump} ")
         val func = { r: PumpEnactResult ->
 
                 BolusProgressDialog.bolusEnded = true
                 // rxBus.send(EventDismissBolusProgressIfRunning(r))
-                aapsLogger.debug(LTag.PUMPQUEUE, "Result success: ${r.success} enacted: ${r.enacted}")
+                aapsLogger.info(LTag.PUMPQUEUE, "Result success: ${r.success} enacted: ${r.enacted}")
                 callback?.result(r)?.run()
                 null
         }

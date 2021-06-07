@@ -46,28 +46,14 @@ public class StatusCallback extends BaseStatusCallback {
             aapsLogger.debug(pumpStatus.toString());
 
             medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
-
-//            medLinkPumpStatus.batteryRemaining = pumpStatus.batteryRemaining;
-//            medLinkPumpStatus.reservoirRemainingUnits = pumpStatus.reservoirRemainingUnits;
-//            medLinkPumpStatus.lastBolusAmount = pumpStatus.lastBolusAmount;
-//            medLinkPumpStatus.lastBolusTime = pumpStatus.lastBolusTime;
-//            medLinkPumpStatus.activeProfileName = pumpStatus.activeProfileName;
-//            medLinkPumpStatus.currentBasal = pumpStatus.currentBasal;
-//            medLinkPumpStatus.dailyTotalUnits = pumpStatus.dailyTotalUnits;
-//            medLinkPumpStatus.lastBGTimestamp = pumpStatus.lastBGTimestamp;
+            medLinkPumpPlugin.alreadyRunned();
             medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
-//            medLinkPumpStatus.lastDateTime = pumpStatus.lastDateTime;
-//            medLinkPumpStatus.tempBasalRatio = pumpStatus.tempBasalRatio;
-//            medLinkPumpStatus.tempBasalInProgress = pumpStatus.tempBasalInProgress;
-//            medLinkPumpStatus.tempBasalRemainMin = pumpStatus.tempBasalRemainMin;
-//            medLinkPumpStatus.tempBasalStart = pumpStatus.tempBasalStart;
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
             aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
             medLinkPumpStatus.setLastCommunicationToNow();
             aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading);
             if (pumpStatus.bgReading != null) {
-//                medLinkPumpPlugin.handleNewBgData(pumpStatus.bgReading);
                 medLinkPumpPlugin.handleNewSensorData(pumpStatus.sensorDataReading);
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
             } else {

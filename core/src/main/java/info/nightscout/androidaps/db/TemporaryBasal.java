@@ -35,7 +35,7 @@ public class TemporaryBasal implements Interval, DbObjectBase {
     @Inject public SP sp;
     @Inject DateUtil dateUtil;
 
-    private HasAndroidInjector injector;
+    protected HasAndroidInjector injector;
 
     @DatabaseField(id = true)
     public long date;

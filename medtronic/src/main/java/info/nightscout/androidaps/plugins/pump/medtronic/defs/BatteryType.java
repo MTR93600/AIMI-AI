@@ -18,7 +18,8 @@ public enum BatteryType {
     Alkaline(R.string.key_medtronic_pump_battery_alkaline, 1.20d, 1.47d), //
     Lithium(R.string.key_medtronic_pump_battery_lithium, 1.22d, 1.64d), //
     NiZn(R.string.key_medtronic_pump_battery_nizn, 1.40d, 1.70d), //
-    NiMH(R.string.key_medtronic_pump_battery_nimh, 1.10d, 1.40d) //
+    NiMH(R.string.key_medtronic_pump_battery_nimh, 1.10d, 1.40d), //
+    LiPo(R.string.key_medtronic_pump_battery_lipo, 1.42d, 1.45d) //
     ;
 
     public final @StringRes int description;

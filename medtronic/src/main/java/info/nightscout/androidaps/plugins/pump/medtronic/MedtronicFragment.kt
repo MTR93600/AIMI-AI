@@ -25,11 +25,12 @@ import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDevic
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.queue.events.EventQueueChanged
@@ -57,7 +58,7 @@ class MedtronicFragment : DaggerFragment() {
     @Inject lateinit var rileyLinkUtil: RileyLinkUtil
     @Inject lateinit var medtronicUtil: MedtronicUtil
     @Inject lateinit var medtronicPumpStatus: MedtronicPumpStatus
-    @Inject lateinit var rileyLinkServiceData: RileyLinkServiceData
+    @Inject lateinit var medLinkServiceData: MedLinkServiceData
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 
@@ -80,7 +81,7 @@ class MedtronicFragment : DaggerFragment() {
 
         medtronic_pumpstatus.setBackgroundColor(resourceHelper.gc(R.color.colorInitializingBorder))
 
-        medtronic_rl_status.text = resourceHelper.gs(RileyLinkServiceState.NotStarted.resourceId)
+        medtronic_rl_status.text = resourceHelper.gs(MedLinkServiceState.NotStarted.resourceId)
 
         medtronic_pump_status.setTextColor(Color.WHITE)
         medtronic_pump_status.text = "{fa-bed}"
@@ -172,20 +173,20 @@ class MedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = rileyLinkServiceData.rileyLinkServiceState.resourceId
+        val resourceId = medLinkServiceData.medLinkServiceState.resourceId
         val rileyLinkError = medtronicPumpPlugin.rileyLinkService?.error
         medtronic_rl_status.text =
             when {
-                rileyLinkServiceData.rileyLinkServiceState == RileyLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isConnecting                                                                                                            -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError == null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
-                rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null     -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                             -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medLinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isConnecting                    -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && rileyLinkError == null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                         -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
             }
         medtronic_rl_status.setTextColor(if (rileyLinkError != null) Color.RED else Color.WHITE)
 
         medtronic_errors.text =
-            rileyLinkServiceData.rileyLinkError?.let {
+            medLinkServiceData.medLinkError?.let {
                 resourceHelper.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 
