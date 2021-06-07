@@ -57,7 +57,7 @@ public class RileyLinkBLE {
     protected BluetoothAdapter bluetoothAdapter;
     protected BluetoothGattCallback bluetoothGattCallback;
     protected BluetoothDevice rileyLinkDevice;
-    protected BluetoothGatt bluetoothGatt = null;
+    protected BluetoothGatt bluetoothConnectionGatt = null;
     protected BLECommOperation mCurrentOperation;
     protected Semaphore gattOperationSema = new Semaphore(1, true);
     protected Runnable radioResponseCountNotified;
@@ -342,12 +342,12 @@ public class RileyLinkBLE {
 
     public boolean discoverServices() {
 
-        if (bluetoothGatt == null) {
+        if (bluetoothConnectionGatt == null) {
             // shouldn't happen, but if it does we exit
             return false;
         }
 
-        if (bluetoothGatt.discoverServices()) {
+        if (bluetoothConnectionGatt.discoverServices()) {
             aapsLogger.warn(LTag.PUMPBTCOMM, "Starting to discover GATT Services.");
             return true;
         } else {
@@ -391,9 +391,9 @@ public class RileyLinkBLE {
             return;
         }
 
-        bluetoothGatt = rileyLinkDevice.connectGatt(context, true, bluetoothGattCallback);
+        bluetoothConnectionGatt = rileyLinkDevice.connectGatt(context, true, bluetoothGattCallback);
         // , BluetoothDevice.TRANSPORT_LE
-        if (bluetoothGatt == null) {
+        if (bluetoothConnectionGatt == null) {
             aapsLogger.error(LTag.PUMPBTCOMM, "Failed to connect to Bluetooth Low Energy device at " + bluetoothAdapter.getAddress());
         } else {
             gattConnected = true;
@@ -401,7 +401,7 @@ public class RileyLinkBLE {
                 aapsLogger.debug(LTag.PUMPBTCOMM, "Gatt Connected.");
             }
 
-            String deviceName = bluetoothGatt.getDevice().getName();
+            String deviceName = bluetoothConnectionGatt.getDevice().getName();
             if (StringUtils.isNotEmpty(deviceName)) {
                 // Update stored name upon connecting (also for backwards compatibility for device where a name was not yet stored)
                 sp.putString(RileyLinkConst.Prefs.RileyLinkName, deviceName);
@@ -410,7 +410,7 @@ public class RileyLinkBLE {
             }
 
             rileyLinkServiceData.rileyLinkName = deviceName;
-            rileyLinkServiceData.rileyLinkAddress = bluetoothGatt.getDevice().getAddress();
+            rileyLinkServiceData.rileyLinkAddress = bluetoothConnectionGatt.getDevice().getAddress();
         }
     }
 
@@ -419,9 +419,9 @@ public class RileyLinkBLE {
         mIsConnected = false;
         aapsLogger.warn(LTag.PUMPBTCOMM, "Closing GATT connection");
         // Close old conenction
-        if (bluetoothGatt != null) {
+        if (bluetoothConnectionGatt != null) {
             // Not sure if to disconnect or to close first..
-            bluetoothGatt.disconnect();
+            bluetoothConnectionGatt.disconnect();
             manualDisconnect = true;
         }
     }
@@ -429,10 +429,10 @@ public class RileyLinkBLE {
 
     public void close() {
         aapsLogger.info(LTag.PUMPBTCOMM, "Closing gatt connection");
-        if (bluetoothGatt != null) {
+        if (bluetoothConnectionGatt != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "connection closed");
-            bluetoothGatt.close();
-            bluetoothGatt = null;
+            bluetoothConnectionGatt.close();
+            bluetoothConnectionGatt = null;
         }
     }
 
@@ -440,7 +440,7 @@ public class RileyLinkBLE {
     protected BLECommOperationResult setNotification_blocking(UUID serviceUUID, UUID charaUUID) {
         aapsLogger.debug("Enable rileyLink notification");
         BLECommOperationResult rval = new BLECommOperationResult();
-        if (bluetoothGatt != null) {
+        if (bluetoothConnectionGatt != null) {
 
             try {
                 gattOperationSema.acquire();
@@ -452,17 +452,17 @@ public class RileyLinkBLE {
             if (mCurrentOperation != null) {
                 rval.resultCode = BLECommOperationResult.RESULT_BUSY;
             } else {
-                if (bluetoothGatt.getService(serviceUUID) == null) {
+                if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
                     // Catch if the service is not supported by the BLE device
                     rval.resultCode = BLECommOperationResult.RESULT_NONE;
                     aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
-                    BluetoothGattCharacteristic chara = bluetoothGatt.getService(serviceUUID)
+                    BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID)
                             .getCharacteristic(charaUUID);
                     // Tell Android that we want the notifications
-                    bluetoothGatt.setCharacteristicNotification(chara, true);
+                    bluetoothConnectionGatt.setCharacteristicNotification(chara, true);
                     List<BluetoothGattDescriptor> list = chara.getDescriptors();
                     if (gattDebugEnabled) {
                         for (int i = 0; i < list.size(); i++) {
@@ -471,7 +471,7 @@ public class RileyLinkBLE {
                     }
                     BluetoothGattDescriptor descr = list.get(0);
                     // Tell the remote device to send the notifications
-                    mCurrentOperation = new DescriptorWriteOperation(aapsLogger, bluetoothGatt, descr,
+                    mCurrentOperation = new DescriptorWriteOperation(aapsLogger, bluetoothConnectionGatt, descr,
                             BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                     mCurrentOperation.execute(this);
                     if (mCurrentOperation.timedOut) {
@@ -496,7 +496,7 @@ public class RileyLinkBLE {
     // call from main
     BLECommOperationResult writeCharacteristic_blocking(UUID serviceUUID, UUID charaUUID, byte[] value) {
         BLECommOperationResult rval = new BLECommOperationResult();
-        if (bluetoothGatt != null) {
+        if (bluetoothConnectionGatt != null) {
             rval.value = value;
             aapsLogger.debug(LTag.PUMPBTCOMM,"command writen");
             aapsLogger.debug(LTag.PUMPBTCOMM,new String(value));
@@ -513,7 +513,7 @@ public class RileyLinkBLE {
             if (mCurrentOperation != null) {
                 rval.resultCode = BLECommOperationResult.RESULT_BUSY;
             } else {
-                if (bluetoothGatt.getService(serviceUUID) == null) {
+                if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
                     // Catch if the service is not supported by the BLE device
                     // GGW: Tue Jul 12 01:14:01 UTC 2016: This can also happen if the
                     // app that created the bluetoothConnectionGatt has been destroyed/created,
@@ -523,9 +523,9 @@ public class RileyLinkBLE {
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
-                    BluetoothGattCharacteristic chara = bluetoothGatt.getService(serviceUUID)
+                    BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID)
                             .getCharacteristic(charaUUID);
-                    mCurrentOperation = new CharacteristicWriteOperation(aapsLogger, bluetoothGatt, chara, value);
+                    mCurrentOperation = new CharacteristicWriteOperation(aapsLogger, bluetoothConnectionGatt, chara, value);
                     mCurrentOperation.execute(this);
                     if (mCurrentOperation.timedOut) {
                         rval.resultCode = BLECommOperationResult.RESULT_TIMEOUT;
@@ -557,7 +557,7 @@ public class RileyLinkBLE {
 
     public BLECommOperationResult readCharacteristic_blocking(UUID serviceUUID, UUID charaUUID) {
         BLECommOperationResult rval = new BLECommOperationResult();
-        if (bluetoothGatt != null) {
+        if (bluetoothConnectionGatt != null) {
             try {
                 gattOperationSema.acquire();
                 SystemClock.sleep(1); // attempting to yield thread, to make sequence of events easier to follow
@@ -568,16 +568,16 @@ public class RileyLinkBLE {
             if (mCurrentOperation != null) {
                 rval.resultCode = BLECommOperationResult.RESULT_BUSY;
             } else {
-                if (bluetoothGatt.getService(serviceUUID) == null) {
+                if (bluetoothConnectionGatt.getService(serviceUUID) == null) {
                     // Catch if the service is not supported by the BLE device
                     rval.resultCode = BLECommOperationResult.RESULT_NONE;
                     aapsLogger.error(LTag.PUMPBTCOMM, "BT Device not supported");
                     // TODO: 11/07/2016 UI update for user
                     // xyz rileyLinkServiceData.setServiceState(RileyLinkServiceState.BluetoothError, RileyLinkError.NoBluetoothAdapter);
                 } else {
-                    BluetoothGattCharacteristic chara = bluetoothGatt.getService(serviceUUID).getCharacteristic(
+                    BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID).getCharacteristic(
                             charaUUID);
-                    mCurrentOperation = new CharacteristicReadOperation(aapsLogger, bluetoothGatt, chara);
+                    mCurrentOperation = new CharacteristicReadOperation(aapsLogger, bluetoothConnectionGatt, chara);
                     mCurrentOperation.execute(this);
                     aapsLogger.debug(LTag.PUMPBTCOMM, "Bluetooth communication");
                     aapsLogger.debug(LTag.PUMPBTCOMM, String.valueOf(mCurrentOperation.getValue()));
