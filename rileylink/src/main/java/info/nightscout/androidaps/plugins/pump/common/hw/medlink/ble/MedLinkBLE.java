@@ -49,6 +49,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCons
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.operations.DescriptorWriteOperation;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
 
@@ -67,6 +68,7 @@ import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RE
 import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
 import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
 import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_SIGNED;
+import static info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult.RESULT_NOT_CONFIGURED;
 import static info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult.RESULT_SUCCESS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -76,13 +78,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Singleton
 public class MedLinkBLE extends RileyLinkBLE {
     private boolean needRetry;
-
+    private boolean connectAdded;
     private long lastCloseAction = 0L;
     private Map<MedLinkCommandType, MedLinkPumpMessage> arguments = new HashMap<>();
     private long lastExecutedCommand;
     private Boolean isConnecting = false;
     private boolean notificationEnabled;
 
+    public void setConnectAdded(boolean b) {
+        this.connectAdded = b;
+    }
 
     public void applyClose() {
         aapsLogger.info(LTag.PUMPBTCOMM, "applying close");
@@ -116,7 +121,7 @@ public class MedLinkBLE extends RileyLinkBLE {
     private final Set<BluetoothGattCharacteristic> notifyingCharacteristics = new HashSet<>();
     private static final UUID CCC_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     private int nrTries;
-    private Boolean commandQueueBusy;
+    private boolean commandQueueBusy;
     private int MAX_TRIES = 5;
     private boolean isRetrying;
     private Handler bleHandler = new Handler();
@@ -274,10 +279,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                             aapsLogger.info(LTag.PUMPBTCOMM, "Discoverying Services");
                             if (bluetoothConnectionGatt != null) {
                                 synchronized (bluetoothConnectionGatt) {
-                                    synchronized (commandQueueBusy) {
-                                        if(!commandQueueBusy)
-                                            bluetoothConnectionGatt.discoverServices();
-                                    }
+                                    bluetoothConnectionGatt.discoverServices();
                                 }
                             }
                         }
@@ -350,7 +352,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                         }
                     }
                     SystemClock.sleep(5000);
-                    completedCommand(false);
+                    completedCommand(true);
                 }
             }
 
@@ -616,7 +618,7 @@ public class MedLinkBLE extends RileyLinkBLE {
             }
         } else {
             aapsLogger.error(LTag.PUMPBTCOMM, "writeCharacteristic_blocking: not configured!");
-            rval.resultCode = BLECommOperationResult.RESULT_NOT_CONFIGURED;
+            rval.resultCode = RESULT_NOT_CONFIGURED;
         }
         if (rval.value == null) {
             rval.value = getPumpResponse();
@@ -899,8 +901,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                     List<BluetoothGattDescriptor> list = characteristic.getDescriptors();
                     if (gattDebugEnabled) {
                         for (int i = 0; i < list.size(); i++) {
-                            aapsLogger.info(LTag.PUMPBTCOMM, "Found descriptor: " + list.get(i).getCharacteristic());
-                            aapsLogger.info(LTag.PUMPBTCOMM, "Found descriptor: " + list.get(i).getUuid());
+                            aapsLogger.debug(LTag.PUMPBTCOMM, "Found descriptor: " + list.get(i).toString());
                         }
                     }
                     BluetoothGattDescriptor descriptor = list.get(0);
@@ -935,9 +936,6 @@ public class MedLinkBLE extends RileyLinkBLE {
                         return rval;
                     }
 
-                    if(needToAddConnectCommand()){
-                        addExecuteConnectCommand();
-                    }
 
                     // Queue Runnable to turn on/off the notification now that all checks have been passed
                     executionCommandQueueN.addFirst("SetnotificationBlocking");
@@ -1043,6 +1041,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         setConnected(false);
         servicesDiscovered = false;
         notificationEnabled = false;
+        connectAdded = false;
     }
 
 
@@ -1066,6 +1065,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         setConnected(false);
         servicesDiscovered = false;
         notificationEnabled = false;
+        connectAdded = false;
         aapsLogger.info(LTag.EVENTS, "closing");
         super.close();
         isConnecting = false;
@@ -1195,8 +1195,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                 || (!executionCommandQueue.isEmpty() &&
                 executionCommandQueue.peek().getRemainingBleCommand() != null &&
                 !Arrays.equals(executionCommandQueue.peek().getRemainingBleCommand().getCommand(),
-                        MedLinkCommandType.Connect.getRaw()) ||
-                (remainingCommand.noneMatch(f -> Arrays.equals(f.getCommand(), MedLinkCommandType.Connect.getRaw()))));
+                        MedLinkCommandType.Connect.getRaw()) || remainingCommand.noneMatch(f -> Arrays.equals(f.getCommand(), MedLinkCommandType.Connect.getRaw())));
     }
 
     public synchronized void nextCommand() {
