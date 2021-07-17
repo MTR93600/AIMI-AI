@@ -19,6 +19,7 @@ import info.nightscout.androidaps.db.Source
 import info.nightscout.androidaps.interfaces.ActivePluginProvider
 import info.nightscout.androidaps.interfaces.CommandQueueProvider
 import info.nightscout.androidaps.interfaces.Constraint
+import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.DecimalFormatter
@@ -137,6 +138,7 @@ class TreatmentDialog : DialogFragmentWithDate() {
                     detailedBolusInfo.context = context
                     detailedBolusInfo.source = Source.USER
                     if (!(recordOnlyChecked && (detailedBolusInfo.insulin > 0 || pumpDescription.storesCarbInfo))) {
+                        aapsLogger.info(LTag.PUMPQUEUE, "bolusing treatment dialog")
                         commandQueue.bolus(detailedBolusInfo, object : Callback() {
                             override fun run() {
                                 if (!result.success) {

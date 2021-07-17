@@ -433,4 +433,16 @@ public class APSResult {
             }
         }
     }
+
+    public Constraint<Double> getRateConstraint() {
+        return rateConstraint;
+    }
+
+    public Constraint<Integer> getPercentConstraint() {
+        return percentConstraint;
+    }
+
+    public Constraint<Double> getSMBConstraint() {
+        return smbConstraint;
+    }
 }

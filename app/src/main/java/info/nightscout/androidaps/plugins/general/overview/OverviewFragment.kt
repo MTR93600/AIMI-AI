@@ -47,6 +47,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorP
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.plugins.source.DexcomPlugin
 import info.nightscout.androidaps.plugins.source.MedLinkPlugin
 import info.nightscout.androidaps.plugins.source.XdripPlugin
@@ -455,7 +456,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             (lastRun.lastOpenModeAccept == 0L || lastRun.lastOpenModeAccept < lastRun.lastAPSRun) &&// never accepted or before last result
             lastRun.constraintsProcessed?.isChangeRequested == true // change is requested
 
-        if (showAcceptButton && pump.isInitialized && !pump.isSuspended && loopPlugin.isEnabled(PluginType.LOOP)) {
+        if (showAcceptButton && pump.isInitialized && (!pump.isSuspended || pump is MedLinkPumpDevice) && loopPlugin.isEnabled(PluginType.LOOP)) {
             overview_accepttempbutton?.visibility = View.VISIBLE
             overview_accepttempbutton?.text = "${resourceHelper.gs(R.string.setbasalquestion)}\n${lastRun!!.constraintsProcessed}"
         } else {
@@ -463,10 +464,10 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         }
 
         // **** Various treatment buttons ****
-        overview_carbsbutton?.visibility = ((!activePlugin.activePump.pumpDescription.storesCarbInfo || pump.isInitialized && !pump.isSuspended) && profile != null && sp.getBoolean(R.string.key_show_carbs_button, true)).toVisibility()
-        overview_treatmentbutton?.visibility = (pump.isInitialized && !pump.isSuspended && profile != null && sp.getBoolean(R.string.key_show_treatment_button, false)).toVisibility()
-        overview_wizardbutton?.visibility = (pump.isInitialized && !pump.isSuspended && profile != null && sp.getBoolean(R.string.key_show_wizard_button, true)).toVisibility()
-        overview_insulinbutton?.visibility = (pump.isInitialized && !pump.isSuspended && profile != null && sp.getBoolean(R.string.key_show_insulin_button, true)).toVisibility()
+        overview_carbsbutton?.visibility = ((!activePlugin.activePump.pumpDescription.storesCarbInfo || pump.isInitialized && (!pump.isSuspended && pump is MedLinkPumpDevice)) && profile != null && sp.getBoolean(R.string.key_show_carbs_button, true)).toVisibility()
+        overview_treatmentbutton?.visibility = (pump.isInitialized && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null && sp.getBoolean(R.string.key_show_treatment_button, false)).toVisibility()
+        overview_wizardbutton?.visibility = (pump.isInitialized && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null && sp.getBoolean(R.string.key_show_wizard_button, true)).toVisibility()
+        overview_insulinbutton?.visibility = (pump.isInitialized && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null && sp.getBoolean(R.string.key_show_insulin_button, true)).toVisibility()
 
         // **** Calibration & CGM buttons ****
         val xDripIsBgSource = xdripPlugin.isEnabled(PluginType.BGSOURCE)
@@ -749,7 +750,11 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
         // Status lights
         overview_statuslights?.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
-        statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, careportal_reservoirlevel, careportal_sensorage, null, careportal_pbage, careportal_batterylevel)
+
+
+        medlink_separator.visibility = (pump is MedLinkPumpDevice).toVisibility()
+
+        statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, careportal_reservoirlevel, careportal_sensorage, null, careportal_pbage, careportal_batterylevel, medlink_battery_level)
 
         // cob
         var cobText: String = resourceHelper.gs(R.string.value_unavailable_short)

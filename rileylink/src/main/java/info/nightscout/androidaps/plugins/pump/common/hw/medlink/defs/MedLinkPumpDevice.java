@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.data.PumpEnactResult;
@@ -17,6 +18,7 @@ import kotlin.jvm.functions.Function1;
  */
 public interface MedLinkPumpDevice extends CommunicatorPumpDevice {
 
+    String getBatteryInfoConfig();
 
     void setBusy(boolean busy);
 
@@ -44,6 +46,8 @@ public interface MedLinkPumpDevice extends CommunicatorPumpDevice {
     void cancelTempBasal(Boolean enforceNew, Callback callback);
 
     PumpEnactResult extendBasalTreatment(int duration, Function1 callback);
+
+    @Nullable String nextScheduledCommand();
 
 //    void deliverTreatment(DetailedBolusInfo detailedBolusInfo,
 //                          @NotNull Function<PumpEnactResult, Unit> func);

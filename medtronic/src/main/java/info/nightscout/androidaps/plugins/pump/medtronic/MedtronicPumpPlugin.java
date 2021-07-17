@@ -13,6 +13,7 @@ import androidx.preference.Preference;
 
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -728,6 +729,10 @@ public class MedtronicPumpPlugin extends PumpPluginAbstract implements PumpInter
         return System.currentTimeMillis();
     }
 
+
+    @NonNull @Override public JSONObject getJSONStatus(Profile profile, String profileName, String version) {
+        return super.getJSONStatus(profile, profileName, version);
+    }
 
     @Override
     public double getBaseBasalRate() {

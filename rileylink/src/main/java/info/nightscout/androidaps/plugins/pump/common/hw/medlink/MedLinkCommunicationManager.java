@@ -161,48 +161,48 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     // FIXME change wakeup
     // TODO we might need to fix this. Maybe make pump awake for shorter time (battery factor for pump) - Andy
-    public  <B> void wakeUp(int duration_minutes, boolean force, Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>  resultActivity) {
-        // If it has been longer than n minutes, do wakeup. Otherwise assume pump is still awake.
-        // **** FIXME: this wakeup doesn't seem to work well... must revisit
-        // receiverDeviceAwakeForMinutes = duration_minutes;
-
-        setPumpDeviceState(PumpDeviceState.WakingUp);
-
-        if (force)
-            nextWakeUpRequired = 0L;
-
-        if (System.currentTimeMillis() > nextWakeUpRequired) {
-            aapsLogger.info(LTag.PUMPCOMM, "Waking pump...");
-
-//            byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
-
-            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.GetState,
-                    MedLinkCommandType.NoCommand,
-                    resultActivity,
-                    medLinkServiceData,
-                    aapsLogger));
-//            aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
-
-            // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
-
-            nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);
-        } else {
-            aapsLogger.debug(LTag.PUMPCOMM, "Last pump communication was recent, not waking pump.");
-        }
-
-        // long lastGoodPlus = getLastGoodReceiverCommunicationTime() + (receiverDeviceAwakeForMinutes * 60 * 1000);
-        //
-        // if (System.currentTimeMillis() > lastGoodPlus || force) {
-        // LOG.info("Waking pump...");
-        //
-        // byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.PowerOn);
-        // RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(pumpMsgContent), (byte) 0, (byte) 200, (byte)
-        // 0, (byte) 0, 15000, (byte) 0);
-        // LOG.info("wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
-        // } else {
-        // LOG.trace("Last pump communication was recent, not waking pump.");
-        // }
-    }
+//    public  <B> void wakeUp(int duration_minutes, boolean force, Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>  resultActivity) {
+//        // If it has been longer than n minutes, do wakeup. Otherwise assume pump is still awake.
+//        // **** FIXME: this wakeup doesn't seem to work well... must revisit
+//        // receiverDeviceAwakeForMinutes = duration_minutes;
+//
+//        setPumpDeviceState(PumpDeviceState.WakingUp);
+//
+//        if (force)
+//            nextWakeUpRequired = 0L;
+//
+//        if (System.currentTimeMillis() > nextWakeUpRequired) {
+//            aapsLogger.info(LTag.PUMPCOMM, "Waking pump...");
+//
+////            byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.ReadSimpleData); // simple
+//
+//            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.GetState,
+//                    MedLinkCommandType.NoCommand,
+//                    resultActivity,
+//                    medLinkServiceData,
+//                    aapsLogger));
+////            aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
+//
+//            // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
+//
+//            nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);
+//        } else {
+//            aapsLogger.debug(LTag.PUMPCOMM, "Last pump communication was recent, not waking pump.");
+//        }
+//
+//        // long lastGoodPlus = getLastGoodReceiverCommunicationTime() + (receiverDeviceAwakeForMinutes * 60 * 1000);
+//        //
+//        // if (System.currentTimeMillis() > lastGoodPlus || force) {
+//        // LOG.info("Waking pump...");
+//        //
+//        // byte[] pumpMsgContent = createPumpMessageContent(RLMessageType.PowerOn);
+//        // RFSpyResponse resp = rfspy.transmitThenReceive(new RadioPacket(pumpMsgContent), (byte) 0, (byte) 200, (byte)
+//        // 0, (byte) 0, 15000, (byte) 0);
+//        // LOG.info("wakeup: raw response is " + ByteUtil.shortHexString(resp.getRaw()));
+//        // } else {
+//        // LOG.trace("Last pump communication was recent, not waking pump.");
+//        // }
+//    }
 
 
     @Override public void setRadioFrequencyForPump(double freqMHz) {

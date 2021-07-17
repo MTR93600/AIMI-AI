@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 
 import com.google.gson.annotations.Expose;
 
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -117,6 +118,27 @@ public class TempBasalMicroBolusPair {
                 '}';
     }
 
+    public String toStringView() {
+        String result = "";
+        String release = releaseTime.toString("HH:mm");
+        switch(operationType){
+            case BOLUS: {
+                result ="Bolus: " + calculatedDose +
+                        "u, at=" + release;
+            }
+            break;
+            case SUSPEND: {
+                result = "Suspend: at=" + release;
+            }
+            break;
+            case REACTIVATE: {
+                result = "Activate: at=" + release;
+            }
+            break;
+
+        }
+        return result;
+    }
     public OperationType getOperationType() {
         return operationType;
     }

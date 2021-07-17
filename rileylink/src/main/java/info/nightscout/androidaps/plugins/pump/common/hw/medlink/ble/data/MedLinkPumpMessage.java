@@ -23,6 +23,7 @@ public class MedLinkPumpMessage<B> //implements RLMessage
     private final AAPSLogger aapsLogger;
     private final MedLinkServiceData medLinkServiceData;
     protected StringBuffer pumpResponse = new StringBuffer();
+    private long btSleepTime = 0l;
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
                               MedLinkServiceData medLinkServiceData,
@@ -37,12 +38,13 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                               Function<Supplier<Stream<String>>,
                               MedLinkStandardReturn<B>> baseCallback,
                               MedLinkServiceData medLinkServiceData,
-                              AAPSLogger aapsLogger) {
+                              AAPSLogger aapsLogger, Long btSleepTime) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
         this.medLinkServiceData = medLinkServiceData;
         this.aapsLogger = aapsLogger;
+        this.btSleepTime = btSleepTime;
     }
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
@@ -52,13 +54,14 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                               Function<Supplier<Stream<String>>,
                                       MedLinkStandardReturn<B>> argCallback,
                               MedLinkServiceData medLinkServiceData,
-                              AAPSLogger aapsLogger) {
+                              AAPSLogger aapsLogger, long btSleepTime) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
         this.medLinkServiceData = medLinkServiceData;
         this.aapsLogger = aapsLogger;
         this.argCallback = argCallback;
+        this.btSleepTime = btSleepTime;
     }
 
     public MedLinkCommandType getCommandType() {
@@ -95,4 +98,11 @@ public class MedLinkPumpMessage<B> //implements RLMessage
         return argCallback;
     }
 
+    public long getBtSleepTime() {
+        return btSleepTime;
+    }
+
+    public void setBtSleepTime(long btSleepTime) {
+        this.btSleepTime = btSleepTime;
+    }
 }

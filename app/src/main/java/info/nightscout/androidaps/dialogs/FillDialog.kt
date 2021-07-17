@@ -16,6 +16,7 @@ import info.nightscout.androidaps.db.Source
 import info.nightscout.androidaps.interfaces.ActivePluginProvider
 import info.nightscout.androidaps.interfaces.CommandQueueProvider
 import info.nightscout.androidaps.interfaces.Constraint
+import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.general.nsclient.NSUpload
 import info.nightscout.androidaps.queue.Callback
@@ -156,6 +157,7 @@ class FillDialog : DialogFragmentWithDate() {
         detailedBolusInfo.source = Source.USER
         detailedBolusInfo.isValid = false // do not count it in IOB (for pump history)
         detailedBolusInfo.notes = notes
+        aapsLogger.info(LTag.PUMPQUEUE, "bolusing filldialog")
         commandQueue.bolus(detailedBolusInfo, object : Callback() {
             override fun run() {
                 if (!result.success) {

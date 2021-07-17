@@ -221,7 +221,7 @@ public class DateUtil {
     }
 
     public static String minAfter(ResourceHelper resourceHelper, long time) {
-        int mins = (int) (time - (now() ) / 1000 / 60);
+        int mins = (int) (time - now() ) / 1000 / 60;
         return resourceHelper.gs(R.string.minafter, mins);
     }
 

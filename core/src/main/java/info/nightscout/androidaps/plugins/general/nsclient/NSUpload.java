@@ -217,6 +217,7 @@ public class NSUpload {
                 deviceStatus.iob = lastRun.getRequest().iob.json();
                 deviceStatus.iob.put("time", DateUtil.toISOString(lastRun.getLastAPSRun()));
 
+
                 JSONObject requested = new JSONObject();
 
                 if (lastRun.getTbrSetByPump() != null && lastRun.getTbrSetByPump().enacted) { // enacted
@@ -257,7 +258,7 @@ public class NSUpload {
             deviceStatus.created_at = DateUtil.toISOString(new Date());
 
             deviceStatus.configuration = runningConfiguration.configuration();
-
+            aapsLogger.info(LTag.EVENTS, deviceStatus.mongoRecord().toString());
             uploadQueue.add(new DbRequest("dbAdd", "devicestatus", deviceStatus.mongoRecord()));
         } catch (JSONException e) {
             aapsLogger.error("Unhandled exception", e);

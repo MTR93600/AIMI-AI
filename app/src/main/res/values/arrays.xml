@@ -171,6 +171,11 @@
         <item>754 CA</item>
     </string-array>
 
+    <string-array name="medLinkBatteryInfoArray">
+        <item>Age</item>
+        <item>Voltage</item>
+    </string-array>
+
     <string-array name="medtronicPumpFreqArray">
         <item>@string/medtronic_pump_frequency_us_ca</item>
         <item>@string/medtronic_pump_frequency_worldwide</item>

@@ -2,6 +2,7 @@
 <resources>
     <!--    Keys-->
     <string name="total_insulin_label">Total daily insulin td/ytd</string>
+    <string name="sensor_lost">Sensor lost</string>
 
     <string name="key_enable_fabric" translatable="false">enable_fabric</string>
     <string name="key_language" translatable="false">language</string>

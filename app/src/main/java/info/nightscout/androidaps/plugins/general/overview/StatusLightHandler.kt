@@ -9,10 +9,15 @@ import info.nightscout.androidaps.R
 import info.nightscout.androidaps.db.CareportalEvent
 import info.nightscout.androidaps.interfaces.ActivePluginProvider
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
+import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.omnipod.OmnipodPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.driver.definition.OmnipodConstants
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.WarnColors
+import info.nightscout.androidaps.utils.extensions.toVisibility
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
 import javax.inject.Inject
@@ -30,15 +35,29 @@ class StatusLightHandler @Inject constructor(
     /**
      * applies the extended statusLight subview on the overview fragment
      */
-    fun updateStatusLights(careportal_cannula_age: TextView?, careportal_insulin_age: TextView?, careportal_reservoir_level: TextView?, careportal_sensor_age: TextView?, careportal_sensor_battery_level: TextView?, careportal_pb_age: TextView?, careportal_battery_level: TextView?) {
+    fun updateStatusLights(careportal_cannula_age: TextView?, careportal_insulin_age: TextView?, careportal_reservoir_level: TextView?, careportal_sensor_age: TextView?, careportal_sensor_battery_level: TextView?, careportal_pb_age: TextView?, careportal_battery_level: TextView?, medlink_battery_level: TextView?) {
         val pump = activePlugin.activePump
         val bgSource = activePlugin.activeBgSource
         handleAge(careportal_cannula_age, CareportalEvent.SITECHANGE, R.string.key_statuslights_cage_warning, 48.0, R.string.key_statuslights_cage_critical, 72.0)
         handleAge(careportal_insulin_age, CareportalEvent.INSULINCHANGE, R.string.key_statuslights_iage_warning, 72.0, R.string.key_statuslights_iage_critical, 144.0)
         handleAge(careportal_sensor_age, CareportalEvent.SENSORCHANGE, R.string.key_statuslights_sage_warning, 216.0, R.string.key_statuslights_sage_critical, 240.0)
-        if (pump.pumpDescription.isBatteryReplaceable) {
-            handleAge(careportal_pb_age, CareportalEvent.PUMPBATTERYCHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0)
-        }
+
+        if (pump is MedLinkMedtronicPumpPlugin) {
+            val pumpStatusData = pump.pumpStatusData
+            if (pumpStatusData is MedLinkMedtronicPumpStatus) {
+                if (pumpStatusData.batteryType == BatteryType.LiPo) {
+                    handleAge(careportal_pb_age, CareportalEvent.PUMPBATTERYCHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
+                }
+                handleLevel(medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
+                    pump.pumpStatusData.deviceBatteryRemaining.toDouble(), "%")
+            } else {
+                medlink_battery_level?.visibility = false.toVisibility()
+            }
+        } else
+            if (pump.pumpDescription.isBatteryReplaceable) {
+                handleAge(careportal_pb_age, CareportalEvent.PUMPBATTERYCHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0)
+            }
+        careportal_sensor_battery_level?.text = ""
         if (!config.NSCLIENT) {
             if (pump.model() == PumpType.Insulet_Omnipod) {
                 handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U")
@@ -54,10 +73,25 @@ class StatusLightHandler @Inject constructor(
         if (!config.NSCLIENT) {
             if (pump.model() == PumpType.Insulet_Omnipod && pump is OmnipodPumpPlugin) { // instance of check is needed because at startup, pump can still be VirtualPumpPlugin and that will cause a crash because of the class cast below
                 handleOmnipodBatteryLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%", pump.isUseRileyLinkBatteryLevel)
-            } else if (pump.model() != PumpType.AccuChekCombo) {
+            } else if (pump !is MedLinkPumpDevice && pump.model() != PumpType.AccuChekCombo) {
+
                 handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%")
+            } else if (pump is MedLinkMedtronicPumpPlugin) {
+                if (sp.getString(R.string
+                        .key_medlink_battery_info, "Age") != "Age") {
+                            if(pump.pumpStatusData.batteryVoltage != null) {
+                                handleDecimal(careportal_pb_age, R.string.key_statuslights_bat_critical, 1.30, R.string.key_statuslights_bat_warning, 1.20, pump.pumpStatusData.batteryVoltage, "V")
+                            }
+                }
+                // else {
+                //     handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.pumpStatusData.batteryRemaining.toDouble(), "%")
+                // }
             }
+            // if(resourceHelper.gs(R.string.key_medlink_battery_info).equals()){
+            //
+            // }
         }
+
     }
 
     private fun handleAge(view: TextView?, eventName: String, @StringRes warnSettings: Int, defaultWarnThreshold: Double, @StringRes urgentSettings: Int, defaultUrgentThreshold: Double) {
@@ -77,6 +111,14 @@ class StatusLightHandler @Inject constructor(
         val resWarn = sp.getDouble(warnSetting, warnDefaultValue)
         @Suppress("SetTextI18n")
         view?.text = " " + DecimalFormatter.to0Decimal(level) + units
+        warnColors.setColorInverse(view, level, resWarn, resUrgent)
+    }
+
+    private fun handleDecimal(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String) {
+        val resUrgent = sp.getDouble(criticalSetting, criticalDefaultValue)
+        val resWarn = sp.getDouble(warnSetting, warnDefaultValue)
+        @Suppress("SetTextI18n")
+        view?.text = " " + DecimalFormatter.to2Decimal(level) + units
         warnColors.setColorInverse(view, level, resWarn, resUrgent)
     }
 

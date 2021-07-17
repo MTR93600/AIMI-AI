@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
@@ -141,6 +142,9 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
         return 0;
     }
 
+    public double getCurrentBasal() {
+        return currentBasal;
+    }
     // Battery type
     private Map<String, BatteryType> mapByDescription;
 
@@ -182,6 +186,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
             default:
                 return null;
         }
+
     }
 
     public PumpDeviceState getPumpDeviceState() {
@@ -200,4 +205,5 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     public boolean needToGetBGHistory(){
         return lastDateTime - lastBGTimestamp > 360000;
     }
+
 }

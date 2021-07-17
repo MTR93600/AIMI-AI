@@ -72,24 +72,24 @@ public class MedLinkMedtronicUIComm {
 
     }
 
-    public synchronized MedLinkMedtronicUITask executeCommand(MedLinkMedtronicCommandType commandType, Object... parameters) {
-
-        aapsLogger.info(LTag.PUMP, "Execute Command: " + commandType.name());
-
-        MedLinkMedtronicUITask task = new MedLinkMedtronicUITask(injector, commandType, parameters);
-
-        medtronicUtil.setCurrentCommand(commandType.command);
-
-        task.execute(medtronicCommunicationManager, medtronicUIPostprocessor);
-
-        if (!task.isReceived()) {
-            aapsLogger.warn(LTag.PUMP, "Reply not received for " + commandType);
-        }
-
-//        task.postProcess(medtronicUIPostprocessor);
-        return task;
-
-    }
+//    public synchronized MedLinkMedtronicUITask executeCommand(MedLinkMedtronicCommandType commandType, Object... parameters) {
+//
+//        aapsLogger.info(LTag.PUMP, "Execute Command: " + commandType.name());
+//
+//        MedLinkMedtronicUITask task = new MedLinkMedtronicUITask(injector, commandType, parameters);
+//
+//        medtronicUtil.setCurrentCommand(commandType.command);
+//
+//        task.execute(medtronicCommunicationManager, medtronicUIPostprocessor);
+//
+//        if (!task.isReceived()) {
+//            aapsLogger.warn(LTag.PUMP, "Reply not received for " + commandType);
+//        }
+//
+////        task.postProcess(medtronicUIPostprocessor);
+//        return task;
+//
+//    }
 
     public int getInvalidResponsesCount() {
         return medtronicCommunicationManager.getNotConnectedCount();

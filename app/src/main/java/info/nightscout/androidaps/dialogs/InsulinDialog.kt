@@ -23,6 +23,7 @@ import info.nightscout.androidaps.interfaces.ActivePluginProvider
 import info.nightscout.androidaps.interfaces.CommandQueueProvider
 import info.nightscout.androidaps.interfaces.Constraint
 import info.nightscout.androidaps.interfaces.ProfileFunction
+import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.*
@@ -197,7 +198,7 @@ class InsulinDialog : DialogFragmentWithDate() {
                             detailedBolusInfo.date = time
                             activePlugin.activeTreatments.addToHistoryTreatment(detailedBolusInfo, false)
                         } else {
-                            aapsLogger.debug("USER ENTRY: BOLUS $insulinAfterConstraints")
+                            aapsLogger.info(LTag.EVENTS,"USER ENTRY: BOLUS $insulinAfterConstraints")
                             detailedBolusInfo.date = DateUtil.now()
                             commandQueue.bolus(detailedBolusInfo, object : Callback() {
                                 override fun run() {

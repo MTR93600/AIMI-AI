@@ -11,6 +11,7 @@
             android:enabled="true"
             android:exported="true" />
         <activity android:name=".dialog.MedtronicHistoryActivity" />
+        <activity android:name=".dialog.MedLinkMedtronicHistoryActivity" />
 
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>

@@ -84,7 +84,7 @@ public class MedLinkMedtronicUITaskCp {
             break;
             case PumpModel: {
                 Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = new ConnectionCallback().andThen(s -> {
-                    if (s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))) {
+                    if (s.getAnswer().anyMatch(f -> f.contains("eomeomeom") || f.contains("ready"))) {
                         rxBus.send(new EventMedtronicPumpValuesChanged());
                     }
 
@@ -99,7 +99,7 @@ public class MedLinkMedtronicUITaskCp {
                     returnData = basalProfile;
                     postProcess(medtronicUIPostprocessor);
                     return basalProfile;
-                });
+                }, pumpMessage);
             }
             break;
             case BolusHistory: {

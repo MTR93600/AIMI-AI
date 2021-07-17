@@ -16,6 +16,7 @@ import info.nightscout.androidaps.interfaces.CommandQueueProvider
 import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
+import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedtronicHistoryActivity
@@ -30,6 +31,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkS
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
+import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedLinkMedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.queue.Callback
@@ -88,9 +90,9 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         medtronic_pump_status.setTextColor(Color.WHITE)
         medtronic_pump_status.text = "{fa-bed}"
 
-        medtronic_history.setOnClickListener {
+        medlink_medtronic_history.setOnClickListener {
             if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
-                startActivity(Intent(context, MedtronicHistoryActivity::class.java))
+                startActivity(Intent(context, MedLinkMedtronicHistoryActivity::class.java))
             } else {
                 aapsLogger.debug("medtronic history")
                 displayNotConfiguredDialog()
@@ -300,7 +302,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         // base basal rate
-        medtronic_basabasalrate.text = ("(" + medtronicPumpStatus.activeProfileName + ")  "
+        medtronic_basabasalrate.text = ("(${medtronicPumpStatus.activeProfileName.toUpperCase()})  "
             + resourceHelper.gs(R.string.pump_basebasalrate, medlinkMedtronicPlugin.baseBasalRate))
 
         medtronic_tempbasal.text = activePlugin.activeTreatments.getTempBasalFromHistory(System.currentTimeMillis())?.toStringFull()
@@ -308,17 +310,30 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         // battery
         if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
-            medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  "
-        // } else if (medtronicPumpStatus.batteryType == BatteryType.LiPo) {
-        //     medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + String.format(" %.2f V", medtronicPumpStatus.batteryVoltage)
+            medtronic_pumpstate_battery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} "
+            // } else if (medtronicPumpStatus.batteryType == BatteryType.LiPo) {
+            //     medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + String.format(" %.2f V", medtronicPumpStatus.batteryVoltage)
         } else {
-            medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
+            medtronic_pumpstate_battery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} ${String.format("%.2f V", medtronicPumpStatus.batteryVoltage)}"
         }
         warnColors.setColorInverse(medtronic_pumpstate_battery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
 
         // reservoir
         medtronic_reservoir.text = resourceHelper.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)
         warnColors.setColorInverse(medtronic_reservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0)
+
+        medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
+        medtronic_errors.text = medtronicPumpStatus.errorInfo
+
+        // next command
+        val pump = activePlugin.activePump
+        if (pump is MedLinkMedtronicPumpPlugin ) {
+            if (pump.temporaryBasal != null) {
+                medtronic_next_command.text = pump.tempBasalMicrobolusOperations.operations.first.toStringView()
+            } else {
+                medtronic_next_command.text = pump.nextScheduledCommand()
+            }
+        }
 
         medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
         medtronic_errors.text = medtronicPumpStatus.errorInfo
@@ -338,13 +353,13 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 
-        medtronic_devicestate_battery.text = "{fa-battery-" + medtronicPumpStatus.deviceBatteryRemaining / 25 + "}  " + medtronicPumpStatus.deviceBatteryRemaining + "%";
+        medtronic_devicestate_battery.text = "{fa-battery-${medtronicPumpStatus.deviceBatteryRemaining / 25} }  ${medtronicPumpStatus.deviceBatteryRemaining}%";
 
         warnColors.setColorInverse(medtronic_pumpstate_battery, medtronicPumpStatus.deviceBatteryRemaining.toDouble(), 25.0, 10.0)
 
         // next calibration
         if (medtronicPumpStatus.nextCalibration != null) {
-            val agoMsc =  medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli() - System.currentTimeMillis()
+            val agoMsc = medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli() - System.currentTimeMillis()
             val calibrationMinAgo = agoMsc.toDouble() / 60.0 / 1000.0
 
             val ago: String
@@ -355,12 +370,23 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             } else {
                 ago = DateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), resourceHelper)
             }
-            medtronic_nextcalibration.text = resourceHelper.gs( R.string.mdt_next_calibration , ago, medtronicPumpStatus.nextCalibration.toLocalTime())
+            medtronic_nextcalibration.text = resourceHelper.gs(R.string.mdt_next_calibration, ago, medtronicPumpStatus.nextCalibration.toLocalTime())
             warnColors.setColorInverse(medtronic_nextcalibration, calibrationMinAgo, 60.0, 30.0)
         } else {
             medtronic_nextcalibration.text = ""
         }
 
+        // isig
+        val pumpStatus = medtronicPumpStatus
+        if (medtronicPumpStatus.isig != null && medtronicPumpStatus.isig == 0.0) {
+            medtronic_isig.text = resourceHelper.gs(info.nightscout.androidaps.core.R.string.sensor_lost)
+            medtronic_isig.setTextColor(Color.RED)
+        } else if (medtronicPumpStatus.isig != null) {
+            medtronic_isig.text = String.format("%.2fnA", medtronicPumpStatus.isig)
+            warnColors.setColorInverse(medtronic_isig, medtronicPumpStatus.isig, 8.0, 7.0)
+            warnColors.setColor(medtronic_isig, medtronicPumpStatus.isig, 26.0, 31.0)
+        } else {
+            medtronic_nextcalibration.text = ""
+        }
     }
-
 }

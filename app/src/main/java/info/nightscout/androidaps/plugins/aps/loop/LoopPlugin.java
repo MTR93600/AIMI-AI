@@ -409,13 +409,13 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             // check rate for constraints
             final APSResult resultAfterConstraints = result.newAndClone(injector);
             resultAfterConstraints.rateConstraint = new Constraint<>(resultAfterConstraints.rate);
-            resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.rateConstraint, profile).value();
+            resultAfterConstraints.rate = constraintChecker.applyBasalConstraints(resultAfterConstraints.getRateConstraint(), profile).value();
 
             resultAfterConstraints.percentConstraint = new Constraint<>(resultAfterConstraints.percent);
-            resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.percentConstraint, profile).value();
+            resultAfterConstraints.percent = constraintChecker.applyBasalPercentConstraints(resultAfterConstraints.getPercentConstraint(), profile).value();
 
             resultAfterConstraints.smbConstraint = new Constraint<>(resultAfterConstraints.smb);
-            resultAfterConstraints.smb = constraintChecker.applyBolusConstraints(resultAfterConstraints.smbConstraint).value();
+            resultAfterConstraints.smb = constraintChecker.applyBolusConstraints(resultAfterConstraints.getSMBConstraint()).value();
 
             // safety check for multiple SMBs
             long lastBolusTime = treatmentsPlugin.getLastBolusTime();
@@ -440,6 +440,9 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             lastRun.setLastSMBEnact(0);
             lastRun.setLastSMBRequest(0);
 
+//            if(pump instanceof MedLinkPumpDevice){
+//                receiverStatusStore.getBatteryLevel()
+//            }
             nsUpload.uploadDeviceStatus(this, iobCobCalculatorPlugin, profileFunction, activePlugin.getActivePump(), receiverStatusStore, BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILDVERSION);
 
             if (isSuspended()) {
@@ -535,38 +538,74 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                         lastRun.setSmbSetByPump(waiting);
                     rxBus.send(new EventLoopUpdateGui());
                     fabricPrivacy.logCustom("APSRequest");
-                    applyTBRRequest(resultAfterConstraints, profile, new Callback() {
-                        @Override
-                        public void run() {
-                            if (result.enacted || result.success) {
-                                lastRun.setTbrSetByPump(result);
-                                lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
-                                lastRun.setLastTBREnact(DateUtil.now());
-                                rxBus.send(new EventLoopUpdateGui());
-                                applySMBRequest(resultAfterConstraints, new Callback() {
-                                    @Override
-                                    public void run() {
-                                        // Callback is only called if a bolus was actually requested
-                                        if (result.enacted || result.success) {
-                                            lastRun.setSmbSetByPump(result);
-                                            lastRun.setLastSMBRequest(lastRun.getLastAPSRun());
-                                            lastRun.setLastSMBEnact(DateUtil.now());
-                                        } else {
-                                            new Thread(() -> {
-                                                SystemClock.sleep(1000);
-                                                invoke("tempBasalFallback", allowNotification, true);
-                                            }).start();
-                                        }
-                                        rxBus.send(new EventLoopUpdateGui());
-                                    }
-                                });
-                            } else {
-                                lastRun.setTbrSetByPump(result);
-                                lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                    if (pump instanceof MedLinkPumpDevice) {
+                        applySMBRequest(resultAfterConstraints, new Callback() {
+                            @Override
+                            public void run() {
+                                // Callback is only called if a bolus was actually requested
+                                if (result.enacted || result.success) {
+                                    lastRun.setSmbSetByPump(result);
+                                    lastRun.setLastSMBRequest(lastRun.getLastAPSRun());
+                                    lastRun.setLastSMBEnact(DateUtil.now());
+                                } else {
+                                    lastRun.setTbrSetByPump(result);
+                                    lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                                }
                             }
-                            rxBus.send(new EventLoopUpdateGui());
-                        }
-                    });
+                        });
+                        applyTBRRequest(resultAfterConstraints, profile, new Callback() {
+                            @Override
+                            public void run() {
+                                if (result.enacted || result.success) {
+                                    lastRun.setTbrSetByPump(result);
+                                    lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                                    lastRun.setLastTBREnact(DateUtil.now());
+                                    rxBus.send(new EventLoopUpdateGui());
+                                } else {
+                                    new Thread(() -> {
+                                        SystemClock.sleep(1000);
+                                        invoke("tempBasalFallback", allowNotification, true);
+                                    }).start();
+                                }
+                                rxBus.send(new EventLoopUpdateGui());
+                            }
+                        });
+
+
+                    } else {
+                        applyTBRRequest(resultAfterConstraints, profile, new Callback() {
+                            @Override
+                            public void run() {
+                                if (result.enacted || result.success) {
+                                    lastRun.setTbrSetByPump(result);
+                                    lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                                    lastRun.setLastTBREnact(DateUtil.now());
+                                    rxBus.send(new EventLoopUpdateGui());
+                                    applySMBRequest(resultAfterConstraints, new Callback() {
+                                        @Override
+                                        public void run() {
+                                            // Callback is only called if a bolus was actually requested
+                                            if (result.enacted || result.success) {
+                                                lastRun.setSmbSetByPump(result);
+                                                lastRun.setLastSMBRequest(lastRun.getLastAPSRun());
+                                                lastRun.setLastSMBEnact(DateUtil.now());
+                                            } else {
+                                                new Thread(() -> {
+                                                    SystemClock.sleep(1000);
+                                                    invoke("tempBasalFallback", allowNotification, true);
+                                                }).start();
+                                            }
+                                            rxBus.send(new EventLoopUpdateGui());
+                                        }
+                                    });
+                                } else {
+                                    lastRun.setTbrSetByPump(result);
+                                    lastRun.setLastTBRRequest(lastRun.getLastAPSRun());
+                                }
+                                rxBus.send(new EventLoopUpdateGui());
+                            }
+                        });
+                    }
                 } else {
                     lastRun.setTbrSetByPump(null);
                     lastRun.setSmbSetByPump(null);
@@ -591,10 +630,13 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                 }
             }
 
-            rxBus.send(new EventLoopUpdateGui());
+            rxBus.send(new
+
+                    EventLoopUpdateGui());
         } finally {
             getAapsLogger().debug(LTag.APS, "invoke end");
         }
+
     }
 
     private void medlinkTempBasalCommand(PumpInterface pump, boolean allowNotification, APSResult result, Profile profile) {
@@ -726,7 +768,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
      * TODO: update pump drivers to support APS request in %
      */
 
-    private void applyTBRRequest(APSResult request, Profile profile, Callback callback) {
+    protected void applyTBRRequest(APSResult request, Profile profile, Callback callback) {
 
         getAapsLogger().info(LTag.APS, "aplytbrrequest " + request.tempBasalRequested);
         if (!request.tempBasalRequested) {
@@ -746,7 +788,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             return;
         }
 
-        if (pump.isSuspended() && !(pump instanceof  MedLinkPumpDevice)) {
+        if (pump.isSuspended() && !(pump instanceof MedLinkPumpDevice)) {
             getAapsLogger().debug(LTag.APS, "applyAPSRequest: " + resourceHelper.gs(R.string.pumpsuspended));
 
             if (!(pump instanceof MedLinkPumpPluginAbstract)) {
@@ -790,20 +832,25 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
         } else {
             if ((request.rate == 0 && request.duration == 0) || Math.abs(request.rate - pump.getBaseBasalRate()) < pump.getPumpDescription().basalStep) {
                 if (activeTemp != null) {
+                    getAapsLogger().info(LTag.APS, "applyAPSRequest: Cancelling tempbasal");
                     if (activePlugin.getActivePump() instanceof MedLinkPumpDevice) {
                         commandQueue.cancelTempBasal(true, callback);
                     } else {
-                        getAapsLogger().debug(LTag.APS, "applyAPSRequest: cancelTempBasal()");
+                        getAapsLogger().info(LTag.APS, "applyAPSRequest: cancelTempBasal()");
                         commandQueue.cancelTempBasal(false, callback);
                     }
                 } else {
-                    getAapsLogger().debug(LTag.APS, "applyAPSRequest: Basal set correctly");
+                    getAapsLogger().info(LTag.APS, "applyAPSRequest: Basal set correctly");
                     if (callback != null) {
                         callback.result(new PumpEnactResult(getInjector()).absolute(request.rate).duration(0)
                                 .enacted(false).success(true).comment(resourceHelper.gs(R.string.basal_set_correctly))).run();
                     }
                 }
             } else if (activePlugin.getActivePump() instanceof MedLinkPumpDevice) {
+                getAapsLogger().info(LTag.APS, "applyAPSRequest: Setting tempbasal "+request.rate);
+                getAapsLogger().info(LTag.APS, "applyAPSRequest: Setting tempbasal "+pump.getBaseBasalRate());
+                getAapsLogger().info(LTag.APS, "applyAPSRequest: Setting tempbasal "+request.duration);
+                getAapsLogger().info(LTag.APS, "applyAPSRequest: Setting tempbasal "+activeTemp);
                 if (activeTemp != null && (request.percent == 100 || Math.abs(request.rate - pump.getBaseBasalRate()) < pump.getPumpDescription().basalStep)) {
                     commandQueue.cancelTempBasal(false, callback);
                 } else if (activeTemp != null && Math.abs(request.rate - pump.getBaseBasalRate()) >= pump.getPumpDescription().basalStep) {
@@ -836,7 +883,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
         }
     }
 
-    private void applySMBRequest(APSResult request, Callback callback) {
+    protected void applySMBRequest(APSResult request, Callback callback) {
         if (!request.bolusRequested) {
             return;
         }

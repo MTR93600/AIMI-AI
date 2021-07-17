@@ -36,54 +36,83 @@ public class MedLinkStatusParser {
     public static MedLinkPumpStatus parseStatus(String[] pumpAnswer, MedLinkPumpStatus pumpStatus, HasAndroidInjector injector) {
 
 //        13‑12‑2020 18:36  54%
+//        String ans = "1623436309132\n" +
+//                "fifo reading fault\n" +
+//                "crc-8 invalid data\n" +
+//                "pump no response for 0x70 command\n" +
+//                "11-06-2021 20:30 100%\n" +
+//                "bg: --- -------- --:--\n" +
+//                "last bolus: 1.6u 10-06-21 17:39\n" +
+//                "square bolus: 0.0u delivered: 0.000u\n" +
+//                "square bolus time: 0h:00m / 0h:00m\n" +
+//                "isig: 00.00na\n" +
+//                "calibration factor:  5.342\n" +
+//                "next calibration time: --:--\n" +
+//                "sensor uptime:  731min\n" +
+//                "bg target:  75-155\n" +
+//                "pump battery voltage: 1.26v\n" +
+//                "reservoir: 246.12u\n" +
+//                "basal scheme: std\n" +
+//                "basal: 0.275u/h\n" +
+//                "tbr: 100%   0h:00m\n" +
+//                "insulin today:  3.175u\n" +
+//                "insulin yesterday:  5.350u\n" +
+//                "max. bolus:  7.8u\n" +
+//                "easy bolus step: 0.2u\n" +
+//                "max. basal rate: 2.450u/h\n" +
+//                "insulin duration time: 5h\n" +
+//                "pump status: normal\n" +
+//                "enlite transmitter id: 0000000\n" +
+//                "ready\n";
+//        pumpAnswer = ans.split("\n");
+        try {
+            Iterator<String> messageIterator = Arrays.stream(pumpAnswer).map(f -> f.toLowerCase()).iterator();
+            String message = null;
+            while (messageIterator.hasNext()) {
+                message = messageIterator.next().trim();
 
-        Iterator<String> messageIterator = Arrays.stream(pumpAnswer).map(f -> f.toLowerCase()).iterator();
-        String message = null;
-        while (messageIterator.hasNext()) {
-            message = messageIterator.next().trim();
-
-            if (parseDateTime(message, dateTimeFullPattern, true) != null &&
-                    message.contains("%")) {
-                break;
+                if (parseDateTime(message, dateTimeFullPattern, true) != null &&
+                        message.contains("%")) {
+                    break;
+                }
             }
-        }
-        MedLinkPumpStatus timeMedLinkPumpStatus = parsePumpTimeMedLinkBattery(message, pumpStatus);
-        MedLinkPumpStatus bgMedLinkPumpStatus = parseBG(messageIterator, timeMedLinkPumpStatus, injector);
+            MedLinkPumpStatus timeMedLinkPumpStatus = parsePumpTimeMedLinkBattery(message, pumpStatus);
+            MedLinkPumpStatus bgMedLinkPumpStatus = parseBG(messageIterator, timeMedLinkPumpStatus, injector);
 
-        MedLinkPumpStatus lastBolusStatus = parseLastBolus(messageIterator, bgMedLinkPumpStatus);
+            MedLinkPumpStatus lastBolusStatus = parseLastBolus(messageIterator, bgMedLinkPumpStatus);
 //                18:36:49.381
 //        18:36:49.495 Last bolus: 0.2u 13‑12‑20 18:32
-        moveIterator(messageIterator);
+            moveIterator(messageIterator);
 //        18:36:49.496 Square bolus: 0.0u delivered: 0.000u
-        moveIterator(messageIterator);
+            moveIterator(messageIterator);
 //        18:36:49.532 Square bolus time: 0h:00m / 0h:00m
-        MedLinkPumpStatus isigStatus = parseISIG(messageIterator, lastBolusStatus);
+            MedLinkPumpStatus isigStatus = parseISIG(messageIterator, lastBolusStatus);
 //        18:36:49.570 ISIG: 20.62nA
-        MedLinkPumpStatus calibrationFactorStatus = parseCalibrationFactor(messageIterator, isigStatus, injector);
+            MedLinkPumpStatus calibrationFactorStatus = parseCalibrationFactor(messageIterator, isigStatus, injector);
 //        18:36:49.607 Calibration factor: 6.419
-        MedLinkPumpStatus nextCalibrationStatus = parseNextCalibration(messageIterator, calibrationFactorStatus, injector);
+            MedLinkPumpStatus nextCalibrationStatus = parseNextCalibration(messageIterator, calibrationFactorStatus, injector);
 //        18:36:49.681 Next calibration time:  5:00
 //        moveIterator(messageIterator);
 //        18:36:49.683 Sensor uptime: 1483min
-        MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, nextCalibrationStatus);
+            MedLinkPumpStatus sageStatus = parseSensorAgeStatus(messageIterator, nextCalibrationStatus);
 //        18:36:49.719 BG target:  75‑160
-        moveIterator(messageIterator);
-        MedLinkPumpStatus batteryStatus = parseBatteryVoltage(messageIterator, sageStatus);
+            moveIterator(messageIterator);
+            MedLinkPumpStatus batteryStatus = parseBatteryVoltage(messageIterator, sageStatus);
 //        18:36:49.832 Pump battery voltage: 1.43V
-        MedLinkPumpStatus reservoirStatus = parseReservoir(messageIterator, batteryStatus);
+            MedLinkPumpStatus reservoirStatus = parseReservoir(messageIterator, batteryStatus);
 
 //        18:36:49.907 Reservoir:  66.12u
-        MedLinkPumpStatus basalStatus = parseCurrentBasal(messageIterator, reservoirStatus);
+            MedLinkPumpStatus basalStatus = parseCurrentBasal(messageIterator, reservoirStatus);
 //        18:36:49.982 Basal scheme: STD
 //        moveIterator(messageIterator);
 //        18:36:49.983 Basal: 0.600u/h
-        MedLinkPumpStatus tempBasalStatus = parseTempBasal(messageIterator, basalStatus);
+            MedLinkPumpStatus tempBasalStatus = parseTempBasal(messageIterator, basalStatus);
 //        18:36:50.020 TBR: 100%   0h:00m
-        MedLinkPumpStatus dailyTotal = parseDayInsulin(messageIterator, tempBasalStatus);
+            MedLinkPumpStatus dailyTotal = parseDayInsulin(messageIterator, tempBasalStatus);
 //        18:36:50.058 Insulin today: 37.625u
-        MedLinkPumpStatus yesterdayTotal = parseDayInsulin(messageIterator, dailyTotal);
+            MedLinkPumpStatus yesterdayTotal = parseDayInsulin(messageIterator, dailyTotal);
 //        18:36:50.095 Insulin yesterday: 48.625u
-        moveIterator(messageIterator);
+            moveIterator(messageIterator);
 
 //        18:36:50.132 Max. bolus: 15.0u
 //        moveIterator(messageIterator);
@@ -93,11 +122,15 @@ public class MedLinkStatusParser {
 //        moveIterator(messageIterator);
 //        18:36:50.282 Insulin duration time: 3h
 //        moveIterator(messageIterator);
-        MedLinkPumpStatus pumpState = parsePumpState(yesterdayTotal, messageIterator);
+            MedLinkPumpStatus pumpState = parsePumpState(yesterdayTotal, messageIterator);
 //        18:36:50.448 Pump status: NORMAL
 //        moveIterator(messageIterator);
 //        18:36:50.471 EomEomEom
-        return pumpState;
+            return pumpState;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private static MedLinkPumpStatus parseNextCalibration(Iterator<String> messageIterator,
@@ -181,7 +214,7 @@ public class MedLinkStatusParser {
                     pumpStatus.pumpStatusType = PumpStatusType.Suspended;
                 }
                 break;
-            } else if (currentLine.contains("eomeom")) {
+            } else if (currentLine.contains("eomeom") || currentLine.contains("ready")) {
                 break;
             }
         }
@@ -233,8 +266,8 @@ public class MedLinkStatusParser {
                 Pattern reservoirPattern = Pattern.compile("\\d+%");
                 Matcher matcher = reservoirPattern.matcher(currentLine);
                 if (matcher.find()) {
-                    String reservoirRemaining = matcher.group();
-                    pumpStatus.tempBasalRatio = Integer.parseInt(reservoirRemaining.substring(0, reservoirRemaining.length() - 1));
+                    String tempBasalRatio = matcher.group();
+                    pumpStatus.tempBasalRatio = Integer.parseInt(tempBasalRatio.substring(0, tempBasalRatio.length() - 1));
                     Pattern remTempTimePattern = Pattern.compile("\\d+h:\\d+m");
                     Matcher remTempTimeMatcher = remTempTimePattern.matcher(currentLine);
                     if (remTempTimeMatcher.find()) {
@@ -402,7 +435,7 @@ public class MedLinkStatusParser {
         if (matcher.find()) {
             String timeString = matcher.group(0);
             if (timeString.length() < 5) {
-                timeString = "0"+timeString ;
+                timeString = "0" + timeString;
             }
             LocalTime time = LocalTime.parse(timeString, timeFormatter);
             LocalDateTime result;

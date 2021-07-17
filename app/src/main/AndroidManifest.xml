@@ -270,6 +270,7 @@
             android:exported="true" />
 
         <activity android:name=".plugins.pump.medtronic.dialog.MedtronicHistoryActivity" />
+        <activity android:name=".plugins.pump.medtronic.dialog.MedLinkMedtronicHistoryActivity" />
         <activity android:name=".plugins.general.openhumans.OpenHumansLoginActivity"
             android:launchMode="singleTop">
             <intent-filter>

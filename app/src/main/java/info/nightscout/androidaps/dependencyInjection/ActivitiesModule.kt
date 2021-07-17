@@ -16,6 +16,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyL
 import info.nightscout.androidaps.plugins.pump.insight.activities.InsightAlertActivity
 import info.nightscout.androidaps.plugins.pump.insight.activities.InsightPairingActivity
 import info.nightscout.androidaps.plugins.pump.insight.activities.InsightPairingInformationActivity
+import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedLinkMedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedtronicHistoryActivity
 import info.nightscout.androidaps.setupwizard.SetupWizardActivity
 
@@ -44,5 +45,6 @@ abstract class ActivitiesModule {
     @ContributesAndroidInjector abstract fun contributesDefaultProfileActivity(): ProfileHelperActivity
     @ContributesAndroidInjector abstract fun contributesOpenHumansLoginActivity(): OpenHumansLoginActivity
 
+    @ContributesAndroidInjector abstract fun contributesMedLinkMedtronicHistoryActivity(): MedLinkMedtronicHistoryActivity
     @ContributesAndroidInjector abstract fun contributesMedLinkStatusActivity(): MedLinkStatusActivity
 }

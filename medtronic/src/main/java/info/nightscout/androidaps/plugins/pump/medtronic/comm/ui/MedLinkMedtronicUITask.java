@@ -75,7 +75,7 @@ public class MedLinkMedtronicUITask {
         switch (commandType) {
             case PumpModel: {
                 Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = new ConnectionCallback().andThen(s -> {
-                    if(s.getAnswer().anyMatch(f -> f.contains("eomeomeom"))){
+                    if(s.getAnswer().anyMatch(f -> f.contains("eomeomeom") || f.contains("ready"))){
                         rxBus.send(new EventMedtronicPumpValuesChanged());
                     }
 
@@ -91,7 +91,7 @@ public class MedLinkMedtronicUITask {
                     returnData = basalProfile;
                     postProcess(medtronicUIPostprocessor);
                     return basalProfile;
-                });
+                }, pumpMessage);
             }
             break;
 //

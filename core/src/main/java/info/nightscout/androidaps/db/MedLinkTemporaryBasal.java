@@ -30,6 +30,10 @@ public class MedLinkTemporaryBasal extends TemporaryBasal{
         this.desiredPct = desiredPct;
     }
 
-
-
+    @Override public String toString() {
+        return "MedLinkTemporaryBasal{" +
+                "desiredRate=" + desiredRate +
+                ", desiredPct=" + desiredPct +
+                '}' + super.toString();
+    }
 }

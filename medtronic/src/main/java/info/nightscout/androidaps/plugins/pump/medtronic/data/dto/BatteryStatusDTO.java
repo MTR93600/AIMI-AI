@@ -45,7 +45,8 @@ public class BatteryStatusDTO {
                 getCalculatedPercent(BatteryType.Alkaline),
                 getCalculatedPercent(BatteryType.Lithium),
                 getCalculatedPercent(BatteryType.NiZn),
-                getCalculatedPercent(BatteryType.NiMH));
+                getCalculatedPercent(BatteryType.NiMH),
+                getCalculatedPercent(BatteryType.LiPo));
     }
 
 

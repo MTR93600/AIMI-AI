@@ -25,13 +25,37 @@
             android:key="@string/key_medtronic_pump_type"
             android:title="@string/medtronic_pump_type" />
 
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/medLinkBatteryInfoArray"
+            android:entryValues="@array/medLinkBatteryInfoArray"
+            android:key="@string/key_medlink_battery_info"
+            android:title="@string/pref_medlink_battery_info" />
 
         <MultiSelectListPreference
             android:entries="@array/medlinkInitCommandsArray"
             android:entryValues="@array/medlinkInitCommandsValues"
+            android:summary="@string/medlink_init_command_summary"
             android:key="@string/key_medlink_init_command"
             android:title="@string/medlink_init_commands"
             android:dialogTitle="@string/medlink_init_commands" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/medlink_key_force_bolus_history_read"
+            android:summary="@string/medlink_key_force_bolus_history_read_summary"
+            android:title="@string/medlink_force_bolus_history_read_title" />
+
+        <EditTextPreference
+            android:defaultValue="30"
+            android:key="@string/medlink_key_interval_between_bt_connections"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/medlink_key_interval_between_bt_connections_title"
+            validate:customRegexp="@string/onetothreedigitnumber"
+            validate:testErrorString="@string/error_mustbe1or3digitnumber"
+            validate:testType="regexp" />
 
         <ListPreference
             android:defaultValue="@string/key_medtronic_pump_frequency_us_ca"

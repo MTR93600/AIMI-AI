@@ -9,6 +9,7 @@ import java.util.Date;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.SensorDataReading;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 
 /**
@@ -50,6 +51,10 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
         result.insulin = lastBolusAmount;
         result.deliverAt = lastBolusTime.getTime();
         return result;
+    }
+
+    public PumpStatusType getPumpStatusType(){
+        return pumpStatusType;
     }
 }
 

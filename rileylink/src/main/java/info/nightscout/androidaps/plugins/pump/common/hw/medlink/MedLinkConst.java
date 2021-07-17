@@ -18,6 +18,7 @@ public class MedLinkConst {
 
     public static final List<String> DEVICE_NAME = Collections.unmodifiableList(
             new ArrayList<String>() {{
+                add("MEDLINK");
                 add("MED-LINK");
                 add("MED-LINK-2");
                 add("MED-LINK-3");

@@ -134,7 +134,6 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
             Double isig = isigs.get(count);
             Double calibrationFactor = 0.0;
             result[count + delta] = new SensorDataReading(injector, reading, isig, calibrationFactor);
-            aapsLogger.info(LTag.PUMPBTCOMM, "adding isigs");
         }
         if (result.length > 0 && result[0] != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "adding isigs");

@@ -29,6 +29,7 @@ public class NSAddAck extends Event implements Ack {
     public void call(Object... args) {
         // Regular response
         try {
+            aapsLogger.info(LTag.PUMPBTCOMM, args[0].toString());
             JSONArray responsearray = (JSONArray) (args[0]);
             JSONObject response;
             if (responsearray.length() > 0) {

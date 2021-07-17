@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="key_medlink_battery_info" translatable="false">pref_medlink_battery_info</string>
+    <string name="pref_medlink_battery_info">Which battery info should be displayed at the main AAPS page</string>
+
+    <string name="medlink_key_interval_between_bt_connections" translatable="false">medlink_key_interval_between_bt_connections_summary</string>
+    <string name="medlink_key_force_bolus_history_read" translatable="false">medlink_key_force_bolus_history_read_summary</string>
     <string name="key_medlink_init_command" translatable="false">pref_medlink_init_command</string>
     <string name="medlink_init_commands">Commands to be executed on first connect</string>
 
@@ -144,5 +149,12 @@
     <string name="pump_battery_label">Pump Battery</string>
     <string name="device_battery_label">Device Battery</string>
     <string name="next_calibration_label">Next Calibration</string>
+    <string name="medlink_force_bolus_history_read_title">Dispatch a bolus history read after each bolus</string>
+    <string name="medlink_key_force_bolus_history_read_summary">If enabled AAPS will dispatch a read bolus history command after each bolus, or when the latest bolus date changes, otherwise it will try to get bolus info from the get status command.</string>
+    <string name="medlink_key_interval_between_bt_connections_title">Amount of seconds between two consecutive BT connections</string>
+    <string name="medlink_key_interval_between_bt_connections_summary">This is the amount of time, in seconds, that AAPS will wait between two sequential Bluetooth connections. Recommended values are between 5 and 30s.</string>
+    <string name="medlink_init_command_summary">Here you can choose which commands will be dispatched when the aaps initialize.</string>
+    <string name="isig_label">ISIG</string>
+    <string name="next_command_label">Next command:</string>
 
 </resources>

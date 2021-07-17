@@ -206,5 +206,6 @@ private val allowedKeys = """
     xdripstatus
     xdripstatus_detailediob
     xdripstatus_showbgi
-    pref_medlink_inic_command
+    pref_medlink_init_command
+    pref_medlink_battery_info
 """.trimIndent().split("\n").filterNot { it.isBlank() }.map { it.toUpperCase() }

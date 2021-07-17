@@ -22,6 +22,7 @@
     <string name="error_not_a_minimum_length">Not a minimum length</string>
     <string name="error_pin_not_valid">Pin should be 3 to 6 digits, not same or in series</string>
 
+    <string name="error_mustbe1or3digitnumber">Must be from 1 to 999</string>
     <string name="fourdigitnumber" translatable="false">^\\d{4}</string>
     <string name="twelvehexanumber" translatable="false">^[A-F0-9]{12}$</string>
     <string name="eighthexanumber" translatable="false">^[A-F0-9]{8}$</string>
