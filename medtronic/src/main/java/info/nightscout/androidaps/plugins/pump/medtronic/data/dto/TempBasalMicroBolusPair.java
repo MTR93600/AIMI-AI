@@ -7,6 +7,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 import kotlin.jvm.functions.Function1;
@@ -123,7 +124,7 @@ public class TempBasalMicroBolusPair {
         String release = releaseTime.toString("HH:mm");
         switch(operationType){
             case BOLUS: {
-                result ="Bolus: " + calculatedDose +
+                result ="Bolus: " + dose.setScale(1, RoundingMode.HALF_DOWN) +
                         "u, at=" + release;
             }
             break;

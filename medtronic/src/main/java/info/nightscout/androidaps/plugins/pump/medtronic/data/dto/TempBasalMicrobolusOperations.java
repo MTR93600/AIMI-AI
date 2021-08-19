@@ -16,6 +16,7 @@ import info.nightscout.androidaps.logging.L;
 
 public class TempBasalMicrobolusOperations {
 
+    private boolean shouldBeSuspended;
     private int durationInMinutes;
     private double absoluteRate;
 
@@ -96,4 +97,7 @@ public class TempBasalMicrobolusOperations {
         this.absoluteRate = absoluteRate;
     }
 
+    public void setShouldBeSuspended(boolean suspended) {
+        this.shouldBeSuspended = suspended;
+    }
 }

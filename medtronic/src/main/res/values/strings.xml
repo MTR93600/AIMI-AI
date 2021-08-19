@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="medlink_medtronic_cmd_stop_could_not_be_delivered">Pump cannot be stoped when the phone battery, or the device battery is below 5%</string>
     <string name="key_medlink_battery_info" translatable="false">pref_medlink_battery_info</string>
     <string name="pref_medlink_battery_info">Which battery info should be displayed at the main AAPS page</string>
 
@@ -10,10 +11,10 @@
 
     <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>
     <string name="key_medlink_init_commands_last_bg_history" translatable="false">medlink_init_commands_last_bg_history</string>
-    <string name="key_medlink_init_commands_penultimate_bg_history" translatable="false">medlink_init_commands_penultimate_bg_history</string>
+    <string name="key_medlink_init_commands_previous_bg_history" translatable="false">medlink_init_commands_previous_bg_history</string>
     <string name="key_medlink_init_commands_last_bolus_history" translatable="false">medlink_init_commands_last_bolus_history</string>
     <string name="medlink_init_commands_last_bolus_history">Last Bolus History Page(H)</string>
-    <string name="medlink_init_commands_penultimate_bg_history">Penultimate BG History Page(C1 and I1)</string>
+    <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(C1 and I1)</string>
     <string name="medlink_init_commands_profile">Profile Data (D and F)</string>
     <string name="medlink_init_commands_last_bg_history">Last BG History Page(C and I)</string>
 
@@ -155,6 +156,6 @@
     <string name="medlink_key_interval_between_bt_connections_summary">This is the amount of time, in seconds, that AAPS will wait between two sequential Bluetooth connections. Recommended values are between 5 and 30s.</string>
     <string name="medlink_init_command_summary">Here you can choose which commands will be dispatched when the aaps initialize.</string>
     <string name="isig_label">ISIG</string>
-    <string name="next_command_label">Next command:</string>
+    <string name="next_command_label">Next command</string>
 
 </resources>

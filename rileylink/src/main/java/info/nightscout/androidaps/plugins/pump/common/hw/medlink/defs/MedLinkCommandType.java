@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -17,6 +18,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public enum MedLinkCommandType {
 
     NoCommand(""),
+    ReadCharacteristic("\"ReadCharacteristic\""),
+    Notification("SetNotificationBlocking"),
     PumpModel("OK+CONN\r\n"),
     Connect("OK+CONN\r\n"),
     GetState("S\r\n"), //
@@ -106,4 +109,15 @@ public enum MedLinkCommandType {
 //        return BolusAmount(Bolus.code,minValueAmount);
 //
 //    }
+    public boolean isSameCommand(byte[] command){
+        return command != null && Arrays.equals(this.getRaw(), command);
+    }
+
+    public boolean isSameCommand(String command){
+        return command != null && command.equals(this.code);
+    }
+
+    public boolean isSameCommand(MedLinkCommandType command){
+        return isSameCommand(command.getRaw()) || isSameCommand(command.code);
+    }
 }

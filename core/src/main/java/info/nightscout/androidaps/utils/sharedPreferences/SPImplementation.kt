@@ -129,6 +129,14 @@ class SPImplementation @Inject constructor(
     override fun putString(key: String, value: String) =
         sharedPreferences.edit().putString(key, value).apply()
 
+    override fun putStringSet(resourceID: Int, value: MutableSet<String>) {
+        sharedPreferences.edit().putStringSet(resourceHelper.gs(resourceID), value).apply()
+    }
+
+    override fun putStringSet(key: String, value: MutableSet<String>) {
+        sharedPreferences.edit().putStringSet(key, value).apply()
+    }
+
     override fun toString(): String {
         return "SPImplementation(sharedPreferences=$sharedPreferences, resourceHelper=$resourceHelper)"
     }
@@ -136,6 +144,7 @@ class SPImplementation @Inject constructor(
     override fun getStringSet(key: String, defaultValue: MutableSet<String>): MutableSet<String> {
         return sharedPreferences.getStringSet(key, defaultValue)
     }
+
 
 
 }

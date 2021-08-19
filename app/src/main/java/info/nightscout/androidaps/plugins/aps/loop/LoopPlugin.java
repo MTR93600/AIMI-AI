@@ -539,6 +539,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
                     rxBus.send(new EventLoopUpdateGui());
                     fabricPrivacy.logCustom("APSRequest");
                     if (pump instanceof MedLinkPumpDevice) {
+                        getAapsLogger().info(LTag.AUTOMATION, resultAfterConstraints.toString());
                         applySMBRequest(resultAfterConstraints, new Callback() {
                             @Override
                             public void run() {
@@ -937,7 +938,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
     }
 
     private boolean allowPercentage() {
-        return virtualPumpPlugin.isEnabled(PluginType.PUMP);
+        return activePlugin.getActivePump() instanceof MedLinkPumpDevice || virtualPumpPlugin.isEnabled(PluginType.PUMP);
     }
 
     public void disconnectPump(int durationInMinutes, Profile profile) {

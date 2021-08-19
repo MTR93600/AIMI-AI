@@ -50,13 +50,16 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         aapsLogger.info(LTag.PUMPBTCOMM, "isig2");
 
         SensorDataReading[] readings = parseAnswer(() -> toParse, bgHistoryCallback.getReadings());
-        if(readings!=null) {
+        if (readings != null) {
             medLinkPumpPlugin.handleNewSensorData(readings);
         }
 //        if (handleBG) {
 //            medLinkPumpPlugin.handleNewBgData(readings);
 //        }
-        return new MedLinkStandardReturn<>(() -> toParse, Arrays.stream(readings), Collections.emptyList());
+        if (readings != null && readings.length > 0) {
+            return new MedLinkStandardReturn<>(() -> toParse, Arrays.stream(readings), Collections.emptyList());
+        }
+        return new MedLinkStandardReturn<>(() -> toParse, Stream.empty(), Collections.emptyList());
     }
 
     public SensorDataReading[] parseAnswer(Supplier<Stream<String>> ans, BgReading[] bgReadings) {
@@ -68,7 +71,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         while (answers.hasNext() && memAddress == 0) {
             String line = answers.next();
 
-            if (line.contains("nr strony")) {
+            if (line.contains("history page number")) {
                 Pattern memPatter = Pattern.compile("\\d{3}");
                 Matcher memMatcher = memPatter.matcher(line);
                 if (memMatcher.find()) {
@@ -96,7 +99,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
                 Pattern isigPat = Pattern.compile("\\d+\\.\\d+");
 
                 Matcher isigMatcher = isigPat.matcher(data);
-                if(isigMatcher.find()) {
+                if (isigMatcher.find()) {
                     isigs.add(Double.valueOf(isigMatcher.group(0)));
                 }
             } else if (line.trim().length() > 0 && !line.trim().equals("ready") && !line.contains("end of data") && !line.contains("beginning of data")) {

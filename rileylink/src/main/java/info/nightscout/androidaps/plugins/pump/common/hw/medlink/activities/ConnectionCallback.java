@@ -23,7 +23,7 @@ public class ConnectionCallback extends BaseStringAggregatorCallback {
             }
         }
 
-        return new MedLinkStandardReturn<>(answers, PumpResponses.UnknowAnswer.getAnswer(), MedLinkStandardReturn.ParsingError.ConnectionParsingError);
+        return new MedLinkStandardReturn<>(answers, PumpResponses.UnknownAnswer.getAnswer(), MedLinkStandardReturn.ParsingError.ConnectionParsingError);
     }
 
 }

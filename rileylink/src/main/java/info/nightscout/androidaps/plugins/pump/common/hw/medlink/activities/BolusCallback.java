@@ -4,10 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.logging.AAPSLogger;
@@ -36,16 +38,20 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         aapsLogger.info(LTag.PUMPBTCOMM, "BolusCallback");
         //TODO fix error response
         AtomicReference<BolusAnswer> pumpResponse = new AtomicReference<>();
-        if (answers.get().anyMatch(f -> f.toLowerCase().contains("pump is not delivering a bolus"))) {
-            answers.get().filter(f -> f.toLowerCase().contains("recent bolus bl")).findFirst().map(f -> {
+        if (answers.get().anyMatch(f -> f.toLowerCase().contains("pump is bolusing state"))) {
+            answers.get().filter(f -> f.toLowerCase().contains("last bolus:")).findFirst().map(f -> {
+                pumpResponse.set(deliveringBolus(f));
+                return pumpResponse;
+            });
+        } else if (answers.get().anyMatch(f -> f.toLowerCase().contains("last bolus:")))
+        {
+            answers.get().filter(f -> f.toLowerCase().contains("last bolus:")).findFirst().map(f -> {
                 pumpResponse.set(deliveredBolus(f));
                 return pumpResponse;
             });
-        } else if (answers.get().anyMatch(f -> f.toLowerCase().contains("pump is delivering a bolus"))) {
-            answers.get().filter(f -> f.toLowerCase().contains("recent bolus bl")).findFirst().map(f -> {
-                pumpResponse.set(deliveryingBolus(f));
-                return pumpResponse;
-            });
+        } else{
+            pumpResponse.set(new BolusAnswer(PumpResponses.UnknownAnswer,
+                    answers.get().collect(Collectors.joining())));
         }
         return createPumpResponse(answers, pumpResponse);
     }
@@ -58,25 +64,25 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         }
     }
 
-    private BolusAnswer deliveryingBolus(String input) {
+    private BolusAnswer deliveringBolus(String input) {
         aapsLogger.info(LTag.PUMPBTCOMM, "match bolus");
         Pattern deliveredBolusPattern = Pattern.compile("\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
         Matcher matcher = deliveredBolusPattern.matcher(input);
         if (matcher.find()) {
-                String units = matcher.group(0);
-                double delivered = Double.parseDouble(units.substring(0, units.length() - 1));
+            String units = matcher.group(0);
+            double delivered = Double.parseDouble(units.substring(0, units.length() - 1));
 //                12:09 01-06
-                    return new BolusAnswer(PumpResponses.DeliveringBolus, delivered, input);
+            return new BolusAnswer(PumpResponses.DeliveringBolus, delivered, input);
 
 
         }
-        return new BolusAnswer(PumpResponses.UnknowAnswer, input);
+        return new BolusAnswer(PumpResponses.UnknownAnswer, input);
     }
 
 
     private BolusAnswer deliveredBolus(String input) {
         aapsLogger.info(LTag.PUMPBTCOMM, "match bolus");
-        Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}:\\d{1,2}\\s\\d{2}\\S", Pattern.CASE_INSENSITIVE);
+        Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
         Matcher matcher = deliveredBolusPattern.matcher(input);
         if (matcher.find()) {
             Pattern unitsPattern = Pattern.compile("\\d{1,2}\\.\\du");
@@ -85,24 +91,20 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
                 String units = unitsMatcher.group(0);
                 double delivered = Double.parseDouble(units.substring(0, units.length() - 1).trim());
 //                12:09 01-06
-                Pattern deliveredTimePattern = Pattern.compile("\\d{1,2}:\\d{2}\\s\\d{2}-\\d{2}", Pattern.CASE_INSENSITIVE);
+                Pattern deliveredTimePattern = Pattern.compile("\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
                 Matcher deliveredTimeMatcher = deliveredTimePattern.matcher(input);
                 if (deliveredTimeMatcher.find()) {
                     String deliveredTime = deliveredTimeMatcher.group(0);
                     String[] dateTime = deliveredTime.split(" ");
                     String[] time = dateTime[0].split(":");
                     String[] date = dateTime[1].split("-");
-                    ZonedDateTime bolusDeliveredAt =  ZonedDateTime.of(getYear(date),
-                            Integer.parseInt(date[1]),
-                            Integer.parseInt(date[0]),
-                            Integer.parseInt(time[0]),
-                            Integer.parseInt(time[1]),
-                            0,0, ZoneId.systemDefault());
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
+                    ZonedDateTime bolusDeliveredAt = LocalDateTime.parse(deliveredTime,formatter).atZone(ZoneId.systemDefault());
                     return new BolusAnswer(PumpResponses.BolusDelivered, delivered, bolusDeliveredAt);
                 }
             }
         }
-        return new BolusAnswer(PumpResponses.UnknowAnswer, input);
+        return new BolusAnswer(PumpResponses.UnknownAnswer, input);
     }
 
     private int getYear(String[] date) {

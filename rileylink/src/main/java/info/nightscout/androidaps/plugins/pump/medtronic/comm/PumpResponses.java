@@ -6,7 +6,7 @@ public enum PumpResponses {
     CommandProcessed("ComandProcessed"),
     DeliveringBolus("DeliveringBolus"),
     BolusDelivered("BolusDelivered"),
-    UnknowAnswer("UnknowAnswer: "), StatusProcessFailed("Status Process Failed: ");
+    UnknownAnswer("UnknowAnswer: "), StatusProcessFailed("Status Process Failed: ");
 
     private final String answer;
 

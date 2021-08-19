@@ -24,6 +24,7 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
     public double deviceBatteryVoltage;
     public int deviceBatteryRemaining;
     public ZonedDateTime nextCalibration;
+    public boolean bgAlarmOn;
 
     public enum BGReadingStatus{
         SUCCESS,

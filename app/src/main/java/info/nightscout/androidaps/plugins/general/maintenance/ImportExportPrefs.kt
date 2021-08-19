@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.google.gson.Gson
 import info.nightscout.androidaps.BuildConfig
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.DaggerAppCompatActivityWithResult
@@ -34,6 +35,7 @@ import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.protection.PasswordCheck
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
+import org.json.JSONArray
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -306,7 +308,11 @@ class ImportExportPrefs @Inject constructor(
                             for ((key, value) in prefs.values) {
                                 if (value == "true" || value == "false") {
                                     sp.putBoolean(key, value.toBoolean())
-                                } else {
+                                } else if (key.toLowerCase().contains("medlink") && value.startsWith("[")  && value.endsWith("]")) {
+                                    val x = value.substring(1,value.length-1)
+                                    sp.putStringSet(key, HashSet(x.split(",")))
+                                }
+                                else {
                                     sp.putString(key, value)
                                 }
                             }

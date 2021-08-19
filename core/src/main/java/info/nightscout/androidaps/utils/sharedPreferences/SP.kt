@@ -38,5 +38,7 @@ interface SP {
     fun putString(@StringRes resourceID: Int, value: String)
     fun putString(key: String, value: String)
 
+    fun putStringSet(@StringRes resourceID: Int, value: MutableSet<String>)
+    fun putStringSet(key: String, value: MutableSet<String>)
     fun getStringSet(key: String, value: MutableSet<String>): MutableSet<String>
 }

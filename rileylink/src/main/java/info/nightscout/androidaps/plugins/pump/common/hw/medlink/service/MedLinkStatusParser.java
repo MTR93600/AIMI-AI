@@ -124,13 +124,29 @@ public class MedLinkStatusParser {
 //        moveIterator(messageIterator);
             MedLinkPumpStatus pumpState = parsePumpState(yesterdayTotal, messageIterator);
 //        18:36:50.448 Pump status: NORMAL
-//        moveIterator(messageIterator);
+            moveIterator(messageIterator);
+//            transmitter id: medlink_id
+            MedLinkPumpStatus bgAlarms = parseBgLevelAlarms(pumpState, messageIterator);
+//            bg level alarms are on in pump
 //        18:36:50.471 EomEomEom
-            return pumpState;
+            return bgAlarms;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private static MedLinkPumpStatus parseBgLevelAlarms(MedLinkPumpStatus pumpStatus, Iterator<String> messageIterator) {
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+            //        18:36:49.681 Next calibration time:  5:00
+            if (currentLine.contains("bg level alarms are on in pump")) {
+                pumpStatus.bgAlarmOn = true;
+            } else {
+                pumpStatus.bgAlarmOn = false;
+            }
+        }
+        return pumpStatus;
     }
 
     private static MedLinkPumpStatus parseNextCalibration(Iterator<String> messageIterator,
@@ -160,9 +176,10 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseCalibrationFactor(Iterator<String> messageIterator,
-                                                            MedLinkPumpStatus pumpStatus,
-                                                            HasAndroidInjector injector) {
+    private static MedLinkPumpStatus parseCalibrationFactor
+            (Iterator<String> messageIterator,
+             MedLinkPumpStatus pumpStatus,
+             HasAndroidInjector injector) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        18:36:49.607 Calibration factor: 6.419
@@ -222,7 +239,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseSensorAgeStatus(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseSensorAgeStatus
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        18:36:49.683 Sensor uptime: 1483min
@@ -237,7 +255,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseDayInsulin(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseDayInsulin
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        Insulin today: 37.625u
@@ -258,7 +277,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseTempBasal(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseTempBasal
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        18:36:50.020 TBR: 100%   0h:00m
@@ -283,7 +303,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseCurrentBasal(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseCurrentBasal
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        18:36:49.983 Basal: 0.600u/h
@@ -304,7 +325,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseReservoir(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseReservoir
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             //        18:36:49.907 Reservoir:  66.12u
@@ -326,7 +348,8 @@ public class MedLinkStatusParser {
         }
     }
 
-    private static MedLinkPumpStatus parseBatteryVoltage(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseBatteryVoltage
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
 //        18:36:49.832 Pump battery voltage: 1.43V
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
@@ -342,7 +365,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseLastBolus(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parseLastBolus
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
 //        18:36:49.495 Last bolus: 0.2u 13‑12‑20 18:32
@@ -364,7 +388,9 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseBG(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus, HasAndroidInjector injector) {
+    private static MedLinkPumpStatus parseBG
+            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus, HasAndroidInjector
+                    injector) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
 
@@ -389,7 +415,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parsePumpTimeMedLinkBattery(String currentLine, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPumpStatus parsePumpTimeMedLinkBattery(String
+                                                                         currentLine, MedLinkPumpStatus pumpStatus) {
         if (currentLine != null) {
 //            String currentLine = messageIterator.next();
 //            while(currentLine.startsWith("ready")){

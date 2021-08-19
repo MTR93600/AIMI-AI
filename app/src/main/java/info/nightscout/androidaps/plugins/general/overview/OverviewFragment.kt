@@ -753,7 +753,10 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
 
         medlink_separator.visibility = (pump is MedLinkPumpDevice).toVisibility()
-
+        careportal_pbage.visibility = (pump !is MedLinkPumpDevice || (sp.getString(R.string
+            .key_medlink_battery_info, "Age") == "Age")).toVisibility()
+        careportal_batterylevel.visibility = (pump !is MedLinkPumpDevice || sp.getString(R.string
+            .key_medlink_battery_info, "Age") != "Age").toVisibility()
         statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, careportal_reservoirlevel, careportal_sensorage, null, careportal_pbage, careportal_batterylevel, medlink_battery_level)
 
         // cob

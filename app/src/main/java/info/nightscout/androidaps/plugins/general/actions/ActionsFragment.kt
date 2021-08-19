@@ -26,6 +26,7 @@ import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomAction
 import info.nightscout.androidaps.plugins.general.overview.StatusLightHandler
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.OmnipodPumpPlugin
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.skins.SkinProvider
@@ -262,13 +263,24 @@ class ActionsFragment : DaggerFragment() {
 
         if (!config.NSCLIENT) {
             statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, careportal_reservoirlevel, careportal_sensorage, careportal_sensorlevel, careportal_pbage, careportal_batterylevel, medlink_battery_level )
+            if(pump is MedLinkPumpDevice) {
+                careportal_pbage.visibility = true.toVisibility()
+                careportal_batterylevel.visibility = true.toVisibility()
+            }
             careportal_senslevellabel?.text = if (activeBgSource.sensorBatteryLevel == -1) "" else resourceHelper.gs(R.string.careportal_level_label)
         } else {
-            statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, null, careportal_sensorage, null, careportal_pbage, null, medlink_battery_level)
+            statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, null, careportal_sensorage, null, careportal_pbage, careportal_batterylevel, medlink_battery_level)
             careportal_senslevellabel?.text = ""
             careportal_inslevellabel?.text = ""
             careportal_pblevellabel?.text = ""
             medlink_batterylevel_label?.text = ""
+            if (pump is MedLinkMedtronicPumpPlugin) {
+                if (sp.getString(R.string
+                        .key_medlink_battery_info, "Age") != "Age") {
+                    careportal_pbagelabel.visibility = View.INVISIBLE;
+
+                }
+            }
         }
         checkPumpCustomActions()
 
