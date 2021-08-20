@@ -376,7 +376,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             //sensitivityRatio = c/(c+target_bg-normalTarget);
             sensitivityRatio = REBX;
             // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-            sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+            //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
             sensitivityRatio = round(sensitivityRatio,2);
             console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
             basal = profile.current_basal * sensitivityRatio;
@@ -422,7 +422,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         sensitivityRatio = REBX;
         // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
         sensitivityRatio = round(sensitivityRatio,2);
         console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
@@ -452,7 +452,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         sensitivityRatio = REBX;
         // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
         sensitivityRatio = round(sensitivityRatio,2);
         console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
@@ -1315,10 +1315,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             var insulinReqPCT = profile.UAM_InsulinReq/100;
             var maxBolusTT = maxBolus;
+            var eRatio = profile.carb_ratio;
+            if (iTime > 0 && iTime < 60){ eRatio /= 2 ; }
             //var EBX = Math.max(0,round(Math.min(EBG,EBG60),2));
             //var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
-            var eCarbs = (((EBX * REBX)-target_bg)/profile.carb_ratio);
-            var eInsulin = round(eCarbs/profile.carb_ratio,2);
+            var eCarbs = (((EBX * REBX)-target_bg)/eRatio);
+            var eInsulin = round(eCarbs/eRatio,2);
             var roundSMBTo = 1 / profile.bolus_increment;
             //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
             //if (HyperPredBGTest >= 650 && HyperPredBGTest <=1100 && glucose_status.delta > 0 && EBX > 100 && now >= tae_start && now <= tae_end && IOBpredBG > 70){
