@@ -296,6 +296,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
     var scale_min = profile.scale_min/100;
     var scale_max = profile.scale_max/100;
+    var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
+    var EBG180 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest2,2));
+    var EBG120 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest3,2));
+    var EBG60 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
+    var REBG = round(EBG / min_bg,2);
+    var REBG60 = round(EBG60 / min_bg,2);
+    var EBX = Math.max(0,round(Math.min(EBG,EBG60),2));
+    var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
+    //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
+    console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" iTime : "+iTime+" ; ");
+    console.log("*** EBG180 : "+EBG180+" *** EBG120 : "+EBG120+" *** EBG60 : "+EBG60+" *** REBG60 : "+REBG60+" ; ");
 
     //scale_ISF_ID codes:
     // 0 = UAM mode scaling
@@ -324,7 +335,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         csf = round (csf,1);
         console.log("CSF change because BG >=110 && Delta >=10, that will scale ISF : "+csf+" ; ");
         if (csf <= 10 ) {
-            sens = profile.sens / 2;
+            sens = profile.sens / REBG;
             sens = round (sens,1);
             //scale_ISF_ID = 3.1;
             //console.log("Scale_ISF_ID: "+scale_ISF_ID);
@@ -351,7 +362,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //sens = autoISF(sens, target_bg, profile, glucose_status, meal_data, autosens_data, sensitivityRatio); //autoISF
     //================= MT =====================================
     //experimental code for test
-    var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
+    /*var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
     var EBG180 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest2,2));
     var EBG120 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest3,2));
     var EBG60 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
@@ -361,7 +372,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
     //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
     console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" iTime : "+iTime+" ; ");
-    console.log("*** EBG180 : "+EBG180+" *** EBG120 : "+EBG120+" *** EBG60 : "+EBG60+" *** REBG60 : "+REBG60+" ; ");
+    console.log("*** EBG180 : "+EBG180+" *** EBG120 : "+EBG120+" *** EBG60 : "+EBG60+" *** REBG60 : "+REBG60+" ; ");*/
 
     //Target management
     //var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
@@ -432,7 +443,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         } else {
             console.log("Basal unchanged: "+basal+"; ");
         }
-    } else if (!profile.temptargetSet && HyperPredBG >= 160 && profile.resistance_lowers_target) {
+    } else if (!profile.temptargetSet && HyperPredBG >= 180 && profile.resistance_lowers_target) {
         /*var hyper_target = round((target_bg - 60)/profile.autosens_max)+60;// if target = 90 then hyper_target = 81 with autosens_min = 0.7
         if (glucose_status.delta >0 && glucose_status.delta <= 5){
         hyper_target = hyper_target + glucose_status.delta;
@@ -444,7 +455,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         if (target_bg === hyper_target) {
             console.log("target_bg unchanged: "+hyper_target+"; ");
         } else {
-            console.log("target_bg from "+target_bg+" to "+hyper_target+" because HyperPredBG > 160 : "+HyperPredBG+" ; ");
+            console.log("target_bg from "+target_bg+" to "+hyper_target+" because HyperPredBG > 180 : "+HyperPredBG+" ; ");
         }
         target_bg = hyper_target;
         halfBasalTarget = 160;
