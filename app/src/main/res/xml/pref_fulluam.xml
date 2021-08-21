@@ -61,7 +61,7 @@
             validate:floatminNumber="350"
             validate:testType="floatNumericRange" />-->
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="70"
             android:enabled="true"
             android:dialogMessage="@string/scale_min_summary"
@@ -92,7 +92,7 @@
             android:title="@string/scale_max_title"
             validate:floatmaxNumber="70"
             validate:floatminNumber="10"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
         <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="20"

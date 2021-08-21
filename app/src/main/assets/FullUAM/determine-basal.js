@@ -294,8 +294,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //############################## MP
     var now = new Date().getHours();
     var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
-    var scale_min = profile.scale_min/100;
-    var scale_max = profile.scale_max/100;
+    //var scale_min = profile.scale_min/100;
+    //var scale_max = profile.scale_max/100;
     var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
     var EBG180 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest2,2));
     var EBG120 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest3,2));
@@ -315,7 +315,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // 3 = autoISF
     //autoISF(sens, target_bg, profile, glucose_status, meal_data, autosens_data, sensitivityRatio); //MP: Keep autoISF running in the bg so it can analyse the development of the glucose curve
     //  if (profile.temptargetSet && target_bg >= 80 && target_bg <= 85 && profile.temptarget_duration >= 29 && iob_data.iob < 6) { //MT: change isf for a normal meal who will rise slowly
-    if (profile.temptargetSet && target_bg >= 80 && target_bg <= 85 && profile.temptarget_duration >= 29 && iob_data.iob < 0.8 * max_iob && glucose_status.delta >= 0 && bg >= 80) { //MT: change isf for a normal meal who will rise slowly
+    /*if (profile.temptargetSet && target_bg >= 80 && target_bg <= 85 && profile.temptarget_duration >= 29 && iob_data.iob < 0.8 * max_iob && glucose_status.delta >= 0 && bg >= 80) { //MT: change isf for a normal meal who will rise slowly
     //if (target_bg >= 75 && target_bg <= 85 && iob_data.iob < 0.8 * max_iob && glucose_status.delta >= 4 && bg >= 90) { //MT: change isf for a normal meal who will rise slowly
         sens = scale_min * profile.sens - (((scale_min * profile.sens - (profile.sens * scale_max)) * glucose_status.delta) / ((profile.scale_50/(bg/target_bg)) + glucose_status.delta)); //MP: Fixed model based on Michaelis-Menten kinetic, self limiting at higher values. v0.3: Curve steepness increases with increasing bg.
         sens = round(sens, 1);
@@ -328,7 +328,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          sens = round(sens, 1);
          console.log("Scale_50 adjusted from "+profile.scale_50+" to "+round (profile.scale_50/(bg/target_bg), 2)+"; scale factor: "+bg+"/"+target_bg+" = "+round((bg/target_bg), 2)+";");
          console.log("W1: Scale ISF from "+profile_sens+" to "+sens);
-    } else if (bg>=110 && glucose_status.delta >= 0 && now >= MealTimeStart && now <= MealTimeEnd ) {
+    } else */
+    if (bg>=110 && glucose_status.delta >= 0 && now >= MealTimeStart && now <= MealTimeEnd ) {
         sens -= (glucose_status.delta * glucose_status.delta);
         sens = round (sens,1);
         csf = (sens / profile.carb_ratio) - (glucose_status.delta / 10);
