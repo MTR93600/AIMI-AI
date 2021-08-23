@@ -651,8 +651,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // autotuned CR is still in effect even when basals and ISF are being adjusted by TT or autosens
     // this avoids overdosing insulin for large meals when low temp targets are active
     var eRatio = profile.carb_ratio;
-    if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){eRatio *= 1.5 ; }
-    if (iTime > 0 && iTime < 60){ eRatio /= 2 ; }
+    if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
+    eRatio *= 1.5 ;
+    }else if (iTime > 0 && iTime < 60){
+    eRatio /= 2 ;
+    }
     csf = sens / eRatio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2));
 
@@ -1348,11 +1351,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok");
-            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 160) {
+            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180) {
                 insulinReq = eInsulin ;
                 insulinReqPCT = 1.3;
-                maxBolusTT = profile.UAM_boluscap;
-                console.log("*** Experimental scale smb ok :"+eInsulin+";");
+                maxBolusTT = profile.UAM_boluscap * 1.3;
+                console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
              } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
                 insulinReq = eInsulin ;
                 insulinReqPCT = 1;
