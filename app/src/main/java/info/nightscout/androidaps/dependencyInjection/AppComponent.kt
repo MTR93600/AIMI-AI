@@ -19,6 +19,7 @@ import info.nightscout.androidaps.insight.di.InsightModule
 import info.nightscout.androidaps.plugins.pump.common.di.PumpCommonModule
 import info.nightscout.androidaps.plugins.pump.common.di.RileyLinkModule
 import info.nightscout.androidaps.plugins.pump.medtronic.di.MedtronicModule
+import info.nightscout.androidaps.plugins.pump.omnipod.dash.dagger.OmnipodDashModule
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.dagger.OmnipodErosModule
 import javax.inject.Singleton
 
@@ -41,6 +42,7 @@ import javax.inject.Singleton
         PumpCommonModule::class,
         RileyLinkModule::class,
         MedtronicModule::class,
+        OmnipodDashModule::class,
         OmnipodErosModule::class,
         APSModule::class,
         PreferencesModule::class,
