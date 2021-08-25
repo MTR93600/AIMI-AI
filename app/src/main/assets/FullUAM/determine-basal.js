@@ -1351,15 +1351,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok");
-            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.IOB <= 0.8*max_iob) {//avoiding to stay around 200 glucose value
+            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.iob <= 0.8*max_iob) {//avoiding to stay around 200 glucose value
                 insulinReq = eInsulin ;
-                insulinReqPCT = 1.3;
-                maxBolusTT = profile.UAM_boluscap * 1.3;
+                insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
+                maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
                 console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.IOB <= (0.5*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
+            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.6*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
               insulinReq = eInsulin ;
-              insulinReqPCT = 1.3;
-              maxBolusTT = profile.UAM_boluscap * 1.3;
+              insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
+              maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
               console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
             } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180  && eRatio > profile.carb_ratio){
                 insulinReq = eInsulin ;
