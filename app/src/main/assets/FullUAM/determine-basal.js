@@ -657,7 +657,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     eRatio /= 2 ;
     }
     csf = sens / eRatio;
-    console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2));
+    console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2),"eRatio",eRatio,"iTime",iTime);
 
     var maxCarbAbsorptionRate = 30; // g/h; maximum rate to assume carbs will absorb if no CI observed
     // limit Carb Impact to maxCarbAbsorptionRate * csf in mg/dL per 5m
@@ -1356,17 +1356,22 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = 1.3;
                 maxBolusTT = profile.UAM_boluscap * 1.3;
                 console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.IOB <= (0.5*max_iob)) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
+            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.IOB <= (0.5*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
               insulinReq = eInsulin ;
               insulinReqPCT = 1.3;
               maxBolusTT = profile.UAM_boluscap * 1.3;
               console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
+            } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180  && eRatio < profile.carb_ratio){
                 insulinReq = eInsulin ;
-                insulinReqPCT = 1;
+                //insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
-                console.log("*** Experimental scale smb ok :"+eInsulin+";");
-            } else {
+                console.log("*** Experimental scale smb ok with TT 130 :"+eInsulin+";");
+            }else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
+             insulinReq = eInsulin ;
+             insulinReqPCT = 1;
+             maxBolusTT = profile.UAM_boluscap;
+             console.log("*** Experimental scale smb ok :"+eInsulin+";");
+           } else {
                 console.log("- hyperpredbgtest > 450 : "+HyperPredBGTest+" <= but no action required");
             }
 
