@@ -1361,7 +1361,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
               insulinReqPCT = 1.3;
               maxBolusTT = profile.UAM_boluscap * 1.3;
               console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180  && eRatio < profile.carb_ratio){
+            } else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180  && eRatio > profile.carb_ratio){
                 insulinReq = eInsulin ;
                 //insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
