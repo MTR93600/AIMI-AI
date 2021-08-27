@@ -1351,7 +1351,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok");
-            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.iob <= 0.8*max_iob) {//avoiding to stay around 200 glucose value
+            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.iob <= 0.8*max_iob && eRatio < profile.carb_ratio) {//avoiding to stay around 200 glucose value
                 insulinReq = eInsulin ;
                 insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
                 maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
