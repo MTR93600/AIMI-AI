@@ -31,7 +31,7 @@ class TddCalculator @Inject constructor(
 ) {
 
     fun calculate(days: Long): LongSparseArray<TotalDailyDose> {
-        val startTime = MidnightTime.calc(dateUtil.now() - T.days(days).msecs())
+        val  startTime = MidnightTime.calc(dateUtil.now() - T.days(days).msecs())
         val endTime = MidnightTime.calc(dateUtil.now())
 
         val result = LongSparseArray<TotalDailyDose>()
@@ -74,7 +74,7 @@ class TddCalculator @Inject constructor(
         return result
     }
 
-    private fun averageTDD(tdds: LongSparseArray<TotalDailyDose>): TotalDailyDose {
+     fun averageTDD(tdds: LongSparseArray<TotalDailyDose>): TotalDailyDose {
         val totalTdd = TotalDailyDose(timestamp = dateUtil.now())
         for (i in 0 until tdds.size()) {
             val tdd = tdds.valueAt(i)

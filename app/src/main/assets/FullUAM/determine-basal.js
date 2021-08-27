@@ -274,7 +274,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     console.error("CR:",profile.carb_ratio);
     //MT : TWTT
-
+    var tdd7 = meal_data.TDDAIMI7;
+    var tdd1 = meal_data.TDDPUMP;
+    var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
+    var variable_sens = (277700 / (TDD * bg));
+    variable_sens = round(variable_sens,1);
+    console.log("Current sensitivity is " +variable_sens+" based on current bg");
+    console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
+    sens = variable_sens;
     //var iob_scale = (profile.W2_IOB_threshold/100) * max_iob;
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
@@ -283,6 +290,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var HyperPredBGTest3 = round( bg - (iob_data.iob * sens) ) + round( 120 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var PredAnalise = HyperPredBGTest - HyperPredBGTest2 - HyperPredBGTest3;
     var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
+
     var csf = profile.sens / profile.carb_ratio ;
     //console.log("UAM_IOB_SCALE : " +iob_scale);
     console.log("HyperPredBGTest : "+HyperPredBGTest);
@@ -293,7 +301,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //### ISF SCALING CODE START ### MP
     //############################## MP
     var now = new Date().getHours();
-    var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
+    //var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is
+    //assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
     //var scale_min = profile.scale_min/100;
     //var scale_max = profile.scale_max/100;
     var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
@@ -329,9 +338,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          console.log("Scale_50 adjusted from "+profile.scale_50+" to "+round (profile.scale_50/(bg/target_bg), 2)+"; scale factor: "+bg+"/"+target_bg+" = "+round((bg/target_bg), 2)+";");
          console.log("W1: Scale ISF from "+profile_sens+" to "+sens);
     } else */
-    if (bg>=110 && glucose_status.delta >= 0 && now >= MealTimeStart && now <= MealTimeEnd ) {
-        sens -= (glucose_status.delta * glucose_status.delta);
-        sens = round (sens,1);
+    /*if (bg>=110 && glucose_status.delta >= 0 && now >= MealTimeStart && now <= MealTimeEnd ) {
+        //sens -= (glucose_status.delta * glucose_status.delta);
+        //sens = round (sens,1);
+        sens = variable_sens;
         csf = (sens / profile.carb_ratio) - (glucose_status.delta / 10);
         csf = round (csf,1);
         console.log("CSF change because BG >=110 && Delta >=10, that will scale ISF : "+csf+" ; ");
@@ -356,7 +366,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         console.log("Change ISF from "+profile_sens+" to "+sens+" because HypoPredBG "+HypoPredBG+"  < 100 and SMB disable ; ");
         //rT.reason += "The risk to make an hypoglycemia is detected, HypoPredBG :"+HypoPredBG+" < 100 then SMB disabled; ";
         //enableSMB = false;
-    }
+    }*/
     //############################# MP
     //### ISF SCALING CODE END ### MP
     //############################# MP
@@ -1094,7 +1104,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 30% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
     }
-    if (scale_ISF_ID == 2) {
+    if (variable_sens >= 139) {
         console.error("The risk to make an hypoglycemia was detected, HypoPredBG :",HypoPredBG," < 100 then SMB disabled; ");
         rT.reason += "The risk to make an hypoglycemia was detected, HypoPredBG :"+HypoPredBG+" < 100 then SMB disabled; ";
         enableSMB = false;
@@ -1356,7 +1366,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
                 maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
                 console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.6*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
+            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.5*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
               insulinReq = eInsulin ;
               insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
               maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
