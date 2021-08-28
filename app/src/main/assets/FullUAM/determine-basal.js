@@ -1104,11 +1104,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 30% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
     }
-    if (variable_sens >= 139) {
+    /*if (variable_sens >= 139) {
         console.error("The risk to make an hypoglycemia was detected, HypoPredBG :",HypoPredBG," < 100 then SMB disabled; ");
         rT.reason += "The risk to make an hypoglycemia was detected, HypoPredBG :"+HypoPredBG+" < 100 then SMB disabled; ";
         enableSMB = false;
-    }
+    }*/
 
     console.error("BG projected to remain above",convert_bg(min_bg, profile),"for",minutesAboveMinBG,"minutes");
     if ( minutesAboveThreshold < 240 || minutesAboveMinBG < 60 ) {
