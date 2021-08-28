@@ -292,6 +292,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
         this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
 
+
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
         } else {
