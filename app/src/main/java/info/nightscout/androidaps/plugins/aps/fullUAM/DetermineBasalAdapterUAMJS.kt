@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.aps.fullUAM
 
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
+import info.nightscout.androidaps.dana.DanaPump
 import info.nightscout.androidaps.data.IobTotal
 import info.nightscout.androidaps.data.MealData
 import info.nightscout.androidaps.database.AppRepository
@@ -21,10 +22,12 @@ import info.nightscout.androidaps.plugins.aps.loop.ScriptReader
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.general.openhumans.OpenHumansUploader
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
+import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.SafeParse
 import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.sharedPreferences.SP
+import info.nightscout.androidaps.utils.stats.TddCalculator
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -34,6 +37,7 @@ import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
+
 
 class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector) {
 
@@ -46,6 +50,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var openHumansUploader: OpenHumansUploader
+    @Inject lateinit var dateUtil: DateUtil
+    @Inject lateinit var danaPump: DanaPump
 
     private var profile = JSONObject()
     private var mGlucoseStatus = JSONObject()
@@ -280,6 +286,12 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusTime", mealData.lastBolusTime)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
+
+        //val tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil, iobCobCalculator, repository)
+        //this.mealData.put("TDDAIMI7",tddAIMI.averageTDD(tddAIMI.calculate(7)).totalAmount)
+        //this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
+        //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
+
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
         } else {
