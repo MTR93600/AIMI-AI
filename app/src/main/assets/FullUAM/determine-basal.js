@@ -272,7 +272,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
         //console.log(" (autosens ratio "+sensitivityRatio+")");
     }
-    console.error("CR:",profile.carb_ratio);
+    //console.error("CR:",profile.carb_ratio);
     //MT : TWTT
     var tdd7 = meal_data.TDDAIMI7;
     var tdd1 = meal_data.TDDPUMP;
@@ -282,6 +282,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.log("Current sensitivity is " +variable_sens+" based on current bg");
     console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
     sens = variable_sens;
+    var eRatio = round((bg/0.16)/sens,2);
+    console.error("CR:",eRatio);
     //var iob_scale = (profile.W2_IOB_threshold/100) * max_iob;
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
@@ -660,7 +662,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // use autosens-adjusted sens to counteract autosens meal insulin dosing adjustments so that
     // autotuned CR is still in effect even when basals and ISF are being adjusted by TT or autosens
     // this avoids overdosing insulin for large meals when low temp targets are active
-    var eRatio = profile.carb_ratio;
+    //var eRatio = profile.carb_ratio;
     if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
     eRatio *= 1.5 ;
     }else if (iTime > 0 && iTime < 60){
@@ -1361,12 +1363,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok");
-            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.iob <= 0.8*max_iob && eRatio < profile.carb_ratio) {//avoiding to stay around 200 glucose value
+            } else if (glucose_status.delta >= 0 && iTime >= 100 && iTime <= 180 && bg >= 180 && iob_data.iob <= 0.5*max_iob && eRatio < profile.carb_ratio) {//avoiding to stay around 200 glucose value
                 insulinReq = eInsulin ;
                 insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
                 maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
                 console.log("*** Experimental scale smb ok, 130% eInsulin, 130% Bolucap si BG > 180 :"+eInsulin+";");
-            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.5*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
+            }else if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.4*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
               insulinReq = eInsulin ;
               insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
               maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
