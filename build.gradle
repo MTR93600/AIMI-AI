@@ -26,7 +26,7 @@ buildscript {
         tink_version = '1.5.0'
 
         junit_version = '4.13.2'
-        mockitoVersion = '3.12.1'
+        mockitoVersion = '3.12.4'
         powermockVersion = '2.0.9'
         dexmakerVersion = "1.2"
         retrofit2Version = '2.9.0'
