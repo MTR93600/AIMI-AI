@@ -283,7 +283,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
     sens = variable_sens;
     var eRatio = round((bg/0.16)/sens,2);
-    console.error("CR:",eRatio);
+    //console.error("CR:",eRatio);
     //var iob_scale = (profile.W2_IOB_threshold/100) * max_iob;
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
@@ -665,12 +665,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var eRatio = profile.carb_ratio;
     if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
     eRatio *= 1.5 ;
-    }else if (iTime > 0 && iTime < 60){
+    }else if (target_bg <= 85){
     eRatio /= 2 ;
     }
     csf = sens / eRatio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2),"eRatio",eRatio,"iTime",iTime);
-
+    console.error("CR:",eRatio);
     var maxCarbAbsorptionRate = 30; // g/h; maximum rate to assume carbs will absorb if no CI observed
     // limit Carb Impact to maxCarbAbsorptionRate * csf in mg/dL per 5m
     var maxCI = round(maxCarbAbsorptionRate*csf*5/60,1)
