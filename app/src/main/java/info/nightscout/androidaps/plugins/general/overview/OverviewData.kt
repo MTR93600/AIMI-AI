@@ -66,18 +66,10 @@ class OverviewData @Inject constructor(
         GRAPH
     }
 
-    val minRangeToDisplay = 6
-    var rangeToDisplay = minRangeToDisplay // for graph
-    val rangeMaxToDisplay = 24
+    var rangeToDisplay = 6 // for graph
     var toTime: Long = 0
-    var fromTimeArray = longArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
-    var fromTime: Long
-        get() = fromTimeArray.get(indexRange)
-        set(from) { fromTimeArray = longArrayOf(from, from, from, from, from, from, from, from) }
+    var fromTime: Long = 0
     var endTime: Long = 0
-    var fromTimeData: Long = 0
-    var endTimeData: Long = 0
-    var predictionHours = 0
 
     fun reset() {
         profile = null
@@ -94,9 +86,8 @@ class OverviewData @Inject constructor(
         temporaryTarget = null
         lastAutosensData = null
         bgReadingsArray = ArrayList()
-        bucketedListArray = java.util.ArrayList()
-        bgReadingGraphArray = java.util.ArrayList()
-        filteredTreatments = java.util.ArrayList()
+        bucketedGraphSeries = PointsWithLabelGraphSeries()
+        bgReadingGraphSeries = PointsWithLabelGraphSeries()
         predictionsGraphSeries = PointsWithLabelGraphSeries()
         baseBasalGraphSeries = LineGraphSeries()
         tempBasalGraphSeries = LineGraphSeries()
@@ -130,19 +121,8 @@ class OverviewData @Inject constructor(
         }
 
         toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
-        fromTimeData = toTime - T.hours(rangeMaxToDisplay.toLong()).msecs()
-        endTimeData = toTime + T.hours(predictionHours.toLong()).msecs()
-        fromTimeArray = longArrayOf(
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs(),
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs(),
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 2,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 2,
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 3,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 3,
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 4,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 4,
-        )
-        endTime = toTime + if (predictAvailable) T.hours(predictionHours.toLong()).msecs() else 0
+        fromTime = toTime - T.hours(rangeToDisplay.toLong()).msecs()
+        endTime = toTime
     }
 
     /*
@@ -293,30 +273,14 @@ class OverviewData @Inject constructor(
     /*
      * Graphs
      */
-    var predictAvailable: Boolean = false
-    var indexRange: Int = 0
-        get() = 2 * (rangeToDisplay / minRangeToDisplay - 1) + if (predictAvailable) 0 else 1
+
     var bgReadingsArray: List<GlucoseValue> = ArrayList()
-    var maxBgArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxBgValue = Double.MIN_VALUE
-        get() = maxBgArray.get(indexRange)
-    var bucketedListArray: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
     var bucketedGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
-        get() {
-            val BdArray = bucketedListArray.filter { it.x >= fromTime.toDouble() && it.x <= endTime.toDouble()}
-            return PointsWithLabelGraphSeries(Array(BdArray.size) { i -> BdArray[i] })
-        }
-    var bgReadingGraphArray: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
     var bgReadingGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
-        get() {
-            val BgArray = bgReadingGraphArray.filter { it.x >= fromTime.toDouble() && it.x <= endTime.toDouble()}
-            return PointsWithLabelGraphSeries(Array(BgArray.size) { i -> BgArray[i] })
-        }
     var predictionsGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
 
-    var maxBasalArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     var maxBasalValueFound = 0.0
-        get() = maxBasalArray.get(indexRange)
     val basalScale = Scale()
     var baseBasalGraphSeries: LineGraphSeries<ScaledDataPoint> = LineGraphSeries()
     var tempBasalGraphSeries: LineGraphSeries<ScaledDataPoint> = LineGraphSeries()
@@ -325,64 +289,42 @@ class OverviewData @Inject constructor(
 
     var temporaryTargetSeries: LineGraphSeries<DataPoint> = LineGraphSeries()
 
-    var maxIAArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     var maxIAValue = 0.0
-        get() = maxIAArray.get(indexRange)
     val actScale = Scale()
     var activitySeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
     var activityPredictionSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
 
-    var maxTreatmentsArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     var maxTreatmentsValue = 0.0
-        get() = maxTreatmentsArray.get(indexRange)
-    var filteredTreatments: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
     var treatmentsSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
-        get() {
-            val treatmentsArray = filteredTreatments.filter { it.x >= fromTime.toDouble() && it.x <= endTime.toDouble()}
-            return PointsWithLabelGraphSeries(Array(treatmentsArray.size) { i -> treatmentsArray[i] })
-        }
-    var maxIobArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+
     var maxIobValueFound = Double.MIN_VALUE
-        get() = maxIobArray.get(indexRange)
     val iobScale = Scale()
     var iobSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
     var absIobSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
     var iobPredictions1Series: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
     var iobPredictions2Series: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
 
-    var maxBGIArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxBGIValue = Double.MIN_VALUE
-        get() = maxBGIArray.get(indexRange)
     val bgiScale = Scale()
     var minusBgiSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
     var minusBgiHistSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
 
-    var maxCobArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxCobValueFound = Double.MIN_VALUE
-        get() = maxCobArray.get(indexRange)
     val cobScale = Scale()
     var cobSeries: FixedLineGraphSeries<ScaledDataPoint> = FixedLineGraphSeries()
     var cobMinFailOverSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface> = PointsWithLabelGraphSeries()
 
-    var maxDevArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxDevValueFound = Double.MIN_VALUE
-        get() = maxDevArray.get(indexRange)
     val devScale = Scale()
     var deviationsSeries: BarGraphSeries<OverviewPlugin.DeviationDataPoint> = BarGraphSeries()
 
-    var maxRatioArray = doubleArrayOf(5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0)
     var maxRatioValueFound = 5.0                    //even if sens data equals 0 for all the period, minimum scale is between 95% and 105%
-        get() = maxRatioArray.get(indexRange)
     var minRatioValueFound = -maxRatioValueFound
     val ratioScale = Scale()
     var ratioSeries: LineGraphSeries<ScaledDataPoint> = LineGraphSeries()
 
-    var maxFromMaxArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxFromMaxValueFound = Double.MIN_VALUE
-        get() = maxFromMaxArray.get(indexRange)
-    var maxFromMinArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
     var maxFromMinValueFound = Double.MIN_VALUE
-        get() = maxFromMinArray.get(indexRange)
     val dsMaxScale = Scale()
     val dsMinScale = Scale()
     var dsMaxSeries: LineGraphSeries<ScaledDataPoint> = LineGraphSeries()
@@ -392,17 +334,18 @@ class OverviewData @Inject constructor(
     @Suppress("SameParameterValue", "UNUSED_PARAMETER")
     fun prepareBgData(from: String) {
 //        val start = dateUtil.now()
-        maxBgArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
-        bgReadingsArray = repository.compatGetBgReadingsDataFromTime(fromTimeData, toTime, false).blockingGet()
-        bgReadingGraphArray = java.util.ArrayList()
+        maxBgValue = Double.MIN_VALUE
+        bgReadingsArray = repository.compatGetBgReadingsDataFromTime(fromTime, toTime, false).blockingGet()
+        val bgListArray: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
         for (bg in bgReadingsArray) {
-            if (bg.timestamp < fromTimeData || bg.timestamp > toTime) continue
-            //if (bg.value > maxBgValue) maxBgValue = bg.value
-            maxTime(maxBgArray, bg.timestamp, bg.value)
-            bgReadingGraphArray.add(GlucoseValueDataPoint(bg, defaultValueHelper, profileFunction, resourceHelper))
+            if (bg.timestamp < fromTime || bg.timestamp > toTime) continue
+            if (bg.value > maxBgValue) maxBgValue = bg.value
+            bgListArray.add(GlucoseValueDataPoint(bg, defaultValueHelper, profileFunction, resourceHelper))
         }
-        //bgReadingGraphSeries = PointsWithLabelGraphSeries(Array(bgListArray.size) { i -> bgListArray[i] })
-        maxBgArray = maxBgArray.map { addUpperChartMargin(max(Profile.fromMgdlToUnits(it, profileFunction.getUnits()), defaultValueHelper.determineHighLine())) }.toDoubleArray()
+        bgReadingGraphSeries = PointsWithLabelGraphSeries(Array(bgListArray.size) { i -> bgListArray[i] })
+        maxBgValue = Profile.fromMgdlToUnits(maxBgValue, profileFunction.getUnits())
+        if (defaultValueHelper.determineHighLine() > maxBgValue) maxBgValue = defaultValueHelper.determineHighLine()
+        maxBgValue = addUpperChartMargin(maxBgValue)
 //        profiler.log(LTag.UI, "prepareBgData() $from", start)
     }
 
@@ -412,7 +355,6 @@ class OverviewData @Inject constructor(
 //        val start = dateUtil.now()
         val apsResult = if (config.APS) loopPlugin.lastRun?.constraintsProcessed else nsDeviceStatus.getAPSResult(injector)
         val predictionsAvailable = if (config.APS) loopPlugin.lastRun?.request?.hasPredictions == true else config.NSCLIENT
-        predictAvailable = predictionsAvailable
         val menuChartSettings = overviewMenus.setting
         // align to hours
         val calendar = Calendar.getInstance().also {
@@ -422,27 +364,17 @@ class OverviewData @Inject constructor(
             it[Calendar.MINUTE] = 0
             it.add(Calendar.HOUR, 1)
         }
-        predictionHours = apsResult?.let { (ceil(it.latestPredictionsTime - System.currentTimeMillis().toDouble()) / (60 * 60 * 1000)).toInt() }
-            ?: 0
-        predictionHours = min(2, predictionHours)
-        predictionHours = max(0, predictionHours)
-        toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
-        endTimeData = toTime + T.hours(predictionHours.toLong()).msecs()
-        fromTimeArray = longArrayOf(
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs(),
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs(),
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 2,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 2,
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 3,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 3,
-            endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * 4,
-            toTime - T.hours(minRangeToDisplay.toLong()).msecs() * 4,
-        )
         if (predictionsAvailable && apsResult != null && menuChartSettings[0][OverviewMenus.CharType.PRE.ordinal]) {
-            //fromTime = toTime - T.hours(hoursToFetch.toLong()).msecs()
+            var predictionHours = (ceil(apsResult.latestPredictionsTime - System.currentTimeMillis().toDouble()) / (60 * 60 * 1000)).toInt()
+            predictionHours = min(2, predictionHours)
+            predictionHours = max(0, predictionHours)
+            val hoursToFetch = rangeToDisplay - predictionHours
+            toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
+            fromTime = toTime - T.hours(hoursToFetch.toLong()).msecs()
             endTime = toTime + T.hours(predictionHours.toLong()).msecs()
         } else {
-            //fromTime = toTime - T.hours(rangeToDisplay.toLong()).msecs()
+            toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
+            fromTime = toTime - T.hours(rangeToDisplay.toLong()).msecs()
             endTime = toTime
         }
 
@@ -467,12 +399,12 @@ class OverviewData @Inject constructor(
             aapsLogger.debug("No bucketed data.")
             return
         }
-        bucketedListArray = java.util.ArrayList()
+        val bucketedListArray: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
         for (inMemoryGlucoseValue in bucketedData) {
-            if (inMemoryGlucoseValue.timestamp < fromTimeData || inMemoryGlucoseValue.timestamp > toTime) continue
+            if (inMemoryGlucoseValue.timestamp < fromTime || inMemoryGlucoseValue.timestamp > toTime) continue
             bucketedListArray.add(InMemoryGlucoseValueDataPoint(inMemoryGlucoseValue, profileFunction, resourceHelper))
         }
-//        bucketedGraphSeries = PointsWithLabelGraphSeries(Array(bucketedListArray.size) { i -> bucketedListArray[i] })
+        bucketedGraphSeries = PointsWithLabelGraphSeries(Array(bucketedListArray.size) { i -> bucketedListArray[i] })
 //        profiler.log(LTag.UI, "prepareBucketedData() $from", start)
     }
 
@@ -480,7 +412,7 @@ class OverviewData @Inject constructor(
     @Synchronized
     fun prepareBasalData(from: String) {
 //        val start = dateUtil.now()
-        maxBasalArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        maxBasalValueFound = 0.0
         val baseBasalArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val tempBasalArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val basalLineArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
@@ -489,7 +421,7 @@ class OverviewData @Inject constructor(
         var lastAbsoluteLineBasal = -1.0
         var lastBaseBasal = 0.0
         var lastTempBasal = 0.0
-        var time = fromTimeData
+        var time = fromTime
         while (time < toTime) {
             val profile = profileFunction.getProfile(time)
             if (profile == null) {
@@ -535,8 +467,7 @@ class OverviewData @Inject constructor(
             lastAbsoluteLineBasal = absoluteLineValue
             lastLineBasal = baseBasalValue
             lastTempBasal = tempBasalValue
-            maxTime(maxBasalArray, time, max(tempBasalValue, baseBasalValue))
-            //maxBasalValueFound = max(maxBasalValueFound, max(tempBasalValue, baseBasalValue))
+            maxBasalValueFound = max(maxBasalValueFound, max(tempBasalValue, baseBasalValue))
             time += 60 * 1000L
         }
 
@@ -585,7 +516,7 @@ class OverviewData @Inject constructor(
         val targetsSeriesArray: MutableList<DataPoint> = java.util.ArrayList()
         var lastTarget = -1.0
         loopPlugin.lastRun?.constraintsProcessed?.let { toTime = max(it.latestPredictionsTime, toTime) }
-        var time = fromTimeData
+        var time = fromTime
         while (time < toTime) {
             val tt = repository.getTemporaryTargetActiveAt(time).blockingGet()
             val value: Double = if (tt is ValueWrapper.Existing) {
@@ -615,16 +546,16 @@ class OverviewData @Inject constructor(
     @Synchronized
     fun prepareTreatmentsData(from: String) {
 //        val start = dateUtil.now()
-        maxTreatmentsArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        filteredTreatments = java.util.ArrayList()
-        repository.getBolusesIncludingInvalidFromTimeToTime(fromTimeData, endTimeData, true).blockingGet()
+        maxTreatmentsValue = 0.0
+        val filteredTreatments: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
+        repository.getBolusesIncludingInvalidFromTimeToTime(fromTime, endTime, true).blockingGet()
             .map { BolusDataPoint(it, resourceHelper, activePlugin, defaultValueHelper) }
             .filter { it.data.type != Bolus.Type.SMB || it.data.isValid }
             .forEach {
                 it.y = getNearestBg(it.x.toLong())
                 filteredTreatments.add(it)
             }
-        repository.getCarbsIncludingInvalidFromTimeToTimeExpanded(fromTimeData, endTimeData, true).blockingGet()
+        repository.getCarbsIncludingInvalidFromTimeToTimeExpanded(fromTime, endTime, true).blockingGet()
             .map { CarbsDataPoint(it, resourceHelper) }
             .forEach {
                 it.y = getNearestBg(it.x.toLong())
@@ -632,18 +563,18 @@ class OverviewData @Inject constructor(
             }
 
         // ProfileSwitch
-        repository.getEffectiveProfileSwitchDataFromTimeToTime(fromTimeData, endTimeData, true).blockingGet()
+        repository.getEffectiveProfileSwitchDataFromTimeToTime(fromTime, endTime, true).blockingGet()
             .map { EffectiveProfileSwitchDataPoint(it) }
             .forEach(filteredTreatments::add)
 
         // OfflineEvent
-        repository.getOfflineEventDataFromTimeToTime(fromTimeData, endTimeData, true).blockingGet()
+        repository.getOfflineEventDataFromTimeToTime(fromTime, endTime, true).blockingGet()
             .map { TherapyEventDataPoint(TherapyEvent(timestamp = it.timestamp, duration = it.duration, type = TherapyEvent.Type.APS_OFFLINE, glucoseUnit = TherapyEvent.GlucoseUnit.MMOL), resourceHelper, profileFunction, translator) }
             .forEach(filteredTreatments::add)
 
         // Extended bolus
         if (!activePlugin.activePump.isFakingTempsByExtendedBoluses) {
-            repository.getExtendedBolusDataFromTimeToTime(fromTimeData, endTimeData, true).blockingGet()
+            repository.getExtendedBolusDataFromTimeToTime(fromTime, endTime, true).blockingGet()
                 .map { ExtendedBolusDataPoint(it) }
                 .filter { it.duration != 0L }
                 .forEach {
@@ -653,18 +584,21 @@ class OverviewData @Inject constructor(
         }
 
         // Careportal
-        repository.compatGetTherapyEventDataFromToTime(fromTimeData - T.hours(6).msecs(), endTimeData).blockingGet()
+        repository.compatGetTherapyEventDataFromToTime(fromTime - T.hours(6).msecs(), endTime).blockingGet()
             .map { TherapyEventDataPoint(it, resourceHelper, profileFunction, translator) }
-            .filterTimeframe(fromTimeData, endTimeData)
+            .filterTimeframe(fromTime, endTime)
             .forEach {
-                if (it.y == 0.0)
-                    it.y = getNearestBg(it.x.toLong())
-                else
-                    maxTime(maxTreatmentsArray, it.data.timestamp, addUpperChartMargin(it.y))
+                if (it.y == 0.0) it.y = getNearestBg(it.x.toLong())
                 filteredTreatments.add(it)
             }
 
-        //treatmentsSeries = PointsWithLabelGraphSeries(filteredTreatments.toTypedArray())
+        // increase maxY if a treatment forces it's own height that's higher than a BG value
+        filteredTreatments.map { it.y }
+            .maxOrNull()
+            ?.let(::addUpperChartMargin)
+            ?.let { maxTreatmentsValue = maxOf(maxTreatmentsValue, it) }
+
+        treatmentsSeries = PointsWithLabelGraphSeries(filteredTreatments.toTypedArray())
 //        profiler.log(LTag.UI, "prepareTreatmentsData() $from", start)
     }
 
@@ -674,35 +608,36 @@ class OverviewData @Inject constructor(
 //        val start = dateUtil.now()
         val iobArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val absIobArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
-        maxIobArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+        maxIobValueFound = Double.MIN_VALUE
         var lastIob = 0.0
         var absLastIob = 0.0
-        var time = fromTimeData
+        var time = fromTime
 
         val minFailOverActiveList: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
         val cobArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
-        maxCobArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+        maxCobValueFound = Double.MIN_VALUE
         var lastCob = 0
 
         val actArrayHist: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val actArrayPrediction: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val now = dateUtil.now().toDouble()
-        maxIAArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        maxIAValue = 0.0
 
         val bgiArrayHist: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val bgiArrayPrediction: MutableList<ScaledDataPoint> = java.util.ArrayList()
-        maxBGIArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+        maxBGIValue = Double.MIN_VALUE
 
         val devArray: MutableList<OverviewPlugin.DeviationDataPoint> = java.util.ArrayList()
-        maxDevArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+        maxDevValueFound = Double.MIN_VALUE
 
         val ratioArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
-        maxRatioArray = doubleArrayOf(5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0)
+        maxRatioValueFound = 5.0                    //even if sens data equals 0 for all the period, minimum scale is between 95% and 105%
+        minRatioValueFound = -5.0
 
         val dsMaxArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
         val dsMinArray: MutableList<ScaledDataPoint> = java.util.ArrayList()
-        maxFromMaxArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
-        maxFromMinArray = doubleArrayOf(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE)
+        maxFromMaxValueFound = Double.MIN_VALUE
+        maxFromMinValueFound = Double.MIN_VALUE
 
         val adsData = iobCobCalculator.ads.clone()
 
@@ -720,13 +655,13 @@ class OverviewData @Inject constructor(
             if (abs(lastIob - iob.iob) > 0.02) {
                 if (abs(lastIob - iob.iob) > 0.2) iobArray.add(ScaledDataPoint(time, lastIob, iobScale))
                 iobArray.add(ScaledDataPoint(time, iob.iob, iobScale))
-                maxTime(maxIobArray, time, abs(iob.iob))
+                maxIobValueFound = maxOf(maxIobValueFound, abs(iob.iob))
                 lastIob = iob.iob
             }
             if (abs(absLastIob - absIob.iob) > 0.02) {
                 if (abs(absLastIob - absIob.iob) > 0.2) absIobArray.add(ScaledDataPoint(time, absLastIob, iobScale))
                 absIobArray.add(ScaledDataPoint(time, absIob.iob, iobScale))
-                maxTime(maxIobArray, time, abs(absIob.iob))
+                maxIobValueFound = maxOf(maxIobValueFound, abs(absIob.iob))
                 absLastIob = absIob.iob
             }
 
@@ -736,7 +671,7 @@ class OverviewData @Inject constructor(
                 if (cob != lastCob) {
                     if (autosensData.carbsFromBolus > 0) cobArray.add(ScaledDataPoint(time, lastCob.toDouble(), cobScale))
                     cobArray.add(ScaledDataPoint(time, cob.toDouble(), cobScale))
-                    maxTime(maxCobArray, time, cob.toDouble())
+                    maxCobValueFound = max(maxCobValueFound, cob.toDouble())
                     lastCob = cob
                 }
                 if (autosensData.failoverToMinAbsorbtionRate) {
@@ -749,7 +684,7 @@ class OverviewData @Inject constructor(
             // ACTIVITY
             if (time <= now) actArrayHist.add(ScaledDataPoint(time, iob.activity, actScale))
             else actArrayPrediction.add(ScaledDataPoint(time, iob.activity, actScale))
-            maxTime(maxIAArray, time, abs(iob.activity))
+            maxIAValue = max(maxIAValue, abs(iob.activity))
 
             // BGI
             val devBgiScale = overviewMenus.isEnabledIn(OverviewMenus.CharType.DEV) == overviewMenus.isEnabledIn(OverviewMenus.CharType.BGI)
@@ -757,7 +692,7 @@ class OverviewData @Inject constructor(
             val bgi: Double = iob.activity * profile.getIsfMgdl(time) * 5.0
             if (time <= now) bgiArrayHist.add(ScaledDataPoint(time, bgi, bgiScale))
             else bgiArrayPrediction.add(ScaledDataPoint(time, bgi, bgiScale))
-            maxTime(maxBGIArray, time, max(abs(bgi), deviation))
+            maxBGIValue = max(maxBGIValue, max(abs(bgi), deviation))
 
             // DEVIATIONS
             if (autosensData != null) {
@@ -772,22 +707,22 @@ class OverviewData @Inject constructor(
                     color = resourceHelper.gc(R.color.deviationgrey)
                 }
                 devArray.add(OverviewPlugin.DeviationDataPoint(time.toDouble(), autosensData.deviation, color, devScale))
-                maxTime(maxDevArray, time, abs(autosensData.deviation))
+                maxDevValueFound = maxOf(maxDevValueFound, abs(autosensData.deviation), abs(bgi))
             }
 
             // RATIO
             if (autosensData != null) {
                 ratioArray.add(ScaledDataPoint(time, 100.0 * (autosensData.autosensResult.ratio - 1), ratioScale))
-                maxTime(maxRatioArray, time, 100.0 * (autosensData.autosensResult.ratio - 1))
-                maxTime(maxRatioArray, time, 100.0 * (1 - autosensData.autosensResult.ratio))
+                maxRatioValueFound = max(maxRatioValueFound, 100.0 * (autosensData.autosensResult.ratio - 1))
+                minRatioValueFound = min(minRatioValueFound, 100.0 * (autosensData.autosensResult.ratio - 1))
             }
 
             // DEV SLOPE
             if (autosensData != null) {
                 dsMaxArray.add(ScaledDataPoint(time, autosensData.slopeFromMaxDeviation, dsMaxScale))
                 dsMinArray.add(ScaledDataPoint(time, autosensData.slopeFromMinDeviation, dsMinScale))
-                maxTime(maxFromMaxArray, time, abs(autosensData.slopeFromMaxDeviation))
-                maxTime(maxFromMinArray, time, abs(autosensData.slopeFromMinDeviation))
+                maxFromMaxValueFound = max(maxFromMaxValueFound, abs(autosensData.slopeFromMaxDeviation))
+                maxFromMinValueFound = max(maxFromMinValueFound, abs(autosensData.slopeFromMinDeviation))
             }
 
             time += 5 * 60 * 1000L
@@ -814,14 +749,14 @@ class OverviewData @Inject constructor(
             val iobPredictionArray = iobCobCalculator.calculateIobArrayForSMB(lastAutosensResult, SMBDefaults.exercise_mode, SMBDefaults.half_basal_exercise_target, isTempTarget)
             for (i in iobPredictionArray) {
                 iobPrediction.add(i.setColor(resourceHelper.gc(R.color.iobPredAS)))
-                maxTime(maxIobArray, i.time, abs(i.iob))
+                maxIobValueFound = max(maxIobValueFound, abs(i.iob))
             }
             iobPredictions1Series = PointsWithLabelGraphSeries(Array(iobPrediction.size) { i -> iobPrediction[i] })
             val iobPrediction2: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
             val iobPredictionArray2 = iobCobCalculator.calculateIobArrayForSMB(AutosensResult(), SMBDefaults.exercise_mode, SMBDefaults.half_basal_exercise_target, isTempTarget)
             for (i in iobPredictionArray2) {
                 iobPrediction2.add(i.setColor(resourceHelper.gc(R.color.iobPred)))
-                maxTime(maxIobArray, i.time, abs(i.iob))
+                maxIobValueFound = max(maxIobValueFound, abs(i.iob))
             }
             iobPredictions2Series = PointsWithLabelGraphSeries(Array(iobPrediction2.size) { i -> iobPrediction2[i] })
             aapsLogger.debug(LTag.AUTOSENS, "IOB prediction for AS=" + DecimalFormatter.to2Decimal(lastAutosensResult.ratio) + ": " + iobCobCalculator.iobArrayToString(iobPredictionArray))
@@ -911,12 +846,4 @@ class OverviewData @Inject constructor(
     private fun <E : DataPointWithLabelInterface> List<E>.filterTimeframe(fromTime: Long, endTime: Long): List<E> =
         filter { it.x + it.duration >= fromTime && it.x <= endTime }
 
-    private fun maxTime(arrayMax: DoubleArray, time: Long, value: Double) {
-        for(range in 1..4) {
-            if (time < endTimeData && time > endTimeData - T.hours(minRangeToDisplay.toLong()).msecs() * range)
-                arrayMax.set(2 * (range - 1), max(value, arrayMax.get(2 * (range - 1))))
-            if (time < toTime && time > toTime - T.hours(minRangeToDisplay.toLong()).msecs() * range)
-                arrayMax.set(2 * (range - 1) + 1, max(value, arrayMax.get(2 * (range - 1) + 1)))
-        }
-    }
 }
