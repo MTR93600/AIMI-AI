@@ -20,11 +20,8 @@ AIMI V2 :
 It's a plugin, need to be select in the config builder.
 For now AIMI settings are :
 -insulinReq in %
--Scale_min
--Scale_50
 -UAM_bolusCAP
 _Start and End Time
 
-To enter in the AIMI smb calculation, you have to start your meal with a manual bolus, the size is not important, the action is.
-During the next three hours who follow the manual Bolus, AIMI will do the job, out of this time zone, you will come back to isf tunning, basale tunning and target management.
-Enjoy
+ISF and IC are calculated automatically. no prebolus necessary, but for big meal it will help.
+nos scale smb anymore
