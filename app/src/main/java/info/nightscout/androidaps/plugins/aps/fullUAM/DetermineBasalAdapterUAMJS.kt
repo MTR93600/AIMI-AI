@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.aps.fullUAM
 
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
+import info.nightscout.androidaps.activities.TDDStatsActivity
 import info.nightscout.androidaps.dana.DanaPump
 import info.nightscout.androidaps.data.IobTotal
 import info.nightscout.androidaps.data.MealData
@@ -292,6 +293,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         //this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
         this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP", activePlugin.activePump.loadTDDs().enacted(true))
+
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
