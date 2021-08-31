@@ -282,7 +282,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.log("Current sensitivity is " +variable_sens+" based on current bg");
     console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
     sens = variable_sens;
-    var eRatio = round((bg/0.16)/sens,2);
+    //var eRatio = round((bg/0.16)/sens,2);
+    var eRatio = round(sens / 13.2);
     //console.error("CR:",eRatio);
     //var iob_scale = (profile.W2_IOB_threshold/100) * max_iob;
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
