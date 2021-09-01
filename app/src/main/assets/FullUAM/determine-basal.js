@@ -275,7 +275,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //console.error("CR:", );
     //MT : TWTT
     var tdd7 = meal_data.TDDAIMI7;
+    if (tdd7 < 20){
+    var tdd1 = meal_data.TDDAIMI1;
+    }else{
     var tdd1 = meal_data.TDDPUMP;
+    }
     var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
     var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
