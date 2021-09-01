@@ -2,7 +2,6 @@ package info.nightscout.androidaps.plugins.aps.fullUAM
 
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.activities.TDDStatsActivity
 import info.nightscout.androidaps.dana.DanaPump
 import info.nightscout.androidaps.data.IobTotal
 import info.nightscout.androidaps.data.MealData
@@ -288,12 +287,10 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
-        val tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
+        val tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil, iobCobCalculator, repository)
         this.mealData.put("TDDAIMI7",tddAIMI.averageTDD(tddAIMI.calculate(7)).totalAmount)
-        //this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
-        this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
-        //this.mealData.put("TDDPUMP", activePlugin.activePump.loadTDDs().enacted(true))
-
+        this.mealData.put("TDDPUMP",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
+        //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
