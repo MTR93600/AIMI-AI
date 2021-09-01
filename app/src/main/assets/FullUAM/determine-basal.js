@@ -279,8 +279,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
     var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
+    //var TDDnow = meal_data.TDDAIMI1;
     console.log("Current sensitivity is " +variable_sens+" based on current bg");
     console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
+    //console.log("TDDnow : "+TDDnow+";");
     sens = variable_sens;
     //var eRatio = round((bg/0.16)/sens,2);
     var eRatio = round(sens / 13.2);
