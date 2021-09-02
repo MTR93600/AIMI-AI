@@ -281,8 +281,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var tdd1 = meal_data.TDDPUMP;
     }
     var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
+
     var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
+
     //var TDDnow = meal_data.TDDAIMI1;
     console.log("Current sensitivity is " +variable_sens+" based on current bg");
     console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
@@ -317,7 +319,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
     var EBG180 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest2,2));
     var EBG120 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest3,2));
-    var EBG60 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
+    var EBG60 = Math.max(39,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
     var REBG = round(EBG / min_bg,2);
     var REBG60 = round(EBG60 / min_bg,2);
     var EBX = Math.max(0,round(Math.min(EBG,EBG60),2));
@@ -325,7 +327,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
     console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" iTime : "+iTime+" ; ");
     console.log("*** EBG180 : "+EBG180+" *** EBG120 : "+EBG120+" *** EBG60 : "+EBG60+" *** REBG60 : "+REBG60+" ; ");
-
+    if (EBG60 >= 39){
+    variable_sens = (277700 / (TDD * EBG60));
+    variable_sens = round(variable_sens,1);
+    sens = variable_sens;
+    eRatio = round(sens / 13.2);
+    }
     //scale_ISF_ID codes:
     // 0 = UAM mode scaling
     // 1 = second wave scaling

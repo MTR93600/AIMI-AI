@@ -289,10 +289,16 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         val tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
-        this.mealData.put("TDDAIMI7",tddAIMI.averageTDD(tddAIMI.calculate(7)).totalAmount)
-        this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
-        this.mealData.put("TDDPUMP",tddAIMI.calculateDaily().totalAmount)
-        //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
+            this.mealData.put("TDDAIMI7", tddAIMI.averageTDD(tddAIMI.calculate(7)).totalAmount)
+            //this.mealData.put("TDDAIMI6", tddAIMI.averageTDD(tddAIMI.calculate(6)).totalAmount)
+            //this.mealData.put("TDDAIMI5", tddAIMI.averageTDD(tddAIMI.calculate(5)).totalAmount)
+            //this.mealData.put("TDDAIMI4", tddAIMI.averageTDD(tddAIMI.calculate(4)).totalAmount)
+            //this.mealData.put("TDDAIMI3", tddAIMI.averageTDD(tddAIMI.calculate(3)).totalAmount)
+            //this.mealData.put("TDDAIMI2", tddAIMI.averageTDD(tddAIMI.calculate(2)).totalAmount)
+            this.mealData.put("TDDAIMI1", tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
+            this.mealData.put("TDDPUMP", tddAIMI.calculateDaily().totalAmount)
+            //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
+
 
 
 
