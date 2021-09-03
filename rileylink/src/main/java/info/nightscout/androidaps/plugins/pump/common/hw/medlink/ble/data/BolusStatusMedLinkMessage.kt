@@ -11,9 +11,7 @@ import java.util.stream.Stream
 
 class BolusStatusMedLinkMessage<B>(commandType: MedLinkCommandType?,
                                    baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
-                                   medLinkServiceData: MedLinkServiceData?, aapsLogger: AAPSLogger?,
-                                   event: Event, btSleepTime: Long) : MedLinkPumpMessage<B>(
-    commandType, MedLinkCommandType.NoCommand, baseCallback, medLinkServiceData,
-    aapsLogger,btSleepTime) {
+                                   btSleepTime: Long) : MedLinkPumpMessage<B>(
+    commandType, MedLinkCommandType.NoCommand, baseCallback, btSleepTime) {
 
 }

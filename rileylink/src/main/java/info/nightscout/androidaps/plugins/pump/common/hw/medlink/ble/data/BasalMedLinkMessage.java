@@ -24,10 +24,9 @@ public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
                                        MedLinkStandardReturn<B>> baseCallBack,
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<Profile>> profileCallback,
-                               MedLinkServiceData medLinkServiceData,
-                               AAPSLogger aapsLogger, long btSleepSize
+                               long btSleepSize
                                ) {
-        super(commandType, argument, baseCallBack,medLinkServiceData, aapsLogger, btSleepSize);
+        super(commandType, argument, baseCallBack,btSleepSize);
         this.argCallBack = profileCallback;
     }
 

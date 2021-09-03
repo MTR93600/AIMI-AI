@@ -20,23 +20,26 @@ public enum MedLinkCommandType {
     NoCommand(""),
     ReadCharacteristic("\"ReadCharacteristic\""),
     Notification("SetNotificationBlocking"),
-    PumpModel("OK+CONN\r\n"),
-    Connect("OK+CONN\r\n"),
-    GetState("S\r\n"), //
-    StopStartPump("a\r\n"),
-    Bolus("X\r\n"),
+    PumpModel("OK+CONN"),
+    Connect("OK+CONN"),
+    GetState("S"), //
+    StopStartPump("a"),
+    Bolus("X"),
     BolusAmount("BOLUS"),
-    StartPump("START\r\n"),
-    StopPump("STOP\r\n"),
-    IsigHistory("I\r\n"),
-    BGHistory("C\r\n"),
-    PreviousBGHistory("T\r\n"),
-    BolusHistory("H\r\n"),
-    ActiveBasalProfile("E\r\n"),
-    BaseProfile("F\r\n"),
-    Calibrate("k\r\n"),
+    StartPump("START"),
+    StopPump("STOP"),
+    IsigHistory("I"),
+    PreviousIsigHistory("J"),
+    BGHistory("C"),
+    PreviousBGHistory("T"),
+    BolusHistory("H"),
+    ActiveBasalProfile("E"),
+    BaseProfile("F"),
+    Calibrate("k"),
     CalibrateValue("kal"),
-    Enter("\r\n")//Current Active Profile
+    BolusStatus("W")
+//    ,
+//    Enter("")//Current Active Profile
     // screenshots z C, H, E, I
 //    GetVersion(2), //
 //    GetPacket(3), // aka Listen, receive
@@ -73,14 +76,14 @@ public enum MedLinkCommandType {
         if (this.insulinAmount > 0) {
             StringBuilder buff = new StringBuilder(this.code);
             buff.append(" ");
-            if(this.insulinAmount < 10d) {
-              buff.append(" ");
+            if (this.insulinAmount < 10d) {
+                buff.append(" ");
             }
             buff.append(this.insulinAmount.toString());
-            buff.append("\r\n");
+            buff.append("\r").append("\n");
             return buff.toString().getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {
-            return this.code.getBytes(UTF_8);
+            return new StringBuilder(this.code).append("\r").append("\n").toString().getBytes(UTF_8);
         } else {
             return new byte[0];
         }
@@ -88,7 +91,7 @@ public enum MedLinkCommandType {
 
     public byte[] buildBolus(double minValueAmount) {
 
-        List< Byte > result = new ArrayList< >();
+        List<Byte> result = new ArrayList<>();
         // Adding the array one-by-one into the list
 
         // Converting the list to array and returning the array to the main method
@@ -97,27 +100,28 @@ public enum MedLinkCommandType {
 
         Byte[] bolusAmount = ArrayUtils.toObject(BolusAmount.getRaw());
         DecimalFormat formatter = new DecimalFormat("00.0");
-        Byte[] bolusValue = ArrayUtils.toObject(formatter.format(minValueAmount).replace(",",".").getBytes(UTF_8));
-        Stream.of(bolusAmount,bolusValue).flatMap(Stream::of).forEach(result::add);
+        Byte[] bolusValue = ArrayUtils.toObject(formatter.format(minValueAmount).replace(",", ".").getBytes(UTF_8));
+        Stream.of(bolusAmount, bolusValue).flatMap(Stream::of).forEach(result::add);
         return ArrayUtils.toPrimitive(result.toArray(new Byte[result.size()]));
 
     }
-//
+
+    //
 //    public MedLinkCommandType buildBolusCommand(double minValueAmount) {
 //
 //
 //        return BolusAmount(Bolus.code,minValueAmount);
 //
 //    }
-    public boolean isSameCommand(byte[] command){
+    public boolean isSameCommand(byte[] command) {
         return command != null && Arrays.equals(this.getRaw(), command);
     }
 
-    public boolean isSameCommand(String command){
+    public boolean isSameCommand(String command) {
         return command != null && command.equals(this.code);
     }
 
-    public boolean isSameCommand(MedLinkCommandType command){
-        return isSameCommand(command.getRaw()) || isSameCommand(command.code);
+    public boolean isSameCommand(MedLinkCommandType command) {
+        return command != null && (isSameCommand(command.getRaw()) || isSameCommand(command.code));
     }
 }

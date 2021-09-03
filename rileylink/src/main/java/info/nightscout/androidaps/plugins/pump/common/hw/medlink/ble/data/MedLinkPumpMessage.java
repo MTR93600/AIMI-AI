@@ -20,30 +20,31 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 
     protected MedLinkCommandType argument;
     protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback;
-    private final AAPSLogger aapsLogger;
-    private final MedLinkServiceData medLinkServiceData;
-    protected StringBuffer pumpResponse = new StringBuffer();
     private long btSleepTime = 0l;
 
-    public MedLinkPumpMessage(MedLinkCommandType commandType,
-                              MedLinkServiceData medLinkServiceData,
-                              AAPSLogger aapsLogger) {
+    public MedLinkPumpMessage(MedLinkCommandType commandType) {
         this.commandType = commandType;
-        this.medLinkServiceData = medLinkServiceData;
-        this.aapsLogger = aapsLogger;
+        this.argument = MedLinkCommandType.NoCommand;
+    }
+
+    public MedLinkPumpMessage(MedLinkCommandType commandType,
+                              Function<Supplier<Stream<String>>,
+                                      MedLinkStandardReturn<B>> baseCallback,
+                              Long btSleepTime) {
+        this.argument = MedLinkCommandType.NoCommand;
+        this.commandType = commandType;
+        this.baseCallback = baseCallback;
+        this.btSleepTime = btSleepTime;
     }
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
                               MedLinkCommandType argument,
                               Function<Supplier<Stream<String>>,
                               MedLinkStandardReturn<B>> baseCallback,
-                              MedLinkServiceData medLinkServiceData,
-                              AAPSLogger aapsLogger, Long btSleepTime) {
+                              Long btSleepTime) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
-        this.medLinkServiceData = medLinkServiceData;
-        this.aapsLogger = aapsLogger;
         this.btSleepTime = btSleepTime;
     }
 
@@ -53,13 +54,10 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                                       MedLinkStandardReturn<B>> baseCallback,
                               Function<Supplier<Stream<String>>,
                                       MedLinkStandardReturn<B>> argCallback,
-                              MedLinkServiceData medLinkServiceData,
-                              AAPSLogger aapsLogger, long btSleepTime) {
+                              long btSleepTime) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
-        this.medLinkServiceData = medLinkServiceData;
-        this.aapsLogger = aapsLogger;
         this.argCallback = argCallback;
         this.btSleepTime = btSleepTime;
     }
@@ -104,5 +102,15 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 
     public void setBtSleepTime(long btSleepTime) {
         this.btSleepTime = btSleepTime;
+    }
+
+    @Override public String toString() {
+        return "MedLinkPumpMessage{" +
+                "commandType=" + commandType +
+                ", argCallback=" + argCallback +
+                ", argument=" + argument +
+                ", baseCallback=" + baseCallback +
+                ", btSleepTime=" + btSleepTime +
+                '}';
     }
 }

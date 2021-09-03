@@ -193,7 +193,7 @@ public class MedLinkRFSpy {
 
 //        aapsLogger.debug(LTag.PUMPBTCOMM, "writeToData (raw={})", ByteUtil.shortHexString(prepended));
 
-        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID,
+        medLinkBle.addWriteCharacteristic(radioServiceUUID, radioDataUUID,
                 msg);
 //        if (writeCheck.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
 //            aapsLogger.error(LTag.PUMPBTCOMM, "BLE Write operation failed, code=" + writeCheck.resultCode);
@@ -278,7 +278,7 @@ public class MedLinkRFSpy {
 
 
     public void transmitThenReceive(MedLinkPumpMessage pumpMessage) {
-        medLinkBle.writeCharacteristic_blocking(radioServiceUUID, radioDataUUID, pumpMessage);
+        medLinkBle.addWriteCharacteristic(radioServiceUUID, radioDataUUID, pumpMessage);
     }
 
     private RFSpyResponse updateRegister(CC111XRegister reg, int val) {

@@ -14,17 +14,11 @@ public class RemainingBleCommand {
 
     private final byte[] command;
 
-    private final UUID charaUUID;
-
-    private final UUID serviceUUID;
     private final Function function;
     private final boolean hasArgument;
 //        private final String commandCode;
 
-    public RemainingBleCommand(UUID serviceUUID, UUID charaUUID,
-                             byte[] command, Function func, boolean hasArgument) {
-        this.serviceUUID = serviceUUID;
-        this.charaUUID = charaUUID;
+    public RemainingBleCommand(byte[] command, Function func, boolean hasArgument) {
         this.command = command;
         this.function = func;
         this.hasArgument = hasArgument;
@@ -40,14 +34,6 @@ public class RemainingBleCommand {
 
     public byte[] getCommand() {
         return command;
-    }
-
-    public UUID getCharaUUID() {
-        return charaUUID;
-    }
-
-    public UUID getServiceUUID() {
-        return serviceUUID;
     }
 
     @Override public String toString() {

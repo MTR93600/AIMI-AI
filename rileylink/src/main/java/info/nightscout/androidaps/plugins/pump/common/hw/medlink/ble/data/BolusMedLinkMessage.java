@@ -26,10 +26,8 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     public BolusMedLinkMessage(double bolusAmount,
                                Function<Supplier<Stream<String>>,
-                                       MedLinkStandardReturn<String>> bolusCallback,
-                               MedLinkServiceData medLinkServiceData,
-                               AAPSLogger aapsLogger) {
-        super( MedLinkCommandType.Bolus, medLinkServiceData, aapsLogger);
+                                       MedLinkStandardReturn<String>> bolusCallback) {
+        super( MedLinkCommandType.Bolus);
         bolusArgument.insulinAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;

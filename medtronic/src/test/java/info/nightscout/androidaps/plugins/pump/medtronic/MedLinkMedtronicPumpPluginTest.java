@@ -45,6 +45,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicSt
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
 import info.nightscout.androidaps.queue.Callback;
+import info.nightscout.androidaps.receivers.ReceiverStatusStore;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
@@ -61,7 +62,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MedLinkMedtronicPumpPlugin.class, AAPSLogger.class, RxBusWrapper.class,
         Context.class, ResourceHelper.class, android.util.Base64.class, ActivePluginProvider.class,
-        SP.class, ISOChronology.class, DateTimeZone.class})
+        SP.class, ISOChronology.class, DateTimeZone.class, ReceiverStatusStore.class})
 public class MedLinkMedtronicPumpPluginTest {
 
     private String validProfile = "{\"dia\":\"6\",\"carbratio\":[{\"time\":\"00:00\",\"value\":\"30\"}],\"carbs_hr\":\"20\",\"delay\":\"20\",\"sens\":[{\"time\":\"00:00\",\"value\":\"10\"},{\"time\":\"2:00\",\"value\":\"11\"}],\"timezone\":\"UTC\",\"basal\":[{\"time\":\"00:00\",\"value\":\"0.1\"}],\"target_low\":[{\"time\":\"00:00\",\"value\":\"4\"}],\"target_high\":[{\"time\":\"00:00\",\"value\":\"5\"}],\"startDate\":\"1970-01-01T00:00:00.000Z\",\"units\":\"mmol\"}";
@@ -88,6 +89,7 @@ public class MedLinkMedtronicPumpPluginTest {
 
     //    @InjectMocks MedLinkMedtronicPumpPlugin plugin;
     @Mock PumpEnactResult result;
+    @Mock ReceiverStatusStore receiverStatusStore;
     //     HasAndroidInjector injector = new HasAndroidInjector() {
 //         @Override public AndroidInjector<Object> androidInjector() {
 //              new AndroidInjector {
@@ -121,7 +123,7 @@ public class MedLinkMedtronicPumpPluginTest {
 
         MedLinkMedtronicPumpPlugin plugin = new MedLinkMedtronicPumpPlugin(injector, aapsLogger,
                 rxBus, context, resourceHelper, activePlugin, sp, commandQueue, null, medtronicUtil,
-                medtronicPumpStatus, medtronicHistoryData, rileyLinkServiceData, serviceTaskExecutor, dateUtil) {
+                medtronicPumpStatus, medtronicHistoryData, rileyLinkServiceData, serviceTaskExecutor, receiverStatusStore, dateUtil) {
             @Override public LocalDateTime getCurrentTime() {
                 return time;
             }

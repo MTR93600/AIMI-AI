@@ -410,7 +410,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             BgReading old = getDaoBgReadings().queryForId(bgReading.date);
             double diff = 0d;
             if (old != null) {
-                diff = Math.abs(old.raw - bgReading.raw);
+                diff = Math.abs(old.value - bgReading.value);
             }
             return old == null || (diff > 1);
         } catch (SQLException e) {

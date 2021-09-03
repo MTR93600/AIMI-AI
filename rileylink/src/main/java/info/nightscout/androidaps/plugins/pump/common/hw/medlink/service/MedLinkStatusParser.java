@@ -136,6 +136,22 @@ public class MedLinkStatusParser {
         }
     }
 
+    public static void parsePartialBolusInfo(Iterator<String> messageIterator) {
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+            if (currentLine.contains("last bolus")) {
+
+            }
+            //                "last bolus: 1.6u 10-06-21 17:39\n" +
+//                "square bolus: 0.0u delivered: 0.000u\n" +
+//                "square bolus time: 0h:00m / 0h:00m\n" +
+
+        }
+        if (messageIterator.hasNext()) {
+            String currentLine = messageIterator.next();
+        }
+    }
+
     private static MedLinkPumpStatus parseBgLevelAlarms(MedLinkPumpStatus pumpStatus, Iterator<String> messageIterator) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
