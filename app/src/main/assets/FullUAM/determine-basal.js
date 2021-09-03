@@ -679,7 +679,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var eRatio = profile.carb_ratio;
     if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
     eRatio *= 1.5 ;
-    }else if (target_bg <= 85 && TDDPUMP > (0.3 * TDDAIMI7) && iTime > 0 && iTime < 180)/**/{
+    }else if (target_bg <= 85 && tdd1 > (0.3 * tdd7) && iTime > 0 && iTime < 180){
     eRatio /= 2 ;
     }
     csf = sens / eRatio;
