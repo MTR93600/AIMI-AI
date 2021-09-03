@@ -105,7 +105,7 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />-->
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="7"
             android:dialogMessage="@string/Mealfactor_start_summary"
             android:digits="0123456789.,"
@@ -131,7 +131,7 @@
             android:title="@string/Mealfactor_end_title"
             validate:floatmaxNumber="24"
             validate:floatminNumber="1"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2.5"
