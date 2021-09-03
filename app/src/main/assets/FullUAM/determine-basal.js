@@ -679,8 +679,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var eRatio = profile.carb_ratio;
     if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
     eRatio *= 1.5 ;
-    }else if (target_bg <= 85 && tdd1 > (0.3 * tdd7) && iTime > 0 && iTime < 180){
-    eRatio /= 2 ;
+    }else if (target_bg <= 85 && tdd1 > (0.3 * tdd7) && iTime > 0 && iTime < 60 && iob_data.iob <= (0.4*max_iob)){
+    eRatio /= 1.5 ;
     }
     csf = sens / eRatio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2),"eRatio",eRatio,"iTime",iTime);
@@ -1376,7 +1376,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.log("#### iTime ##### : "+iTime+" ; ");
 
 
-            if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.4*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
+            /*if (glucose_status.delta >= 0 && iTime >= 0 && iTime <= 60 && iob_data.iob <= (0.4*max_iob) && eRatio < profile.carb_ratio) {// sending bigger SMB in the first 60 minutes when iob_data.iob < 50% max IOB
               insulinReq = eInsulin ;
               insulinReqPCT = round(HyperPredBGTest/HyperPredBGTest2,2);
               maxBolusTT = profile.UAM_boluscap * round(HyperPredBGTest/HyperPredBGTest2,2);
@@ -1386,7 +1386,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 //insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok with TT 130 :"+eInsulin+";");
-            }else if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
+            }else */if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
              insulinReq = eInsulin ;
              insulinReqPCT = 1;
              maxBolusTT = profile.UAM_boluscap;
