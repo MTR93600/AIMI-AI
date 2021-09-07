@@ -288,7 +288,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         if (now < 1){
             now = 1;}
         else {
-            console.error("Time now is "+now+"; ";
+            console.error("Time now is "+now+"; ");
         }
         var tdd7 = meal_data.TDDAIMI7;
         var tdd_pump_now = meal_data.TDDPUMP;
@@ -296,19 +296,20 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
         if (tdd7 < 20){
             tdd7 = meal_data.TDDAIMI1;
-            console.error("tdd7 using previous day's value "+tdd7+"; ";
+            console.error("tdd7 using previous day's value "+tdd7+"; ");
         }
         else{
-            console.error("tdd7 using 7-day average "+tdd7+"; ";
+            console.error("tdd7 using 7-day average "+tdd7+"; ");
         }
         var TDD = (tdd7 * 0.5) + (tdd_pump * 0.5);
         console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD+";");
-           
+
     var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
     //var TDDnow = meal_data.TDDAIMI1;
     console.log("Current sensitivity is " +variable_sens+" based on current bg");
-    console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
+    //console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens :
+    //"+variable_sens+" ; ");
     //console.log("TDDnow : "+TDDnow+";");
     sens = variable_sens;
     //var eRatio = round((bg/0.16)/sens,2);
@@ -332,7 +333,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //############################## MP
     //### ISF SCALING CODE START ### MP
     //############################## MP
-    var now = new Date().getHours();
+    //var now = new Date().getHours();
     //var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is
     //assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
     //var scale_min = profile.scale_min/100;
