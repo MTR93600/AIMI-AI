@@ -274,13 +274,36 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     //console.error("CR:", );
     //MT : TWTT
-    var tdd7 = meal_data.TDDAIMI7;
+    /*var tdd7 = meal_data.TDDAIMI7;
     if (tdd7 < 20){
     var tdd1 = meal_data.TDDAIMI1;
     }else{
     var tdd1 = meal_data.TDDPUMP;
     }
-    var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
+    var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);*/
+    /* ************************
+       ** TS AutoTDD code    **
+       ************************ */
+    var now = new Date().getHours();
+        if (now < 1){
+            now = 1;}
+        else {
+            console.error("Time now is "+now+"; ";
+        }
+        var tdd7 = meal_data.TDDAIMI7;
+        var tdd_pump_now = meal_data.TDDPUMP;
+        var tdd_pump = ( tdd_pump_now / (now / 24));
+        console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
+        if (tdd7 < 20){
+            tdd7 = meal_data.TDDAIMI1;
+            console.error("tdd7 using previous day's value "+tdd7+"; ";
+        }
+        else{
+            console.error("tdd7 using 7-day average "+tdd7+"; ";
+        }
+        var TDD = (tdd7 * 0.5) + (tdd_pump * 0.5);
+        console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD+";");
+           
     var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
     //var TDDnow = meal_data.TDDAIMI1;
