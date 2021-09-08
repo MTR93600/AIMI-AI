@@ -1210,7 +1210,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 //Calculate variables for sliding scale microbolus increase
                 var bg_adjust = (bg - 108) / 72;
-                console.error("bg_adjust value is "+bg_adjust+"; ");
+                //console.error("bg_adjust value is "+bg_adjust+"; ");
                 var insulinDivisor = 1.56 - Math.min((0.56 * bg_adjust),0.56);
                 console.error("Insulin Divisor is:"+insulinDivisor+"; ");
                 console.error("Value is "+((1/insulinDivisor) * 100)+"% of insulin required; ");
@@ -1222,12 +1222,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 var uamBoost2 = Math.abs(uamBoost2);
                 console.error("UAM Boost 2 value is "+uamBoost2+"; ");
                 //Introduce deltas into the mix. Iniitially observe what the values of minDelta, expected delta and the product is.
-                console.error("minDelta is currently "+minDelta+"; ");
-                console.error("Expected delta is currently "+expectedDelta+";");
+                //console.error("minDelta is currently "+minDelta+"; ");
+                //console.error("Expected delta is currently "+expectedDelta+";");
                 var deltaRatio = Math.round( minDelta / expectedDelta,3);
-                console.error("Min delta / expected Delta is currently "+deltaRatio+";");
+                //console.error("Min delta / expected Delta is currently "+deltaRatio+";");
                 var diffDelta = Math.round((minDelta - expectedDelta),3);
-                console.error("Delta diffrence is "+diffDelta+";");
+                //console.error("Delta diffrence is "+diffDelta+";");
                 var delta_adjust = (minDelta - 12) / 15;
                 var deltaDiv = 0.77 - Math.min((0.44 * delta_adjust),0.44);
                 var boostMaxIOB = profile.boost_maxIOB;
@@ -1243,11 +1243,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
                 //Set a factor to scale SMBs by once we're out of boost territory
-                if (scaleSMB) {
-                    console.error("SMB Scale factor is "+(1/scaleSMB)+"; ")
-                    } else {
-                    console.error("SMB scale factor not found")
-                }
+                //if (scaleSMB) {
+                //    console.error("SMB Scale factor is "+(1/scaleSMB)+"; ")
+                //    } else {
+                //    console.error("SMB scale factor not found")
+                //}
 
                 var boost_start = profile.boost_start;
                 var boost_end = profile.boost_end;
@@ -1256,10 +1256,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 var boost_scale = (profile.boost_scale * (eventualBG / target_bg));
 
                 console.error("Boost start time is "+(boost_start+1)+"hrs and boost end time is "+(boost_end-1)+"hrs; ");
-                console.error("Expected delta is "+expectedDelta+". current delta is "+glucose_status.delta+" and min delta is "+minDelta+". ");
+                //console.error("Expected delta is "+expectedDelta+". current delta is
+                "+glucose_status.delta+" and min delta is "+minDelta+". ");
 
                 var insulinReqPCT = ( 100 / profile.UAM_InsulinReq );
-                console.error("Insulin required ="+(1/insulinReqPCT)+"%: ");
+                console.error("Insulin required ="+((1/insulinReqPCT) * 100)+"%: ");
 
     //Test whether we have a positive delta, and confirm iob, time and boost being possible, then use the boost function
                  if (glucose_status.delta >= 6 && glucose_status.short_avgdelta >= 4 && uamBoost1 >
@@ -1308,7 +1309,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                  else {
                     var microBolus = Math.floor(Math.min(insulinReq/insulinReqPCT,maxBolus)*roundSMBTo)
                     /roundSMBTo;
-                    console.error("Insulin required % ("+(1/insulinReqPCT)+"%) applied.");
+                    console.error("Insulin required % ("+((1/insulinReqPCT) * 100)+"%) applied.");
                  }
                  //End of TS experimental code block to scale SMBs
                 // calculate a long enough zero temp to eventually correct back up to target
