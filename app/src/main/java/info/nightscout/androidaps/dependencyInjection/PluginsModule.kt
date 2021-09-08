@@ -10,6 +10,7 @@ import info.nightscout.androidaps.danar.DanaRPlugin
 import info.nightscout.androidaps.danars.DanaRSPlugin
 import info.nightscout.androidaps.diaconn.DiaconnG8Plugin
 import info.nightscout.androidaps.interfaces.PluginBase
+import info.nightscout.androidaps.plugins.aps.Boost.BoostPlugin
 import info.nightscout.androidaps.plugins.aps.fullUAM.FullUAMPlugin
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin
@@ -204,15 +205,21 @@ abstract class PluginsModule {
     abstract fun bindFullUAMPlugin(plugin: FullUAMPlugin): PluginBase
 
     @Binds
-    @AllConfigs
+    @APS
     @IntoMap
     @IntKey(240)
-    abstract fun bindLocalProfilePlugin(plugin: LocalProfilePlugin): PluginBase
+    abstract fun bindBoostPlugin(plugin: BoostPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
     @IntKey(250)
+    abstract fun bindLocalProfilePlugin(plugin: LocalProfilePlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(260)
     abstract fun bindAutomationPlugin(plugin: AutomationPlugin): PluginBase
 
     @Binds
