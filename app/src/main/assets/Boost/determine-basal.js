@@ -1258,7 +1258,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("Boost start time is "+(boost_start+1)+"hrs and boost end time is "+(boost_end-1)+"hrs; ");
                 console.error("Expected delta is "+expectedDelta+". current delta is "+glucose_status.delta+" and min delta is "+minDelta+". ");
 
-                var insulinReqPCT = ( 100 / profile.UAM_InsulinReqPCT );
+                var insulinReqPCT = ( 100 / profile.UAM_InsulinReq );
                 console.error("Insulin required ="+(1/insulinReqPCT)+"%: ");
 
     //Test whether we have a positive delta, and confirm iob, time and boost being possible, then use the boost function
