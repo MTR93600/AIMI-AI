@@ -1234,7 +1234,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("Max IOB from automated boluses = "+boostMaxIOB+"; ");
 
                 //Create the time variable to be used to allow the Boost function only profile specified hours.
-                //var now = new Date().getHours();
+                var now = new Date().getHours();
 
                 if (now > profile.boost_start && now < profile.boost_end) {
                     console.error("Hours are now "+now+", so UAM Boost is enabled;");
@@ -1258,8 +1258,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("Boost start time is "+(boost_start+1)+"hrs and boost end time is "+(boost_end-1)+"hrs; ");
                 console.error("Expected delta is "+expectedDelta+". current delta is "+glucose_status.delta+" and min delta is "+minDelta+". ");
 
-                var insulinReqPCT = 100/profile.UAM_InsulinReq;
-                console.error("Insulin required % is "+(1/insulinReqPCT)+"%: ");
+                var insulinReqPCT = ( 100 / profile.UAM_InsulinReq );
+                console.error("Insulin required ="+(1/insulinReqPCT)+"%: ");
 
     //Test whether we have a positive delta, and confirm iob, time and boost being possible, then use the boost function
                  if (glucose_status.delta >= 6 && glucose_status.short_avgdelta >= 4 && uamBoost1 > 1.2 && uamBoost2 > 2 && now > boost_start && now < boost_end && iob_data.iob < boostMaxIOB && boost_scale < 2 && eventualBG > target_bg && bg > 80 && insulinReq > 0 /*&& target_bg < 82*/) {
