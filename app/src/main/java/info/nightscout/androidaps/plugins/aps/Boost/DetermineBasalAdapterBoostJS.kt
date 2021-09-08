@@ -251,11 +251,10 @@ class DetermineBasalAdapterBoostJS internal constructor(private val scriptReader
         //this.profile.put("scale_max",SafeParse.stringToDouble(sp.getString(R.string.key_scale_max,"20")))
         //this.profile.put("scale_50",SafeParse.stringToDouble(sp.getString(R.string.key_scale_50,"2")))
 //MP: Boost_boluscap start
-        this.profile.put("Boost_boluscap",SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_boost_bolus,"2.5")))
-        //this.profile.put("Mealfactor_start",  SafeParse.stringToDouble(sp.getString(R.string.key_Mealfactor_start, " +
-        //                                                                             ""7.0")))
-        //this.profile.put("Mealfactor_end",  SafeParse.stringToDouble(sp.getString(R.string.key_Mealfactor_end, "23" +
-        //    ".0")))
+        this.profile.put("boost_bolus",SafeParse.stringToDouble(sp.getString(R.string
+                                                                                    .key_openapsama_boost_bolus,"2.5")))
+        this.profile.put("boost_start",  SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_boost_start, "7.0")))
+        this.profile.put("boost_end",  SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_boost_end, "8.0")))
         //this.profile.put("Boost_eventualBG",SafeParse.stringToDouble(sp.getString(R.string.key_Boost_eventualBG,"155")))
         //this.profile.put("W2_IOB_threshold",SafeParse.stringToDouble(sp.getString(R.string.key_w2_iob_threshold,"20")))
         //this.profile.put("Boost_hyperBG",SafeParse.stringToDouble(sp.getString(R.string.key_Boost_hyperBG,"220")));
