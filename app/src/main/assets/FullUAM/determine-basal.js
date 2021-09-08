@@ -274,20 +274,30 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     //console.error("CR:", );
     //MT : TWTT
-    var tdd7 = meal_data.TDDAIMI7;
-    if (tdd7 < 20){
-    var tdd1 = meal_data.TDDAIMI1;
-    }else{
-    var tdd1 = meal_data.TDDPUMP;
-    }
-    var TDD = (tdd7 * 0.5) + (tdd1 * 0.5);
+    var now = new Date().getHours();
+            if (now < 1){
+                now = 1;}
+            else {
+                console.error("Time now is "+now+"; ");
+            }
+            var tdd7 = meal_data.TDDAIMI7;
+            var tdd_pump_now = meal_data.TDDPUMP;
+            var tdd_pump = ( tdd_pump_now / (now / 24));
+            console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
+            if (tdd7 < 20){
+                tdd7 = meal_data.TDDAIMI1;
+                console.error("tdd7 using previous day's value "+tdd7+"; ");
+            }
+            else{
+                console.error("tdd7 using 7-day average "+tdd7+"; ");
+            }
+            var TDD = (tdd7 * 0.5) + (tdd_pump * 0.5);
+            console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD+";");
 
-    var variable_sens = (277700 / (TDD * bg));
-    variable_sens = round(variable_sens,1);
-
-    //var TDDnow = meal_data.TDDAIMI1;
-    console.log("Current sensitivity is " +variable_sens+" based on current bg");
-    console.log("####### tdd7 : "+tdd7+"##### tdd1 : "+tdd1+" ### variable_sens : "+variable_sens+" ; ");
+        var variable_sens = (277700 / (TDD * bg));
+        variable_sens = round(variable_sens,1);
+        //var TDDnow = meal_data.TDDAIMI1;
+        console.log("Current sensitivity is " +variable_sens+" based on current bg");
     //console.log("TDDnow : "+TDDnow+";");
     sens = variable_sens;
     //var eRatio = round((bg/0.16)/sens,2);
@@ -311,7 +321,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //############################## MP
     //### ISF SCALING CODE START ### MP
     //############################## MP
-    var now = new Date().getHours();
+    //var now = new Date().getHours();
     //var scale_ISF_ID; //MP: identifier variable. Each of the different ISF scaling codes below is
     //assigned a number to simplify coupling other blocks of code to the type of ISF scaling applied
     //var scale_min = profile.scale_min/100;
@@ -677,11 +687,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // autotuned CR is still in effect even when basals and ISF are being adjusted by TT or autosens
     // this avoids overdosing insulin for large meals when low temp targets are active
     //var eRatio = profile.carb_ratio;
-    if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
+    /*if (profile.temptargetSet && target_bg >= 130 && iTime > 0 && iTime < 180 ){
     eRatio *= 1.5 ;
     }else if (target_bg <= 85 && tdd1 > (0.3 * tdd7) && iTime > 0 && iTime < 60 && iob_data.iob <= (0.4*max_iob)){
     eRatio /= 1.5 ;
-    }
+    }*/
     csf = sens / eRatio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",round (csf, 2),"eRatio",eRatio,"iTime",iTime);
     console.error("CR:",eRatio);
@@ -1367,7 +1377,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             var EBX = Math.max(0,round(Math.min(EBG,EBG60),2));
             var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
-            var eCarbs = (((EBX * REBX)-target_bg)/eRatio);
+            var eCarbs = (((EBX)-target_bg)/eRatio);
             var eInsulin = round(eCarbs/eRatio,2);
             var roundSMBTo = 1 / profile.bolus_increment;
 
