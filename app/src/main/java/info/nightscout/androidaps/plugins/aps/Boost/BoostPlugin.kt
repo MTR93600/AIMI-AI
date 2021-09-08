@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.aps.openAPSSMB
+package info.nightscout.androidaps.plugins.aps.Boost
 
 import android.content.Context
 import androidx.preference.PreferenceFragmentCompat
@@ -28,7 +28,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-open class OpenAPSSMBPlugin @Inject constructor(
+open class BoostPlugin @Inject constructor(
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
     private val rxBus: RxBusWrapper,
@@ -46,20 +46,20 @@ open class OpenAPSSMBPlugin @Inject constructor(
     private val glucoseStatusProvider: GlucoseStatusProvider
 ) : PluginBase(PluginDescription()
     .mainType(PluginType.APS)
-    .fragmentClass(OpenAPSSMBFragment::class.java.name)
+    .fragmentClass(BoostFragment::class.java.name)
     .pluginIcon(R.drawable.ic_generic_icon)
-    .pluginName(R.string.openapssmb)
-    .shortName(R.string.smb_shortname)
-    .preferencesId(R.xml.pref_openapssmb)
-    .description(R.string.description_smb)
+    .pluginName(R.string.Boost)
+    .shortName(R.string.Boost_shortname)
+    .preferencesId(R.xml.pref_boost)
+    .description(R.string.description_Boost)
     .setDefault(),
     aapsLogger, resourceHelper, injector
 ), APS, Constraints {
 
     // last values
     override var lastAPSRun: Long = 0
-    override var lastAPSResult: DetermineBasalResultSMB? = null
-    var lastDetermineBasalAdapterSMBJS: DetermineBasalAdapterSMBJS? = null
+    override var lastAPSResult: DetermineBasalResultBoost? = null
+    var lastDetermineBasalAdapterBoostJS: DetermineBasalAdapterBoostJS? = null
     var lastAutosensResult = AutosensResult()
 
     override fun specialEnableCondition(): Boolean {
@@ -144,7 +144,7 @@ open class OpenAPSSMBPlugin @Inject constructor(
         } else {
             lastAutosensResult.sensResult = "autosens disabled"
         }
-        val iobArray = iobCobCalculator.calculateIobArrayForSMB(lastAutosensResult, SMBDefaults.exercise_mode, SMBDefaults.half_basal_exercise_target, isTempTarget)
+        val iobArray = iobCobCalculator.calculateIobArrayForSMB(lastAutosensResult, BoostDefaults.exercise_mode, BoostDefaults.half_basal_exercise_target, isTempTarget)
         profiler.log(LTag.APS, "calculateIobArrayInDia()", startPart)
         startPart = System.currentTimeMillis()
         val smbAllowed = Constraint(!tempBasalFallback).also {
@@ -155,10 +155,6 @@ open class OpenAPSSMBPlugin @Inject constructor(
             constraintChecker.isAdvancedFilteringEnabled(it)
             inputConstraints.copyReasons(it)
         }
-        val uam = Constraint(true).also {
-            constraintChecker.isUAMEnabled(it)
-            inputConstraints.copyReasons(it)
-        }
         val Boost = Constraint(true).also {
             constraintChecker.isBoostEnabled(it)
             inputConstraints.copyReasons(it)
@@ -167,8 +163,8 @@ open class OpenAPSSMBPlugin @Inject constructor(
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()
 
-        DetermineBasalAdapterSMBJS(ScriptReader(context), injector).also { determineBasalAdapterSMBJS ->
-            determineBasalAdapterSMBJS.setData(profile, maxIob, maxBasal, minBg, maxBg, targetBg,
+        DetermineBasalAdapterBoostJS(ScriptReader(context), injector).also { determineBasalAdapterBoostJS ->
+            determineBasalAdapterBoostJS.setData(profile, maxIob, maxBasal, minBg, maxBg, targetBg,
                 activePlugin.activePump.baseBasalRate,
                 iobArray,
                 glucoseStatus,
@@ -176,26 +172,26 @@ open class OpenAPSSMBPlugin @Inject constructor(
                 lastAutosensResult.ratio,
                 isTempTarget,
                 smbAllowed.value(),
-                uam.value(),
+                Boost.value(),
                 advancedFiltering.value(),
                 activePlugin.activeBgSource.javaClass.simpleName == "DexcomPlugin")
             val now = System.currentTimeMillis()
-            val determineBasalResultSMB = determineBasalAdapterSMBJS.invoke()
+            val determineBasalResultBoost = determineBasalAdapterBoostJS.invoke()
             profiler.log(LTag.APS, "SMB calculation", start)
-            if (determineBasalResultSMB == null) {
+            if (determineBasalResultBoost == null) {
                 aapsLogger.error(LTag.APS, "SMB calculation returned null")
-                lastDetermineBasalAdapterSMBJS = null
+                lastDetermineBasalAdapterBoostJS = null
                 lastAPSResult = null
                 lastAPSRun = 0
             } else {
                 // TODO still needed with oref1?
                 // Fix bug determine basal
-                if (determineBasalResultSMB.rate == 0.0 && determineBasalResultSMB.duration == 0 && iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now()) == null) determineBasalResultSMB.tempBasalRequested = false
-                determineBasalResultSMB.iob = iobArray[0]
-                determineBasalResultSMB.json?.put("timestamp", dateUtil.toISOString(now))
-                determineBasalResultSMB.inputConstraints = inputConstraints
-                lastDetermineBasalAdapterSMBJS = determineBasalAdapterSMBJS
-                lastAPSResult = determineBasalResultSMB
+                if (determineBasalResultBoost.rate == 0.0 && determineBasalResultBoost.duration == 0 && iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now()) == null) determineBasalResultBoost.tempBasalRequested = false
+                determineBasalResultBoost.iob = iobArray[0]
+                determineBasalResultBoost.json?.put("timestamp", dateUtil.toISOString(now))
+                determineBasalResultBoost.inputConstraints = inputConstraints
+                lastDetermineBasalAdapterBoostJS = determineBasalAdapterBoostJS
+                lastAPSResult = determineBasalResultBoost
                 lastAPSRun = now
             }
         }

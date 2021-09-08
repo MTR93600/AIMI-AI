@@ -20,6 +20,7 @@ interface Constraints {
     fun isAMAModeEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
     fun isSMBModeEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
     fun isUAMEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
+    fun isBoostEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
     fun isAdvancedFilteringEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
     fun isSuperBolusEnabled(value: Constraint<Boolean>): Constraint<Boolean> = value
     fun applyBasalConstraints(absoluteRate: Constraint<Double>, profile: Profile): Constraint<Double> = absoluteRate
