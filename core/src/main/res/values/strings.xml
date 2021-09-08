@@ -59,7 +59,9 @@
     <string name="key_active_pump_serial_number" translatable="false">active_pump_serial_number</string>
 
     <string name="key_fulluam_settings" translatable="false">fulluam_settings</string>
+    <string name="key_Boost_settings" translatable="false">Boost_settings</string>
     <string name="key_fulluam_max_iob" translatable="false">fulluam_max_iob</string>
+    <string name="key_Boost_max_iob" translatable="false">Boost_max_iob</string>
     <string name="fulluam_maxiob_title">Maximum total IOB AIMI can\'t go over [U]</string>
     <string name="fulluam_maxiob_summary">This value is called Max IOB in AIMI context\nAIMI will not add more insulin if current IOB is greater than this value</string>
     <string name="key_scale_min" translatable="false">scale_min</string>
