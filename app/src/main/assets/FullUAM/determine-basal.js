@@ -276,8 +276,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //MT : TWTT
     var now = new Date().getHours();
             if (now < 1){
-                now = 1;}
-            else {
+                now = 1;
+                }else {
                 console.error("Time now is "+now+"; ");
             }
             var tdd7 = meal_data.TDDAIMI7;
@@ -337,12 +337,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
     console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" iTime : "+iTime+" ; ");
     console.log("*** EBG180 : "+EBG180+" *** EBG120 : "+EBG120+" *** EBG60 : "+EBG60+" *** REBG60 : "+REBG60+" ; ");
-    if (EBG60 >= 39){
+    /*if (EBG60 >= 39){
     variable_sens = (277700 / (TDD * EBG60));
     variable_sens = round(variable_sens,1);
     sens = variable_sens;
     eRatio = round(sens / 13.2);
-    }
+    }*/
     //scale_ISF_ID codes:
     // 0 = UAM mode scaling
     // 1 = second wave scaling
@@ -1396,13 +1396,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 //insulinReqPCT = 1;
                 maxBolusTT = profile.UAM_boluscap;
                 console.log("*** Experimental scale smb ok with TT 130 :"+eInsulin+";");
-            }else */if (glucose_status.delta > 0 && iTime > 0 && iTime <= 180){
+            }else */
+            if (glucose_status.delta > 0 && iTime > 0 && iTime <= 60){
              insulinReq = eInsulin ;
              insulinReqPCT = 1;
              maxBolusTT = profile.UAM_boluscap;
-             console.log("*** Experimental scale smb ok :"+eInsulin+";");
-           } else {
-                console.log("- hyperpredbgtest > 450 : "+HyperPredBGTest+" <= but no action required");
+             console.log("*** Experimental scale smb 100% :"+eInsulin+";");
+           }else if (HyperPredBGTest >= 450 && glucose_status.delta > 0 && iTime > 60 && iTime <= 180) {
+            insulinReq = eInsulin ;
+            //insulinReqPCT = 1;
+            maxBolusTT = profile.UAM_boluscap;
+            console.log("*** Experimental scale smb 65%  :"+eInsulin+";");
+            }else{
+            console.log("- hyperpredbgtest > 450 : "+HyperPredBGTest+" <= but no action required");
             }
 
 
