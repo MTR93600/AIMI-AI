@@ -422,7 +422,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     //var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     console.log ("HypoPredBG = "+HypoPredBG+"; HyperPredBG ="+HyperPredBG+"; ");
-    if (iTime > 0 && iTime <= 100 && EBG60 > 0) {
+    if (iTime > 0 && iTime <= 45 && EBG60 > 0) {
             var hyper_target = 80;
             console.log("target_bg from "+target_bg+" to "+hyper_target+" because iTime <= 100 : "+iTime+" ; ");
             target_bg = hyper_target;
@@ -851,14 +851,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             curvepred = 48;
             //console.log("Exp. curvepred is on 4 hours");
             }*/
-            if (iTime > 0 && iTime <= 180 && EBG60 >= 65){
+            /*if (iTime > 0 && iTime <= 180 && EBG60 >= 65){
 
             if ( IOBpredBGs.length < curvepred) { IOBpredBGs.push(EBG60); }
             if ( COBpredBGs.length < curvepred) { COBpredBGs.push(EBG60); }
             if ( aCOBpredBGs.length < curvepred) { aCOBpredBGs.push(EBG60); }
             if ( UAMpredBGs.length < curvepred) { UAMpredBGs.push(EBG60); }
             if ( ZTpredBGs.length < curvepred) { ZTpredBGs.push(EBG60); }
-            }else{
+            }else{*/
             if ( IOBpredBGs.length < curvepred) { IOBpredBGs.push(IOBpredBG); }
             if ( COBpredBGs.length < curvepred) { COBpredBGs.push(COBpredBG); }
             if ( aCOBpredBGs.length < curvepred) { aCOBpredBGs.push(aCOBpredBG); }
@@ -1093,7 +1093,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     //var carbsReqBG = naive_eventualBG;
-    var carbsReqBG = EBG60;
+    var carbsReqBG = naive_eventualBG;
     if ( carbsReqBG < 40 ) {
         carbsReqBG = Math.min( minGuardBG, carbsReqBG );
     }
