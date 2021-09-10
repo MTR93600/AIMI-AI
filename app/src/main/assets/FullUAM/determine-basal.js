@@ -1223,8 +1223,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("IOB",iob_data.iob,"> COB",meal_data.mealCOB+"; mealInsulinReq =",mealInsulinReq);
                 if (profile.maxUAMSMBBasalMinutes) {
                     console.error("profile.maxUAMSMBBasalMinutes:",profile.maxUAMSMBBasalMinutes,"basal:",basal);
+                    if (iTime > 0 && iTime < 60 ){
+                    maxBolus = round(basal * 200 / 60 ,1);
+                    }else if (iTime > 60 && iTime < 180 ){
+                    maxBolus = round(basal * 120 / 60 ,1);
+                    }else{
                     maxBolus = round( basal * profile.maxUAMSMBBasalMinutes / 60 ,1);
-
+                    }
                 } else {
                     console.error("profile.maxUAMSMBBasalMinutes undefined: defaulting to 30m");
                     maxBolus = round( basal * 30 / 60 ,1);
@@ -1240,7 +1245,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.log("#### iTime ##### : "+iTime+" ; ");
             if (iTime > 0  && iTime < 60 && glucose_status.delta > 5 && HyperPredBGTest > 450){
             insulinReqPCT = 1;
-            maxBolusTT = profile.UAM_boluscap;
+            //maxBolusTT = profile.UAM_boluscap;
             }else if (iTime > 60  && iTime < 180 && glucose_status.delta > 5 && HyperPredBGTest > 450){
             insulinReqPCT = 0.8;
             }
