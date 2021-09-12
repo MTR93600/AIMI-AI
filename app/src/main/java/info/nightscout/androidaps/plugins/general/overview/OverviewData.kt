@@ -66,10 +66,18 @@ class OverviewData @Inject constructor(
         GRAPH
     }
 
-    var rangeToDisplay = 6 // for graph
+    val minRangeToDisplay = 6
+    var rangeToDisplay = minRangeToDisplay // for graph
+    val rangeMaxToDisplay = 24
     var toTime: Long = 0
-    var fromTime: Long = 0
+    var fromTimeArray = longArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
+    var fromTime: Long
+        get() = fromTimeArray.get(indexRange)
+        set(from) { fromTimeArray = longArrayOf(from, from, from, from, from, from, from, from) }
     var endTime: Long = 0
+    var fromTimeData: Long = 0
+    var endTimeData: Long = 0
+    var predictionHours = 0
 
     fun reset() {
         profile = null
