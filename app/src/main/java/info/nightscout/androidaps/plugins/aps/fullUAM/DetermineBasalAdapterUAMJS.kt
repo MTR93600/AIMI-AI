@@ -49,7 +49,6 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var repository: AppRepository
-    @Inject lateinit var openHumansUploader: OpenHumansUploader
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var danaPump: DanaPump
 
