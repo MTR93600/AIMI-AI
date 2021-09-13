@@ -15,16 +15,19 @@ dev: [![codecov](https://codecov.io/gh/MilosKozak/AndroidAPS/branch/dev/graph/ba
 ![BTC](https://bitit.io/assets/coins/icon-btc-1e5a37bc0eb730ac83130d7aa859052bd4b53ac3f86f99966627801f7b0410be.svg) 3KawK8aQe48478s6fxJ8Ms6VTWkwjgr9f2
 
 
-AIMI V2 :
+AIMI V2 DANARS TDD:
 
 It's a plugin, need to be select in the config builder.
 For now AIMI settings are :
 -insulinReq in %
--Scale_min
--Scale_50
 -UAM_bolusCAP
 _Start and End Time
 
-To enter in the AIMI smb calculation, you have to start your meal with a manual bolus, the size is not important, the action is.
-During the next three hours who follow the manual Bolus, AIMI will do the job, out of this time zone, you will come back to isf tunning, basale tunning and target management.
-Enjoy
+TDD code from Tim is in this version.
+THE TDD will determine ISF automaticaly regarding TDD average on 7 days and the total daily unit.
+CSF will be determine following the action 50 for 80 mg / 100 ml in the blood, in translation,
+i will take the bg value divide by 0.16 to determine csf
+IC (eRatio) will be determine by csf / TDD ISF
+stile in test.
+If you use it with prebolus, you will not get a scale smb, but just the ISF/CSF/IC who will play
+with the bg evolution and determine the insulinreq, regarding the eventualBG value.
