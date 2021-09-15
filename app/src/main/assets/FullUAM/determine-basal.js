@@ -1223,7 +1223,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("IOB",iob_data.iob,"> COB",meal_data.mealCOB+"; mealInsulinReq =",mealInsulinReq);
                 if (profile.maxUAMSMBBasalMinutes) {
                     console.error("profile.maxUAMSMBBasalMinutes:",profile.maxUAMSMBBasalMinutes,"basal:",basal);
-                    if (iTime > 0 && iTime < 60 ){
+                    if (iTime > 0 && iTime < 60 || iTime > 0 && iTime < 180 && bg >= 180 ){
                     maxBolus = round(basal * 200 / 60 ,1);
                     }else if (iTime > 60 && iTime < 180 ){
                     maxBolus = round(basal * 120 / 60 ,1);
