@@ -161,6 +161,10 @@ class OpenAPSSMBPlugin @Inject constructor(
             constraintChecker.isUAMEnabled(it)
             inputConstraints.copyReasons(it)
         }
+        val Boost = Constraint(true).also {
+            constraintChecker.isBoostEnabled(it)
+            inputConstraints.copyReasons(it)
+        }
         profiler.log(LTag.APS, "detectSensitivityAndCarbAbsorption()", startPart)
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()

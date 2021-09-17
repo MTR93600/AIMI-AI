@@ -23,6 +23,7 @@ buildscript {
         commonscodec_version = '1.15'
         jodatime_version = '2.10.10'
         work_version = '2.5.0'
+        tink_version = '1.5.0'
 
         junit_version = '4.13.2'
         mockitoVersion = '3.12.4'
@@ -39,6 +40,7 @@ buildscript {
         google()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" } // jacoco 0.2
+        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.2'
@@ -59,6 +61,11 @@ buildscript {
     }
 }
 
+plugins {
+    id "io.gitlab.arturbosch.detekt" version "1.16.0-RC2"
+    id "org.jlleitschuh.gradle.ktlint" version "10.1.0"
+}
+
 allprojects {
     repositories {
         google()
@@ -71,6 +78,14 @@ allprojects {
                 artifact '/[organisation]/[module]/archive/[revision].[ext]'
             }
         }
+        maven { url 'https://jitpack.io' }
+        jcenter() {
+            content {
+                includeModule("com.google.android", "flexbox")
+                includeModule("org.jetbrains.trove4j", "trove4j")
+            }
+        }
+        maven { url "https://dl.bintray.com/kotlin/kotlinx" }
     }
     //Support @JvmDefault
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
