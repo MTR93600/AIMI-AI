@@ -187,14 +187,14 @@
     </string-array>
 
     <string-array name="medlinkInitCommandsArray">
-        <item>@string/medlink_init_commands_profile</item>
+<!--        <item>@string/medlink_init_commands_profile</item>-->
         <item>@string/medlink_init_commands_last_bg_history</item>
         <item>@string/medlink_init_commands_previous_bg_history</item>
         <item>@string/medlink_init_commands_last_bolus_history</item>
     </string-array>
 
     <string-array name="medlinkInitCommandsValues">
-        <item>@string/key_medlink_init_commands_profile</item>
+<!--        <item>@string/key_medlink_init_commands_profile</item>-->
         <item>@string/key_medlink_init_commands_last_bg_history</item>
         <item>@string/key_medlink_init_commands_previous_bg_history</item>
         <item>@string/key_medlink_init_commands_last_bolus_history</item>

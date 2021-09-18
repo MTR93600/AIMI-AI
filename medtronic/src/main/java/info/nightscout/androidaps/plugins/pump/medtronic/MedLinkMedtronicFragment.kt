@@ -329,7 +329,8 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val pump = activePlugin.activePump
         if (pump is MedLinkMedtronicPumpPlugin ) {
             if (pump.temporaryBasal != null) {
-                medtronic_next_command.text = pump.tempBasalMicrobolusOperations.operations.first.toStringView()
+                ("${pump.tempBasalMicrobolusOperations.operations.peek().toStringView()}" +
+                    "\n${pump.nextScheduledCommand()}").also { medtronic_next_command.text = it }
             } else {
                 medtronic_next_command.text = pump.nextScheduledCommand()
             }

@@ -4,11 +4,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 
 /**
  * Created by Dirceu on 21/12/20.
@@ -16,6 +14,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLink
 public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     private static MedLinkCommandType bolusArgument = MedLinkCommandType.BolusAmount;
+    private final BolusProgressCallback bolusProgressCallback;
 
 //    public BolusMedLinkMessage(double bolusAmount) {
 //        super( MedLinkCommandType.Bolus);
@@ -26,10 +25,16 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     public BolusMedLinkMessage(double bolusAmount,
                                Function<Supplier<Stream<String>>,
-                                       MedLinkStandardReturn<String>> bolusCallback) {
+                                       MedLinkStandardReturn<String>> bolusCallback,
+                               BolusProgressCallback bolusProgressCallback) {
         super( MedLinkCommandType.Bolus);
         bolusArgument.insulinAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;
+        this.bolusProgressCallback = bolusProgressCallback;
+    }
+
+    public BolusProgressCallback getBolusProgressCallback() {
+        return bolusProgressCallback;
     }
 }

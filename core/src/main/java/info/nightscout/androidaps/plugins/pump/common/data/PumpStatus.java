@@ -14,7 +14,7 @@ import info.nightscout.androidaps.utils.DateUtil;
 public abstract class PumpStatus {
 
     // connection
-    public long lastDateTime;
+    public long lastDateTime=0l;
     public long lastConnection = 0L;
     public long previousConnection = 0L; // here should be stored last connection of previous session (so needs to be
     // read before lastConnection is modified for first time).
@@ -75,4 +75,6 @@ public abstract class PumpStatus {
     public long getLastDateTime() {
         return lastDateTime;
     }
+
+
 }

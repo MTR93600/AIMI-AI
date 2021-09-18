@@ -12,19 +12,19 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
  * Created by Dirceu on 01/04/21.
  */
 public abstract class CommandExecutor implements Runnable {
-    private final MedLinkPumpMessage<?> command;
+    private final MedLinkPumpMessage<?> medLinkPumpMessage;
     private int commandPosition = 0;
     private int functionPosition = 0;
     private MedLinkCommandType currentCommand;
 
     protected int nrRetries = 0;
 
-    protected CommandExecutor(MedLinkPumpMessage<?> command) {
-        this.command = command;
+    protected CommandExecutor(MedLinkPumpMessage<?> medLinkPumpMessage) {
+        this.medLinkPumpMessage = medLinkPumpMessage;
     }
 
-    protected CommandExecutor(MedLinkCommandType command) {
-        this(new MedLinkPumpMessage(command));
+    protected CommandExecutor(MedLinkCommandType medLinkPumpMessage) {
+        this(new MedLinkPumpMessage(medLinkPumpMessage));
     }
 
 //
@@ -34,28 +34,28 @@ public abstract class CommandExecutor implements Runnable {
 
 
     public boolean contains(MedLinkCommandType com){
-        return (com != null && com.isSameCommand(command.getCommandType())  ||
-                 com.isSameCommand(command.getArgument()));
+        return (com != null && com.isSameCommand(medLinkPumpMessage.getCommandType())  ||
+                 com.isSameCommand(medLinkPumpMessage.getArgument()));
     }
 
     public MedLinkCommandType nextCommand() {
         if (commandPosition == 0) {
-            return command.getCommandType();
+            return medLinkPumpMessage.getCommandType();
         } else if (commandPosition == 1) {
-            return command.getArgument();
+            return medLinkPumpMessage.getArgument();
         } else return MedLinkCommandType.NoCommand;
     }
 
     public Function<Supplier<Stream<String>>, ? extends MedLinkStandardReturn<?>> nextFunction() {
-        if (functionPosition == 0 && command.getBaseCallback() !=null) {
-            currentCommand = command.getCommandType();
-            return command.getBaseCallback().andThen(f -> {
+        if (functionPosition == 0 && medLinkPumpMessage.getBaseCallback() !=null) {
+            currentCommand = medLinkPumpMessage.getCommandType();
+            return medLinkPumpMessage.getBaseCallback().andThen(f -> {
                 functionPosition+=1;
                 return f;
             });
-        } else if (functionPosition == 1 && command.getArgCallback() != null) {
-            currentCommand = command.getArgument();
-            return command.getArgCallback().andThen(f -> {
+        } else if (functionPosition == 1 && medLinkPumpMessage.getArgCallback() != null) {
+            currentCommand = medLinkPumpMessage.getArgument();
+            return medLinkPumpMessage.getArgCallback().andThen(f -> {
                 functionPosition+=1;
                 return f;
             });
@@ -67,9 +67,8 @@ public abstract class CommandExecutor implements Runnable {
     }
 
     public boolean hasFinished() {
-        return commandPosition > 1 ||
-                command.getArgument() == null
-        || (command.getArgument().isSameCommand(MedLinkCommandType.NoCommand) &&
+        return commandPosition > 1
+        || (medLinkPumpMessage.getArgument().isSameCommand(MedLinkCommandType.NoCommand) &&
                         commandPosition > 0);
     }
 
@@ -84,10 +83,14 @@ public abstract class CommandExecutor implements Runnable {
 
     @Override public String toString() {
         return "CommandExecutor{" +
-                "command=" + command +
+                "command=" + medLinkPumpMessage +
                 ", commandPosition=" + commandPosition +
                 ", functionPosition=" + functionPosition +
                 '}';
+    }
+
+    public MedLinkPumpMessage<?> getMedLinkPumpMessage() {
+        return medLinkPumpMessage;
     }
 
     public int getNrRetries() {

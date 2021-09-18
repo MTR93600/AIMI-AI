@@ -18,18 +18,18 @@ public class TempBasalMicroBolusPair {
 
     private final Function1 callback;
     @Expose
-    private Integer interval = 0;
+    private final Integer interval = 0;
     @Expose
-    private Integer duration;
+    private final Integer duration;
     @Expose
-    private BigDecimal dose;
+    private final Double dose;
 
     @Expose
-    private BigDecimal calculatedDose;
+    private final Double calculatedDose;
     @Expose
     private LocalDateTime releaseTime;
     @Expose
-    private OperationType operationType;
+    private final OperationType operationType;
 
     public void delayInMinutes(int delay) {
         this.releaseTime = this.releaseTime.plusMinutes(delay);
@@ -44,7 +44,7 @@ public class TempBasalMicroBolusPair {
         REACTIVATE
     }
 
-    public TempBasalMicroBolusPair(Integer duration, BigDecimal dose, BigDecimal calculatedDose,
+    public TempBasalMicroBolusPair(Integer duration, double dose, double calculatedDose,
                                    LocalDateTime releaseTime, OperationType operationType,
                                    Function1 callback) {
         this.duration = duration;
@@ -55,12 +55,12 @@ public class TempBasalMicroBolusPair {
         this.callback = callback;
     }
 
-    public TempBasalMicroBolusPair(Integer duration, Double dose, Double calculatedDose,
-                                   LocalDateTime releaseTime, OperationType operationType,
-                                   Function1 callback) {
-        this(duration, new BigDecimal(dose), new BigDecimal(calculatedDose), releaseTime,
-                operationType, callback);
-    }
+//    public TempBasalMicroBolusPair(Integer duration, Double dose, Double calculatedDose,
+//                                   LocalDateTime releaseTime, OperationType operationType,
+//                                   Function1 callback) {
+//        this(duration, dose, calculatedDose, releaseTime,
+//                operationType, callback);
+//    }
 
     public Integer getInterval() {
         return interval;
@@ -70,7 +70,7 @@ public class TempBasalMicroBolusPair {
         return duration;
     }
 
-    public BigDecimal getDose() {
+    public Double getDose() {
         return dose;
     }
 
@@ -99,12 +99,12 @@ public class TempBasalMicroBolusPair {
         return Objects.hash(callback, interval, duration, dose, calculatedDose, releaseTime, operationType);
     }
 
-    public BigDecimal getCalculatedDose() {
+    public Double getCalculatedDose() {
         return calculatedDose;
     }
 
-    public BigDecimal getDelta() {
-        return dose.subtract(calculatedDose);
+    public Double getDelta() {
+        return dose - calculatedDose;
     }
 
     @Override public String toString() {
@@ -124,7 +124,7 @@ public class TempBasalMicroBolusPair {
         String release = releaseTime.toString("HH:mm");
         switch(operationType){
             case BOLUS: {
-                result ="Bolus: " + dose.setScale(1, RoundingMode.HALF_DOWN) +
+                result ="Bolus: " + dose +
                         "u, at=" + release;
             }
             break;
@@ -145,7 +145,7 @@ public class TempBasalMicroBolusPair {
     }
 
     public TempBasalMicroBolusPair decreaseDosage(double toDecrease) {
-        return new TempBasalMicroBolusPair(duration, dose.subtract(new BigDecimal(toDecrease)), calculatedDose,
+        return new TempBasalMicroBolusPair(duration, dose -toDecrease, calculatedDose,
                 releaseTime, operationType, callback);
     }
 

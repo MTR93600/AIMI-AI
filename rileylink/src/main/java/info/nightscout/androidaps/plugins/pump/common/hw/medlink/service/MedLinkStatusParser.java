@@ -79,12 +79,13 @@ public class MedLinkStatusParser {
             MedLinkPumpStatus timeMedLinkPumpStatus = parsePumpTimeMedLinkBattery(message, pumpStatus);
             MedLinkPumpStatus bgMedLinkPumpStatus = parseBG(messageIterator, timeMedLinkPumpStatus, injector);
 
-            MedLinkPumpStatus lastBolusStatus = parseLastBolus(messageIterator, bgMedLinkPumpStatus);
+
+            MedLinkPumpStatus lastBolusStatus = parseBolusInfo(messageIterator, bgMedLinkPumpStatus);
 //                18:36:49.381
 //        18:36:49.495 Last bolus: 0.2u 13‑12‑20 18:32
-            moveIterator(messageIterator);
+
 //        18:36:49.496 Square bolus: 0.0u delivered: 0.000u
-            moveIterator(messageIterator);
+//            moveIterator(messageIterator);
 //        18:36:49.532 Square bolus time: 0h:00m / 0h:00m
             MedLinkPumpStatus isigStatus = parseISIG(messageIterator, lastBolusStatus);
 //        18:36:49.570 ISIG: 20.62nA
@@ -136,21 +137,36 @@ public class MedLinkStatusParser {
         }
     }
 
-    public static void parsePartialBolusInfo(Iterator<String> messageIterator) {
+    public static MedLinkPumpStatus parseBolusInfo(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+        MedLinkPumpStatus status = parseLastBolus(messageIterator, pumpStatus);
+        status = squareBolus(messageIterator, status);
+        return status;
+    }
+
+    private static MedLinkPumpStatus squareBolus(Iterator<String> messageIterator, MedLinkPumpStatus lastBolusStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
-            if (currentLine.contains("last bolus")) {
-
+            if (currentLine.contains("square bolus:")) {
+                Pattern bolusPat = Pattern.compile("\\d+\\.\\d+");
+                Matcher bolusMatcher = bolusPat.matcher(currentLine);
+                if(bolusMatcher.find()){
+                    double bolusAmount = Double.parseDouble(bolusMatcher.group());
+                    if(bolusAmount> 0 && bolusMatcher.find()){
+                        lastBolusStatus.lastBolusAmount = bolusAmount;
+                        lastBolusStatus.bolusDeliveredAmount = Double.parseDouble(bolusMatcher.group());
+                    }
+                }
             }
-            //                "last bolus: 1.6u 10-06-21 17:39\n" +
 //                "square bolus: 0.0u delivered: 0.000u\n" +
 //                "square bolus time: 0h:00m / 0h:00m\n" +
 
         }
         if (messageIterator.hasNext()) {
-            String currentLine = messageIterator.next();
+            messageIterator.next();
         }
+        return lastBolusStatus;
     }
+
 
     private static MedLinkPumpStatus parseBgLevelAlarms(MedLinkPumpStatus pumpStatus, Iterator<String> messageIterator) {
         if (messageIterator.hasNext()) {

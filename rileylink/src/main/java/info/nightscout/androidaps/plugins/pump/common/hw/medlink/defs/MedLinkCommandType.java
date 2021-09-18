@@ -37,7 +37,7 @@ public enum MedLinkCommandType {
     BaseProfile("F"),
     Calibrate("k"),
     CalibrateValue("kal"),
-    BolusStatus("W")
+    BolusStatus("M")
 //    ,
 //    Enter("")//Current Active Profile
     // screenshots z C, H, E, I

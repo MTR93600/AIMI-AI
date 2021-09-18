@@ -646,7 +646,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             MedLinkMedtronicPumpPlugin convPlugin = (MedLinkMedtronicPumpPlugin) pump;
             if (convPlugin.isFakingTempsByMicroBolus()) {
                 TempBasalMicrobolusOperations tempBasalOperations = convPlugin.getTempBasalMicrobolusOperations();
-                TempBasalMicroBolusPair operation = tempBasalOperations.operations.getFirst();
+                TempBasalMicroBolusPair operation = tempBasalOperations.getOperations().getFirst();
                 LocalDateTime now = LocalDateTime.now();
                 if (now.plusMillis(1000).isAfter(operation.getReleaseTime())) {
                     final APSResult resultAfterConstraints = result.newAndClone(injector);

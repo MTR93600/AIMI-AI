@@ -9,13 +9,13 @@
     <string name="key_medlink_init_command" translatable="false">pref_medlink_init_command</string>
     <string name="medlink_init_commands">Commands to be executed on first connect</string>
 
-    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>
+<!--    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>-->
     <string name="key_medlink_init_commands_last_bg_history" translatable="false">medlink_init_commands_last_bg_history</string>
     <string name="key_medlink_init_commands_previous_bg_history" translatable="false">medlink_init_commands_previous_bg_history</string>
     <string name="key_medlink_init_commands_last_bolus_history" translatable="false">medlink_init_commands_last_bolus_history</string>
     <string name="medlink_init_commands_last_bolus_history">Last Bolus History Page(H)</string>
-    <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(C1 and I1)</string>
-    <string name="medlink_init_commands_profile">Profile Data (D and F)</string>
+    <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(T and J)</string>
+<!--    <string name="medlink_init_commands_profile">Profile Data (E and F)</string>-->
     <string name="medlink_init_commands_last_bg_history">Last BG History Page(C and I)</string>
 
     <string name="key_medlink_init_commands" translatable="false">medlink_init_commands</string>
@@ -154,7 +154,7 @@
     <string name="medlink_key_force_bolus_history_read_summary">If enabled AAPS will dispatch a read bolus history command after each bolus, or when the latest bolus date changes, otherwise it will try to get bolus info from the get status command.</string>
     <string name="medlink_key_interval_between_bt_connections_title">Amount of seconds between two consecutive BT connections</string>
     <string name="medlink_key_interval_between_bt_connections_summary">This is the amount of time, in seconds, that AAPS will wait between two sequential Bluetooth connections. Recommended values are between 5 and 30s.</string>
-    <string name="medlink_init_command_summary">Here you can choose which commands will be dispatched when the aaps initialize.</string>
+    <string name="medlink_init_command_summary">Here you can choose which commands will be delivered when the aaps initialize.</string>
     <string name="isig_label">ISIG</string>
     <string name="next_command_label">Next command</string>
 

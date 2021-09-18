@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
@@ -40,8 +41,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMe
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
 import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
-import info.nightscout.androidaps.plugins.pump.medtronic.R;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.BasalCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.ProfileCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.StatusCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.PumpMessage;
@@ -61,6 +62,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
  */
 @Singleton
 public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationManager {
+    private final RxBusWrapper rxBus;
     @Inject MedLinkMedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
     @Inject MedtronicConverter medtronicConverter;
@@ -83,8 +85,9 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 
 
     @Inject
-    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfSpy) {
+    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfSpy, RxBusWrapper rxBus) {
         super(injector, rfSpy);
+        this.rxBus = rxBus;
     }
 
     @Inject
@@ -650,8 +653,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             return f;
         });
         return new MedLinkPumpMessage<B>(messageType, argument, activity,
-                medLinkServiceData,
-                aapsLogger, btSleepSize);
+                btSleepSize);
     }
 
     private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
@@ -674,13 +676,11 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         if (messageType == MedLinkCommandType.ActiveBasalProfile) {
             return new BasalMedLinkMessage<>(messageType, argument, baseResultActivity,
                     activity,
-                    medLinkServiceData,
-                    aapsLogger, btSleepSize);
+                    btSleepSize);
         } else {
             return new MedLinkPumpMessage(messageType, argument, baseResultActivity,
                     activity,
-                    medLinkServiceData,
-                    aapsLogger, medLinkPumpPlugin.getBtSleepTime());
+                    medLinkPumpPlugin.getBtSleepTime());
         }
     }
 
@@ -838,7 +838,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         rfspy.initializeMedLink();
 //        rfspy.initializeRileyLink();
         aapsLogger.info(LTag.PUMPCOMM, "before wakeup ");
-        BaseStringAggregatorCallback resultActivity = new BaseStringAggregatorCallback();
+        BaseStringAggregatorCallback resultActivity = new BolusProgressCallback(
+                medtronicPumpStatus, resourceHelper,rxBus );
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = resultActivity.andThen(s -> {
             aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + s);
             if (s.getAnswer().anyMatch(f -> f.contains("ready"))) {
@@ -849,10 +850,9 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             }
             return s;
         });
-        rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.Connect,
-                MedLinkCommandType.NoCommand, activity,
-                medLinkServiceData,
-                aapsLogger, medLinkPumpPlugin.getBtSleepTime()
+        rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.BolusStatus,
+                activity,
+                medLinkPumpPlugin.getBtSleepTime()
         ));
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
         //nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);
@@ -875,9 +875,9 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                                         MedLinkPumpMessage pumpMessage) {
 
         // wakeUp
-        if (doWakeUpBeforeCommand)
-//            btSleepTime = ms
-            wakeUp(receiverDeviceAwakeForMinutes, false);
+//        if (doWakeUpBeforeCommand)
+////            btSleepTime = ms
+//            wakeUp(receiverDeviceAwakeForMinutes, false);
 
         MedLinkCommandType commandType = MedLinkCommandType.ActiveBasalProfile;
 

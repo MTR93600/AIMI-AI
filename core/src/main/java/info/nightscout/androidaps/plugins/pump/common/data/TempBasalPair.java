@@ -2,6 +2,9 @@ package info.nightscout.androidaps.plugins.pump.common.data;
 
 import com.google.gson.annotations.Expose;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class TempBasalPair {
 
     @Expose

@@ -26,6 +26,26 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
     public ZonedDateTime nextCalibration;
     public boolean bgAlarmOn;
 
+    @Override public String toString() {
+        return "MedLinkPumpStatus{" +
+                "sensorAge=" + sensorAge +
+                ", isig=" + isig +
+                ", calibrationFactor=" + calibrationFactor +
+                ", deviceBatteryVoltage=" + deviceBatteryVoltage +
+                ", deviceBatteryRemaining=" + deviceBatteryRemaining +
+                ", nextCalibration=" + nextCalibration +
+                ", bgAlarmOn=" + bgAlarmOn +
+                ", lastReadingStatus=" + lastReadingStatus +
+                ", currentReadingStatus=" + currentReadingStatus +
+                ", lastBGTimestamp=" + lastBGTimestamp +
+                ", latestBG=" + latestBG +
+                ", bolusDeliveredAmount=" + bolusDeliveredAmount +
+                ", lastConnection=" + lastConnection +
+                ", lastBolusTime=" + lastBolusTime +
+                ", lastBolusAmount=" + lastBolusAmount +
+                '}';
+    }
+
     public enum BGReadingStatus{
         SUCCESS,
         FAILED
@@ -46,6 +66,7 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
 
     public long lastBGTimestamp;
     public double latestBG;
+    public double bolusDeliveredAmount;
 
     public DetailedBolusInfo getLastBolusInfo(){
         DetailedBolusInfo result = new DetailedBolusInfo();

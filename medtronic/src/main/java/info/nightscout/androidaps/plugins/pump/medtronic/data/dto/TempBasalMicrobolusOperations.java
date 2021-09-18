@@ -11,6 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import info.nightscout.androidaps.logging.L;
 
@@ -22,7 +24,7 @@ public class TempBasalMicrobolusOperations {
 
 //    private static final Logger LOG = LoggerFactory.getLogger(L.PUMPCOMM);
 
-    public ConcurrentLinkedDeque<TempBasalMicroBolusPair> operations = new ConcurrentLinkedDeque<>();
+    private LinkedBlockingDeque<TempBasalMicroBolusPair> operations = new LinkedBlockingDeque<>();
     @Expose
     private Integer remainingOperations = operations.size();
     @Expose
@@ -38,7 +40,7 @@ public class TempBasalMicrobolusOperations {
 
     public TempBasalMicrobolusOperations(Integer remainingOperations, double totalDosage, 
                                          int durationInMinutes,
-                                         ConcurrentLinkedDeque<TempBasalMicroBolusPair> operations) {
+                                         LinkedBlockingDeque<TempBasalMicroBolusPair> operations) {
         this.remainingOperations = remainingOperations;
         this.totalDosage = totalDosage;
         this.operations = operations;
@@ -53,7 +55,7 @@ public class TempBasalMicrobolusOperations {
         return totalDosage;
     }
 
-    public Queue<TempBasalMicroBolusPair> getOperations() {
+    public LinkedBlockingDeque<TempBasalMicroBolusPair> getOperations() {
         return operations;
     }
 
@@ -69,7 +71,7 @@ public class TempBasalMicrobolusOperations {
 
     public synchronized void updateOperations(Integer remainingOperations,
                                               double operationDose,
-                                              ConcurrentLinkedDeque<TempBasalMicroBolusPair> operations,
+                                              LinkedBlockingDeque<TempBasalMicroBolusPair> operations,
                                               Integer suspendedTime) {
         this.remainingOperations = remainingOperations;
         this.suspendedTime = suspendedTime;
@@ -99,5 +101,9 @@ public class TempBasalMicrobolusOperations {
 
     public void setShouldBeSuspended(boolean suspended) {
         this.shouldBeSuspended = suspended;
+    }
+
+    public void setOperations(LinkedBlockingDeque<TempBasalMicroBolusPair> operations) {
+        this.operations = operations;
     }
 }

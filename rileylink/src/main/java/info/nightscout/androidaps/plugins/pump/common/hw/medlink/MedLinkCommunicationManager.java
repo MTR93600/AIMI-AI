@@ -364,6 +364,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     @Override public double quickTuneForPump(double startFrequencyMHz) {
         double betterFrequency = startFrequencyMHz;
+        aapsLogger.info(LTag.PUMPBTCOMM,"quicktune");
         wakeUp(false);
 //        double stepsize = 0.05;
 ////        for (int tries = 0; tries < 4; tries++) {

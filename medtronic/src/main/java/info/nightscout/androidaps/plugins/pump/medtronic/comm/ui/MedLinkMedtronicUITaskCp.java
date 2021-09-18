@@ -67,6 +67,9 @@ public class MedLinkMedtronicUITaskCp {
         aapsLogger.debug(LTag.PUMP, "MedtronicUITask: @@@ In execute. {}", pumpMessage);
 
         switch (pumpMessage.getCommandType()) {
+            case BolusStatus:{
+                communicationManager.setCommand(pumpMessage);
+            }
             case GetState: {
                 pumpMessage.getBaseCallback().andThen(f -> {
                     if(medtronicPumpStatus.batteryVoltage != null){

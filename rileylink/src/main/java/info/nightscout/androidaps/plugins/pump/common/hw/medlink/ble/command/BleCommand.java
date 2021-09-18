@@ -24,7 +24,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLink
 public abstract class BleCommand implements Runnable {
 
     protected final AAPSLogger aapsLogger;
-    private final MedLinkServiceData medLinkServiceData;
+    protected final MedLinkServiceData medLinkServiceData;
     private final Handler handler;
     private Runnable runnable;
     protected StringBuffer pumpResponse = new StringBuffer();
@@ -58,7 +58,19 @@ public abstract class BleCommand implements Runnable {
             //TODO impelement the logic to read the firmware version
             return;
         }
-        if (answer.trim().contains("powerdown")) {
+        if (answer.trim().contains("time to powerdown")) {
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
+            aapsLogger.info(LTag.PUMPBTCOMM, ""+currentCommand);
+            aapsLogger.info(LTag.PUMPBTCOMM, ""+currentCommand.getCurrentCommand());
+            if (currentCommand != null && currentCommand.getCurrentCommand() != null) {
+                if (!currentCommand.hasFinished()) {
+                    bleComm.retryCommand();
+                } else {
+                    bleComm.removefirstCommand();
+                    bleComm.nextCommand();
+                }
+            }
+        } else if (answer.trim().contains("powerdown")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
             if (currentCommand != null &&
                     currentCommand.getCurrentCommand() != null) {
@@ -76,13 +88,14 @@ public abstract class BleCommand implements Runnable {
 //                        bleComm.clearCommands();
 //                    }
                 } else {
-//                    if(currentCommand.hasFinished()){
-//                        bleComm.removefirstCommand();
+                    if (currentCommand.hasFinished()) {
+                        currentCommand.clearExecutedCommand();
+                    }
 //                        bleComm.nextCommand();
 //                    }else {
-                        aapsLogger.info(LTag.PUMPBTCOMM, "MedLink off " + answer);
-                        pumpResponse = new StringBuffer();
-                        bleComm.retryCommand();
+                    aapsLogger.info(LTag.PUMPBTCOMM, "MedLink off " + answer);
+                    pumpResponse = new StringBuffer();
+                    bleComm.retryCommand();
 //                    }
                 }
             }

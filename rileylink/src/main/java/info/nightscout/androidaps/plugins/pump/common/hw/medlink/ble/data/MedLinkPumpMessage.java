@@ -1,5 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -18,7 +20,7 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 
     protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> argCallback;
 
-    protected MedLinkCommandType argument;
+    @NotNull protected MedLinkCommandType argument;
     protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback;
     private long btSleepTime = 0l;
 

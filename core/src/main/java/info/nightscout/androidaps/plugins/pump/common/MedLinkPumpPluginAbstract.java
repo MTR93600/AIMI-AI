@@ -35,6 +35,7 @@ import kotlin.jvm.functions.Function1;
  */
 public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract {
 
+    public abstract void handleBolusDelivered();
     public abstract TemporaryBasal getTemporaryBasal();
 
     protected MedLinkPumpPluginAbstract(PluginDescription pluginDescription, PumpType pumpType, HasAndroidInjector injector, ResourceHelper resourceHelper, AAPSLogger aapsLogger, CommandQueueProvider commandQueue, RxBusWrapper rxBus, ActivePluginProvider activePlugin, SP sp, Context context, FabricPrivacy fabricPrivacy, DateUtil dateUtil) {

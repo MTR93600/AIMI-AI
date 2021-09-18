@@ -78,7 +78,8 @@ public class InitializePumpManagerTask extends NotifiableTask {
 
 //                boolean foundThePump =
 //            medLinkCommunicationManager.getPumpStatus().lastConnection;
-                  if(System.currentTimeMillis() -
+
+                  if(!activePlugin.getActivePump().isInitialized() || medLinkCommunicationManager.getPumpStatus().lastDateTime > 0l && System.currentTimeMillis() -
                           medLinkCommunicationManager.getPumpStatus().lastConnection > 300000){
                       medLinkCommunicationManager.wakeUp(false);
                   }

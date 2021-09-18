@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.logging.AAPSLogger;
@@ -35,7 +36,7 @@ public class StatusCallback extends BaseStatusCallback {
         MedLinkStandardReturn<MedLinkPumpStatus> f = new MedLinkStandardReturn<>(s, medLinkPumpStatus);
         Stream<String> answer = f.getAnswer();
         aapsLogger.info(LTag.PUMPBTCOMM, "BaseResultActivity");
-        aapsLogger.info(LTag.PUMPBTCOMM, answer.toString());
+        aapsLogger.info(LTag.PUMPBTCOMM, s.get().collect(Collectors.joining()));
         String[] messages = answer.toArray(String[]::new);
         if (f.getAnswer().anyMatch(m -> m.contains("eomeomeom") || m.contains("ready"))) {
             aapsLogger.debug("ready");

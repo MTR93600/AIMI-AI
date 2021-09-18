@@ -115,7 +115,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         isigs.forEach(f -> aapsLogger.info(LTag.PUMPBTCOMM, f.toString()));
         Collections.reverse(isigs);
 
-        SensorDataReading[] result = new SensorDataReading[bgReadings.length];
+        List<SensorDataReading> result = new ArrayList<>();
         aapsLogger.info(LTag.PUMPBTCOMM, "isigs s" + isigs.size());
         aapsLogger.info(LTag.PUMPBTCOMM, "readings s" + bgReadings.length);
 //        if (isigs.size() == bgReadingsList.size()) {
@@ -127,7 +127,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
                 break;
             }
             if (reading.source == Source.USER) {
-                result[count + delta] = new SensorDataReading(injector, reading, 0d, 0d);
+                result.add(new SensorDataReading(injector, reading, 0d, 0d));
                 delta++;
                 reading = bgReadings[count + delta];
                 if (reading == null) {
@@ -136,12 +136,12 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
             }
             Double isig = isigs.get(count);
             Double calibrationFactor = 0.0;
-            result[count + delta] = new SensorDataReading(injector, reading, isig, calibrationFactor);
+            result.add(new SensorDataReading(injector, reading, isig, calibrationFactor));
         }
-        if (result.length > 0 && result[0] != null) {
+        if (result.size() > 0 && result.get(0) != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "adding isigs");
 //            medLinkPumpPlugin.handleNewSensorData(result);
-            return result;
+            return result.toArray(new SensorDataReading[0]);
 //        }
 //        if (count + delta == result.length) {
 //            return result;
