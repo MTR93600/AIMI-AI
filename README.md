@@ -21,7 +21,7 @@ It's a plugin, need to be select in the config builder.
 For now AIMI settings are :
 -insulinReq in %
 -UAM_bolusCAP
-_Start and End Time
+-Start and End Time
 
 TDD code from Tim is in this version.
 THE TDD will determine ISF automaticaly regarding TDD average on 7 days and the total daily unit.
