@@ -1216,7 +1216,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("Value is "+((1/insulinDivisor) * 100)+"% of insulin required; ");
                 console.error("insulinRequired is: "+insulinReq+"; ");
                 //Set boost factors to check whether it's appropriate to use a hardcoded bolus
-                var uamBoost1 = (glucose_status.delta / (glucose_status.short_avgdelta);
+                var uamBoost1 = (glucose_status.delta / glucose_status.short_avgdelta);
                 console.error("UAM Boost 1 value is "+uamBoost1+"; ");
                 var uamBoost2 = (glucose_status.delta / glucose_status.long_avgdelta);
                 var uamBoost2 = Math.abs(uamBoost2);
