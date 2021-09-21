@@ -1263,13 +1263,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 console.error("Insulin required ="+((1/insulinReqPCT) * 100)+"%: ");
 
     //Test whether we have a positive delta, and confirm iob, time and boost being possible, then use the boost function
-                 if (glucose_status.delta >= 6 && glucose_status.short_avgdelta >= 4 && uamBoost1 > 1.2 && uamBoost2 > 2 && now1 > boost_start && now1 < boost_end && iob_data.iob < boostMaxIOB && boost_scale < 2 && eventualBG > target_bg && bg > 80 && insulinReq > 0 /*&& target_bg < 82*/) {
-                     console.error("Boost Scale value is "+boost_scale+": ");
+                 if (glucose_status.delta >= 6 && glucose_status.short_avgdelta >= 4 && uamBoost1 > 1.2 && uamBoost2 > 2 && now1 > boost_start && now1 < boost_end && iob_data.iob < boostMaxIOB && boost_scale < 5 && eventualBG > target_bg && bg > 80 && insulinReq > 0 /*&& target_bg < 82*/) {
+                     console.error("Profile Boost Scale value is "+boost_scale+": ");
+                     console.error("Automated Boost Scale value is "+scaleSMB+": ");
                      //document the pre-boost insulin required recommendation
                      console.error("Insulin required pre-boost is "+insulinReq+": ");
                      //set a boost insulin required variable
                      var boostInsulinReq = insulinReq;
-                     boostInsulinReq = Math.min((boost_scale * insulinReq),boost_max);
+                     boostInsulinReq = Math.min((scaleSMB * insulinReq),boost_max);
                         if (boostInsulinReq > boostMaxIOB-iob_data.iob) {
                             boostInsulinReq = boostMaxIOB-iob_data.iob;
                         }
