@@ -1221,6 +1221,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 var uamBoost2 = (glucose_status.delta / glucose_status.long_avgdelta);
                 var uamBoost2 = Math.abs(uamBoost2);
                 console.error("UAM Boost 2 value is "+uamBoost2+"; ");
+                rT.reason += ("UAM Boost 1 value is "+uamBoost1+"; ");
+                rT.reason += ("UAM Boost 2 value is "+uamBoost2+"; ");
                 //Introduce deltas into the mix. Iniitially observe what the values of minDelta, expected delta and the product is.
                 //console.error("minDelta is currently "+minDelta+"; ");
                 //console.error("Expected delta is currently "+expectedDelta+";");
@@ -1284,7 +1286,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
 
                  //give 100% of insulin requirement if prediction is > 180 or there is a high delta
-                 else if ( glucose_status.delta > 8  && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end && minPredBG > 125 || eventualBG > 180 && bg > 162 && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end) {
+                 else if ( glucose_status.delta > 7  && iob_data.iob < boostMaxIOB && now1 >
+                 boost_start && now1 < boost_end && eventualBG > 108 || eventualBG > 180 && bg > 162
+                 && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end) {
                     if (insulinReq > boostMaxIOB-iob_data.iob) {
                        insulinReq = boostMaxIOB-iob_data.iob;
                        }
