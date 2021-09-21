@@ -1208,10 +1208,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 var roundSMBTo = 1 / profile.bolus_increment;
                 var scaleSMB = (target_bg/(eventualBG-target_bg));
 
+                var insulinReqPCT = ( 100 / profile.UAM_InsulinReq );
+                console.error("Insulin required ="+((1/insulinReqPCT) * 100)+"%: ");
+
+                var insulinPCTsubtract = ( insulinReqPCT - 1 );
+
                 //Calculate variables for sliding scale microbolus increase
                 var bg_adjust = (bg - 108) / 72;
                 //console.error("bg_adjust value is "+bg_adjust+"; ");
-                var insulinDivisor = 1.56 - Math.min((0.56 * bg_adjust),0.56);
+                var insulinDivisor = insulinReqPCT - Math.min((insulinPCTsubtract * bg_adjust),insulinPCTsubtract);
                 console.error("Insulin Divisor is:"+insulinDivisor+"; ");
                 console.error("Value is "+((1/insulinDivisor) * 100)+"% of insulin required; ");
                 console.error("insulinRequired is: "+insulinReq+"; ");
@@ -1261,8 +1266,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 //console.error("Expected delta is "+expectedDelta+". current delta is
                 //"+glucose_status.delta+" and min delta is "+minDelta+". ");
 
-                var insulinReqPCT = ( 100 / profile.UAM_InsulinReq );
-                console.error("Insulin required ="+((1/insulinReqPCT) * 100)+"%: ");
+
 
     //Test whether we have a positive delta, and confirm iob, time and boost being possible, then use the boost function
                  if (glucose_status.delta >= 5 && glucose_status.short_avgdelta >= 3 && uamBoost1 > 1.2 && uamBoost2 > 2 && now1 > boost_start && now1 < boost_end && iob_data.iob < boostMaxIOB && boost_scale < 5 && eventualBG > target_bg && bg > 80 && insulinReq > 0 /*&& target_bg < 82*/) {
@@ -1286,9 +1290,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
 
                  //give 100% of insulin requirement if prediction is > 180 or there is a high delta
-                 else if ( glucose_status.delta > 7  && iob_data.iob < boostMaxIOB && now1 >
-                 boost_start && now1 < boost_end && eventualBG > 108 || eventualBG > 180 && bg > 162
-                 && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end) {
+                 else if ( glucose_status.delta > 7  && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end && eventualBG > 108 || eventualBG > 180 && bg > 162 && iob_data.iob < boostMaxIOB && now1 > boost_start && now1 < boost_end) {
                     if (insulinReq > boostMaxIOB-iob_data.iob) {
                        insulinReq = boostMaxIOB-iob_data.iob;
                        }
