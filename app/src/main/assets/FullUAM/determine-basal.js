@@ -1006,9 +1006,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //rT.reason += "minGuardBG "+minGuardBG+"<"+threshold+": SMB disabled; ";
         enableSMB = false;
     }
-    if ( maxDelta > 0.30 * bg ) {
-        console.error("maxDelta",convert_bg(maxDelta, profile),"> 30% of BG",convert_bg(bg, profile),"- disabling SMB");
-        rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 30% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
+    if ( maxDelta > 0.20 * bg ) {
+        console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
+        rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
     }
     /*if (variable_sens >= 139) {
@@ -1047,7 +1047,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "minGuardBG " + convert_bg(minGuardBG, profile) + "<" + convert_bg(threshold, profile);
         bgUndershoot = target_bg - minGuardBG;
         var worstCaseInsulinReq = bgUndershoot / sens;
-        var durationReq = round(60*worstCaseInsulinReq / profile.current_basal);
+        var durationReq = round(60*worstCaseInsulinReq / basal);
         durationReq = round(durationReq/30)*30;
         // always set a 30-120m zero temp (oref0-pump-loop will let any longer SMB zero temp run)
         durationReq = Math.min(120,Math.max(30,durationReq));
@@ -1248,7 +1248,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // calculate a long enough zero temp to eventually correct back up to target
             var smbTarget = target_bg;
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
-            durationReq = round(30*worstCaseInsulinReq / basal);
+            durationReq = round(60*worstCaseInsulinReq / basal);
 
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
@@ -1261,7 +1261,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // don't set an SMB zero temp longer than 60 minutes
             } else if (durationReq >= 30) {
                 durationReq = round(durationReq/30)*30;
-                durationReq = Math.min(30,Math.max(0,durationReq));
+                durationReq = Math.min(60,Math.max(0,durationReq));
             } else {
                 // if SMB durationReq is less than 30m, set a nonzero low temp
                 smbLowTempReq = round( basal * durationReq/30 ,2);
