@@ -354,7 +354,7 @@ class BolusWizard @Inject constructor(
                 boluscalc = nsJSON()
                 source = Source.USER
                 notes = this@BolusWizard.notes
-                aapsLogger.debug("USER ENTRY: BOLUS ADVISOR insulin $insulinAfterConstraints")
+                aapsLogger.info(LTag.EVENTS,"USER ENTRY: BOLUS ADVISOR insulin $insulinAfterConstraints")
                 if (insulin > 0) {
                     commandQueue.bolus(this, object : Callback() {
                         override fun run() {
@@ -428,7 +428,7 @@ class BolusWizard @Inject constructor(
                     boluscalc = nsJSON()
                     source = Source.USER
                     notes = this@BolusWizard.notes
-                    aapsLogger.debug("USER ENTRY: BOLUS WIZARD insulin $insulinAfterConstraints carbs: $carbs")
+                    aapsLogger.info(LTag.EVENTS,"USER ENTRY: BOLUS WIZARD insulin $insulinAfterConstraints carbs: $carbs")
                     if (insulin > 0 || pump.pumpDescription.storesCarbInfo) {
                         commandQueue.bolus(this, object : Callback() {
                             override fun run() {

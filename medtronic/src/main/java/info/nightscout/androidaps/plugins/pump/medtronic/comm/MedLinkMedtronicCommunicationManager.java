@@ -839,7 +839,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 //        rfspy.initializeRileyLink();
         aapsLogger.info(LTag.PUMPCOMM, "before wakeup ");
         BaseStringAggregatorCallback resultActivity = new BolusProgressCallback(
-                medtronicPumpStatus, resourceHelper,rxBus );
+                medtronicPumpStatus, resourceHelper,rxBus, null, aapsLogger);
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = resultActivity.andThen(s -> {
             aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + s);
             if (s.getAnswer().anyMatch(f -> f.contains("ready"))) {

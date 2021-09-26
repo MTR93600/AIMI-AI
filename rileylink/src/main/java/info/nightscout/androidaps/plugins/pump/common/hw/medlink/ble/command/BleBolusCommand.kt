@@ -24,27 +24,37 @@ class BleBolusCommand : BleCommand {
 
     override fun characteristicChanged(answer: String, bleComm: MedLinkBLE,
                                        lastCommand: String) {
-        super.characteristicChanged(answer, bleComm, lastCommand)
         if (answer.trim { it <= ' ' }.contains("set bolus")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             bleComm.completedCommand()
-        } else if (answer.trim { it <= ' ' }.contains("is bolusing") ) {
-            val currentCommand = bleComm.currentCommand
-            if (currentCommand != null && currentCommand.medLinkPumpMessage != null) {
-                val pumpMessage = currentCommand.medLinkPumpMessage
-                if (pumpMessage is BolusMedLinkMessage && pumpMessage.bolusProgressCallback.resend) {
-                    SystemClock.sleep(5000);
-                    bleComm.addWriteCharacteristic(UUID.fromString(GattAttributes.SERVICE_UUID),
-                        UUID.fromString(GattAttributes.GATT_UUID),
-                        MedLinkPumpMessage(MedLinkCommandType.BolusStatus,
-                            pumpMessage.bolusProgressCallback,
-                            currentCommand.medLinkPumpMessage.btSleepTime))
-                }
-            }
+            bleComm.nextCommand()
+            return
+        }
+        // else if (answer.trim { it <= ' ' }.contains("is bolusing") || (
+        //         bleComm.currentCommand != null &&
+        //             MedLinkCommandType.BolusStatus.isSameCommand(bleComm.currentCommand.currentCommand))) {
+        //     val currentCommand = bleComm.currentCommand
+        //     if (currentCommand != null && currentCommand.medLinkPumpMessage != null) {
+        //         val pumpMessage = currentCommand.medLinkPumpMessage
+        //         aapsLogger.info(LTag.PUMPBTCOMM,currentCommand.toString())
+        //         aapsLogger.info(LTag.PUMPBTCOMM,pumpMessage.toString())
+        //         SystemClock.sleep(5000)
+        //         if (pumpMessage is BolusMedLinkMessage && pumpMessage.bolusProgressCallback.resend) {
+        //
+        //             bleComm.addWriteCharacteristic(UUID.fromString(GattAttributes.SERVICE_UUID),
+        //                 UUID.fromString(GattAttributes.GATT_UUID),
+        //                 MedLinkPumpMessage(MedLinkCommandType.BolusStatus,
+        //                     pumpMessage.bolusProgressCallback.copy(commandExecutor = currentCommand),
+        //                     currentCommand.medLinkPumpMessage.btSleepTime),true)
+        //             return;
+        //         }
+        //     }
             //            bleComm.addWriteCharacteristic();
 
 //            new MedLinkPumpMessage<String>(MedLinkCommandType.BolusStatus,);
 //            bleComm.addWriteCharacteristic(bleComm.getCurrentCommand().)
-        }
+//         }
+        super.characteristicChanged(answer, bleComm, lastCommand)
+
     }
 }

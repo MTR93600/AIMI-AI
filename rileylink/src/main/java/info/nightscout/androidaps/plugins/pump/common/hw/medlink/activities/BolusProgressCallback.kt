@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities
 
 import android.os.SystemClock
+import info.nightscout.androidaps.logging.AAPSLogger
 import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBolusProgressIfRunning
@@ -8,6 +9,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewB
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress.t
 import info.nightscout.androidaps.plugins.pump.common.R
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExecutor
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
 
 import info.nightscout.androidaps.utils.resources.ResourceHelper
@@ -15,9 +17,11 @@ import java.util.function.Supplier
 import java.util.stream.Stream
 import kotlin.math.roundToInt
 
-class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
-                            val resourceHelper: ResourceHelper,
-                            val rxBus: RxBusWrapper) : BaseStringAggregatorCallback() {
+data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
+                                 val resourceHelper: ResourceHelper,
+                                 val rxBus: RxBusWrapper,
+                                 private val commandExecutor: CommandExecutor?,
+                                 val aapsLogger: AAPSLogger) : BaseStringAggregatorCallback() {
 
     var resend = true;
     fun resend(): Boolean {
@@ -27,6 +31,9 @@ class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
     override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<String> {
         var ans = answer.get().iterator()
         MedLinkStatusParser.parseBolusInfo(ans, pumpStatus)
+        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.lastBolusAmount)
+        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.bolusDeliveredAmount)
+        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.lastBolusInfo)
         if(pumpStatus.lastBolusAmount !=null ) {
             val bolusEvent = EventOverviewBolusProgress
             bolusEvent.t = t
@@ -44,7 +51,7 @@ class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
                 // rxBus.send(bolusEvent)
                 rxBus.send(EventDismissBolusProgressIfRunning(null))
                 resend = false
-            }
+            }else commandExecutor?.clearExecutedCommand()
         }
         return super.apply(answer)
     }

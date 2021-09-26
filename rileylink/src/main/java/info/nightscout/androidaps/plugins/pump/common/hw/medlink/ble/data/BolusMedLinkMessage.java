@@ -37,4 +37,5 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
     public BolusProgressCallback getBolusProgressCallback() {
         return bolusProgressCallback;
     }
+
 }

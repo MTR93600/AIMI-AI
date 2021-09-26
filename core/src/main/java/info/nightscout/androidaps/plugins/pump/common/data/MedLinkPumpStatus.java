@@ -70,8 +70,12 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
 
     public DetailedBolusInfo getLastBolusInfo(){
         DetailedBolusInfo result = new DetailedBolusInfo();
-        result.insulin = lastBolusAmount;
-        result.deliverAt = lastBolusTime.getTime();
+        if(lastBolusAmount !=null) {
+            result.insulin = lastBolusAmount;
+        }
+        if(lastBolusTime !=null) {
+            result.deliverAt = lastBolusTime.getTime();
+        }
         return result;
     }
 

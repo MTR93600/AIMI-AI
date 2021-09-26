@@ -96,6 +96,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Bolu
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusAnswer;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusStatusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
@@ -2754,7 +2755,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
             long bolusTimesstamp = 0l;
 
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger);
+            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThem = bolusCallback.andThen(f -> {
 
                 BolusAnswer answer = f.getFunctionResult();
@@ -2809,7 +2810,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 return new MedLinkStandardReturn<String>(() -> f.getAnswer(), f.getFunctionResult().getAnswer());
             });
             BolusMedLinkMessage msg = new BolusMedLinkMessage(detailedBolusInfo.insulin,
-                    andThem, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus));
+                    andThem, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus, null, aapsLogger));
 
 
             MedLinkMedtronicUITaskCp responseTask = medLinkService.getMedtronicUIComm().executeCommandCP(msg);
@@ -3011,9 +3012,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             long bolusTimesstamp = 0l;
 
             if (lastDetailedBolusInfo != null) {
-                readBolusData();
+                readBolusData(detailedBolusInfo);
             }
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger);
+            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThen = bolusCallback.andThen(f -> {
                 Supplier<Stream<String>> answer = f::getAnswer;
                 answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
@@ -3037,21 +3038,26 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     } else {
                         //TODO postpone this message to later,  call status logic before to guarantee that the bolus has not been delivered
                         getAapsLogger().info(LTag.PUMPBTCOMM, "pump is not deliverying");
-                        processDeliveredBolus(f.getFunctionResult(), detailedBolusInfo);
-                        func.invoke(new PumpEnactResult(getInjector()) //
-                                .success(bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) //
-                                .enacted(false) //
-                                .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered)));
-                        Intent i = new Intent(context, ErrorHelperActivity.class);
-                        i.putExtra("soundid", R.raw.boluserror);
-                        i.putExtra("status", f.getAnswer().collect(Collectors.joining()));
-                        i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(i);
+                        if(f.getFunctionResult().getBolusDeliveryTime()!=null) {
+                            processDeliveredBolus(f.getFunctionResult(), detailedBolusInfo);
+                            func.invoke(new PumpEnactResult(getInjector()) //
+                                    .success(bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) //
+                                    .enacted(false) //
+                                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered)));
+                            Intent i = new Intent(context, ErrorHelperActivity.class);
+                            i.putExtra("soundid", R.raw.boluserror);
+                            i.putExtra("status", f.getAnswer().collect(Collectors.joining()));
+                            i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(i);
+                        }else{
+                            readBolusData(detailedBolusInfo);
+                        }
                     }
                 } else if (PumpResponses.DeliveringBolus.equals(f.getFunctionResult().getResponse())) {
                     lastDetailedBolusInfo = detailedBolusInfo;
                     lastBolusTime = System.currentTimeMillis();
+                    readBolusData(lastDetailedBolusInfo);
                     getAapsLogger().info(LTag.PUMPBTCOMM, "and themmmm");
                 }
                 Supplier<Stream<String>> recentBolus = () -> answer.get().filter(ans -> ans.contains("recent bolus"));
@@ -3078,7 +3084,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 stopAfter = true;
             }
             BolusMedLinkMessage msg = new BolusMedLinkMessage(detailedBolusInfo.insulin,
-                    andThen, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus));
+                    andThen, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus,null, aapsLogger));
 
 
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
@@ -3150,19 +3156,16 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     }
 
-    private void readBolusData() {
+    private void readBolusData(DetailedBolusInfo detailedBolusInfo) {
         getAapsLogger().info(LTag.PUMPBTCOMM, "get full bolus data");
-
         lastBolusHistoryRead = System.currentTimeMillis();
         BolusDeliverCallback func =
-                new BolusDeliverCallback(getPumpStatusData(), this, aapsLogger);
-
-        MedLinkPumpMessage msg = new MedLinkPumpMessage(MedLinkCommandType.BolusStatus,
+                new BolusDeliverCallback(getPumpStatusData(), this, aapsLogger,
+                        detailedBolusInfo);
+        MedLinkPumpMessage msg = new BolusStatusMedLinkMessage(MedLinkCommandType.BolusStatus,
                 func,
                 getBtSleepTime());
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
-
-
     }
 
     @Override protected void triggerUIChange() {
@@ -3405,8 +3408,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
     public void handleNewSensorData(SensorDataReading... sens) {
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
         if(sens.length>0) {
-            handleBolusDelivered();
+            handleBolusDelivered(lastDetailedBolusInfo);
         }
         handleProfile();
         handleBatteryData(sens);
@@ -3466,16 +3470,17 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     }
 
-    public void handleBolusDelivered() {
+    public void handleBolusDelivered(DetailedBolusInfo lastBolusInfo) {
         if (checkBolusAtNextStatus ) {
-            if (lastDetailedBolusInfo.insulin == medLinkPumpStatus.lastBolusAmount &&
+            if (lastBolusInfo != null &&
+                    lastBolusInfo.insulin == medLinkPumpStatus.lastBolusAmount &&
                     medLinkPumpStatus.lastBolusTime.getTime() > lastBolusTime) {
                 lastBolusTime = medLinkPumpStatus.lastBolusTime.getTime();
-                lastDetailedBolusInfo.deliverAt = lastBolusTime;
-                lastDetailedBolusInfo.date = lastBolusTime;
-                lastDeliveredBolus = lastDetailedBolusInfo.insulin;
+                lastBolusInfo.deliverAt = lastBolusTime;
+                lastBolusInfo.date = lastBolusTime;
+                lastDeliveredBolus = lastBolusInfo.insulin;
                 checkBolusAtNextStatus = false;
-                handleNewTreatmentData(Stream.of(lastDetailedBolusInfo));
+                handleNewTreatmentData(Stream.of(lastBolusInfo));
             } else {
                 Intent i = new Intent(context, ErrorHelperActivity.class);
                 i.putExtra("soundid", R.raw.boluserror);

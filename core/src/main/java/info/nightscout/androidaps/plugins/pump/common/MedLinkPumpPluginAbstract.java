@@ -2,16 +2,11 @@ package info.nightscout.androidaps.plugins.pump.common;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Function;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.core.R;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.PumpEnactResult;
 import info.nightscout.androidaps.db.TemporaryBasal;
 import info.nightscout.androidaps.db.Treatment;
@@ -23,6 +18,7 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
+import info.nightscout.androidaps.queue.Callback;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
@@ -35,7 +31,7 @@ import kotlin.jvm.functions.Function1;
  */
 public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract {
 
-    public abstract void handleBolusDelivered();
+    public abstract void handleBolusDelivered(DetailedBolusInfo lastBolusInfo);
     public abstract TemporaryBasal getTemporaryBasal();
 
     protected MedLinkPumpPluginAbstract(PluginDescription pluginDescription, PumpType pumpType, HasAndroidInjector injector, ResourceHelper resourceHelper, AAPSLogger aapsLogger, CommandQueueProvider commandQueue, RxBusWrapper rxBus, ActivePluginProvider activePlugin, SP sp, Context context, FabricPrivacy fabricPrivacy, DateUtil dateUtil) {
@@ -82,4 +78,5 @@ public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract {
     protected abstract void deliverBolus(DetailedBolusInfo detailedBolusInfo,
                                          @NotNull Function1<? super PumpEnactResult, Unit> func);
 
+    public abstract void startPump(Callback callback);
 }
