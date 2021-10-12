@@ -60,7 +60,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var currentTime: Long = 0
     private var saveCgmSource = false
     private var lastBolusNormalTime: Long = 0
-    private val millsToThePast = T.hours(3).msecs()
+    private val millsToThePast = T.hours(4).msecs()
     var currentTempParam: String? = null
         private set
     var iobDataParam: String? = null
@@ -241,7 +241,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 //**********************************************************************************************************************************************
         this.profile.put("UAM_InsulinReq",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_InsulinReq,"65")))
 //MP: UAM_boluscap start
-        this.profile.put("UAM_boluscap",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_boluscap,"2.5")))
+        this.profile.put("iTime",SafeParse.stringToDouble(sp.getString(R.string.key_iTime,"180")))
 
 
 //**********************************************************************************************************************************************
