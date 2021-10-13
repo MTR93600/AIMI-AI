@@ -82,6 +82,8 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.min
+import info.nightscout.androidaps.utils.T
+import org.json.JSONObject
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
@@ -132,6 +134,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     private val secondaryGraphsLabel = ArrayList<TextView>()
 
     private var carbAnimation: AnimationDrawable? = null
+    public var insulinAnimation: AnimationDrawable? = null
 
     private var _binding: OverviewFragmentBinding? = null
 
