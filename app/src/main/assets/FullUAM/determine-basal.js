@@ -310,7 +310,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var TriggerPredSMB = round( bg - (iob_data.iob * sens) ) + round( 240 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
 
     //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
-    var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusCorr ) / 60000,1);
+    var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
     //var iTime = round(( meal_data.lastBolusCorr ) ,1);
 
     var csf = profile.sens / profile.carb_ratio ;
