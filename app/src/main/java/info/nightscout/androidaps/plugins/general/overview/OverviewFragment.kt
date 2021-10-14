@@ -61,11 +61,6 @@ import info.nightscout.androidaps.plugins.source.DexcomPlugin
 import info.nightscout.androidaps.plugins.source.XdripPlugin
 import info.nightscout.androidaps.queue.CommandQueue
 import info.nightscout.androidaps.skins.SkinProvider
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.DefaultValueHelper
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.ToastUtils
-import info.nightscout.androidaps.utils.TrendCalculator
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.protection.ProtectionCheck
@@ -82,8 +77,8 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.min
-import info.nightscout.androidaps.utils.T
-import org.json.JSONObject
+import info.nightscout.androidaps.database.entities.Bolus
+import info.nightscout.androidaps.utils.*
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
@@ -120,6 +115,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
     @Inject lateinit var overviewData: OverviewData
     @Inject lateinit var overviewPlugin: OverviewPlugin
+    private val millsToThePast = T.hours(4).msecs()
+
 
     private val disposable = CompositeDisposable()
 
@@ -134,9 +131,10 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     private val secondaryGraphsLabel = ArrayList<TextView>()
 
     private var carbAnimation: AnimationDrawable? = null
-    public var insulinAnimation: AnimationDrawable? = null
+    private var insulinAnimation: AnimationDrawable? = null
 
     private var _binding: OverviewFragmentBinding? = null
+    private var lastBolusNormalTime: Long = 0
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -178,6 +176,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         carbAnimation = binding.infoLayout.carbsIcon.background as AnimationDrawable?
         carbAnimation?.setEnterFadeDuration(1200)
         carbAnimation?.setExitFadeDuration(1200)
+        insulinAnimation = binding.infoLayout.overviewInsulinIcon.background as AnimationDrawable?
+        insulinAnimation?.setEnterFadeDuration(1200)
+        insulinAnimation?.setExitFadeDuration(1200)
 
 
         binding.graphsLayout.bgGraph.setOnLongClickListener {
@@ -369,6 +370,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
         }
     }
+    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
 
     override fun onLongClick(v: View): Boolean {
         when (v.id) {
@@ -682,19 +684,44 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 binding.statusLightsLayout.statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
                 statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge, binding.statusLightsLayout.insulinAge, binding.statusLightsLayout.reservoirLevel, binding.statusLightsLayout.sensorAge, null, binding.statusLightsLayout.pbAge, binding.statusLightsLayout.batteryLevel)
                 processButtonsVisibility()
+
+
+
+
+
                 processAps()
             }
 
             OverviewData.Property.IOB_COB          -> {
+                val now = System.currentTimeMillis()
+                bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
+                val iTimeSettings = (SafeParse.stringToDouble(sp.getString(R.string.key_iTime, "180")))
+                val iTimeUpdate = (System.currentTimeMillis() - lastBolusNormalTime) / 60000
                 binding.infoLayout.iob.text = overviewData.iobText
-                binding.infoLayout.iobLayout.setOnClickListener {
-                    activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
+                if (iTimeUpdate < iTimeSettings) {
+                    binding.infoLayout.iobLayout.setOnClickListener {
+                        activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogiiTimeText) }
+                    }
+                } else {
+                    binding.infoLayout.iobLayout.setOnClickListener {
+                        activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
+
+                    }
                 }
-                // cob
+
+
+            if (iTimeUpdate < iTimeSettings) {
+                insulinAnimation?.start()
+            }else{
+                insulinAnimation?.stop()
+            }
+            // cob
+
                 var cobText = overviewData.cobInfo?.displayText(resourceHelper, dateUtil, buildHelper.isDev()) ?: resourceHelper.gs(R.string.value_unavailable_short)
 
                 val constraintsProcessed = loopPlugin.lastRun?.constraintsProcessed
                 val lastRun = loopPlugin.lastRun
+
                 if (config.APS && constraintsProcessed != null && lastRun != null) {
                     if (constraintsProcessed.carbsReq > 0) {
                         //only display carbsreq when carbs have not been entered recently

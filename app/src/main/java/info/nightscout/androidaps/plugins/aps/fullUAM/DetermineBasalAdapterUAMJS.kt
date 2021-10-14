@@ -37,6 +37,8 @@ import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 
+
+
 class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector) {
 
     @Inject lateinit var aapsLogger: AAPSLogger
