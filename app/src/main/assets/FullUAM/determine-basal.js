@@ -220,7 +220,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     if (sensitivityRatio) {
         basal = profile.current_basal * sensitivityRatio;
-        basal = round_basal(basal, profile);
+        basal = round(basal, 2);
         if (basal !== profile_current_basal) {
             //console.log("Adjusting basal from "+profile_current_basal+" to "+basal+"; ");
         } else {
@@ -339,7 +339,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             sensitivityRatio = round(sensitivityRatio,2);
             //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
             basal = profile.current_basal * sensitivityRatio;
-            basal = round_basal(basal, profile);
+            basal = round(basal, 2);
             if (basal !== profile_current_basal) {
                 //console.log("Adjusting basal from "+profile_current_basal+" to "+basal+"; ");
             } else {
@@ -378,7 +378,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = round(sensitivityRatio,2);
         //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
-        basal = round_basal(basal, profile);
+        basal = round(basal, 2);
         if (basal !== profile_current_basal) {
             //console.log("Adjusting basal from "+profile_current_basal+" to "+basal+"; ");
         } else {
@@ -402,7 +402,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = round(sensitivityRatio,2);
         //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
-        basal = round_basal(basal, profile);
+        basal = round(basal, 2);
         if (basal !== profile_current_basal) {
             //console.log("Adjusting basal from "+profile_current_basal+" to "+basal+"; ");
         } else {

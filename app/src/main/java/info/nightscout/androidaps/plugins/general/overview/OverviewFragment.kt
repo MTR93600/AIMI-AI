@@ -80,6 +80,7 @@ import kotlin.math.min
 import info.nightscout.androidaps.database.entities.Bolus
 import info.nightscout.androidaps.utils.*
 
+
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
     @Inject lateinit var injector: HasAndroidInjector
@@ -135,6 +136,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     private var _binding: OverviewFragmentBinding? = null
     private var lastBolusNormalTime: Long = 0
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -693,50 +695,45 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
 
             OverviewData.Property.IOB_COB          -> {
-                val now = System.currentTimeMillis()
+                var now = System.currentTimeMillis()
                 bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
                 val iTimeSettings = (SafeParse.stringToDouble(sp.getString(R.string.key_iTime, "180")))
-                val iTimeUpdate = (System.currentTimeMillis() - lastBolusNormalTime) / 60000
+                var iTimeUpdate = (now - lastBolusNormalTime) / 60000
+
                 binding.infoLayout.iob.text = overviewData.iobText
-                if (iTimeUpdate < iTimeSettings) {
-                    binding.infoLayout.iobLayout.setOnClickListener {
-                        activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogiiTimeText) }
-                    }
-                } else {
-                    binding.infoLayout.iobLayout.setOnClickListener {
-                        activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
-
-                    }
+                binding.infoLayout.iobLayout.setOnClickListener {
+                    activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
                 }
 
 
-            if (iTimeUpdate < iTimeSettings) {
-                insulinAnimation?.start()
-            }else{
-                insulinAnimation?.stop()
-            }
-            // cob
+                    if (iTimeUpdate < iTimeSettings) {
+                        insulinAnimation?.start()
+                    }else{
+                        insulinAnimation?.stop()
+                    }
+                    // cob
 
-                var cobText = overviewData.cobInfo?.displayText(resourceHelper, dateUtil, buildHelper.isDev()) ?: resourceHelper.gs(R.string.value_unavailable_short)
+                    var cobText = overviewData.cobInfo?.displayText(resourceHelper, dateUtil, buildHelper.isDev()) ?: resourceHelper.gs(R.string.value_unavailable_short)
 
-                val constraintsProcessed = loopPlugin.lastRun?.constraintsProcessed
-                val lastRun = loopPlugin.lastRun
+                    val constraintsProcessed = loopPlugin.lastRun?.constraintsProcessed
+                    val lastRun = loopPlugin.lastRun
 
-                if (config.APS && constraintsProcessed != null && lastRun != null) {
-                    if (constraintsProcessed.carbsReq > 0) {
-                        //only display carbsreq when carbs have not been entered recently
-                        if (overviewData.lastCarbsTime < lastRun.lastAPSRun) {
-                            cobText += " | " + constraintsProcessed.carbsReq + " " + resourceHelper.gs(R.string.required)
+                    if (config.APS && constraintsProcessed != null && lastRun != null) {
+                        if (constraintsProcessed.carbsReq > 0) {
+                            //only display carbsreq when carbs have not been entered recently
+                            if (overviewData.lastCarbsTime < lastRun.lastAPSRun) {
+                                cobText += " | " + constraintsProcessed.carbsReq + " " + resourceHelper.gs(R.string.required)
+                            }
+                            if (carbAnimation?.isRunning == false)
+                                carbAnimation?.start()
+                        } else {
+                            carbAnimation?.stop()
+                            carbAnimation?.selectDrawable(0)
                         }
-                        if (carbAnimation?.isRunning == false)
-                            carbAnimation?.start()
-                    } else {
-                        carbAnimation?.stop()
-                        carbAnimation?.selectDrawable(0)
                     }
+                    binding.infoLayout.cob.text = cobText
                 }
-                binding.infoLayout.cob.text = cobText
-            }
+
 
             OverviewData.Property.TEMPORARY_TARGET -> {
                 // temp target

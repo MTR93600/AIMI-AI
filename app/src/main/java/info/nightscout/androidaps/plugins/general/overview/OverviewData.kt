@@ -33,7 +33,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
-import info.nightscout.androidaps.database.entities.Bolus
+
 
 
 @Singleton
@@ -69,12 +69,13 @@ class OverviewData @Inject constructor(
         PUMPSTATUS
     }
 
-    private val millsToThePast = T.hours(4).msecs()
-    private var lastBolusNormalTime: Long = 0
+
+
     var rangeToDisplay = 6 // for graph
     var toTime: Long = 0
     var fromTime: Long = 0
     var endTime: Long = 0
+
 
     fun reset() {
         pumpStatus = ""
@@ -112,6 +113,8 @@ class OverviewData @Inject constructor(
         dsMinSeries = LineGraphSeries()
     }
 
+
+
     fun initRange() {
         rangeToDisplay = sp.getInt(R.string.key_rangetodisplay, 6)
 
@@ -122,6 +125,7 @@ class OverviewData @Inject constructor(
             it[Calendar.MINUTE] = 0
             it.add(Calendar.HOUR, 1)
         }
+
 
         toTime = calendar.timeInMillis + 100000 // little bit more to avoid wrong rounding - GraphView specific
         fromTime = toTime - T.hours(rangeToDisplay.toLong()).msecs()
@@ -246,20 +250,7 @@ class OverviewData @Inject constructor(
                         resourceHelper.gs(R.string.basal) + ": " + resourceHelper.gs(R.string.formatinsulinunits, basalIob.basaliob)
                 } ?: resourceHelper.gs(R.string.value_unavailable_short)
             } ?: resourceHelper.gs(R.string.value_unavailable_short)
-    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
-    val now = System.currentTimeMillis()
-    //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
-    val iTimeUpdate = (System.currentTimeMillis() - lastBolusNormalTime) / 60000
-    val iobDialogiiTimeText: String
-        get() =
-            bolusIob?.let { bolusIob ->
-                basalIob?.let { basalIob ->
-                    resourceHelper.gs(R.string.formatinsulinunits, bolusIob.iob + basalIob.basaliob) + "\n" +
-                        resourceHelper.gs(R.string.bolus) + ": " + resourceHelper.gs(R.string.formatinsulinunits, bolusIob.iob) + "\n" +
-                        resourceHelper.gs(R.string.basal) + ": " + resourceHelper.gs(R.string.formatinsulinunits, basalIob.basaliob) + "\n" +
-                        resourceHelper.gs(R.string.iTime) + ": " + resourceHelper.gs(R.string.format_mins, iTimeUpdate)
-                } ?: resourceHelper.gs(R.string.value_unavailable_short)
-            } ?: resourceHelper.gs(R.string.value_unavailable_short)
+
 
     /*
      * TEMP TARGET
@@ -344,6 +335,7 @@ class OverviewData @Inject constructor(
             if (bg.value > maxBgValue) maxBgValue = bg.value
             bgListArray.add(GlucoseValueDataPoint(bg, defaultValueHelper, profileFunction, resourceHelper))
         }
+
         bgReadingGraphSeries = PointsWithLabelGraphSeries(Array(bgListArray.size) { i -> bgListArray[i] })
         maxBgValue = Profile.fromMgdlToUnits(maxBgValue, profileFunction.getUnits())
         if (defaultValueHelper.determineHighLine() > maxBgValue) maxBgValue = defaultValueHelper.determineHighLine()
