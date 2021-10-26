@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
@@ -25,10 +26,10 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
 
     private final AAPSLogger aapsLogger;
     private final MedLinkPumpPluginAbstract pumpPlugin;
+    private DetailedBolusInfo bolusInfo;
     //    private final RxBusWrapper rxBus;
     private Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
     private Pattern deliveringBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
-
 
 
     public BolusCallback(AAPSLogger aapsLogger, MedLinkPumpPluginAbstract medLinkMedtronicPumpPlugin) {//RxBusWrapper rxBus) {
@@ -36,6 +37,13 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         this.aapsLogger = aapsLogger;
         this.pumpPlugin = medLinkMedtronicPumpPlugin;
 //        this.rxBus = rxBus;
+    }
+
+    public BolusCallback(AAPSLogger aapsLogger, MedLinkPumpPluginAbstract medLinkMedtronicPumpPlugin, DetailedBolusInfo detailedBolusInfo) {
+        super();
+        this.aapsLogger = aapsLogger;
+        this.pumpPlugin = medLinkMedtronicPumpPlugin;
+        this.bolusInfo = detailedBolusInfo;
     }
 
     @Override public MedLinkStandardReturn<BolusAnswer> apply(Supplier<Stream<String>> answers) {
@@ -53,13 +61,13 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
                 pumpResponse.set(deliveredBolus(f));
                 return pumpResponse;
             });
-        }else if(answers.get().anyMatch(f -> f.toLowerCase().contains("suspended state"))){
+        } else if (answers.get().anyMatch(f -> f.toLowerCase().contains("suspend state"))) {
             pumpPlugin.startPump(new Callback() {
                 @Override public void run() {
                     aapsLogger.info(LTag.EVENTS, "bolus pump starting");
                 }
-            });
-        } else{
+            }, true);
+        } else {
             pumpResponse.set(new BolusAnswer(PumpResponses.UnknownAnswer,
                     answers.get().collect(Collectors.joining())));
         }
@@ -72,8 +80,11 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
     }
 
     private MedLinkStandardReturn<BolusAnswer> createPumpResponse(Supplier<Stream<String>> answers, AtomicReference<BolusAnswer> pumpResponse) {
-        if (PumpResponses.BolusDelivered.equals(pumpResponse.get().getResponse())) {
+        if (pumpResponse.get() != null && PumpResponses.BolusDelivered.equals(pumpResponse.get().getResponse())) {
             return new MedLinkStandardReturn<>(answers, pumpResponse.get());
+        } else if (pumpResponse.get() == null) {
+            return new MedLinkStandardReturn<BolusAnswer>(answers, new BolusAnswer(
+                    PumpResponses.UnknownAnswer,answers.get().collect(Collectors.joining())));
         } else {
             return new MedLinkStandardReturn<BolusAnswer>(answers, pumpResponse.get(), MedLinkStandardReturn.ParsingError.BolusParsingError);
         }
@@ -114,8 +125,14 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
                     String[] time = dateTime[0].split(":");
                     String[] date = dateTime[1].split("-");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
-                    ZonedDateTime bolusDeliveredAt = LocalDateTime.parse(deliveredTime,formatter).atZone(ZoneId.systemDefault());
+                    ZonedDateTime bolusDeliveredAt = LocalDateTime.parse(deliveredTime, formatter).atZone(ZoneId.systemDefault());
                     return new BolusAnswer(PumpResponses.BolusDelivered, delivered, bolusDeliveredAt);
+                } else if (bolusInfo != null && unitsMatcher.find()) {
+                    units = unitsMatcher.group(1);
+                    double lastBolusAmount = Double.parseDouble(units.substring(0, units.length() - 1).trim());
+                    if (lastBolusAmount == bolusInfo.insulin) {
+                        return new BolusAnswer(PumpResponses.DeliveringBolus, input);
+                    }
                 }
             }
         }

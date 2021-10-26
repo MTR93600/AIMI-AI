@@ -58,6 +58,7 @@ public class StatusCallback extends BaseStatusCallback {
                 medLinkPumpPlugin.handleNewSensorData(pumpStatus.sensorDataReading);
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
             } else {
+                medLinkPumpPlugin.handleNewPumpData();
                 medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.FAILED;
             }
             medLinkPumpPlugin.sendPumpUpdateEvent();

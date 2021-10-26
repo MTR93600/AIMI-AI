@@ -282,7 +282,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         return sleepTime * 1000L;
     }
 
-    public void startPump(Callback callback) {
+    public void startPump(Callback callback){
+        this.startPump(callback, false);
+    }
+    public void startPump(Callback callback, boolean prepend) {
         getAapsLogger().info(LTag.PUMP, "MedtronicPumpPlugin::startPump - ");
 
         if (!medLinkPumpStatus.pumpStatusType.equals(PumpStatusType.Running)) {
@@ -303,7 +306,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkPumpMessage message = new MedLinkPumpMessage(MedLinkCommandType.StopStartPump,
                     MedLinkCommandType.StartPump,
                     activity,
-                    getBtSleepTime());
+                    getBtSleepTime(), prepend);
             medLinkService.getMedtronicUIComm().executeCommandCP(message);
         }
     }
@@ -857,7 +860,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             if (getPumpStatusData().getLastConnection() - getPumpStatusData().getLastBGTimestamp() > 360000 || late1Min) {
                 lostContactDelta = 2;
             }
-            scheduleNextRefresh(PumpHistory, lostContactDelta + minutesDelta + 1 - bgDelta);
+            scheduleNextRefresh(PumpHistory, lostContactDelta + minutesDelta + 3 - bgDelta);
         } else {
             getAapsLogger().info(LTag.CONFIGBUILDER, "scheduling");
             scheduleNextRefresh(PumpHistory,
@@ -2930,7 +2933,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                aapsLogger, bolusingEvent);
 //        medLinkService.getMedtronicUIComm().executeCommandCP(msg);
         int bolusTime = (int) (detailedBolusInfo.insulin * 42.0d);
-        long bolusEndTime = actionTime + (bolusTime * 1000);
+        long bolusEndTime = actionTime + (bolusTime * 1000L);
         long bolusDelta = System.currentTimeMillis() - actionTime;
 //        Thread bolusEventThread = new Thread() {
 //            @Override public void run() {
@@ -3009,24 +3012,25 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Start delivery");
             AtomicReference<Boolean> response = new AtomicReference<>(false);
 
-            long bolusTimesstamp = 0l;
+
 
             if (lastDetailedBolusInfo != null) {
                 readBolusData(detailedBolusInfo);
             }
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this);
+            DetailedBolusInfo bolus = detailedBolusInfo.copy();
+            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this, detailedBolusInfo);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThen = bolusCallback.andThen(f -> {
                 Supplier<Stream<String>> answer = f::getAnswer;
-                answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
+//                answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
                 getAapsLogger().info(LTag.PUMPBTCOMM, f.getFunctionResult().getResponse().name());
                 if (PumpResponses.BolusDelivered.equals(f.getFunctionResult().getResponse())) {
 
-                    processDeliveredBolus(f.getFunctionResult(), detailedBolusInfo);
+                    processDeliveredBolus(f.getFunctionResult(), bolus);
                     bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
                     func.invoke(new PumpEnactResult(getInjector()).success(true) //
                             .enacted(true) //
-                            .bolusDelivered(detailedBolusInfo.insulin) //
-                            .carbsDelivered(detailedBolusInfo.carbs));
+                            .bolusDelivered(bolus.insulin) //
+                            .carbsDelivered(bolus.carbs));
                 } else if (PumpResponses.UnknownAnswer.equals(f.getFunctionResult().getResponse())) {
                     BolusAnswer bolusAnswer = f.getFunctionResult();
                     if (detailedBolusInfo.insulin == bolusAnswer.getBolusAmount() &&
@@ -3038,7 +3042,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     } else {
                         //TODO postpone this message to later,  call status logic before to guarantee that the bolus has not been delivered
                         getAapsLogger().info(LTag.PUMPBTCOMM, "pump is not deliverying");
-                        if(f.getFunctionResult().getBolusDeliveryTime()!=null) {
+                        if (f.getFunctionResult().getBolusDeliveryTime() != null) {
                             processDeliveredBolus(f.getFunctionResult(), detailedBolusInfo);
                             func.invoke(new PumpEnactResult(getInjector()) //
                                     .success(bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) //
@@ -3050,7 +3054,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                             i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
                             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(i);
-                        }else{
+                        } else {
                             readBolusData(detailedBolusInfo);
                         }
                     }
@@ -3062,16 +3066,15 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 }
                 Supplier<Stream<String>> recentBolus = () -> answer.get().filter(ans -> ans.contains("recent bolus"));
                 if (recentBolus.get().findFirst().isPresent()) {
-                    String result = recentBolus.get().findAny().get();
+                    String result = recentBolus.get().findFirst().get();
                     getAapsLogger().info(LTag.PUMPBTCOMM, result);
                     Pattern pattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}");
                     Matcher matcher = pattern.matcher(result);
                     if (matcher.find()) {
-                        Double bolusAmount = Double.valueOf(matcher.group(0));
-                        detailedBolusInfo.insulin = bolusAmount;
+                        detailedBolusInfo.insulin = Double.parseDouble(matcher.group(0));
                     }
                 }
-                return new MedLinkStandardReturn<String>(() -> f.getAnswer(), f.getFunctionResult().getAnswer());
+                return new MedLinkStandardReturn<String>(f::getAnswer, f.getFunctionResult().getAnswer());
             });
             boolean stopAfter = false;
             if (getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Suspended) &&
@@ -3084,7 +3087,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 stopAfter = true;
             }
             BolusMedLinkMessage msg = new BolusMedLinkMessage(detailedBolusInfo.insulin,
-                    andThen, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus,null, aapsLogger));
+                    andThen, new BolusProgressCallback(medLinkPumpStatus, resourceHelper, rxBus, null, aapsLogger));
 
 
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
@@ -3315,9 +3318,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 this.lastDetailedBolusInfo = null;
             }
             activePlugin.getActiveTreatments().addToHistoryTreatment(bolusInfo, false);
-            if (bolusInfo.deliverAt > lastBolusTime) {
-                lastBolusTime = bolusInfo.deliverAt;
-            }
+//            if (bolusInfo.deliverAt > lastBolusTime) {
+            lastBolusTime = bolusInfo.deliverAt;
+//            }
         });
     }
 
@@ -3329,23 +3332,27 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         getAapsLogger().info(LTag.EVENTS, "" + pumpTimeDelta);
         if (isInitialized) {
             if (lastBolusTime != medLinkPumpStatus.lastBolusTime.getTime() &&
-                    lastDeliveredBolus == medLinkPumpStatus.lastBolusAmount &&
+                    lastDeliveredBolus == medLinkPumpStatus.lastBolusAmount
+                    &&
                     Math.abs(lastBolusTime - medLinkPumpStatus.lastBolusTime.getTime()) >
-                            pumpTimeDelta + 60000) {
+                            pumpTimeDelta + 60000
+            ) {
                 readBolusHistory();
             } else if (lastBolusTime > 0 && lastDetailedBolusInfo != null) {
-                if (sp.getBoolean(R.string.medlink_key_force_bolus_history_read, false)) {
+                lastBolusTime = lastDetailedBolusInfo.deliverAt;
+                if (sp.getBoolean(R.string.medlink_key_force_bolus_history_read, false)||
+                        getPumpStatusData().lastBolusAmount != lastDetailedBolusInfo.insulin) {
                     readBolusHistory();
-                } else if (getPumpStatusData().lastBolusAmount == lastDetailedBolusInfo.insulin) {
+                } else  {
                     lastDetailedBolusInfo.deliverAt = getPumpStatusData().lastBolusTime.getTime();
                     lastDetailedBolusInfo.date = getPumpStatusData().lastBolusTime.getTime();
                     activePlugin.getActiveTreatments().addToHistoryTreatment(lastDetailedBolusInfo, true);
                     lastDetailedBolusInfo = null;
-                } else {
-                    readBolusHistory();
                 }
-                lastBolusTime = 0l;
 
+
+            } else if(lastBolusTime < getPumpStatusData().lastBolusTime.getTime()){
+                readBolusHistory();
             }
         } else {
             lastBolusTime = medLinkPumpStatus.lastBolusTime.getTime();
@@ -3408,22 +3415,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
     public void handleNewSensorData(SensorDataReading... sens) {
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
-        if(sens.length>0) {
-            handleBolusDelivered(lastDetailedBolusInfo);
+        if(sens.length == 1 && lastBolusTime == 0){
+            lastBolusTime = getPumpStatusData().lastBolusTime.getTime();
         }
-        handleProfile();
-        handleBatteryData(sens);
-        handleBolusAlarm();
-        if (getTemporaryBasal() != null && getTemporaryBasal().absoluteRate == 0 &&
-                getTemporaryBasal().durationInMinutes > 0 &&
-                getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Running)) {
-            stopPump(new Callback() {
-                @Override public void run() {
-                    getAapsLogger().info(LTag.PUMP, "Stopping unstopped pump");
-                }
-            });
-        }
+        handleNewPumpData();
         if (sens.length == 1 &&
                 medLinkPumpStatus.needToGetBGHistory() && isInitialized()) {
             missedBGs++;
@@ -3442,7 +3437,6 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         }
         Intent intent = buildIntentSensValues(sens);
         activePlugin.getActiveBgSource().handleNewData(intent);
-        handleNewEvent();
         if (sens[0].bgValue != 0d) {
             readPumpBGHistory(false);
             late1Min = false;
@@ -3452,9 +3446,29 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         }
     }
 
+    public void handleNewPumpData() {
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        handleBatteryData();
+//        if(sens.length>0) {
+        handleBolusDelivered(lastDetailedBolusInfo);
+//        }
+        handleProfile();
+        handleBolusAlarm();
+        if (getTemporaryBasal() != null && getTemporaryBasal().absoluteRate == 0 &&
+                getTemporaryBasal().durationInMinutes > 0 &&
+                getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Running)) {
+            stopPump(new Callback() {
+                @Override public void run() {
+                    getAapsLogger().info(LTag.PUMP, "Stopping unstopped pump");
+                }
+            });
+        }
+        handleNewEvent();
+    }
+
     private void handleProfile() {
-        if(lastProfileRead > 0 && System.currentTimeMillis() - lastProfileRead > 300000 &&
-                getBasalProfile() != null && getBasalProfile().getEntryForTime(Instant.now()).rate != medLinkPumpStatus.getCurrentBasal()){
+        if (lastProfileRead > 0 && System.currentTimeMillis() - lastProfileRead > 300000 &&
+                getBasalProfile() != null && getBasalProfile().getEntryForTime(Instant.now()).rate != medLinkPumpStatus.getCurrentBasal()) {
             readPumpProfile();
 
         }
@@ -3471,7 +3485,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void handleBolusDelivered(DetailedBolusInfo lastBolusInfo) {
-        if (checkBolusAtNextStatus ) {
+        if (checkBolusAtNextStatus) {
             if (lastBolusInfo != null &&
                     lastBolusInfo.insulin == medLinkPumpStatus.lastBolusAmount &&
                     medLinkPumpStatus.lastBolusTime.getTime() > lastBolusTime) {
@@ -3492,8 +3506,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         }
     }
 
-    private void handleBatteryData(SensorDataReading[] sens) {
-        long currentBatRead = sens[sens.length - 1].date;
+    private void handleBatteryData() {
+        long currentBatRead = medLinkPumpStatus.lastDateTime;
         int currentLevel = receiverStatusStore.getBatteryLevel();
         if (lastBatteryLevel == 0) {
             lastBatteryLevel = currentLevel;
@@ -3506,10 +3520,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         if (batteryLastRead == 0l) {
             batteryLastRead = currentBatRead;
         } else {
-            long batDelta = currentBatRead - batteryLastRead;
+            long batDelta = (currentBatRead - batteryLastRead) / 60000;
             double delta = 0d;
             if (batDelta > 0L) {
-                delta = (currentLevel - lastBatteryLevel) / ((batDelta) / 60000);
+                delta = (currentLevel - lastBatteryLevel) / (batDelta) ;
             }
             if (delta > batteryDelta) {
                 batteryDelta = delta;
@@ -3580,7 +3594,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 battery.put("percent", getPumpStatusData().batteryRemaining);
             }
             result.put("battery", battery);
-
+            result.put("clock", DateUtil.toISOString(getPumpStatusData().lastDateTime));
         } catch (JSONException e) {
             e.printStackTrace();
         }

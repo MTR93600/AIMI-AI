@@ -16,6 +16,7 @@ public class MedLinkConst {
 
     static final String Prefix = "AAPS.MedLink.";
 
+    public static String DEVICE_MAC_ADDRESS=null;
     public static final List<String> DEVICE_NAME = Collections.unmodifiableList(
             new ArrayList<String>() {{
                 add("MEDLINK");

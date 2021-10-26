@@ -850,10 +850,12 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             }
             return s;
         });
-        rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.BolusStatus,
-                activity,
-                medLinkPumpPlugin.getBtSleepTime()
-        ));
+        if(System.currentTimeMillis() - lastGoodReceiverCommunicationTime > 400000) {
+            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.BolusStatus,
+                    activity,
+                    medLinkPumpPlugin.getBtSleepTime()
+            ));
+        }
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
         //nextWakeUpRequired = System.currentTimeMillis() + (receiverDeviceAwakeForMinutes * 60 * 1000);
     }
@@ -1074,7 +1076,6 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     public Boolean setBolus(MedLinkPumpMessage pumpMessage) {
         aapsLogger.info(LTag.PUMPCOMM, "setBolus: " + pumpMessage);
         return setCommand(pumpMessage);
-
     }
 
 

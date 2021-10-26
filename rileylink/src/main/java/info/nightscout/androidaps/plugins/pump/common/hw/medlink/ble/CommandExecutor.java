@@ -85,7 +85,8 @@ public abstract class CommandExecutor implements Runnable {
         aapsLogger.info(LTag.PUMPBTCOMM,medLinkPumpMessage.toString());
         aapsLogger.info(LTag.PUMPBTCOMM,""+commandPosition);
         return commandPosition > 1
-                || (medLinkPumpMessage.getArgument().isSameCommand(MedLinkCommandType.NoCommand) &&
+                || (MedLinkCommandType.NoCommand.isSameCommand(
+                        medLinkPumpMessage.getArgument()) &&
                 commandPosition > 0);
 
     }

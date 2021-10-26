@@ -51,17 +51,26 @@ public abstract class BleCommand implements Runnable {
             pumpResponse.append(System.currentTimeMillis()).append("\n");
         }
         pumpResponse.append(answer);
-//                pumpResponse.append("\n");
-        if (answer.trim().equals("invalid command")) {
+        if(answer.trim().contains("pump suspend state") && lastCommand.contains("x command confirmed")){
+            applyResponse(answer,currentCommand, bleComm);
             pumpResponse = new StringBuffer();
-//            bleComm.retryCommand();
+            if(currentCommand.getNrRetries()> 5){
+                bleComm.completedCommand();
+            }
+        }
+        if (answer.trim().equals("invalid command")) {
+            if(lastCommand.contains("suspended state") && currentCommand != null &&
+                    MedLinkCommandType.Bolus.isSameCommand(currentCommand.getCurrentCommand())){
+                applyResponse(answer,currentCommand, bleComm);
+            }
+            pumpResponse = new StringBuffer();
             return;
         }
         if (answer.trim().contains("firmware")) {
             //TODO impelement the logic to read the firmware version
             return;
         }
-        if (answer.trim().contains("time to powerdown")) {
+        if (answer.trim().contains("time to powerdown") && !answer.trim().contains("c command confirmed") ) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
             aapsLogger.info(LTag.PUMPBTCOMM, ""+currentCommand);
             if(currentCommand!=null) {
@@ -74,7 +83,7 @@ public abstract class BleCommand implements Runnable {
                 if (!bleComm.isCommandConfirmed() || currentCommand instanceof ContinuousCommandExecutor) {
                     bleComm.retryCommand();
                 } else {
-                    bleComm.removefirstCommand();
+                    bleComm.removeFirstCommand();
                     bleComm.nextCommand();
                 }
             }else{
@@ -166,6 +175,7 @@ public abstract class BleCommand implements Runnable {
 //                    bleComm.addExecuteConnectCommand();
 //                }
 //                bleComm.setConnected(true);
+//                aapsLogger.info("");
                 SystemClock.sleep(500);
                 bleComm.completedCommand();
                 return;
@@ -192,9 +202,9 @@ public abstract class BleCommand implements Runnable {
 //            aapsLogger.info(LTag.PUMPBTCOMM, answers);
             aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.toString());
             aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.nextCommand().toString());
+
             if (currentCommand.getCurrentCommand() != null)
                 aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.getCurrentCommand().toString());
-
 
             if (answers.contains("check pump status") && (answers.contains("pump suspend state") ||
                     answers.contains("pump normal state")) &&

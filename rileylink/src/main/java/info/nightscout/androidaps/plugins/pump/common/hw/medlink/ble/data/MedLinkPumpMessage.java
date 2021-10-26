@@ -16,6 +16,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLink
  */
 public class MedLinkPumpMessage<B> //implements RLMessage
 {
+
+    private boolean priority = false;
     private final MedLinkCommandType commandType;
 
     protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> argCallback;
@@ -42,12 +44,21 @@ public class MedLinkPumpMessage<B> //implements RLMessage
     public MedLinkPumpMessage(MedLinkCommandType commandType,
                               MedLinkCommandType argument,
                               Function<Supplier<Stream<String>>,
-                              MedLinkStandardReturn<B>> baseCallback,
-                              Long btSleepTime) {
+                                      MedLinkStandardReturn<B>> baseCallback,
+                              Long btSleepTime,
+                              boolean priority) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
         this.btSleepTime = btSleepTime;
+        this.priority = priority;
+    }
+    public MedLinkPumpMessage(MedLinkCommandType commandType,
+                              MedLinkCommandType argument,
+                              Function<Supplier<Stream<String>>,
+                              MedLinkStandardReturn<B>> baseCallback,
+                              Long btSleepTime) {
+        this(commandType, argument, baseCallback, btSleepTime, false);
     }
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
@@ -114,5 +125,9 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                 ", baseCallback=" + baseCallback +
                 ", btSleepTime=" + btSleepTime +
                 '}';
+    }
+
+    public boolean isPriority() {
+        return priority;
     }
 }

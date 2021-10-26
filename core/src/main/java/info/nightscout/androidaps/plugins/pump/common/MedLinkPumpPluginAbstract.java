@@ -78,5 +78,6 @@ public abstract class MedLinkPumpPluginAbstract extends PumpPluginAbstract {
     protected abstract void deliverBolus(DetailedBolusInfo detailedBolusInfo,
                                          @NotNull Function1<? super PumpEnactResult, Unit> func);
 
-    public abstract void startPump(Callback callback);
+    public abstract void startPump(Callback callback, boolean prepend);
+
 }
