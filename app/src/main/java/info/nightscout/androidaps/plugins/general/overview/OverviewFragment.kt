@@ -26,6 +26,7 @@ import dagger.android.HasAndroidInjector
 import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.R
+import info.nightscout.androidaps.data.IobTotal
 import info.nightscout.androidaps.data.ProfileSealed
 import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.entities.UserEntry.Action
@@ -61,11 +62,6 @@ import info.nightscout.androidaps.plugins.source.DexcomPlugin
 import info.nightscout.androidaps.plugins.source.XdripPlugin
 import info.nightscout.androidaps.queue.CommandQueue
 import info.nightscout.androidaps.skins.SkinProvider
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.DefaultValueHelper
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.ToastUtils
-import info.nightscout.androidaps.utils.TrendCalculator
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.protection.ProtectionCheck
@@ -82,6 +78,13 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.min
+import info.nightscout.androidaps.database.entities.Bolus
+import info.nightscout.androidaps.utils.*
+import info.nightscout.androidaps.utils.stats.TirCalculator
+import info.nightscout.androidaps.utils.T
+import info.nightscout.androidaps.utils.DateUtil
+
+
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
@@ -118,6 +121,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
     @Inject lateinit var overviewData: OverviewData
     @Inject lateinit var overviewPlugin: OverviewPlugin
+    private val millsToThePast = T.hours(4).msecs()
+
 
     private val disposable = CompositeDisposable()
 
@@ -132,8 +137,11 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     private val secondaryGraphsLabel = ArrayList<TextView>()
 
     private var carbAnimation: AnimationDrawable? = null
+    private var insulinAnimation: AnimationDrawable? = null
 
     private var _binding: OverviewFragmentBinding? = null
+    private var lastBolusNormalTime: Long = 0
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -175,6 +183,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         carbAnimation = binding.infoLayout.carbsIcon.background as AnimationDrawable?
         carbAnimation?.setEnterFadeDuration(1200)
         carbAnimation?.setExitFadeDuration(1200)
+        insulinAnimation = binding.infoLayout.overviewInsulinIcon.background as AnimationDrawable?
+        insulinAnimation?.setEnterFadeDuration(1200)
+        insulinAnimation?.setExitFadeDuration(1200)
 
 
         binding.graphsLayout.bgGraph.setOnLongClickListener {
@@ -366,6 +377,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
         }
     }
+    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
 
     override fun onLongClick(v: View): Boolean {
         when (v.id) {
@@ -679,34 +691,86 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 binding.statusLightsLayout.statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
                 statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge, binding.statusLightsLayout.insulinAge, binding.statusLightsLayout.reservoirLevel, binding.statusLightsLayout.sensorAge, null, binding.statusLightsLayout.pbAge, binding.statusLightsLayout.batteryLevel)
                 processButtonsVisibility()
+
+
+
+
+
                 processAps()
             }
 
             OverviewData.Property.IOB_COB          -> {
-                binding.infoLayout.iob.text = overviewData.iobText
-                binding.infoLayout.iobLayout.setOnClickListener {
-                    activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
+                var now = System.currentTimeMillis()
+                bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
+                var iTimeSettings = (SafeParse.stringToDouble(sp.getString(R.string.key_iTime, "180")))
+                var iTimeUpdate = (now - lastBolusNormalTime) / 60000
+                val StatTIR = TirCalculator(resourceHelper, profileFunction, dateUtil,repository)
+                val statinrange = StatTIR.averageTIR(StatTIR.calculate(7,70.0,180.0)).inRangePct()
+                val statTirBelow = StatTIR.averageTIR(StatTIR.calculate(7,70.0,180.0)).belowPct()
+                val currentTIRLow = StatTIR.averageTIR(StatTIR.calculateDaily(80.0,180.0)).belowPct()
+                val currentTIRRange = StatTIR.averageTIR(StatTIR.calculateDaily(80.0,180.0)).inRangePct()
+                val currentTIRAbove = StatTIR.averageTIR(StatTIR.calculateDaily(80.0,180.0)).abovePct()
+                val CurrentTIR_70_140_Above = StatTIR.averageTIR(StatTIR.calculateDaily(70.0,140.0)).abovePct()
+                if (iTimeUpdate < iTimeSettings && currentTIRRange <= 96 && currentTIRAbove <= 1 && currentTIRLow >=4 && statinrange <= 95 && statTirBelow >= 4 && CurrentTIR_70_140_Above <= 20) run {
+                    iTimeSettings = iTimeSettings * 0.7
                 }
-                // cob
-                var cobText = overviewData.cobInfo?.displayText(resourceHelper, dateUtil, buildHelper.isDev()) ?: resourceHelper.gs(R.string.value_unavailable_short)
 
-                val constraintsProcessed = loopPlugin.lastRun?.constraintsProcessed
-                val lastRun = loopPlugin.lastRun
-                if (config.APS && constraintsProcessed != null && lastRun != null) {
-                    if (constraintsProcessed.carbsReq > 0) {
-                        //only display carbsreq when carbs have not been entered recently
-                        if (overviewData.lastCarbsTime < lastRun.lastAPSRun) {
-                            cobText += " | " + constraintsProcessed.carbsReq + " " + resourceHelper.gs(R.string.required)
-                        }
-                        if (carbAnimation?.isRunning == false)
-                            carbAnimation?.start()
-                    } else {
-                        carbAnimation?.stop()
-                        carbAnimation?.selectDrawable(0)
-                    }
+                binding.infoLayout.iob.text = overviewData.iobText
+                var bolusIob: IobTotal? = null
+                var basalIob: IobTotal? = null
+                   if (iTimeUpdate < iTimeSettings) {
+                       binding.infoLayout.iobLayout.setOnClickListener {
+                           activity?.let {
+                               if (bolusIob != null) {
+                                   if (basalIob != null) {
+                                       OKDialog.show(
+                                           it, resourceHelper.gs(R.string.iob),
+                                           resourceHelper.gs(R.string.formatinsulinunits, bolusIob.iob + basalIob.basaliob) + "\n" +
+                                               resourceHelper.gs(R.string.bolus) + ": " + resourceHelper.gs(R.string.formatinsulinunits, bolusIob.iob) + "\n" +
+                                               resourceHelper.gs(R.string.basal) + ": " + resourceHelper.gs(R.string.formatinsulinunits, basalIob.basaliob) + "\n" +
+                                               resourceHelper.gs(R.string.iTime) + ": " + resourceHelper.gs(R.string.format_mins, iTimeUpdate)
+                                       )
+                                   }
+                               }
+                           }
+                       }
+                   }else {
+
+                       binding.infoLayout.iobLayout.setOnClickListener {
+                           activity?.let { OKDialog.show(it, resourceHelper.gs(R.string.iob), overviewData.iobDialogText) }
+                       }
+                   }
+
+
+                if (iTimeUpdate < iTimeSettings && insulinAnimation?.isRunning == false) {
+                    insulinAnimation?.start()
+                }else{
+                    insulinAnimation?.stop()
+                    insulinAnimation?.selectDrawable(0)
                 }
-                binding.infoLayout.cob.text = cobText
-            }
+                    // cob
+
+                    var cobText = overviewData.cobInfo?.displayText(resourceHelper, dateUtil, buildHelper.isDev()) ?: resourceHelper.gs(R.string.value_unavailable_short)
+
+                    val constraintsProcessed = loopPlugin.lastRun?.constraintsProcessed
+                    val lastRun = loopPlugin.lastRun
+
+                    if (config.APS && constraintsProcessed != null && lastRun != null) {
+                        if (constraintsProcessed.carbsReq > 0) {
+                            //only display carbsreq when carbs have not been entered recently
+                            if (overviewData.lastCarbsTime < lastRun.lastAPSRun) {
+                                cobText += " | " + constraintsProcessed.carbsReq + " " + resourceHelper.gs(R.string.required)
+                            }
+                            if (carbAnimation?.isRunning == false)
+                                carbAnimation?.start()
+                        } else {
+                            carbAnimation?.stop()
+                            carbAnimation?.selectDrawable(0)
+                        }
+                    }
+                    binding.infoLayout.cob.text = cobText
+                }
+
 
             OverviewData.Property.TEMPORARY_TARGET -> {
                 // temp target
