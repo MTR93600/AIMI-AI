@@ -35,9 +35,7 @@ import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
-
-
-
+import info.nightscout.androidaps.utils.stats.TirCalculator
 
 class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector) {
 
@@ -62,6 +60,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var currentTime: Long = 0
     private var saveCgmSource = false
     private var lastBolusNormalTime: Long = 0
+    private var tddAIMI: TddCalculator? = null
+    private var StatTIR: TirCalculator? = null
     private val millsToThePast = T.hours(4).msecs()
     var currentTempParam: String? = null
         private set
@@ -278,11 +278,19 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
-        val tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
-        this.mealData.put("TDDAIMI7",tddAIMI.averageTDD(tddAIMI.calculate(7)).totalAmount)
-        this.mealData.put("TDDAIMI1",tddAIMI.averageTDD(tddAIMI.calculate(1)).totalAmount)
-        this.mealData.put("TDDPUMP",tddAIMI.calculateDaily().totalAmount)
+        tddAIMI = TddCalculator(aapsLogger,resourceHelper,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
+        this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
+        this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
+        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
         //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
+        StatTIR = TirCalculator(resourceHelper,profileFunction,dateUtil,repository)
+        this.mealData.put("StatLow7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 70.0, 180.0)).belowPct())
+        this.mealData.put("StatInRange7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 70.0, 180.0)).inRangePct())
+        this.mealData.put("StatAbove7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 70.0, 180.0)).abovePct())
+        this.mealData.put("currentTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 180.0)).belowPct())
+        this.mealData.put("currentTIRRange", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 180.0)).inRangePct())
+        this.mealData.put("currentTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 180.0)).abovePct())
+        this.mealData.put("currentTIR_70_140_Above", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(70.0, 140.0)).abovePct())
 
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
@@ -295,6 +303,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         currentTime = now
         saveCgmSource = isSaveCgmSource
     }
+
+
 
     private fun makeParam(jsonObject: JSONObject?, rhino: Context, scope: Scriptable): Any {
         return if (jsonObject == null) Undefined.instance

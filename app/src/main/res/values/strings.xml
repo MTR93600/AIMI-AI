@@ -1116,6 +1116,7 @@
     <string name="fulluam_maxiob_summary">This value is called Max IOB in AIMI context\nAIMI will not add more insulin if current IOB is greater than this value</string>
 
     <string name="iTime">iTime</string>
+    <string name="iTimeSettings">iTime</string>
     <string name="key_iTime" translatable="false">iTime</string>
     <string name="iTime_title">iTime</string>
     <string name="iTime_summary">iTime is the duration in minutes of the meal who authorize larger SMB. This variable was created to let child/teenager adapt this value</string>

@@ -3,6 +3,7 @@ package info.nightscout.androidaps.utils.stats
 import android.text.Spanned
 import android.util.LongSparseArray
 import info.nightscout.androidaps.Constants
+import info.nightscout.androidaps.MainApp
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.database.AppRepository
@@ -37,6 +38,29 @@ class TirCalculator @Inject constructor(
             if (tir == null) {
                 tir = TIR(midnight, lowMgdl, highMgdl)
                 result.append(midnight, tir)
+            }
+            if (bg.value < 39) tir.error()
+            if (bg.value >= 39 && bg.value < lowMgdl) tir.below()
+            if (bg.value in lowMgdl..highMgdl) tir.inRange()
+            if (bg.value > highMgdl) tir.above()
+        }
+        return result
+    }
+
+    fun calculateDaily(lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR> {
+        if (lowMgdl < 39) throw RuntimeException("Low below 39")
+        if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
+        val startTime = MidnightTime.calc(dateUtil.now())
+        val endTime = dateUtil.now()
+        val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
+
+        val result = LongSparseArray<TIR>()
+        for (bg in bgReadings) {
+            //val midnight = MidnightTime.calc(bg.date)
+            var tir = result[startTime]
+            if (tir == null) {
+                tir = TIR(startTime, lowMgdl, highMgdl)
+                result.append(startTime, tir)
             }
             if (bg.value < 39) tir.error()
             if (bg.value >= 39 && bg.value < lowMgdl) tir.below()
