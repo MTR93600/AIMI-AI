@@ -318,7 +318,6 @@ class DateUtil @Inject constructor(private val context: Context) {
                 .firstOrNull() ?: ZoneId.of("UTC")
         )
 
-    companion object {
 
         private val timeStrings = LongSparseArray<String>()
 
@@ -326,4 +325,3 @@ class DateUtil @Inject constructor(private val context: Context) {
         private var dfs: DecimalFormatSymbols? = null
         private var df: DecimalFormat? = null
     }
-}
