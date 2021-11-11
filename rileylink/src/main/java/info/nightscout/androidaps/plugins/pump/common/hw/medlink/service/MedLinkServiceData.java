@@ -24,7 +24,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLin
 @Singleton
 public class MedLinkServiceData {
 
-    public Integer batteryLevel;
+    public Integer batteryLevel=0;
     @Inject AAPSLogger aapsLogger;
     @Inject MedLinkUtil medLinkUtil;
     @Inject RxBusWrapper rxBus;

@@ -49,7 +49,9 @@ class StatusLightHandler @Inject constructor(
                     handleAge(careportal_pb_age, CareportalEvent.PUMPBATTERYCHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
                 }
                 handleLevel(medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
-                    pump.pumpStatusData.deviceBatteryRemaining.toDouble(), "%")
+                    pump.rileyLinkService.medLinkServiceData.batteryLevel.toDouble()
+                    // pump.pumpStatusData.deviceBatteryRemaining.toDouble()
+                    , "%")
             } else {
                 medlink_battery_level?.visibility = false.toVisibility()
             }

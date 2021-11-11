@@ -11,9 +11,11 @@ import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 
 /**
  * Created by Dirceu on 01/04/21.
@@ -32,8 +34,9 @@ public abstract class CommandExecutor implements Runnable {
         this.aapsLogger = aapsLogger;
     }
 
-    protected CommandExecutor(MedLinkCommandType medLinkPumpMessage, AAPSLogger aapsLogger) {
-        this(new MedLinkPumpMessage(medLinkPumpMessage), aapsLogger);
+    protected CommandExecutor(MedLinkCommandType commandType, AAPSLogger aapsLogger, MedLinkServiceData medLinkServiceData) {
+        this(new MedLinkPumpMessage(commandType,
+                new BleCommand(aapsLogger, medLinkServiceData)), aapsLogger);
     }
 
 //
@@ -114,5 +117,10 @@ public abstract class CommandExecutor implements Runnable {
 
     public int getNrRetries() {
         return nrRetries;
+    }
+
+    public boolean matches(MedLinkPumpMessage<?> ext){
+        return this.getMedLinkPumpMessage().getCommandType().isSameCommand(ext.getCommandType())
+                && this.getMedLinkPumpMessage().getArgument().isSameCommand(ext.getArgument());
     }
 }

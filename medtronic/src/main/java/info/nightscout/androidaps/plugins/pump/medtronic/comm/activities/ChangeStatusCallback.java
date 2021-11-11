@@ -61,7 +61,6 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
                 return PumpDriverState.Busy;
             }
         });
-
         return new MedLinkStandardReturn<>(a, result.orElse(PumpDriverState.Busy));
     }
 }

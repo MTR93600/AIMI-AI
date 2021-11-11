@@ -350,7 +350,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         //DeviceBattery
-        val deviceBatteryRemaining = medtronicPumpStatus.deviceBatteryRemaining
+        val deviceBatteryRemaining = medinkServiceData.batteryLevel
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 

@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 
 /**
@@ -23,11 +24,12 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 //        super.baseCallBack = new BolusCallback();
 //    }
 
-    public BolusMedLinkMessage(double bolusAmount,
+    public BolusMedLinkMessage(MedLinkCommandType bolusCommand,
+                               double bolusAmount,
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<String>> bolusCallback,
-                               BolusProgressCallback bolusProgressCallback) {
-        super( MedLinkCommandType.Bolus);
+                               BolusProgressCallback bolusProgressCallback, BleBolusCommand bleBolusCommand) {
+        super( bolusCommand, bleBolusCommand);
         bolusArgument.insulinAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;

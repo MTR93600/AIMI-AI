@@ -31,6 +31,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Base
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
@@ -342,25 +343,25 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     }
 
 
-    private void runCommandWithArgs(MedLinkCommandType command, MedLinkCommandType args,
-                                    Function resultActivity, Function argResultActivity) throws RileyLinkCommunicationException {
-
-        Function activity;
-        Function argActivity;
-        if (argResultActivity != null) {
-            argActivity = addPostProcessCommand(argResultActivity);
-            activity = resultActivity;
-
-        } else {
-            activity = addPostProcessCommand(resultActivity);
-            argActivity = argResultActivity;
-        }
-
-        rfspy.transmitThenReceive(makePumpMessage(command, args, activity,
-                argActivity, medLinkPumpPlugin.getBtSleepTime()));
-        //TODO avaliar este retorno
-
-    }
+//    private void runCommandWithArgs(MedLinkCommandType command, MedLinkCommandType args,
+//                                    Function resultActivity, Function argResultActivity) throws RileyLinkCommunicationException {
+//
+//        Function activity;
+//        Function argActivity;
+//        if (argResultActivity != null) {
+//            argActivity = addPostProcessCommand(argResultActivity);
+//            activity = resultActivity;
+//
+//        } else {
+//            activity = addPostProcessCommand(resultActivity);
+//            argActivity = argResultActivity;
+//        }
+//
+//        rfspy.transmitThenReceive(makePumpMessage(command, args, activity,
+//                argActivity, medLinkPumpPlugin.getBtSleepTime()));
+//        //TODO avaliar este retorno
+//
+//    }
 
 
     private MedLinkPumpMessage runCommandWithArgs(MedLinkPumpMessage msg) throws RileyLinkCommunicationException {
@@ -640,27 +641,27 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 //    }
 
 
-    private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
-                                                      MedLinkCommandType argument,
-                                                      Function<Supplier<Stream<String>>,
-                                                              MedLinkStandardReturn<B>> baseResultActivity,
-                                                      long btSleepSize) {
-
-        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> activity = baseResultActivity.andThen(f -> {
-            if (f.getErrors().isEmpty()) {
-                medLinkMedtronicUtil.setCurrentCommand(null);
-            }
-            return f;
-        });
-        return new MedLinkPumpMessage<B>(messageType, argument, activity,
-                btSleepSize);
-    }
+//    private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
+//                                                      MedLinkCommandType argument,
+//                                                      Function<Supplier<Stream<String>>,
+//                                                              MedLinkStandardReturn<B>> baseResultActivity,
+//                                                      long btSleepSize) {
+//
+//        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> activity = baseResultActivity.andThen(f -> {
+//            if (f.getErrors().isEmpty()) {
+//                medLinkMedtronicUtil.setCurrentCommand(null);
+//            }
+//            return f;
+//        });
+//        return new MedLinkPumpMessage<B>(messageType, argument, activity,
+//                btSleepSize);
+//    }
 
     private <B> MedLinkPumpMessage<B> makePumpMessage(MedLinkCommandType messageType,
                                                       MedLinkCommandType argument,
                                                       Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseResultActivity,
                                                       Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argResultActivity,
-                                                      long btSleepSize) {
+                                                      long btSleepSize, BleCommand bleCommand) {
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> activity;
         if (argResultActivity != null) {
             activity =
@@ -676,11 +677,11 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         if (messageType == MedLinkCommandType.ActiveBasalProfile) {
             return new BasalMedLinkMessage<>(messageType, argument, baseResultActivity,
                     activity,
-                    btSleepSize);
+                    btSleepSize, bleCommand);
         } else {
             return new MedLinkPumpMessage(messageType, argument, baseResultActivity,
                     activity,
-                    medLinkPumpPlugin.getBtSleepTime());
+                    medLinkPumpPlugin.getBtSleepTime(), bleCommand);
         }
     }
 
@@ -736,14 +737,16 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                                                    MedLinkCommandType argument,
                                                    Function<Supplier<Stream<String>>,
                                                            MedLinkStandardReturn<B>> baseResultActivity,
-                                                   long btSleepTime) {
+                                                   long btSleepTime,
+                                                   BleCommand bleCommand) {
 
         aapsLogger.debug(LTag.PUMPCOMM, "getDataFromPump: {}", commandType);
 
         for (int retries = 0; retries < MAX_COMMAND_TRIES; retries++) {
 
             try {
-                MedLinkPumpMessage pumpMessage = makePumpMessage(commandType, argument, baseResultActivity, btSleepTime);
+                MedLinkPumpMessage pumpMessage = makePumpMessage(commandType, argument,
+                        baseResultActivity, null, btSleepTime,bleCommand);
                 //TODO look were to pu the medlink command result, here maybe a good place to
                 MedLinkPumpMessage response = sendAndGetResponse(pumpMessage);
 
@@ -824,7 +827,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     public <B> MedLinkMedtronicDeviceType getPumpModel(Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> activity) {
 
         Object responseObject = sendAndGetResponseWithCheck(MedLinkCommandType.Connect,
-                MedLinkCommandType.NoCommand, activity, medLinkPumpPlugin.getBtSleepTime());
+                MedLinkCommandType.NoCommand, activity, medLinkPumpPlugin.getBtSleepTime(),
+                new BleCommand(aapsLogger, medLinkServiceData));
 
         return responseObject == null ? null : (MedLinkMedtronicDeviceType) responseObject;
     }
@@ -851,9 +855,11 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             return s;
         });
         if(System.currentTimeMillis() - lastGoodReceiverCommunicationTime > 400000) {
-            rfspy.transmitThenReceive(new MedLinkPumpMessage<>(MedLinkCommandType.BolusStatus,
+            rfspy.transmitThenReceive(new MedLinkPumpMessage<String>(
+                    MedLinkCommandType.BolusStatus,
                     activity,
-                    medLinkPumpPlugin.getBtSleepTime()
+                    medLinkPumpPlugin.getBtSleepTime(),
+                    new BleCommand(aapsLogger,medLinkServiceData)
             ));
         }
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!
@@ -915,7 +921,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argCallback =
                     new ProfileCallback(injector, aapsLogger, context, medLinkPumpPlugin);
             MedLinkPumpMessage msg = makePumpMessage(commandType, MedLinkCommandType.BaseProfile, callback,
-                    argCallback, medLinkPumpPlugin.getBtSleepTime());
+                    argCallback, medLinkPumpPlugin.getBtSleepTime(),
+                    new BleCommand(aapsLogger, medLinkServiceData));
             // send and wait for response
             MedLinkPumpMessage response = sendAndListen(msg, DEFAULT_TIMEOUT + (DEFAULT_TIMEOUT * retries));
 //                aapsLogger.debug(LTag.PUMPCOMM,"1st Response: " + HexDump.toHexStringDisplayable(response.getRawContent()));
@@ -1014,7 +1021,9 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         Object responseObject = sendAndGetResponseWithCheck(MedLinkCommandType.GetState,
                 MedLinkCommandType.NoCommand,
                 new StatusCallback(aapsLogger,
-                        medLinkPumpPlugin, medtronicPumpStatus), medLinkPumpPlugin.getBtSleepTime());
+                        medLinkPumpPlugin, medtronicPumpStatus),
+                medLinkPumpPlugin.getBtSleepTime(),
+                new BleCommand(aapsLogger,medLinkServiceData));
 
         if (responseObject != null) {
             clockDTO.pumpTime = (LocalDateTime) responseObject;
@@ -1116,40 +1125,39 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     }
 
 
-    public boolean setCommand(MedLinkCommandType commandType, MedLinkCommandType args,
-                              Function resultActivity, Function argResultActivity) {
-
-//        for (int retries = 0; retries <= MAX_COMMAND_TRIES; retries++) {
-
-        try {
-//                if (this.doWakeUpBeforeCommand)
-//                    wakeUp(false);
-
-//                if (debugSetCommands)
-//                aapsLogger.debug(LTag.PUMPCOMM, "{}: Body - {}", commandType.getCommandDescription(),
-//                        ByteUtil.getHex(args));
-
-            runCommandWithArgs(commandType, args, resultActivity, argResultActivity);
-//                MedLinkMessage msg = makePumpMessage(commandType, new CarelinkLongMessageBody(body));
+//    public boolean setCommand(MedLinkPumpMessage msg) {
 //
-//                MedLinkMessage pumpMessage = runCommandWithArgs(msg);
+////        for (int retries = 0; retries <= MAX_COMMAND_TRIES; retries++) {
 //
-//                if (debugSetCommands)
-//                    aapsLogger.debug(LTag.PUMPCOMM, "{}: {}", commandType.getCommandDescription(), pumpMessage.getResponseContent());
+//        try {
+////                if (this.doWakeUpBeforeCommand)
+////                    wakeUp(false);
 //
-//                if (pumpMessage.commandType == MedLinkMedtronicCommandType.CommandACK) {
-//                    return true;
-//                } else {
-//                    aapsLogger.warn(LTag.PUMPCOMM, "We received non-ACK response from pump: {}", pumpMessage.getResponseContent());
-//                }
-
-        } catch (RileyLinkCommunicationException e) {
-            aapsLogger.warn(LTag.PUMPCOMM, "Error getting response from RileyLink (error={}, retry={})", e.getMessage(), 0);
-        }
+////                if (debugSetCommands)
+////                aapsLogger.debug(LTag.PUMPCOMM, "{}: Body - {}", commandType.getCommandDescription(),
+////                        ByteUtil.getHex(args));
+//
+//            runCommandWithArgs(commandType, args, resultActivity, argResultActivity);
+////                MedLinkMessage msg = makePumpMessage(commandType, new CarelinkLongMessageBody(body));
+////
+////                MedLinkMessage pumpMessage = runCommandWithArgs(msg);
+////
+////                if (debugSetCommands)
+////                    aapsLogger.debug(LTag.PUMPCOMM, "{}: {}", commandType.getCommandDescription(), pumpMessage.getResponseContent());
+////
+////                if (pumpMessage.commandType == MedLinkMedtronicCommandType.CommandACK) {
+////                    return true;
+////                } else {
+////                    aapsLogger.warn(LTag.PUMPCOMM, "We received non-ACK response from pump: {}", pumpMessage.getResponseContent());
+////                }
+//
+//        } catch (RileyLinkCommunicationException e) {
+//            aapsLogger.warn(LTag.PUMPCOMM, "Error getting response from RileyLink (error={}, retry={})", e.getMessage(), 0);
 //        }
-
-        return false;
-    }
+////        }
+//
+//        return false;
+//    }
 
 
     public boolean setCommand(MedLinkPumpMessage msg) {

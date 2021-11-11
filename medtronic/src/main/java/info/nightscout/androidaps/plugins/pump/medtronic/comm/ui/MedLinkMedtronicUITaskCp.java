@@ -151,7 +151,7 @@ public class MedLinkMedtronicUITaskCp {
 //                returnData = communicationManager.getPumpSettings();
 //            }
 //            break;
-
+            case SMBBolus:
             case Bolus: {
                 Double amount = pumpMessage.getArgument().insulinAmount;
 
@@ -181,8 +181,7 @@ public class MedLinkMedtronicUITaskCp {
             case PreviousBGHistory:
             case StopStartPump:
             case BGHistory: {
-                communicationManager.setCommand(pumpMessage.getCommandType(), pumpMessage.getArgument(),
-                        pumpMessage.getBaseCallback(), pumpMessage.getArgCallback());
+                communicationManager.setCommand(pumpMessage);
             }
             break;
 

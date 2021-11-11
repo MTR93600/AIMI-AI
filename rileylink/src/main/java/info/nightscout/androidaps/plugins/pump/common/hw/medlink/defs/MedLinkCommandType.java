@@ -24,8 +24,8 @@ public enum MedLinkCommandType {
     Connect("OK+CONN"),
     GetState("S"), //
     StopStartPump("a"),
-    Bolus("X"),
-    BolusAmount("BOLUS"),
+    Bolus("X", true),
+    BolusAmount("BOLUS", true),
     StartPump("START"),
     StopPump("STOP"),
     IsigHistory("I"),
@@ -35,9 +35,11 @@ public enum MedLinkCommandType {
     BolusHistory("H"),
     ActiveBasalProfile("E"),
     BaseProfile("F"),
-    Calibrate("k"),
-    CalibrateValue("kal"),
-    BolusStatus("M")
+    Calibrate("K", true),
+    CalibrateValue("CAL", true),
+    BolusStatus("M"),
+    SMBBolus("X", true),
+
 //    ,
 //    Enter("")//Current Active Profile
     // screenshots z C, H, E, I
@@ -57,7 +59,9 @@ public enum MedLinkCommandType {
     ;
 
     public final String code;
+    private final boolean needActivePump;
     public Double insulinAmount = 0d;
+    public int bgValue = 0;
     public Integer resourceId = null;
 
     public String getCommandDescription() {
@@ -68,8 +72,12 @@ public enum MedLinkCommandType {
 //        this.insulinAmount = insulinAmount;
 //    }
 
-    MedLinkCommandType(String command) {
+    MedLinkCommandType(String command){ this(command,false);
+    }
+
+    MedLinkCommandType(String command, boolean needActivePump) {
         this.code = command;
+        this.needActivePump = needActivePump;
     }
 
     public byte[] getRaw() {
@@ -82,6 +90,15 @@ public enum MedLinkCommandType {
             buff.append(this.insulinAmount.toString());
             buff.append("\r").append("\n");
             return buff.toString().getBytes(UTF_8);
+        } else if(bgValue!=0){
+            StringBuilder buff = new StringBuilder(this.code);
+            buff.append(" ");
+            if (this.bgValue < 100) {
+                buff.append("0");
+            }
+            buff.append(this.bgValue);
+            buff.append("\r").append("\n");
+            return buff.toString().getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {
             return new StringBuilder(this.code).append("\r").append("\n").toString().getBytes(UTF_8);
         } else {
@@ -89,22 +106,6 @@ public enum MedLinkCommandType {
         }
     }
 
-    public byte[] buildBolus(double minValueAmount) {
-
-        List<Byte> result = new ArrayList<>();
-        // Adding the array one-by-one into the list
-
-        // Converting the list to array and returning the array to the main method
-
-        Byte[] bolus = ArrayUtils.toObject(Bolus.getRaw());
-
-        Byte[] bolusAmount = ArrayUtils.toObject(BolusAmount.getRaw());
-        DecimalFormat formatter = new DecimalFormat("00.0");
-        Byte[] bolusValue = ArrayUtils.toObject(formatter.format(minValueAmount).replace(",", ".").getBytes(UTF_8));
-        Stream.of(bolusAmount, bolusValue).flatMap(Stream::of).forEach(result::add);
-        return ArrayUtils.toPrimitive(result.toArray(new Byte[result.size()]));
-
-    }
 
     //
 //    public MedLinkCommandType buildBolusCommand(double minValueAmount) {

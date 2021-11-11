@@ -77,7 +77,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 MedLinkConst.Intents.MedLinkDisconnect));
     }
 
-     protected MedLinkService getServiceInstance() {
+    protected MedLinkService getServiceInstance() {
         PumpInterface pump = activePlugin.getActivePump();
         MedLinkPumpDevice pumpDevice = (MedLinkPumpDevice) pump;
         return pumpDevice.getMedLinkService();
@@ -119,7 +119,6 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     }
 
 
-
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
@@ -134,7 +133,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 aapsLogger.debug(LTag.PUMPBTCOMM, "Received Broadcast: " + action);
 
                 if (!processBluetoothBroadcasts(action) && //
-                        !processMedLinkBroadcasts(action, context) && //
+                        !processMedLinkBroadcasts(intent, context) && //
                         !processTuneUpBroadcasts(action) && //
                         !processApplicationSpecificBroadcasts(action, intent) //
                 ) {
@@ -146,13 +145,14 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
     public boolean processApplicationSpecificBroadcasts(String action, Intent intent) {
         aapsLogger
-                .debug("Applicationspecificbroadcasts "+action);
+                .debug("Applicationspecificbroadcasts " + action);
         return false;
     }
 
-    protected boolean processMedLinkBroadcasts(String action, Context context) {
+    protected boolean processMedLinkBroadcasts(Intent message, Context context) {
         MedLinkService medLinkService = getServiceInstance();
-        aapsLogger.debug("processMedLinkBroadcasts "+action );
+        String action = message.getAction();
+        aapsLogger.debug("processMedLinkBroadcasts " + action);
         if (action.equals(MedLinkConst.Intents.MedLinkDisconnected)) {
 
             if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -165,22 +165,26 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                         MedLinkError.BluetoothDisabled);
             }
             return true;
-        } else if (action.equals(MedLinkConst.Intents.MedLinkReady)) {
+        } else if (action.startsWith(MedLinkConst.Intents.MedLinkReady)) {
             aapsLogger.warn(LTag.PUMPCOMM, "MedtronicConst.Intents.MedLinkReady");
             // sendIPCNotification(RT2Const.IPC.MSG_note_WakingPump);
 
 //            medLinkService.getMedLinkBLE().enableNotifications();
 //            medLinkService.getMedLinkRFSpy().startReader(); // call startReader from outside?
-
+            String[] actions = action.split("\n");
             medLinkService.getMedLinkRFSpy().initializeRileyLink();
             String bleVersion = medLinkService.getMedLinkRFSpy().getBLEVersionCached();
+
             RileyLinkFirmwareVersion rlVersion = medLinkServiceData.firmwareVersion;
 
 //            if (isLoggingEnabled())
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy version (BLE113): " + bleVersion);
-            medLinkService.getMedLinkServiceData().versionBLE113 = bleVersion;
+            if (message.getIntExtra("BatteryLevel",0) != 0) {
+                medLinkService.getMedLinkServiceData().versionBLE113 = message.getStringExtra("FirmwareVersion");
+                medLinkServiceData.batteryLevel = message.getIntExtra("BatteryLevel",0);
+            }
+            medLinkServiceData.versionBLE113 = bleVersion;
 
-//            if (isLoggingEnabled())
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
             this.medLinkServiceData.versionCC110 = rlVersion.name();
 
@@ -208,14 +212,16 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             medLinkService.disconnectRileyLink();
 
             return true;
-        } else if(action.equals(MedLinkConst.Intents.MedLinkConnected)){
+        } else if (action.equals(MedLinkConst.Intents.MedLinkConnected)) {
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
             return true;
-        }else if(action.equals(MedLinkConst.Intents.MedLinkConnectionError)){
+        } else if (action.equals(MedLinkConst.Intents.MedLinkConnectionError)) {
             aapsLogger.info(LTag.PUMP, "pump unreachable");
             medLinkServiceData.setServiceState(MedLinkServiceState.PumpConnectorError,
                     MedLinkError.NoContactWithDevice);
-            processMedLinkBroadcasts(RileyLinkConst.IPC.MSG_PUMP_tunePump, context);
+            Intent tuneUpMessage = new Intent();
+            tuneUpMessage.setAction(RileyLinkConst.IPC.MSG_PUMP_tunePump);
+            processMedLinkBroadcasts(tuneUpMessage, context);
             return true;
         } else {
             return false;

@@ -462,10 +462,10 @@ public class MedLinkStatusParser {
             }
             Pattern battery = Pattern.compile("\\d+%");
             Matcher batteryMatcher = battery.matcher(currentLine);
-            if (batteryMatcher.find()) {
-                String percentage = batteryMatcher.group(0);
-                pumpStatus.deviceBatteryRemaining = Integer.parseInt(percentage.substring(0, percentage.length() - 1));
-            }
+//            if (batteryMatcher.find()) {
+//                String percentage = batteryMatcher.group(0);
+//                pumpStatus.deviceBatteryRemaining = Integer.parseInt(percentage.substring(0, percentage.length() - 1));
+//            }
         }
         return pumpStatus;
     }

@@ -50,6 +50,10 @@ public class MedLinkUtil implements ConnectorUtil {
         this.setEncoding(encoding);
     }
 
+    public void sendBroadcastMessage(Intent message, Context context) {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(message);
+    }
+
     @Override public void sendBroadcastMessage(String message, Context context) {
         Intent intent = new Intent(message);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
