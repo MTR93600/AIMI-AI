@@ -289,7 +289,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                 String[] processed = processCharacteristics(new StringBuffer(previousLine), answer);
                 previousLine = processed[1];
                 answer = processed[0];
-
+                aapsLogger.info(LTag.PUMPBTCOMM, answer);
                 if (!answer.isEmpty()) {
                     if(currentCommand!=null && currentCommand.getMedLinkPumpMessage() != null){
                         currentCommand.getMedLinkPumpMessage().characteristicChanged(answer, that, lastCharacteristic);

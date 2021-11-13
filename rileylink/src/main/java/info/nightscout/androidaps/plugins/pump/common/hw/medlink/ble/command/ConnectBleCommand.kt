@@ -10,8 +10,10 @@ class ConnectBleCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServ
     BleCommand(aapsLogger, medlinkServiceData) {
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
-        if (answer!!.trim { it <= ' ' }.contains("ok+conn")) {
-            if (answer!!.trim { it <= ' ' }.contains("ok+conn or command")) {
+        aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
+        if (answer.trim { it <= ' ' }.contains("ok+conn")) {
+            if (answer.trim { it <= ' ' }.contains("ok+conn or command")) {
                 SystemClock.sleep(500)
                 bleComm!!.completedCommand()
                 return

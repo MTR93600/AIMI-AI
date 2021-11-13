@@ -39,7 +39,8 @@ public class BleCommand {
 
     public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {
 //        aapsLogger.info(LTag.PUMPBTCOMM,"char changed");
-
+        aapsLogger.info(LTag.PUMPBTCOMM, answer);
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand);
         CommandExecutor currentCommand = bleComm.getCurrentCommand();
         if (pumpResponse.length() == 0) {
             pumpResponse.append(System.currentTimeMillis()).append("\n");

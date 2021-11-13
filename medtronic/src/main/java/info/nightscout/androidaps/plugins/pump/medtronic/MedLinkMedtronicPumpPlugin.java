@@ -1211,10 +1211,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 //        readPumpBGHistory(true);
 
-//        if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_previous_bg_history))) {
+        if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_previous_bg_history))) {
             getPreviousBGHistory();
-//        }
+        }
         if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_last_bolus_history))) {
+            aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
             readBolusHistory();
         }
 
@@ -3348,9 +3349,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 this.lastDetailedBolusInfo = null;
             }
             activePlugin.getActiveTreatments().addToHistoryTreatment(bolusInfo, false);
-//            if (bolusInfo.deliverAt > lastBolusTime) {
-            lastBolusTime = bolusInfo.deliverAt;
-//            }
+            if (bolusInfo.deliverAt > lastBolusTime) {
+                lastBolusTime = bolusInfo.deliverAt;
+            }
         });
     }
 
@@ -3367,11 +3368,15 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     Math.abs(lastBolusTime - medLinkPumpStatus.lastBolusTime.getTime()) >
                             pumpTimeDelta + 60000
             ) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+
                 readBolusHistory();
             } else if (lastBolusTime > 0 && lastDetailedBolusInfo != null) {
                 lastBolusTime = lastDetailedBolusInfo.deliverAt;
                 if (sp.getBoolean(R.string.medlink_key_force_bolus_history_read, false) ||
                         getPumpStatusData().lastBolusAmount != lastDetailedBolusInfo.insulin) {
+                    aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+
                     readBolusHistory();
                 } else {
                     lastDetailedBolusInfo.deliverAt = getPumpStatusData().lastBolusTime.getTime();
@@ -3382,6 +3387,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
             } else if (lastBolusTime < getPumpStatusData().lastBolusTime.getTime()) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
                 readBolusHistory();
             }
         } else {

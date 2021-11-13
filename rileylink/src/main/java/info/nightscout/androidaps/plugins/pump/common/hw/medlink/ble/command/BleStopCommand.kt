@@ -14,24 +14,31 @@ class BleStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkService
     private var checkingStatus: Boolean = false
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
+        aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
         val answers = pumpResponse.toString()
         // if (answers.contains("check pump status")) {
         //     checkingStatus = true
         // } else
-        if (
-        // checkingStatus && (
-            answers.contains("pump suspend state")) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "status command")
-            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
-            pumpResponse = StringBuffer()
-            bleComm!!.completedCommand()
-        } else if (answers.contains("pump normal state")) {
-            bleComm!!.completedCommand()
-        } else if (answers.contains("pump bolusing state")) {
-            SystemClock.sleep(4000)
-            bleComm!!.retryCommand()
-        } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+        when {
+            // checkingStatus && (
+            answer.contains("pump suspend state")  -> {
+                aapsLogger.info(LTag.PUMPBTCOMM, "status command")
+                aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
+                pumpResponse = StringBuffer()
+                bleComm!!.removeFirstCommand(true)
+                bleComm.nextCommand()
+            }
+            answer.contains("pump normal state")   -> {
+                bleComm!!.completedCommand()
+            }
+            answer.contains("pump bolusing state") -> {
+                SystemClock.sleep(4000)
+                bleComm!!.retryCommand()
+            }
+            else                                   -> {
+                super.characteristicChanged(answer, bleComm, lastCommand)
+            }
         }
     }
 }

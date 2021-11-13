@@ -188,6 +188,8 @@ public class MedLinkBLEScanActivity extends NoSplashAppCompatActivity {
             runOnUiThread(() -> {
                 if (addDevice(scanRecord))
                     mLeDeviceListAdapter.notifyDataSetChanged();
+                scanRecord.getDevice()
+                aapsLogger.info(LTag.APS,scanRecord.getDevice().toString());
                 aapsLogger.info(LTag.APS,scanRecord.getScanRecord().toString());
             });
         }

@@ -21,7 +21,9 @@ class BleBolusCommand : BleSuspendedCommand {
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?,
                                        lastCommand: String?) {
-        if (answer!!.trim { it <= ' ' }.contains("set bolus")) {
+        aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
+        if (answer.trim { it <= ' ' }.contains("set bolus")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             bleComm?.completedCommand()
             // bleComm?.nextCommand()
