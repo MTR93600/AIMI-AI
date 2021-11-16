@@ -19,8 +19,8 @@ import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.db.BgReading;
 import info.nightscout.androidaps.db.SensorDataReading;
 import info.nightscout.androidaps.db.Source;
+import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPartialBolus;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
-
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 
 /**
@@ -80,7 +80,7 @@ public class MedLinkStatusParser {
             MedLinkPumpStatus bgMedLinkPumpStatus = parseBG(messageIterator, timeMedLinkPumpStatus, injector);
 
 
-            MedLinkPumpStatus lastBolusStatus = parseBolusInfo(messageIterator, bgMedLinkPumpStatus);
+            MedLinkPumpStatus lastBolusStatus = (MedLinkPumpStatus) parseBolusInfo(messageIterator, bgMedLinkPumpStatus);
 //                18:36:49.381
 //        18:36:49.495 Last bolus: 0.2u 13‑12‑20 18:32
 
@@ -137,13 +137,13 @@ public class MedLinkStatusParser {
         }
     }
 
-    public static MedLinkPumpStatus parseBolusInfo(Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
-        MedLinkPumpStatus status = parseLastBolus(messageIterator, pumpStatus);
+    public static MedLinkPartialBolus parseBolusInfo(Iterator<String> messageIterator, MedLinkPartialBolus pumpStatus) {
+        MedLinkPartialBolus status = parseLastBolus(messageIterator, pumpStatus);
         status = squareBolus(messageIterator, status);
         return status;
     }
 
-    private static MedLinkPumpStatus squareBolus(Iterator<String> messageIterator, MedLinkPumpStatus lastBolusStatus) {
+    private static MedLinkPartialBolus squareBolus(Iterator<String> messageIterator, MedLinkPartialBolus lastBolusStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
             if (currentLine.contains("square bolus:")) {
@@ -397,8 +397,8 @@ public class MedLinkStatusParser {
         return pumpStatus;
     }
 
-    private static MedLinkPumpStatus parseLastBolus
-            (Iterator<String> messageIterator, MedLinkPumpStatus pumpStatus) {
+    private static MedLinkPartialBolus parseLastBolus
+            (Iterator<String> messageIterator, MedLinkPartialBolus pumpStatus) {
         if (messageIterator.hasNext()) {
             String currentLine = messageIterator.next();
 //        18:36:49.495 Last bolus: 0.2u 13‑12‑20 18:32

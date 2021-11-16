@@ -182,9 +182,9 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             if (message.getIntExtra("BatteryLevel",0) != 0) {
                 medLinkService.getMedLinkServiceData().versionBLE113 = message.getStringExtra("FirmwareVersion");
                 medLinkServiceData.batteryLevel = message.getIntExtra("BatteryLevel",0);
+            }else {
+                medLinkServiceData.versionBLE113 = bleVersion;
             }
-            medLinkServiceData.versionBLE113 = bleVersion;
-
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
             this.medLinkServiceData.versionCC110 = rlVersion.name();
 

@@ -16,12 +16,9 @@ open class BleSuspendedCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedL
         aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
         if (answer.contains("pump suspend state")) {
-            val msg = MedLinkPumpMessage<String>(MedLinkCommandType.StopStartPump,
-                MedLinkCommandType.StartPump,
-                BleStartCommand(aapsLogger, medLinkServiceData))
-            bleComm?.currentCommand?.clearExecutedCommand();
-            bleComm?.addWriteCharacteristic(UUID.fromString(GattAttributes.SERVICE_UUID),
-                UUID.fromString(GattAttributes.GATT_UUID), msg, true)
+            bleComm?.needToBeStarted(UUID.fromString(GattAttributes.SERVICE_UUID),
+                UUID.fromString(GattAttributes.GATT_UUID), bleComm.currentCommand.currentCommand)
+            bleComm?.clearExecutedCommand();
             bleComm?.nextCommand()
         } else {
             super.characteristicChanged(answer, bleComm, lastCommand)

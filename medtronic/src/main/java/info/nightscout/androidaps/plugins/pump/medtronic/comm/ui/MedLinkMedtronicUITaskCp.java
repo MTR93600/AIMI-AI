@@ -151,6 +151,7 @@ public class MedLinkMedtronicUITaskCp {
 //                returnData = communicationManager.getPumpSettings();
 //            }
 //            break;
+            case TBRBolus:
             case SMBBolus:
             case Bolus: {
                 Double amount = pumpMessage.getArgument().insulinAmount;

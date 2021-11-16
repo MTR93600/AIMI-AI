@@ -29,9 +29,12 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusStatusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleConnectCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
@@ -43,7 +46,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMe
 import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.BasalCallback;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.ProfileCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.StatusCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.PumpMessage;
@@ -828,7 +830,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 
         Object responseObject = sendAndGetResponseWithCheck(MedLinkCommandType.Connect,
                 MedLinkCommandType.NoCommand, activity, medLinkPumpPlugin.getBtSleepTime(),
-                new BleCommand(aapsLogger, medLinkServiceData));
+                new BleConnectCommand(aapsLogger, medLinkServiceData));
 
         return responseObject == null ? null : (MedLinkMedtronicDeviceType) responseObject;
     }
@@ -859,7 +861,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                     MedLinkCommandType.BolusStatus,
                     activity,
                     medLinkPumpPlugin.getBtSleepTime(),
-                    new BleCommand(aapsLogger,medLinkServiceData)
+                    new BleBolusStatusCommand(aapsLogger,medLinkServiceData)
             ));
         }
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!

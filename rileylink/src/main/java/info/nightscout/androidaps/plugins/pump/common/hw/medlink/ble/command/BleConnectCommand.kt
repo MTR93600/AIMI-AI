@@ -6,7 +6,7 @@ import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 
-class ConnectBleCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
+class BleConnectCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
     BleCommand(aapsLogger, medlinkServiceData) {
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {

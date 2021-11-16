@@ -354,9 +354,9 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 
-        medtronic_devicestate_battery.text = "{fa-battery-${medtronicPumpStatus.deviceBatteryRemaining / 25} }  ${medtronicPumpStatus.deviceBatteryRemaining}%";
+        medtronic_devicestate_battery.text = "{fa-battery-${deviceBatteryRemaining/ 25} }  ${deviceBatteryRemaining}%";
 
-        warnColors.setColorInverse(medtronic_pumpstate_battery, medtronicPumpStatus.deviceBatteryRemaining.toDouble(), 25.0, 10.0)
+        warnColors.setColorInverse(medtronic_pumpstate_battery, deviceBatteryRemaining.toDouble(), 25.0, 10.0)
 
         // next calibration
         if (medtronicPumpStatus.nextCalibration != null) {

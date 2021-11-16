@@ -15,7 +15,7 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 /**
  * Created by Dirceu on 21/01/21.
  */
-public abstract class MedLinkPumpStatus extends PumpStatus {
+public abstract class MedLinkPumpStatus extends  MedLinkPartialBolus{
 
     public Integer sensorAge;
     public Double isig;
@@ -66,7 +66,6 @@ public abstract class MedLinkPumpStatus extends PumpStatus {
 
     public long lastBGTimestamp;
     public double latestBG;
-    public double bolusDeliveredAmount;
 
     public DetailedBolusInfo getLastBolusInfo(){
         DetailedBolusInfo result = new DetailedBolusInfo();

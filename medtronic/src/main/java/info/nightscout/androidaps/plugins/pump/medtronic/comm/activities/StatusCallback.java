@@ -47,7 +47,7 @@ public class StatusCallback extends BaseStatusCallback {
             aapsLogger.debug(pumpStatus.toString());
 
             medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
-            medLinkPumpPlugin.alreadyRunned();
+            medLinkPumpPlugin.alreadyRun();
             medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
             aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);

@@ -1,6 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.medtronic;
 
 
+import static info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType.PumpHistory;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -93,12 +95,16 @@ import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonS
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusDeliverCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusStatusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleConnectCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BlePartialCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStartCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStopCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusAnswer;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusStatusMedLinkMessage;
@@ -106,36 +112,34 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLin
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpInfo;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ResetRileyLinkConfigurationTask;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
+import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.BGHistoryCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.BasalCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.BolusHistoryCallback;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.ChangeStatusCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.IsigHistoryCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.ProfileCallback;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.StatusCallback;
+import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntryType;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryResult;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUITaskCp;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.MedLinkMedtronicHistoryData;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.NextStartStop;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.StartStopDateTime;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkModelParser;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpInfo;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ResetRileyLinkConfigurationTask;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
-import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil;
-import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.MedLinkMedtronicHistoryData;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfileEntry;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO;
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkModelParser;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
@@ -167,8 +171,6 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 import info.nightscout.androidaps.utils.sharedPreferences.SP;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
-
-import static info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType.PumpHistory;
 
 
 /**
@@ -273,7 +275,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                         return f;
                     });
 
-            MedLinkPumpMessage message = new MedLinkPumpMessage(MedLinkCommandType.StopStartPump,
+            MedLinkPumpMessage<PumpDriverState> message = new MedLinkPumpMessage<>(MedLinkCommandType.StopStartPump,
                     MedLinkCommandType.StopPump,
                     startStopFunction,
                     getBtSleepTime(), new BleStopCommand(aapsLogger,
@@ -319,7 +321,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         }
     }
 
-    public void alreadyRunned() {
+    public void alreadyRun() {
         firstRun = false;
     }
 
@@ -714,11 +716,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         //getAapsLogger().debug(LTag.PUMP, "HST: Target Date: " + targetDate);
 
 
-        MedLinkPumpMessage msg = new MedLinkPumpMessage(MedLinkCommandType.GetState,
+        MedLinkPumpMessage<MedLinkPumpStatus> msg = new MedLinkPumpMessage<>(MedLinkCommandType.GetState,
                 new StatusCallback(aapsLogger, this,
                         medLinkPumpStatus),
                 getBtSleepTime(),
-                new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BlePartialCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
         getMedLinkService().getMedtronicUIComm().executeCommandCP(msg);
 
         if (debugHistory)
@@ -974,7 +976,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     detailedBolusInfo.isTBR = true;
                     detailedBolusInfo.deliverAt = System.currentTimeMillis();
                     getAapsLogger().debug(LTag.APS, "applyAPSRequest: bolus()");
-                    Function1 callback = new Function1<PumpEnactResult, Unit>() {
+                    Function1<PumpEnactResult, Unit> callback = new Function1<PumpEnactResult, Unit>() {
                         @Override public Unit invoke(PumpEnactResult o) {
                             getAapsLogger().info(LTag.PUMPBTCOMM, "temp basal bolus " + o.toString());
                             if (o.success) {
@@ -1101,7 +1103,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 ChangeStatusCallback.OperationType.START, this);
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>> startStopFunction =
                 getStartStopCallback(oper, callback, function, true);
-        MedLinkPumpMessage msg = new MedLinkPumpMessage(
+        MedLinkPumpMessage<PumpDriverState> msg = new MedLinkPumpMessage<>(
                 MedLinkCommandType.StopStartPump,
                 MedLinkCommandType.StartPump, startStopFunction,
                 getBtSleepTime(),
@@ -1172,7 +1174,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkPumpMessage message = new MedLinkPumpMessage(MedLinkCommandType.Connect,
                     func,
                     getBtSleepTime(),
-                    new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                    new BleConnectCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
             medLinkService.getMedtronicUIComm().executeCommandCP(message);
         } else {
             if (medLinkPumpStatus.medtronicDeviceType != medtronicUtil.getMedtronicPumpModel()) {
@@ -1254,7 +1256,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         BolusHistoryCallback func =
                 new BolusHistoryCallback(aapsLogger, this);
 
-        MedLinkPumpMessage msg = new MedLinkPumpMessage(MedLinkCommandType.BolusHistory,
+        MedLinkPumpMessage<Stream<DetailedBolusInfo>> msg = new MedLinkPumpMessage<>(MedLinkCommandType.BolusHistory,
                 func,
                 getBtSleepTime()
                 , new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
@@ -1269,7 +1271,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         IsigHistoryCallback isigFunc =
                 new IsigHistoryCallback(getInjector(), this, aapsLogger, false, func);
 
-        MedLinkPumpMessage msg = new MedLinkPumpMessage(
+        MedLinkPumpMessage<Stream<BgReading>> msg = new MedLinkPumpMessage<>(
                 MedLinkCommandType.PreviousBGHistory,
 //                MedLinkCommandType.PreviousIsigHistory,
                 MedLinkCommandType.NoCommand,
@@ -1350,7 +1352,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 new BasalCallback(aapsLogger, this);
         ProfileCallback profileCallback =
                 new ProfileCallback(injector, aapsLogger, context, this);
-        MedLinkPumpMessage msg = new BasalMedLinkMessage(MedLinkCommandType.ActiveBasalProfile,
+        MedLinkPumpMessage<BasalProfile> msg = new BasalMedLinkMessage<>(MedLinkCommandType.ActiveBasalProfile,
                 MedLinkCommandType.BaseProfile, func, profileCallback,
                 getBtSleepTime()
                 , new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
@@ -2829,7 +2831,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
                 return new MedLinkStandardReturn<String>(() -> f.getAnswer(), f.getFunctionResult().getAnswer());
             });
-            MedLinkCommandType bolusCommand = detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
+            MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand,
                     detailedBolusInfo.insulin,
                     andThem, new BolusProgressCallback(
@@ -3111,7 +3113,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 });
                 stopAfter = true;
             }
-            MedLinkCommandType bolusCommand = detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
+            MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, detailedBolusInfo.insulin,
                     andThen, new BolusProgressCallback(medLinkPumpStatus,
                     resourceHelper,
@@ -3195,10 +3197,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         BolusDeliverCallback func =
                 new BolusDeliverCallback(getPumpStatusData(), this, aapsLogger,
                         detailedBolusInfo);
-        MedLinkPumpMessage msg = new BolusStatusMedLinkMessage(MedLinkCommandType.BolusStatus,
+        assert getMedLinkService() != null;
+        MedLinkPumpMessage<String> msg = new BolusStatusMedLinkMessage<>(MedLinkCommandType.BolusStatus,
                 func,
                 getBtSleepTime(),
-                new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
     }
 

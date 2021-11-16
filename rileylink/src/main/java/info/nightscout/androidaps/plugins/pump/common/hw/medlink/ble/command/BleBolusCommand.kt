@@ -26,7 +26,6 @@ class BleBolusCommand : BleSuspendedCommand {
         if (answer.trim { it <= ' ' }.contains("set bolus")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             bleComm?.completedCommand()
-            // bleComm?.nextCommand()
         } else {
             super.characteristicChanged(answer, bleComm, lastCommand)
         }

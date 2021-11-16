@@ -46,34 +46,29 @@ public class BleCommand {
             pumpResponse.append(System.currentTimeMillis()).append("\n");
         }
         pumpResponse.append(answer);
-//        if(answer.trim().contains("pump suspend state") && lastCommand.contains("x command confirmed")){
-//            applyResponse(answer,currentCommand, bleComm);
-//            pumpResponse = new StringBuffer();
-//            if(currentCommand.getNrRetries()> 5){
-//                bleComm.completedCommand();
-//            }
-//        }
-//        if (answer.trim().equals("invalid command")) {
-//            if(lastCommand.contains("suspended state") && currentCommand != null &&
-//                    MedLinkCommandType.Bolus.isSameCommand(currentCommand.getCurrentCommand())){
-//                applyResponse(answer,currentCommand, bleComm);
-//            }
-//            pumpResponse = new StringBuffer();
-//            return;
-//        }
-        if(answer.trim().contains("med-link battery")){
+
+        if (answer.startsWith("invalid command")) {
+            bleComm.setConfirmedCommand(false);
+            if (currentCommand != null && currentCommand.getCurrentCommand() != null) {
+                aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.getCurrentCommand().code);
+                if ((!bleComm.isBolus(currentCommand.getCurrentCommand()))) {
+                    bleComm.retryCommand();
+                }
+            }
+        }
+        if (answer.trim().contains("%") && lastCommand.trim().contains("med-link battery") ) {
             Pattern batteryPattern = Pattern.compile("\\d+");
-            Matcher batteryMatcher = batteryPattern.matcher(answer);
-            if(batteryMatcher.find()){
+            Matcher batteryMatcher = batteryPattern.matcher(lastCommand+answer);
+            if (batteryMatcher.find()) {
                 bleComm.setBatteryLevel(Integer.valueOf(batteryMatcher.group()));
             }
             return;
         }
         if (answer.trim().contains("firmware")) {
-//            String[] firmware = answer.split(" ");
-//            if(firmware.length == 3){
-//                bleComm.setFirmwareVersion(firmware[2]);
-//            }
+            String[] firmware = answer.split(" ");
+            if(firmware.length == 3){
+                bleComm.setFirmwareVersion(firmware[2]);
+            }
             return;
         }
         if (answer.trim().contains("time to powerdown")
@@ -140,11 +135,14 @@ public class BleCommand {
         }
 
 
-        if (answer.contains("ready") || answer.contains("eomeomeom")) {
+        if ((!lastCommand.contains("ready") && !lastCommand.contains("eomeomeom") &&
+                (lastCommand+answer).contains("ready")) ||
+                (!lastCommand.contains("eomeomeom")  && answer.contains("eomeomeom"))) {
 //                    release();
             bleComm.setConnected(true);
             aapsLogger.info(LTag.PUMPBTCOMM, "ready command");
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
+
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
 //            medLinkServiceData
 //            medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
@@ -196,9 +194,10 @@ public class BleCommand {
         }
     }
 
-    protected void applyResponse(String pumpResp, CommandExecutor currentCommand, MedLinkBLE bleComm) {
+    protected void applyResponse(String pumpResp, CommandExecutor currentCommand, MedLinkBLE
+            bleComm) {
         byte[] command = currentCommand.getCurrentCommand().getRaw();
-
+        aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.toString());
         Function function = currentCommand.nextFunction();
         bleComm.post(() -> {
             try {
