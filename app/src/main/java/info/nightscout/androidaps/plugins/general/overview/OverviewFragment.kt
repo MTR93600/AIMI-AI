@@ -97,6 +97,7 @@ import info.nightscout.androidaps.utils.T
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
+
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var aapsSchedulers: AapsSchedulers
@@ -134,6 +135,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     @Inject lateinit var bgQualityCheckPlugin: BgQualityCheckPlugin
 
 
+
+
     private val disposable = CompositeDisposable()
     public val millsToThePast = T.hours(4).msecs()
     private var smallWidth = false
@@ -151,6 +154,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     private var _binding: OverviewFragmentBinding? = null
     private var lastBolusNormalTime: Long = 0
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -852,7 +856,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         var iTimeSettings = (SafeParse.stringToDouble(sp.getString(R.string.key_iTime, "180")))
         var iTimeUpdate = (now - lastBolusNormalTime) / 60000
 
-        var lastCarbTime = (now - mealData.lastCarbTime) / 6000
+
+        //var lastCarbTime = (now - mealData.lastCarbTime) / 6000
         val StatTIR = TirCalculator(rh, profileFunction, dateUtil,repository)
         val statinrange = StatTIR.averageTIR(StatTIR.calculate(7,70.0,180.0)).inRangePct()
         val statTirBelow = StatTIR.averageTIR(StatTIR.calculate(7,70.0,180.0)).belowPct()
@@ -860,9 +865,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val currentTIRRange = StatTIR.averageTIR(StatTIR.calculateDaily(80.0,180.0)).inRangePct()
         val currentTIRAbove = StatTIR.averageTIR(StatTIR.calculateDaily(80.0,180.0)).abovePct()
         val CurrentTIR_70_140_Above = StatTIR.averageTIR(StatTIR.calculateDaily(70.0,140.0)).abovePct()
-        if (mealData.carbs != null){
+        /*if (mealData.carbs != null){
             iTimeUpdate = lastCarbTime
-        }
+        }*/
         if (iTimeUpdate < iTimeSettings && currentTIRRange <= 96 && currentTIRAbove <= 1 && currentTIRLow >=4 && statinrange <= 95 && statTirBelow >= 4 && CurrentTIR_70_140_Above <= 20) run {
             iTimeSettings *=  0.7
         }
