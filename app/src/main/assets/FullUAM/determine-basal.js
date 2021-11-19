@@ -454,12 +454,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             target_bg = hyper_target;
             halfBasalTarget = 160;
             var c = halfBasalTarget - normalTarget;
-            //sensitivityRatio = c/(c+target_bg-normalTarget);
-            sensitivityRatio = REBX;
+            sensitivityRatio = c/(c+target_bg-normalTarget);
+            //sensitivityRatio = REBX;
             // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-            //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+            sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
             sensitivityRatio = round(sensitivityRatio,2);
-            //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
+            console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
             basal = profile.current_basal * sensitivityRatio;
             basal = round_basal(basal, profile);
             if (basal !== profile_current_basal) {
@@ -485,12 +485,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         target_bg = hypo_target;
         halfBasalTarget = 160;
         var c = halfBasalTarget - normalTarget;
-        //sensitivityRatio = c/(c+target_bg-normalTarget);
-        sensitivityRatio = REBX;
+        sensitivityRatio = c/(c+target_bg-normalTarget);
+        //sensitivityRatio = REBX;
         // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-        //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
         sensitivityRatio = round(sensitivityRatio,2);
-        //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
+        console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
@@ -509,12 +509,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         target_bg = hyper_target;
         halfBasalTarget = 160;
         var c = halfBasalTarget - normalTarget;
-        //sensitivityRatio = c/(c+target_bg-normalTarget);
-        sensitivityRatio = REBX;
+        sensitivityRatio = c/(c+target_bg-normalTarget);
+        //sensitivityRatio = REBX;
         // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-        //sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
         sensitivityRatio = round(sensitivityRatio,2);
-        //console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
+        console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
         basal = profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
