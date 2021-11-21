@@ -861,7 +861,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                     MedLinkCommandType.BolusStatus,
                     activity,
                     medLinkPumpPlugin.getBtSleepTime(),
-                    new BleBolusStatusCommand(aapsLogger,medLinkServiceData)
+                    new BleCommand(aapsLogger,medLinkServiceData)
             ));
         }
         // FIXME wakeUp successful !!!!!!!!!!!!!!!!!!

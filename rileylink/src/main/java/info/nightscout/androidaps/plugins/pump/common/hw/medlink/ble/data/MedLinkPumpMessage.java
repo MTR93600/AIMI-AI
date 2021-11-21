@@ -155,4 +155,8 @@ public class MedLinkPumpMessage<B> //implements RLMessage
     public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {
         bleCommand.characteristicChanged(answer, bleComm, lastCommand);
     }
+
+    public void apply(MedLinkBLE bleComm) {
+        bleCommand.applyResponse(bleComm);
+    }
 }

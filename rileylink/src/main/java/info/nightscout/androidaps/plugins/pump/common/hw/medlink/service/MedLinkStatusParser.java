@@ -71,8 +71,7 @@ public class MedLinkStatusParser {
             while (messageIterator.hasNext()) {
                 message = messageIterator.next().trim();
 
-                if (parseDateTime(message, dateTimeFullPattern, true) != null &&
-                        message.contains("%")) {
+                if (parseDateTime(message, dateTimeFullPattern, true) != null) {
                     break;
                 }
             }
@@ -151,9 +150,11 @@ public class MedLinkStatusParser {
                 Matcher bolusMatcher = bolusPat.matcher(currentLine);
                 if(bolusMatcher.find()){
                     double bolusAmount = Double.parseDouble(bolusMatcher.group());
-                    if(bolusAmount> 0 && bolusMatcher.find()){
+                    if(bolusAmount> 0D && bolusMatcher.find()){
                         lastBolusStatus.lastBolusAmount = bolusAmount;
                         lastBolusStatus.bolusDeliveredAmount = Double.parseDouble(bolusMatcher.group());
+                    }else{
+                        lastBolusStatus.bolusDeliveredAmount = 0d;
                     }
                 }
             }

@@ -3042,10 +3042,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
             if (lastDetailedBolusInfo != null) {
-                readBolusData(detailedBolusInfo);
+                readBolusData(lastDetailedBolusInfo);
             }
             DetailedBolusInfo bolus = detailedBolusInfo.copy();
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this, detailedBolusInfo);
+            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this, bolus);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThen = bolusCallback.andThen(f -> {
                 Supplier<Stream<String>> answer = f::getAnswer;
 //                answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
@@ -3088,7 +3088,6 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 } else if (PumpResponses.DeliveringBolus.equals(f.getFunctionResult().getResponse())) {
                     lastDetailedBolusInfo = detailedBolusInfo;
                     lastBolusTime = System.currentTimeMillis();
-                    readBolusData(lastDetailedBolusInfo);
                     getAapsLogger().info(LTag.PUMPBTCOMM, "and themmmm");
                 }
                 Supplier<Stream<String>> recentBolus = () -> answer.get().filter(ans -> ans.contains("recent bolus"));
@@ -3105,7 +3104,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             });
             boolean stopAfter = false;
             if (getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Suspended) &&
-                    detailedBolusInfo.isSMB) {
+                    detailedBolusInfo.insulin > 0d) {
                 startPump(new Callback() {
                     @Override public void run() {
                         getAapsLogger().info(LTag.EVENTS, "starting pump for bolus");
@@ -3114,7 +3113,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 stopAfter = true;
             }
             MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
-            BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, detailedBolusInfo.insulin,
+            BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, bolus.insulin,
                     andThen, new BolusProgressCallback(medLinkPumpStatus,
                     resourceHelper,
                     rxBus, null,
@@ -3123,7 +3122,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
-
+            if(bolus.insulin>0.3d){
+                readBolusData(bolus);
+            }
             if (stopAfter) {
                 stopPump(new Callback() {
                     @Override public void run() {

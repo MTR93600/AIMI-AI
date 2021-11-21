@@ -11,11 +11,10 @@ open class BlePartialCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLin
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
-        if (answer!!.contains("time to powerdown") && !lastCommand!!.contains("ready")) {
+        if (answer.contains("time to powerdown") && !pumpResponse.toString().contains("ready")) {
             super.applyResponse(pumpResponse.toString(), bleComm?.currentCommand, bleComm)
-        } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
         }
+        super.characteristicChanged(answer, bleComm, lastCommand)
     }
 
 }

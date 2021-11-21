@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -85,11 +86,11 @@ public abstract class CommandExecutor implements Runnable {
     }
 
     public boolean hasFinished() {
-        aapsLogger.info(LTag.PUMPBTCOMM,medLinkPumpMessage.toString());
-        aapsLogger.info(LTag.PUMPBTCOMM,""+commandPosition);
+        aapsLogger.info(LTag.PUMPBTCOMM, medLinkPumpMessage.toString());
+        aapsLogger.info(LTag.PUMPBTCOMM, "" + commandPosition);
         return commandPosition > 1
                 || (MedLinkCommandType.NoCommand.isSameCommand(
-                        medLinkPumpMessage.getArgument()) &&
+                medLinkPumpMessage.getArgument()) &&
                 commandPosition > 0);
 
     }
@@ -119,8 +120,29 @@ public abstract class CommandExecutor implements Runnable {
         return nrRetries;
     }
 
-    public boolean matches(MedLinkPumpMessage<?> ext){
+    public boolean matches(MedLinkPumpMessage<?> ext) {
         return this.getMedLinkPumpMessage().getCommandType().isSameCommand(ext.getCommandType())
                 && this.getMedLinkPumpMessage().getArgument().isSameCommand(ext.getArgument());
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommandExecutor that = (CommandExecutor) o;
+        return !hasFinished() && !that.hasFinished() &&
+                medLinkPumpMessage.getCommandType() == that.medLinkPumpMessage.getCommandType() &&
+                medLinkPumpMessage.getArgument() == that.medLinkPumpMessage.getArgument();
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(medLinkPumpMessage, aapsLogger, commandPosition, functionPosition, currentCommand, nrRetries);
+    }
+
+    protected byte[] nextCommandData() {
+        if (commandPosition == 0) {
+            return medLinkPumpMessage.getCommandType().getRaw();
+        } else if (commandPosition == 1) {
+            return medLinkPumpMessage.getArgumentData();
+        } else return MedLinkCommandType.NoCommand.getRaw();
     }
 }

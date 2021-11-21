@@ -14,6 +14,7 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BatteryStatusDTO;
@@ -154,8 +155,7 @@ public class MedLinkMedtronicUITaskCp {
             case TBRBolus:
             case SMBBolus:
             case Bolus: {
-                Double amount = pumpMessage.getArgument().insulinAmount;
-
+                Double amount = ((BolusMedLinkMessage)pumpMessage).getBolusAmount();
                 if (amount != null && amount != 0d)
                     returnData = communicationManager.setBolus(pumpMessage);
             }

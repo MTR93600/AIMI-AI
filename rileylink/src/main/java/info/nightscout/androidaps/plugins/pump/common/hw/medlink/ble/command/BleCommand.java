@@ -56,22 +56,22 @@ public class BleCommand {
                 }
             }
         }
-        if (answer.trim().contains("%") && lastCommand.trim().contains("med-link battery") ) {
+        if (answer.trim().contains("%") && lastCommand.trim().contains("med-link battery")) {
             Pattern batteryPattern = Pattern.compile("\\d+");
-            Matcher batteryMatcher = batteryPattern.matcher(lastCommand+answer);
+            Matcher batteryMatcher = batteryPattern.matcher(lastCommand + answer);
             if (batteryMatcher.find()) {
                 bleComm.setBatteryLevel(Integer.valueOf(batteryMatcher.group()));
             }
             return;
         }
-        if (answer.trim().contains("firmware")) {
-            String[] firmware = answer.split(" ");
-            if(firmware.length == 3){
+        if (lastCommand.trim().contains("firmware")) {
+            String[] firmware = (lastCommand + answer).split(" ");
+            if (firmware.length == 3) {
                 bleComm.setFirmwareVersion(firmware[2]);
             }
             return;
         }
-        if (answer.trim().contains("time to powerdown")
+        if ((lastCommand + answer).trim().contains("time to powerdown")
 //                && !answer.trim().contains("c command confirmed")
         ) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString());
@@ -136,8 +136,8 @@ public class BleCommand {
 
 
         if ((!lastCommand.contains("ready") && !lastCommand.contains("eomeomeom") &&
-                (lastCommand+answer).contains("ready")) ||
-                (!lastCommand.contains("eomeomeom")  && answer.contains("eomeomeom"))) {
+                (lastCommand + answer).contains("ready")) ||
+                (!lastCommand.contains("eomeomeom") && answer.contains("eomeomeom"))) {
 //                    release();
             bleComm.setConnected(true);
             aapsLogger.info(LTag.PUMPBTCOMM, "ready command");
@@ -194,6 +194,10 @@ public class BleCommand {
         }
     }
 
+    public void applyResponse(MedLinkBLE bleComm) {
+        this.applyResponse(pumpResponse.toString(), bleComm.getCurrentCommand(), bleComm);
+    }
+
     protected void applyResponse(String pumpResp, CommandExecutor currentCommand, MedLinkBLE
             bleComm) {
         byte[] command = currentCommand.getCurrentCommand().getRaw();
@@ -206,9 +210,9 @@ public class BleCommand {
                 if (function != null) {
 //                aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
                     Function func = function.andThen(f -> {
-                        if (pumpResp.contains("ready")) {
-                            bleComm.applyClose();
-                        }
+//                        if (pumpResp.contains("ready")) {
+//                            bleComm.applyClose();
+//                        }
                         return f;
                     });
                     MedLinkStandardReturn<Stream> lastResult = null;

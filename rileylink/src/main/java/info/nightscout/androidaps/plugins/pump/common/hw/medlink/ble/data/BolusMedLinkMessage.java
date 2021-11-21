@@ -16,6 +16,7 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     private static MedLinkCommandType bolusArgument = MedLinkCommandType.BolusAmount;
     private final BolusProgressCallback bolusProgressCallback;
+    private final double bolusAmount;
 
 //    public BolusMedLinkMessage(double bolusAmount) {
 //        super( MedLinkCommandType.Bolus);
@@ -30,10 +31,19 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
                                        MedLinkStandardReturn<String>> bolusCallback,
                                BolusProgressCallback bolusProgressCallback, BleBolusCommand bleBolusCommand) {
         super( bolusCommand, bleBolusCommand);
-        bolusArgument.insulinAmount = bolusAmount;
+        this.bolusAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;
         this.bolusProgressCallback = bolusProgressCallback;
+    }
+
+    public double getBolusAmount() {
+        return bolusAmount;
+    }
+
+    @Override public byte[] getArgumentData() {
+        bolusArgument.insulinAmount = bolusAmount;
+        return bolusArgument.getRaw();
     }
 
     public BolusProgressCallback getBolusProgressCallback() {

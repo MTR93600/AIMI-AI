@@ -12,6 +12,7 @@ open class BleStartStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedL
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
         if (answer?.contains("set pump state tim")) {
             bleComm?.currentCommand?.clearExecutedCommand()
+            bleComm?.retryCommand()
         } else {
             super.characteristicChanged(answer, bleComm, lastCommand)
         }

@@ -18,15 +18,21 @@ class BleBolusStatusCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkS
         if (answer?.contains("time to powerdown 5") == true) {
             bleComm?.nextCommand();
         } else if (answer?.contains("ready") == true) {
+            val fullResponse = pumpResponse.toString()
+            val responseIterator = fullResponse.substring(fullResponse.indexOf("last")).split("\n").iterator()
             status = MedLinkStatusParser.parseBolusInfo(
-                pumpResponse.toString().split("\n").iterator(), status);
-            aapsLogger.info(LTag.PUMPBTCOMM,status.toString())
-            if (status.lastBolusAmount != null && status.bolusDeliveredAmount < status.lastBolusAmount) {
+                responseIterator, status);
+            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
+            aapsLogger.info(LTag.PUMPBTCOMM, status.toString())
+            if (status.lastBolusAmount != null && status.bolusDeliveredAmount  > 0  &&
+                status.bolusDeliveredAmount < status.lastBolusAmount) {
                 bleComm?.clearExecutedCommand()
             } else {
                 applyResponse(pumpResponse.toString(), bleComm?.currentCommand, bleComm)
+                bleComm?.completedCommand()
             }
-        } else {
+            pumpResponse = StringBuffer()
+        } else if (answer?.contains("time to powerdown") == false) {
             super.characteristicChanged(answer, bleComm, lastCommand)
         }
     }
