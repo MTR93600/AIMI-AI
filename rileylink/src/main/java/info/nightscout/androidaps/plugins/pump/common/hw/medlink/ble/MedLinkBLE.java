@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -341,10 +342,14 @@ public class MedLinkBLE extends RileyLinkBLE {
 
                     latestReceivedAnswer = System.currentTimeMillis();
                     if (answer.contains("command confir") && currentCommand != null) {
-                        commandConfirmed = true;
-                        lastConfirmedCommand = System.currentTimeMillis();
-                        aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
-                        currentCommand.commandExecuted();
+                        if(!answer.startsWith(currentCommand.getCurrentCommand().code.toLowerCase())){
+                            close();
+                        }else {
+                            commandConfirmed = true;
+                            lastConfirmedCommand = System.currentTimeMillis();
+                            aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
+                            currentCommand.commandExecuted();
+                        }
                     } else if (answer.contains("pump status: suspend") || answer.contains("pump suspend state")) {
                         lastPumpStatus = PumpStatusType.Suspended;
                     } else if (answer.contains("pump status: normal") || answer.contains("pump normal state")) {
@@ -899,7 +904,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                             .getCharacteristic(charaUUID);
                     chara.setValue(this.nextCommandData());
 //                                    chara.setWriteType(PROPERTY_WRITE); //TODO validate
-                    nrRetries++;
+//                    nrRetries++;
                     aapsLogger.debug(LTag.PUMPBTCOMM, "running command");
                     aapsLogger.debug(LTag.PUMPBTCOMM, new String(this.nextCommandData()));
                     int count = 0;
@@ -912,7 +917,7 @@ public class MedLinkBLE extends RileyLinkBLE {
 //                                break;
                     } else {
                         needRetry = false;
-                        aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", new String(this.nextCommandData(), UTF_8), chara.getUuid()));
+                        aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", new String(chara.getValue(), UTF_8), chara.getUuid()));
                     }
 //                            count++;
 //                            SystemClock.sleep(4000);
@@ -1599,7 +1604,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + servicesDiscovered);
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + commandQueueBusy);
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + connectionStatus);
-        if (currentCommand != null && currentCommand.hasFinished()) {
+        if (currentCommand != null && (currentCommand.hasFinished() || currentCommand.getNrRetries() > MAX_TRIES)) {
             removeFirstCommand(false);
         }
         printBuffer();

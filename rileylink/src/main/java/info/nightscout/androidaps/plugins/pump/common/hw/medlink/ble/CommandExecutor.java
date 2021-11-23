@@ -96,6 +96,9 @@ public abstract class CommandExecutor implements Runnable {
     }
 
     public void commandExecuted() {
+        if(this.commandPosition == 0){
+            nrRetries++;
+        }
         this.commandPosition += 1;
     }
 
