@@ -112,11 +112,11 @@ public class MedLinkBLE extends RileyLinkBLE {
         } else {
             aapsLogger.info(LTag.PUMPBTCOMM, "null");
         }
-        if (currentCommand != null && (
-                currentCommand.hasFinished() || force)) {
-            lowPriorityExecutionCommandQueue.remove(currentCommand);
-            executionCommandQueue.remove(currentCommand);
-            priorityExecutionCommandQueue.remove(currentCommand);
+        if ((currentCommand != null &&
+                currentCommand.hasFinished()) || force) {
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + lowPriorityExecutionCommandQueue.remove(currentCommand));
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + executionCommandQueue.remove(currentCommand));
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + priorityExecutionCommandQueue.remove(currentCommand));
             currentCommand = null;
         }
     }
@@ -328,23 +328,38 @@ public class MedLinkBLE extends RileyLinkBLE {
 //                answer = processed[0];
                 aapsLogger.info(LTag.PUMPBTCOMM, answer);
                 if (!answer.trim().isEmpty()) {
-                    if (answer.contains("time to powerdown")){
+                    aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty");
+
+                    if (answer.contains("time to powerdown")) {
+                        aapsLogger.info(LTag.PUMPBTCOMM, "time to powerdown");
+
                         commandQueueBusy = false;
                     }
                     if (currentCommand != null && currentCommand.getMedLinkPumpMessage() != null) {
+                        aapsLogger.info(LTag.PUMPBTCOMM, "command not null");
+
                         currentCommand.getMedLinkPumpMessage().characteristicChanged(answer, that, lastCharacteristic);
                         if (answer.contains("time to powerdown") && !currentCommand.hasFinished()) {
+                            aapsLogger.info(LTag.PUMPBTCOMM, "clear executed");
+
                             currentCommand.clearExecutedCommand();
                         }
                     } else {
+                        aapsLogger.info(LTag.PUMPBTCOMM, "command null");
+
                         characteristicChanged.characteristicChanged(answer, that, lastCharacteristic);
                     }
 
                     latestReceivedAnswer = System.currentTimeMillis();
                     if (answer.contains("command confir") && currentCommand != null) {
-                        if(!answer.startsWith(currentCommand.getCurrentCommand().code.toLowerCase())){
+                        aapsLogger.info(LTag.PUMPBTCOMM, "confirmed");
+
+                        if (!answer.startsWith(currentCommand.nextCommand().code.toLowerCase())) {
+                            aapsLogger.info(LTag.PUMPBTCOMM, "closing");
                             close();
-                        }else {
+                        } else {
+                            aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty");
+
                             commandConfirmed = true;
                             lastConfirmedCommand = System.currentTimeMillis();
                             aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
@@ -1480,10 +1495,16 @@ public class MedLinkBLE extends RileyLinkBLE {
             return;
         }
         aapsLogger.info(LTag.PUMPBTCOMM, "completed command");
+        aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + priorityExecutionCommandQueue.size());
         aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + executionCommandQueue.size());
+        aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + lowPriorityExecutionCommandQueue.size());
         commandQueueBusy = false;
         isRetrying = false;
         removeFirstCommand(false);
+        aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + priorityExecutionCommandQueue.size());
+        aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + executionCommandQueue.size());
+        aapsLogger.info(LTag.PUMPBTCOMM, "queue size " + lowPriorityExecutionCommandQueue.size());
+
         currentCommand = null;
         lastCharacteristic = "";
         CommandExecutor com = getNextCommand();

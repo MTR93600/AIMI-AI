@@ -38,30 +38,31 @@ public class StatusCallback extends BaseStatusCallback {
         aapsLogger.info(LTag.PUMPBTCOMM, "BaseResultActivity");
         aapsLogger.info(LTag.PUMPBTCOMM, s.get().collect(Collectors.joining()));
         String[] messages = answer.toArray(String[]::new);
-        if (f.getAnswer().anyMatch(m -> m.contains("eomeomeom") || m.contains("ready"))) {
-            aapsLogger.debug("ready");
-            medLinkPumpStatus.lastConnection = Long.parseLong(messages[0]);
-            MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
-            MedLinkStatusParser.parseStatus(messages, medLinkPumpStatus, medLinkPumpPlugin.getInjector());
-            aapsLogger.debug("Pumpstatus");
-            aapsLogger.debug(pumpStatus.toString());
+        aapsLogger.debug("ready");
+        medLinkPumpStatus.lastConnection = Long.parseLong(messages[0]);
+        MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
+        MedLinkStatusParser.parseStatus(messages, medLinkPumpStatus, medLinkPumpPlugin.getInjector());
+        aapsLogger.debug("Pumpstatus");
+        aapsLogger.debug(pumpStatus.toString());
 
-            medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
-            medLinkPumpPlugin.alreadyRun();
-            medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
-            aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
-            aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
-            aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
-            medLinkPumpStatus.setLastCommunicationToNow();
-            aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading);
-            if (pumpStatus.bgReading != null) {
-                medLinkPumpPlugin.handleNewSensorData(pumpStatus.sensorDataReading);
-                medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
-            } else {
-                medLinkPumpPlugin.handleNewPumpData();
-                medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.FAILED;
-            }
-            medLinkPumpPlugin.sendPumpUpdateEvent();
+        medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
+        medLinkPumpPlugin.alreadyRun();
+        medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
+        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
+        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
+        aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
+        medLinkPumpStatus.setLastCommunicationToNow();
+        aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading);
+        if (pumpStatus.bgReading != null) {
+            medLinkPumpPlugin.handleNewSensorData(pumpStatus.sensorDataReading);
+            medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
+        } else {
+            medLinkPumpPlugin.handleNewPumpData();
+            medLinkPumpStatus.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.FAILED;
+        }
+        medLinkPumpPlugin.sendPumpUpdateEvent();
+        if (f.getAnswer().anyMatch(m -> m.contains("eomeomeom") || m.contains("ready"))) {
+
         } else if (messages[messages.length - 1].toLowerCase().equals("ready")) {
             medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
         } else {

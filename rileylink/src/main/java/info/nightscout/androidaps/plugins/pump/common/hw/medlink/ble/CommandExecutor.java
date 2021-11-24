@@ -112,6 +112,7 @@ public abstract class CommandExecutor implements Runnable {
                 "command=" + medLinkPumpMessage +
                 ", commandPosition=" + commandPosition +
                 ", functionPosition=" + functionPosition +
+                ", nrRetries=" + nrRetries +
                 '}';
     }
 
