@@ -1107,7 +1107,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 MedLinkCommandType.StopStartPump,
                 MedLinkCommandType.StartPump, startStopFunction,
                 getBtSleepTime(),
-                new BleStopCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
     }
 

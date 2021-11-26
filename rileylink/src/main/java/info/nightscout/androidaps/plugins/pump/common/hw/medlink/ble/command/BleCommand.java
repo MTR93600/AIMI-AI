@@ -53,6 +53,8 @@ public class BleCommand {
                 aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.getCurrentCommand().code);
                 if ((!bleComm.isBolus(currentCommand.getCurrentCommand()))) {
                     bleComm.retryCommand();
+                }else if(currentCommand.isInitialized()){
+                    currentCommand.clearExecutedCommand();
                 }
             }
         }
@@ -84,10 +86,10 @@ public class BleCommand {
                     bleComm.reExecuteCommand(currentCommand);
                 } else if (!bleComm.isCommandConfirmed() || currentCommand instanceof ContinuousCommandExecutor) {
                     bleComm.retryCommand();
-                } else if (bleComm.partialCommand()) {
-                    applyResponse(pumpResponse.toString(), currentCommand, bleComm);
-                    bleComm.nextCommand();
-                    return;
+//                } else if (bleComm.partialCommand()) {
+//                    applyResponse(pumpResponse.toString(), currentCommand, bleComm);
+//                    bleComm.nextCommand();
+//                    return;
                 } else {
                     bleComm.removeFirstCommand(true);
                     bleComm.nextCommand();

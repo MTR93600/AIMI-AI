@@ -98,6 +98,8 @@ public abstract class CommandExecutor implements Runnable {
     public void commandExecuted() {
         if(this.commandPosition == 0){
             nrRetries++;
+        } else if(this.medLinkPumpMessage.getArgument() != MedLinkCommandType.NoCommand){
+            nrRetries++;
         }
         this.commandPosition += 1;
     }
@@ -148,5 +150,9 @@ public abstract class CommandExecutor implements Runnable {
         } else if (commandPosition == 1) {
             return medLinkPumpMessage.getArgumentData();
         } else return MedLinkCommandType.NoCommand.getRaw();
+    }
+
+    public boolean isInitialized() {
+        return commandPosition>0 || functionPosition >0 ;
     }
 }

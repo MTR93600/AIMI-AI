@@ -17,7 +17,7 @@ class BleBolusStatusCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkS
         answer?.let { aapsLogger.info(LTag.PUMPBTCOMM, it) }
         if (answer?.contains("time to powerdown 5") == true) {
             bleComm?.nextCommand();
-        } else if (answer?.contains("ready") == true) {
+        } else if (answer?.contains("ready") == true ) {
             val fullResponse = pumpResponse.toString()
             val responseIterator = fullResponse.substring(fullResponse.indexOf("last")).split("\n").iterator()
             status = MedLinkStatusParser.parseBolusInfo(

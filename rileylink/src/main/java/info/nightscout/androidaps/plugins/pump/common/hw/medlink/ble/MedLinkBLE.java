@@ -351,20 +351,21 @@ public class MedLinkBLE extends RileyLinkBLE {
                     }
 
                     latestReceivedAnswer = System.currentTimeMillis();
-                    if (answer.contains("command confir") && currentCommand != null) {
+                    if ((answer).contains("command con") && currentCommand != null) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "confirmed");
 
-                        if (!answer.startsWith(currentCommand.nextCommand().code.toLowerCase())) {
-                            aapsLogger.info(LTag.PUMPBTCOMM, "closing");
-                            close();
-                        } else {
+//                        if (!answer.startsWith(currentCommand.nextCommand().code.toLowerCase())) {
+//                            aapsLogger.info(LTag.PUMPBTCOMM, "closing");
+//                            close(true);
+//                        } else {
                             aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty");
 
                             commandConfirmed = true;
                             lastConfirmedCommand = System.currentTimeMillis();
                             aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
                             currentCommand.commandExecuted();
-                        }
+
+//                        }
                     } else if (answer.contains("pump status: suspend") || answer.contains("pump suspend state")) {
                         lastPumpStatus = PumpStatusType.Suspended;
                     } else if (answer.contains("pump status: normal") || answer.contains("pump normal state")) {
