@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import info.nightscout.androidaps.db.MedLinkTemporaryBasal;
 import info.nightscout.androidaps.logging.AAPSLogger;
+import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
@@ -37,6 +38,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
     }
 
     @Override public MedLinkStandardReturn<PumpDriverState> apply(Supplier<Stream<String>> a) {
+        aapsLogger.info(LTag.PUMPBTCOMM, "StartStop Function");
         Stream<String> applied = a.get();
         for (Object val: a.get().toArray()) {
             System.out.println(val.toString());

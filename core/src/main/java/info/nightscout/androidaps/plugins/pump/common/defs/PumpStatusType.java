@@ -7,8 +7,8 @@ package info.nightscout.androidaps.plugins.pump.common.defs;
 public enum PumpStatusType {
     Running("normal"), //
     Suspended("suspended"), //
-    Initializing("initializing")
-    ;
+    Initializing("initializing"),
+    Unchanged("unchanged");
 
     private final String statusString;
 

@@ -38,10 +38,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -57,7 +59,10 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.Ble
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleConnectCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStartCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStartStopCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStopCommand;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusStatusMedLinkMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.operations.BLECommOperation;
@@ -97,9 +102,11 @@ public class MedLinkBLE extends RileyLinkBLE {
     private final HandlerThread handlerThread = new HandlerThread("BleThread");
     private final HandlerThread characteristicThread = new HandlerThread("CharacteristicThread");
     private final Handler handler;
-    private long lastGattConnection;
+    private long lastGattConnection = 1l;
     private long connectionStatusChange;
     private PumpStatusType lastPumpStatus;
+    private MedLinkPumpMessage startCommand;
+    private MedLinkPumpMessage stopCommand;
 
     public boolean partialCommand() {
         return lastConfirmedCommand > lastConnection &&
@@ -112,11 +119,13 @@ public class MedLinkBLE extends RileyLinkBLE {
         } else {
             aapsLogger.info(LTag.PUMPBTCOMM, "null");
         }
+        CommandExecutor toBeRemoved = currentCommand;
         if ((currentCommand != null &&
                 currentCommand.hasFinished()) || force) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "" + lowPriorityExecutionCommandQueue.remove(currentCommand));
-            aapsLogger.info(LTag.PUMPBTCOMM, "" + executionCommandQueue.remove(currentCommand));
-            aapsLogger.info(LTag.PUMPBTCOMM, "" + priorityExecutionCommandQueue.remove(currentCommand));
+
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + lowPriorityExecutionCommandQueue.remove(toBeRemoved));
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + executionCommandQueue.remove(toBeRemoved));
+            aapsLogger.info(LTag.PUMPBTCOMM, "" + priorityExecutionCommandQueue.remove(toBeRemoved));
             currentCommand = null;
         }
     }
@@ -358,12 +367,12 @@ public class MedLinkBLE extends RileyLinkBLE {
 //                            aapsLogger.info(LTag.PUMPBTCOMM, "closing");
 //                            close(true);
 //                        } else {
-                            aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty");
+                        aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty");
 
-                            commandConfirmed = true;
-                            lastConfirmedCommand = System.currentTimeMillis();
-                            aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
-                            currentCommand.commandExecuted();
+                        commandConfirmed = true;
+                        lastConfirmedCommand = System.currentTimeMillis();
+                        aapsLogger.info(LTag.PUMPBTCOMM, "command executed");
+                        currentCommand.commandExecuted();
 
 //                        }
                     } else if (answer.contains("pump status: suspend") || answer.contains("pump suspend state")) {
@@ -921,8 +930,8 @@ public class MedLinkBLE extends RileyLinkBLE {
                     chara.setValue(this.nextCommandData());
 //                                    chara.setWriteType(PROPERTY_WRITE); //TODO validate
 //                    nrRetries++;
-                    aapsLogger.debug(LTag.PUMPBTCOMM, "running command");
-                    aapsLogger.debug(LTag.PUMPBTCOMM, new String(this.nextCommandData()));
+                    aapsLogger.info(LTag.PUMPBTCOMM, "running command");
+                    aapsLogger.info(LTag.PUMPBTCOMM, new String(this.nextCommandData()));
                     int count = 0;
 //                        while (lastReceived == lastReceivedCharacteristic && count < MAX_TRIES) {
 
@@ -933,7 +942,7 @@ public class MedLinkBLE extends RileyLinkBLE {
 //                                break;
                     } else {
                         needRetry = false;
-                        aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", new String(chara.getValue(), UTF_8), chara.getUuid()));
+                        aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", new String(this.nextCommandData(), UTF_8), chara.getUuid()));
                     }
 //                            count++;
 //                            SystemClock.sleep(4000);
@@ -980,7 +989,6 @@ public class MedLinkBLE extends RileyLinkBLE {
 
         addCommands(serviceUUID, charaUUID, msg, isBolus(msg.getCommandType()));
 
-        needToBeStarted(serviceUUID, charaUUID, msg.getCommandType());
         aapsLogger.info(LTag.PUMPBTCOMM, "before connect");
         if (!connectionStatus.isConnecting()) {
             medLinkConnect();
@@ -996,7 +1004,8 @@ public class MedLinkBLE extends RileyLinkBLE {
                 }
             }
             if (!containsStart()) {
-                MedLinkPumpMessage startMsg = new MedLinkPumpMessage<String>(MedLinkCommandType.StopStartPump,
+                MedLinkPumpMessage startMsg = new MedLinkPumpMessage<String>(
+                        MedLinkCommandType.StopStartPump,
                         MedLinkCommandType.StartPump,
                         new BleStartCommand(aapsLogger, medLinkServiceData));
                 addWriteCharacteristic(serviceUUID, charaUUID, startMsg, CommandPriority.HIGH);
@@ -1011,9 +1020,33 @@ public class MedLinkBLE extends RileyLinkBLE {
     }
 
 
-    private boolean containsStart() {
+    private void removeStopCommands() {
+        aapsLogger.info(LTag.PUMPBTCOMM, "removing stop");
         MedLinkPumpMessage stopMsg = new MedLinkPumpMessage<String>(MedLinkCommandType.StopStartPump,
                 MedLinkCommandType.StopPump,
+                new BleStopCommand(aapsLogger, medLinkServiceData));
+        CommandExecutor exec = new CommandExecutor(stopMsg, aapsLogger) {
+            @Override public void run() {
+            }
+        };
+
+        removeCommandFromQueue(exec, executionCommandQueue);
+        removeCommandFromQueue(exec, lowPriorityExecutionCommandQueue);
+    }
+
+    private void removeCommandFromQueue(CommandExecutor exec,
+                                        ConcurrentLinkedDeque<CommandExecutor> queue) {
+        if (queue.contains(exec)) {
+            aapsLogger.info(LTag.PUMPBTCOMM, exec.toString());
+            queue.removeAll(
+                    queue.stream().filter(f -> f.equals(exec) &&
+                            f.hasFinished()).collect(Collectors.toList()));
+        }
+    }
+
+    private boolean containsStart() {
+        MedLinkPumpMessage stopMsg = new MedLinkPumpMessage<String>(MedLinkCommandType.StopStartPump,
+                MedLinkCommandType.StartPump,
                 new BleStopCommand(aapsLogger, medLinkServiceData));
         CommandExecutor exec = new CommandExecutor(stopMsg, aapsLogger) {
             @Override public void run() {
@@ -1036,17 +1069,19 @@ public class MedLinkBLE extends RileyLinkBLE {
 
         synchronized (commandsToAdd) {
             CommandsToAdd command = new CommandsToAdd(serviceUUID, charaUUID, msg);
+            if (isBolus(msg.getCommandType())) {
+                removeStopCommands();
+                Stream<MedLinkPumpMessage> startStop = ((BolusMedLinkMessage) msg).getStartStopCommands().stream();
+                startStop.forEach(f -> {
+
+                    if (f.getCommandType() == MedLinkCommandType.StartPump) {
+                        addWriteCharacteristic(serviceUUID, charaUUID, startCommand, CommandPriority.HIGH);
+                    } else if (f.getCommandType() == MedLinkCommandType.StopPump) {
+                        addWriteCharacteristic(serviceUUID, charaUUID, stopCommand, CommandPriority.LOWER);
+                    }
+                });
+            }
             addCommand(command, first);
-//            if (msg.getArgument() != MedLinkCommandType.NoCommand) {
-//                if (msg.getArgument() == MedLinkCommandType.BaseProfile || msg.getArgument() == MedLinkCommandType.IsigHistory) {
-//                    addCommand(new CommandsToAdd(serviceUUID, charaUUID,
-//                            msg.getArgumentData(),
-//                            msg.getArgCallback(), msg.getArgument() != null), first);
-//                } else {
-//                    addCommand(new CommandsToAdd(serviceUUID, charaUUID, msg.getArgumentData(),
-//                            msg.getBaseCallback(), msg.getArgument() != null), first);
-//                }
-//            }
         }
     }
 
@@ -1277,7 +1312,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                     if (!notificationEnabled
                             && priorityExecutionCommandQueue.stream().noneMatch(f ->
                             f.getMedLinkPumpMessage().getCommandType().equals(MedLinkCommandType.Notification))
-                    ) {
+                            && lastReceivedCharacteristic < lastGattConnection) {
 //                        if (executionCommandQueue.stream().noneMatch(f -> f.contains(MedLinkCommandType.Notification))) {
                         executionCommandQueue.stream().findFirst().map(f -> {
                             f.clearExecutedCommand();
@@ -1627,7 +1662,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + commandQueueBusy);
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + connectionStatus);
         if (currentCommand != null && (currentCommand.hasFinished() || currentCommand.getNrRetries() > MAX_TRIES)) {
-            removeFirstCommand(false);
+            removeFirstCommand(true);
         }
         printBuffer();
         if (connectionStatus == ConnectionStatus.EXECUTING ||

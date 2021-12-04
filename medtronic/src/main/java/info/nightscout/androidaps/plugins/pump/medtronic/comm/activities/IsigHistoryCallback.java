@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dagger.android.HasAndroidInjector;
@@ -49,7 +50,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         Stream<String> toParse = ans.get();
         aapsLogger.info(LTag.PUMPBTCOMM, "isig2");
 
-        SensorDataReading[] readings = parseAnswer(() -> toParse, bgHistoryCallback.getReadings());
+        SensorDataReading[] readings = parseAnswer(ans, bgHistoryCallback.getReadings());
         if (readings != null) {
             medLinkPumpPlugin.handleNewSensorData(readings);
         }
@@ -65,6 +66,8 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
     public SensorDataReading[] parseAnswer(Supplier<Stream<String>> ans, BgReading[] bgReadings) {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
         Iterator<String> answers = ans.get().iterator();
+        String answer = ans.get().collect(Collectors.joining());
+        aapsLogger.info(LTag.PUMPBTCOMM, answer);
         int memAddress = 0;
 //        answers.iterator();
         List<Double> isigs = new ArrayList<>();

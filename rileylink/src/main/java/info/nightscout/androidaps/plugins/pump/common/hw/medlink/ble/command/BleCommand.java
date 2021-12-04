@@ -51,10 +51,11 @@ public class BleCommand {
             bleComm.setConfirmedCommand(false);
             if (currentCommand != null && currentCommand.getCurrentCommand() != null) {
                 aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.getCurrentCommand().code);
+                if (currentCommand.isInitialized()) {
+                    currentCommand.clearExecutedCommand();
+                }
                 if ((!bleComm.isBolus(currentCommand.getCurrentCommand()))) {
                     bleComm.retryCommand();
-                }else if(currentCommand.isInitialized()){
-                    currentCommand.clearExecutedCommand();
                 }
             }
         }
@@ -84,7 +85,8 @@ public class BleCommand {
             if (currentCommand != null && currentCommand.getCurrentCommand() != null) {
                 if (partialBolus(answer)) {
                     bleComm.reExecuteCommand(currentCommand);
-                } else if (!bleComm.isCommandConfirmed() || currentCommand instanceof ContinuousCommandExecutor) {
+                } else if (!bleComm.isCommandConfirmed() || currentCommand instanceof ContinuousCommandExecutor
+                || currentCommand.getMedLinkPumpMessage().getCommandType() == MedLinkCommandType.BolusStatus) {
                     bleComm.retryCommand();
 //                } else if (bleComm.partialCommand()) {
 //                    applyResponse(pumpResponse.toString(), currentCommand, bleComm);
@@ -208,7 +210,7 @@ public class BleCommand {
         bleComm.post(() -> {
             try {
                 aapsLogger.info(LTag.PUMPBTCOMM, "posting command");
-                Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n")).filter(f -> f != "\n");
+                Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n"));//.filter(f -> f != "\n");
                 if (function != null) {
 //                aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
                     Function func = function.andThen(f -> {

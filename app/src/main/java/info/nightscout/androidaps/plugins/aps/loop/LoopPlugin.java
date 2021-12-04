@@ -923,7 +923,7 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
             return;
         }
 
-        getAapsLogger().debug(LTag.APS, "applySMBRequest: " + request.toString());
+        getAapsLogger().info(LTag.APS, "applySMBRequest: " + request.toString());
 
         // deliver SMB
         DetailedBolusInfo detailedBolusInfo = new DetailedBolusInfo();

@@ -1040,19 +1040,19 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     private Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>>
-    getStartStopCallback(TempBasalMicroBolusPair oper, Function1 callback,
+    getStartStopCallback(TempBasalMicroBolusPair operation, Function1 callback,
                          ChangeStatusCallback function, boolean isConnect) {
         return function.andThen(f -> {
             switch (f.getFunctionResult()) {
                 case Busy:
-                    getAapsLogger().info(LTag.PUMPBTCOMM, "busy " + oper);
+                    getAapsLogger().info(LTag.PUMPBTCOMM, "busy " + operation);
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(false) //
                             .enacted(false) //
                             .comment(getResourceHelper().gs(R.string.tempbasaldeliveryerror)));
                     break;
                 case Connected:
-                    getAapsLogger().info(LTag.PUMPBTCOMM, "connected " + oper);
+                    getAapsLogger().info(LTag.PUMPBTCOMM, "connected " + operation);
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(isConnect) //
                             .enacted(isConnect) //
@@ -1061,11 +1061,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                         lastStatus = PumpStatusType.Running.getStatus();
                         this.tempbasalMicrobolusOperations.getOperations().peek();
                     } else {
-                        oper.setCommandIssued(false);
+                        operation.setCommandIssued(false);
                     }
                     break;
                 case Suspended:
-                    getAapsLogger().info(LTag.PUMPBTCOMM, "suspended " + oper);
+                    getAapsLogger().info(LTag.PUMPBTCOMM, "suspended " + operation);
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(!isConnect) //
                             .enacted(!isConnect) //
@@ -1076,7 +1076,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                        createTemporaryBasalData(oper.getDuration(),
 //                                oper.getDose().setScale(2).doubleValue());
                     } else {
-                        oper.setCommandIssued(false);
+                        operation.setCommandIssued(false);
                     }
                     break;
             }
@@ -1099,16 +1099,34 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     private void reactivatePump(TempBasalMicroBolusPair oper, Function1 callback) {
         getAapsLogger().debug(LTag.APS, "reactivate pump");
+
+        medLinkService.getMedtronicUIComm().executeCommandCP(buildReactivateFunction(oper,
+                callback, ChangeStatusCallback.OperationType.START));
+    }
+
+    private MedLinkPumpMessage buildReactivateFunction(TempBasalMicroBolusPair oper,
+                                                       Function1 callback,
+                                                       ChangeStatusCallback.OperationType operationType) {
         ChangeStatusCallback function = new ChangeStatusCallback(aapsLogger,
-                ChangeStatusCallback.OperationType.START, this);
+                operationType, this);
+        BleCommand command;
+        MedLinkCommandType commandType;
+        if (operationType == ChangeStatusCallback.OperationType.START) {
+            commandType = MedLinkCommandType.StartPump;
+            command = new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+        } else {
+            commandType = MedLinkCommandType.StopPump;
+            command = new BleStopCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+
+        }
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>> startStopFunction =
                 getStartStopCallback(oper, callback, function, true);
         MedLinkPumpMessage<PumpDriverState> msg = new MedLinkPumpMessage<>(
                 MedLinkCommandType.StopStartPump,
-                MedLinkCommandType.StartPump, startStopFunction,
+                commandType, startStopFunction,
                 getBtSleepTime(),
-                new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
-        medLinkService.getMedtronicUIComm().executeCommandCP(msg);
+                command);
+        return msg;
     }
 
     @Override
@@ -2832,6 +2850,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 return new MedLinkStandardReturn<String>(() -> f.getAnswer(), f.getFunctionResult().getAnswer());
             });
             MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
+
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand,
                     detailedBolusInfo.insulin,
                     andThem, new BolusProgressCallback(
@@ -2840,7 +2859,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     rxBus,
                     null,
                     aapsLogger),
-                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData())
+                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
+                    buildBolusCommands()
             );
 
 
@@ -2915,6 +2935,45 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             this.bolusDeliveryType = MedtronicPumpPlugin.BolusDeliveryType.Idle;
         }
 
+    }
+
+    private List<MedLinkPumpMessage> buildBolusCommands() {
+        if (getCurrentPumpStatus() == PumpStatusType.Suspended) {
+            List<MedLinkPumpMessage> commands = new ArrayList<>();
+            Function1 callback = new Function1() {
+                @Override public Object invoke(Object o) {
+                    return null;
+                }
+            };
+            commands.add(
+                    buildReactivateFunction(tempbasalMicrobolusOperations.getOperations().getFirst(),
+                            callback, ChangeStatusCallback.OperationType.START)
+            );
+            if(this.tempbasalMicrobolusOperations.shouldBeSuspended() && getTemporaryBasal() != null &&
+                    getTemporaryBasal().absoluteRate < 100) {
+                commands.add(
+                        buildReactivateFunction(tempbasalMicrobolusOperations.getOperations().getFirst(),
+                                callback, ChangeStatusCallback.OperationType.STOP));
+            }
+            return commands;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Object getCurrentPumpStatus() {
+        if (this.tempbasalMicrobolusOperations != null &&
+                !this.tempbasalMicrobolusOperations.getOperations().isEmpty()) {
+            TempBasalMicroBolusPair firstOperation = this.tempbasalMicrobolusOperations.getOperations().getFirst();
+            if (firstOperation.getOperationType() == TempBasalMicroBolusPair.OperationType.BOLUS ||
+                    firstOperation.getOperationType() == TempBasalMicroBolusPair.OperationType.SUSPEND) {
+                return PumpStatusType.Running;
+            } else {
+                return PumpStatusType.Suspended;
+            }
+        } else {
+            return PumpStatusType.Running;
+        }
     }
 
     private void processDeliveredBolus(BolusAnswer answer, DetailedBolusInfo detailedBolusInfo) {
@@ -3051,6 +3110,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
                 getAapsLogger().info(LTag.PUMPBTCOMM, f.getFunctionResult().getResponse().name());
                 if (PumpResponses.BolusDelivered.equals(f.getFunctionResult().getResponse())) {
+                    bolusDeliveryType = BolusDeliveryType.Idle;
 
                     processDeliveredBolus(f.getFunctionResult(), bolus);
                     bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
@@ -3102,7 +3162,6 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 }
                 return new MedLinkStandardReturn<String>(f::getAnswer, f.getFunctionResult().getAnswer());
             });
-            boolean stopAfter = false;
             if (getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Suspended) &&
                     detailedBolusInfo.insulin > 0d) {
                 startPump(new Callback() {
@@ -3110,27 +3169,30 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                         getAapsLogger().info(LTag.EVENTS, "starting pump for bolus");
                     }
                 });
-                stopAfter = true;
+
             }
             MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
+
+            ChangeStatusCallback function = new ChangeStatusCallback(aapsLogger,
+                    ChangeStatusCallback.OperationType.START, this);
+            Function1 callback = new Function1() {
+                @Override public Object invoke(Object o) {
+                    return null;
+                }
+            };
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, bolus.insulin,
                     andThen, new BolusProgressCallback(medLinkPumpStatus,
                     resourceHelper,
                     rxBus, null,
                     aapsLogger),
-                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
+                    buildBolusCommands()
+            );
 
 
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
-            if(bolus.insulin>0.3d){
+            if (bolus.insulin > 0.3d) {
                 readBolusData(bolus);
-            }
-            if (stopAfter) {
-                stopPump(new Callback() {
-                    @Override public void run() {
-                        getAapsLogger().info(LTag.EVENTS, "stopping pump after bolus");
-                    }
-                });
             }
             setRefreshButtonEnabled(true);
 
@@ -3312,6 +3374,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     sensBundle.putDouble("isig", sens.isig);
                     sensBundle.putDouble("delta", sens.deltaSinceLastBG);
                     isigValues.putBundle("" + isigPosition, sensBundle);
+                    getAapsLogger().info(LTag.BGSOURCE, sensBundle.toString());
                     isigPosition++;
                 }
             }

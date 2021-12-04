@@ -103,6 +103,9 @@ public class TempBasalMicrobolusOperations {
         this.shouldBeSuspended = suspended;
     }
 
+    public boolean shouldBeSuspended() {
+        return this.shouldBeSuspended;
+    }
     public void setOperations(LinkedBlockingDeque<TempBasalMicroBolusPair> operations) {
         this.operations = operations;
     }

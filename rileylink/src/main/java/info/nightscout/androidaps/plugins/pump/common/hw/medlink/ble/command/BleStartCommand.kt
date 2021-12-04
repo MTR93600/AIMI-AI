@@ -25,7 +25,7 @@ class BleStartCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServic
                 applyResponse(pumpResponse.toString(),bleComm?.currentCommand, bleComm)
                 pumpResponse = StringBuffer()
                 bleComm?.currentCommand?.commandExecuted()
-                bleComm?.completedCommand()
+                // bleComm?.completedCommand()
             }
             answer.contains("pump suspend state") -> {
                 bleComm?.completedCommand()
