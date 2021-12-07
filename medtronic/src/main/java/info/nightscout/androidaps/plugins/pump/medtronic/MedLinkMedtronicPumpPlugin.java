@@ -97,6 +97,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Bolu
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusDeliverCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExecutor;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.ContinuousCommandExecutor;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusStatusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
@@ -2013,15 +2015,15 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         Double roundedTotalAmount = new BigDecimal(totalAmount).setScale(1,
                 RoundingMode.HALF_UP).doubleValue();
         TempBasalMicrobolusOperations operations;
-        if (roundedTotalAmount.doubleValue() == getPumpType().getBolusSize()) {
+        if (roundedTotalAmount == getPumpType().getBolusSize()) {
             LinkedBlockingDeque<TempBasalMicroBolusPair> tempBasalList = new LinkedBlockingDeque<>();
-            tempBasalList.add(new TempBasalMicroBolusPair(0, totalAmount, totalAmount,
+            tempBasalList.add(new TempBasalMicroBolusPair(0, roundedTotalAmount, totalAmount,
                     getCurrentTime().plusMinutes(durationInMinutes / 2),
                     TempBasalMicroBolusPair.OperationType.BOLUS, callback));
             operations = new TempBasalMicrobolusOperations(1, totalAmount,
                     durationInMinutes,
                     tempBasalList);
-        } else if (roundedTotalAmount.doubleValue() < getPumpType().getBolusSize()) {
+        } else if (roundedTotalAmount < getPumpType().getBolusSize()) {
             cancelTempBasal(true);
             operations = new TempBasalMicrobolusOperations(0, 0, 0,
                     new LinkedBlockingDeque<>());
@@ -2853,12 +2855,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand,
                     detailedBolusInfo.insulin,
-                    andThem, new BolusProgressCallback(
-                    medLinkPumpStatus,
-                    resourceHelper,
-                    rxBus,
-                    null,
-                    aapsLogger),
+                    andThem, buildBolusStatusMessage(),
                     new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
                     buildBolusCommands()
             );
@@ -3173,27 +3170,19 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             }
             MedLinkCommandType bolusCommand = detailedBolusInfo.isTBR ? MedLinkCommandType.TBRBolus : detailedBolusInfo.isSMB ? MedLinkCommandType.SMBBolus : MedLinkCommandType.Bolus;
 
-            ChangeStatusCallback function = new ChangeStatusCallback(aapsLogger,
-                    ChangeStatusCallback.OperationType.START, this);
-            Function1 callback = new Function1() {
-                @Override public Object invoke(Object o) {
-                    return null;
-                }
-            };
+
+            MedLinkPumpMessage bolusStatusMessage = null;
+            if(detailedBolusInfo.insulin > 0.3d){
+                bolusStatusMessage = buildBolusStatusMessage();
+            }
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, bolus.insulin,
-                    andThen, new BolusProgressCallback(medLinkPumpStatus,
-                    resourceHelper,
-                    rxBus, null,
-                    aapsLogger),
+                    andThen, bolusStatusMessage,
                     new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
                     buildBolusCommands()
             );
 
 
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
-            if (bolus.insulin > 0.3d) {
-                readBolusData(bolus);
-            }
             setRefreshButtonEnabled(true);
 
 //            int count = 0;
@@ -3241,7 +3230,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
                 // calculate time for bolus and set driver to busy for that time
                 int bolusTime = (int) (detailedBolusInfo.insulin * 42.0d);
-                long time = now + (bolusTime * 1000);
+                long time = now + (bolusTime * 1000L);
 
                 this.busyTimestamps.add(time);
 //                setEnableCustomAction(MedtronicCustomActionType.ClearBolusBlock, true);
@@ -3254,6 +3243,18 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     }
 
+    private MedLinkPumpMessage buildBolusStatusMessage() {
+        BolusProgressCallback bolusCallback = new BolusProgressCallback(medLinkPumpStatus,
+                resourceHelper,
+                rxBus, null,
+                aapsLogger);
+        BleBolusStatusCommand bolusStatusCommand = new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+
+        MedLinkPumpMessage message = new BolusStatusMedLinkMessage(bolusCallback,getBtSleepTime(),
+                bolusStatusCommand);
+        return message;
+    }
+
     private void readBolusData(DetailedBolusInfo detailedBolusInfo) {
         getAapsLogger().info(LTag.PUMPBTCOMM, "get full bolus data");
         lastBolusHistoryRead = System.currentTimeMillis();
@@ -3261,7 +3262,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 new BolusDeliverCallback(getPumpStatusData(), this, aapsLogger,
                         detailedBolusInfo);
         assert getMedLinkService() != null;
-        MedLinkPumpMessage<String> msg = new BolusStatusMedLinkMessage<>(MedLinkCommandType.BolusStatus,
+        MedLinkPumpMessage<String> msg = new BolusStatusMedLinkMessage<>(
                 func,
                 getBtSleepTime(),
                 new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));

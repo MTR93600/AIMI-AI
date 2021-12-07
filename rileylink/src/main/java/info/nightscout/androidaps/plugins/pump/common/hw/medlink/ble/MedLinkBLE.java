@@ -320,6 +320,10 @@ public class MedLinkBLE extends RileyLinkBLE {
                 }
             }
 
+            public boolean isNotifying(BluetoothGattCharacteristic characteristic) {
+                return notifyingCharacteristics.contains(characteristic.getUuid());
+            }
+
             @Override
             public void onCharacteristicChanged(final BluetoothGatt gatt,
                                                 final BluetoothGattCharacteristic characteristic) {
@@ -329,6 +333,15 @@ public class MedLinkBLE extends RileyLinkBLE {
                 removeNotificationCommand();
 
                 aapsLogger.info(LTag.PUMPBTCOMM, answer);
+                if (lastCharacteristic.equals(answer)) {
+                    setNotification_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), //
+                            UUID.fromString(GattAttributes.GATT_UUID), true);
+                    if (currentCommand != null) {
+                        currentCommand.clearExecutedCommand();
+                    }
+                    nextCommand();
+                    return;
+                }
                 if (currentCommand != null) {
                     aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.toString());
                 }
@@ -341,7 +354,9 @@ public class MedLinkBLE extends RileyLinkBLE {
 
                     if (answer.contains("time to powerdown")) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "time to powerdown");
-
+                        if (!answer.contains("5")) {
+                            isConnected = true;
+                        }
                         commandQueueBusy = false;
                     }
                     if (currentCommand != null && currentCommand.getMedLinkPumpMessage() != null) {
@@ -922,7 +937,9 @@ public class MedLinkBLE extends RileyLinkBLE {
         return new CommandExecutor(message, aapsLogger) {
             @Override public void run() {
                 commandConfirmed = false;
-                long lastReceived = lastReceivedCharacteristic;
+                if (System.currentTimeMillis() - lastExecutedCommand < 2000) {
+                    SystemClock.sleep(2200 - (System.currentTimeMillis() - lastExecutedCommand));
+                }
                 lastExecutedCommand = System.currentTimeMillis();
                 if (bluetoothConnectionGatt != null && bluetoothConnectionGatt.getService(serviceUUID) != null) {
                     BluetoothGattCharacteristic chara = bluetoothConnectionGatt.getService(serviceUUID)
@@ -1069,21 +1086,25 @@ public class MedLinkBLE extends RileyLinkBLE {
 
         synchronized (commandsToAdd) {
             CommandsToAdd command = new CommandsToAdd(serviceUUID, charaUUID, msg);
+            addCommand(command, first);
             if (isBolus(msg.getCommandType())) {
                 removeStopCommands();
                 Stream<MedLinkPumpMessage> startStop = ((BolusMedLinkMessage) msg).getStartStopCommands().stream();
                 startStop.forEach(f -> {
-
                     if (f.getCommandType() == MedLinkCommandType.StartPump) {
                         addWriteCharacteristic(serviceUUID, charaUUID, startCommand, CommandPriority.HIGH);
                     } else if (f.getCommandType() == MedLinkCommandType.StopPump) {
                         addWriteCharacteristic(serviceUUID, charaUUID, stopCommand, CommandPriority.LOWER);
                     }
                 });
+                MedLinkPumpMessage bolusStatus = ((BolusMedLinkMessage) msg).getBolusProgressMessage();
+                if (bolusStatus != null) {
+                    addWriteCharacteristic(serviceUUID, charaUUID, bolusStatus, CommandPriority.NORMAL);
+                }
             }
-            addCommand(command, first);
         }
     }
+
 
     private void addCommand(CommandsToAdd command, boolean first) {
         aapsLogger.info(LTag.PUMPBTCOMM, "adding Command " + command.command.getCommandType().code);
@@ -1204,6 +1225,9 @@ public class MedLinkBLE extends RileyLinkBLE {
             disconnect();
         } else if (connectionStatus.isConnecting()) {
             return;
+        } else if (System.currentTimeMillis() - connectionStatusChange > 180000) {
+            close(true);
+            return;
         }
         synchronized (connectionStatus) {
             lastCharacteristic = "";
@@ -1230,8 +1254,9 @@ public class MedLinkBLE extends RileyLinkBLE {
     }
 
     public boolean enableNotifications() {
+
         BLECommOperationResult result = setNotification_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), //
-                UUID.fromString(GattAttributes.GATT_UUID));
+                UUID.fromString(GattAttributes.GATT_UUID), false);
         if (result.resultCode != RESULT_SUCCESS) {
             aapsLogger.error(LTag.PUMPBTCOMM, "Error setting response count notification");
             return false;
@@ -1239,7 +1264,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         return true;
     }
 
-    protected BLECommOperationResult setNotification_blocking(UUID serviceUUID, UUID charaUUID) {
+    protected BLECommOperationResult setNotification_blocking(UUID serviceUUID, UUID charaUUID, boolean disable) {
         aapsLogger.debug("Enable medlink notification");
         aapsLogger.info(LTag.PUMPBTCOMM, "Enable medlink notification");
         aapsLogger.info(LTag.PUMPBTCOMM, "" + bluetoothConnectionGatt);
@@ -1294,7 +1319,9 @@ public class MedLinkBLE extends RileyLinkBLE {
                     // Check if characteristic has NOTIFY or INDICATE properties and set the correct byte value to be written
                     byte[] value;
                     int properties = characteristic.getProperties();
-                    if ((properties & PROPERTY_NOTIFY) > 0) {
+                    if (disable) {
+                        value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+                    } else if ((properties & PROPERTY_NOTIFY) > 0) {
                         value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
                     } else if ((properties & PROPERTY_INDICATE) > 0) {
                         value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
@@ -1445,7 +1472,6 @@ public class MedLinkBLE extends RileyLinkBLE {
     public void disconnect() {
         changeConnectionStatus(ConnectionStatus.DISCONNECTING);
         servicesDiscovered = false;
-        notificationEnabled = false;
         super.disconnect();
         aapsLogger.info(LTag.PUMPBTCOMM, "Post disconnect");
         setConnected(false);

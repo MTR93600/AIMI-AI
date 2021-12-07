@@ -5,9 +5,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
@@ -18,7 +15,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
 public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     private static MedLinkCommandType bolusArgument = MedLinkCommandType.BolusAmount;
-    private final BolusProgressCallback bolusProgressCallback;
+    private final MedLinkPumpMessage bolusProgressMessage;
     private final double bolusAmount;
 
     private final List<MedLinkPumpMessage> startStopCommands;
@@ -34,14 +31,14 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
                                double bolusAmount,
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<String>> bolusCallback,
-                               BolusProgressCallback bolusProgressCallback, BleBolusCommand bleBolusCommand,
-                               List<MedLinkPumpMessage> postComands) {
+                               MedLinkPumpMessage bolusProgressMessage, BleBolusCommand bleBolusCommand,
+                               List<MedLinkPumpMessage> postCommands) {
         super(bolusCommand, bleBolusCommand);
         this.bolusAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;
-        this.bolusProgressCallback = bolusProgressCallback;
-        this.startStopCommands = postComands;
+        this.bolusProgressMessage = bolusProgressMessage;
+        this.startStopCommands = postCommands;
     }
 
     public double getBolusAmount() {
@@ -53,8 +50,8 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
         return bolusArgument.getRaw();
     }
 
-    public BolusProgressCallback getBolusProgressCallback() {
-        return bolusProgressCallback;
+    public MedLinkPumpMessage getBolusProgressMessage() {
+        return bolusProgressMessage;
     }
 
     public List<MedLinkPumpMessage> getStartStopCommands() {

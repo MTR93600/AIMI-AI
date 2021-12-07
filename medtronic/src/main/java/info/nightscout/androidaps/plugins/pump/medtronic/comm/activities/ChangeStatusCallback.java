@@ -41,7 +41,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
         aapsLogger.info(LTag.PUMPBTCOMM, "StartStop Function");
         Stream<String> applied = a.get();
         for (Object val: a.get().toArray()) {
-            System.out.println(val.toString());
+            aapsLogger.info(LTag.PUMPBTCOMM,val.toString());
         }
         Stream<String> filtered = applied.filter(f -> f.contains("pump") && f.contains("state"));
         Optional<PumpDriverState> result = filtered.reduce((first, second) -> second).map(f -> {

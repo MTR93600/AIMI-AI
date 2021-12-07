@@ -22,15 +22,17 @@ class BleStartCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServic
             answer.contains("pump normal state")  -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, "status command")
                 aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
-                applyResponse(pumpResponse.toString(),bleComm?.currentCommand, bleComm)
+                applyResponse(pumpResponse.toString(), bleComm?.currentCommand, bleComm)
                 pumpResponse = StringBuffer()
                 bleComm?.currentCommand?.commandExecuted()
                 // bleComm?.completedCommand()
             }
+
             answer.contains("pump suspend state") -> {
                 bleComm?.completedCommand()
             }
-            else                                   -> {
+
+            else                                  -> {
                 super.characteristicChanged(answer, bleComm, lastCommand)
             }
         }

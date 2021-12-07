@@ -1,6 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +41,11 @@ public class StatusCallback extends BaseStatusCallback {
         aapsLogger.info(LTag.PUMPBTCOMM, s.get().collect(Collectors.joining()));
         String[] messages = answer.toArray(String[]::new);
         aapsLogger.debug("ready");
-        medLinkPumpStatus.lastConnection = Long.parseLong(messages[0]);
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(messages[0]);
+        if(matcher.find()){
+            medLinkPumpStatus.lastConnection = Long.parseLong(matcher.group(0));
+        }
         MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
         MedLinkStatusParser.parseStatus(messages, medLinkPumpStatus, medLinkPumpPlugin.getInjector());
         aapsLogger.debug("Pumpstatus");
