@@ -1687,7 +1687,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + servicesDiscovered);
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + commandQueueBusy);
         aapsLogger.info(LTag.PUMPBTCOMM, "nextCommand " + connectionStatus);
-        if (currentCommand != null && (currentCommand.hasFinished() || currentCommand.getNrRetries() > MAX_TRIES)) {
+        if (currentCommand != null && currentCommand.getNrRetries() > MAX_TRIES) {
             removeFirstCommand(true);
         }
         printBuffer();
@@ -1699,6 +1699,8 @@ public class MedLinkBLE extends RileyLinkBLE {
             aapsLogger.info(LTag.PUMPBTCOMM, "bluetoothConnectionGatt " + bluetoothConnectionGatt);
             if (commandQueueBusy) {
                 return;
+            } else if (currentCommand != null && currentCommand.hasFinished()) {
+                removeStopCommands();
             }
             // Check if we still have a valid gatt object
             try {
