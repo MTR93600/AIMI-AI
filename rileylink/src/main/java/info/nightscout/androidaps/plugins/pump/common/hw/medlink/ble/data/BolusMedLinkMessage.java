@@ -19,6 +19,7 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
     private final double bolusAmount;
 
     private final List<MedLinkPumpMessage> startStopCommands;
+    private final boolean shouldbesuspended;
 
 //    public BolusMedLinkMessage(double bolusAmount) {
 //        super( MedLinkCommandType.Bolus);
@@ -32,13 +33,15 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<String>> bolusCallback,
                                MedLinkPumpMessage bolusProgressMessage, BleBolusCommand bleBolusCommand,
-                               List<MedLinkPumpMessage> postCommands) {
+                               List<MedLinkPumpMessage> postCommands,
+                               boolean shouldBeSuspended) {
         super(bolusCommand, bleBolusCommand);
         this.bolusAmount = bolusAmount;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;
         this.bolusProgressMessage = bolusProgressMessage;
         this.startStopCommands = postCommands;
+        this.shouldbesuspended = shouldBeSuspended;
     }
 
     public double getBolusAmount() {
@@ -58,4 +61,7 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
         return startStopCommands;
     }
 
+    public boolean isShouldbesuspended() {
+        return shouldbesuspended;
+    }
 }

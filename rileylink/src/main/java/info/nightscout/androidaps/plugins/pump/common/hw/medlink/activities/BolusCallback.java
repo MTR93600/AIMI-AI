@@ -61,12 +61,6 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
                 pumpResponse.set(deliveredBolus(f));
                 return pumpResponse;
             });
-        } else if (answers.get().anyMatch(f -> f.toLowerCase().contains("suspend state"))) {
-            pumpPlugin.startPump(new Callback() {
-                @Override public void run() {
-                    aapsLogger.info(LTag.EVENTS, "bolus pump starting");
-                }
-            }, true);
         } else {
             pumpResponse.set(new BolusAnswer(PumpResponses.UnknownAnswer,
                     answers.get().collect(Collectors.joining())));
@@ -84,7 +78,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
             return new MedLinkStandardReturn<>(answers, pumpResponse.get());
         } else if (pumpResponse.get() == null) {
             return new MedLinkStandardReturn<BolusAnswer>(answers, new BolusAnswer(
-                    PumpResponses.UnknownAnswer,answers.get().collect(Collectors.joining())));
+                    PumpResponses.UnknownAnswer, answers.get().collect(Collectors.joining())));
         } else {
             return new MedLinkStandardReturn<BolusAnswer>(answers, pumpResponse.get(), MedLinkStandardReturn.ParsingError.BolusParsingError);
         }

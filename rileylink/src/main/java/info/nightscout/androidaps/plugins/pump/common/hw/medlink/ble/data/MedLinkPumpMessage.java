@@ -22,7 +22,6 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 {
 
     private BleCommand bleCommand;
-    private boolean priority = false;
     private final MedLinkCommandType commandType;
 
     protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> argCallback;
@@ -54,21 +53,12 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                               Function<Supplier<Stream<String>>,
                                       MedLinkStandardReturn<B>> baseCallback,
                               Long btSleepTime,
-                              boolean priority, BleCommand bleCommand) {
+                              BleCommand bleCommand) {
         this.argument = argument;
         this.commandType = commandType;
         this.baseCallback = baseCallback;
         this.btSleepTime = btSleepTime;
-        this.priority = priority;
         this.bleCommand = bleCommand;
-    }
-
-    public MedLinkPumpMessage(MedLinkCommandType commandType,
-                              MedLinkCommandType argument,
-                              Function<Supplier<Stream<String>>,
-                                      MedLinkStandardReturn<B>> baseCallback,
-                              Long btSleepTime, BleCommand bleCommand) {
-        this(commandType, argument, baseCallback, btSleepTime, false, bleCommand);
     }
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
@@ -146,10 +136,6 @@ public class MedLinkPumpMessage<B> //implements RLMessage
                 ", baseCallback=" + baseCallback +
                 ", btSleepTime=" + btSleepTime +
                 '}';
-    }
-
-    public boolean isPriority() {
-        return priority;
     }
 
     public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {

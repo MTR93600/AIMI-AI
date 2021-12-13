@@ -293,10 +293,6 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void startPump(Callback callback) {
-        this.startPump(callback, false);
-    }
-
-    public void startPump(Callback callback, boolean prepend) {
         getAapsLogger().info(LTag.PUMP, "MedtronicPumpPlugin::startPump - ");
 
         if (!medLinkPumpStatus.pumpStatusType.equals(PumpStatusType.Running)) {
@@ -317,7 +313,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkPumpMessage message = new MedLinkPumpMessage(MedLinkCommandType.StopStartPump,
                     MedLinkCommandType.StartPump,
                     activity,
-                    getBtSleepTime(), prepend,
+                    getBtSleepTime(),
                     new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
             medLinkService.getMedtronicUIComm().executeCommandCP(message);
         }
@@ -2857,8 +2853,13 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     detailedBolusInfo.insulin,
                     andThem, buildBolusStatusMessage(),
                     new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
-                    buildBolusCommands()
-            );
+                    buildBolusCommands(),
+                    (tempbasalMicrobolusOperations != null &&
+                            (tempbasalMicrobolusOperations.shouldBeSuspended() ||
+                                    tempbasalMicrobolusOperations.getOperations().stream().findFirst().map(f ->
+                                            f.getOperationType() == TempBasalMicroBolusPair.OperationType.REACTIVATE).orElse(false)
+                                    || tempbasalMicrobolusOperations.getAbsoluteRate() == 0D)
+                    ));
 
 
             MedLinkMedtronicUITaskCp responseTask = medLinkService.getMedtronicUIComm().executeCommandCP(msg);
@@ -2946,7 +2947,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     buildReactivateFunction(tempbasalMicrobolusOperations.getOperations().getFirst(),
                             callback, ChangeStatusCallback.OperationType.START)
             );
-            if(this.tempbasalMicrobolusOperations.shouldBeSuspended() && getTemporaryBasal() != null &&
+            if (this.tempbasalMicrobolusOperations.shouldBeSuspended() && getTemporaryBasal() != null &&
                     getTemporaryBasal().absoluteRate < 100) {
                 commands.add(
                         buildReactivateFunction(tempbasalMicrobolusOperations.getOperations().getFirst(),
@@ -3049,9 +3050,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     @Override protected void deliverBolus(DetailedBolusInfo detailedBolusInfo,
                                           Function1<? super PumpEnactResult, Unit> func) {
         getAapsLogger().info(LTag.PUMP, "MedtronicPumpPlugin::deliverBolus - " + BolusDeliveryType.DeliveryPrepared);
-
         setRefreshButtonEnabled(false);
-
         if (detailedBolusInfo.insulin > medLinkPumpStatus.reservoirRemainingUnits) {
             func.invoke(new PumpEnactResult(getInjector()) //
                     .success(false) //
@@ -3061,42 +3060,29 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                             detailedBolusInfo.insulin)));
             return;
         }
-
         bolusDeliveryType = BolusDeliveryType.DeliveryPrepared;
-
         if (isPumpNotReachable()) {
             getAapsLogger().debug(LTag.PUMP, "MedtronicPumpPlugin::deliverBolus - Pump Unreachable.");
             func.invoke(setNotReachable(true, false));
         }
-
         medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
-
         if (bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) {
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Delivery Canceled.");
             func.invoke(setNotReachable(true, true));
         }
-
         // LOG.debug("MedtronicPumpPlugin::deliverBolus - Starting wait period.");
-
         int sleepTime = sp.getInt(MedtronicConst.Prefs.BolusDelay, 10) * 1000;
-
 //        SystemClock.sleep(sleepTime);
-
         if (bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) {
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Delivery Canceled, before wait period.");
             func.invoke(setNotReachable(true, true));
         }
-
         // LOG.debug("MedtronicPumpPlugin::deliverBolus - End wait period. Start delivery");
 
         try {
-
             bolusDeliveryType = MedtronicPumpPlugin.BolusDeliveryType.Delivering;
-
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Start delivery");
             AtomicReference<Boolean> response = new AtomicReference<>(false);
-
-
             if (lastDetailedBolusInfo != null) {
                 readBolusData(lastDetailedBolusInfo);
             }
@@ -3104,7 +3090,6 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             BolusCallback bolusCallback = new BolusCallback(aapsLogger, this, bolus);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThen = bolusCallback.andThen(f -> {
                 Supplier<Stream<String>> answer = f::getAnswer;
-//                answer.get().forEach(x -> getAapsLogger().info(LTag.PUMPBTCOMM, x));
                 getAapsLogger().info(LTag.PUMPBTCOMM, f.getFunctionResult().getResponse().name());
                 if (PumpResponses.BolusDelivered.equals(f.getFunctionResult().getResponse())) {
                     bolusDeliveryType = BolusDeliveryType.Idle;
@@ -3172,13 +3157,19 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
             MedLinkPumpMessage bolusStatusMessage = null;
-            if(detailedBolusInfo.insulin > 0.3d){
+            if (detailedBolusInfo.insulin > 0.3d) {
                 bolusStatusMessage = buildBolusStatusMessage();
             }
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, bolus.insulin,
                     andThen, bolusStatusMessage,
                     new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
-                    buildBolusCommands()
+                    buildBolusCommands(),
+                    (tempbasalMicrobolusOperations != null &&
+                            (tempbasalMicrobolusOperations.shouldBeSuspended() ||
+                                    tempbasalMicrobolusOperations.getOperations().stream().findFirst().map(f ->
+                                            f.getOperationType() == TempBasalMicroBolusPair.OperationType.REACTIVATE).orElse(false)
+                                    || tempbasalMicrobolusOperations.getAbsoluteRate() == 0D))
+
             );
 
 
@@ -3250,7 +3241,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 aapsLogger);
         BleBolusStatusCommand bolusStatusCommand = new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
 
-        MedLinkPumpMessage message = new BolusStatusMedLinkMessage(bolusCallback,getBtSleepTime(),
+        MedLinkPumpMessage message = new BolusStatusMedLinkMessage(bolusCallback, getBtSleepTime(),
                 bolusStatusCommand);
         return message;
     }
