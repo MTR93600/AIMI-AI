@@ -935,6 +935,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             oper.setCommandIssued(true);
             switch (oper.getOperationType()) {
                 case SUSPEND: {
+                    tempbasalMicrobolusOperations.setShouldBeSuspended(true);
                     if (!PumpStatusType.Suspended.equals(getPumpStatusData().pumpStatusType)) {
                         stopPump(new Callback() {
                             @Override public void run() {
@@ -942,7 +943,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                                     tempbasalMicrobolusOperations.getOperations().poll();
                                     oper.setCommandIssued(true);
                                 }
-                                tempbasalMicrobolusOperations.setShouldBeSuspended(true);
+
                             }
                         });
                     } else {
@@ -951,9 +952,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 }
                 break;
                 case REACTIVATE: {
+
+                    tempbasalMicrobolusOperations.setShouldBeSuspended(false);
                     Function1 callback = oper.getCallback();
                     reactivatePump(oper, f -> {
-                        tempbasalMicrobolusOperations.setShouldBeSuspended(false);
                         return callback;
                     });
                 }
