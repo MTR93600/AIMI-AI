@@ -773,6 +773,10 @@ public class LoopPlugin extends PluginBase implements LoopInterface {
 
         getAapsLogger().info(LTag.APS, "aplytbrrequest " + request.tempBasalRequested);
         if (!request.tempBasalRequested) {
+            PumpInterface pump = activePlugin.getActivePump();
+            if( pump instanceof MedLinkPumpDevice){
+                ((MedLinkPumpDevice) pump).cancelTempBasal(true, callback);
+            }
             if (callback != null) {
                 callback.result(new PumpEnactResult(getInjector()).enacted(false).success(true).comment(resourceHelper.gs(R.string.nochangerequested))).run();
             }
