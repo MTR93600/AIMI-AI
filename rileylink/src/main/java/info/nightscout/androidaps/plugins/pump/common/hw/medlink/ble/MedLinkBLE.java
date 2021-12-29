@@ -1640,7 +1640,7 @@ public class MedLinkBLE extends RileyLinkBLE {
             if (commandQueueBusy) {
                 return;
             } else if (currentCommand != null && currentCommand.hasFinished()) {
-                removeStopCommands();
+                removeFirstCommand(false);
             }
             // Check if we still have a valid gatt object
             try {

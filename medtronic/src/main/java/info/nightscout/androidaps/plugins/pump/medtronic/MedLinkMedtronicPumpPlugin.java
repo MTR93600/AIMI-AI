@@ -1609,6 +1609,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult setTempBasalAbsolute(Double absoluteRate, Integer durationInMinutes, Profile profile,
                                                 boolean enforceNew, Function1 callback) {
         PumpEnactResult result;
+        checkPumpNeedToBeStarted(absoluteRate, profile);
         getAapsLogger().info(LTag.PUMPBTCOMM, "absolute rate " + absoluteRate + " " + durationInMinutes);
         getAapsLogger().info(LTag.PUMPBTCOMM, "gettempBasal " + getTemporaryBasal());
         if (absoluteRate != 0d && (absoluteRate == getBaseBasalRate() ||
@@ -1662,9 +1663,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     @NonNull @Override
     public PumpEnactResult setTempBasalAbsolute(Double absoluteRate, Integer durationInMinutes, Profile profile,
                                                 boolean enforceNew) {
-
+        checkPumpNeedToBeStarted(absoluteRate, profile);
         setRefreshButtonEnabled(false);
-
         if (isPumpNotReachable()) {
 
             setRefreshButtonEnabled(true);
@@ -1774,6 +1774,17 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_tbr_could_not_be_delivered));
 //        }
 
+    }
+
+    private void checkPumpNeedToBeStarted(Double absoluteRate, Profile profile) {
+        MedLinkTemporaryBasal previousBasal = getTemporaryBasal();
+        if(absoluteRate>0d && previousBasal !=null &&
+                previousBasal.absoluteRate< profile.getBasal()) {
+            startPump(new Callback() {
+                @Override public void run() {
+                }
+            });
+        }
     }
 
     protected PumpEnactResult clearTempBasal() {
@@ -2385,6 +2396,15 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult setTempBasalPercent(Integer percent, Integer durationInMinutes,
                                                Profile profile, boolean enforceNew, Function1 callback) {
 
+        MedLinkTemporaryBasal previousBasal = getTemporaryBasal();
+        if(previousBasal!=null && previousBasal.percentRate < 100 && percent >=100) {
+            startPump(new Callback() {
+                @Override public void run() {
+
+                }
+            });
+        }
+
         PumpEnactResult result;
         tempbasalMicrobolusOperations.getOperations().clear();
         if (percent == 100) {
@@ -2811,7 +2831,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     lastBolusTime = System.currentTimeMillis();
                     getAapsLogger().info(LTag.PUMPBTCOMM, "pump is delivering");
                     response.set(true);
-                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
+//                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
 //                    processDeliveredBolus(answer, detailedBolusInfo);
                 } else if (answer.getResponse().equals(PumpResponses.UnknownAnswer)) {
                     getAapsLogger().info(LTag.PUMPBTCOMM, "need to check bolus");
@@ -3097,7 +3117,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     bolusDeliveryType = BolusDeliveryType.Idle;
 
                     processDeliveredBolus(f.getFunctionResult(), bolus);
-                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
+//                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
                     func.invoke(new PumpEnactResult(getInjector()).success(true) //
                             .enacted(true) //
                             .bolusDelivered(bolus.insulin) //
