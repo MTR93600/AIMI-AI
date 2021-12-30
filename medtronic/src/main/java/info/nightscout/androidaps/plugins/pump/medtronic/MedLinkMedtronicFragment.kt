@@ -18,6 +18,7 @@ import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBusWrapper
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
@@ -228,6 +229,14 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
             else                                 -> aapsLogger.warn(LTag.PUMP, "Unknown pump state: " + medtronicPumpStatus.pumpDeviceState)
         }
+
+
+        var id  = if(medtronicPumpStatus.pumpStatusType == PumpStatusType.Running){
+            R.string.medtronic_pump_state_RUNNING;
+        } else {
+            R.string.medtronic_pump_state_SUSPENDED;
+        }
+        medtronic_pump_state.text = resourceHelper.gs(id)
 
         val status = commandQueue.spannedStatus()
         if (status.toString() == "") {

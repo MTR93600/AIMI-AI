@@ -75,4 +75,7 @@
     <!-- combo_pump_connected_now -->
     <!-- combo_notification_check_time_date -->
     <string name="pump_time_updated">Hora da bomba actualizada</string>
+    <string name="medtronic_pump_state">Estado da bomba</string>
+    <string name="medtronic_pump_state_SUSPENDED">Suspensa</string>
+    <string name="medtronic_pump_state_RUNNING">Ativa</string>
 </resources>

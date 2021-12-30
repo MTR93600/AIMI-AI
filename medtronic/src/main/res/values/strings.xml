@@ -157,5 +157,7 @@
     <string name="medlink_init_command_summary">Here you can choose which commands will be delivered when the aaps initialize.</string>
     <string name="isig_label">ISIG</string>
     <string name="next_command_label">Next command</string>
-
+    <string name="medtronic_pump_state">Pump State</string>
+    <string name="medtronic_pump_state_SUSPENDED">Suspended</string>
+    <string name="medtronic_pump_state_RUNNING">Active</string>
 </resources>
