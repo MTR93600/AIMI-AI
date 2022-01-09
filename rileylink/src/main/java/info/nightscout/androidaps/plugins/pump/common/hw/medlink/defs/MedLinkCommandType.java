@@ -40,7 +40,7 @@ public enum MedLinkCommandType {
     BolusStatus("M"),
     SMBBolus("X", true),
     TBRBolus("X", true),
-
+    PreviousBolusHistory("G",true)
 //    ,
 //    Enter("")//Current Active Profile
     // screenshots z C, H, E, I

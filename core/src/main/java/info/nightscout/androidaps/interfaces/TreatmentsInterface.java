@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.interfaces;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import info.nightscout.androidaps.data.Intervals;
 import info.nightscout.androidaps.data.IobTotal;
 import info.nightscout.androidaps.data.NonOverlappingIntervals;
 import info.nightscout.androidaps.data.ProfileIntervals;
+import info.nightscout.androidaps.db.CareportalEvent;
 import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.ProfileSwitch;
 import info.nightscout.androidaps.db.TempTarget;
@@ -89,4 +91,5 @@ public interface TreatmentsInterface {
 
     TreatmentUpdateReturn createOrUpdateMedtronic(Treatment treatment, boolean fromNightScout);
 
+    public void addtoHistoryCarePortalEvent(CareportalEvent careportalEvent) ;
 }

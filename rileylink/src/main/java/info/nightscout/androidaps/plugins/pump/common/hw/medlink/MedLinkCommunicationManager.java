@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink;
 
 
-
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -88,16 +87,16 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
             aapsLogger.info(LTag.PUMPCOMM, "Sent:" + msg.getCommandType().code);
         }
 
-        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> function = msg.getBaseCallback().andThen(f ->{
-            Supplier<Stream<String>> answer = () -> f.getAnswer();
-            if(f.getErrors() == null || f.getErrors().isEmpty()){
+        Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> function = msg.getBaseCallback().andThen(f -> {
+            if (f != null && (f.getErrors() == null || f.getErrors().isEmpty())) {
                 rememberLastGoodDeviceCommunicationTime();
-            }else{
+            } else if(f != null) {
+                Supplier<Stream<String>> answer = f::getAnswer;
                 aapsLogger.warn(LTag.PUMPCOMM, "isDeviceReachable. Response is invalid ! [errors={}", f.getErrors());
-                if(answer.get().anyMatch(ans -> ans.contains("at+sleep")) || answer.get().anyMatch(ans -> ans.contains("powerdown"))){
+                if (answer.get().anyMatch(ans -> ans.contains("at+sleep")) || answer.get().anyMatch(ans -> ans.contains("powerdown"))) {
 //                    throw new RileyLinkCommunicationException(RileyLinkBLEError.Timeout);
                     f.addError(MedLinkStandardReturn.ParsingError.Timeout);
-                }else if(answer.get().anyMatch(ans -> ans.contains("wake up not confirmed")) || answer.get().anyMatch(ans -> ans.equals(""))){ //TODO look for ex error
+                } else if (answer.get().anyMatch(ans -> ans.contains("wake up not confirmed")) || answer.get().anyMatch(ans -> ans.equals(""))) { //TODO look for ex error
                     f.addError(MedLinkStandardReturn.ParsingError.Interrupted);
                 }
             }
@@ -312,7 +311,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 //        } else {
 //            aapsLogger.error(LTag.PUMPCOMM, "No pump response during scan.");
         //Hardcoded frequency because medlink doesn't support frequency change
-            return RileyLinkTargetFrequency.Medtronic_US.getScanFrequencies()[1];
+        return RileyLinkTargetFrequency.Medtronic_US.getScanFrequencies()[1];
 //        }
     }
 
@@ -362,7 +361,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
 
     @Override public double quickTuneForPump(double startFrequencyMHz) {
         double betterFrequency = startFrequencyMHz;
-        aapsLogger.info(LTag.PUMPBTCOMM,"quicktune");
+        aapsLogger.info(LTag.PUMPBTCOMM, "quicktune");
         wakeUp(false);
 //        double stepsize = 0.05;
 ////        for (int tries = 0; tries < 4; tries++) {
@@ -422,7 +421,7 @@ public abstract class MedLinkCommunicationManager implements CommunicationManage
         lastGoodReceiverCommunicationTime = System.currentTimeMillis();
 
         sp.putLong(MedLinkConst.Prefs.LastGoodDeviceCommunicationTime, lastGoodReceiverCommunicationTime);
-        if(getPumpStatus() != null) {
+        if (getPumpStatus() != null) {
             getPumpStatus().setLastCommunicationToNow();
         }
 

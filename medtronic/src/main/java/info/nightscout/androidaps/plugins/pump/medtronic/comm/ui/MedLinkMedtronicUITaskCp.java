@@ -106,6 +106,7 @@ public class MedLinkMedtronicUITaskCp {
                 }, pumpMessage);
             }
             break;
+            case PreviousBolusHistory:
             case BolusHistory: {
                 returnData = communicationManager.getBolusHistory(pumpMessage);
             }

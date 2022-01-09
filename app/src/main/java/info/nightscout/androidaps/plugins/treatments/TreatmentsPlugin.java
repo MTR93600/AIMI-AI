@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import info.nightscout.androidaps.data.NonOverlappingIntervals;
 import info.nightscout.androidaps.data.OverlappingIntervals;
 import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.ProfileIntervals;
+import info.nightscout.androidaps.db.CareportalEvent;
 import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.ProfileSwitch;
 import info.nightscout.androidaps.db.Source;
@@ -823,4 +826,12 @@ public class TreatmentsPlugin extends PluginBase implements TreatmentsInterface 
         }
     }
 
+    public void addtoHistoryCarePortalEvent(CareportalEvent careportalEvent) {
+        MainApp.getDbHelper().createOrUpdate(careportalEvent);
+        try {
+            nsUpload.uploadCareportalEntryToNS(new JSONObject(careportalEvent.json));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

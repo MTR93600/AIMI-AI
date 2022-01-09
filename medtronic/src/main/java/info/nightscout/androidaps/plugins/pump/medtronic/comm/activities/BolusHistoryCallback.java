@@ -1,5 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,13 +18,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
+import info.nightscout.androidaps.db.CareportalEvent;
 import info.nightscout.androidaps.db.Source;
 import info.nightscout.androidaps.logging.AAPSLogger;
 import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
+import info.nightscout.androidaps.utils.DateUtil;
 
 /**
  * Created by Dirceu on 15/02/21.
@@ -46,12 +50,22 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
         }
         //Empty Line
         answers.next();
-        Stream<DetailedBolusInfo> bolusHistory;
+        Supplier<Stream<DetailedBolusInfo>> bolusHistory;
         try {
-            bolusHistory = processBolusHistory(answers).stream().filter(Optional::isPresent).
-                    map(Optional::get);
-            medLinkPumpPlugin.handleNewTreatmentData(bolusHistory);
-            return new MedLinkStandardReturn<>(ans, bolusHistory, Collections.emptyList());
+            Supplier<Stream<Optional<?>>> commandHistory = processBolusHistory(answers);
+            Stream<DetailedBolusInfo> bolus =null;
+
+
+            medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter(f ->
+                    f.isPresent() && f.get() instanceof CareportalEvent).
+                    map(f -> (CareportalEvent) f.get()));
+            Supplier<Stream<Optional<?>>> resultStream = () -> commandHistory.get().filter(
+                    f -> f.isPresent() && f.get() instanceof DetailedBolusInfo);
+            if (resultStream.get().count() < 3) {
+                medLinkPumpPlugin.readBolusHistory(true);
+            }
+            medLinkPumpPlugin.handleNewTreatmentData(resultStream.get().map(f -> (DetailedBolusInfo) f.get()));
+            return new MedLinkStandardReturn<>(ans, resultStream.get().map(f -> (DetailedBolusInfo) f.get()), Collections.emptyList());
         } catch (ParseException e) {
             e.printStackTrace();
             return new MedLinkStandardReturn<>(ans, Stream.empty(),
@@ -59,26 +73,110 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
         }
     }
 
-    private List<Optional<DetailedBolusInfo>> processBolusHistory(Iterator<String> answers) throws ParseException {
-        List<Optional<DetailedBolusInfo>> results = new ArrayList<>();
+    private Supplier<Stream<Optional<?>>> processBolusHistory(Iterator<String> answers) throws ParseException {
+        List<Optional<? extends Object>> resultList = new ArrayList<>();
         while (answers.hasNext()) {
-            results.add(processBolus(answers));
+            resultList.add(processData(answers));
         }
-        return results;
+        Supplier<Stream<Optional<?>>> resultStream = resultList::stream;
+        return resultStream;
+    }
+
+    private Optional<? extends Object> processData(Iterator<String> answers) throws ParseException {
+        String answer = answers.next();
+        if (answer.contains("bolus:")) {
+            return processBolus(answers);
+        } else if (answer.contains("battery")) {
+            return processBattery(answers.next());
+        } else if (answer.contains("reservoir change")) {
+            return processSite(answers.next());
+        } else if (answer.contains("reservoir rewind")) {
+            return processReservoir(answers.next());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<? extends Object> processSite(String answer) throws ParseException {
+            Matcher matcher = parseMatcher(answer);
+            if (matcher.find()) {
+                JSONObject json = new JSONObject();
+                long date = parsetTime(answer, matcher);
+                try {
+                    json.put("created_at", DateUtil.toISOString(date));
+                    json.put("mills", date);
+                    json.put("eventType", CareportalEvent.SITECHANGE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                CareportalEvent event = new CareportalEvent(medLinkPumpPlugin.getInjector());
+                event.date = date;
+                event.eventType = CareportalEvent.INSULINCHANGE;
+                event.source = Source.PUMP;
+                event.json = json.toString();
+                aapsLogger.debug("USER ENTRY: CAREPORTAL ${careportalEvent.eventType} json: ${careportalEvent.json}");
+                return Optional.of(event);
+            }
+            return Optional.empty();
+        }
+
+    private Optional<? extends Object> processReservoir(String answer) throws ParseException {
+        Matcher matcher = parseMatcher(answer);
+        if (matcher.find()) {
+            JSONObject json = new JSONObject();
+            long date = parsetTime(answer, matcher);
+            try {
+                json.put("created_at", DateUtil.toISOString(date));
+                json.put("mills", date);
+                json.put("eventType", CareportalEvent.INSULINCHANGE);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            CareportalEvent event = new CareportalEvent(medLinkPumpPlugin.getInjector());
+            event.date = date;
+            event.eventType = CareportalEvent.INSULINCHANGE;
+            event.source = Source.PUMP;
+            event.json = json.toString();
+            aapsLogger.debug("USER ENTRY: CAREPORTAL ${careportalEvent.eventType} json: ${careportalEvent.json}");
+            return Optional.of(event);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<CareportalEvent> processBattery(String answer) throws ParseException {
+        Matcher matcher = parseMatcher(answer);
+        if (matcher.find()) {
+            JSONObject json = new JSONObject();
+            long date = parsetTime(answer, matcher);
+            try {
+                json.put("created_at", DateUtil.toISOString(date));
+                json.put("mills", date);
+                json.put("eventType", CareportalEvent.PUMPBATTERYCHANGE);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            CareportalEvent event = new CareportalEvent(medLinkPumpPlugin.getInjector());
+            event.date = date;
+            event.eventType = CareportalEvent.PUMPBATTERYCHANGE;
+            event.source = Source.PUMP;
+            event.json = json.toString();
+            aapsLogger.debug("USER ENTRY: CAREPORTAL ${careportalEvent.eventType} json: ${careportalEvent.json}");
+            return Optional.of(event);
+        }
+        return Optional.empty();
     }
 
     private Optional<DetailedBolusInfo> processBolus(Iterator<String> answers) throws ParseException {
-        while (answers.hasNext() && !answers.next().contains("bolus:")) {
 
-        }
-        Pattern bolusDatePattern = Pattern.compile("\\d{2}:\\d{2}\\s+\\d{2}-\\d{2}-\\d{4}");
         if (answers.hasNext()) {
-            Matcher bolusDateMatcher = bolusDatePattern.matcher(answers.next());
-            if (bolusDateMatcher.find()) {
+            String answer = answers.next();
+            Matcher matcher = parseMatcher(answer);
+            if (matcher.find()) {
                 DetailedBolusInfo bolusInfo = new DetailedBolusInfo();
-                String datePattern = "HH:mm dd-MM-yyyy";
-                SimpleDateFormat formatter = new SimpleDateFormat(datePattern, Locale.getDefault());
-                bolusInfo.date = formatter.parse(bolusDateMatcher.group(0)).getTime();
+                bolusInfo.date = parsetTime(answer, matcher);
                 bolusInfo.deliverAt = bolusInfo.date;
                 bolusInfo.insulin = processBolusData(answers, "given bl:");
                 bolusInfo.source = Source.PUMP;
@@ -118,6 +216,17 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
             }
         }
         return Optional.empty();
+    }
+
+    private Matcher parseMatcher(String answer) {
+        Pattern bolusDatePattern = Pattern.compile("\\d{2}:\\d{2}\\s+\\d{2}-\\d{2}-\\d{4}");
+        return bolusDatePattern.matcher(answer);
+    }
+
+    private long parsetTime(String answer, Matcher matcher) throws ParseException {
+        String datePattern = "HH:mm dd-MM-yyyy";
+        SimpleDateFormat formatter = new SimpleDateFormat(datePattern, Locale.getDefault());
+        return formatter.parse(matcher.group(0)).getTime();
     }
 //23:39:17.874 Bolus:
 //23:39:17.903 Time:  21:52  15‑02‑2021

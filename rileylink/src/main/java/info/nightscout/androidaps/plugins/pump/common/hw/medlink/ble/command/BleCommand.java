@@ -38,7 +38,6 @@ public class BleCommand {
 
 
     public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {
-//        aapsLogger.info(LTag.PUMPBTCOMM,"char changed");
         aapsLogger.info(LTag.PUMPBTCOMM, answer);
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand);
         CommandExecutor currentCommand = bleComm.getCurrentCommand();
@@ -175,7 +174,7 @@ public class BleCommand {
 
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady);
 //            bleComm.nextCommand();
-            return;
+
         }
     }
 
@@ -219,10 +218,9 @@ public class BleCommand {
 //                        }
                         return f;
                     });
-                    MedLinkStandardReturn<Stream> lastResult = null;
+                    MedLinkStandardReturn<Stream<String>> lastResult = null;
                     if (Arrays.equals(command, MedLinkCommandType.IsigHistory.getRaw())) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "posting isig");
-                        MedLinkStandardReturn<Stream> finalLastResult = lastResult;
                         Object result = func.apply(sup);
                         if (result == null) {
                             bleComm.retryCommand();

@@ -1266,15 +1266,24 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     private void readBolusHistory() {
+        this.readBolusHistory(false);
+    }
 
-
+    public void readBolusHistory(boolean previous) {
         getAapsLogger().info(LTag.PUMPBTCOMM, "get full bolus history");
 
         lastBolusHistoryRead = System.currentTimeMillis();
         BolusHistoryCallback func =
                 new BolusHistoryCallback(aapsLogger, this);
 
-        MedLinkPumpMessage<Stream<DetailedBolusInfo>> msg = new MedLinkPumpMessage<>(MedLinkCommandType.BolusHistory,
+        MedLinkCommandType command;
+        if (previous) {
+            command = MedLinkCommandType.PreviousBolusHistory;
+        } else {
+            command = MedLinkCommandType.BolusHistory;
+        }
+
+        MedLinkPumpMessage<Stream<DetailedBolusInfo>> msg = new MedLinkPumpMessage<>(command,
                 func,
                 getBtSleepTime()
                 , new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
@@ -1778,8 +1787,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     private void checkPumpNeedToBeStarted(Double absoluteRate, Profile profile) {
         MedLinkTemporaryBasal previousBasal = getTemporaryBasal();
-        if(absoluteRate>0d && previousBasal !=null &&
-                previousBasal.absoluteRate< profile.getBasal()) {
+        if (absoluteRate > 0d && previousBasal != null &&
+                previousBasal.absoluteRate < profile.getBasal()) {
             startPump(new Callback() {
                 @Override public void run() {
                 }
@@ -2397,7 +2406,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                                                Profile profile, boolean enforceNew, Function1 callback) {
 
         MedLinkTemporaryBasal previousBasal = getTemporaryBasal();
-        if(previousBasal!=null && previousBasal.percentRate < 100 && percent >=100) {
+        if (previousBasal != null && previousBasal.percentRate < 100 && percent >= 100) {
             startPump(new Callback() {
                 @Override public void run() {
 
@@ -3419,19 +3428,26 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //        return isigValues;
 //    }
 
+    public void handleNewCareportalEvent(Stream<CareportalEvent> events) {
+        events.forEach(
+                e ->
+                        activePlugin.getActiveTreatments().addtoHistoryCarePortalEvent(e)
+        );
+    }
 
-    public void handleNewTreatmentData(Stream<DetailedBolusInfo> bolusInfos) {
-        bolusInfos.forEachOrdered(bolusInfo -> {
+
+    public void handleNewTreatmentData(Stream<DetailedBolusInfo> bolusInfo) {
+        bolusInfo.forEachOrdered(bInfo -> {
             if (this.lastDetailedBolusInfo != null &&
-                    Math.abs(bolusInfo.date - this.lastDetailedBolusInfo.date) < 220000l &&
-                    bolusInfo.insulin == this.lastDetailedBolusInfo.insulin &&
+                    Math.abs(bInfo.date - this.lastDetailedBolusInfo.date) < 220000L &&
+                    bInfo.insulin == this.lastDetailedBolusInfo.insulin &&
                     this.lastDetailedBolusInfo.carbs != 0d) {
-                bolusInfo.carbs = this.lastDetailedBolusInfo.carbs;
+                bInfo.carbs = this.lastDetailedBolusInfo.carbs;
                 this.lastDetailedBolusInfo = null;
             }
-            activePlugin.getActiveTreatments().addToHistoryTreatment(bolusInfo, false);
-            if (bolusInfo.deliverAt > lastBolusTime) {
-                lastBolusTime = bolusInfo.deliverAt;
+            activePlugin.getActiveTreatments().addToHistoryTreatment(bInfo, false);
+            if (bInfo.deliverAt > lastBolusTime) {
+                lastBolusTime = bInfo.deliverAt;
             }
         });
     }
