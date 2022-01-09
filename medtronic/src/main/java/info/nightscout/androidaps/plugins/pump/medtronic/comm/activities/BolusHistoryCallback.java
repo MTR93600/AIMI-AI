@@ -86,7 +86,7 @@ public class BolusHistoryCallback extends BaseCallback<Stream<DetailedBolusInfo>
         String answer = answers.next();
         if (answer.contains("bolus:")) {
             return processBolus(answers);
-        } else if (answer.contains("battery")) {
+        } else if (answer.contains("battery insert")) {
             return processBattery(answers.next());
         } else if (answer.contains("reservoir change")) {
             return processSite(answers.next());

@@ -8,11 +8,16 @@ abstract class ContinuousCommandExecutor<B>(val message: MedLinkPumpMessage<B>, 
 
     override fun hasFinished(): Boolean {
         val callback = message.baseCallback
-        if (callback is BolusProgressCallback && callback.resend) {
+        return if (callback is BolusProgressCallback && callback.resend) {
             clearExecutedCommand()
-            return false;
+            false;
         } else {
-            return super.hasFinished()
+            super.hasFinished()
         }
+    }
+
+    override fun clearExecutedCommand() {
+        super.clearExecutedCommand()
+        nrRetries = 0
     }
 }
