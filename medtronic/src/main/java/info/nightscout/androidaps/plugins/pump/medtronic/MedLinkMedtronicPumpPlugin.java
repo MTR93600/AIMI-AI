@@ -57,35 +57,28 @@ import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.activities.ErrorHelperActivity;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.data.Profile;
+import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue;
 import info.nightscout.androidaps.data.PumpEnactResult;
-import info.nightscout.androidaps.db.BgReading;
-import info.nightscout.androidaps.db.CareportalEvent;
-import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.MedLinkTemporaryBasal;
-import info.nightscout.androidaps.db.SensorDataReading;
-import info.nightscout.androidaps.db.Source;
-import info.nightscout.androidaps.db.TemporaryBasal;
-import info.nightscout.androidaps.db.Treatment;
 import info.nightscout.androidaps.events.EventRefreshOverview;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.interfaces.CommandQueueProvider;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.interfaces.CommandQueue;
 import info.nightscout.androidaps.interfaces.Constraint;
 import info.nightscout.androidaps.interfaces.MicrobolusPumpInterface;
 import info.nightscout.androidaps.interfaces.PluginDescription;
 import info.nightscout.androidaps.interfaces.PluginType;
+import info.nightscout.androidaps.interfaces.Profile;
+import info.nightscout.androidaps.interfaces.Pump;
 import info.nightscout.androidaps.interfaces.PumpDescription;
-import info.nightscout.androidaps.interfaces.PumpInterface;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.interfaces.PumpSync;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.common.ManufacturerType;
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomAction;
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomActionType;
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
-import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.PumpPluginAbstract;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
@@ -97,8 +90,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Bolu
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusDeliverCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExecutor;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.ContinuousCommandExecutor;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusStatusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
@@ -170,7 +161,10 @@ import info.nightscout.androidaps.utils.FabricPrivacy;
 import info.nightscout.androidaps.utils.TimeChangeType;
 import info.nightscout.androidaps.utils.ToastUtils;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.androidaps.utils.rx.AapsSchedulers;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.shared.sharedPreferences.SP;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -179,9 +173,12 @@ import kotlin.jvm.functions.Function1;
  * Created by dirceu on 10.07.2020.
  */
 @Singleton
-public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implements PumpInterface, MicrobolusPumpInterface, MedLinkPumpDevice, MedtronicPumpPluginInterface {
+public class MedLinkMedtronicPumpPlugin extends PumpPluginAbstract implements Pump,
+        MicrobolusPumpInterface, MedLinkPumpDevice, MedtronicPumpPluginInterface {
     private int minimumBatteryLevel = 5;
 
+    @Inject
+    private DateUtil dateUtil;
     private long batteryLastRead = 0l;
     private int lastBatteryLevel = 0;
     private double batteryDelta = 0;
@@ -219,7 +216,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private List<CustomAction> customActions = null;
 
 
-    private String lastStatus = PumpStatusType.Initializing.getStatus();
+    private String lastStatus = PumpStatusType.Running.getStatus();
     protected long lastBGHistoryRead = 0l;
     private BasalProfile basalProfile;
     private long lastPreviousHistory = 0l;
@@ -249,19 +246,20 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         int currentLevel = receiverStatusStore.getBatteryLevel();
         if (currentLevel - batteryDelta * 5 <= minimumBatteryLevel ||
                 currentLevel <= minimumBatteryLevel || (
-                getPumpStatusData().batteryRemaining != 0 &&
-                        getPumpStatusData().batteryRemaining <= minimumBatteryLevel)) {
-            Intent i = new Intent(context, ErrorHelperActivity.class);
+                getPumpStatusData().getBatteryRemaining() != 0 &&
+                        getPumpStatusData().getBatteryRemaining() <= minimumBatteryLevel)) {
+            Intent i = new Intent(getContext(), ErrorHelperActivity.class);
             i.putExtra("soundid", R.raw.boluserror);
-            i.putExtra("status", getResourceHelper().gs(R.string.medlink_medtronic_cmd_stop_could_not_be_delivered));
-            i.putExtra("title", getResourceHelper().gs(R.string.medtronic_errors));
+            i.putExtra("status",
+                    getRh().gs(R.string.medlink_medtronic_cmd_stop_could_not_be_delivered));
+            i.putExtra("title", getRh().gs(R.string.medtronic_errors));
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            getContext().startActivity(i);
             return;
         }
-        if (!PumpStatusType.Suspended.equals(medLinkPumpStatus.pumpStatusType)) {
+        if (!PumpStatusType.Suspended.equals(medLinkPumpStatus.getPumpStatusType())) {
 
-            ChangeStatusCallback function = new ChangeStatusCallback(aapsLogger,
+            ChangeStatusCallback function = new ChangeStatusCallback(getAapsLogger(),
                     ChangeStatusCallback.OperationType.STOP, this);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>> startStopFunction =
                     function.andThen(f -> {
@@ -280,14 +278,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkPumpMessage<PumpDriverState> message = new MedLinkPumpMessage<>(MedLinkCommandType.StopStartPump,
                     MedLinkCommandType.StopPump,
                     startStopFunction,
-                    getBtSleepTime(), new BleStopCommand(aapsLogger,
+                    getBtSleepTime(), new BleStopCommand(getAapsLogger(),
                     getMedLinkService().getMedLinkServiceData()));
             getMedLinkService().getMedtronicUIComm().executeCommandCP(message);
         }
     }
 
     public long getBtSleepTime() {
-        Integer sleepTime = sp.getInt(resourceHelper.gs(R.string
+        Integer sleepTime = sp.getInt(getRh().gs(R.string
                 .medlink_key_interval_between_bt_connections), 5);
         return sleepTime * 1000L;
     }
@@ -295,8 +293,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public void startPump(Callback callback) {
         getAapsLogger().info(LTag.PUMP, "MedtronicPumpPlugin::startPump - ");
 
-        if (!medLinkPumpStatus.pumpStatusType.equals(PumpStatusType.Running)) {
-            Function activity = new ChangeStatusCallback(aapsLogger,
+        if (medLinkPumpStatus.getPumpStatusType() != PumpStatusType.Running) {
+            Function activity = new ChangeStatusCallback(getAapsLogger(),
                     ChangeStatusCallback.OperationType.START, this).andThen(f -> {
                 if (f.getFunctionResult() == PumpDriverState.Initialized) {
                     result = new PumpEnactResult(getInjector()).success(true).enacted(true);
@@ -314,7 +312,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     MedLinkCommandType.StartPump,
                     activity,
                     getBtSleepTime(),
-                    new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                    new BleStartCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
             medLinkService.getMedtronicUIComm().executeCommandCP(message);
         }
     }
@@ -333,12 +331,12 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public MedLinkMedtronicPumpPlugin(
             HasAndroidInjector injector,
             AAPSLogger aapsLogger,
-            RxBusWrapper rxBus,
+            RxBus rxBus,
             Context context,
             ResourceHelper resourceHelper,
-            ActivePluginProvider activePlugin,
+            ActivePlugin activePlugin,
             SP sp,
-            CommandQueueProvider commandQueue,
+            CommandQueue commandQueue,
             FabricPrivacy fabricPrivacy,
             MedLinkMedtronicUtil medtronicUtil,
             MedLinkMedtronicPumpStatus medLinkPumpStatus,
@@ -346,19 +344,23 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkServiceData medLinkServiceData,
             ServiceTaskExecutor serviceTaskExecutor,
             ReceiverStatusStore receiverStatusStore,
-            DateUtil dateUtil
+            DateUtil dateUtil,
+            AapsSchedulers aapsSchedulers,
+            PumpSync pumpSync ,
+            info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage pumpSyncStorage
     ) {
 
         super(new PluginDescription() //
                         .mainType(PluginType.PUMP) //
                         .fragmentClass(MedLinkMedtronicFragment.class.getName()) //
-                        .pluginName(R.string.medlink_medtronic_name) //
                         .pluginIcon(R.drawable.ic_veo_medlink)
                         .shortName(R.string.medlink_medtronic_name_short) //
                         .preferencesId(R.xml.pref_medtronic_medlink)
                         .description(R.string.description_pump_medtronic_medlink), //
                 PumpType.MedLink_Medtronic_554_754_Veo, // we default to most basic model, correct model from config is loaded later
-                injector, resourceHelper, aapsLogger, commandQueue, rxBus, activePlugin, sp, context, fabricPrivacy, dateUtil
+                injector, resourceHelper, aapsLogger, commandQueue, rxBus, activePlugin, sp,
+                context, fabricPrivacy, dateUtil,
+                aapsSchedulers, pumpSync, pumpSyncStorage
         );
 
         this.receiverStatusStore = receiverStatusStore;
@@ -369,10 +371,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         this.medLinkServiceData = medLinkServiceData;
         this.serviceTaskExecutor = serviceTaskExecutor;
         this.tempbasalMicrobolusOperations = new TempBasalMicrobolusOperations();
-        displayConnectionMessages = false;
+        setDisplayConnectionMessages(false);
 
         MedLinkStatusParser.parseStatus(new String[0], medLinkPumpStatus, getInjector());
-        serviceConnection = new ServiceConnection() {
+        setServiceConnection(new ServiceConnection() {
 
             public void onServiceDisconnected(ComponentName name) {
                 getAapsLogger().debug(LTag.PUMP, "MedLinkMedtronicService is disconnected");
@@ -398,7 +400,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     }
                 }).start();
             }
-        };
+        });
     }
 
     @Override
@@ -416,26 +418,29 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public void updatePreferenceSummary(@NotNull Preference pref) {
         super.updatePreferenceSummary(pref);
 
-        if (pref.getKey().equals(getResourceHelper().gs(R.string.key_medlink_mac_address))) {
+        if (pref.getKey().equals(getRh().gs(R.string.key_medlink_mac_address))) {
             String value = sp.getStringOrNull(R.string.key_medlink_mac_address, null);
-            pref.setSummary(value == null ? getResourceHelper().gs(R.string.not_set_short) : value);
+            pref.setSummary(value == null ? getRh().gs(R.string.not_set_short) : value);
         }
     }
 
     @Override public void initPumpStatusData() {
-        medLinkPumpStatus.lastConnection = sp.getLong(MedLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
-        medLinkPumpStatus.lastDateTime = medLinkPumpStatus.lastConnection;
-        medLinkPumpStatus.previousConnection = medLinkPumpStatus.lastConnection;
+        medLinkPumpStatus.setLastConnection(sp.getLong(MedLinkConst.Prefs.LastGoodDeviceCommunicationTime,
+                0L));
+        medLinkPumpStatus.setLastDataTime( medLinkPumpStatus.getLastConnection());
+        medLinkPumpStatus.setPreviousConnection(medLinkPumpStatus.getLastConnection());
 
         //if (rileyLinkMedtronicService != null) rileyLinkMedtronicService.verifyConfiguration();
 
         getAapsLogger().debug(LTag.PUMP, "initPumpStatusData: " + this.medLinkPumpStatus);
 
         // this is only thing that can change, by being configured
-        pumpDescription.maxTempAbsolute = (medLinkPumpStatus.maxBasal != null) ? medLinkPumpStatus.maxBasal : 35.0d;
+        getPumpDescription().setMaxTempAbsolute( (medLinkPumpStatus.maxBasal != null) ?
+                medLinkPumpStatus.maxBasal :
+                35.0d);
 
-        pumpDescription.tempBasalStyle = PumpDescription.PERCENT;
-        pumpDescription.tempPercentStep = 1;
+        getPumpDescription().setTempBasalStyle (PumpDescription.PERCENT);
+        getPumpDescription().setTempPercentStep(1);
 
         // set first Medtronic Pump Start
         if (!sp.contains(MedtronicConst.Statistics.FirstPumpStart)) {
@@ -448,12 +453,12 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private void migrateSettings() {
 
         if ("US (916 MHz)".equals(sp.getString(MedLinkMedtronicConst.Prefs.PumpFrequency, "US (916 MHz)"))) {
-            sp.putString(MedLinkMedtronicConst.Prefs.PumpFrequency, getResourceHelper().gs(R.string.key_medtronic_pump_frequency_us_ca));
+            sp.putString(MedLinkMedtronicConst.Prefs.PumpFrequency, getRh().gs(R.string.key_medtronic_pump_frequency_us_ca));
         }
 
-        Object initC = resourceHelper.gs(R.string.key_medlink_init_command);
+        Object initC = getRh().gs(R.string.key_medlink_init_command);
 //        if(initC instanceof HashSet) {
-        this.initCommands = sp.getStringSet(resourceHelper.gs(R.string.key_medlink_init_command), Collections.emptySet());
+        this.initCommands = sp.getStringSet(getRh().gs(R.string.key_medlink_init_command), Collections.emptySet());
 //        }else{
 //            this.initCommands= new HashSet<>();
 //        }
@@ -461,11 +466,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //        String encoding = sp.getString(MedtronicConst.Prefs.Encoding, "RileyLink 4b6b Encoding");
 //
 //        if ("RileyLink 4b6b Encoding".equals(encoding)) {
-//            sp.putString(MedtronicConst.Prefs.Encoding, getResourceHelper().gs(R.string.key_medtronic_pump_encoding_4b6b_rileylink));
+//            sp.putString(MedtronicConst.Prefs.Encoding, getRh().gs(R.string.key_medtronic_pump_encoding_4b6b_rileylink));
 //        }
 //
 //        if ("Local 4b6b Encoding".equals(encoding)) {
-//            sp.putString(MedtronicConst.Prefs.Encoding, getResourceHelper().gs(R.string.key_medtronic_pump_encoding_4b6b_local));
+//            sp.putString(MedtronicConst.Prefs.Encoding, getRh().gs(R.string.key_medtronic_pump_encoding_4b6b_local));
 //        }
     }
 
@@ -487,14 +492,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                         }
                     }
 
-                    if (System.currentTimeMillis() - getPumpStatusData().lastConnection > 590000) {
+                    if (System.currentTimeMillis() - getPumpStatusData().getLastConnection() > 590000) {
                         readPumpHistory();
                     }
 
                     clearBusyQueue();
                 }
 
-            } while (serviceRunning);
+            } while (getServiceRunning());
 
         }).start();
     }
@@ -538,7 +543,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     @Override
     public boolean isInitialized() {
-        if (displayConnectionMessages)
+        if (getDisplayConnectionMessages())
             getAapsLogger().debug(LTag.PUMP, "MedtronicPumpPlugin::isInitialized");
         return isServiceSet() && isInitialized;
 
@@ -547,7 +552,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     //TODO implement
     @Override
     public boolean isSuspended() {
-        return getPumpStatusData().pumpStatusType == PumpStatusType.Suspended;
+        return getPumpStatusData().getPumpStatusType() == PumpStatusType.Suspended;
     }
 
 
@@ -579,14 +584,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     @Override
     public boolean isConnected() {
-        if (displayConnectionMessages)
+        if (getDisplayConnectionMessages())
             getAapsLogger().debug(LTag.PUMP, "MedLinkMedtronicPumpPlugin::isConnected");
         return isServiceSet() && medLinkService.isInitialized();
     }
 
     @Override
     public boolean isConnecting() {
-        if (displayConnectionMessages)
+        if (getDisplayConnectionMessages())
             getAapsLogger().debug(LTag.PUMP, "MedtronicPumpPlugin::isConnecting");
         return !isServiceSet() || !medLinkService.isInitialized();
     }
@@ -715,10 +720,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
         MedLinkPumpMessage<MedLinkPumpStatus> msg = new MedLinkPumpMessage<>(MedLinkCommandType.GetState,
-                new StatusCallback(aapsLogger, this,
+                new StatusCallback(getAapsLogger(), this,
                         medLinkPumpStatus),
                 getBtSleepTime(),
-                new BlePartialCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BlePartialCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
         getMedLinkService().getMedtronicUIComm().executeCommandCP(msg);
 
         if (debugHistory)
@@ -775,10 +780,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
             this.lastBGHistoryRead = System.currentTimeMillis();
             BGHistoryCallback func =
-                    new BGHistoryCallback(getInjector(), this, aapsLogger, false);
+                    new BGHistoryCallback(getInjector(), this, getAapsLogger(), false);
 
             IsigHistoryCallback isigFunc =
-                    new IsigHistoryCallback(getInjector(), this, aapsLogger, false, func);
+                    new IsigHistoryCallback(getInjector(), this, getAapsLogger(), false, func);
 
 
             MedLinkPumpMessage msg = new MedLinkPumpMessage(MedLinkCommandType.BGHistory,
@@ -788,7 +793,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     isigFunc,
 //                        null,
                     getBtSleepTime(),
-                    new BlePartialCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                    new BlePartialCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
             medLinkService.getMedtronicUIComm().executeCommandCP(msg);
 
 //            MedLinkPumpMessage msg = new MedLinkPumpMessage(MedLinkCommandType.BGHistory);
@@ -822,17 +827,18 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
         if (this.medLinkPumpStatus.basalProfileStatus != BasalProfileStatus.NotInitialized
                 && medtronicHistoryData.hasBasalProfileChanged()) {
-            medtronicHistoryData.processLastBasalProfileChange(pumpDescription.pumpType, medLinkPumpStatus);
+            medtronicHistoryData.processLastBasalProfileChange(getPumpDescription().getPumpType(),
+                    medLinkPumpStatus);
         }
 
-        PumpDriverState previousState = this.pumpState;
+        PumpDriverState previousState = this.getPumpState();
 
         if (medtronicHistoryData.isPumpSuspended()) {
-            this.pumpState = PumpDriverState.Suspended;
+            this.setPumpState(PumpDriverState.Suspended);
             getAapsLogger().debug(LTag.PUMP, getLogPrefix() + "isPumpSuspended: true");
         } else {
             if (previousState == PumpDriverState.Suspended) {
-                this.pumpState = PumpDriverState.Ready;
+                this.setPumpState(PumpDriverState.Ready);
             }
             getAapsLogger().debug(LTag.PUMP, getLogPrefix() + "isPumpSuspended: false");
         }
@@ -846,22 +852,23 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
     protected int scheduleNextReadState() {
         if (getPumpStatusData().getLastBGTimestamp() != 0) {
-            int bgDelta = Math.toIntExact((getPumpStatusData().getLastDateTime() -
+            int bgDelta = Math.toIntExact((getPumpStatusData().getLastDataTime() -
                     getPumpStatusData().getLastBGTimestamp()) / 60000);
 
             pumpTimeDelta = (getPumpStatusData().getLastConnection() -
-                    getPumpStatusData().getLastDateTime());
+                    getPumpStatusData().getLastDataTime());
             int minutesDelta = Math.toIntExact(TimeUnit.MILLISECONDS.toMinutes(pumpTimeDelta));
 
             if (calculateBGDeltaAvg(bgDelta) > 6d) {
                 minutesDelta++;
             }
-            if (aapsLogger != null) {
+            if (getAapsLogger() != null) {
                 getAapsLogger().info(LTag.CONFIGBUILDER, "Last Connection" + getPumpStatusData().getLastConnection());
                 getAapsLogger().info(LTag.CONFIGBUILDER, "Next Delta " + minutesDelta);
                 getAapsLogger().info(LTag.CONFIGBUILDER, "bgdelta  " + bgDelta);
-                getAapsLogger().info(LTag.CONFIGBUILDER, "Last connection " + DateUtil.timeFullString(getPumpStatusData().getLastConnection()));
-                getAapsLogger().info(LTag.CONFIGBUILDER, "Last bg " + DateUtil.timeFullString(getPumpStatusData().getLastBGTimestamp()));
+                getAapsLogger().info(LTag.CONFIGBUILDER,
+                        "Last connection " + dateUtil.toISONoZone(getPumpStatusData().getLastConnection()));
+                getAapsLogger().info(LTag.CONFIGBUILDER, "Last bg " + dateUtil.toISONoZone(getPumpStatusData().getLastBGTimestamp()));
             }
             while (bgDelta >= 5) {
                 bgDelta -= 5;
@@ -910,11 +917,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
         if (isPumpNotReachable()) {
             getAapsLogger().error("Pump unreachable.");
-            medtronicUtil.sendNotification(MedtronicNotificationType.PumpUnreachable, getResourceHelper(), rxBus);
+            medtronicUtil.sendNotification(MedtronicNotificationType.PumpUnreachable, getRh(), getRxBus());
             return;
         }
 
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
         if (hasTimeDateOrTimeZoneChanged) {
             checkTimeAndOptionallySetTime();
             // read time if changed, set new time
@@ -936,10 +943,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             switch (oper.getOperationType()) {
                 case SUSPEND: {
                     tempbasalMicrobolusOperations.setShouldBeSuspended(true);
-                    if (!PumpStatusType.Suspended.equals(getPumpStatusData().pumpStatusType)) {
+                    if (!PumpStatusType.Suspended.equals(getPumpStatusData().getPumpStatusType())) {
                         stopPump(new Callback() {
                             @Override public void run() {
-                                if (medLinkPumpStatus.pumpStatusType.equals(PumpStatusType.Suspended)) {
+                                if (medLinkPumpStatus.getPumpStatusType() ==
+                                        PumpStatusType.Suspended) {
                                     tempbasalMicrobolusOperations.getOperations().poll();
                                     oper.setCommandIssued(true);
                                 }
@@ -961,7 +969,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 }
                 break;
                 case BOLUS: {
-                    if (PumpStatusType.Suspended.equals(getPumpStatusData().pumpStatusType)) {
+                    if (PumpStatusType.Suspended.equals(getPumpStatusData().getPumpStatusType())) {
                         reactivatePump(oper, new Function1() {
                             @Override public Object invoke(Object o) {
                                 return o;
@@ -969,8 +977,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                         });
                     }
                     DetailedBolusInfo detailedBolusInfo = new DetailedBolusInfo();
-                    detailedBolusInfo.lastKnownBolusTime = getPumpStatusData().lastBolusTime.getTime();
-                    detailedBolusInfo.eventType = CareportalEvent.CORRECTIONBOLUS;
+                    detailedBolusInfo.setLastKnownBolusTime(getPumpStatusData().getLastBolusTime().getTime());
+                    detailedBolusInfo.setEventType(DetailedBolusInfo.EventType.CORRECTION_BOLUS);
                     detailedBolusInfo.insulin = oper.getDose();
                     detailedBolusInfo.source = Source.PUMP;
                     detailedBolusInfo.isTBR = true;
@@ -979,7 +987,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     Function1<PumpEnactResult, Unit> callback = new Function1<PumpEnactResult, Unit>() {
                         @Override public Unit invoke(PumpEnactResult o) {
                             getAapsLogger().info(LTag.PUMPBTCOMM, "temp basal bolus " + o.toString());
-                            if (o.success) {
+                            if (o.getSuccess()) {
                                 tempbasalMicrobolusOperations.getOperations().poll();
                             } else {
                                 oper.setCommandIssued(false);
@@ -1049,14 +1057,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(false) //
                             .enacted(false) //
-                            .comment(getResourceHelper().gs(R.string.tempbasaldeliveryerror)));
+                            .comment(getRh().gs(R.string.tempbasaldeliveryerror)));
                     break;
                 case Connected:
                     getAapsLogger().info(LTag.PUMPBTCOMM, "connected " + operation);
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(isConnect) //
                             .enacted(isConnect) //
-                            .comment(getResourceHelper().gs(R.string.careportal_tempbasalend)));
+                            .comment(getRh().gs(R.string.careportal_tempbasalend)));
                     if (isConnect) {
                         lastStatus = PumpStatusType.Running.getStatus();
                         this.tempbasalMicrobolusOperations.getOperations().peek();
@@ -1069,7 +1077,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     callback.invoke(new PumpEnactResult(getInjector()) //
                             .success(!isConnect) //
                             .enacted(!isConnect) //
-                            .comment(getResourceHelper().gs(R.string.careportal_tempbasalstart)));
+                            .comment(getRh().gs(R.string.careportal_tempbasalstart)));
                     if (!isConnect) {
                         lastStatus = PumpStatusType.Suspended.getStatus();
                         this.tempbasalMicrobolusOperations.getOperations().peek();
@@ -1085,7 +1093,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void createTemporaryBasalData(int duration, double dose) {
-        TemporaryBasal tempBasal = new TemporaryBasal(getInjector()) //
+        PumpSync.PumpState.TemporaryBasal tempBasal = new PumpSync.PumpState.TemporaryBasal(getInjector()) //
                 .date(System.currentTimeMillis()) //
                 .duration(duration) //
                 .source(Source.USER);
@@ -1093,7 +1101,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             tempBasal = tempBasal.absolute(dose);
         }
         getAapsLogger().info(LTag.EVENTS, "CreateTemporaryData");
-        activePlugin.getActiveTreatments().addToHistoryTempBasal(tempBasal);
+        getActivePlugin().getActiveTreatments().addToHistoryTempBasal(tempBasal);
     }
 
 
@@ -1107,16 +1115,16 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private MedLinkPumpMessage buildReactivateFunction(TempBasalMicroBolusPair oper,
                                                        Function1 callback,
                                                        ChangeStatusCallback.OperationType operationType) {
-        ChangeStatusCallback function = new ChangeStatusCallback(aapsLogger,
+        ChangeStatusCallback function = new ChangeStatusCallback(getAapsLogger(),
                 operationType, this);
         BleCommand command;
         MedLinkCommandType commandType;
         if (operationType == ChangeStatusCallback.OperationType.START) {
             commandType = MedLinkCommandType.StartPump;
-            command = new BleStartCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+            command = new BleStartCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData());
         } else {
             commandType = MedLinkCommandType.StopPump;
-            command = new BleStopCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+            command = new BleStopCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData());
 
         }
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>> startStopFunction =
@@ -1139,7 +1147,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             refreshAnyStatusThatNeedsToBeRefreshed();
         }
 
-        rxBus.send(new EventMedtronicPumpValuesChanged());
+        getRxBus().send(new EventMedtronicPumpValuesChanged());
 
     }
 
@@ -1148,7 +1156,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void sendPumpUpdateEvent() {
-        rxBus.send(new EventMedtronicPumpValuesChanged());
+        getRxBus().send(new EventMedtronicPumpValuesChanged());
     }
 
     private void initializePump(boolean b) {
@@ -1172,12 +1180,12 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         if (isRefresh) {
             if (isPumpNotReachable()) {
                 getAapsLogger().error(getLogPrefix() + "initializePump::Pump unreachable.");
-                medtronicUtil.sendNotification(MedtronicNotificationType.PumpUnreachable, getResourceHelper(), rxBus);
+                medtronicUtil.sendNotification(MedtronicNotificationType.PumpUnreachable, getRh(), getRxBus());
                 setRefreshButtonEnabled(true);
                 return;
             }
 
-            medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+            medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
         }
 
         // model (once)
@@ -1192,16 +1200,16 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             MedLinkPumpMessage message = new MedLinkPumpMessage(MedLinkCommandType.Connect,
                     func,
                     getBtSleepTime(),
-                    new BleConnectCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                    new BleConnectCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
             medLinkService.getMedtronicUIComm().executeCommandCP(message);
         } else {
             if (medLinkPumpStatus.medtronicDeviceType != medtronicUtil.getMedtronicPumpModel()) {
 //                getAapsLogger().warn(LTag.PUMP, getLogPrefix() + "Configured pump is not the same as one detected.");
-//                medtronicUtil.sendNotification(MedtronicNotificationType.PumpTypeNotSame, getResourceHelper(), rxBus);
+//                medtronicUtil.sendNotification(MedtronicNotificationType.PumpTypeNotSame, getRh(), getRxBus());
             }
         }
 
-        this.pumpState = PumpDriverState.Connected;
+        this.setPumpState(PumpDriverState.Connected);
 
         // time (1h)
 //        checkTimeAndOptionallySetTime();
@@ -1224,18 +1232,18 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
         // read profile (once, later its controlled by isThisProfileSet method)
 
-//        if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_profile))) {
+//        if (initCommands.contains(getRh().gs(R.string.key_medlink_init_commands_profile))) {
         readPumpProfile();
 //        }
 
 
 //        readPumpBGHistory(true);
 
-        if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_previous_bg_history))) {
+        if (initCommands.contains(getRh().gs(R.string.key_medlink_init_commands_previous_bg_history))) {
             getPreviousBGHistory();
         }
-        if (initCommands.contains(resourceHelper.gs(R.string.key_medlink_init_commands_last_bolus_history))) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+        if (initCommands.contains(getRh().gs(R.string.key_medlink_init_commands_last_bolus_history))) {
+            getAapsLogger().info(LTag.PUMPBTCOMM, "read bolus history");
             readBolusHistory();
         }
 
@@ -1251,14 +1259,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
         medLinkPumpStatus.setLastCommunicationToNow();
         setRefreshButtonEnabled(true);
-        rxBus.send(new EventMedtronicPumpValuesChanged());
+        getRxBus().send(new EventMedtronicPumpValuesChanged());
 
         if (!isRefresh) {
-            pumpState = PumpDriverState.Initialized;
+            setPumpState(PumpDriverState.Initialized);
         }
 
         isInitialized = true;
-        this.pumpState = PumpDriverState.Initialized;
+        setPumpState(PumpDriverState.Initialized);
 
 
         this.firstRun = false;
@@ -1274,7 +1282,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
         lastBolusHistoryRead = System.currentTimeMillis();
         BolusHistoryCallback func =
-                new BolusHistoryCallback(aapsLogger, this);
+                new BolusHistoryCallback(getAapsLogger(), this);
 
         MedLinkCommandType command;
         if (previous) {
@@ -1286,7 +1294,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         MedLinkPumpMessage<Stream<DetailedBolusInfo>> msg = new MedLinkPumpMessage<>(command,
                 func,
                 getBtSleepTime()
-                , new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                , new BleCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
 
     }
@@ -1294,18 +1302,18 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private void getPreviousBGHistory() {
         getAapsLogger().info(LTag.PUMPBTCOMM, "get bolus history");
         BGHistoryCallback func =
-                new BGHistoryCallback(getInjector(), this, aapsLogger, true);
+                new BGHistoryCallback(getInjector(), this, getAapsLogger(), true);
         IsigHistoryCallback isigFunc =
-                new IsigHistoryCallback(getInjector(), this, aapsLogger, false, func);
+                new IsigHistoryCallback(getInjector(), this, getAapsLogger(), false, func);
 
-        MedLinkPumpMessage<Stream<BgReading>> msg = new MedLinkPumpMessage<>(
+        MedLinkPumpMessage<Stream<EnliteInMemoryGlucoseValue>> msg = new MedLinkPumpMessage<>(
                 MedLinkCommandType.PreviousBGHistory,
 //                MedLinkCommandType.PreviousIsigHistory,
                 MedLinkCommandType.NoCommand,
                 func,
 //                isigFunc,
                 getBtSleepTime(),
-                new BlePartialCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BlePartialCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
     }
 
@@ -1321,7 +1329,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return;
         }
 
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
 
 //        medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.GetRealTimeClock);
 
@@ -1336,24 +1344,24 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         if (clock == null)
             return;
 
-        int timeDiff = Math.abs(clock.timeDifference);
+        int timeDiff = Math.abs(clock.getTimeDifference());
 
         if (timeDiff > 20) {
 
-            if ((clock.localDeviceTime.getYear() <= 2015) || (timeDiff <= 24 * 60 * 60)) {
+            if ((clock.getLocalDeviceTime().getYear() <= 2015) || (timeDiff <= 24 * 60 * 60)) {
 
                 getAapsLogger().info(LTag.PUMP, "MedtronicPumpPlugin::checkTimeAndOptionallySetTime - Time difference is {} s. Set time on pump.", timeDiff);
 
 //                medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetRealTimeClock);
 
-                if (clock.timeDifference == 0) {
-                    Notification notification = new Notification(Notification.INSIGHT_DATE_TIME_UPDATED, getResourceHelper().gs(R.string.pump_time_updated), Notification.INFO, 60);
-                    rxBus.send(new EventNewNotification(notification));
+                if (clock.getTimeDifference() == 0) {
+                    Notification notification = new Notification(Notification.INSIGHT_DATE_TIME_UPDATED, getRh().gs(R.string.pump_time_updated), Notification.INFO, 60);
+                    getRxBus().send(new EventNewNotification(notification));
                 }
             } else {
-                if ((clock.localDeviceTime.getYear() > 2015)) {
+                if ((clock.getLocalDeviceTime().getYear() > 2015)) {
                     getAapsLogger().error("MedtronicPumpPlugin::checkTimeAndOptionallySetTime - Time difference over 24h requested [diff={} s]. Doing nothing.", timeDiff);
-                    medtronicUtil.sendNotification(MedtronicNotificationType.TimeChangeOver24h, getResourceHelper(), rxBus);
+                    medtronicUtil.sendNotification(MedtronicNotificationType.TimeChangeOver24h, getRh(), getRxBus());
                 }
             }
 
@@ -1365,10 +1373,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void setPumpTime(long currentTime) {
-        ClockDTO clockDTO = new ClockDTO();
-        clockDTO.localDeviceTime = new LocalDateTime();
-        clockDTO.pumpTime = new LocalDateTime(currentTime);
-        clockDTO.timeDifference = clockDTO.localDeviceTime.compareTo(clockDTO.pumpTime);
+        ClockDTO clockDTO = new ClockDTO(new LocalDateTime(),new LocalDateTime(currentTime));
+        clockDTO.setTimeDifference(clockDTO.getLocalDeviceTime().compareTo(clockDTO.getPumpTime()));
         medtronicUtil.setPumpTime(clockDTO);
     }
 
@@ -1376,13 +1382,13 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         lastProfileRead = System.currentTimeMillis();
         getAapsLogger().info(LTag.PUMPBTCOMM, "get basal profiles");
         BasalCallback func =
-                new BasalCallback(aapsLogger, this);
+                new BasalCallback(getAapsLogger(), this);
         ProfileCallback profileCallback =
-                new ProfileCallback(injector, aapsLogger, context, this);
+                new ProfileCallback(getInjector(), getAapsLogger(), getContext(), this);
         MedLinkPumpMessage<BasalProfile> msg = new BasalMedLinkMessage<>(MedLinkCommandType.ActiveBasalProfile,
                 MedLinkCommandType.BaseProfile, func, profileCallback,
                 getBtSleepTime()
-                , new BleCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                , new BleCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
 
 //        if (medtronicUITask.getResponseType() == MedtronicUIResponseType.Error) {
@@ -1547,7 +1553,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     private void setRefreshButtonEnabled(boolean enabled) {
-        rxBus.send(new EventRefreshButtonState(enabled));
+        getRxBus().send(new EventRefreshButtonState(enabled));
     }
 
     private boolean isPumpNotReachable() {
@@ -1597,7 +1603,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private void finishAction(String overviewKey) {
 
         if (overviewKey != null)
-            rxBus.send(new EventRefreshOverview(overviewKey, false));
+            getRxBus().send(new EventRefreshOverview(overviewKey, false));
 
         triggerUIChange();
 
@@ -1681,10 +1687,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_pump_status_pump_unreachable));
+                    .comment(getRh().gs(R.string.medtronic_pump_status_pump_unreachable));
         }
 
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
 
         getAapsLogger().info(LTag.PUMP, getLogPrefix() + "setTempBasalAbsolute: rate: " + absoluteRate + ", duration=" + durationInMinutes);
 
@@ -1695,7 +1701,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             getAapsLogger().warn(LTag.PUMP, getLogPrefix() + "setTempBasalAbsolute - Could not read current TBR, canceling operation.");
             finishAction("TBR");
             return new PumpEnactResult(getInjector()).success(false).enacted(false)
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_cant_read_tbr));
+                    .comment(getRh().gs(R.string.medtronic_cmd_cant_read_tbr));
         } else {
             getAapsLogger().info(LTag.PUMP, getLogPrefix() + "setTempBasalAbsolute: Current Basal: duration: " + tbrCurrent.getDurationMinutes() + " min, rate=" + tbrCurrent.getInsulinRate());
         }
@@ -1731,7 +1737,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 }
             });
 
-            ToastUtils.showToastInUiThread(context, resourceHelper.gs(info.nightscout.androidaps.plugins.pump.common.R.string.tempbasaldeliveryerror));
+            ToastUtils.showToastInUiThread(context, getRh().gs(info.nightscout.androidaps.plugins.pump.common.R.string.tempbasaldeliveryerror));
 //            Boolean response = (Boolean) responseTask2.returnData;
 
 //            if (response) {
@@ -1742,11 +1748,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                finishAction("TBR");
 
             return new PumpEnactResult(getInjector()).success(false).enacted(false)
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op));
+                    .comment(getRh().gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op));
 //            }
         }
         return new PumpEnactResult(getInjector()).success(false).enacted(false)
-                .comment(getResourceHelper().gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op));
+                .comment(getRh().gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op));
         // now start new TBR
 //        MedtronicUITask responseTask = null;//rileyLinkMedtronicService.getMedtronicUIComm().executeCommand(MedtronicCommandType.SetTemporaryBasal,
 //        //absoluteRate, durationInMinutes);
@@ -1780,7 +1786,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //            finishAction("TBR");
 //
 //            return new PumpEnactResult(getInjector()).success(false).enacted(false) //
-//                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_tbr_could_not_be_delivered));
+//                    .comment(getRh().gs(R.string.medtronic_cmd_tbr_could_not_be_delivered));
 //        }
 
     }
@@ -1801,7 +1807,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         PumpEnactResult result = buildPumpEnactResult();
         this.tempbasalMicrobolusOperations.clearOperations();
         result.success = true;
-        result.comment = resourceHelper.gs(R.string.canceltemp);
+        result.comment = getRh().gs(R.string.canceltemp);
         if (getPumpStatusData().getPumpStatusType().equals(PumpStatusType.Suspended)) {
             startPump(new Callback() {
                 @Override public void run() {
@@ -1987,7 +1993,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         }
         refreshAnyStatusThatNeedsToBeRefreshed();
         //criar fila de comandos aqui, esta fila deverá ser consumida a cada execução de checagem de status
-        return buildPumpEnactResult().success(true).comment(getResourceHelper().gs(R.string.medtronic_cmd_desc_set_tbr));
+        return buildPumpEnactResult().success(true).comment(getRh().gs(R.string.medtronic_cmd_desc_set_tbr));
     }
 
     private int calculateTotalSuspended(double calcPercent) {
@@ -2252,7 +2258,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         if (doses == 0) {
             return list;
         } else {
-            aapsLogger.info(LTag.PUMPBTCOMM, "unrecheable?");
+            getAapsLogger(),info(LTag.PUMPBTCOMM, "unrecheable?");
             //TODO unreachable code
             return buildOperations(doses, operations, list);
         }
@@ -2336,7 +2342,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         tempbasalMicrobolusOperations = buildFirstLevelTempBasalMicroBolusOperations(percent,
                 basalProfilesFromTemp, durationInMinutes, callback, absoluteBasalValue, basalType);
         refreshAnyStatusThatNeedsToBeRefreshed();
-        return buildPumpEnactResult().success(true).comment(getResourceHelper().gs(R.string.medtronic_cmd_desc_set_tbr));
+        return buildPumpEnactResult().success(true).comment(getRh().gs(R.string.medtronic_cmd_desc_set_tbr));
     }
 
     private LinkedList<Profile.ProfileValue> extractTempProfiles(Profile profile, Long endTas, Integer currentTas) {
@@ -2397,7 +2403,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult setTempBasalPercent(Integer percent, Integer durationInMinutes, Profile profile, boolean enforceNew) {
         getAapsLogger().debug(LTag.PUMP, "setTempBasalPercent [PumpPluginAbstract] - Not implemented.");
         return new PumpEnactResult(getInjector()).success(false).enacted(false).
-                comment(getResourceHelper().gs(
+                comment(getRh().gs(
                         info.nightscout.androidaps.core.R.string.pump_operation_not_supported_by_pump_driver));
     }
 
@@ -2435,7 +2441,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult setExtendedBolus(Double insulin, Integer durationInMinutes) {
         PumpEnactResult result = buildPumpEnactResult();
         result.success = false;
-        medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, getResourceHelper(), rxBus);
+        medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, getRh(), getRxBus());
         getAapsLogger().debug("Setting extended bolus: " + result);
         return result;
     }
@@ -2456,7 +2462,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult extendBasalTreatment(int duration, Function1 callback) {
 //TODO implement
         PumpEnactResult result = new PumpEnactResult(getInjector()).success(true).enacted(true).
-                comment(getResourceHelper().gs(R.string.let_temp_basal_run));
+                comment(getRh().gs(R.string.let_temp_basal_run));
         Optional<TempBasalMicroBolusPair> reactivateOper =
                 tempbasalMicrobolusOperations.getOperations().stream().filter(f ->
                         f.getOperationType().equals(
@@ -2473,7 +2479,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     public PumpEnactResult cancelExtendedBolus() {
         PumpEnactResult result = new PumpEnactResult(getInjector());
         result.success = false;
-        medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, getResourceHelper(), rxBus);
+        medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, getRh(), getRxBus());
         getAapsLogger().debug("Canceling extended bolus: " + result);
         return result;
     }
@@ -2483,24 +2489,25 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         return ManufacturerType.Medtronic;
     }
 
+    @Override public long generateTempId(Object dataObject) {
+        return 0;
+    }
+
     @NotNull @Override
     public PumpType model() {
         return pumpDescription.pumpType;
     }
 
-    @Override public PumpType getPumpType() {
-        return pumpDescription.pumpType;
-    }
+//    @Override public PumpType getPumpType() {
+//        return pumpDescription.pumpType;
+//    }
 
     @NotNull @Override
     public String serialNumber() {
         return medLinkPumpStatus.serialNumber;
     }
 
-    @NotNull @Override
-    public PumpDescription getPumpDescription() {
-        return pumpDescription;
-    }
+
 
     @NonNull @Override
     public String shortStatus(boolean veryShort) {
@@ -2557,8 +2564,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     getAapsLogger().debug("Medronic Pump plugin intent");
                     Intent i = new Intent(context, ErrorHelperActivity.class);
                     i.putExtra("soundid", R.raw.boluserror);
-                    i.putExtra("status", getResourceHelper().gs(R.string.medtronic_error_operation_not_possible_no_configuration));
-                    i.putExtra("title", getResourceHelper().gs(R.string.medtronic_warning));
+                    i.putExtra("status", getRh().gs(R.string.medtronic_error_operation_not_possible_no_configuration));
+                    i.putExtra("title", getRh().gs(R.string.medtronic_warning));
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(i);
                 }
@@ -2609,7 +2616,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, validProfile));
+                    .comment(getRh().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, validProfile));
 
         }
 
@@ -2619,23 +2626,24 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profile.basalProfileToString()));
+                    .comment(getRh().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profile.basalProfileToString()));
 
         } else if (!convertProfileToMedtronicProfile(this.profile).equals(profile)) {
 //            getAapsLogger().info(LTag.PUMPBTCOMM,profile.toString());
             getAapsLogger().info(LTag.PUMPBTCOMM, this.profile.toString());
-            ToastUtils.showToastInUiThread(context, resourceHelper.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
+            ToastUtils.showToastInUiThread(context, getRh().gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
                     Toast.LENGTH_LONG);
 
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profile.basalProfileToString()));
+                    .comment(getRh().gs(R.string.medtronic_cmd_set_profile_pattern_overflow,
+                            profile.basalProfileToString()));
         } else {
             return new PumpEnactResult(getInjector()) //
                     .success(true) //
                     .enacted(true) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_set_profile_pattern_overflow));
+                    .comment(getRh().gs(R.string.medtronic_cmd_set_profile_pattern_overflow));
 
         }
 
@@ -2651,7 +2659,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(true) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_basal_profile_not_set_is_same));
+                    .comment(getRh().gs(R.string.medtronic_cmd_basal_profile_not_set_is_same));
         }
 
 
@@ -2664,10 +2672,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_pump_status_pump_unreachable));
+                    .comment(getRh().gs(R.string.medtronic_pump_status_pump_unreachable));
         }
 
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
 
         BasalProfile basalProfile = convertProfileToMedtronicProfile(profile);
 
@@ -2677,10 +2685,10 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid));
+                    .comment(getRh().gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid));
         }
 
-        ToastUtils.showToastInUiThread(context, resourceHelper.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
+        ToastUtils.showToastInUiThread(context, getRh().gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
                 Toast.LENGTH_LONG);
 
 //        MedtronicUITask responseTask = medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetBasalProfileSTD,
@@ -2694,7 +2702,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         return new PumpEnactResult(getInjector()).success(false).enacted(false);
 //        } else {
 //            return new PumpEnactResult(getInjector()).success(response).enacted(response) //
-//                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_basal_profile_could_not_be_set));
+//                    .comment(getRh().gs(R.string.medtronic_cmd_basal_profile_could_not_be_set));
 //        }
     }
 
@@ -2755,7 +2763,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_pump_status_pump_unreachable));
+                    .comment(getRh().gs(R.string.medtronic_pump_status_pump_unreachable));
         }
     }
 
@@ -2783,7 +2791,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
+                    .comment(getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
                             medLinkPumpStatus.reservoirRemainingUnits,
                             detailedBolusInfo.insulin));
         }
@@ -2795,7 +2803,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             return setNotReachable(true, false);
         }
 
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
 
         if (bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) {
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Delivery Canceled.");
@@ -2824,7 +2832,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
             long bolusTimesstamp = 0l;
 
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this);
+            BolusCallback bolusCallback = new BolusCallback(getAapsLogger(), this);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThem = bolusCallback.andThen(f -> {
 
                 BolusAnswer answer = f.getFunctionResult();
@@ -2868,7 +2876,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 //                        Intent i = new Intent(context, ErrorHelperActivity.class);
 //                        i.putExtra("soundid", R.raw.boluserror);
 //                        i.putExtra("status", result.comment);
-//                        i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
+//                        i.putExtra("title", getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
 //                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                        context.startActivity(i);
 //                    }
@@ -2883,7 +2891,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand,
                     detailedBolusInfo.insulin,
                     andThem, buildBolusStatusMessage(),
-                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
+                    new BleBolusCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()),
                     buildBolusCommands(),
                     (tempbasalMicrobolusOperations != null &&
                             (tempbasalMicrobolusOperations.shouldBeSuspended() ||
@@ -2918,8 +2926,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
                         Intent i = new Intent(context, ErrorHelperActivity.class);
                         i.putExtra("soundid", R.raw.boluserror);
-                        i.putExtra("status", getResourceHelper().gs(R.string.medtronic_cmd_cancel_bolus_not_supported));
-                        i.putExtra("title", getResourceHelper().gs(R.string.medtronic_warning));
+                        i.putExtra("status", getRh().gs(R.string.medtronic_cmd_cancel_bolus_not_supported));
+                        i.putExtra("title", getRh().gs(R.string.medtronic_warning));
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(i);
 
@@ -2956,7 +2964,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 return new PumpEnactResult(getInjector()) //
                         .success(bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) //
                         .enacted(false) //
-                        .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
+                        .comment(getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
             }
 
         } finally {
@@ -3039,14 +3047,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         t.isTBR = detailedBolusInfo.isTBR;
         final EventOverviewBolusProgress bolusEvent = EventOverviewBolusProgress.INSTANCE;
         bolusEvent.setT(t);
-        bolusEvent.setStatus(resourceHelper.gs(R.string.bolusdelivering, 0d, detailedBolusInfo.insulin));
+        bolusEvent.setStatus(getRh().gs(R.string.bolusdelivering, 0d, detailedBolusInfo.insulin));
         bolusEvent.setPercent(0);
-        rxBus.send(bolusEvent);
+        getRxBus().send(bolusEvent);
 
 //        Function<Supplier<Stream<String>>, MedLinkStandardReturn> function = new BolusHistoryCallback();
 //        MedLinkPumpMessage msg = new BolusStatusMedLinkMessage(
 //                MedLinkCommandType.StopStartPump,function, medLinkServiceData,
-//                aapsLogger, bolusingEvent);
+//                getAapsLogger(), bolusingEvent);
 //        medLinkService.getMedtronicUIComm().executeCommandCP(msg);
         int bolusTime = (int) (detailedBolusInfo.insulin * 42.0d);
         long bolusEndTime = actionTime + (bolusTime * 1000L);
@@ -3059,20 +3067,20 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             final EventOverviewBolusProgress bolusEvt = EventOverviewBolusProgress.INSTANCE;
             bolusEvt.setT(t);
             bolusEvt.setPercent((int) remaining);
-            bolusEvt.setStatus(resourceHelper.gs(R.string.medlink_delivered, remaining * detailedBolusInfo.insulin, detailedBolusInfo.insulin));
-            rxBus.send(bolusEvt);
+            bolusEvt.setStatus(getRh().gs(R.string.medlink_delivered, remaining * detailedBolusInfo.insulin, detailedBolusInfo.insulin));
+            getRxBus().send(bolusEvt);
         }
         final EventOverviewBolusProgress bolusEvt = EventOverviewBolusProgress.INSTANCE;
         bolusEvt.setPercent(100);
-        bolusEvt.setStatus(resourceHelper.gs(R.string.medlink_delivered, detailedBolusInfo.insulin, detailedBolusInfo.insulin));
-        rxBus.send(bolusEvt);
+        bolusEvt.setStatus(getRh().gs(R.string.medlink_delivered, detailedBolusInfo.insulin, detailedBolusInfo.insulin));
+        getRxBus().send(bolusEvt);
         SystemClock.sleep(200);
         scheduleNextRefresh(PumpHistory, -5);
-//                rxBus.send(new EventDismissBolusProgressIfRunning(new PumpEnactResult(getInjector()).
+//                getRxBus().send(new EventDismissBolusProgressIfRunning(new PumpEnactResult(getInjector()).
 //                        success(true).enacted(true).bolusDelivered(detailedBolusInfo.insulin) //
 //                        .carbsDelivered(detailedBolusInfo.carbs)));
-//                rxBus.send(new ());
-//                rxBus.send(new EventDismissBolusProgressIfRunning());
+//                getRxBus().send(new ());
+//                getRxBus().send(new EventDismissBolusProgressIfRunning());
 //            }
 //        };
 //        bolusEventThread.start();
@@ -3086,7 +3094,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             func.invoke(new PumpEnactResult(getInjector()) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
+                    .comment(getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
                             medLinkPumpStatus.reservoirRemainingUnits,
                             detailedBolusInfo.insulin)));
             return;
@@ -3096,7 +3104,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             getAapsLogger().debug(LTag.PUMP, "MedtronicPumpPlugin::deliverBolus - Pump Unreachable.");
             func.invoke(setNotReachable(true, false));
         }
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
         if (bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) {
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Delivery Canceled.");
             func.invoke(setNotReachable(true, true));
@@ -3118,7 +3126,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 readBolusData(lastDetailedBolusInfo);
             }
             DetailedBolusInfo bolus = detailedBolusInfo.copy();
-            BolusCallback bolusCallback = new BolusCallback(aapsLogger, this, bolus);
+            BolusCallback bolusCallback = new BolusCallback(getAapsLogger(), this, bolus);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> andThen = bolusCallback.andThen(f -> {
                 Supplier<Stream<String>> answer = f::getAnswer;
                 getAapsLogger().info(LTag.PUMPBTCOMM, f.getFunctionResult().getResponse().name());
@@ -3147,11 +3155,11 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                             func.invoke(new PumpEnactResult(getInjector()) //
                                     .success(bolusDeliveryType == MedtronicPumpPlugin.BolusDeliveryType.CancelDelivery) //
                                     .enacted(false) //
-                                    .comment(getResourceHelper().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered)));
+                                    .comment(getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered)));
                             Intent i = new Intent(context, ErrorHelperActivity.class);
                             i.putExtra("soundid", R.raw.boluserror);
                             i.putExtra("status", f.getAnswer().collect(Collectors.joining()));
-                            i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
+                            i.putExtra("title", getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
                             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(i);
                         } else {
@@ -3193,7 +3201,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             }
             BolusMedLinkMessage msg = new BolusMedLinkMessage(bolusCommand, bolus.insulin,
                     andThen, bolusStatusMessage,
-                    new BleBolusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()),
+                    new BleBolusCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()),
                     buildBolusCommands(),
                     (tempbasalMicrobolusOperations != null &&
                             (tempbasalMicrobolusOperations.shouldBeSuspended() ||
@@ -3228,8 +3236,8 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
                         Intent i = new Intent(context, ErrorHelperActivity.class);
                         i.putExtra("soundid", R.raw.boluserror);
-                        i.putExtra("status", getResourceHelper().gs(R.string.medtronic_cmd_cancel_bolus_not_supported));
-                        i.putExtra("title", getResourceHelper().gs(R.string.medtronic_warning));
+                        i.putExtra("status", getRh().gs(R.string.medtronic_cmd_cancel_bolus_not_supported));
+                        i.putExtra("title", getRh().gs(R.string.medtronic_warning));
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(i);
 
@@ -3268,9 +3276,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     private MedLinkPumpMessage buildBolusStatusMessage() {
         BolusProgressCallback bolusCallback = new BolusProgressCallback(medLinkPumpStatus,
                 resourceHelper,
-                rxBus, null,
+                getRxBus(), null,
                 aapsLogger);
-        BleBolusStatusCommand bolusStatusCommand = new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData());
+        BleBolusStatusCommand bolusStatusCommand = new BleBolusStatusCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData());
 
         MedLinkPumpMessage message = new BolusStatusMedLinkMessage(bolusCallback, getBtSleepTime(),
                 bolusStatusCommand);
@@ -3281,18 +3289,18 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
         getAapsLogger().info(LTag.PUMPBTCOMM, "get full bolus data");
         lastBolusHistoryRead = System.currentTimeMillis();
         BolusDeliverCallback func =
-                new BolusDeliverCallback(getPumpStatusData(), this, aapsLogger,
+                new BolusDeliverCallback(getPumpStatusData(), this, getAapsLogger(),
                         detailedBolusInfo);
         assert getMedLinkService() != null;
         MedLinkPumpMessage<String> msg = new BolusStatusMedLinkMessage<>(
                 func,
                 getBtSleepTime(),
-                new BleBolusStatusCommand(aapsLogger, getMedLinkService().getMedLinkServiceData()));
+                new BleBolusStatusCommand(getAapsLogger(), getMedLinkService().getMedLinkServiceData()));
         medLinkService.getMedtronicUIComm().executeCommandCP(msg);
     }
 
     @Override protected void triggerUIChange() {
-        rxBus.send(new EventMedtronicPumpValuesChanged());
+        getRxBus().send(new EventMedtronicPumpValuesChanged());
     }
 
     @Override
@@ -3384,14 +3392,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     Bundle bgBundle = new Bundle();
                     bgBundle.putDouble("value", sens.bgValue);
                     bgBundle.putLong("date", sens.date);
-                    bgBundle.putString("direction", sens.direction);
+                    bgBundle.putString("direction", sens.trendArrow);
 //                bgBundle.putString("raw", bg.raw);
                     glucoseValues.putBundle("" + gvPosition, bgBundle);
                     gvPosition++;
                     Bundle sensBundle = new Bundle();
                     sensBundle.putDouble("value", sens.bgValue);
                     sensBundle.putLong("date", sens.date);
-                    sensBundle.putString("direction", sens.direction);
+                    sensBundle.putString("direction", sens.trendArrow);
                     sensBundle.putDouble("calibrationFactor", sens.calibrationFactor);
                     sensBundle.putInt("sensorUptime", sens.sensorUptime);
                     sensBundle.putDouble("isig", sens.isig);
@@ -3465,14 +3473,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                     Math.abs(lastBolusTime - medLinkPumpStatus.lastBolusTime.getTime()) >
                             pumpTimeDelta + 60000
             ) {
-                aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+                getAapsLogger(),info(LTag.PUMPBTCOMM, "read bolus history");
 
                 readBolusHistory();
             } else if (lastBolusTime > 0 && lastDetailedBolusInfo != null) {
                 lastBolusTime = lastDetailedBolusInfo.deliverAt;
                 if (sp.getBoolean(R.string.medlink_key_force_bolus_history_read, false) ||
                         getPumpStatusData().lastBolusAmount != lastDetailedBolusInfo.insulin) {
-                    aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+                    getAapsLogger(),info(LTag.PUMPBTCOMM, "read bolus history");
 
                     readBolusHistory();
                 } else {
@@ -3484,7 +3492,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
 
 
             } else if (lastBolusTime < getPumpStatusData().lastBolusTime.getTime()) {
-                aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history");
+                getAapsLogger(),info(LTag.PUMPBTCOMM, "read bolus history");
                 readBolusHistory();
             }
         } else {
@@ -3493,7 +3501,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
 
-    public void handleNewBgData(BgReading... sensorDataReadings) {
+    public void handleNewBgData(EnliteInMemoryGlucoseValue... sensorDataReadings) {
         if (lastStatus != medLinkPumpStatus.pumpStatusType.getStatus()) {
             if (medLinkPumpStatus.pumpStatusType.equals(PumpStatusType.Suspended) &&
                     (PumpStatusType.Running.getStatus().equals(lastStatus) ||
@@ -3510,7 +3518,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
             PumpHistoryEntry searchEntry = new PumpHistoryEntry();
             searchEntry.setEntryType(MedtronicDeviceType.Medtronic_515, PumpHistoryEntryType.BGReceived);
             searchEntry.setDisplayableValue(sensorDataReadings[0].toString());
-            PumpHistoryResult historyResult = new PumpHistoryResult(aapsLogger, searchEntry, sensorDataReadings[0].date);
+            PumpHistoryResult historyResult = new PumpHistoryResult(getAapsLogger(), searchEntry, sensorDataReadings[0].date);
             medtronicHistoryData.addNewHistory(historyResult);
             if (medLinkPumpStatus.needToGetBGHistory() && isInitialized()) {
                 missedBGs++;
@@ -3547,9 +3555,9 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
 
-    public void handleNewSensorData(SensorDataReading... sens) {
+    public void handleNewSensorData(EnliteInMemoryGlucoseValue... sens) {
         if (sens.length == 1 && lastBolusTime == 0) {
-            lastBolusTime = getPumpStatusData().lastBolusTime.getTime();
+            lastBolusTime = getPumpStatusData().getLastBolusTime().getTime();
         }
         handleNewPumpData();
         if (sens.length == 1 &&
@@ -3580,7 +3588,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     public void handleNewPumpData() {
-        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, getRxBus());
         handleBatteryData();
 //        if(sens.length>0) {
         handleBolusDelivered(lastDetailedBolusInfo);
@@ -3632,7 +3640,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
                 Intent i = new Intent(context, ErrorHelperActivity.class);
                 i.putExtra("soundid", R.raw.boluserror);
                 i.putExtra("status", result.comment);
-                i.putExtra("title", resourceHelper.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
+                i.putExtra("title", getRh().gs(R.string.medtronic_cmd_bolus_could_not_be_delivered));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -3640,14 +3648,14 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     private void handleBatteryData() {
-        long currentBatRead = medLinkPumpStatus.lastDateTime;
+        long currentBatRead = medLinkPumpStatus.getLastDataTime();
         int currentLevel = receiverStatusStore.getBatteryLevel();
         if (lastBatteryLevel == 0) {
             lastBatteryLevel = currentLevel;
         }
         if ((currentLevel - batteryDelta * 5 <= minimumBatteryLevel ||
-                medLinkPumpStatus.batteryRemaining <= minimumBatteryLevel) &&
-                medLinkPumpStatus.pumpStatusType == PumpStatusType.Suspended) {
+                medLinkPumpStatus.getBatteryRemaining() <= minimumBatteryLevel) &&
+                medLinkPumpStatus.getPumpStatusType() == PumpStatusType.Suspended) {
             clearTempBasal();
         }
         if (batteryLastRead == 0l) {
@@ -3706,7 +3714,7 @@ public class MedLinkMedtronicPumpPlugin extends MedLinkPumpPluginAbstract implem
     }
 
     @Override public String getBatteryInfoConfig() {
-        return sp.getString(resourceHelper.gs(R.string
+        return sp.getString(getRh().gs(R.string
                 .key_medlink_battery_info), "Age");
     }
 
