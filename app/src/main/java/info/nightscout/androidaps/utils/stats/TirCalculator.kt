@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TirCalculator @Inject constructor(
-    private val rh: ResourceHelper,
+    private val resourceHelper: ResourceHelper,
     private val profileFunction: ProfileFunction,
     private val dateUtil: DateUtil,
     private val repository: AppRepository
@@ -46,7 +46,31 @@ class TirCalculator @Inject constructor(
         return result
     }
 
-    private fun averageTIR(tirs: LongSparseArray<TIR>): TIR {
+    fun calculateDaily(lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR> {
+        if (lowMgdl < 39) throw RuntimeException("Low below 39")
+        if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
+        val startTime = MidnightTime.calc(dateUtil.now())
+        val endTime = dateUtil.now()
+        val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
+
+        val result = LongSparseArray<TIR>()
+        for (bg in bgReadings) {
+            //val midnight = MidnightTime.calc(bg.date)
+            var tir = result[startTime]
+            if (tir == null) {
+                tir = TIR(startTime, lowMgdl, highMgdl)
+                result.append(startTime, tir)
+            }
+            if (bg.value < 39) tir.error()
+            if (bg.value >= 39 && bg.value < lowMgdl) tir.below()
+            if (bg.value in lowMgdl..highMgdl) tir.inRange()
+            if (bg.value > highMgdl) tir.above()
+        }
+        return result
+    }
+
+
+    fun averageTIR(tirs: LongSparseArray<TIR>): TIR {
         val totalTir = if (tirs.size() > 0) {
             TIR(tirs.valueAt(0).date, tirs.valueAt(0).lowThreshold, tirs.valueAt(0).highThreshold)
         } else {
@@ -78,21 +102,21 @@ class TirCalculator @Inject constructor(
         val tit30 = calculate(30, lowTitMgdl, highTitMgdl)
         val averageTit30 = averageTIR(tit30)
         return HtmlHelper.fromHtml(
-            "<br><b>" + rh.gs(R.string.tir) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + "):</b><br>" +
-                toText(rh, tir7) +
-                "<br><b>" + rh.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + "):</b><br>" +
-                averageTir7.toText(rh, tir7.size()) + "<br>" +
-                averageTir30.toText(rh, tir30.size()) +
-                "<br><b>" + rh.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTitMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTitMgdl) + "):</b><br>" +
-                averageTit7.toText(rh, tit7.size()) + "<br>" +
-                averageTit30.toText(rh, tit30.size())
+            "<br><b>" + resourceHelper.gs(R.string.tir) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + "):</b><br>" +
+                toText(resourceHelper, tir7) +
+                "<br><b>" + resourceHelper.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + "):</b><br>" +
+                averageTir7.toText(resourceHelper, tir7.size()) + "<br>" +
+                averageTir30.toText(resourceHelper, tir30.size()) +
+                "<br><b>" + resourceHelper.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTitMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTitMgdl) + "):</b><br>" +
+                averageTit7.toText(resourceHelper, tit7.size()) + "<br>" +
+                averageTit30.toText(resourceHelper, tit30.size())
         )
     }
 
-    fun toText(rh: ResourceHelper, tirs: LongSparseArray<TIR>): String {
+    fun toText(resourceHelper: ResourceHelper, tirs: LongSparseArray<TIR>): String {
         var t = ""
         for (i in 0 until tirs.size()) {
-            t += "${tirs.valueAt(i).toText(rh, dateUtil)}<br>"
+            t += "${tirs.valueAt(i).toText(resourceHelper, dateUtil)}<br>"
         }
         return t
     }
