@@ -30,6 +30,7 @@ import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 @Singleton
 class DexcomPlugin @Inject constructor(
@@ -104,20 +105,6 @@ class DexcomPlugin @Inject constructor(
                     "G5" -> GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE
                     else -> GlucoseValue.SourceSensor.DEXCOM_NATIVE_UNKNOWN
                 }
-                val glucoseValuesBundle = bundle.getBundle("glucoseValues")
-                    ?: return Result.failure(workDataOf("Error" to "missing glucoseValues"))
-                val glucoseValues = mutableListOf<CgmSourceTransaction.TransactionGlucoseValue>()
-                for (i in 0 until glucoseValuesBundle.size()) {
-                    val glucoseValueBundle = glucoseValuesBundle.getBundle(i.toString())!!
-                    glucoseValues += CgmSourceTransaction.TransactionGlucoseValue(
-                        timestamp = glucoseValueBundle.getLong("timestamp") * 1000,
-                        value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
-                        noise = null,
-                        raw = null,
-                        trendArrow = GlucoseValue.TrendArrow.fromString(glucoseValueBundle.getString("trendArrow")!!),
-                        sourceSensor = sourceSensor
-                    )
-                }
                 val calibrations = mutableListOf<CgmSourceTransaction.Calibration>()
                 bundle.getBundle("meters")?.let { meters ->
                     for (i in 0 until meters.size()) {
@@ -133,6 +120,38 @@ class DexcomPlugin @Inject constructor(
                                         glucoseUnit = TherapyEvent.GlucoseUnit.fromConstant(Profile.unit(value))
                                     )
                                 )
+                            }
+                        }
+                    }
+                }
+                val glucoseValuesBundle = bundle.getBundle("glucoseValues")
+                    ?: return Result.failure(workDataOf("Error" to "missing glucoseValues"))
+                val glucoseValues = mutableListOf<CgmSourceTransaction.TransactionGlucoseValue>()
+                for (i in 0 until glucoseValuesBundle.size()) {
+                    val glucoseValueBundle = glucoseValuesBundle.getBundle(i.toString())!!
+                    val timestamp = glucoseValueBundle.getLong("timestamp") * 1000
+                    // G5 calibration bug workaround (calibration is sent as glucoseValue too)
+                    var valid = true
+                    if (sourceSensor == GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE)
+                        calibrations.forEach { calibration -> if (calibration.timestamp == timestamp) valid = false }
+                    if (valid)
+                        glucoseValues += CgmSourceTransaction.TransactionGlucoseValue(
+                            timestamp = timestamp,
+                            value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
+                            noise = null,
+                            raw = null,
+                            trendArrow = GlucoseValue.TrendArrow.fromString(glucoseValueBundle.getString("trendArrow")!!),
+                            sourceSensor = sourceSensor
+                        )
+                }
+                // G6 calibration bug workaround (2 additional GVs are created within 1 second from previous record)
+                if (sourceSensor == GlucoseValue.SourceSensor.DEXCOM_G6_NATIVE) {
+                    glucoseValues.sortBy { it.timestamp }
+                    for (i in glucoseValues.indices) {
+                        if (i < glucoseValues.size - 1) {
+                            if (abs(glucoseValues[i].timestamp - glucoseValues[i + 1].timestamp) < 1000) {
+                                aapsLogger.debug(LTag.DATABASE, "Excluding bg ${glucoseValues[i + 1]}")
+                                glucoseValues.removeAt(i + 1)
                             }
                         }
                     }
