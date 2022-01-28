@@ -1,9 +1,11 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities
 
 import android.os.SystemClock
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper
+import info.nightscout.shared.logging.AAPSLogger
+
+import info.nightscout.shared.logging.LTag
+
+import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBolusProgressIfRunning
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress.t
@@ -19,7 +21,7 @@ import kotlin.math.roundToInt
 
 data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
                                  val resourceHelper: ResourceHelper,
-                                 val rxBus: RxBusWrapper,
+                                 val rxBus: RxBus,
                                  private val commandExecutor: CommandExecutor?,
                                  val aapsLogger: AAPSLogger) : BaseStringAggregatorCallback() {
 
@@ -38,7 +40,7 @@ data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
             val bolusEvent = EventOverviewBolusProgress
             bolusEvent.t = t
             bolusEvent.status = resourceHelper.gs(R.string.bolusdelivering, pumpStatus.bolusDeliveredAmount, pumpStatus.lastBolusAmount)
-            bolusEvent.percent = (pumpStatus.bolusDeliveredAmount / pumpStatus.lastBolusAmount).roundToInt()
+            bolusEvent.percent = (pumpStatus.bolusDeliveredAmount / pumpStatus.lastBolusAmount!!).roundToInt()
 
             rxBus.send(bolusEvent)
             if (bolusEvent.percent == 100) {
@@ -49,7 +51,7 @@ data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
                 SystemClock.sleep(1000)
 
                 // rxBus.send(bolusEvent)
-                rxBus.send(EventDismissBolusProgressIfRunning(null))
+                rxBus.send(EventDismissBolusProgressIfRunning(null, pumpStatus.lastBolusTime?.time))
                 resend = false
             }else commandExecutor?.clearExecutedCommand()
         }

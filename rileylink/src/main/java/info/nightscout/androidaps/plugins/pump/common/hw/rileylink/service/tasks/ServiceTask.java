@@ -3,8 +3,7 @@ package info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.task
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.interfaces.PumpInterface;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceTransport;
@@ -14,7 +13,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.
  */
 public class ServiceTask implements Runnable {
 
-    @Inject protected ActivePluginProvider activePlugin;
+    @Inject protected ActivePlugin activePlugin;
 
     public boolean completed = false;
     protected ServiceTransport mTransport;

@@ -1,7 +1,8 @@
 package info.nightscout.androidaps.queue.commands
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.interfaces.ActivePluginProvider
+import info.nightscout.androidaps.R
+import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.queue.Callback
@@ -12,7 +13,7 @@ class CommandStopPump(
     callback: Callback?
 ) : Command(injector, CommandType.STOP_PUMP, callback) {
 
-    @Inject lateinit var activePlugin: ActivePluginProvider
+    @Inject lateinit var activePlugin: ActivePlugin
 
     override fun execute() {
         val pump = activePlugin.activePump
@@ -24,5 +25,7 @@ class CommandStopPump(
         }
     }
 
-    override fun status(): String = "STOP PUMP"
+    override fun status(): String = rh.gs(R.string.stop_pump)
+
+    override fun log(): String = "STOP PUMP"
 }

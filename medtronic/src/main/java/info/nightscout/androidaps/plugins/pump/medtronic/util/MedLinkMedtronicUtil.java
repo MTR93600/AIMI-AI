@@ -14,9 +14,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification;
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
@@ -24,19 +22,17 @@ import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDevic
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MLHistoryItemMedtronic;
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.PumpSettingDTO;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCommandType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandType;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificationType;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 
 /**
  * Created by dirceu on 25/09/20.
@@ -46,25 +42,24 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 @Singleton
 public class MedLinkMedtronicUtil {
 
-    private int ENVELOPE_SIZE = 4; // 0xA7 S1 S2 S3 CMD PARAM_COUNT [PARAMS]
     private static boolean lowLevelDebug = true;
     //private MedtronicDeviceType medtronicPumpModel;
     private MedLinkCommandType currentCommand;
     private Map<String, PumpSettingDTO> settings;
-    private int BIG_FRAME_LENGTH = 65;
-    private int doneBit = 1 << 7;
+    private final int BIG_FRAME_LENGTH = 65;
+    private final int doneBit = 1 << 7;
     private ClockDTO pumpTime;
     public Gson gsonInstance = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private final AAPSLogger aapsLogger;
-    private final RxBusWrapper rxBus;
+    private final RxBus rxBus;
     private final MedLinkUtil medlinkUtil;
     private final MedLinkMedtronicPumpStatus medtronicPumpStatus;
 
     @Inject
     public MedLinkMedtronicUtil(
             AAPSLogger aapsLogger,
-            RxBusWrapper rxBus,
+            RxBus rxBus,
             MedLinkUtil medlinkUtil,
             MedLinkMedtronicPumpStatus medtronicPumpStatus
     ) {
@@ -82,11 +77,9 @@ public class MedLinkMedtronicUtil {
         }
     }
 
-
     public static int getIntervalFromMinutes(int minutes) {
         return minutes / 30;
     }
-
 
     public static int makeUnsignedShort(int b2, int b1) {
         int k = (b2 & 0xff) << 8 | b1 & 0xff;
@@ -105,11 +98,9 @@ public class MedLinkMedtronicUtil {
 
     }
 
-
     public static byte[] createByteArray(byte... data) {
         return data;
     }
-
 
     public static byte[] createByteArray(List<Byte> data) {
 
@@ -219,7 +210,7 @@ public class MedLinkMedtronicUtil {
     }
 
 
-    public void sendNotification(MedtronicNotificationType notificationType, ResourceHelper resourceHelper, RxBusWrapper rxBus) {
+    public void sendNotification(MedtronicNotificationType notificationType, ResourceHelper resourceHelper, RxBus rxBus) {
         Notification notification = new Notification( //
                 notificationType.getNotificationType(), //
                 resourceHelper.gs(notificationType.getResourceId()), //
@@ -228,7 +219,7 @@ public class MedLinkMedtronicUtil {
     }
 
 
-    public void sendNotification(MedtronicNotificationType notificationType, ResourceHelper resourceHelper, RxBusWrapper rxBus, Object... parameters) {
+    public void sendNotification(MedtronicNotificationType notificationType, ResourceHelper resourceHelper, RxBus rxBus, Object... parameters) {
         Notification notification = new Notification( //
                 notificationType.getNotificationType(), //
                 resourceHelper.gs(notificationType.getResourceId(), parameters), //
@@ -237,7 +228,7 @@ public class MedLinkMedtronicUtil {
     }
 
 
-    public void dismissNotification(MedtronicNotificationType notificationType, RxBusWrapper rxBus) {
+    public void dismissNotification(MedtronicNotificationType notificationType, RxBus rxBus) {
         rxBus.send(new EventDismissNotification(notificationType.getNotificationType()));
     }
 
@@ -261,6 +252,8 @@ public class MedLinkMedtronicUtil {
 
         byte commandLength = (byte) (parameters == null ? 2 : 2 + parameters.length);
 
+        // 0xA7 S1 S2 S3 CMD PARAM_COUNT [PARAMS]
+        int ENVELOPE_SIZE = 4;
         ByteBuffer sendPayloadBuffer = ByteBuffer.allocate(ENVELOPE_SIZE + commandLength); // + CRC_SIZE
         sendPayloadBuffer.order(ByteOrder.BIG_ENDIAN);
 
@@ -406,9 +399,9 @@ public class MedLinkMedtronicUtil {
 
     public MedLinkMedtronicDeviceType getMedtronicPumpModel() {
         //TODO review why this devicetype is null
-        if(medtronicPumpStatus.medtronicDeviceType == null){
+        if (medtronicPumpStatus.medtronicDeviceType == null) {
             return MedLinkMedtronicDeviceType.MedLinkMedtronic_515;
-        }else {
+        } else {
             return medtronicPumpStatus.medtronicDeviceType;
         }
     }

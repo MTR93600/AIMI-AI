@@ -3,9 +3,9 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.service;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.events.EventMedLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
@@ -27,7 +27,7 @@ public class MedLinkServiceData {
     public Integer batteryLevel=0;
     @Inject AAPSLogger aapsLogger;
     @Inject MedLinkUtil medLinkUtil;
-    @Inject RxBusWrapper rxBus;
+    @Inject RxBus rxBus;
 
     boolean tuneUpDone = false;
     public MedLinkError medLinkError;

@@ -2,7 +2,7 @@ package info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump
 
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.db.BgReading
-import info.nightscout.androidaps.db.SensorDataReading
+import info.nightscout.androidaps.database.entities.SensorDataReading
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -20,13 +20,15 @@ class MedLinkBGHistory(var readingMemAddress: Integer,
         return isigHistory.size == readings.size && isigMemAddress == readingMemAddress
     }
 
-    fun buildSensReadings(): List<SensorDataReading> {
-        var result = listOf<SensorDataReading>()
+    fun buildSensReadings(): List<info.nightscout.androidaps.database.entities.SensorDataReading> {
+        var result = listOf<info.nightscout.androidaps.database.entities.SensorDataReading>()
         if (validateHistoryEntries()) {
 
             result = readings.zip(isigHistory) { reading, isig ->
-                SensorDataReading(injector, reading, isig,
-                    CalibrationFactor.getCalibrationFactor(reading.date))
+                info.nightscout.androidaps.database.entities.SensorDataReading(
+                    injector, reading, isig,
+                    CalibrationFactor.getCalibrationFactor(reading.date)
+                )
 
             }
         }

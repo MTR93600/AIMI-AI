@@ -1,12 +1,12 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
 import android.os.SystemClock
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 
 class BleStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
     BleStartStopCommand(aapsLogger, medlinkServiceData) {

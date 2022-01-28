@@ -1,12 +1,12 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPartialBolus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 
 class BleBolusStatusCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkServiceData) :
     BleCommand(aapsLogger, medLinkServiceData) {
@@ -25,7 +25,8 @@ class BleBolusStatusCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkS
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             aapsLogger.info(LTag.PUMPBTCOMM, status.toString())
             if (status.lastBolusAmount != null && status.bolusDeliveredAmount  > 0  &&
-                status.bolusDeliveredAmount < status.lastBolusAmount) {
+                status.bolusDeliveredAmount < status.lastBolusAmount!!
+            ) {
                 bleComm?.clearExecutedCommand()
             } else {
                 applyResponse(pumpResponse.toString(), bleComm?.currentCommand, bleComm)

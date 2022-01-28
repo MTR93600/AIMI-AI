@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.PumpPluginAbstract;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusAnswer;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
 import info.nightscout.androidaps.queue.Callback;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 
 /**
  * Created by Dirceu on 21/12/20.
@@ -25,21 +25,21 @@ import info.nightscout.androidaps.queue.Callback;
 public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
-    private final MedLinkPumpPluginAbstract pumpPlugin;
+    private final PumpPluginAbstract pumpPlugin;
     private DetailedBolusInfo bolusInfo;
     //    private final RxBusWrapper rxBus;
     private Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
     private Pattern deliveringBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
 
 
-    public BolusCallback(AAPSLogger aapsLogger, MedLinkPumpPluginAbstract medLinkMedtronicPumpPlugin) {//RxBusWrapper rxBus) {
+    public BolusCallback(AAPSLogger aapsLogger, PumpPluginAbstract medLinkMedtronicPumpPlugin) {//RxBusWrapper rxBus) {
         super();
         this.aapsLogger = aapsLogger;
         this.pumpPlugin = medLinkMedtronicPumpPlugin;
 //        this.rxBus = rxBus;
     }
 
-    public BolusCallback(AAPSLogger aapsLogger, MedLinkPumpPluginAbstract medLinkMedtronicPumpPlugin, DetailedBolusInfo detailedBolusInfo) {
+    public BolusCallback(AAPSLogger aapsLogger, PumpPluginAbstract medLinkMedtronicPumpPlugin, DetailedBolusInfo detailedBolusInfo) {
         super();
         this.aapsLogger = aapsLogger;
         this.pumpPlugin = medLinkMedtronicPumpPlugin;

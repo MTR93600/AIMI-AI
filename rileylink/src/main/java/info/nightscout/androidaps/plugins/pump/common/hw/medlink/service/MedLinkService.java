@@ -10,10 +10,8 @@ import javax.inject.Inject;
 
 import dagger.android.DaggerService;
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
@@ -26,7 +24,9 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkCons
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by Dirceu on 30/09/20.
@@ -36,12 +36,12 @@ public abstract class MedLinkService extends DaggerService {
     @Inject protected AAPSLogger aapsLogger;
     @Inject protected SP sp;
     @Inject protected Context context;
-    @Inject protected RxBusWrapper rxBus;
+    @Inject protected RxBus rxBus;
     @Inject protected MedLinkUtil medLinkUtil;
     @Inject protected HasAndroidInjector injector;
     @Inject protected ResourceHelper resourceHelper;
     @Inject protected MedLinkServiceData medLinkServiceData;
-    @Inject protected ActivePluginProvider activePlugin;
+    @Inject protected ActivePlugin activePlugin;
     @Inject protected MedLinkBLE medLinkBLE; // android-bluetooth management
     @Inject protected MedLinkRFSpy getMedLinkRFSpy; // interface for RL xxx Mhz radio.
 

@@ -13,21 +13,17 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.plugins.pump.common.R;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpInfo;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by andy on 5/19/18.
@@ -37,9 +33,8 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
 
     private static final String PLACEHOLDER = "-";
 
-    @Inject ActivePluginProvider activePlugin;
+    @Inject ActivePlugin activePlugin;
     @Inject ResourceHelper resourceHelper;
-    @Inject AAPSLogger aapsLogger;
     @Inject MedLinkServiceData medLinkServiceData;
     @Inject DateUtil dateUtil;
     @Inject SP sp;
@@ -53,9 +48,6 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
     private View connectedDeviceDetails;
     private TextView deviceType;
     private TextView configuredDeviceModel;
-    private TextView connectedDeviceModel;
-    private TextView serialNumber;
-    private TextView pumpFrequency;
     private TextView lastUsedFrequency;
     private TextView lastDeviceContact;
     private TextView firmwareVersion;
@@ -80,9 +72,9 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
         this.connectedDeviceDetails = getActivity().findViewById(R.id.rls_t1_connected_device_details);
         this.deviceType = getActivity().findViewById(R.id.rls_t1_device_type);
         this.configuredDeviceModel = getActivity().findViewById(R.id.rls_t1_configured_device_model);
-        this.connectedDeviceModel = getActivity().findViewById(R.id.rls_t1_connected_device_model);
-        this.serialNumber = getActivity().findViewById(R.id.rls_t1_serial_number);
-        this.pumpFrequency = getActivity().findViewById(R.id.rls_t1_pump_frequency);
+        TextView connectedDeviceModel = getActivity().findViewById(R.id.rls_t1_connected_device_model);
+        TextView serialNumber = getActivity().findViewById(R.id.rls_t1_serial_number);
+        TextView pumpFrequency = getActivity().findViewById(R.id.rls_t1_pump_frequency);
         this.lastUsedFrequency = getActivity().findViewById(R.id.rls_t1_last_used_frequency);
         this.lastDeviceContact = getActivity().findViewById(R.id.rls_t1_last_device_contact);
         this.firmwareVersion = getActivity().findViewById(R.id.rls_t1_firmware_version);
@@ -120,7 +112,7 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
         this.deviceType.setText(targetDevice.getResourceId());
         if (targetDevice == RileyLinkTargetDevice.MedtronicPump) {
             this.connectedDeviceDetails.setVisibility(View.VISIBLE);
-            this.configuredDeviceModel.setText(activePlugin.getActivePump().getPumpDescription().pumpType.getDescription());
+            this.configuredDeviceModel.setText(activePlugin.getActivePump().getPumpDescription().getPumpType().getDescription());
 //            this.connectedDeviceModel.setText(rileyLinkPumpInfo.getConnectedDeviceModel());
         } else {
             this.connectedDeviceDetails.setVisibility(View.GONE);

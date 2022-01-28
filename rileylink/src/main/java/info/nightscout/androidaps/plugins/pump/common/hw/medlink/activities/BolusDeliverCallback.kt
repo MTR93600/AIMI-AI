@@ -1,11 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities
 
 import info.nightscout.androidaps.data.DetailedBolusInfo
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExecutor
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
 import java.util.function.Supplier
 import java.util.stream.Stream

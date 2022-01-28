@@ -11,10 +11,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
@@ -25,7 +23,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.sharedPreferences.SP;
 
 
 /**
@@ -40,7 +38,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     private final ResourceHelper resourceHelper;
     private final SP sp;
     private final MedLinkUtil medLinkUtil;
-    private final RxBusWrapper rxBus;
+    private final RxBus rxBus;
 
     public String errorDescription = null;
     public String serialNumber;
@@ -67,7 +65,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     @Inject
     public MedLinkMedtronicPumpStatus(ResourceHelper resourceHelper,
                                       SP sp,
-                                      RxBusWrapper rxBus,
+                                      RxBus rxBus,
                                       MedLinkUtil medLinkUtil
     ) {
         super(PumpType.MedLink_Medtronic_523_723_Revel);

@@ -1,13 +1,11 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicFragment">
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+
 
         <ScrollView
             android:layout_width="match_parent"
@@ -49,7 +47,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -97,7 +95,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -144,7 +142,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -198,7 +196,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -243,7 +241,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -291,7 +289,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -336,7 +334,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -382,7 +380,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -427,7 +425,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -472,7 +470,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -518,7 +516,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -563,7 +561,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -608,7 +606,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
 
                 <LinearLayout
@@ -654,7 +652,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
 
                 <LinearLayout
@@ -700,7 +698,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -745,7 +743,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="5dp"
-                    android:background="@color/listdelimiter" />
+                    android:background="@color/list_delimiter" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -758,57 +756,49 @@
 
         </ScrollView>
 
-        <LinearLayout
-            android:id="@+id/medtronic_buttons"
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/refresh"
+            style="@style/ButtonSmallFontStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_actions_refill"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:text="@string/refresh" />
 
 
-                <Button
-                    android:id="@+id/medtronic_refresh"
-                    style="@style/ButtonSmallFontStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableTop="@drawable/ic_actions_refill"
-                    android:paddingLeft="0dp"
-                    android:paddingRight="0dp"
-                    android:text="@string/combo_refresh" />
+        <Button
+            android:id="@+id/history"
+            style="@style/ButtonSmallFontStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_pump_history"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:text="@string/pumphistory" />
+
+        <Button
+            android:id="@+id/stats"
+            style="@style/ButtonSmallFontStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/ic_danarstats"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:text="RL Stats" />
 
 
-                <Button
-                    android:id="@+id/medlink_medtronic_history"
-                    style="@style/ButtonSmallFontStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableTop="@drawable/ic_danarhistory"
-                    android:paddingLeft="0dp"
-                    android:paddingRight="0dp"
-                    android:text="@string/pumphistory" />
+    </LinearLayout>
 
-                <Button
-                    android:id="@+id/medtronic_stats"
-                    style="@style/ButtonSmallFontStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableTop="@drawable/ic_danarstats"
-                    android:paddingLeft="0dp"
-                    android:paddingRight="0dp"
-                    android:text="RL Stats" />
+</RelativeLayout>
 
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
-</FrameLayout>

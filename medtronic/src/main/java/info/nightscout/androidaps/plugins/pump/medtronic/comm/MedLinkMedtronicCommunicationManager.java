@@ -20,9 +20,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.data.Profile;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.interfaces.Profile;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
@@ -58,6 +57,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDe
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.shared.logging.LTag;
 
 /**
  * Created by Dirceu on 17/09/20.
@@ -65,7 +65,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
  */
 @Singleton
 public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationManager {
-    private final RxBusWrapper rxBus;
+    private final RxBus rxBus;
     @Inject MedLinkMedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkMedtronicPumpPlugin medLinkPumpPlugin;
     @Inject MedtronicConverter medtronicConverter;
@@ -88,7 +88,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 
 
     @Inject
-    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfSpy, RxBusWrapper rxBus) {
+    public MedLinkMedtronicCommunicationManager(HasAndroidInjector injector, MedLinkRFSpy rfSpy, RxBus rxBus) {
         super(injector, rfSpy);
         this.rxBus = rxBus;
     }
@@ -96,13 +96,13 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     @Inject
     public void onInit() {
         // we can't do this in the constructor, as sp only gets injected after the constructor has returned
-        medtronicPumpStatus.previousConnection = sp.getLong(
-                RileyLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L);
+        medtronicPumpStatus.setPreviousConnection(sp.getLong(
+                RileyLinkConst.Prefs.LastGoodDeviceCommunicationTime, 0L));
     }
 
     @Override
     public RLMessage createResponseMessage(byte[] payload) {
-        return new PumpMessage(aapsLogger, payload);
+        return new PumpMessage(medLinkPumpPlugin.getAapsLogger(), payload);
     }
 
     @Override
@@ -332,7 +332,7 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             if (line.matches("\\d\\d-\\d\\d-\\d{4}\\s\\d\\d:\\d\\d\\s\\d\\d%")) {
                 ClockDTO pumpTime = new ClockDTO();
                 DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy HH:mm");
-                pumpTime.pumpTime = LocalDateTime.parse(line.substring(0, 10), formatter);
+                pumpTime.setPumpTime(LocalDateTime.parse(line.substring(0, 10), formatter));
                 medLinkMedtronicUtil.setPumpTime(pumpTime);
             }
         });

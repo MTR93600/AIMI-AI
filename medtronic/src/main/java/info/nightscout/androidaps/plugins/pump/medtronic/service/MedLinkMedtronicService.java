@@ -8,7 +8,7 @@ import android.os.IBinder;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;

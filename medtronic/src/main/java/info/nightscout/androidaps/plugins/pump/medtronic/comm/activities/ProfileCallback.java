@@ -9,8 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.data.Profile;
-import info.nightscout.androidaps.logging.AAPSLogger;
+import info.nightscout.androidaps.interfaces.Profile;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
@@ -19,6 +18,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkProfile
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BasalProfileStatus;
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
 import info.nightscout.androidaps.utils.ToastUtils;
+import info.nightscout.shared.logging.AAPSLogger;
 
 /**
  * Created by Dirceu on 01/02/21.
@@ -49,7 +49,8 @@ public class ProfileCallback implements Function<Supplier<Stream<String>>,
             result = new MedLinkStandardReturn<>(answer, profile);
             ((MedLinkMedtronicPumpStatus) medLinkMedtronicPumpPlugin.getPumpStatusData()).basalProfileStatus = BasalProfileStatus.ProfileOK;
             if (!medLinkMedtronicPumpPlugin.isThisProfileSet(profile)) {
-                ToastUtils.showToastInUiThread(ctx, medLinkMedtronicPumpPlugin.getResourceHelper().gs(R.string.medtronic_cmd_basal_profile_could_not_be_set));
+                ToastUtils.showToastInUiThread(ctx,
+                        medLinkMedtronicPumpPlugin.getRh().gs(R.string.medtronic_cmd_basal_profile_could_not_be_set));
             }
 
         } catch (JSONException e) {

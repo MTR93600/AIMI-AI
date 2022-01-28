@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import kotlin.jvm.functions.Function1;
 
-public class TempBasalMicroBolusPair {
+public class TempBasalMicroBolusPair extends TempBasalPair{
 
     private boolean commandIssued = false;
 

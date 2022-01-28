@@ -1,7 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,11 +12,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.db.BgReading;
-import info.nightscout.androidaps.db.SensorDataReading;
-import info.nightscout.androidaps.db.Source;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue;
+import info.nightscout.androidaps.data.InMemoryGlucoseValue;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
@@ -26,7 +25,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlu
 /**
  * Created by Dirceu on 15/04/21.
  */
-public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>, Supplier<Stream<String>>> {
+public class IsigHistoryCallback extends BaseCallback<Stream<EnliteInMemoryGlucoseValue>, Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
     private final boolean handleBG;
@@ -45,12 +44,12 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
     }
 
 
-    @Override public MedLinkStandardReturn<Stream<SensorDataReading>> apply(Supplier<Stream<String>> ans) {
+    @Override public MedLinkStandardReturn<Stream<EnliteInMemoryGlucoseValue>> apply(Supplier<Stream<String>> ans) {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
         Stream<String> toParse = ans.get();
         aapsLogger.info(LTag.PUMPBTCOMM, "isig2");
 
-        SensorDataReading[] readings = parseAnswer(ans, bgHistoryCallback.getReadings());
+        EnliteInMemoryGlucoseValue[] readings = parseAnswer(ans, bgHistoryCallback.getReadings());
         if (readings != null) {
             medLinkPumpPlugin.handleNewSensorData(readings);
         }
@@ -63,7 +62,8 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         return new MedLinkStandardReturn<>(() -> toParse, Stream.empty(), Collections.emptyList());
     }
 
-    public SensorDataReading[] parseAnswer(Supplier<Stream<String>> ans, BgReading[] bgReadings) {
+    public EnliteInMemoryGlucoseValue[] parseAnswer(Supplier<Stream<String>> ans,
+                                                    EnliteInMemoryGlucoseValue[] bgReadings) {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig");
         Iterator<String> answers = ans.get().iterator();
         String answer = ans.get().collect(Collectors.joining());
@@ -118,19 +118,19 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
         isigs.forEach(f -> aapsLogger.info(LTag.PUMPBTCOMM, f.toString()));
         Collections.reverse(isigs);
 
-        List<SensorDataReading> result = new ArrayList<>();
+        List<EnliteInMemoryGlucoseValue> result = new ArrayList<>();
         aapsLogger.info(LTag.PUMPBTCOMM, "isigs s" + isigs.size());
         aapsLogger.info(LTag.PUMPBTCOMM, "readings s" + bgReadings.length);
 //        if (isigs.size() == bgReadingsList.size()) {
         int delta = 0;
         int count = 0;
         for (; count < isigs.size(); count++) {
-            BgReading reading = getReading(bgReadings, count, delta);
+            EnliteInMemoryGlucoseValue reading = getReading(bgReadings, count, delta);
             if (reading == null) {
                 break;
             }
-            if (reading.source == Source.USER) {
-                result.add(new SensorDataReading(injector, reading, 0d, 0d));
+            if (reading.source == PumpType.USER) {
+                result.add(new EnliteInMemoryGlucoseValue(reading, 0d, 0d));
                 delta++;
                 reading = bgReadings[count + delta];
                 if (reading == null) {
@@ -139,12 +139,12 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
             }
             Double isig = isigs.get(count);
             Double calibrationFactor = 0.0;
-            result.add(new SensorDataReading(injector, reading, isig, calibrationFactor));
+            result.add(new EnliteInMemoryGlucoseValue(reading, isig, calibrationFactor));
         }
         if (result.size() > 0 && result.get(0) != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "adding isigs");
 //            medLinkPumpPlugin.handleNewSensorData(result);
-            return result.toArray(new SensorDataReading[0]);
+            return result.toArray(new EnliteInMemoryGlucoseValue[0]);
 //        }
 //        if (count + delta == result.length) {
 //            return result;
@@ -175,7 +175,7 @@ public class IsigHistoryCallback extends BaseCallback<Stream<SensorDataReading>,
 //
 //        return result.get().toArray(BgReading[]::new);
 
-    private BgReading getReading(BgReading[] bgReadingsList, int count, int delta) {
+    private EnliteInMemoryGlucoseValue getReading(EnliteInMemoryGlucoseValue[] bgReadingsList, int count, int delta) {
         if (count + delta >= bgReadingsList.length) {
             return null;
         } else return bgReadingsList[count + delta];

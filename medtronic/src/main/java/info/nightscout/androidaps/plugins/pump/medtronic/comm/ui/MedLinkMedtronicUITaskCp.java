@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback;
@@ -32,12 +32,10 @@ import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUt
 public class MedLinkMedtronicUITaskCp {
     //TODO build parsers here
 
-    @Inject RxBusWrapper rxBus;
+    @Inject RxBus rxBus;
     @Inject AAPSLogger aapsLogger;
     @Inject MedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkMedtronicUtil medtronicUtil;
-
-    private final HasAndroidInjector injector;
 
     public MedLinkPumpMessage pumpMessage;
     public Object returnData;
@@ -49,8 +47,7 @@ public class MedLinkMedtronicUITaskCp {
 
 
     public MedLinkMedtronicUITaskCp(HasAndroidInjector injector, MedLinkPumpMessage pumpMessage) {
-        this.injector = injector;
-        this.injector.androidInjector().inject(this);
+        injector.androidInjector().inject(this);
         this.pumpMessage = pumpMessage;
     }
 
@@ -73,15 +70,14 @@ public class MedLinkMedtronicUITaskCp {
             }
             case GetState: {
                 pumpMessage.getBaseCallback().andThen(f -> {
-                    if(medtronicPumpStatus.batteryVoltage != null){
-                        BatteryStatusDTO batteryStatus = new BatteryStatusDTO();
-                        batteryStatus.batteryStatusType =
-                                BatteryStatusDTO.BatteryStatusType.Unknown;
-                        batteryStatus.voltage = medtronicPumpStatus.batteryVoltage;
-                        medtronicPumpStatus.batteryRemaining =
-                                batteryStatus.getCalculatedPercent(medtronicPumpStatus.batteryType);
-                    }
-                   return f;
+                    medtronicPumpStatus.getBatteryLevel();
+                    BatteryStatusDTO batteryStatus = new BatteryStatusDTO();
+                    batteryStatus.setBatteryStatusType(
+                            BatteryStatusDTO.BatteryStatusType.Unknown);
+                    batteryStatus.setVoltage(medtronicPumpStatus.getBatteryVoltage());
+                    medtronicPumpStatus.setBatteryLevel(
+                            batteryStatus.getCalculatedPercent(medtronicPumpStatus.getBatteryType()));
+                    return f;
                 });
                 communicationManager.getStatusData(pumpMessage);
             }

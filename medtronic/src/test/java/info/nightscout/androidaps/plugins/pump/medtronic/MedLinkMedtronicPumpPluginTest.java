@@ -33,10 +33,10 @@ import dagger.android.AndroidInjector;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.data.Profile;
 import info.nightscout.androidaps.data.PumpEnactResult;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.interfaces.CommandQueueProvider;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
@@ -52,7 +52,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUt
 import info.nightscout.androidaps.receivers.ReceiverStatusStore;
 import info.nightscout.androidaps.utils.DateUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.sharedPreferences.SP;
 import kotlin.jvm.functions.Function1;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -64,8 +64,8 @@ import static org.mockito.Mockito.verify;
 
 //@PowerMockIgnore({ "org.powermock.*", "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*" })
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MedLinkMedtronicPumpPlugin.class, AAPSLogger.class, RxBusWrapper.class,
-        Context.class, ResourceHelper.class, android.util.Base64.class, ActivePluginProvider.class,
+@PrepareForTest({MedLinkMedtronicPumpPlugin.class, AAPSLogger.class, RxBus.class,
+        Context.class, ResourceHelper.class, android.util.Base64.class, ActivePlugin.class,
         SP.class, ISOChronology.class, DateTimeZone.class, ReceiverStatusStore.class})
 public class MedLinkMedtronicPumpPluginTest {
 
@@ -74,10 +74,10 @@ public class MedLinkMedtronicPumpPluginTest {
 
 
     @Mock AAPSLogger aapsLogger;
-    @Mock RxBusWrapper rxBus;
+    @Mock RxBus rxBus;
     @Mock Context context;
     @Mock ResourceHelper resourceHelper;
-    @Mock ActivePluginProvider activePlugin;
+    @Mock ActivePlugin activePlugin;
     @Mock SP sp;
     @Mock CommandQueueProvider commandQueue;
     @Mock MedLinkMedtronicUtil medtronicUtil;
@@ -145,7 +145,7 @@ public class MedLinkMedtronicPumpPluginTest {
                 return result;
             }
 
-            @Nullable @Override public MedLinkMedtronicService getMedLinkService() {
+            @Nullable @Override public MedLinkMedtronicService medlink() {
                 return medLinkMedtronicService;
             }
 
@@ -181,7 +181,7 @@ public class MedLinkMedtronicPumpPluginTest {
                 return result;
             }
 
-            @Nullable @Override public MedLinkMedtronicService getMedLinkService() {
+            @Nullable @Override public MedLinkMedtronicService medlink() {
                 return medLinkMedtronicService;
             }
 

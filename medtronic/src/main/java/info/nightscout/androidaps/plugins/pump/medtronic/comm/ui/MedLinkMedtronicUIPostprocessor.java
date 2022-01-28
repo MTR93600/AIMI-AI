@@ -9,9 +9,9 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin;
@@ -38,7 +38,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
 public class MedLinkMedtronicUIPostprocessor {
 
     private final AAPSLogger aapsLogger;
-    private final RxBusWrapper rxBus;
+    private final RxBus rxBus;
     private final ResourceHelper resourceHelper;
     private final MedLinkMedtronicUtil medtronicUtil;
     private final MedLinkMedtronicPumpStatus medtronicPumpStatus;
@@ -47,7 +47,7 @@ public class MedLinkMedtronicUIPostprocessor {
     @Inject
     public MedLinkMedtronicUIPostprocessor(
             AAPSLogger aapsLogger,
-            RxBusWrapper rxBus,
+            RxBus rxBus,
             ResourceHelper resourceHelper,
             MedLinkMedtronicUtil medtronicUtil,
             MedLinkMedtronicPumpStatus medtronicPumpStatus,

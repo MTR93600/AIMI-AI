@@ -1,13 +1,14 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStatusCallback;
@@ -44,7 +45,7 @@ public class StatusCallback extends BaseStatusCallback {
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(messages[0]);
         if(matcher.find()){
-            medLinkPumpStatus.lastConnection = Long.parseLong(matcher.group(0));
+            medLinkPumpStatus.setLastConnection (Long.parseLong(Objects.requireNonNull(matcher.group(0))));
         }
         MedLinkPumpStatus pumpStatus = medLinkPumpPlugin.getPumpStatusData();
         MedLinkStatusParser.parseStatus(messages, medLinkPumpStatus, medLinkPumpPlugin.getInjector());
@@ -53,10 +54,10 @@ public class StatusCallback extends BaseStatusCallback {
 
         medLinkPumpStatus.setPumpDeviceState(PumpDeviceState.Active);
         medLinkPumpPlugin.alreadyRun();
-        medLinkPumpPlugin.setPumpTime(pumpStatus.lastDateTime);
-        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal);
+        medLinkPumpPlugin.setPumpTime(pumpStatus.getLastDataTime());
+        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.getCu);
         aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits);
-        aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.currentBasal);
+        aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.getCurrentBasal());
         medLinkPumpStatus.setLastCommunicationToNow();
         aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading);
         if (pumpStatus.bgReading != null) {

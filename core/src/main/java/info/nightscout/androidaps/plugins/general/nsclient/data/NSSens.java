@@ -4,14 +4,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.logging.StacktraceLoggerWrapper;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.shared.logging.StacktraceLoggerWrapper;
 
 /**
  * Created by Dirceu on 10/04/21.
  */
 public class NSSens {
-    private static final Logger log = StacktraceLoggerWrapper.getLogger(LTag.NSCLIENT);
+    private static final Logger log = StacktraceLoggerWrapper.getLogger(NSSens.class);
 
     private final JSONObject data;
 

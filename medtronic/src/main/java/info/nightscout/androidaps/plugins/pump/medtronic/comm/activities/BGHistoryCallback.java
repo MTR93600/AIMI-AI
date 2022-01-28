@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities;
 
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -17,22 +17,24 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.db.BgReading;
-import info.nightscout.androidaps.db.Source;
-import info.nightscout.androidaps.db.Treatment;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
+import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue;
+import info.nightscout.androidaps.data.InMemoryGlucoseValue;
+import info.nightscout.androidaps.interfaces.Pump;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 
 /**
  * Created by Dirceu on 24/01/21.
  */
-public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<Stream<String>>> {
+public class BGHistoryCallback extends BaseCallback<Stream<EnliteInMemoryGlucoseValue>,
+        Supplier<Stream<String>>> {
 
-    private BgReading[] readings;
+    private EnliteInMemoryGlucoseValue[] readings;
 
     private class InvalidBGHistoryException extends RuntimeException {
         InvalidBGHistoryException(String message) {
@@ -77,14 +79,14 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
     }
 
     private class BGHistory {
-        private int source;
+        private PumpType source;
         private Double currentBG;
         private Double lastBG;
         private Date lastBGDate;
         private Date currentBGDate;
 
         public BGHistory(Double currentBG, Double lastBG, Date currentBGDate, Date lastBGDate,
-                         int source) {
+                         PumpType source) {
             this.currentBG = currentBG;
             this.lastBG = lastBG;
             this.currentBGDate = currentBGDate;
@@ -98,10 +100,10 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
 
     }
 
-    @Override public MedLinkStandardReturn<Stream<BgReading>> apply(Supplier<Stream<String>> ans) {
+    @Override public MedLinkStandardReturn<Stream<EnliteInMemoryGlucoseValue>> apply(Supplier<Stream<String>> ans) {
 
 
-        BgReading[] readings = parseAnswer(ans);
+        EnliteInMemoryGlucoseValue[] readings = parseAnswer(ans);
         if (handleBG) {
             medLinkPumpPlugin.handleNewBgData(readings);
         }
@@ -109,7 +111,7 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
         return new MedLinkStandardReturn<>(ans, Arrays.stream(readings), Collections.emptyList());
     }
 
-    public BgReading[] parseAnswer(Supplier<Stream<String>> ans) {
+    public EnliteInMemoryGlucoseValue[] parseAnswer(Supplier<Stream<String>> ans) {
         Stream<String> answers = ans.get();
         try {
             Stream<BGHistory> bgs = answers.map(f -> {
@@ -123,9 +125,10 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
 //                Double bg = Double.valueOf(data.substring(3, 6).trim());
                     Pattern bgPat = Pattern.compile("\\d{2,3}");
 
+                    assert data != null;
                     Matcher bgMatcher = bgPat.matcher(data);
                     bgMatcher.find();
-                    Double bg = Double.valueOf(bgMatcher.group(0));
+                    Double bg = Double.valueOf(Objects.requireNonNull(bgMatcher.group(0)));
                     String datePattern = "HH:mm dd-MM-yyyy";
                     Pattern dtPattern = Pattern.compile("\\d{1,2}:\\d{2}\\s+\\d{2}-\\d{2}-\\d{4}");
                     Matcher dtMatcher = dtPattern.matcher(data);
@@ -133,19 +136,21 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
                     SimpleDateFormat formatter = new SimpleDateFormat(datePattern, Locale.getDefault());
                     Date bgDate = null;
                     try {
-                        bgDate = formatter.parse(dtMatcher.group(0));
+                        bgDate = formatter.parse(Objects.requireNonNull(dtMatcher.group(0)));
                         Date firstDate = new Date();
                         firstDate.setTime(0l);
+                        assert bgDate != null;
                         if (bgDate.getTime() > System.currentTimeMillis()) {
                             throw new InvalidBGHistoryException("TimeInFuture");
                         }
 //                    aapsLogger.info(LTag.PUMPBTCOMM, f);
                         if (f.trim().startsWith("cl:")) {
-                            bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate, Source.USER));
+                            bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate,
+                                    PumpType.USER));
                         } else {
                             if (bgDate.toInstant().isAfter(new Date().toInstant().minus(Duration.ofDays(2))) && bgDate.toInstant().isBefore(new Date().toInstant().plus(Duration.ofMinutes(5)))) {
                                 bgHistory = Optional.of(new BGHistory(bg, 0d, bgDate, firstDate,
-                                        Source.PUMP));
+                                        medLinkPumpPlugin.getPumpType()));
                             }
                         }
                     } catch (ParseException e) {
@@ -166,21 +171,23 @@ public class BGHistoryCallback extends BaseCallback<Stream<BgReading>, Supplier<
                 history.addBG(f);
             });
 
-            Supplier<Stream<BgReading>> result = () -> history.acc.stream().map(f -> {
-                return new BgReading(injector, f.currentBGDate.getTime(), f.currentBG, null,
-                        f.lastBGDate.getTime(), f.lastBG, f.source);
+            Supplier<Stream<EnliteInMemoryGlucoseValue>> result =
+                    () -> history.acc.stream().map(f -> {
+                return new EnliteInMemoryGlucoseValue(f.currentBGDate.getTime(), f.currentBG, false,
+                        f.lastBGDate.getTime(), f.lastBG);
             });
             if (result.get().findFirst().isPresent()) {
-                medLinkPumpPlugin.getPumpStatusData().lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS;
+                medLinkPumpPlugin.getPumpStatusData().lastReadingStatus =
+                        MedLinkPumpStatus.BGReadingStatus.SUCCESS;
             }
-            return result.get().toArray(BgReading[]::new);
+            return result.get().toArray(EnliteInMemoryGlucoseValue[]::new);
         } catch (InvalidBGHistoryException e) {
             aapsLogger.info(LTag.PUMPBTCOMM, "Invalid bg history reading");
-            return new BgReading[0];
+            return new EnliteInMemoryGlucoseValue[0];
         }
     }
 
-    public BgReading[] getReadings() {
+    public EnliteInMemoryGlucoseValue[] getReadings() {
         return readings;
     }
 }

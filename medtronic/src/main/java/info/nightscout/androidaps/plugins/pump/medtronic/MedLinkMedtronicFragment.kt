@@ -1,9 +1,11 @@
 package info.nightscout.androidaps.plugins.pump.medtronic
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,16 +13,14 @@ import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.events.EventExtendedBolusChange
 import info.nightscout.androidaps.events.EventPumpStatusChanged
 import info.nightscout.androidaps.events.EventTempBasalChange
-import info.nightscout.androidaps.interfaces.ActivePluginProvider
-import info.nightscout.androidaps.interfaces.CommandQueueProvider
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper
-import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
+import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.CommandQueue
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
+import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
-import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
@@ -28,10 +28,11 @@ import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonS
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
+import info.nightscout.androidaps.plugins.pump.medtronic.databinding.MedlinkMedtronicFragmentBinding
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedLinkMedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
@@ -42,83 +43,87 @@ import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.WarnColors
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.utils.extensions.plusAssign
 import info.nightscout.androidaps.utils.resources.ResourceHelper
-import io.reactivex.android.schedulers.AndroidSchedulers
+import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.medlink_medtronic_fragment.*
-import java.time.ZoneOffset
+import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
 class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var fabricPrivacy: FabricPrivacy
-    @Inject lateinit var resourceHelper: ResourceHelper
-    @Inject lateinit var rxBus: RxBusWrapper
-    @Inject lateinit var commandQueue: CommandQueueProvider
-    @Inject lateinit var activePlugin: ActivePluginProvider
-    @Inject lateinit var medlinkMedtronicPlugin: MedLinkMedtronicPumpPlugin
+    @Inject lateinit var rh: ResourceHelper
+    @Inject lateinit var rxBus: RxBus
+    @Inject lateinit var commandQueue: CommandQueue
+    @Inject lateinit var activePlugin: ActivePlugin
+    @Inject lateinit var medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin
     @Inject lateinit var warnColors: WarnColors
     @Inject lateinit var medLinkUtil: MedLinkUtil
+    @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var medLinkMedtronicUtil: MedLinkMedtronicUtil
     @Inject lateinit var medtronicPumpStatus: MedLinkMedtronicPumpStatus
     @Inject lateinit var medinkServiceData: MedLinkServiceData
-
+    @Inject lateinit var aapsSchedulers: AapsSchedulers
+    
     private var disposable: CompositeDisposable = CompositeDisposable()
 
-    private val loopHandler = Handler()
+    private val handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
     private lateinit var refreshLoop: Runnable
 
     init {
         refreshLoop = Runnable {
             activity?.runOnUiThread { updateGUI() }
-            loopHandler.postDelayed(refreshLoop, T.mins(1).msecs())
+            handler.postDelayed(refreshLoop, T.mins(1).msecs())
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.medlink_medtronic_fragment, container, false)
-    }
+    private var _binding: MedlinkMedtronicFragmentBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+    MedlinkMedtronicFragmentBinding.inflate(inflater, container, false).also { _binding = it }.root
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        medtronic_pumpstatus.setBackgroundColor(resourceHelper.gc(R.color.colorInitializingBorder))
+        super.onViewCreated(view, savedInstanceState)
 
-        medtronic_rl_status.text = resourceHelper.gs(RileyLinkServiceState.NotStarted.getResourceId())
+        binding.medtronicRlStatus.text = rh.gs(RileyLinkServiceState.NotStarted.resourceId)
 
-        medtronic_pump_status.setTextColor(Color.WHITE)
-        medtronic_pump_status.text = "{fa-bed}"
+        binding.medtronicRlStatus.setTextColor(Color.WHITE)
+        @SuppressLint("SetTextI18n")
+        binding.medtronicRlStatus.text = "{fa-bed}"
 
-        medlink_medtronic_history.setOnClickListener {
-            if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
+        binding.history.setOnClickListener {
+            if (medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration() == true) {
                 startActivity(Intent(context, MedLinkMedtronicHistoryActivity::class.java))
             } else {
-                aapsLogger.debug("medtronic history")
                 displayNotConfiguredDialog()
             }
         }
 
-        medtronic_refresh.setOnClickListener {
-            if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() != true) {
-                aapsLogger.debug("verifyConfiguration")
+        binding.refresh.setOnClickListener {
+            if (medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration() != true) {
                 displayNotConfiguredDialog()
             } else {
-                medtronic_refresh.isEnabled = false
-                medlinkMedtronicPlugin.resetStatusState()
-                commandQueue.readStatus("Clicked refresh", object : Callback() {
+                binding.refresh.isEnabled = false
+                medLinkMedtronicPumpPlugin.resetStatusState()
+                commandQueue.readStatus(rh.gs(R.string.clicked_refresh), object : Callback() {
                     override fun run() {
-                        activity?.runOnUiThread { medtronic_refresh?.isEnabled = true }
+                        activity?.runOnUiThread { if (_binding != null) binding.refresh.isEnabled = true }
                     }
                 })
             }
         }
 
-        medtronic_stats.setOnClickListener {
-            if (medlinkMedtronicPlugin.medLinkService?.verifyConfiguration() == true) {
-                aapsLogger.debug("verifyconfiguration")
-                startActivity(Intent(context, MedLinkStatusActivity::class.java))
+        binding.stats.setOnClickListener {
+            if (medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration() == true) {
+                startActivity(Intent(context, RileyLinkStatusActivity::class.java))
             } else {
                 displayNotConfiguredDialog()
             }
@@ -128,46 +133,46 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     @Synchronized
     override fun onResume() {
         super.onResume()
-        loopHandler.postDelayed(refreshLoop, T.mins(1).msecs())
+        handler.postDelayed(refreshLoop, T.mins(1).msecs())
         disposable += rxBus
             .toObservable(EventRefreshButtonState::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ medtronic_refresh.isEnabled = it.newState }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ binding.refresh.isEnabled = it.newState }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventRileyLinkDeviceStatusChange::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(aapsSchedulers.main)
             .subscribe({
-                aapsLogger.debug(LTag.PUMP, "onStatusEvent(EventRileyLinkDeviceStatusChange): $it")
-                setDeviceStatus()
-            }, { fabricPrivacy.logException(it) })
+                           aapsLogger.debug(LTag.PUMP, "onStatusEvent(EventRileyLinkDeviceStatusChange): $it")
+                           setDeviceStatus()
+                       }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventMedtronicPumpValuesChanged::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateGUI() }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateGUI() }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventExtendedBolusChange::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateGUI() }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateGUI() }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventTempBasalChange::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateGUI() }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateGUI() }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventMedtronicPumpConfigurationChanged::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(aapsSchedulers.main)
             .subscribe({
-                aapsLogger.debug(LTag.PUMP, "EventMedtronicPumpConfigurationChanged triggered")
-                medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
-                updateGUI()
-            }, { fabricPrivacy.logException(it) })
+                           aapsLogger.debug(LTag.PUMP, "EventMedtronicPumpConfigurationChanged triggered")
+                           medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration()
+                           updateGUI()
+                       }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventPumpStatusChanged::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateGUI() }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateGUI() }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventQueueChanged::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateGUI() }, { fabricPrivacy.logException(it) })
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateGUI() }, fabricPrivacy::logException)
 
         updateGUI()
     }
@@ -176,52 +181,52 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     override fun onPause() {
         super.onPause()
         disposable.clear()
-        loopHandler.removeCallbacks(refreshLoop)
+        handler.removeCallbacks(refreshLoop)
     }
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = medinkServiceData.medLinkServiceState.getResourceId()
-        val rileyLinkError = medlinkMedtronicPlugin.medLinkService?.error
-        medtronic_rl_status.text =
+        val resourceId = medinkServiceData.medLinkServiceState.resourceId
+        val medLinkError = medLinkMedtronicPumpPlugin.medLinkService?.error
+        binding.medtronicRlStatus.text =
             when {
-                medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> resourceHelper.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isConnecting                      -> "{fa-bluetooth-b spin}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && rileyLinkError == null -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && rileyLinkError != null -> "{fa-bluetooth-b}   " + resourceHelper.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                    -> "{fa-bluetooth-b}   " + resourceHelper.gs(resourceId)
+                medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isConnecting                    -> "{fa-bluetooth-b spin}   " + rh.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && medLinkError == null -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
+                medinkServiceData.medLinkServiceState.isError && medLinkError != null -> "{fa-bluetooth-b}   " + rh.gs(medLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                  -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
             }
-        medtronic_rl_status.setTextColor(if (rileyLinkError != null) Color.RED else Color.WHITE)
+        binding.medtronicRlStatus.setTextColor(if (medLinkError != null) Color.RED else Color.WHITE)
 
-        medtronic_errors.text =
+        binding.medtronicErrors.text =
             medinkServiceData.medLinkError?.let {
-                resourceHelper.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                rh.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 
         when (medtronicPumpStatus.pumpDeviceState) {
             null,
-            PumpDeviceState.Sleeping -> medtronic_pump_status.text = "{fa-bed}   " // + pumpStatus.pumpDeviceState.name());
+            PumpDeviceState.Sleeping -> binding.medtronicPumpStatus.text = "{fa-bed}   " // + pumpStatus.pumpDeviceState.name());
             PumpDeviceState.NeverContacted,
             PumpDeviceState.WakingUp,
             PumpDeviceState.PumpUnreachable,
             PumpDeviceState.ErrorWhenCommunicating,
             PumpDeviceState.TimeoutWhenCommunicating,
-            PumpDeviceState.InvalidConfiguration -> medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
+            PumpDeviceState.InvalidConfiguration -> binding.medtronicPumpStatus.text = " " + rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
 
             PumpDeviceState.Active -> {
                 val cmd = medLinkMedtronicUtil.getCurrentCommand()
                 if (cmd == null)
-                    medtronic_pump_status.text = " " + resourceHelper.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
+                    binding.medtronicPumpStatus.text = " " + rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
                 else {
                     aapsLogger.debug(LTag.PUMP, "Command: " + cmd)
                     val cmdResourceId = cmd.resourceId
                     if (cmd == MedLinkCommandType.GetState) {
-                        medtronic_pump_status.text = medLinkMedtronicUtil.frameNumber?.let {
-                            resourceHelper.gs(cmdResourceId, medLinkMedtronicUtil.pageNumber, medLinkMedtronicUtil.frameNumber)
+                        binding.medtronicPumpStatus.text = medLinkMedtronicUtil.frameNumber?.let {
+                            rh.gs(cmdResourceId, medLinkMedtronicUtil.pageNumber, medLinkMedtronicUtil.frameNumber)
                         }
-                            ?: resourceHelper.gs(R.string.medtronic_cmd_desc_get_settings)
+                            ?: rh.gs(R.string.medtronic_cmd_desc_get_settings)
                     } else {
-                        medtronic_pump_status.text = " " + (cmdResourceId?.let { resourceHelper.gs(it) }
+                        binding.medtronicPumpStatus.text = " " + (cmdResourceId?.let { rh.gs(it) }
                             ?: cmd.getCommandDescription())
                     }
                 }
@@ -236,57 +241,61 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         } else {
             R.string.medtronic_pump_state_SUSPENDED;
         }
-        medtronic_pump_state.text = resourceHelper.gs(id)
+        binding.medtronicPumpState.text = rh.gs(id)
 
         val status = commandQueue.spannedStatus()
         if (status.toString() == "") {
-            medtronic_queue.visibility = View.GONE
+            binding.medtronicQueue.visibility = View.GONE
         } else {
-            medtronic_queue.visibility = View.VISIBLE
-            medtronic_queue.text = status
+            binding.medtronicQueue.visibility = View.VISIBLE
+            binding.medtronicQueue.text = status
         }
     }
 
     private fun displayNotConfiguredDialog() {
         context?.let {
-            OKDialog.show(it, resourceHelper.gs(R.string.medtronic_warning),
-                resourceHelper.gs(R.string.medtronic_error_operation_not_possible_no_configuration) + "fragment", null)
+            OKDialog.show(it, rh.gs(R.string.medtronic_warning),
+                          rh.gs(R.string.medtronic_error_operation_not_possible_no_configuration) + "fragment", null)
         }
     }
 
     // GUI functions
     @Synchronized
     fun updateGUI() {
-        if (medtronic_rl_status == null) return
+        if (binding.medtronicPumpstatus == null) return
 
         setDeviceStatus()
 
         // last connection
         if (medtronicPumpStatus.lastConnection != 0L) {
-            val minAgo = DateUtil.minAgo(resourceHelper, medtronicPumpStatus.lastConnection)
+            val minAgo = dateUtil.minAgo(rh, medtronicPumpStatus.lastConnection)
             val min = (System.currentTimeMillis() - medtronicPumpStatus.lastConnection) / 1000 / 60
-            if (medtronicPumpStatus.lastConnection + 60 * 1000 > System.currentTimeMillis()) {
-                medtronic_lastconnection.setText(R.string.medtronic_pump_connected_now)
-                medtronic_lastconnection.setTextColor(Color.WHITE)
-            } else if (medtronicPumpStatus.lastConnection + 30 * 60 * 1000 < System.currentTimeMillis()) {
-
-                if (min < 60) {
-                    medtronic_lastconnection.text = resourceHelper.gs(R.string.minago, min)
-                } else if (min < 1440) {
-                    val h = (min / 60).toInt()
-                    medtronic_lastconnection.text = (resourceHelper.gq(R.plurals.duration_hours, h, h) + " "
-                        + resourceHelper.gs(R.string.ago))
-                } else {
-                    val h = (min / 60).toInt()
-                    val d = h / 24
-                    // h = h - (d * 24);
-                    medtronic_lastconnection.text = (resourceHelper.gq(R.plurals.duration_days, d, d) + " "
-                        + resourceHelper.gs(R.string.ago))
+            when {
+                medtronicPumpStatus.lastConnection + 60 * 1000 > System.currentTimeMillis()      -> {
+                    binding.medtronicLastconnection.setText(R.string.medtronic_pump_connected_now)
+                    binding.medtronicLastconnection.setTextColor(Color.WHITE)
                 }
-                medtronic_lastconnection.setTextColor(Color.RED)
-            } else {
-                medtronic_lastconnection.text = minAgo
-                medtronic_lastconnection.setTextColor(Color.WHITE)
+                medtronicPumpStatus.lastConnection + 30 * 60 * 1000 < System.currentTimeMillis() -> {
+
+                    if (min < 60) {
+                        binding.medtronicLastconnection.text = rh.gs(R.string.minago, min)
+                    } else if (min < 1440) {
+                        val h = (min / 60).toInt()
+                        binding.medtronicLastconnection.text = (rh.gq(R.plurals.duration_hours, h, h) + " "
+                            + rh.gs(R.string.ago))
+                    } else {
+                        val h = (min / 60).toInt()
+                        val d = h / 24
+                        // h = h - (d * 24);
+                        binding.medtronicLastconnection.text = (rh.gq(R.plurals.duration_days, d, d) + " "
+                            + rh.gs(R.string.ago))
+                    }
+                    binding.medtronicLastconnection.setTextColor(Color.RED)
+                }
+                else                                                                             -> {
+                    binding.medtronicLastconnection.text = minAgo
+                    binding.medtronicLastconnection.setTextColor(Color.WHITE)
+                }
             }
         }
 
@@ -294,68 +303,69 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val bolus = medtronicPumpStatus.lastBolusAmount
         val bolusTime = medtronicPumpStatus.lastBolusTime
         if (bolus != null && bolusTime != null) {
-            val agoMsc = System.currentTimeMillis() - medtronicPumpStatus.lastBolusTime.time
+            val agoMsc = System.currentTimeMillis() - medtronicPumpStatus.lastBolusTime!!.time
             val bolusMinAgo = agoMsc.toDouble() / 60.0 / 1000.0
-            val unit = resourceHelper.gs(R.string.insulin_unit_shortname)
+            val unit = rh.gs(R.string.insulin_unit_shortname)
             val ago: String
             if (agoMsc < 60 * 1000) {
-                ago = resourceHelper.gs(R.string.medtronic_pump_connected_now)
+                ago = rh.gs(R.string.medtronic_pump_connected_now)
             } else if (bolusMinAgo < 60) {
-                ago = DateUtil.minAgo(resourceHelper, medtronicPumpStatus.lastBolusTime.time)
+                ago = dateUtil.minAgo(rh, medtronicPumpStatus.lastBolusTime!!.time)
             } else {
-                ago = DateUtil.hourAgo(medtronicPumpStatus.lastBolusTime.time, resourceHelper)
+                ago = dateUtil.hourAgo(medtronicPumpStatus.lastBolusTime!!.time, rh)
             }
-            medtronic_lastbolus.text = resourceHelper.gs(R.string.mdt_last_bolus, bolus, unit, ago)
+            binding.medtronicLastbolus.text = rh.gs(R.string.mdt_last_bolus, bolus, unit, ago)
         } else {
-            medtronic_lastbolus.text = ""
+            binding.medtronicLastbolus.text = ""
         }
 
         // base basal rate
-        medtronic_basabasalrate.text = ("(${medtronicPumpStatus.activeProfileName.toUpperCase()})  "
-            + resourceHelper.gs(R.string.pump_basebasalrate, medlinkMedtronicPlugin.baseBasalRate))
+        binding.medtronicBasabasalrate.text = ("(${medtronicPumpStatus.activeProfileName.toUpperCase()})  "
+            + rh.gs(R.string.pump_basebasalrate, medLinkMedtronicPumpPlugin.baseBasalRate))
 
-        medtronic_tempbasal.text = activePlugin.activeTreatments.getTempBasalFromHistory(System.currentTimeMillis())?.toStringFull()
+        binding.medtronicTempbasal.text = medtronicPumpStatus.tempBasalAmount.toString()
             ?: ""
 
         // battery
         if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
-            medtronic_pumpstate_battery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} "
+            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryLevel / 25}} "
             // } else if (medtronicPumpStatus.batteryType == BatteryType.LiPo) {
             //     medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + String.format(" %.2f V", medtronicPumpStatus.batteryVoltage)
         } else {
-            medtronic_pumpstate_battery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} ${String.format("%.2f V", medtronicPumpStatus.batteryVoltage)}"
+            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryLevel / 25}} ${String.format("%.2f V", medtronicPumpStatus.batteryVoltage)}"
         }
-        warnColors.setColorInverse(medtronic_pumpstate_battery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
+        warnColors.setColorInverse(binding.medtronicPumpstateBattery, medtronicPumpStatus.batteryLevel.toDouble(), 25.0, 10.0)
 
         // reservoir
-        medtronic_reservoir.text = resourceHelper.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)
-        warnColors.setColorInverse(medtronic_reservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0)
+        val reservoirValue = if(medtronicPumpStatus.reservoirLevel<10) R.string.lowreservoirvalue else R.string.reservoirvalue
+        binding.medtronicReservoir.text = rh.gs(reservoirValue, medtronicPumpStatus.reservoirLevel, medtronicPumpStatus.reservoirFullUnits)
+        warnColors.setColorInverse(binding.medtronicReservoir, medtronicPumpStatus.reservoirLevel, 50.0, 20.0)
 
-        medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
-        medtronic_errors.text = medtronicPumpStatus.errorInfo
+        medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration()
+        binding.medtronicErrors.text = medtronicPumpStatus.errorInfo
 
         // next command
         val pump = activePlugin.activePump
         if (pump is MedLinkMedtronicPumpPlugin ) {
             if (pump.temporaryBasal != null) {
-                ("${pump.tempBasalMicrobolusOperations.operations.peek().toStringView()}" +
-                    "\n${pump.nextScheduledCommand()}").also { medtronic_next_command.text = it }
+                ("${pump.tempBasalMicrobolusOperations!!.operations.peek().toStringView()}" +
+                    "\n${pump.nextScheduledCommand()}").also { binding.medtronicNextCommand.text = it }
             } else {
-                medtronic_next_command.text = pump.nextScheduledCommand()
+                binding.medtronicNextCommand.text = pump.nextScheduledCommand()
             }
         }
 
-        medlinkMedtronicPlugin.medLinkService?.verifyConfiguration()
-        medtronic_errors.text = medtronicPumpStatus.errorInfo
+        medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration()
+        binding.medtronicErrors.text = medtronicPumpStatus.errorInfo
 
         //totalDailyInsulin
-        val todayTotalUnits = medtronicPumpStatus.todayTotalUnits
+        val todayTotalUnits = medtronicPumpStatus.dailyTotalUnits
         val yesterdayTotalUnits = medtronicPumpStatus.yesterdayTotalUnits
         aapsLogger.info(LTag.EVENTS, "today yesterday$todayTotalUnits $yesterdayTotalUnits")
         if (todayTotalUnits != null && yesterdayTotalUnits != null) {
-            medtronic_total_insulin.text = "$todayTotalUnits/$yesterdayTotalUnits"
+            binding.medtronicTotalInsulin.text = "$todayTotalUnits/$yesterdayTotalUnits"
         } else {
-            medtronic_lastbolus.text = ""
+            binding.medtronicLastbolus.text = ""
         }
 
         //DeviceBattery
@@ -363,9 +373,9 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 
-        medtronic_devicestate_battery.text = "{fa-battery-${deviceBatteryRemaining/ 25} }  ${deviceBatteryRemaining}%";
+        binding.medtronicDevicestateBattery.text = "{fa-battery-${deviceBatteryRemaining/ 25} }  ${deviceBatteryRemaining}%";
 
-        warnColors.setColorInverse(medtronic_pumpstate_battery, deviceBatteryRemaining.toDouble(), 25.0, 10.0)
+        warnColors.setColorInverse(binding.medtronicDevicestateBattery, deviceBatteryRemaining.toDouble(), 25.0, 10.0)
 
         // next calibration
         if (medtronicPumpStatus.nextCalibration != null) {
@@ -374,29 +384,29 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
             val ago: String
             if (agoMsc < 60 * 1000) {
-                ago = resourceHelper.gs(R.string.medtronic_pump_connected_now)
+                ago = rh.gs(R.string.medtronic_pump_connected_now)
             } else if (calibrationMinAgo < 60) {
-                ago = DateUtil.minAfter(resourceHelper, medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli())
+                ago = dateUtil.minAfter(rh, medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli()).toString()
             } else {
-                ago = DateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), resourceHelper)
+                ago = dateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), rh).toString()
             }
-            medtronic_nextcalibration.text = resourceHelper.gs(R.string.mdt_next_calibration, ago, medtronicPumpStatus.nextCalibration.toLocalTime())
-            warnColors.setColorInverse(medtronic_nextcalibration, calibrationMinAgo, 60.0, 30.0)
+            binding.medtronicNextcalibration.text = rh.gs(R.string.mdt_next_calibration, ago, medtronicPumpStatus.nextCalibration.toLocalTime())
+            warnColors.setColorInverse(binding.medtronicNextcalibration, calibrationMinAgo, 60.0, 30.0)
         } else {
-            medtronic_nextcalibration.text = ""
+            binding.medtronicNextcalibration.text = ""
         }
 
         // isig
         val pumpStatus = medtronicPumpStatus
         if (medtronicPumpStatus.isig != null && medtronicPumpStatus.isig == 0.0) {
-            medtronic_isig.text = resourceHelper.gs(info.nightscout.androidaps.core.R.string.sensor_lost)
-            medtronic_isig.setTextColor(Color.RED)
+            binding.medtronicIsig.text = rh.gs(info.nightscout.androidaps.core.R.string.sensor_lost)
+            binding.medtronicIsig.setTextColor(Color.RED)
         } else if (medtronicPumpStatus.isig != null) {
-            medtronic_isig.text = String.format("%.2fnA", medtronicPumpStatus.isig)
-            warnColors.setColorInverse(medtronic_isig, medtronicPumpStatus.isig, 8.0, 7.0)
-            warnColors.setColor(medtronic_isig, medtronicPumpStatus.isig, 26.0, 31.0)
+            binding.medtronicIsig.text = String.format("%.2fnA", medtronicPumpStatus.isig)
+            warnColors.setColorInverse(binding.medtronicIsig, medtronicPumpStatus.isig, 8.0, 7.0)
+            warnColors.setColor(binding.medtronicIsig, medtronicPumpStatus.isig, 26.0, 31.0)
         } else {
-            medtronic_nextcalibration.text = ""
+            binding.medtronicIsig.text = ""
         }
     }
 }

@@ -5,15 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import dagger.android.DaggerBroadcastReceiver
-import info.nightscout.androidaps.interfaces.ActivePluginProvider
-import info.nightscout.androidaps.logging.AAPSLogger
+import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst
 import javax.inject.Inject
 
 class MedLinkBluetoothStateReceiver : DaggerBroadcastReceiver() {
     @Inject lateinit var aapsLogger: AAPSLogger
-    @Inject lateinit var activePlugin: ActivePluginProvider
+    @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var medLinkUtil: MedLinkUtil
 
     override fun onReceive(context: Context, intent: Intent) {

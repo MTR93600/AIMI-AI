@@ -14,12 +14,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst.Intents.MedLinkReady;
 import static info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult.RESULT_SUCCESS;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +48,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
@@ -64,19 +65,27 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult;
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by Dirceu on 30/09/20.
  */
 @Singleton
-public class MedLinkBLE extends RileyLinkBLE {
+public class MedLinkBLE //extends RileyLinkBLE
+{
 
+    private final AAPSLogger aapsLogger;
+    private final BluetoothGattCallback bluetoothGattCallback;
+    private final SP sp;
+    private Context context;
     private String firmwareVersion = "";
     private int batteryLevel = 0;
     private boolean commandConfirmed = false;
@@ -101,6 +110,14 @@ public class MedLinkBLE extends RileyLinkBLE {
     private PumpStatusType lastPumpStatus;
     private MedLinkPumpMessage startCommand;
     private MedLinkPumpMessage stopCommand;
+    private boolean manualDisconnect = false;
+    private CommandExecutor toBeRemoved;
+    private InitializePumpManagerTask radioResponseCountNotified;
+    private boolean gattDebugEnabled = true;
+    private boolean mIsConnected;
+    private StringBuffer pumpResponse;
+    private boolean gattConnected;
+    private BluetoothDevice medLinkDevice;
 
     public boolean partialCommand() {
         return lastConfirmedCommand > lastConnection &&
@@ -113,7 +130,7 @@ public class MedLinkBLE extends RileyLinkBLE {
         } else {
             aapsLogger.info(LTag.PUMPBTCOMM, "null");
         }
-        CommandExecutor toBeRemoved = currentCommand;
+        CommandExecutor toBeRtemoved = currentCommand;
         if ((currentCommand != null &&
                 currentCommand.hasFinished()) || force) {
 
@@ -291,11 +308,24 @@ public class MedLinkBLE extends RileyLinkBLE {
     List<Resp> resultActivity = new ArrayList<>();
     private boolean servicesDiscovered = false;
 
+    public BluetoothAdapter getBluetoothAdapter() {
+        if (context.getSystemService(Context.BLUETOOTH_SERVICE) != null) {
+            bluetoothAdapter =
+                    ((BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
+        }
+        return bluetoothAdapter;
+
+    }
+
+    private BluetoothAdapter bluetoothAdapter;
     private String lastCharacteristic = "";
 
     @Inject
-    public MedLinkBLE(final Context context, ResourceHelper resourceHelper) {
-        super(context);
+    public MedLinkBLE(final Context context, ResourceHelper resourceHelper, AAPSLogger aapsLogger
+            , SP sp) {
+        this.sp = sp;
+        this.context = context;
+        this.aapsLogger = aapsLogger;
         MedLinkBLE that = this;
         handlerThread.start();
         characteristicThread.start();
@@ -471,7 +501,7 @@ public class MedLinkBLE extends RileyLinkBLE {
                 if (status == GATT_SUCCESS) {
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
                         medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.BluetoothConnected, context);
-                        int bondstate = rileyLinkDevice.getBondState();        // Take action depending on the bond state
+                        int bondstate = medLinkDevice.getBondState();        // Take action depending on the bond state
                         if (bondstate == BOND_NONE || bondstate == BOND_BONDED) {
                             aapsLogger.info(LTag.PUMPBTCOMM, "Discoverying Services");
                             aapsLogger.info(LTag.PUMPBTCOMM, connectionStatus.name());
@@ -684,6 +714,21 @@ public class MedLinkBLE extends RileyLinkBLE {
         }
 
         ;
+    }
+
+    private String getGattStatusMessage(int status) {
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            return "SUCCESS";
+        } else if (status == BluetoothGatt.GATT_FAILURE) {
+            return "FAILED";
+        } else if (status ==
+                BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
+            return "NOT PERMITTED";
+        } else if (status == 133) {
+            return "Found the strange 133 bug";
+        } else {
+            return "UNKNOWN ($status)";
+        }
     }
 
     private void removeNotificationCommand() {
@@ -1059,16 +1104,16 @@ public class MedLinkBLE extends RileyLinkBLE {
 
     }
 
-    @Override public void connectGatt() {
+    public void connectGatt() {
         lastGattConnection = System.currentTimeMillis();
         changeConnectionStatus(ConnectionStatus.CONNECTING);
         aapsLogger.info(LTag.PUMPBTCOMM, "Connecting gatt");
-        if (this.rileyLinkDevice == null) {
+        if (this.medLinkDevice == null) {
             aapsLogger.error(LTag.PUMPBTCOMM, "RileyLink device is null, can't do connectGatt.");
             return;
         }
 
-        bluetoothConnectionGatt = rileyLinkDevice.connectGatt(context, false,
+        bluetoothConnectionGatt = medLinkDevice.connectGatt(context, false,
                 bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE);
         if (bluetoothConnectionGatt == null) {
             aapsLogger.error(LTag.PUMPBTCOMM, "Failed to connect to Bluetooth Low Energy device at " + bluetoothAdapter.getAddress());
@@ -1374,7 +1419,7 @@ public class MedLinkBLE extends RileyLinkBLE {
     }
 
 
-    @Override public boolean isConnected() {
+    public boolean isConnected() {
         return isConnected;
     }
 
@@ -1401,21 +1446,29 @@ public class MedLinkBLE extends RileyLinkBLE {
         if (characteristicChanged == null) {
             characteristicChanged = new BleCommand(aapsLogger, medLinkServiceData);
         }
-        rileyLinkDevice = bluetoothAdapter.getRemoteDevice(medLinkAddress);
+        medLinkDevice = bluetoothAdapter.getRemoteDevice(medLinkAddress);
         // if this succeeds, we get a connection state change callback?
 
-        if (rileyLinkDevice != null) {
+        if (medLinkDevice != null) {
             connectGatt();
         } else {
             aapsLogger.error(LTag.PUMPBTCOMM, "RileyLink device not found with address: " + medLinkAddress);
         }
     }
 
+    private BluetoothGatt bluetoothConnectionGatt = null;
 
     public void disconnect() {
         changeConnectionStatus(ConnectionStatus.DISCONNECTING);
         servicesDiscovered = false;
-        super.disconnect();
+        isConnected = false;
+        aapsLogger.warn(LTag.PUMPBTCOMM, "Closing GATT connection");
+        // Close old connection
+        if (bluetoothConnectionGatt != null) {
+            // Not sure if to disconnect or to close first..
+            bluetoothConnectionGatt.disconnect();
+            manualDisconnect = true;
+        }
         aapsLogger.info(LTag.PUMPBTCOMM, "Post disconnect");
         setConnected(false);
         isDiscovering = false;
@@ -1455,7 +1508,10 @@ public class MedLinkBLE extends RileyLinkBLE {
         isDiscovering = false;
         notificationEnabled = false;
         aapsLogger.info(LTag.EVENTS, "closing");
-        super.close();
+        if (bluetoothConnectionGatt != null) {
+            bluetoothConnectionGatt.close();
+            bluetoothConnectionGatt = null;
+        }
         changeConnectionStatus(ConnectionStatus.CLOSED);
         lastCloseAction = System.currentTimeMillis();
         previousLine = "";
@@ -1722,13 +1778,20 @@ public class MedLinkBLE extends RileyLinkBLE {
         return currentCommand;
     }
 
-    @Override public boolean discoverServices() {
+    public boolean discoverServices() {
         aapsLogger.info(LTag.PUMPBTCOMM, connectionStatus.name());
         if (connectionStatus == ConnectionStatus.CLOSED) {
-            return super.discoverServices();
-        } else {
-            return false;
+            if (bluetoothConnectionGatt == null)
+                return false;
+            else if (bluetoothConnectionGatt.discoverServices() == true) {
+                aapsLogger.warn(LTag.PUMPBTCOMM, "Starting to discover GATT Services.");
+                return true;
+            } else {
+                aapsLogger.error(LTag.PUMPBTCOMM, "Cannot discover GATT Services.");
+            }
         }
+
+        return false;
 
     }
 }

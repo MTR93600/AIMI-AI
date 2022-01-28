@@ -5,11 +5,11 @@
         <service
             android:name=".service.RileyLinkMedtronicService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name=".service.MedLinkMedtronicService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <activity android:name=".dialog.MedtronicHistoryActivity" />
         <activity android:name=".dialog.MedLinkMedtronicHistoryActivity" />
 

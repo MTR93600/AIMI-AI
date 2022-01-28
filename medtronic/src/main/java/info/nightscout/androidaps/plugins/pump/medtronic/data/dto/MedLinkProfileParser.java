@@ -13,11 +13,12 @@ import java.util.stream.Stream;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.Constants;
-import info.nightscout.androidaps.data.Profile;
+import info.nightscout.androidaps.data.ProfileSealed;
 import info.nightscout.androidaps.db.WizardSettings;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.interfaces.Profile;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 
 /**
  * Created by Dirceu on 01/02/21.
@@ -60,7 +61,7 @@ public class MedLinkProfileParser {
         addData(buffer, "units", true);
         addData(buffer, units, false);
         if (pumpPlugin.getBasalProfile() != null) {
-            buffer = parseBasal(pumpPlugin.getBasalProfile().listEntries, buffer);
+            buffer = parseBasal(pumpPlugin.getBasalProfile().getEntries(), buffer);
         }
         buffer.append("}");
         JSONObject json = new JSONObject(buffer.toString());
@@ -82,7 +83,7 @@ public class MedLinkProfileParser {
 //23:37:49.258 Rate 4: 70‑120 from 15:00
 //23:37:49.294 Rate 5: 70‑140 from 21:00
 //23:37:49.295 Ready
-        return new Profile(hasAndroidInjector, json);
+        return ProfileSealed.Pure(hasAndroidInjector, json);
     }
 
 
@@ -169,7 +170,8 @@ public class MedLinkProfileParser {
 
         for (BasalProfileEntry basalEntry : basalProfile) {
             buffer.append(toAppend);
-            addTimeValue(buffer, basalEntry.startTime.toString("HH:mm"), basalEntry.rate);
+            addTimeValue(buffer, basalEntry.getStartTime().toString("HH:mm"),
+                    basalEntry.getRate());
             toAppend = ",";
         }
         buffer.append("]");

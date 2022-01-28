@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.PumpEnactResult;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn.ParsingError;
@@ -42,14 +42,15 @@ public class BasalCallback extends BaseCallback<BasalProfile,Supplier<Stream<Str
             //TODO check this;
             if(profile!=null) {
                 PumpEnactResult result = medLinkMedtronicPumpPlugin.comparePumpBasalProfile(profile);
-                if (!result.success) {
+                if (!result.getSuccess()) {
                     errorMessage.add(ParsingError.BasalComparisonError);
                     aapsLogger.warn(LTag.PUMPCOMM, "Error reading profile in max retries.");
                     aapsLogger.warn(LTag.PUMPCOMM, ""+profile);
                 }
                 String errors = checkProfile(profile);
                 medLinkMedtronicPumpPlugin.sendPumpUpdateEvent();
-                medLinkMedtronicPumpPlugin.getPumpStatusData().basalsByHour  = profile.getProfilesByHour(medLinkMedtronicPumpPlugin.getPumpStatusData().pumpType);
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setBasalsByHour(
+                        profile.getProfilesByHour(medLinkMedtronicPumpPlugin.getPumpStatusData().getPumpType()));
                 medLinkMedtronicPumpPlugin.setBasalProfile(profile);
                 return new MedLinkStandardReturn<>(resp, profile, errorMessage);
             } else {

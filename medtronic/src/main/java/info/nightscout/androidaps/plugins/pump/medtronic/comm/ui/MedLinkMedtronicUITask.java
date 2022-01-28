@@ -7,9 +7,9 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback;
@@ -32,7 +32,7 @@ public class MedLinkMedtronicUITask {
     private BolusMedLinkMessage pumpMessage;
     //TODO build parsers here
 
-    @Inject RxBusWrapper rxBus;
+    @Inject RxBus rxBus;
     @Inject AAPSLogger aapsLogger;
     @Inject MedtronicPumpStatus medtronicPumpStatus;
     @Inject MedLinkMedtronicUtil medtronicUtil;

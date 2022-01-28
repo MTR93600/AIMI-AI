@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog;
 
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -17,8 +16,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
-import info.nightscout.androidaps.plugins.pump.common.R;
+
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 public class MedLinkStatusActivity extends NoSplashAppCompatActivity {

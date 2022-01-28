@@ -1,12 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
 import android.os.SystemClock
-import info.nightscout.androidaps.logging.AAPSLogger
-import info.nightscout.androidaps.logging.LTag
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 
 class BleCalCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) : BleCommand(aapsLogger, medlinkServiceData) {
 
@@ -14,20 +12,20 @@ class BleCalCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceD
         aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
         when {
-            answer!!.contains("calibration confirmed from pump")     -> {
+            answer.contains("calibration confirmed from pump")     -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, "success calibrated")
                 aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
                 pumpResponse = StringBuffer()
                 bleComm!!.completedCommand()
             }
-            answer!!.contains("calibration not confirmed from pump") -> {
+            answer.contains("calibration not confirmed from pump") -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, "calibration failed")
                 aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
                 pumpResponse = StringBuffer()
                 SystemClock.sleep(60000)
                 bleComm!!.retryCommand()
             }
-            else                                                     -> {
+            else                                                   -> {
                 super.characteristicChanged(answer, bleComm, lastCommand)
             }
         }

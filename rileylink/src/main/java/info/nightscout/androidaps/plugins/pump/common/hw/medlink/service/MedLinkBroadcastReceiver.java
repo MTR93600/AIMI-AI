@@ -16,10 +16,10 @@ import javax.inject.Inject;
 
 import dagger.android.DaggerBroadcastReceiver;
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.interfaces.PumpInterface;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.interfaces.Pump;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
@@ -31,7 +31,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.I
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by Dirceu on 29/09/20.
@@ -44,7 +44,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     @Inject AAPSLogger aapsLogger;
 
     @Inject ServiceTaskExecutor serviceTaskExecutor;
-    @Inject ActivePluginProvider activePlugin;
+    @Inject ActivePlugin activePlugin;
 
     MedLinkService serviceInstance;
     protected Map<String, List<String>> broadcastIdentifiers = null;
@@ -78,9 +78,9 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     }
 
     protected MedLinkService getServiceInstance() {
-        PumpInterface pump = activePlugin.getActivePump();
+        Pump pump = activePlugin.getActivePump();
         MedLinkPumpDevice pumpDevice = (MedLinkPumpDevice) pump;
-        return pumpDevice.getMedLinkService();
+        return pumpDevice.getRileyLinkService();
     }
 
 
