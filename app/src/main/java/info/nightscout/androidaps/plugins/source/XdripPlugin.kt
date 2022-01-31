@@ -51,7 +51,18 @@ class XdripPlugin @Inject constructor(
             GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE,
             GlucoseValue.SourceSensor.DEXCOM_G6_NATIVE_XDRIP,
             GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE_XDRIP,
-            GlucoseValue.SourceSensor.DEXCOM_G6_G5_NATIVE_XDRIP
+            GlucoseValue.SourceSensor.DEXCOM_G6_G5_NATIVE_XDRIP,
+            GlucoseValue.SourceSensor.LIBRE_1_NET,
+            GlucoseValue.SourceSensor.LIBRE_1_BLUE,
+            GlucoseValue.SourceSensor.LIBRE_1_PL,
+            GlucoseValue.SourceSensor.LIBRE_1_BLUCON,
+            GlucoseValue.SourceSensor.LIBRE_1_TOMATO,
+            GlucoseValue.SourceSensor.LIBRE_1_RF,
+            GlucoseValue.SourceSensor.LIBRE_1_LIMITTER,
+            GlucoseValue.SourceSensor.GLIMP,
+            GlucoseValue.SourceSensor.LIBRE_2_NATIVE,
+            GlucoseValue.SourceSensor.RANDOM,
+            GlucoseValue.SourceSensor.UNKNOWN
         ).any { it == glucoseValue.sourceSensor }
     }
 
