@@ -395,6 +395,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_TDD:" + sens_TDD+"\n";
     // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more
     var sens_currentBG = sens_normalTarget/(bg/target_bg);
+    // EXPERIMENTAL: allow user preferences to scale the strength of the ISF as BG increases
+    var sens_BGscaler = profile.ISFbgscaler; // 0 is normal scaling, 5 is 5% stronger and -5 is 5% weaker
+    var sens_BGscaler = ((sens_BGscaler*-1)+100)/100; // make this work by inverting -ve to +ve and scale to a %
+    // if above target use the scaling with profile ISF as the weakest
+    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : sens_currentBG);
     // in the COBBoost window allow normal ISF as minimum
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
     sens_currentBG = round(sens_currentBG,1);
