@@ -851,8 +851,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_eBGweight = (sens_predType=="UAM" ? Math.min((glucose_status.delta*.05)+0.05,0.30) : sens_eBGweight); // 3% increments max 55% starting at 10%
         // sens_eBGweight = (sens_predType=="COB" ? Math.min(glucose_status.delta*.15,0.50) : sens_eBGweight); // 15% increments max 75%
         // * EXPERIMENTAL *
-        sens_eBGweight = (sens_predType=="UAM" ? Math.max((sens_currentBG/sens_normalTarget)-0.5,0) : sens_eBGweight); // eBGw start at 50% and decreases with ISF scaling
-        sens_eBGweight = (sens_predType=="COB" ? Math.max((sens_currentBG/sens_normalTarget)-0.25,0) : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="UAM" ? 0.50 : sens_eBGweight); // eBGw start at 50% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
+        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
+        //sens_eBGweight = (sens_predType=="COB" ? Math.max((sens_currentBG/sens_normalTarget)-0.25,0) : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
         // * EXPERIMENTAL *
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         // eventualBG lower than current BG * NEGATES SMALL DELTA CONDITION *
