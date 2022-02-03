@@ -904,10 +904,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
     enlog += "* senseBGweight:\n";
-    enlog += "UAMeBGweight: " + profile.UAMeBGweight"\n";
-    enlog += "COBeBGweight: " + profile.COBeBGweight"\n";
-    enlog += "sens_predType: " + sens_predType"\n";
-    enlog += "sens_eBGweight final result: " + profile.COBeBGweight"\n";
+    enlog += "UAMeBGweight: " + profile.UAMeBGweight+"\n";
+    enlog += "COBeBGweight: " + profile.COBeBGweight+"\n";
+    enlog += "sens_predType: " + sens_predType+"\n";
+    enlog += "sens_eBGweight final result: " + sens_eBGweight +"\n";
 
     sens_future = round(sens_future,1);
 
