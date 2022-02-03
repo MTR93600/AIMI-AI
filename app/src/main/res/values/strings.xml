@@ -1164,4 +1164,7 @@
     <string name="key_eatingnow_timestart">key_eatingnow_timestart</string>
     <string name="key_eatingnow_timeend">key_eatingnow_timeend</string>
     <string name="key_openapsama_TDD" translatable="false">7 day average Total Daily Dose</string>
+    <string name="key_eatingnow_COBeBGweight" translatable="false">key_eatingnow_COBeBGweight</string>
+    <string name="key_eatingnow_UAMeBGweight" translatable="false">key_eatingnow_UAMeBGweight</string>
+
 </resources>
