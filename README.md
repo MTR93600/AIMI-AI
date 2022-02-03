@@ -28,24 +28,23 @@ It is recommended to set maxSMBBasalMinutes and maxUAMSMBBasalMinutes to 60 minu
 
 These are the methods utilised within this version:
 
-UAMBoost:
+UAM:
 This is based upon Boost and is used when there is a sudden increase in BGL of >=9 (0.5 mmol)
 UAMBoost will only operate when there are no COB.
 TDD is used as a reference point for initial insulin dose that can be scaled within preferences.
 
-COBBoost:
+COB:
 When carbs are entered there is a time window like AIMI.
 The COBpredBG prediction uses the dynamic ISF from Boost to increase insulinReq.
 If within the COBBoost Window the calculated insulinReq may be delivered via a larger SMB using the COBBoost maxBolus.
 Once the time window has elapsed COBBoost maxBolus is no longer used.
 
-ISFBoost:
-All other predictions based on future eventualBG will use ISFBoost.
-This leverages the dynamic ISF concept within the Boost plugin.
+Predictions leverages the dynamic ISF concept within the Boost plugin.
 Using the eventualBG mostly to determine the insulinReq.
-The main difference with ISFBoost from the Boost plugin is the initial ISF used to determine the predictions is based on the profile ISF.
+The main difference with is the initial ISF used to determine the predictions is based on the profile ISF.
 If BG is currently the normalTarget BG from the profile the ISF will be the same as the profile.
 Once BG rises the ISF number reduces, and as BG lowers the ISF number will increase.
+ISF scaling can be adjusted and eventualBG weighting for UAM and COB predictions can be applied.
 
 These are the preferences utilised for EN mode:
 
@@ -61,18 +60,26 @@ General:
                     EN will not add insulin when above this limit.
     BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold.
                     If there is detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
+    ISF BG Scaler:  As BG increases ISF will become stronger. The level of scaling can be adjusted.
+                    0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
+    Max ISF Limit:  As BG increases ISF will become stronger. This will Limit the ISF.
+                    1 is profile ISF, 1.5 would be a 150% smaller ISF, similar to a profile switch.
+
 
 UAM:
-    UAMBoost Bolus Scale: Multiply the initial UAMBoost bolus by this amount. 0 will disable UAMBoost.
-    UAMBoost maxBolus:  maxBolus to use for all BG rises without COB.  0 will use maxSMBBasalMinutes or maxUAMSMBBasalMinutes.
-
+    UAMBoost Bolus Scale:       Multiply the initial UAMBoost bolus by this amount. 0 will disable UAMBoost.
+    UAMBoost maxBolus:          maxBolus to use for all BG rises without COB.  0 will use maxSMBBasalMinutes or maxUAMSMBBasalMinutes.
+    UAM eventualBG Weighting:   This will be the initial weighting for eventualBG predictions without COB.
+                                As ISF grows stronger the weighting will reduce favouring current BG ISF.
+                                Setting to 50 will make this 50%. 0 will always use currentBG ISF.
 COB:
-    Use GhostCOB:           Ignore COB predictions after the COBBoost Window and rely purely on UAM. This setting can be handy when COB lingers for too long.
-    COBBoost InsulinReqPct: Percentage that will be used for EN insulinReq within the COBBoost Window.
-    COBBoost Window:        If within the COBBoost Window the calculated insulinReq from COBPredBG may be delivered via a larger SMB using the COBBoost maxBolus.
-                            Once the time window has elapsed COBBoost maxBolus is no longer used.
-                            0 minutes will disable this functionality.
-    COBBoost maxBolus:      maxBolus to use within the COBBoost Window. 0 will use AAPS maxBolus.
-    COB maxBolus:           maxBolus to use with COB outside of the initial COBBoost Window. 0 will use AAPS maxBolus.
-    COB ISF Limit:          Limit the ISF with COB outside of the initial COBBoost Window.
-                            e.g. 1 will use profile ISF as the maximum and 1.5 will be the equivalent of a 150% profile switch as the max ISF.
+    Use GhostCOB:               Ignore COB predictions after the COBBoost Window and rely purely on UAM. This setting can be handy when COB lingers for too long.
+    COBBoost InsulinReqPct:     Percentage that will be used for EN insulinReq within the COBBoost Window.
+    COBBoost Window:            If within the COBBoost Window the calculated insulinReq from COBPredBG may be delivered via a larger SMB using the COBBoost maxBolus.
+                                Once the time window has elapsed COBBoost maxBolus is no longer used.
+                                0 minutes will disable this functionality.
+    COBBoost maxBolus:          maxBolus to use within the COBBoost Window. 0 will use AAPS maxBolus.
+    COB maxBolus:               maxBolus to use with COB outside of the initial COBBoost Window. 0 will use AAPS maxBolus.
+    UAM eventualBG Weighting:   This will be the initial weighting for eventualBG predictions with COB.
+                                As ISF grows stronger the weighting will reduce favouring current BG ISF.
+                                Setting to 50 will make this 50%. 0 will always use currentBG ISF.
