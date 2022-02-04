@@ -39,9 +39,9 @@ The COBpredBG prediction uses the dynamic ISF from Boost to increase insulinReq.
 If within the COBBoost Window the calculated insulinReq may be delivered via a larger SMB using the COBBoost maxBolus.
 Once the time window has elapsed COBBoost maxBolus is no longer used.
 
-Predictions leverages the dynamic ISF concept within the Boost plugin.
+Predictions leverage the dynamic ISF concept within the Boost plugin.
 Using the eventualBG mostly to determine the insulinReq.
-The main difference with is the initial ISF used to determine the predictions is based on the profile ISF.
+The main difference is the initial ISF used to determine the predictions is based on the profile ISF.
 If BG is currently the normalTarget BG from the profile the ISF will be the same as the profile.
 Once BG rises the ISF number reduces, and as BG lowers the ISF number will increase.
 ISF scaling can be adjusted and eventualBG weighting for UAM and COB predictions can be applied.
@@ -80,6 +80,6 @@ COB:
                                 0 minutes will disable this functionality.
     COBBoost maxBolus:          maxBolus to use within the COBBoost Window. 0 will use AAPS maxBolus.
     COB maxBolus:               maxBolus to use with COB outside of the initial COBBoost Window. 0 will use AAPS maxBolus.
-    UAM eventualBG Weighting:   This will be the initial weighting for eventualBG predictions with COB.
+    COB eventualBG Weighting:   This will be the initial weighting for eventualBG predictions with COB.
                                 As ISF grows stronger the weighting will reduce favouring current BG ISF.
                                 Setting to 50 will make this 50%. 0 will always use currentBG ISF.
