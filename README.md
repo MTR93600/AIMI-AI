@@ -49,21 +49,21 @@ ISF scaling can be adjusted and eventualBG weighting for UAM and COB predictions
 These are the preferences utilised for EN mode:
 
 General:
-    Start Time:     The time the EN mode will start in hours as 24h clock format
-                    EN mode will be active after this time when there has been a COB or manual bolus entry of any size
-    End Time:       The time that EN mode will finish. Normal maxBolus of 65% is resumed.
-                    If there are COB or a TT of normalTarget EN will be active after this time, however AAPS maxBolus will be used.
-                    No SMB will be given when inactive unless there is detected resistance from autosens or BG is above BG Threshold.
-    InsulinReqPct:  Percentage that will be used for EN insulinReq as SMB to utilise prior to maxBolus restriction.
-                    This will be 65% when EN is not active.
-    Max IOB:        The percentage of current max-iob setting that will be used as the limit for EN.
-                    EN will not add insulin when above this limit.
-    BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold.
-                    If there is detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
-    ISF BG Scaler:  As BG increases ISF will become stronger. The level of scaling can be adjusted.
-                    0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
-    Max ISF Limit:  As BG increases ISF will become stronger. This will Limit the ISF.
-                    1 is profile ISF, 1.5 would be a 150% smaller ISF, similar to a profile switch.
+    Start Time:         The time the EN mode will start in hours as 24h clock format
+                        EN mode will be active after this time when there has been a COB or manual bolus entry of any size
+    End Time:           The time that EN mode will finish. Normal maxBolus of 65% is resumed.
+                        If there are COB or a TT of normalTarget EN will be active after this time, however AAPS maxBolus will be used.
+                        No SMB will be given when inactive unless there is detected resistance from autosens or BG is above BG Threshold.
+    InsulinReqPct:      Percentage that will be used for EN insulinReq as SMB to utilise prior to maxBolus restriction.
+                        This will be 65% when EN is not active.
+    Max IOB:            The percentage of current max-iob setting that will be used as the limit for EN.
+                        EN will not add insulin when above this limit.
+    SMB BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold without COB.
+                        If there is detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
+    ISF BG Scaler:      As BG increases ISF will become stronger. The level of scaling can be adjusted.
+                        0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
+    ISF BG Threshold:   As BG increases ISF will become stronger. ISF will no longer scale when above this level.
+                        1 is profile ISF, 1.5 would be a 150% smaller ISF, similar to a profile switch.
 
 
 UAM:

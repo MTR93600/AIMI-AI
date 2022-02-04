@@ -408,14 +408,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
 
     // Limit ISF for sens_currentBG with this scale like AS
-    var ISFbgMax = (profile.ISFbgMax-normalTarget)+target_bg;
+    var ISFbgMax = (profile.ISFbgMax > 0 ? (profile.ISFbgMax-normalTarget)+target_bg : normalTarget);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
     // apply limit to sens_currentBG
     sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
     sens_currentBG = round(sens_currentBG,1);
 
     // Threshold for SMB at night
-    var EatingNowBGThreshold = profile.EatingNowBGThreshold;
+    var EatingNowBGThreshold = (profile.EatingNowBGThreshold > 0 ? profile.EatingNowBGThreshold : normalTarget);
     enlog += "EatingNowBGThreshold:"+EatingNowBGThreshold+"\n";
 
     // use normal sens when EN not active at night or TT not normalTarget
