@@ -240,7 +240,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (now >= profile.EatingNowTimeStart && now < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
     enlog += "Now: " + now + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
     // set SR to 1 if eatingnowtimeOK
-    sensitivityRatio = (eatingnowtimeOK ? 1 : sensitivityRatio);
+    sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? 1 : sensitivityRatio);
 
     if (sensitivityRatio) {
         basal = profile.current_basal * sensitivityRatio;
