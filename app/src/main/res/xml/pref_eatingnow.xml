@@ -239,7 +239,7 @@
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="0"
                     android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_isfbgthreshold"
+                    android:key="@string/key_eatingnow_isfbgmax"
                     android:title="BG Threshold"
                     android:dialogMessage="As BG increases ISF will become stronger.\nISF will no longer increase after this BG."
                     validate:floatmaxNumber="270.0"
