@@ -1159,7 +1159,7 @@
     <string name="key_eatingnow_itimeminutes">key_eatingnow_itimeminutes</string>
     <string name="key_eatingnow_isfboost_maxbolus">key_eatingnow_isfboost_maxbolus</string>
     <string name="key_eatingnow_isfbgscaler">key_eatingnow_isfbgscaler</string>
-    <string name="key_eatingnow_isfbgmax">key_eatingnow_isfbgthreshold</string>
+    <string name="key_eatingnow_isfbgmax">key_eatingnow_isfbgmax</string>
 <!--    <string name="key_eatingnow_isf_max_scale">key_eatingnow_isf_max_scale</string>-->
     <string name="key_eatingnow_iobmax">key_eatingnow_iobmax</string>
     <string name="key_eatingnow_timestart">key_eatingnow_timestart</string>
