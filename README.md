@@ -58,8 +58,8 @@ General:
                         This will be 65% when EN is not active.
     Max IOB:            The percentage of current max-iob setting that will be used as the limit for EN.
                         EN will not add insulin when above this limit.
-    SMB BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold without COB.
-                        If there is detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
+    SMB BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold.
+                        If there is COB, detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
     ISF BG Scaler:      As BG increases ISF will become stronger. The level of scaling can be adjusted.
                         0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
     ISF BG Threshold:   As BG increases ISF will become stronger. ISF will no longer scale when above this level.
