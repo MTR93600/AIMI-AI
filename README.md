@@ -53,7 +53,7 @@ General:
                         EN mode will be active after this time when there has been a COB or manual bolus entry of any size
     End Time:           The time that EN mode will finish. Normal maxBolus of 65% is resumed.
                         If there are COB or a TT of normalTarget EN will be active after this time, however AAPS maxBolus will be used.
-                        No SMB will be given when inactive unless there is detected resistance from autosens or BG is above BG Threshold.
+                        No SMB will be given when inactive unless there is COB, detected resistance from autosens or BG is above SMB BG Threshold.
     InsulinReqPct:      Percentage that will be used for EN insulinReq as SMB to utilise prior to maxBolus restriction.
                         This will be 65% when EN is not active.
     Max IOB:            The percentage of current max-iob setting that will be used as the limit for EN.
