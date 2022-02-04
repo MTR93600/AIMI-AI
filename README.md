@@ -63,8 +63,6 @@ General:
     ISF BG Scaler:      As BG increases ISF will become stronger. The level of scaling can be adjusted.
                         0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
     ISF BG Threshold:   As BG increases ISF will become stronger. ISF will no longer scale when above this level.
-                        1 is profile ISF, 1.5 would be a 150% smaller ISF, similar to a profile switch.
-
 
 UAM:
     UAMBoost Bolus Scale:       Multiply the initial UAMBoost bolus by this amount. 0 will disable UAMBoost.
