@@ -408,7 +408,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
 
     // Limit ISF for sens_currentBG with this scale like AS
-    var ISFbgMax = profile.ISFbgMax;
+    var ISFbgMax = (profile.ISFbgMax-normalTarget)+target_bg;
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
     // apply limit to sens_currentBG
     sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
