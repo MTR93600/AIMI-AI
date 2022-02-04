@@ -260,8 +260,9 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
 
 
         this.profile.put("ISFBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_isfboost_maxbolus, 0.0))
-        this.profile.put("ISF_Max_Scale", sp.getDouble(R.string.key_eatingnow_isf_max_scale, 1.0))
+        // this.profile.put("ISF_Max_Scale", sp.getDouble(R.string.key_eatingnow_isf_max_scale, 1.0))
         this.profile.put("EatingNowBGThreshold", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_bgthreshold, 0.0),profileFunction.getUnits()))
+        this.profile.put("ISFbgMax", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgmax, 0.0),profileFunction.getUnits()))
         this.profile.put("ISFbgscaler", sp.getDouble(R.string.key_eatingnow_isfbgscaler, 0.0))
 
         // patches ==== END
