@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 21,
-    "identityHash": "c597ee178a45a111936287c2ebf33c54",
+    "identityHash": "4ed36712affd74e341c8a76cf35081f1",
     "entities": [
       {
         "tableName": "apsResults",
@@ -1334,7 +1334,7 @@
       },
       {
         "tableName": "glucoseValues",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `version` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `isValid` INTEGER NOT NULL, `referenceId` INTEGER, `timestamp` INTEGER NOT NULL, `utcOffset` INTEGER NOT NULL, `raw` REAL, `value` REAL NOT NULL, `trendArrow` TEXT NOT NULL, `noise` REAL, `sourceSensor` TEXT NOT NULL, `nightscoutSystemId` TEXT, `nightscoutId` TEXT, `pumpType` TEXT, `pumpSerial` TEXT, `temporaryId` INTEGER, `pumpId` INTEGER, `startId` INTEGER, `endId` INTEGER, FOREIGN KEY(`referenceId`) REFERENCES `glucoseValues`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `version` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `isValid` INTEGER NOT NULL, `referenceId` INTEGER, `timestamp` INTEGER NOT NULL, `utcOffset` INTEGER NOT NULL, `raw` REAL, `value` REAL NOT NULL, `trendArrow` TEXT NOT NULL, `noise` REAL, `sourceSensor` TEXT NOT NULL, `isig` REAL, `calibrationFactor` REAL, `sensorUptime` INTEGER, `nightscoutSystemId` TEXT, `nightscoutId` TEXT, `pumpType` TEXT, `pumpSerial` TEXT, `temporaryId` INTEGER, `pumpId` INTEGER, `startId` INTEGER, `endId` INTEGER, FOREIGN KEY(`referenceId`) REFERENCES `glucoseValues`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1407,6 +1407,24 @@
             "columnName": "sourceSensor",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "isig",
+            "columnName": "isig",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "calibrationFactor",
+            "columnName": "calibrationFactor",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sensorUptime",
+            "columnName": "sensorUptime",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "interfaceIDs_backing.nightscoutSystemId",
@@ -3599,7 +3617,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c597ee178a45a111936287c2ebf33c54')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4ed36712affd74e341c8a76cf35081f1')"
     ]
   }
 }

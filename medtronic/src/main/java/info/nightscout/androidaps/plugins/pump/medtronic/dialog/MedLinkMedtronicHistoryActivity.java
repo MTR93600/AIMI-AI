@@ -122,7 +122,7 @@ public class MedLinkMedtronicHistoryActivity extends NoSplashAppCompatActivity {
 
         statusView.setVisibility(View.GONE);
 
-        typeListFull = getTypeList(PumpHistoryEntryGroup.getTranslatedList(resourceHelper));
+        typeListFull = getTypeList(PumpHistoryEntryGroup.Companion.getTranslatedList(resourceHelper));
 
         ArrayAdapter<TypeList> spinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_centered, typeListFull);
         historyTypeSpinner.setAdapter(spinnerAdapter);

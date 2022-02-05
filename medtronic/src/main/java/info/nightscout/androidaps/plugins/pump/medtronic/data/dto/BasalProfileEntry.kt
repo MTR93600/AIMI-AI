@@ -11,7 +11,7 @@ import java.util.*
  * This is a helper class for BasalProfile, only used for interpreting the contents of BasalProfile
  * - fixed rate is not one bit but two
  */
-class BasalProfileEntry {
+open class BasalProfileEntry {
 
     var rate_raw: ByteArray
     var rate = 0.0

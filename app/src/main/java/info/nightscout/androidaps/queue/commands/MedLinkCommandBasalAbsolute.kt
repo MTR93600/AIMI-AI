@@ -1,13 +1,14 @@
 package info.nightscout.androidaps.queue.commands
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.data.Profile
 import info.nightscout.androidaps.data.PumpEnactResult
 import info.nightscout.androidaps.dialogs.BolusProgressDialog
-import info.nightscout.androidaps.interfaces.ActivePluginProvider
-import info.nightscout.androidaps.logging.LTag
+import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.Profile
+import info.nightscout.androidaps.interfaces.PumpSync
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.queue.Callback
+import info.nightscout.shared.logging.LTag
 import javax.inject.Inject
 
 class MedLinkCommandBasalAbsolute(injector: HasAndroidInjector,
@@ -18,7 +19,7 @@ class MedLinkCommandBasalAbsolute(injector: HasAndroidInjector,
                                   callback: Callback?
 ) : Command(injector, CommandType.BASAL_PROFILE, callback) {
 
-    @Inject lateinit var activePlugin: ActivePluginProvider
+    @Inject lateinit var activePlugin: ActivePlugin
 
     override fun execute() {
         val pump = activePlugin.activePump
@@ -34,9 +35,10 @@ class MedLinkCommandBasalAbsolute(injector: HasAndroidInjector,
         if (pump is MedLinkPumpDevice) {
             pump.setTempBasalAbsolute(absolute, durationInMinutes, profile, enforceNew, func)
         } else {
-            pump.setTempBasalAbsolute(absolute, durationInMinutes, profile, enforceNew)
+            pump.setTempBasalAbsolute(absolute, durationInMinutes, profile, enforceNew, PumpSync.TemporaryBasalType.EMULATED_PUMP_SUSPEND)
         }
     }
 
     override fun status(): String = "TEMP BASAL $absolute% $durationInMinutes min"
+    override fun log(): String = "TEMP BASAL ABSOLUTE"
 }

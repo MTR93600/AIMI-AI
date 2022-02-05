@@ -16,12 +16,12 @@ public class MedLinkBasalProfile extends  BasalProfile {
         super(aapsLogger, data);
     }
 
-    @Override public List<BasalProfileEntry> getEntries() {
-        if(super.listEntries != null && !super.listEntries.isEmpty()) {
-            return super.listEntries;
-        }else {
-            return super.getEntries();
-        }
-
-    }
+//    @Override public List<BasalProfileEntry> getEntries() {
+//        if(super.listEntries != null && !super.listEntries.isEmpty()) {
+//            return super.listEntries;
+//        }else {
+//            return super.getEntries();
+//        }
+//
+//    }
 }

@@ -2,7 +2,8 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 
 import com.google.gson.annotations.Expose;
 
-import info.nightscout.androidaps.logging.AAPSLogger;
+import info.nightscout.shared.logging.AAPSLogger;
+
 
 public class TempBasalMicroBolusDTO extends TempBasalPair {
 

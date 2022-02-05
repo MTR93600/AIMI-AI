@@ -16,6 +16,8 @@ import info.nightscout.androidaps.plugins.source.*
 @Suppress("unused")
 abstract class WorkersModule {
 
+    @ContributesAndroidInjector abstract fun contributesMedLinkWorker(): MedLinkPlugin.MedLinkWorker
+
     @ContributesAndroidInjector abstract fun contributesXdripWorker(): XdripPlugin.XdripWorker
     @ContributesAndroidInjector abstract fun contributesDexcomWorker(): DexcomPlugin.DexcomWorker
     @ContributesAndroidInjector abstract fun contributesMM640gWorker(): MM640gPlugin.MM640gWorker

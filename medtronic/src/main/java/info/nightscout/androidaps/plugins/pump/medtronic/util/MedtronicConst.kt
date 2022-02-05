@@ -11,6 +11,8 @@ object MedtronicConst {
     const val Prefix = "AAPS.Medtronic."
 
     object Prefs {
+
+
         val PumpSerial = R.string.key_medtronic_serial
         val PumpType = R.string.key_medtronic_pump_type
         val PumpFrequency = R.string.key_medtronic_frequency

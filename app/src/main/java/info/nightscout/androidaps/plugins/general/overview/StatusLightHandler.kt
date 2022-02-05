@@ -7,8 +7,8 @@ import info.nightscout.androidaps.R
 import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.ValueWrapper
 import info.nightscout.androidaps.database.entities.TherapyEvent
-import info.nightscout.androidaps.db.CareportalEvent
 import info.nightscout.androidaps.extensions.age
+import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
@@ -19,11 +19,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPum
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
-import info.nightscout.androidaps.plugins.pump.omnipod.OmnipodPumpPlugin
-import info.nightscout.androidaps.plugins.pump.omnipod.driver.definition.OmnipodConstants
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.WarnColors
-import info.nightscout.androidaps.utils.extensions.toVisibility
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
@@ -53,10 +50,10 @@ class StatusLightHandler @Inject constructor(
             val pumpStatusData = pump.pumpStatusData
             if (pumpStatusData is MedLinkMedtronicPumpStatus) {
                 if (pumpStatusData.batteryType == BatteryType.LiPo)  {
-                    handleAge(careportal_pb_age, CareportalEvent.PUMPBATTERYCHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
+                    handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
                 }
                 handleLevel(medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
-                            pump.rileyLinkService.medLinkServiceData.batteryLevel.toDouble()
+                            pump.getRileyLinkService().medLinkServiceData.batteryLevel.toDouble()
                     // pump.pumpStatusData.deviceBatteryRemaining.toDouble()
                             , "%")
             } else {
@@ -93,7 +90,8 @@ class StatusLightHandler @Inject constructor(
                 if (sp.getString(R.string
                         .key_medlink_battery_info, "Age") != "Age") {
                             if(pump.pumpStatusData.batteryVoltage != null) {
-                                handleDecimal(careportal_battery_level, R.string.key_statuslights_bat_critical, 1.30, R.string.key_statuslights_bat_warning, 1.20, pump.pumpStatusData.batteryVoltage, "V")
+                                handleDecimal(careportal_battery_level, R.string.key_statuslights_bat_critical, 1.30, R.string.key_statuslights_bat_warning, 1.20,
+                                              pump.pumpStatusData.batteryVoltage!!, "V")
                             }
                 }
                 // else {

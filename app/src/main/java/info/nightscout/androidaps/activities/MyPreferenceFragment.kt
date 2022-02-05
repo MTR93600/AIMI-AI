@@ -44,12 +44,7 @@ import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityAAPSPlugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityOref1Plugin
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityWeightedAveragePlugin
-import info.nightscout.androidaps.plugins.source.DexcomPlugin
-import info.nightscout.androidaps.plugins.source.EversensePlugin
-import info.nightscout.androidaps.plugins.source.GlimpPlugin
-import info.nightscout.androidaps.plugins.source.PoctechPlugin
-import info.nightscout.androidaps.plugins.source.TomatoPlugin
-import info.nightscout.androidaps.plugins.source.GlunovoPlugin
+import info.nightscout.androidaps.plugins.source.*
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog.show
 import info.nightscout.androidaps.utils.protection.PasswordCheck

@@ -5,6 +5,8 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -15,6 +17,8 @@ import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.data.ProfileSealed;
 import info.nightscout.androidaps.db.WizardSettings;
+import info.nightscout.androidaps.extensions.ProfileSwitchExtensionKt;
+import info.nightscout.androidaps.interfaces.BgSync;
 import info.nightscout.androidaps.interfaces.Profile;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.shared.logging.AAPSLogger;
@@ -65,6 +69,7 @@ public class MedLinkProfileParser {
         }
         buffer.append("}");
         JSONObject json = new JSONObject(buffer.toString());
+
         //        Bolus wizard settings:
 //23:37:48.398 Max. bolus: 15.0u
 //23:37:48.398 Easy bolus step: 0.1u
@@ -83,7 +88,9 @@ public class MedLinkProfileParser {
 //23:37:49.258 Rate 4: 70‑120 from 15:00
 //23:37:49.294 Rate 5: 70‑140 from 21:00
 //23:37:49.295 Ready
-        return ProfileSealed.Pure(hasAndroidInjector, json);
+        return new ProfileSealed.Pure(
+                Objects.requireNonNull(ProfileSwitchExtensionKt.pureProfileFromJson(json, pumpPlugin.getDateUtil(),
+                        units.toUpperCase())));
     }
 
 

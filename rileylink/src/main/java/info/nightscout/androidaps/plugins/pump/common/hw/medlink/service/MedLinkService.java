@@ -165,7 +165,7 @@ public abstract class MedLinkService extends DaggerService {
                 // SP.putString(MedtronicConst.Prefs.RileyLinkAddress, deviceAddress);
 
                 medLinkServiceData.rileylinkAddress = deviceAddress;
-                medLinkBLE.findRileyLink(medLinkServiceData.rileylinkAddress);
+                medLinkBLE.findMedLink(medLinkServiceData.rileylinkAddress);
                 return true;
             }
         } else {
@@ -181,7 +181,7 @@ public abstract class MedLinkService extends DaggerService {
 
             medLinkBLE.findMedLink(deviceAddress);
 
-            return medLinkBLE.getRileyLinkDevice() != null;
+            return true;
         }
     }
 

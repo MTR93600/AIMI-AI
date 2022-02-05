@@ -535,7 +535,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             (lastRun.lastOpenModeAccept == 0L || lastRun.lastOpenModeAccept < lastRun.lastAPSRun) &&// never accepted or before last result
             lastRun.constraintsProcessed?.isChangeRequested == true // change is requested
 
-        if (showAcceptButton && pump.isInitialized() && (!pump.isSuspended && pump is MedLinkPumpDevice) && (loop as PluginBase).isEnabled()) {
+        if (showAcceptButton && pump.isInitialized() && (!pump.isSuspended() && pump is MedLinkPumpDevice) && (loop as PluginBase).isEnabled()) {
             binding.buttonsLayout.acceptTempButton.visibility = View.VISIBLE
             binding.buttonsLayout.acceptTempButton.text = "${rh.gs(R.string.setbasalquestion)}\n${lastRun!!.constraintsProcessed}"
         } else {
@@ -544,13 +544,13 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
         // **** Various treatment buttons ****
         binding.buttonsLayout.carbsButton.visibility =
-            ((!activePlugin.activePump.pumpDescription.storesCarbInfo || pump.isInitialized() && (!pump.isSuspended && pump is MedLinkPumpDevice)) && profile != null
+            ((!activePlugin.activePump.pumpDescription.storesCarbInfo || pump.isInitialized() && (!pump.isSuspended() && pump is MedLinkPumpDevice)) && profile != null
                 && sp.getBoolean(R.string.key_show_carbs_button, true)).toVisibility()
-        binding.buttonsLayout.treatmentButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null
+        binding.buttonsLayout.treatmentButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended() && pump is MedLinkPumpDevice) && profile != null
             && sp.getBoolean(R.string.key_show_treatment_button, false)).toVisibility()
-        binding.buttonsLayout.wizardButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null
+        binding.buttonsLayout.wizardButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended() && pump is MedLinkPumpDevice) && profile != null
             && sp.getBoolean(R.string.key_show_wizard_button, true)).toVisibility()
-        binding.buttonsLayout.insulinButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended && pump is MedLinkPumpDevice) && profile != null
+        binding.buttonsLayout.insulinButton.visibility = (!loop.isDisconnected && pump.isInitialized() && (!pump.isSuspended() && pump is MedLinkPumpDevice) && profile != null
             && sp.getBoolean(R.string.key_show_insulin_button, true)).toVisibility()
 
         // **** Calibration & CGM buttons ****
@@ -834,7 +834,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             binding.statusLightsLayout.sensorAge,
             null,
             binding.statusLightsLayout.pbAge,
-            binding.statusLightsLayout.batteryLevel
+            binding.statusLightsLayout.batteryLevel,
+            binding.statusLightsLayout.medlinkBatteryLevel
         )
         processButtonsVisibility()
         processAps()
@@ -847,12 +848,19 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             activity?.let { OKDialog.show(it, rh.gs(R.string.iob), overviewData.iobDialogText) }
         }
 
-        medlink_separator.visibility = (pump is MedLinkPumpDevice).toVisibility()
-        careportal_pbage.visibility = (pump !is MedLinkPumpDevice || (sp.getString(R.string
+        binding.statusLightsLayout.medlinkSeparator.visibility = (binding.pump is MedLinkPumpDevice).toVisibility()
+        binding.statusLightsLayout.pbAge.visibility = (binding.pump !is MedLinkPumpDevice || (sp.getString(R.string
             .key_medlink_battery_info, "Age") == "Age")).toVisibility()
-        careportal_batterylevel.visibility = (pump !is MedLinkPumpDevice || sp.getString(R.string
+        binding.statusLightsLayout.medlinkBatteryLevel.visibility = (binding.pump !is MedLinkPumpDevice || sp.getString(R.string
             .key_medlink_battery_info, "Age") != "Age").toVisibility()
-        statusLightHandler.updateStatusLights(careportal_canulaage, careportal_insulinage, careportal_reservoirlevel, careportal_sensorage, null, careportal_pbage, careportal_batterylevel, medlink_battery_level)
+        statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge,
+                                              binding.statusLightsLayout.insulinAge,
+                                              binding.statusLightsLayout.reservoirLevel,
+                                              binding.statusLightsLayout.sensorAge,
+                                              binding.statusLightsLayout.medlinkBatteryLevel,
+                                              binding.statusLightsLayout.pbAge,
+                                              binding.statusLightsLayout.batteryLevel,
+                                              binding.statusLightsLayout.medlinkBatteryLevel)
 
         // cob
         var cobText = overviewData.cobInfo?.displayText(rh, dateUtil, buildHelper.isEngineeringMode()) ?: rh.gs(R.string.value_unavailable_short)

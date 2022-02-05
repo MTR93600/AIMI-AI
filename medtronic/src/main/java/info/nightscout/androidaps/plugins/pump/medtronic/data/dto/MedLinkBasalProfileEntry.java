@@ -10,7 +10,7 @@ public class MedLinkBasalProfileEntry extends  BasalProfileEntry {
     private String time;
     public MedLinkBasalProfileEntry(double basalAmount, int hour, int minute) {
         super(basalAmount, hour, minute);
-        this.rate = basalAmount;
+        this.setRate(basalAmount);
         time = ""+hour+":"+minute;
     }
 

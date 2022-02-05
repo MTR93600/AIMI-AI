@@ -116,7 +116,7 @@ public class MedLinkMedtronicConverter {
         }
 
         String rawModel = StringUtil.fromBytes(ByteUtil.substring(rawContent, 1, 3));
-        MedtronicDeviceType pumpModel = MedtronicDeviceType.getByDescription(rawModel);
+        MedtronicDeviceType pumpModel = MedtronicDeviceType.Companion.getByDescription(rawModel);
         aapsLogger.debug(LTag.PUMPCOMM, "PumpModel: [raw={}, resolved={}]", rawModel, pumpModel.name());
 
         if (pumpModel != MedtronicDeviceType.Unknown_Device) {
@@ -137,11 +137,11 @@ public class MedLinkMedtronicConverter {
         int status = rawData[0];
 
         if (status == 0) {
-            batteryStatus.batteryStatusType = BatteryStatusDTO.BatteryStatusType.Normal;
+            batteryStatus.setBatteryStatusType(BatteryStatusDTO.BatteryStatusType.Normal);
         } else if (status == 1) {
-            batteryStatus.batteryStatusType = BatteryStatusDTO.BatteryStatusType.Low;
+            batteryStatus.setBatteryStatusType(BatteryStatusDTO.BatteryStatusType.Low);
         } else if (status == 2) {
-            batteryStatus.batteryStatusType = BatteryStatusDTO.BatteryStatusType.Unknown;
+            batteryStatus.setBatteryStatusType(BatteryStatusDTO.BatteryStatusType.Unknown);
         }
 
         if (rawData.length > 1) {
@@ -149,8 +149,8 @@ public class MedLinkMedtronicConverter {
             // if response in 3 bytes then we add additional information
             double d = (ByteUtil.toInt(rawData[1], rawData[2]) * 1.0d) / 100.0d;
 
-            batteryStatus.voltage = d;
-            batteryStatus.extendedDataReceived = true;
+            batteryStatus.setVoltage(d);
+            batteryStatus.setExtendedDataReceived(true);
         }
 
         return batteryStatus;
@@ -273,7 +273,7 @@ public class MedLinkMedtronicConverter {
         addSettingToMap("CFG_BASE_CLOCK_MODE", rd[getSettingIndexTimeDisplayFormat()] == 0 ? "12h" : "24h",
                 PumpConfigurationGroup.General, map);
 
-        if (MedtronicDeviceType.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_523andHigher)) {
+        if (MedtronicDeviceType.Companion.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_523andHigher)) {
             addSettingToMap("PCFG_INSULIN_CONCENTRATION", "" + (rd[9] == 0 ? 50 : 100), PumpConfigurationGroup.Insulin,
                     map);
 //            LOG.debug("Insulin concentration: " + rd[9]);
@@ -341,7 +341,8 @@ public class MedLinkMedtronicConverter {
 
         addSettingToMap("CFG_MM_KEYPAD_LOCKED", parseResultEnable(rd[20]), PumpConfigurationGroup.Other, map);
 
-        if (MedtronicDeviceType.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_523andHigher)) {
+        if (MedtronicDeviceType.Companion.isSameDevice(medtronicUtil.getMedtronicPumpModel(),
+                MedtronicDeviceType.Medtronic_523andHigher)) {
 
             addSettingToMap("PCFG_BOLUS_SCROLL_STEP_SIZE", "" + rd[21], PumpConfigurationGroup.Bolus, map);
             addSettingToMap("PCFG_CAPTURE_EVENT_ENABLE", parseResultEnable(rd[22]), PumpConfigurationGroup.Other, map);
@@ -373,7 +374,7 @@ public class MedLinkMedtronicConverter {
 
     // 512
     private void decodeInsulinActionSetting(byte[] ai, Map<String, PumpSettingDTO> map) {
-        if (MedtronicDeviceType.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_512_712)) {
+        if (MedtronicDeviceType.Companion.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_512_712)) {
             addSettingToMap("PCFG_INSULIN_ACTION_TYPE", (ai[17] != 0 ? "Regular" : "Fast"),
                     PumpConfigurationGroup.Insulin, map);
         } else {
@@ -422,6 +423,6 @@ public class MedLinkMedtronicConverter {
 
 
     private boolean is523orHigher() {
-        return (MedtronicDeviceType.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_523andHigher));
+        return (MedtronicDeviceType.Companion.isSameDevice(medtronicUtil.getMedtronicPumpModel(), MedtronicDeviceType.Medtronic_523andHigher));
     }
 }

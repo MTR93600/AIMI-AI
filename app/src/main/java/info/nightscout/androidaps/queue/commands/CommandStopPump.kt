@@ -18,7 +18,7 @@ class CommandStopPump(
     override fun execute() {
         val pump = activePlugin.activePump
         if (pump is MedLinkMedtronicPumpPlugin) {
-            pump.stopPump(callback);
+            callback?.let { pump.stopPump(it) };
         } else if (pump is LocalInsightPlugin) {
             val result = pump.stopPump()
             callback?.result(result)?.run()

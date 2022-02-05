@@ -5,18 +5,17 @@ import android.content.Context;
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.logging.AAPSLogger;
-import info.nightscout.androidaps.logging.LTag;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.plugins.common.ManufacturerType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceTransport;
-import info.nightscout.androidaps.utils.sharedPreferences.SP;
+import info.nightscout.shared.logging.AAPSLogger;
+import info.nightscout.shared.logging.LTag;
+import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by geoff on 7/9/16.
@@ -26,10 +25,9 @@ import info.nightscout.androidaps.utils.sharedPreferences.SP;
 public class InitializePumpManagerTask extends NotifiableTask {
 
     @Inject AAPSLogger aapsLogger;
-    @Inject ActivePluginProvider activePlugin;
-    @Inject SP sp;
+    @Inject ActivePlugin activePlugin;
+
     @Inject MedLinkServiceData medLinkServiceData;
-    @Inject MedLinkUtil medLinkUtil;
 
     private final Context context;
 
@@ -62,7 +60,8 @@ public class InitializePumpManagerTask extends NotifiableTask {
 //            lastGoodFrequency = medLinkServiceData.lastGoodFrequency;
 //        }
 
-        MedLinkCommunicationManager medLinkCommunicationManager = ((MedLinkPumpDevice) activePlugin.getActivePump()).getMedLinkService().getDeviceCommunicationManager();
+        MedLinkCommunicationManager medLinkCommunicationManager =
+                ((MedLinkPumpDevice) activePlugin.getActivePump()).getRileyLinkService().getDeviceCommunicationManager();
 
         aapsLogger.info(LTag.PUMPBTCOMM,activePlugin.getActivePump().manufacturer().getDescription());
         if (activePlugin.getActivePump().manufacturer() == ManufacturerType.Medtronic) {
@@ -79,8 +78,8 @@ public class InitializePumpManagerTask extends NotifiableTask {
 //                boolean foundThePump =
 //            medLinkCommunicationManager.getPumpStatus().lastConnection;
 
-                  if(!activePlugin.getActivePump().isInitialized() || medLinkCommunicationManager.getPumpStatus().lastDateTime > 0l && System.currentTimeMillis() -
-                          medLinkCommunicationManager.getPumpStatus().lastConnection > 300000){
+                  if(!activePlugin.getActivePump().isInitialized() || medLinkCommunicationManager.getPumpStatus().getLastDataTime() > 0l && System.currentTimeMillis() -
+                          medLinkCommunicationManager.getPumpStatus().getLastConnection() > 300000){
                       medLinkCommunicationManager.wakeUp(false);
                   }
 

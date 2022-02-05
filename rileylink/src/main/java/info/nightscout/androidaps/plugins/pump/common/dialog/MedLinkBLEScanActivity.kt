@@ -48,7 +48,7 @@ class MedLinkBLEScanActivity : NoSplashAppCompatActivity() {
 
 
     @Inject
-    lateinit var sp: SP = null
+    lateinit var sp: SP
 
     @Inject
     lateinit var rxBus: RxBus

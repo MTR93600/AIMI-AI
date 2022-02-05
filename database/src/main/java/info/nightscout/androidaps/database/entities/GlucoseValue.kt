@@ -41,7 +41,10 @@ data class GlucoseValue(
     var value: Double,
     var trendArrow: TrendArrow,
     var noise: Double?,
-    var sourceSensor: SourceSensor
+    var sourceSensor: SourceSensor,
+    var isig: Double? = null,
+    var calibrationFactor: Double? = null,
+    var sensorUptime: Int? = null
 ) : TraceableDBEntry, DBEntryWithTime {
 
     fun contentEqualsTo(other: GlucoseValue): Boolean =
@@ -52,7 +55,10 @@ data class GlucoseValue(
             value == other.value &&
             trendArrow == other.trendArrow &&
             noise == other.noise &&
-            sourceSensor == other.sourceSensor
+            sourceSensor == other.sourceSensor &&
+            isig == other.isig &&
+            calibrationFactor == other.calibrationFactor &&
+            sensorUptime == other.sensorUptime
 
     fun onlyNsIdAdded(previous: GlucoseValue): Boolean =
         previous.id != id &&

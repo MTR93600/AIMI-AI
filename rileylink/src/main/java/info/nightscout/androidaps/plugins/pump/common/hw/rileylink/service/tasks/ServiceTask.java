@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.interfaces.Pump;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceTransport;
@@ -65,7 +66,7 @@ public class ServiceTask implements Runnable {
      */
 
     public boolean isRileyLinkDevice() {
-        PumpInterface activePump = activePlugin.getActivePump();
+        Pump activePump = activePlugin.getActivePump();
         return (activePump instanceof RileyLinkPumpDevice || activePump instanceof MedLinkPumpDevice);
     }
 

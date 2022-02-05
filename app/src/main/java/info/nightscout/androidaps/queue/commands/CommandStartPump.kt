@@ -6,6 +6,7 @@ import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.queue.Callback
+import info.nightscout.shared.logging.LTag
 import javax.inject.Inject
 
 class CommandStartPump(
@@ -19,7 +20,9 @@ class CommandStartPump(
         val pump = activePlugin.activePump
         aapsLogger.info(LTag.EVENTS, "starting pump")
         if (pump is MedLinkMedtronicPumpPlugin) {
-            pump.startPump(callback);
+            if (callback != null) {
+                pump.startPump(callback)
+            };
         } else if (pump is LocalInsightPlugin) {
             val result = pump.startPump()
             callback?.result(result)?.run()

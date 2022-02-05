@@ -330,9 +330,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
     private void processPumpData(Stream<String> answerLines) {
         answerLines.forEach(line -> {
             if (line.matches("\\d\\d-\\d\\d-\\d{4}\\s\\d\\d:\\d\\d\\s\\d\\d%")) {
-                ClockDTO pumpTime = new ClockDTO();
                 DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MM-yyyy HH:mm");
-                pumpTime.setPumpTime(LocalDateTime.parse(line.substring(0, 10), formatter));
+                ClockDTO pumpTime = new ClockDTO(new LocalDateTime(), LocalDateTime.parse(line.substring(0, 10), formatter));
                 medLinkMedtronicUtil.setPumpTime(pumpTime);
             }
         });
@@ -909,13 +908,13 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                 if (baseResultActivity.getErrorMessage() == null) {
                     medLinkMedtronicUtil.setCurrentCommand(null);
                     medtronicPumpStatus.setPumpDeviceState(PumpDeviceState.Sleeping);
-                    Double[] basalEntries = new Double[24];
+                    double[] basalEntries = new double[24];
                     DateTime dateTime = new DateTime().withHourOfDay(0).withSecondOfMinute(0);
                     for (int i = 0; i < 24; i++) {
                         dateTime = dateTime.withHourOfDay(i);
-                        basalEntries[i] = profile.getEntryForTime(dateTime.toInstant()).rate;
+                        basalEntries[i] = profile.getEntryForTime(dateTime.toInstant()).getRate();
                     }
-                    medtronicPumpStatus.basalsByHour = basalEntries;
+                    medtronicPumpStatus.setBasalsByHour(basalEntries);
                 }
                 return f;
             };
@@ -1016,10 +1015,6 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 
 
     public ClockDTO getPumpTime() {
-
-        ClockDTO clockDTO = new ClockDTO();
-        clockDTO.localDeviceTime = new LocalDateTime();
-
         Object responseObject = sendAndGetResponseWithCheck(MedLinkCommandType.GetState,
                 MedLinkCommandType.NoCommand,
                 new StatusCallback(aapsLogger,
@@ -1028,7 +1023,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                 new BleCommand(aapsLogger,medLinkServiceData));
 
         if (responseObject != null) {
-            clockDTO.pumpTime = (LocalDateTime) responseObject;
+            ClockDTO clockDTO = new ClockDTO(new LocalDateTime(),
+            (LocalDateTime) responseObject);
             return clockDTO;
         }
 

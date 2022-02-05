@@ -28,7 +28,7 @@ import java.util.*
  * Individual entries are of the form [r,z,m] where r is the rate (in 0.025 U increments) z is zero (?) m is the start
  * time-of-day for the basal rate period (in 30 minute increments)
  */
-class BasalProfile {
+open class BasalProfile {
 
     private val aapsLogger: AAPSLogger
 

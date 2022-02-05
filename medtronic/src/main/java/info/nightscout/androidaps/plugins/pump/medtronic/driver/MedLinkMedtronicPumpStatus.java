@@ -79,10 +79,10 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
 
     public void initSettings() {
 
-        this.activeProfileName = "STD";
-        this.reservoirRemainingUnits = 75d;
-        this.reservoirFullUnits = 300;
-        this.batteryRemaining = 75;
+        this.setActiveProfileName("STD");
+        this.setReservoirLevel(75d);
+        this.setReservoirFullUnits(300);
+        this.setBatteryLevel(75);
 
         if (this.medtronicPumpMap == null)
             createMedtronicPumpMap();
@@ -90,8 +90,9 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
         if (this.medtronicDeviceTypeMap == null)
             createMedtronicDeviceTypeMap();
 
-        this.lastConnection = sp.getLong(MedtronicConst.Statistics.LastGoodPumpCommunicationTime, 0L);
-        this.lastDateTime = this.lastConnection;
+        this.setLastConnection(sp.getLong(MedtronicConst.Statistics.LastGoodPumpCommunicationTime
+                , 0L));
+        this.setLastDataTime(this.getLastConnection());
     }
 
 
@@ -130,18 +131,18 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     }
 
     public double getBasalProfileForHour() {
-        if (basalsByHour != null) {
+        if (getBasalsByHour() != null) {
             GregorianCalendar c = new GregorianCalendar();
             int hour = c.get(Calendar.HOUR_OF_DAY);
 
-            return basalsByHour[hour];
+            return getBasalsByHour()[hour];
         }
 
         return 0;
     }
 
     public double getCurrentBasal() {
-        return currentBasal;
+        return getCurrentBasal();
     }
     // Battery type
     private Map<String, BatteryType> mapByDescription;
@@ -150,7 +151,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
         if (mapByDescription == null) {
             mapByDescription = new HashMap<>();
             for (BatteryType value : BatteryType.values()) {
-                mapByDescription.put(resourceHelper.gs(value.description), value);
+                mapByDescription.put(resourceHelper.gs(value.getDescription()), value);
             }
         }
         if (mapByDescription.containsKey(batteryTypeStr)) {
@@ -201,7 +202,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     }
 
     public boolean needToGetBGHistory(){
-        return lastDateTime - lastBGTimestamp > 360000;
+        return getLastDataTime() - lastBGTimestamp > 360000;
     }
 
 }

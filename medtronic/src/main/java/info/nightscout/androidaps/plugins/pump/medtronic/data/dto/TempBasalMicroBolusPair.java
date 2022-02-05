@@ -47,6 +47,7 @@ public class TempBasalMicroBolusPair extends TempBasalPair{
     public TempBasalMicroBolusPair(Integer duration, double dose, double calculatedDose,
                                    LocalDateTime releaseTime, OperationType operationType,
                                    Function1 callback) {
+        super(dose,false, duration);
         this.duration = duration;
         this.dose = dose;
         this.releaseTime = releaseTime;

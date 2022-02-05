@@ -3,8 +3,8 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks;
 import javax.inject.Inject;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.interfaces.ActivePluginProvider;
-import info.nightscout.androidaps.plugins.bus.RxBusWrapper;
+import info.nightscout.androidaps.interfaces.ActivePlugin;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpDevice;
@@ -15,8 +15,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks
  */
 public class WakeAndTuneTask extends PumpTask {
 
-    @Inject ActivePluginProvider activePlugin;
-    @Inject RxBusWrapper rxBus;
+    @Inject ActivePlugin activePlugin;
+    @Inject RxBus rxBus;
 
     private static final String TAG = "WakeAndTuneTask";
 
@@ -29,7 +29,7 @@ public class WakeAndTuneTask extends PumpTask {
         MedLinkPumpDevice pumpDevice = (MedLinkPumpDevice) activePlugin.getActivePump();
         rxBus.send(new EventRefreshButtonState(false));
         pumpDevice.setBusy(true);
-        pumpDevice.getMedLinkService().doTuneUpDevice();
+        pumpDevice.getRileyLinkService().doTuneUpDevice();
         pumpDevice.setBusy(false);
         rxBus.send(new EventRefreshButtonState(true));
     }

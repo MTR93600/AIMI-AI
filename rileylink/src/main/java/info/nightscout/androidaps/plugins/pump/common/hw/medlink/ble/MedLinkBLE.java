@@ -11,8 +11,7 @@ import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_INDICATE;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst.Intents.MedLinkReady;
-import static info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult.RESULT_SUCCESS;
+
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -686,7 +685,7 @@ public class MedLinkBLE //extends RileyLinkBLE
                     if (medLinkFound) {
                         mIsConnected = true;
                         Intent message = new Intent();
-                        message.setAction(MedLinkReady);
+                        message.setAction(MedLinkConst.Intents.MedLinkReady);
                         message.putExtra("BatteryLevel", batteryLevel);
                         message.putExtra("FirmwareVersion", firmwareVersion);
                         medLinkUtil.sendBroadcastMessage(message, context);
@@ -1245,7 +1244,7 @@ public class MedLinkBLE //extends RileyLinkBLE
 
         BLECommOperationResult result = setNotification_blocking(UUID.fromString(GattAttributes.SERVICE_UUID), //
                 UUID.fromString(GattAttributes.GATT_UUID), false);
-        if (result.resultCode != RESULT_SUCCESS) {
+        if (result.resultCode != BLECommOperationResult.RESULT_SUCCESS) {
             aapsLogger.error(LTag.PUMPBTCOMM, "Error setting response count notification");
             return false;
         }
@@ -1383,7 +1382,7 @@ public class MedLinkBLE //extends RileyLinkBLE
                     }
 //                    if (result) {
                     nextCommand();
-                    rval.resultCode = RESULT_SUCCESS;
+                    rval.resultCode = BLECommOperationResult.RESULT_SUCCESS;
 
 //                    } else {
 //                        aapsLogger.info(LTag.PUMPBTCOMM, "ERROR: Could not enqueue write command");

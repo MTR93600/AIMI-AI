@@ -150,10 +150,10 @@ public class RileyLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             // sendIPCNotification(RT2Const.IPC.MSG_note_WakingPump);
 
             rileyLinkService.rileyLinkBLE.enableNotifications();
-            rileyLinkService.getRFSpy.startReader(); // call startReader from outside?
+            rileyLinkService.getRfspy().startReader(); // call startReader from outside?
 
-            rileyLinkService.getRFSpy.initializeRileyLink();
-            String bleVersion = rileyLinkService.getRFSpy.getBLEVersionCached();
+            rileyLinkService.getRfspy().initializeRileyLink();
+            String bleVersion = rileyLinkService.getRfspy().getBLEVersionCached();
             RileyLinkFirmwareVersion rlVersion = rileyLinkServiceData.firmwareVersion;
 
             aapsLogger.debug(LTag.PUMPBTCOMM, "RfSpy version (BLE113): " + bleVersion);

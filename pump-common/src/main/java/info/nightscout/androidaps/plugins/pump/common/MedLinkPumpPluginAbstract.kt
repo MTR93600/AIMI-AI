@@ -52,7 +52,7 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     abstract val temporaryBasal: PumpSync.PumpState.TemporaryBasal?
     fun deliverTreatment(
         detailedBolusInfo: DetailedBolusInfo,
-        func: (PumpEnactResult?) -> Unit
+        func: (PumpEnactResult) -> Unit
     ) {
         try {
             if (detailedBolusInfo.insulin == 0.0 && detailedBolusInfo.carbs == 0.0) {
@@ -89,6 +89,6 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
 
     protected abstract fun deliverBolus(
         detailedBolusInfo: DetailedBolusInfo,
-        func: Function1<PumpEnactResult?, Unit>
+        func: (PumpEnactResult) -> Unit
     )
 }

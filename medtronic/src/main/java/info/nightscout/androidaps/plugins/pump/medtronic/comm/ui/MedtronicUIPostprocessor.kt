@@ -77,7 +77,7 @@ class MedtronicUIPostprocessor @Inject constructor(
             }
 
             MedtronicCommandType.GetRemainingInsulin -> {
-                medtronicPumpStatus.reservoirRemainingUnits = uiTask.result as Double
+                medtronicPumpStatus.reservoirLevel = uiTask.result as Double
             }
 
             MedtronicCommandType.CancelTBR           -> {
@@ -101,7 +101,7 @@ class MedtronicUIPostprocessor @Inject constructor(
             MedtronicCommandType.GetBatteryStatus    -> {
                 val batteryStatusDTO = uiTask.result as BatteryStatusDTO?
                 if (batteryStatusDTO != null) {
-                    medtronicPumpStatus.batteryRemaining = batteryStatusDTO.getCalculatedPercent(medtronicPumpStatus.batteryType)
+                    medtronicPumpStatus.batteryLevel = batteryStatusDTO.getCalculatedPercent(medtronicPumpStatus.batteryType)
                     if (batteryStatusDTO.voltage != null) {
                         medtronicPumpStatus.batteryVoltage = batteryStatusDTO.voltage
                     }

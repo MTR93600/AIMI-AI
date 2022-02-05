@@ -39,7 +39,7 @@ public class DescriptorWriteOperation extends BLECommOperation {
     @Override
     public void execute(RileyLinkBLE comm) {
         descr.setValue(value);
-        comm.writeDescriptor(descr);
+        gatt.writeDescriptor(descr);
         // wait here for callback to notify us that value was read.
         try {
             boolean didAcquire = operationComplete.tryAcquire(getGattOperationTimeout_ms(), TimeUnit.MILLISECONDS);

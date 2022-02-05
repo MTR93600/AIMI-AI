@@ -18,9 +18,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import info.nightscout.androidaps.plugins.pump.common.R;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.RLHistoryItem;
 import info.nightscout.androidaps.utils.DateUtil;

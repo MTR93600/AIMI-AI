@@ -4,7 +4,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.db.MedLinkTemporaryBasal;
+
+import info.nightscout.androidaps.extensions.PumpStateExtensionKt;
+import info.nightscout.androidaps.interfaces.PumpSync;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
@@ -48,9 +50,10 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
                 return PumpDriverState.Initialized;
             } else if (f.contains("suspend")) {
                 medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
-                MedLinkTemporaryBasal tempBasalData = medlinkPumpPlugin.getTemporaryBasal();
+                PumpSync.PumpState.TemporaryBasal tempBasalData = medlinkPumpPlugin.getTemporaryBasal();
                 if( tempBasalData!= null) {
-                    medlinkPumpPlugin.createTemporaryBasalData(tempBasalData.durationInMinutes, 0);
+                    medlinkPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
+                            0);
                 }else{
                     medlinkPumpPlugin.createTemporaryBasalData(30, 0);
                 }

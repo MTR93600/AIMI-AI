@@ -52,8 +52,8 @@ class MedtronicPumpStatus @Inject constructor(private val rh: ResourceHelper,
 
     override fun initSettings() {
         activeProfileName = "STD"
-        reservoirRemainingUnits = 75.0
-        batteryRemaining = 75
+        reservoirLevel = 75.0
+        batteryLevel = 75
         if (medtronicPumpMap.isEmpty()) createMedtronicPumpMap()
         if (medtronicDeviceTypeMap.isEmpty()) createMedtronicDeviceTypeMap()
         lastConnection = sp.getLong(MedtronicConst.Statistics.LastGoodPumpCommunicationTime, 0L)

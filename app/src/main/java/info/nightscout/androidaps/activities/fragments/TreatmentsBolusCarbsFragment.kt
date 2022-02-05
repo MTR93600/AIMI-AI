@@ -312,6 +312,7 @@ class TreatmentsBolusCarbsFragment : DaggerFragment() {
                         Bolus.Type.SMB     -> "SMB"
                         Bolus.Type.NORMAL  -> rh.gs(R.string.mealbolus)
                         Bolus.Type.PRIMING -> rh.gs(R.string.prime)
+                        else ->  rh.gs(R.string.mealbolus)
                     }
             }
             // Carbs

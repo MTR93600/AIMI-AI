@@ -23,7 +23,7 @@ interface MedLinkPumpDevice : CommunicatorPumpDevice {
     // var medLinkService: MedLinkService?
     val lastConnectionTimeMillis: Long
     fun setLastCommunicationToNow()
-    fun deliverTreatment(detailedBolusInfo: DetailedBolusInfo, func: (PumpEnactResult?) -> Unit)
+    fun deliverTreatment(detailedBolusInfo: DetailedBolusInfo, func: (PumpEnactResult) -> Unit)
     fun setTempBasalPercent(percent: Int,
                             durationInMinutes: Int,
                             profile: Profile,
@@ -37,7 +37,7 @@ interface MedLinkPumpDevice : CommunicatorPumpDevice {
         callback: Function1<PumpEnactResult, *>
     ): PumpEnactResult
 
-    fun cancelTempBasal(enforceNew: Boolean, callback: Callback)
+    fun cancelTempBasal(enforceNew: Boolean, callback: Callback?)
     fun extendBasalTreatment(duration: Int, callback: Function1<PumpEnactResult, *>): PumpEnactResult
     fun nextScheduledCommand(): String? //    void deliverTreatment(DetailedBolusInfo detailedBolusInfo,
     //                          @NotNull Function<PumpEnactResult, Unit> func);

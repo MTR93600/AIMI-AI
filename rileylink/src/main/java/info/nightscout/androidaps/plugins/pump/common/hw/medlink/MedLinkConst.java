@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import info.nightscout.androidaps.plugins.pump.common.R;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
+
 
 /**
  * Created by dirceu ou 18/09/20

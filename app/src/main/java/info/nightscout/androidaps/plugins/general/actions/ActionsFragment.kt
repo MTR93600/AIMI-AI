@@ -53,7 +53,6 @@ import info.nightscout.androidaps.utils.ui.SingleClickButton
 import info.nightscout.androidaps.utils.ui.UIRunnable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.careportal_stats_fragment.*
 import java.util.*
 import javax.inject.Inject
 
@@ -110,6 +109,9 @@ class ActionsFragment : DaggerFragment() {
     private var sensorLevelLabel: TextView? = null
     private var insulinLevelLabel: TextView? = null
     private var pbLevelLabel: TextView? = null
+
+    private var medlinkBatteryLevel: TextView? = null
+    private var medlinkBatteryLabel: TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -295,7 +297,7 @@ class ActionsFragment : DaggerFragment() {
             }
         }
 
-        if (!pump.pumpDescription.isTempBasalCapable || !pump.isInitialized() || pump.isSuspended() || loop.isDisconnected || config.NSCLIENT || (pump.isSuspended && pump !is MedLinkPumpDevice)) {
+        if (!pump.pumpDescription.isTempBasalCapable || !pump.isInitialized() || pump.isSuspended() || loop.isDisconnected || config.NSCLIENT || (pump.isSuspended() && pump !is MedLinkPumpDevice)) {
             setTempBasal?.visibility = View.GONE
             cancelTempBasal?.visibility = View.GONE
         } else {
@@ -323,22 +325,26 @@ class ActionsFragment : DaggerFragment() {
         tddStats?.visibility = pump.pumpDescription.supportsTDDs.toVisibility()
 
         if (!config.NSCLIENT) {
-            statusLightHandler.updateStatusLights(cannulaAge, insulinAge, reservoirLevel, sensorAge, sensorLevel, pbAge, batteryLevel)
-            if(pump is MedLinkPumpDevice) {
-                pbAge.visibility = true.toVisibility()
-                batteryLevel.visibility = true.toVisibility()
+            if(pump is MedLinkMedtronicPumpPlugin) {
+                statusLightHandler.updateStatusLights(cannulaAge, insulinAge, reservoirLevel, sensorAge, sensorLevel, pbAge, batteryLevel, sensorLevel)
+
+                pbAge?.visibility = true.toVisibility()
+                batteryLevel?.visibility  = true.toVisibility()
+            } else {
+                statusLightHandler.updateStatusLights(cannulaAge, insulinAge, reservoirLevel, sensorAge, sensorLevel, pbAge, batteryLevel, null)
+
             }
             sensorLevelLabel?.text = if (activeBgSource.sensorBatteryLevel == -1) "" else rh.gs(R.string.careportal_level_label)
         } else {
-            statusLightHandler.updateStatusLights(cannulaAge, insulinAge, null, sensorAge, null, pbAge, null)
+            statusLightHandler.updateStatusLights(cannulaAge, insulinAge, null, sensorAge, null, pbAge, null,null)
             sensorLevelLabel?.text = ""
             insulinLevelLabel?.text = ""
             pbLevelLabel?.text = ""
-            medlink_batterylevel_label?.text = ""
+            medlinkBatteryLabel?.text = ""
             if (pump is MedLinkMedtronicPumpPlugin) {
                 if (sp.getString(R.string
                                      .key_medlink_battery_info, "Age") != "Age") {
-                    pb_age_label.visibility = View.INVISIBLE;
+                    pbAge?.visibility   = View.INVISIBLE;
 
                 }
             }

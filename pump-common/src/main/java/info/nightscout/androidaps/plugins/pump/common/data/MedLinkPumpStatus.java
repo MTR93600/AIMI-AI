@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue;
 import info.nightscout.androidaps.data.InMemoryGlucoseValue;
+import info.nightscout.androidaps.interfaces.BgSync;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 
 /**
@@ -20,6 +21,8 @@ public abstract class MedLinkPumpStatus extends  MedLinkPartialBolus{
     public int deviceBatteryRemaining;
     public ZonedDateTime nextCalibration;
     public boolean bgAlarmOn;
+    public double currentBasal;
+    public int tempBasalRemainMin;
 
     @Override public String toString() {
         return "MedLinkPumpStatus{" +
@@ -46,8 +49,8 @@ public abstract class MedLinkPumpStatus extends  MedLinkPartialBolus{
         FAILED
     }
 
-    public EnliteInMemoryGlucoseValue sensorDataReading;
-    public InMemoryGlucoseValue bgReading;
+    public BgSync.BgHistory.BgValue sensorDataReading;
+    public EnliteInMemoryGlucoseValue bgReading;
     public BGReadingStatus lastReadingStatus = BGReadingStatus.FAILED;
     public BGReadingStatus currentReadingStatus = BGReadingStatus.FAILED;
 

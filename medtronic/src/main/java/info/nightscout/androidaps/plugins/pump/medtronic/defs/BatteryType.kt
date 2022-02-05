@@ -13,6 +13,7 @@ enum class BatteryType(@field:StringRes val description: Int, val lowVoltage: Do
     Lithium(R.string.key_medtronic_pump_battery_lithium, 1.22, 1.64),  //
     NiZn(R.string.key_medtronic_pump_battery_nizn, 1.40, 1.70),  //
     NiMH(R.string.key_medtronic_pump_battery_nimh, 1.10, 1.40 //
-    );
+    ),
+    LiPo(R.string.key_medtronic_pump_battery_lipo, 1.41, 1.46);
 
 }
