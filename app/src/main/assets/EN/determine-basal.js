@@ -393,8 +393,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
     enlog += "sens_TDD:" + sens_TDD +"\n";
-    // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more
-    var sens_currentBG = sens_normalTarget/(bg/target_bg);
+    // Limit ISF for sens_currentBG with this scale like AS
+    var ISFbgMax = (profile.ISFbgMax > 0 ? (profile.ISFbgMax-normalTarget)+target_bg : normalTarget);
+    enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
+    // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
+    var sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
     enlog += "sens_currentBG:" + sens_currentBG +"\n";
     // EXPERIMENTAL: allow user preferences to scale the strength of the ISF as BG increases
     var sens_BGscaler = profile.ISFbgscaler; // 0 is normal scaling, 5 is 5% stronger and -5 is 5% weaker
@@ -406,12 +409,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // in the COBBoost window allow normal ISF as minimum
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
-
-    // Limit ISF for sens_currentBG with this scale like AS
-    var ISFbgMax = (profile.ISFbgMax > 0 ? (profile.ISFbgMax-normalTarget)+target_bg : normalTarget);
-    enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
-    // apply limit to sens_currentBG
-    sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
     sens_currentBG = round(sens_currentBG,1);
 
     // Threshold for SMB at night
