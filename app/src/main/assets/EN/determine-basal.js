@@ -392,17 +392,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
-    enlog += "sens_TDD:" + convert_bg(sens_TDD, profile)+"\n";
+    enlog += "sens_TDD:" + sens_TDD +"\n";
     // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more
     var sens_currentBG = sens_normalTarget/(bg/target_bg);
-    enlog += "sens_currentBG:" + convert_bg(sens_currentBG, profile) +"\n";
+    enlog += "sens_currentBG:" + sens_currentBG +"\n";
     // EXPERIMENTAL: allow user preferences to scale the strength of the ISF as BG increases
     var sens_BGscaler = profile.ISFbgscaler; // 0 is normal scaling, 5 is 5% stronger and -5 is 5% weaker
-    sens_BGscaler = ((sens_BGscaler*-1)+100)/100; // make this work by inverting -ve to +ve and scale to a %
+    sens_BGscaler = (100-sens_BGscaler)/100;
     enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
     // if above target use the scaling with profile ISF as the weakest
     sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : sens_currentBG);
-    enlog += "sens_currentBG after scaling is:" + convert_bg(sens_currentBG, profile) +"\n";
+    enlog += "sens_currentBG after scaling is:" + sens_currentBG + "=" convert_bg(sens_currentBG, profile) +"\n";
 
     // in the COBBoost window allow normal ISF as minimum
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
@@ -422,7 +422,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = (eatingnow ? sens_currentBG : sens_normalTarget);
     // at night with SR use the sens_currentBG
     sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
-    enlog += "sens final result:"+convert_bg(sens, profile)+"\n";
+    enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
     // **********************************************************************************************
     // *****                           End of automated TDD code                                *****
