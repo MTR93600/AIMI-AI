@@ -2,7 +2,10 @@ package info.nightscout.androidaps.plugins.pump.common.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import info.nightscout.androidaps.plugins.pump.common.dialog.MedLinkBLEConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.dialog.RileyLinkBLEConfigActivity
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.SendAndListen
@@ -40,4 +43,11 @@ abstract class RileyLinkModule {
     @ContributesAndroidInjector abstract fun contributesRileyLinkBLEConfigActivity(): RileyLinkBLEConfigActivity
 
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService
+
+    @ContributesAndroidInjector abstract fun medLinkBLEProvider(): MedLinkBLE
+    @ContributesAndroidInjector abstract fun medLinkService(): MedLinkService
+    @ContributesAndroidInjector abstract fun medLinkBleScanActivity(): MedLinkBLEConfigActivity
+    @ContributesAndroidInjector abstract fun initializeMedPumpManagerTaskProvider(): info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask
+
+
 }

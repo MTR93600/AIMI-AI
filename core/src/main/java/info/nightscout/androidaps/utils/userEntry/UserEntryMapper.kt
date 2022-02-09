@@ -134,6 +134,7 @@ class UserEntryMapper {
         Insight (UserEntry.Sources.Insight),
         Combo (UserEntry.Sources.Combo),
         Medtronic (UserEntry.Sources.Medtronic),
+        MedtronicMedLink (UserEntry.Sources.MedLink),
         Omnipod (UserEntry.Sources.Omnipod),
         OmnipodEros (UserEntry.Sources.OmnipodEros),
         OmnipodDash (UserEntry.Sources.OmnipodDash),

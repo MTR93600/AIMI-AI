@@ -388,7 +388,12 @@ enum class PumpType {
     //     0.025, 0.025, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedtronicCapabilities
     // ),
 
-    MedLink_Medtronic_554_754_Veo("MedLink Medtronic 554/754 (Veo)", "554/754 (Veo)", MedLink_Medtronic_523_723_Revel); // TODO
+    MedLink_Medtronic_554_754_Veo(
+        description = "MedLink Medtronic 554/754 (Veo)",
+        model = "554/754 (Veo)",
+        parent = MedLink_Medtronic_523_723_Revel,
+        // manufacturer = ManufacturerType.Medtronic
+    ); // TODO
 
     val description: String
     var manufacturer: ManufacturerType? = null

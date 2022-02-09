@@ -297,7 +297,7 @@ class MedLinkMedtronicService : MedLinkService() {
                 serialChanged = false
             }
             if (medLinkAddressChanged) {
-                medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.RileyLinkNewAddressSet, this)
+                medLinkUtil.sendBroadcastMessage(MedLinkConst.Intents.MedLinkNewAddressSet, this)
                 medLinkAddressChanged = false
             }
             if (encodingChanged) {

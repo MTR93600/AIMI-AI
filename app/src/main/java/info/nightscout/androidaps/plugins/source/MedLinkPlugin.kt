@@ -47,9 +47,9 @@ class MedLinkPlugin @Inject constructor(
         .mainType(PluginType.BGSOURCE)
         .fragmentClass(BGSourceFragment::class.java.name)
         .pluginIcon(R.drawable.ic_minilink)
-        .pluginName(R.string.dexcom_app_patched)
-        .shortName(R.string.dexcom_short)
-        .preferencesId(R.xml.pref_bgsourcedexcom)
+        .pluginName(R.string.medlink_app_patched)
+        .shortName(R.string.medlink_short)
+        .preferencesId(R.xml.pref_bgsourcemedlink)
         .description(R.string.description_source_enlite),
     aapsLogger, rh, injector
 ), BgSource {

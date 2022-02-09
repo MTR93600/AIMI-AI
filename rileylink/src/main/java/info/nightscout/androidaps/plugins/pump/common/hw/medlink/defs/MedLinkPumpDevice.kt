@@ -13,6 +13,7 @@ import info.nightscout.androidaps.queue.Callback
  */
 interface MedLinkPumpDevice : CommunicatorPumpDevice {
 
+
     fun getPumpInfo(): RileyLinkPumpInfo?
     fun getRileyLinkService(): MedLinkService?
 

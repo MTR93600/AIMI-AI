@@ -73,7 +73,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
         this.broadcastIdentifiers.put("MedLink", Arrays.asList( //
                 MedLinkConst.Intents.MedLinkDisconnected, //
                 MedLinkConst.Intents.MedLinkReady, //
-                MedLinkConst.Intents.RileyLinkNewAddressSet, //
+                MedLinkConst.Intents.MedLinkNewAddressSet, //
                 MedLinkConst.Intents.MedLinkDisconnect));
     }
 
@@ -193,7 +193,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             aapsLogger.info(LTag.PUMPCOMM, "Announcing MedLink open For business");
 
             return true;
-        } else if (action.equals(MedLinkConst.Intents.RileyLinkNewAddressSet)) {
+        } else if (action.equals(MedLinkConst.Intents.MedLinkNewAddressSet)) {
             String medLinkBLEAddress = sp.getString(MedLinkConst.Prefs.MedLinkAddress, "");
             if (medLinkBLEAddress.equals("")) {
                 aapsLogger.error("No MedLink BLE Address saved in app");
@@ -202,7 +202,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             } else {
                 aapsLogger.error("MedLink BLE Address saved in app");
                 // showBusy("Configuring Service", 50);
-                // rileyLinkBLE.findRileyLink(medLinkBLEAddress);
+//                medlink.findRileyLink(medLinkBLEAddress);
                 medLinkService.reconfigureCommunicator(medLinkBLEAddress);
 //                MainApp.getServiceClientConnection().setThisRileylink(medLinkBLEAddress);
             }

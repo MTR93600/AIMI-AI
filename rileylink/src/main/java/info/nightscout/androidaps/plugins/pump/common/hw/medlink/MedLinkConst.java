@@ -39,7 +39,7 @@ public class MedLinkConst {
         public static final String BluetoothDisconnected = Prefix + "Bluetooth_Disconnected";
         public static final String MedLinkDisconnected = Prefix + "MedLink_Disconnected";
 
-        public static final String RileyLinkNewAddressSet = Prefix + "NewAddressSet";
+        public static final String MedLinkNewAddressSet = Prefix + "NewAddressSet";
 
         public static final String INTENT_NEW_rileylinkAddressKey = Prefix + "INTENT_NEW_rileylinkAddressKey";
         public static final String INTENT_NEW_pumpIDKey = Prefix + "INTENT_NEW_pumpIDKey";
@@ -53,6 +53,8 @@ public class MedLinkConst {
         //public static final String PrefPrefix = "pref_rileylink_";
         //public static final String RileyLinkAddress = PrefPrefix + "mac_address"; // pref_rileylink_mac_address
         public static final int MedLinkAddress = R.string.key_medlink_mac_address;
+        public static final int MedLinkName = R.string.key_rileylink_name;
+
         public static final String LastGoodDeviceCommunicationTime = Prefix + "lastGoodDeviceCommunicationTime";
         public static final String LastGoodDeviceFrequency = Prefix + "LastGoodDeviceFrequency";
         public static final int Encoding = R.string.key_medtronic_encoding;

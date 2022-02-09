@@ -137,6 +137,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         .mainType(PluginType.PUMP) //
         .fragmentClass(MedLinkMedtronicFragment::class.java.name) //
         .pluginIcon(R.drawable.ic_veo_medlink)
+        .pluginName(R.string.medtronic_name)
         .shortName(R.string.medlink_medtronic_name_short) //
         .preferencesId(R.xml.pref_medtronic_medlink)
         .description(R.string.description_pump_medtronic_medlink),  //
@@ -1438,8 +1439,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger.info(LTag.PUMPBTCOMM, "tbr cancelled")
                 }
             })
-            showToastInUiThread(context, rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.tempbasaldeliveryerror))
-            //            Boolean response = (Boolean) responseTask2.returnData;
+            Toast.makeText(context, info.nightscout.androidaps.plugins.pump
+                .common.R
+                .string
+                .tempbasaldeliveryerror, Toast.LENGTH_SHORT).show()
+                        //            Boolean response = (Boolean) responseTask2.returnData;
 
 //            if (response) {
 //                getAapsLogger().info(LTag.PUMP, getLogPrefix() + "setTempBasalAbsolute - Current TBR cancelled.");
@@ -2358,10 +2362,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         } else if (convertProfileToMedtronicProfile(this.profile) != profile) {
 //            getAapsLogger().info(LTag.PUMPBTCOMM,profile.toString());
             aapsLogger.info(LTag.PUMPBTCOMM, this.profile.toString())
-            showToastInUiThread(
-                context, rxBus, rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
-                Toast.LENGTH_LONG
-            )
+            Toast.makeText(context,
+                           rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40), Toast.LENGTH_LONG).show()
+
+            // showToastInUiThread(
+            //     context, rxBus, rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
+            //     Toast.LENGTH_LONG
+            // )
             PumpEnactResult(injector) //
                 .success(false) //
                 .enacted(false) //
@@ -2407,10 +2414,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 .enacted(false) //
                 .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid))
         }
-        showToastInUiThread(
-            context, rxBus, rh.gs(R.string.medtronic_cmd_basal_profile_could_not_be_set, 40),
-            Toast.LENGTH_LONG
-        )
+        Toast.makeText(context,          rh.gs(R.string.medtronic_cmd_basal_profile_could_not_be_set, 40), Toast.LENGTH_LONG).show()
+
+
 
 //        MedtronicUITask responseTask = medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetBasalProfileSTD,
 //                basalProfile);

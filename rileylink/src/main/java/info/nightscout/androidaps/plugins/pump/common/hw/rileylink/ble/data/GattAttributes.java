@@ -30,6 +30,7 @@ public class GattAttributes {
 
     // RileyLink Radio Service
     public static String SERVICE_RADIO = "0235733b-99c5-4197-b856-69219c2a3845";
+    public static String MED_LINK_SERVICE_RADIO = "0000ffe0-0000-1000-8000-00805f9b34fb";
     public static String CHARA_RADIO_DATA = "c842e849-5028-42e2-867c-016adada9155";
     public static String CHARA_RADIO_RESPONSE_COUNT = "6e6c7910-b89e-43a5-a0fe-50c5e2b81f4a";
     public static String CHARA_RADIO_TIMER_TICK = "6e6c7910-b89e-43a5-78af-50c5e2b86f7e";

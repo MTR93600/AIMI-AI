@@ -42,6 +42,7 @@ import info.nightscout.androidaps.plugins.profile.local.LocalProfilePlugin
 import info.nightscout.androidaps.plugins.pump.combo.ComboPlugin
 import info.nightscout.androidaps.plugins.pump.insight.LocalInsightPlugin
 import info.nightscout.androidaps.plugins.pump.mdi.MDIPlugin
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.OmnipodDashPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.OmnipodErosPumpPlugin
@@ -175,6 +176,13 @@ abstract class PluginsModule {
     @IntoMap
     @IntKey(150)
     abstract fun bindMedtronicPumpPlugin(plugin: MedtronicPumpPlugin): PluginBase
+
+
+    @Binds
+    @PumpDriver
+    @IntoMap
+    @IntKey(152)
+    abstract fun bindMedLinkMedtronicPumpPlugin(plugin: MedLinkMedtronicPumpPlugin): PluginBase
 
     @Binds
     @PumpDriver
@@ -337,6 +345,14 @@ abstract class PluginsModule {
     @IntoMap
     @IntKey(440)
     abstract fun bindDexcomPlugin(plugin: DexcomPlugin): PluginBase
+
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(445)
+    abstract fun bindMedLinkPlugin(plugin: MedLinkPlugin): PluginBase
+
 
     @Binds
     @AllConfigs

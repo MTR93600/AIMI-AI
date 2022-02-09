@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="info.nightscout.androidaps.plugins.pump.common.dialog.MedLinkBLEScanActivity">
+        <activity android:name="info.nightscout.androidaps.plugins.pump.common.dialog.MedLinkBLEConfigActivity">
             <intent-filter>
                 <action android:name="info.nightscout.androidaps.plugins.PumpCommon.dialog.MedLinkBLEScanActivity" />
                 <category android:name="android.intent.category.DEFAULT" />

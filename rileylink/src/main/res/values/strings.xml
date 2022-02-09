@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="med_link_ble_config_scan_title">MedLink Scan</string>
+
+
+    <string name="key_medlink_name" translatable="false">pref_medlink_name</string>
+
+    <string name="med_link_ble_config_scan_currently_selected_med_link">Currently Selected
+        MedLink</string>
+    <string name="med_link_ble_config_remove_med_link_confirmation">Are you sure that you want to
+        remove your MedLink?</string>
+    <string name="med_link_ble_config_remove_med_link_confirmation_title">Remove
+        MedLink</string>
+    <string name="med_link_ble_config_no_med_link_selected">No MedLink selected</string>
+
 
     <string name="need_manual_profile_set">You need to change your pump profile to the Standard</string>
     <string name="medlink_scanner_title">MedLink Scan</string>

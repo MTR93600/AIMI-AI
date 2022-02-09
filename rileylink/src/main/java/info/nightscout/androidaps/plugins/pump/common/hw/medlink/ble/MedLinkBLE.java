@@ -1445,6 +1445,7 @@ public class MedLinkBLE //extends RileyLinkBLE
         if (characteristicChanged == null) {
             characteristicChanged = new BleCommand(aapsLogger, medLinkServiceData);
         }
+        getBluetoothAdapter();
         medLinkDevice = bluetoothAdapter.getRemoteDevice(medLinkAddress);
         // if this succeeds, we get a connection state change callback?
 

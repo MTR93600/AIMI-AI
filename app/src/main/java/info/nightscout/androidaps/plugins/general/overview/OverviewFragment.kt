@@ -104,7 +104,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var dexcomPlugin: DexcomPlugin
-    @Inject lateinit var medlinkPlugin: MedLinkPlugin
+    @Inject lateinit var medLinkPlugin: MedLinkPlugin
+    @Inject lateinit var medLinkMediator: MedLinkPlugin.MedLinkMediator
     @Inject lateinit var dexcomMediator: DexcomPlugin.DexcomMediator
     @Inject lateinit var xdripPlugin: XdripPlugin
     @Inject lateinit var notificationStore: NotificationStore

@@ -165,6 +165,7 @@ data class UserEntry(
         Insight,
         Combo,
         Medtronic,
+        MedLink,
         Omnipod,            //No entry currently
         OmnipodEros,
         OmnipodDash,        //No entry currently
