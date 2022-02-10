@@ -1,155 +1,137 @@
-package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble;
+package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble
 
-import androidx.annotation.NonNull;
-
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.shared.logging.LTag;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
+import java.util.*
+import java.util.function.Function
+import java.util.function.Supplier
+import java.util.stream.Stream
 
 /**
  * Created by Dirceu on 01/04/21.
  */
-public abstract class CommandExecutor implements Runnable {
-    private final MedLinkPumpMessage<?> medLinkPumpMessage;
-    private final AAPSLogger aapsLogger;
-    private int commandPosition = 0;
-    private int functionPosition = 0;
-    private MedLinkCommandType currentCommand;
+abstract class CommandExecutor protected constructor(val medLinkPumpMessage: MedLinkPumpMessage<*>, val aapsLogger: AAPSLogger) : Runnable {
 
-    protected int nrRetries = 0;
+    private var commandPosition = 0
+    private var functionPosition = 0
+    private var currentCommand: MedLinkCommandType? = null
+    var nrRetries = 0
+        protected set
 
-    protected CommandExecutor(MedLinkPumpMessage<?> medLinkPumpMessage, AAPSLogger aapsLogger) {
-        this.medLinkPumpMessage = medLinkPumpMessage;
-        this.aapsLogger = aapsLogger;
+    protected constructor(commandType: MedLinkCommandType?, aapsLogger: AAPSLogger, medLinkServiceData: MedLinkServiceData?) : this(
+        MedLinkPumpMessage<Any>(
+            commandType,
+            BleCommand(aapsLogger, medLinkServiceData)
+        ), aapsLogger
+    ) {
     }
 
-    protected CommandExecutor(MedLinkCommandType commandType, AAPSLogger aapsLogger, MedLinkServiceData medLinkServiceData) {
-        this(new MedLinkPumpMessage(commandType,
-                new BleCommand(aapsLogger, medLinkServiceData)), aapsLogger);
+    //
+    //    protected CommandExecutor(RemainingBleCommand remainingBleCommand) {
+    //        this.remainingBleCommand = remainingBleCommand;
+    //    }
+    operator fun contains(com: MedLinkCommandType?): Boolean {
+        return com != null && com.isSameCommand(medLinkPumpMessage.commandType) ||
+            com!!.isSameCommand(medLinkPumpMessage.argument)
     }
 
-//
-//    protected CommandExecutor(RemainingBleCommand remainingBleCommand) {
-//        this.remainingBleCommand = remainingBleCommand;
-//    }
-
-
-    public boolean contains(MedLinkCommandType com) {
-        return (com != null && com.isSameCommand(medLinkPumpMessage.getCommandType()) ||
-                com.isSameCommand(medLinkPumpMessage.getArgument()));
-    }
-
-    public MedLinkCommandType nextCommand() {
-        if (commandPosition == 0) {
-            return medLinkPumpMessage.getCommandType();
+    fun nextCommand(): MedLinkCommandType {
+        return if (commandPosition == 0) {
+            medLinkPumpMessage.commandType
         } else if (commandPosition == 1) {
-            return medLinkPumpMessage.getArgument();
-        } else return MedLinkCommandType.NoCommand;
+            medLinkPumpMessage.argument
+        } else MedLinkCommandType.NoCommand
     }
 
-    public Function<Supplier<Stream<String>>, ? extends MedLinkStandardReturn<?>> nextFunction() {
-        if (functionPosition == 0 && medLinkPumpMessage.getBaseCallback() != null) {
-            currentCommand = medLinkPumpMessage.getCommandType();
-            return medLinkPumpMessage.getBaseCallback().andThen(f -> {
-                functionPosition += 1;
-                return f;
-            });
-        } else if (functionPosition == 1 && medLinkPumpMessage.getArgCallback() != null) {
-            currentCommand = medLinkPumpMessage.getArgument();
-            return medLinkPumpMessage.getArgCallback().andThen(f -> {
-                functionPosition += 1;
-                return f;
-            });
-        } else return null;
+    fun nextFunction(): Function<Supplier<Stream<String>>, out MedLinkStandardReturn<*>?>? {
+        return if (functionPosition == 0 && medLinkPumpMessage.baseCallback != null) {
+            currentCommand = medLinkPumpMessage.commandType
+            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+                functionPosition += 1
+                f
+            }
+        } else if (functionPosition == 1 && medLinkPumpMessage.argCallback != null) {
+            currentCommand = medLinkPumpMessage.argument
+            medLinkPumpMessage.argCallback.andThen { f: MedLinkStandardReturn<*>? ->
+                functionPosition += 1
+                f
+            }
+        } else null
     }
 
-    public MedLinkCommandType getCurrentCommand() {
-        if (commandPosition <= 1) {
-            return medLinkPumpMessage.getCommandType();
+    fun getCurrentCommand(): MedLinkCommandType {
+        return if (commandPosition <= 1) {
+            medLinkPumpMessage.commandType
         } else if (commandPosition == 2) {
-            return medLinkPumpMessage.getArgument();
+            medLinkPumpMessage.argument
         } else {
-            return MedLinkCommandType.NoCommand;
+            MedLinkCommandType.NoCommand
         }
     }
 
-    public boolean hasFinished() {
-        aapsLogger.info(LTag.PUMPBTCOMM, medLinkPumpMessage.toString());
-        aapsLogger.info(LTag.PUMPBTCOMM, "" + commandPosition);
-        return commandPosition > 1
-                || (MedLinkCommandType.NoCommand.isSameCommand(
-                medLinkPumpMessage.getArgument()) &&
-                commandPosition > 0);
-
+    open fun hasFinished(): Boolean {
+        aapsLogger.info(LTag.PUMPBTCOMM, medLinkPumpMessage.toString())
+        aapsLogger.info(LTag.PUMPBTCOMM, "" + commandPosition)
+        return (commandPosition > 1
+            || MedLinkCommandType.NoCommand.isSameCommand(
+            medLinkPumpMessage.argument
+        ) &&
+            commandPosition > 0)
     }
 
-    public void commandExecuted() {
-        if(this.commandPosition == 0){
-            nrRetries++;
-        } else if(this.medLinkPumpMessage.getArgument() != MedLinkCommandType.NoCommand){
-            nrRetries++;
-        }
-        this.commandPosition += 1;
-    }
-
-    public void clearExecutedCommand() {
-        this.commandPosition = 0;
-        this.functionPosition = 0;
-    }
-
-    @NonNull @Override public String toString() {
-        return "CommandExecutor{" +
-                "command=" + medLinkPumpMessage +
-                ", commandPosition=" + commandPosition +
-                ", functionPosition=" + functionPosition +
-                ", nrRetries=" + nrRetries +
-                '}';
-    }
-
-    public MedLinkPumpMessage<?> getMedLinkPumpMessage() {
-        return medLinkPumpMessage;
-    }
-
-    public int getNrRetries() {
-        return nrRetries;
-    }
-
-    public boolean matches(MedLinkPumpMessage<?> ext) {
-        return this.getMedLinkPumpMessage().getCommandType().isSameCommand(ext.getCommandType())
-                && this.getMedLinkPumpMessage().getArgument().isSameCommand(ext.getArgument());
-    }
-
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CommandExecutor that = (CommandExecutor) o;
-        return !hasFinished() && !that.hasFinished() &&
-                medLinkPumpMessage.getCommandType() == that.medLinkPumpMessage.getCommandType() &&
-                medLinkPumpMessage.getArgument() == that.medLinkPumpMessage.getArgument();
-    }
-
-    @Override public int hashCode() {
-        return Objects.hash(medLinkPumpMessage, aapsLogger, commandPosition, functionPosition, currentCommand, nrRetries);
-    }
-
-    protected byte[] nextCommandData() {
+    fun commandExecuted() {
         if (commandPosition == 0) {
-            return medLinkPumpMessage.getCommandType().getRaw();
-        } else if (commandPosition == 1) {
-            return medLinkPumpMessage.getArgumentData();
-        } else return MedLinkCommandType.NoCommand.getRaw();
+            nrRetries++
+        } else if (medLinkPumpMessage.argument != MedLinkCommandType.NoCommand) {
+            nrRetries++
+        }
+        commandPosition += 1
     }
 
-    public boolean isInitialized() {
-        return commandPosition>0 || functionPosition >0 ;
+    open fun clearExecutedCommand() {
+        commandPosition = 0
+        functionPosition = 0
     }
+
+    override fun toString(): String {
+        return "CommandExecutor{" +
+            "command=" + medLinkPumpMessage +
+            ", commandPosition=" + commandPosition +
+            ", functionPosition=" + functionPosition +
+            ", nrRetries=" + nrRetries +
+            '}'
+    }
+
+    fun matches(ext: MedLinkPumpMessage<*>): Boolean {
+        return (medLinkPumpMessage.commandType.isSameCommand(ext.commandType)
+            && medLinkPumpMessage.argument.isSameCommand(ext.argument))
+    }
+
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as CommandExecutor
+        return !hasFinished() && !that.hasFinished() && medLinkPumpMessage.commandType == that.medLinkPumpMessage.commandType && medLinkPumpMessage.argument == that.medLinkPumpMessage.argument
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(medLinkPumpMessage, aapsLogger, commandPosition, functionPosition, currentCommand, nrRetries)
+    }
+
+    protected fun nextCommandData(): ByteArray {
+        return if (commandPosition == 0) {
+            medLinkPumpMessage.commandType.raw
+        } else if (commandPosition == 1) {
+            medLinkPumpMessage.argumentData
+        } else MedLinkCommandType.NoCommand.raw
+    }
+
+    val isInitialized: Boolean
+        get() = commandPosition > 0 || functionPosition > 0
+
 }

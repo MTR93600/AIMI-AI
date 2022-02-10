@@ -3246,7 +3246,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        }
         handleProfile()
         handleBolusAlarm()
-        if (temporaryBasal!!.rate == 0.0 && temporaryBasal!!.duration > 0 && pumpStatusData.pumpStatusType == PumpStatusType.Running) {
+        if (temporaryBasal?.rate == 0.0 && temporaryBasal?.duration!! > 0 && pumpStatusData.pumpStatusType == PumpStatusType.Running) {
             stopPump(object : Callback() {
                 override fun run() {
                     aapsLogger.info(LTag.PUMP, "Stopping unstopped pump")

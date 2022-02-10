@@ -61,4 +61,17 @@ object SafeParse {
         }
         return result
     }
+
+
+    @JvmStatic fun stringToSet(inputString: String?): MutableSet<String> {
+        var input = inputString ?: return mutableSetOf()
+        var result: MutableSet<String> = mutableSetOf()
+        if (input == "") return mutableSetOf()
+        try {
+            input.split(",").also { result = it.toMutableSet() }
+        } catch (e: Exception) {
+//            log.error("Error parsing " + input + " to int");
+        }
+        return result
+    }
 }

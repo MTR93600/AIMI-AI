@@ -15,7 +15,8 @@ open class BleSuspendedCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedL
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
         if (answer.contains("pump suspend state")) {
             bleComm?.needToBeStarted(UUID.fromString(GattAttributes.SERVICE_UUID),
-                UUID.fromString(GattAttributes.GATT_UUID), bleComm.currentCommand.currentCommand)
+                                     UUID.fromString(GattAttributes.GATT_UUID), bleComm.currentCommand?.getCurrentCommand()
+            )
             bleComm?.clearExecutedCommand();
             bleComm?.nextCommand()
         } else {

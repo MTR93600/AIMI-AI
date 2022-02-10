@@ -141,6 +141,11 @@ class SPImplementation @Inject constructor(
         sharedPreferences.edit().putString(key, value).apply()
 
     override fun getStringSet(key: String, defaultValue: Set<String>): MutableSet<String>? {
-        return sharedPreferences.getStringSet(key, defaultValue)
+
+        return try {
+            sharedPreferences.getStringSet(key, defaultValue)
+        } catch (e: Exception) {
+            SafeParse.stringToSet(sharedPreferences.getString(key, defaultValue.toString()))
+        }
     }
 }

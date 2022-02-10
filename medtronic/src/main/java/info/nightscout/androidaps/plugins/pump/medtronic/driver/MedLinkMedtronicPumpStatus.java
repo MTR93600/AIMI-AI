@@ -142,7 +142,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     }
 
     public double getCurrentBasal() {
-        return getCurrentBasal();
+        return super.currentBasal;
     }
     // Battery type
     private Map<String, BatteryType> mapByDescription;
