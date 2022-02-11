@@ -1450,7 +1450,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             //if (!eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0)  {
                 //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 microBolus = 0;
-                UAMBoostReason += ", no SMB";
             }
 
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
