@@ -61,6 +61,11 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
                 functionPosition += 1
                 f
             }
+        } else if (functionPosition == 1 && medLinkPumpMessage.commandType == MedLinkCommandType.ActiveBasalProfile){
+            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+                functionPosition += 1
+                f
+            }
         } else null
     }
 

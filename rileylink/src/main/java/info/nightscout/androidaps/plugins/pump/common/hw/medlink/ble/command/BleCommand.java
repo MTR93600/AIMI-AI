@@ -211,22 +211,16 @@ public class BleCommand {
                 aapsLogger.info(LTag.PUMPBTCOMM, "posting command");
                 Supplier<Stream<String>> sup = () -> Arrays.stream(pumpResp.split("\n"));//.filter(f -> f != "\n");
                 if (function != null) {
-//                aapsLogger.info(LTag.PUMPBTCOMM, String.join(", ", pumpResp));
-                    Function func = function.andThen(f -> {
-//                        if (pumpResp.contains("ready")) {
-//                            bleComm.applyClose();
-//                        }
-                        return f;
-                    });
+
                     MedLinkStandardReturn<Stream<String>> lastResult = null;
                     if (Arrays.equals(command, MedLinkCommandType.IsigHistory.getRaw())) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "posting isig");
-                        Object result = func.apply(sup);
+                        Object result = function.apply(sup);
                         if (result == null) {
                             bleComm.retryCommand();
                         }
                     } else if (!Arrays.equals(command, MedLinkCommandType.Connect.getRaw())) {
-                        func.apply(sup);
+                        function.apply(sup);
                     }
                     aapsLogger.info(LTag.PUMPBTCOMM, new String(command));
 

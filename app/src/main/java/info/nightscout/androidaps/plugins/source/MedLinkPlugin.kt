@@ -25,6 +25,7 @@ import info.nightscout.androidaps.plugins.profile.local.LocalProfilePlugin
 import info.nightscout.androidaps.receivers.DataWorker
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.T
+import info.nightscout.androidaps.utils.TrendCalculator
 import info.nightscout.androidaps.utils.XDripBroadcast
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
@@ -88,6 +89,7 @@ class MedLinkPlugin @Inject constructor(
         @Inject lateinit var xDripBroadcast: XDripBroadcast
         @Inject lateinit var repository: AppRepository
         @Inject lateinit var uel: UserEntryLogger
+        @Inject lateinit var trendCalculator: TrendCalculator
 
         init {
             (context.applicationContext as HasAndroidInjector).androidInjector().inject(this)
@@ -102,7 +104,7 @@ class MedLinkPlugin @Inject constructor(
             try {
                 val sourceSensor = when (bundle.getString("sensorType") ?: "") {
                     "Enlite" -> GlucoseValue.SourceSensor.MM_ENLITE
-                    else -> GlucoseValue.SourceSensor.UNKNOWN
+                    else     -> GlucoseValue.SourceSensor.UNKNOWN
                 }
                 val calibrations = mutableListOf<CgmSourceTransaction.Calibration>()
                 bundle.getBundle("meters")?.let { meters ->
@@ -134,12 +136,20 @@ class MedLinkPlugin @Inject constructor(
                     val sensorUptime = glucoseValueBundle.getInt("sensor_uptime")
                     val calibrationFactor = glucoseValueBundle.getDouble("calibration_factor")
 
-
                     // G5 calibration bug workaround (calibration is sent as glucoseValue too)
                     var valid = true
                     if (sourceSensor == GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE)
                         calibrations.forEach { calibration -> if (calibration.timestamp == timestamp) valid = false }
-                    if (valid)
+                    if (valid) {
+                        val glucoseValue = GlucoseValue(
+                            timestamp = timestamp,
+                            value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
+                            noise = null,
+                            raw = null,
+                            trendArrow = GlucoseValue.TrendArrow.NONE,
+                            sourceSensor = sourceSensor
+                        )
+
                         glucoseValues += CgmSourceTransaction.TransactionGlucoseValue(
                             timestamp = timestamp,
                             value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
@@ -149,15 +159,17 @@ class MedLinkPlugin @Inject constructor(
                             delta = deltaSinceLastBg,
                             sensorUptime = sensorUptime,
                             calibrationFactor = calibrationFactor,
-                            trendArrow = GlucoseValue.TrendArrow.fromString(glucoseValueBundle.getString("trendArrow")!!),
+                            trendArrow = trendCalculator.getTrendArrow(glucoseValue),
                             sourceSensor = sourceSensor
                         )
+                    }
                 }
                 val sensorStartTime = if (sp.getBoolean(R.string.key_dexcom_lognssensorchange, false) && bundle.containsKey("sensorInsertionTime")) {
                     bundle.getLong("sensorInsertionTime", 0) * 1000
                 } else {
                     null
                 }
+
                 repository.runTransactionForResult(CgmSourceTransaction(glucoseValues, calibrations, sensorStartTime))
                     .doOnError {
                         aapsLogger.error(LTag.DATABASE, "Error while saving values from Dexcom App", it)
@@ -201,7 +213,8 @@ class MedLinkPlugin @Inject constructor(
             }
             return ret
         }
-        fun storeBG(bundle: JSONObject){
+
+        fun storeBG(bundle: JSONObject) {
             val glucoseValues = bundle.getJSONArray("glucoseValues")
             dataWorker.enqueue(
                 OneTimeWorkRequest.Builder(LocalProfilePlugin.NSProfileWorker::class.java)
@@ -241,7 +254,6 @@ class MedLinkPlugin @Inject constructor(
             return null
         }
     }
-
 
     // override fun handleNewData(intent: Intent) {
     //     if (!isEnabled(PluginType.BGSOURCE)) return

@@ -22,7 +22,7 @@ public class MedLinkBasalProfileParser {
         Pattern basalName = Pattern.compile("\\s\\w*\\s");
         Pattern timePattern = Pattern.compile("\\d{2}:\\d{2}");
 
-        Pattern ratePattern = Pattern.compile("\\w*Rate[\\s,\\d]\\d:", Pattern.CASE_INSENSITIVE);
+        Pattern ratePattern = Pattern.compile("\\w*rate[\\s,\\d]\\d:", Pattern.CASE_INSENSITIVE);
         BasalProfile baseProfile = new MedLinkBasalProfile(aapsLogger);
         return profileText.get().collect(() -> baseProfile, (profile, currentLine) -> {
             if (currentLine.matches("basal\\s\\w*\\sprofile:\\r")) {

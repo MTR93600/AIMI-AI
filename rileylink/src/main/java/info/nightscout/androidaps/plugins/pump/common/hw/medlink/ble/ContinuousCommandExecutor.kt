@@ -6,12 +6,15 @@ import info.nightscout.shared.logging.AAPSLogger
 
 abstract class ContinuousCommandExecutor<B>(val message: MedLinkPumpMessage<B>, aapsLogger: AAPSLogger) : CommandExecutor(message, aapsLogger) {
 
+    var count = 0
     override fun hasFinished(): Boolean {
         val callback = message.baseCallback
-        return if (callback is BolusProgressCallback && callback.resend) {
+        return if (callback is BolusProgressCallback && callback.resend && count < 7) {
             clearExecutedCommand()
+            count ++
             false;
         } else {
+            count = 0
             super.hasFinished()
         }
     }
