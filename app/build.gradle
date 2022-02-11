@@ -111,7 +111,7 @@ android {
         versionCode 1500
         version "3.0.0.1"
         buildConfigField "String", "VERSION", '"' + version + '"'
-        buildConfigField "String", "BUILDVERSION",  'EN-' + '"' + generateGitBuild() + '-' + generateDate() + '"'
+        buildConfigField "String", "BUILDVERSION",   '"' + 'EN-' + generateGitBuild() + '-' + generateDate() + '"'
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
         buildConfigField "String", "HEAD", '"' + generateGitBuild() + '"'
         buildConfigField "String", "COMMITTED", '"' + allCommitted() + '"'
