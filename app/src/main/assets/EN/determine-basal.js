@@ -239,8 +239,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // eating now time can be delayed if there is no first bolus or carbs
     if (now >= profile.EatingNowTimeStart && now < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
     enlog += "Now: " + now + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
-    // set sensitivityRatio to a maximum of 1 as dynamic ISF is being used however allow sensitivity
-    sensitivityRatio = (!profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
+    // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
+    sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
+    sensitivityRatio = (!eatingnowtimeOK && !profile.temptargetSet ? Math.min(sensitivityRatio,1) : sensitivityRatio);
 
     if (sensitivityRatio) {
         basal = profile.current_basal * sensitivityRatio;
