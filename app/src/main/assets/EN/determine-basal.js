@@ -1018,15 +1018,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile);
     }
     // extra reason text
-    rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
-    //rT.reason += ", TDD" + TDDReason + ": " + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
-    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
+
     rT.reason += ", EN: " + (eatingnow ? "Active" : "Inactive");
     rT.reason += (!eatingnowMaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(EatingNowBGThreshold,profile) : "");
-
+    rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
+    //rT.reason += ", TDD" + TDDReason + ": " + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
+    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;
