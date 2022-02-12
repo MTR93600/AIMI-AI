@@ -277,8 +277,8 @@
                     android:defaultValue="0"
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_uamboost_maxbolus"
-                    android:title="UAMBoost maxBolus"
-                    android:dialogMessage="UAMBoost maxBolus for all BGL rises without COB.\n0 will use existing maxBolus limit"
+                    android:title="UAM maxBolus"
+                    android:dialogMessage="UAM maxBolus for all BGL rises without COB.\n0 will use existing maxBolus limit"
                     validate:floatmaxNumber="5"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>

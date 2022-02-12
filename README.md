@@ -61,12 +61,12 @@ General:
     SMB BG Threshold:   No SMB will be given when EN is outside operating hours and BG below this threshold.
                         If there is COB, detected resistance from autosens or BG exceeds this threshold SMB will be resumed using normal AAPS maxBolus.
     ISF BG Scaler:      As BG increases ISF will become stronger. The level of scaling can be adjusted.
-                        0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.
+                        0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling. Additional scaling does not happen when EN is not active.
     ISF BG Threshold:   As BG increases ISF will become stronger. ISF will no longer scale when above this level.
 
 UAM:
     UAMBoost Bolus Scale:       Multiply the initial UAMBoost bolus by this amount. 0 will disable UAMBoost.
-    UAMBoost maxBolus:          maxBolus to use for all BG rises without COB.  0 will use maxSMBBasalMinutes or maxUAMSMBBasalMinutes.
+    UAM maxBolus:          maxBolus to use for all BG rises without COB.  0 will use maxSMBBasalMinutes or maxUAMSMBBasalMinutes.
     UAM eventualBG Weighting:   This will be the initial weighting for eventualBG predictions without COB.
                                 As ISF grows stronger the weighting will reduce favouring current BG ISF.
                                 Setting to 50 will make this 50%. 0 will always use currentBG ISF without max ISF Limit applied.
