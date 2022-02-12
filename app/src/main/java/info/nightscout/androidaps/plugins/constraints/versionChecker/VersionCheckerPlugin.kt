@@ -1,7 +1,7 @@
 package info.nightscout.androidaps.plugins.constraints.versionChecker
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.BuildConfig
+// import info.nightscout.androidaps.BuildConfig
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -43,7 +43,8 @@ class VersionCheckerPlugin @Inject constructor(
     }
 
     private val gracePeriod: GracePeriod
-        get() = if ((BuildConfig.VERSION_NAME.contains("RC", ignoreCase = true))) {
+ //       get() = if ((BuildConfig.VERSION_NAME.contains("RC", ignoreCase = true))) {
+        get() = if ( 1==0 ) {
             GracePeriod.RC
         } else {
             GracePeriod.RELEASE
