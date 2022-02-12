@@ -1439,11 +1439,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger.info(LTag.PUMPBTCOMM, "tbr cancelled")
                 }
             })
-            Toast.makeText(context, info.nightscout.androidaps.plugins.pump
-                .common.R
-                .string
-                .tempbasaldeliveryerror, Toast.LENGTH_SHORT).show()
-                        //            Boolean response = (Boolean) responseTask2.returnData;
+            Toast.makeText(
+                context, info.nightscout.androidaps.plugins.pump
+                    .common.R
+                    .string
+                    .tempbasaldeliveryerror, Toast.LENGTH_SHORT
+            ).show()
+            //            Boolean response = (Boolean) responseTask2.returnData;
 
 //            if (response) {
 //                getAapsLogger().info(LTag.PUMP, getLogPrefix() + "setTempBasalAbsolute - Current TBR cancelled.");
@@ -2362,8 +2364,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         } else if (convertProfileToMedtronicProfile(this.profile) != profile) {
 //            getAapsLogger().info(LTag.PUMPBTCOMM,profile.toString());
             aapsLogger.info(LTag.PUMPBTCOMM, this.profile.toString())
-            Toast.makeText(context,
-                           rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40), Toast.LENGTH_LONG
+            ).show()
 
             // showToastInUiThread(
             //     context, rxBus, rh.gs(info.nightscout.androidaps.plugins.pump.common.R.string.need_manual_profile_set, 40),
@@ -2414,9 +2418,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 .enacted(false) //
                 .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid))
         }
-        Toast.makeText(context,          rh.gs(R.string.medtronic_cmd_basal_profile_could_not_be_set, 40), Toast.LENGTH_LONG).show()
-
-
+        Toast.makeText(context, rh.gs(R.string.medtronic_cmd_basal_profile_could_not_be_set, 40), Toast.LENGTH_LONG).show()
 
 //        MedtronicUITask responseTask = medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetBasalProfileSTD,
 //                basalProfile);
@@ -3011,49 +3013,50 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     //     return intent
     // }
 
-    private fun buildIntentSensValues(vararg sensorDataReadings: EnliteInMemoryGlucoseValue): Intent {
+    private fun buildIntentSensValues(vararg sensorDataReadings: BgSync.BgHistory): Intent {
         val intent = Intent()
         intent.putExtra("sensorType", "Enlite")
-        val glucoseValues = Bundle()
+        // val glucoseValues = Bundle()
         val fingerValues = Bundle()
         val isigValues = Bundle()
-        var gvPosition = 0
+        // var gvPosition = 0
         var meterPosition = 0
         var isigPosition = 0
-        for (sens in sensorDataReadings) {
-            if (sens != null) {
-                if (sens.isCalibration()) {
-                    aapsLogger.info(LTag.BGSOURCE, "User bg source")
-                    val bgBundle = Bundle()
-                    bgBundle.putDouble("meterValue", sens.value)
-                    bgBundle.putLong("timestamp", sens.timestamp)
-                    fingerValues.putBundle("" + meterPosition, bgBundle)
-                    meterPosition++
-                } else {
-                    val bgBundle = Bundle()
-                    bgBundle.putDouble("value", sens.value)
-                    bgBundle.putLong("date", sens.timestamp)
-                    // bgBundle.putString("direction", sens.trendArrow.text)
-                    //                bgBundle.putString("raw", bg.raw);
-                    glucoseValues.putBundle("" + gvPosition, bgBundle)
-                    gvPosition++
-                    val sensBundle = Bundle()
-                    sensBundle.putDouble("value", sens.value)
-                    sensBundle.putLong("date", sens.timestamp)
-                    // sensBundle.putString("direction", sens.trendArrow.text)
-                    sensBundle.putDouble("calibrationFactor", sens.calibronFactor)
-                    sensBundle.putInt("sensorUptime", sens.sensorUptime)
-                    sensBundle.putDouble("isig", sens.isig)
-                    sensBundle.putDouble("delta", sens.deltaSinceLastBG)
-                    isigValues.putBundle("" + isigPosition, sensBundle)
-                    aapsLogger.info(LTag.BGSOURCE, sensBundle.toString())
-                    isigPosition++
-                }
+        sensorDataReadings.forEach { it ->
+
+            aapsLogger.info(LTag.BGSOURCE, "User bg source")
+            it.bgCalibration.forEach {
+                val bgBundle = Bundle()
+                bgBundle.putDouble("meterValue", it.value)
+                bgBundle.putLong("timestamp", it.timestamp)
+                fingerValues.putBundle("" + meterPosition, bgBundle)
+                meterPosition++
+            }
+            it.bgValue.forEach {
+                //     val bgBundle = Bundle()
+                //     bgBundle.putDouble("value", it.value)
+                //     bgBundle.putLong("date", it.timestamp)
+                //     // bgBundle.putString("direction", sens.trendArrow.text)
+                //     //                bgBundle.putString("raw", bg.raw);
+                //     glucoseValues.putBundle("" + gvPosition, bgBundle)
+                //     gvPosition++
+                // }
+                val sensBundle = Bundle()
+                sensBundle.putDouble("value", it.value)
+                sensBundle.putLong("date", it.timestamp)
+                // sensBundle.putString("direction", sens.trendArrow.text)
+                sensBundle.putDouble("calibrationFactor", it.calibronFactor)
+                sensBundle.putInt("sensorUptime", it.sensorUptime)
+                sensBundle.putDouble("isig", it.isig)
+                sensBundle.putDouble("delta", it.deltaSinceLastBG)
+                isigValues.putBundle("" + isigPosition, sensBundle)
+                aapsLogger.info(LTag.BGSOURCE, sensBundle.toString())
+                isigPosition++
             }
         }
-        intent.putExtra("glucoseValues", glucoseValues)
+        intent.putExtra("glucoseValues", isigValues)
         intent.putExtra("meters", fingerValues)
-        intent.putExtra("isigValues", isigValues)
+        // intent.putExtra("isigValues", isigValues)
         return intent
     }
 
@@ -3132,7 +3135,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    fun handleNewBgData( sensorDataReadings: BgSync.BgHistory) {
+    fun handleNewBgData(sensorDataReadings: BgSync.BgHistory) {
         if (lastStatus !== medLinkPumpStatus.pumpStatusType.status) {
             if (medLinkPumpStatus.pumpStatusType === PumpStatusType.Suspended &&
                 (PumpStatusType.Running.status == lastStatus ||
@@ -3221,14 +3224,16 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             if (isInitialized() &&
                 sens.bgValue.first().timestamp != pumpStatusData.getLastBGTimestamp() &&
                 sens.bgValue.last().timestamp > firstMissedBGTimestamp &&
-                System.currentTimeMillis() - lastPreviousHistory > 500000) {
+                System.currentTimeMillis() - lastPreviousHistory > 500000
+            ) {
                 previousBGHistory
                 lastPreviousHistory = System.currentTimeMillis()
             }
             missedBGs = 0
             firstMissedBGTimestamp = 0L
         }
-        // val intent = buildIntentSensValues(*sens)
+        val intent = buildIntentSensValues(sens)
+
         bgSync.syncBgWithTempId(sens.bgValue, sens.bgCalibration)
         late1Min = if (sens.bgValue.first().value != 0.0) {
             readPumpBGHistory(false)

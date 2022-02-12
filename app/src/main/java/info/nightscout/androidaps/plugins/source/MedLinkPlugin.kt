@@ -222,6 +222,14 @@ class MedLinkPlugin @Inject constructor(
                     .build()
             )
             xDripBroadcast.sendSgvs(glucoseValues)
+            val calibrations = bundle.getJSONArray("meters")
+            dataWorker.enqueue(
+                OneTimeWorkRequest.Builder(LocalProfilePlugin.NSProfileWorker::class.java)
+                    .setInputData(dataWorker.storeInputData(calibrations, null))
+                    .build()
+            )
+            doWork()
+
         }
     }
 
@@ -380,4 +388,68 @@ class MedLinkPlugin @Inject constructor(
     //     }
     // }
 
+    // override fun syncBgWithTempId(
+    //     bgValues: List<BgSync.BgHistory.BgValue>,
+    //     calibrations: List<BgSync.BgHistory.Calibration>
+    // ): Boolean {
+    //
+    //     // if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
+    //     val glucoseValue = bgValues.map { bgValue ->
+    //         CgmSourceTransaction.TransactionGlucoseValue(
+    //             timestamp = bgValue.timestamp,
+    //             raw = bgValue.raw,
+    //             noise = bgValue.noise,
+    //             value = bgValue.value,
+    //             trendArrow = GlucoseValue.TrendArrow.NONE,
+    //             sourceSensor = bgValue.sourceSensor.toDbType(),
+    //             isig = bgValue.isig
+    //         )
+    //     }
+    //     val calibrations = calibrations.map{
+    //             calibration ->
+    //         CgmSourceTransaction.Calibration(timestamp = calibration.timestamp,
+    //                                          value = calibration.value, glucoseUnit = calibration.glucoseUnit.toDbType() )
+    //     }
+    //
+    // }
+    //
+    // override fun addBgTempId(
+    //     timestamp: Long,
+    //     raw: Double?,
+    //     value: Double,
+    //     noise: Double?,
+    //     arrow: BgSync.BgArrow,
+    //     sourceSensor: BgSync.SourceSensor,
+    //     isig: Double?,
+    //     calibrationFactor: Double?,
+    //     sensorUptime: Int?
+    // ): Boolean {
+    //     val glucoseValue = listOf(
+    //         GlucoseValue(timestamp = timestamp,
+    //                      raw = raw,
+    //                      noise = noise,
+    //                      value = value,
+    //                      trendArrow = GlucoseValue.TrendArrow.NONE,
+    //                      sourceSensor = sourceSensor.toDbType(),
+    //                      isig = isig).toj
+    //         // CgmSourceTransaction.TransactionGlucoseValue(
+    //         //     timestamp = timestamp,
+    //         //     raw = raw,
+    //         //     noise = noise,
+    //         //     value = value,
+    //         //     trendArrow = GlucoseValue.TrendArrow.NONE,
+    //         //     sourceSensor = sourceSensor.toDbType(),
+    //         //     isig = isig
+    //         // )
+    //     )
+    //     val calibrations = listOf<CgmSourceTransaction.Calibration>()
+    //
+    //     repository.runTransactionForResult(CgmSourceTransaction(glucoseValue, calibrations = calibrations, sensorInsertionTime = null))
+    //         .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bg", it) }
+    //         .blockingGet()
+    //         .also { result ->
+    //             result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted Bg $it") }
+    //             return result.inserted.size > 0
+    //         }
+    // }
 }

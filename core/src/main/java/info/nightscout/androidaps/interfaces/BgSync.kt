@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.interfaces
 
+import android.os.Bundle
 import info.nightscout.androidaps.database.entities.GlucoseValue
 import info.nightscout.androidaps.database.entities.TherapyEvent
 
@@ -205,4 +206,6 @@ interface BgSync {
                 MM_ENLITE                 -> GlucoseValue.SourceSensor.MM_ENLITE
             }
     }
+
+    fun syncBgWithTempId(bundle: Bundle)
 }
