@@ -289,7 +289,7 @@
                     android:key="@string/key_eatingnow_UAMeBGweight"
                     android:dialogMessage="This will be the initial weighting for eventualBG predictions without COB.\nAs ISF grows stronger the weighting will reduce favouring current BG ISF.\nSetting to 50 will make this 50%\n0 will always use currentBG ISF."
                     android:title="UAM eventualBG Weighting"
-                    validate:floatmaxNumber="75"
+                    validate:floatmaxNumber="100"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>
 
@@ -356,7 +356,7 @@
                 android:key="@string/key_eatingnow_COBeBGweight"
                 android:dialogMessage="This will be the initial weighting for eventualBG predictions with COB.\nAs ISF grows stronger the weighting will reduce favouring current BG ISF.\nSetting to 50 will make this 50%\n0 will always use currentBG ISF."
                 android:title="COB eventualBG Weighting"
-                validate:floatmaxNumber="75"
+                validate:floatmaxNumber="100"
                 validate:floatminNumber="0"
                 validate:testType="floatNumericRange"/>
 
