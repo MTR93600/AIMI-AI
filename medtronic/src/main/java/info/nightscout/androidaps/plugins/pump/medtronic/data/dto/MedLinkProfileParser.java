@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Supplier;
@@ -18,7 +17,6 @@ import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.data.ProfileSealed;
 import info.nightscout.androidaps.db.WizardSettings;
 import info.nightscout.androidaps.extensions.ProfileSwitchExtensionKt;
-import info.nightscout.androidaps.interfaces.BgSync;
 import info.nightscout.androidaps.interfaces.Profile;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
 import info.nightscout.shared.logging.AAPSLogger;
@@ -196,22 +194,23 @@ public class MedLinkProfileParser {
                 String toAppend = "";
                 buffer.append("[");
                 while (!ratioText.contains("insulin sensitivities")) {
-                    int grIndex = ratioText.indexOf("gr/u");
-                    int separatorIndex = ratioText.indexOf(":") + 1;
-                    aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + separatorIndex + " " +
-                            grIndex);
-                    Integer ratio = Integer.valueOf(ratioText.substring(separatorIndex, grIndex).trim());
-                    Matcher matcher = hourPattern.matcher(ratioText);
-                    if (matcher.find()) {
-                        String hour = matcher.group(0);
-                        buffer.append(toAppend);
-                        addTimeValue(buffer, hour, ratio);
-                        toAppend = ",";
-                    } else {
-                        aapsLogger.info(LTag.PUMPBTCOMM, "carbratio matcher doesn't found hour");
+                    Pattern pattern = Pattern.compile("\\d{2}");
+                    Matcher carbMatcher = pattern.matcher(ratioText);
+                    if(carbMatcher.find()) {
+                        String carbs = carbMatcher.group(0);
+                        aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + carbs);
+                        Integer ratio = Integer.valueOf(carbs);
+                        Matcher matcher = hourPattern.matcher(ratioText);
+                        if (matcher.find()) {
+                            String hour = matcher.group(0);
+                            buffer.append(toAppend);
+                            addTimeValue(buffer, hour, ratio);
+                            toAppend = ",";
+                        } else {
+                            aapsLogger.info(LTag.PUMPBTCOMM, "carbratio matcher doesn't found hour");
+                        }
                     }
-
-                    ratioText = getNextValideLine(profileText);
+                    ratioText = getNextValidLine(profileText);
                 }
                 buffer.append("]");
             } else {
@@ -221,10 +220,10 @@ public class MedLinkProfileParser {
         return buffer;
     }
 
-    private String getNextValideLine(Iterator<String> profileText) {
+    private String getNextValidLine(Iterator<String> profileText) {
         String ratioText = profileText.next();
         if (ratioText.contains("error command")) {
-            return getNextValideLine(profileText);
+            return getNextValidLine(profileText);
         } else {
             return ratioText;
         }

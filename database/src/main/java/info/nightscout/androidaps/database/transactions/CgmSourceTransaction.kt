@@ -26,7 +26,10 @@ class CgmSourceTransaction(
                 value = it.value,
                 noise = it.noise,
                 trendArrow = it.trendArrow,
-                sourceSensor = it.sourceSensor
+                sourceSensor = it.sourceSensor,
+                isig = it.isig,
+                calibrationFactor = it.calibrationFactor,
+                sensorUptime = it.sensorUptime
             ).also { gv ->
                 gv.interfaceIDs.nightscoutId = it.nightscoutId
             }

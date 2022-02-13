@@ -1,11 +1,13 @@
 package info.nightscout.androidaps.plugins
 
 import android.os.Bundle
+import androidx.work.OneTimeWorkRequest
 import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.entities.GlucoseValue
 import info.nightscout.androidaps.database.transactions.CgmSourceTransaction
 import info.nightscout.androidaps.interfaces.BgSync
 import info.nightscout.androidaps.plugins.source.MedLinkPlugin
+import info.nightscout.androidaps.plugins.source.NSClientSourcePlugin
 import info.nightscout.androidaps.receivers.DataWorker
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
@@ -17,22 +19,26 @@ class BgSyncImplementation @Inject constructor(
     private val aapsLogger: AAPSLogger,
     private val repository: AppRepository
 ) : BgSync {
-
-    @Inject lateinit var medlinkWorker: MedLinkPlugin.MedLinkWorker
+    @Inject lateinit var dataWorker: DataWorker
 
     override fun syncBgWithTempId(
         bundle: Bundle
     ) {
-        val jsonObject = JSONObject()
-        val keys = bundle.keySet()
-        for (key in keys) {
-            try {
-                jsonObject.put(key, bundle[key])
-            } catch (e: JSONException) {
-                //Handle exception here
-            }
-        }
-        medlinkWorker.storeBG(jsonObject)
+        // val jsonObject = JSONObject()
+        // val keys = bundle.keySet()
+        // for (key in keys) {
+        //     try {
+        //         jsonObject.put(key, bundle[key])
+        //     } catch (e: JSONException) {
+        //         //Handle exception here
+        //     }
+        // }
+        dataWorker.enqueue(
+            OneTimeWorkRequest.Builder(MedLinkPlugin.MedLinkWorker::class.java)
+                .setInputData(dataWorker.storeInputData(bundle, null))
+                .build()
+        )
+        // medLinkPlugin.storeBG(jsonObject)
     }
 
         override fun syncBgWithTempId(

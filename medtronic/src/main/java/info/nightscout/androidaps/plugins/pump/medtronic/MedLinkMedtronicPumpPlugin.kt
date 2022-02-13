@@ -9,7 +9,6 @@ import android.os.IBinder
 import android.os.SystemClock
 import android.widget.Toast
 import androidx.preference.Preference
-import info.nightscout.androidaps.utils.ToastUtils.showToastInUiThread
 import javax.inject.Singleton
 import javax.inject.Inject
 import dagger.android.HasAndroidInjector
@@ -50,7 +49,6 @@ import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil
 import info.nightscout.androidaps.interfaces.PumpSync.TemporaryBasalType
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryTBR
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
-import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage
 import info.nightscout.androidaps.interfaces.Profile.ProfileValue
@@ -3013,9 +3011,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     //     return intent
     // }
 
-    private fun buildIntentSensValues(vararg sensorDataReadings: BgSync.BgHistory): Intent {
-        val intent = Intent()
-        intent.putExtra("sensorType", "Enlite")
+    private fun buildIntentSensValues(vararg sensorDataReadings: BgSync.BgHistory): Bundle {
+        val baseBundle = Bundle()
+        baseBundle.putString("sensorType", "Enlite")
         // val glucoseValues = Bundle()
         val fingerValues = Bundle()
         val isigValues = Bundle()
@@ -3043,21 +3041,21 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 // }
                 val sensBundle = Bundle()
                 sensBundle.putDouble("value", it.value)
-                sensBundle.putLong("date", it.timestamp)
+                sensBundle.putLong("timestamp", it.timestamp)
                 // sensBundle.putString("direction", sens.trendArrow.text)
-                sensBundle.putDouble("calibrationFactor", it.calibronFactor)
-                sensBundle.putInt("sensorUptime", it.sensorUptime)
-                sensBundle.putDouble("isig", it.isig)
-                sensBundle.putDouble("delta", it.deltaSinceLastBG)
+                it.calibrationFactor?.let { it1 -> sensBundle.putDouble("calibration_factor", it1) }
+                it.sensorUptime?.let { it1 -> sensBundle.putInt("sensor_uptime", it1) }
+                it.isig?.let { it1 -> sensBundle.putDouble("isig", it1) }
+                // sensBundle.putDouble("delta", it.de)
                 isigValues.putBundle("" + isigPosition, sensBundle)
                 aapsLogger.info(LTag.BGSOURCE, sensBundle.toString())
                 isigPosition++
             }
         }
-        intent.putExtra("glucoseValues", isigValues)
-        intent.putExtra("meters", fingerValues)
+        baseBundle.putBundle("glucoseValues", isigValues)
+        baseBundle.putBundle("meters", fingerValues)
         // intent.putExtra("isigValues", isigValues)
-        return intent
+        return baseBundle
     }
 
     //    private Bundle buildIntentSensValues(SensorDataReading... sens) {
@@ -3105,7 +3103,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         aapsLogger.info(LTag.EVENTS, " new event ")
         aapsLogger.info(LTag.EVENTS, "" + isInitialized)
         aapsLogger.info(LTag.EVENTS, "" + lastBolusTime)
-        aapsLogger.info(LTag.EVENTS, "" + medLinkPumpStatus.lastBolusTime!!.time)
+        aapsLogger.info(LTag.EVENTS, "" + (medLinkPumpStatus.lastBolusTime?.time ?: ""))
         aapsLogger.info(LTag.EVENTS, "" + pumpTimeDelta)
         if (isInitialized) {
             if (lastBolusTime != medLinkPumpStatus.lastBolusTime!!.time && lastDeliveredBolus == medLinkPumpStatus.lastBolusAmount && Math.abs(lastBolusTime - medLinkPumpStatus.lastBolusTime!!.time) >
@@ -3234,7 +3232,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         val intent = buildIntentSensValues(sens)
 
-        bgSync.syncBgWithTempId(sens.bgValue, sens.bgCalibration)
+        bgSync.syncBgWithTempId(intent)
         late1Min = if (sens.bgValue.first().value != 0.0) {
             readPumpBGHistory(false)
             false

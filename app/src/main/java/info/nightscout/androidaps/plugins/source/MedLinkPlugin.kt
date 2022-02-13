@@ -71,7 +71,7 @@ class MedLinkPlugin @Inject constructor(
 
     override fun onStart() {
         super.onStart()
-        medLinkMediator.requestPermissionIfNeeded()
+        // medLinkMediator.requestPermissionIfNeeded()
     }
 
     // cannot be inner class because of needed injection
@@ -110,13 +110,13 @@ class MedLinkPlugin @Inject constructor(
                 bundle.getBundle("meters")?.let { meters ->
                     for (i in 0 until meters.size()) {
                         meters.getBundle(i.toString())?.let {
-                            val timestamp = it.getLong("timestamp") * 1000
+                            val timestamp = it.getLong("timestamp")
                             val now = dateUtil.now()
                             val value = it.getInt("meterValue").toDouble()
                             if (timestamp > now - T.months(1).msecs() && timestamp < now) {
                                 calibrations.add(
                                     CgmSourceTransaction.Calibration(
-                                        timestamp = it.getLong("timestamp") * 1000,
+                                        timestamp = it.getLong("timestamp"),
                                         value = value,
                                         glucoseUnit = TherapyEvent.GlucoseUnit.fromConstant(Profile.unit(value))
                                     )
@@ -130,7 +130,7 @@ class MedLinkPlugin @Inject constructor(
                 val glucoseValues = mutableListOf<CgmSourceTransaction.TransactionGlucoseValue>()
                 for (i in 0 until glucoseValuesBundle.size()) {
                     val glucoseValueBundle = glucoseValuesBundle.getBundle(i.toString())!!
-                    val timestamp = glucoseValueBundle.getLong("timestamp") * 1000
+                    val timestamp = glucoseValueBundle.getLong("timestamp")
                     val isig = glucoseValueBundle.getDouble("isig")
                     val deltaSinceLastBg = glucoseValueBundle.getDouble("delta_since_last_bg")
                     val sensorUptime = glucoseValueBundle.getInt("sensor_uptime")
@@ -138,12 +138,12 @@ class MedLinkPlugin @Inject constructor(
 
                     // G5 calibration bug workaround (calibration is sent as glucoseValue too)
                     var valid = true
-                    if (sourceSensor == GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE)
-                        calibrations.forEach { calibration -> if (calibration.timestamp == timestamp) valid = false }
+                    // if (sourceSensor == GlucoseValue.SourceSensor.DEXCOM_G5_NATIVE)
+                    //     calibrations.forEach { calibration -> if (calibration.timestamp == timestamp) valid = false }
                     if (valid) {
                         val glucoseValue = GlucoseValue(
                             timestamp = timestamp,
-                            value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
+                            value = glucoseValueBundle.getDouble("value"),
                             noise = null,
                             raw = null,
                             trendArrow = GlucoseValue.TrendArrow.NONE,
@@ -152,7 +152,7 @@ class MedLinkPlugin @Inject constructor(
 
                         glucoseValues += CgmSourceTransaction.TransactionGlucoseValue(
                             timestamp = timestamp,
-                            value = glucoseValueBundle.getInt("glucoseValue").toDouble(),
+                            value = glucoseValueBundle.getDouble("value"),
                             noise = null,
                             raw = null,
                             isig = isig,
@@ -164,8 +164,8 @@ class MedLinkPlugin @Inject constructor(
                         )
                     }
                 }
-                val sensorStartTime = if (sp.getBoolean(R.string.key_dexcom_lognssensorchange, false) && bundle.containsKey("sensorInsertionTime")) {
-                    bundle.getLong("sensorInsertionTime", 0) * 1000
+                val sensorStartTime = if ( bundle.containsKey("sensor_uptime")) {
+                   System.currentTimeMillis() - bundle.getLong("sensor_uptime", 0) * 60 * 1000
                 } else {
                     null
                 }
@@ -188,7 +188,7 @@ class MedLinkPlugin @Inject constructor(
                         result.sensorInsertionsInserted.forEach {
                             uel.log(
                                 UserEntry.Action.CAREPORTAL,
-                                UserEntry.Sources.Dexcom,
+                                UserEntry.Sources.Enlite,
                                 ValueWithUnit.Timestamp(it.timestamp),
                                 ValueWithUnit.TherapyEventType(it.type)
                             )
@@ -198,7 +198,7 @@ class MedLinkPlugin @Inject constructor(
                             calibration.glucose?.let { glucoseValue ->
                                 uel.log(
                                     UserEntry.Action.CALIBRATION,
-                                    UserEntry.Sources.Dexcom,
+                                    UserEntry.Sources.Enlite,
                                     ValueWithUnit.Timestamp(calibration.timestamp),
                                     ValueWithUnit.TherapyEventType(calibration.type),
                                     ValueWithUnit.fromGlucoseUnit(glucoseValue, calibration.glucoseUnit.toString)

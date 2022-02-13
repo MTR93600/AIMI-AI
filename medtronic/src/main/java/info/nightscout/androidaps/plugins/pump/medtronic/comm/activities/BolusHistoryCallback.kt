@@ -186,7 +186,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
     @Throws(ParseException::class) private fun parsetTime(answer: String, matcher: Matcher): Long {
         val datePattern = "HH:mm dd-MM-yyyy"
         val formatter = SimpleDateFormat(datePattern, Locale.getDefault())
-        return formatter.parse(matcher.group(0)).time
+        return formatter.parse(matcher.group(0)).time/1000
     }
 
     //23:39:17.874 Bolus:

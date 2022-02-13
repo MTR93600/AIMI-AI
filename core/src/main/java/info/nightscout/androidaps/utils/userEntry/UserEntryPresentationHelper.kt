@@ -105,6 +105,7 @@ class UserEntryPresentationHelper @Inject constructor(
         Sources.Overview            -> R.drawable.ic_home
         Sources.Aaps                -> R.drawable.ic_notif_aaps
         Sources.Unknown             -> R.drawable.ic_generic_icon
+        Sources.Enlite              -> R.drawable.ic_minilink
     }
 
     fun actionToColoredString(action: Action): Spanned = when (action) {

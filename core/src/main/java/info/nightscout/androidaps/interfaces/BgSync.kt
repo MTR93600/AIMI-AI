@@ -55,6 +55,7 @@ interface BgSync {
         calibrations: List<BgHistory.Calibration>
     ): Boolean
 
+    fun syncBgWithTempId(bundle: Bundle)
     /**
      * Synchronization of boluses with temporary id
      *
@@ -207,5 +208,4 @@ interface BgSync {
             }
     }
 
-    fun syncBgWithTempId(bundle: Bundle)
 }

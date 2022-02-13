@@ -179,7 +179,8 @@ data class UserEntry(
         Overview,           //From OverViewPlugin
         Stats,               //From Stat Activity
         Aaps,               // MainApp
-        Unknown             //if necessary
+        Unknown,            //if necessary
+        Enlite
         ;
 
         companion object {
