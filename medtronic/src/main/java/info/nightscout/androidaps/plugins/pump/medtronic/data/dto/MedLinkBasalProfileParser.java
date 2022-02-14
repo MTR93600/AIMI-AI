@@ -42,6 +42,7 @@ public class MedLinkBasalProfileParser {
                 if (basalTimeMatcher.find()) {
                     String[] basalTimestamp = basalTimeMatcher.group().split(":");
                     baseProfile.addEntry(new MedLinkBasalProfileEntry(basalAmount, Integer.parseInt(basalTimestamp[0]), Integer.parseInt(basalTimestamp[1])));
+                    profile.addEntry(new MedLinkBasalProfileEntry(basalAmount, Integer.parseInt(basalTimestamp[0]), Integer.parseInt(basalTimestamp[1])));
                 } else {
                     aapsLogger.error("Error parsing basal profile line " + currentLine);
                 }

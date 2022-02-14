@@ -112,7 +112,7 @@ class MedLinkPlugin @Inject constructor(
                         meters.getBundle(i.toString())?.let {
                             val timestamp = it.getLong("timestamp")
                             val now = dateUtil.now()
-                            val value = it.getInt("meterValue").toDouble()
+                            val value = it.getDouble("meterValue")
                             if (timestamp > now - T.months(1).msecs() && timestamp < now) {
                                 calibrations.add(
                                     CgmSourceTransaction.Calibration(

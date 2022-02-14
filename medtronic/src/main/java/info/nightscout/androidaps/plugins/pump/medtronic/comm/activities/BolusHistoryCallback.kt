@@ -54,9 +54,9 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
     }
 
     private fun isBolus(json: JSONObject): Boolean {
-        return safeGetString(json, "eventType", "") ===
-            DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ===
-            DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ===
+        return safeGetString(json, "eventType", "") ==
+            DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ==
+            DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ==
             DetailedBolusInfo.EventType.CORRECTION_BOLUS.name
     }
 
