@@ -432,8 +432,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // *****                           End of automated TDD code                                *****
     // **********************************************************************************************
 
-
-
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
     var lastTempAge;
     if (typeof iob_data.lastTemp !== 'undefined' ) {
