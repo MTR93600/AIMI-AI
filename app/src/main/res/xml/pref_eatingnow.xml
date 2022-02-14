@@ -232,8 +232,8 @@
                     android:key="@string/key_eatingnow_isfbgscaler"
                     android:title="ISF BG Scaler"
                     android:dialogMessage="As BG increases ISF will become stronger.\nThe level of scaling can be adjusted.\n0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling."
-                    validate:floatmaxNumber="15"
-                    validate:floatminNumber="-15"
+                    validate:floatmaxNumber="20"
+                    validate:floatminNumber="-20"
                     validate:testType="floatNumericRange" />
 
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
