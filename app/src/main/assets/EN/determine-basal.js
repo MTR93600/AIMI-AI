@@ -862,6 +862,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_future = sens_normalTarget / (((Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight))) /target_bg) * sens_BGscaler;
+        // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
+        sens_future = (bg >= ISFbgMax ? sens_currentBG : sens_future);
+        sens_future_max = (bg >= ISFbgMax);
     } else if (glucose_status.delta < 0 && eatingnow){
         sens_eBGweight = 1; // usually -ve delta is lower eventualBG so trust it unless COB
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
@@ -883,10 +886,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 //        // set sens_future_max to true for reason asterisk
 //        sens_future_max = (sens_future == ISF_Max);
 //    }
-
-    // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
-    sens_future = (bg >= ISFbgMax ? sens_currentBG : sens_future);
-    sens_future_max = (bg >= ISFbgMax);
 
     // if BG below threshold then take the max of the sens vars
     sens_future = (bg <= threshold ? Math.max(sens_normalTarget, sens_currentBG, sens_future) : sens_future);
