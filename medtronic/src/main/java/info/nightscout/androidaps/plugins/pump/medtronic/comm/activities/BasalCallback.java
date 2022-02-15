@@ -49,6 +49,7 @@ public class BasalCallback extends BaseCallback<BasalProfile,Supplier<Stream<Str
                 }
                 String errors = checkProfile(profile);
                 medLinkMedtronicPumpPlugin.sendPumpUpdateEvent();
+                profile.generateRawDataFromEntries();
                 medLinkMedtronicPumpPlugin.getPumpStatusData().setBasalsByHour(
                         profile.getProfilesByHour(medLinkMedtronicPumpPlugin.getPumpStatusData().getPumpType()));
                 medLinkMedtronicPumpPlugin.setBasalProfile(profile);

@@ -3080,7 +3080,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     fun handleNewCareportalEvent(events: Stream<JSONObject?>) {
         events.forEach { e: JSONObject? ->
             pumpSync.insertTherapyEventIfNewWithTimestamp(
-                e!!.getLong("mills"),
+                e!!.getLong("bolusTimestamp"),
                 DetailedBolusInfo.EventType.valueOf(e.getString("eventType")),
                 pumpSerial = medLinkServiceData.pumpID,
                 pumpType = pumpType
@@ -3175,19 +3175,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         // val intent = buildIntentSensValues(*sensorDataReadings)
 
-        sensorDataReadings.bgValue.forEach { f ->
-            val bgSource = bgSync.addBgTempId(
-                timestamp = f.timestamp,
-                value = f.value,
-                sourceSensor = f.sourceSensor,
-                isig = f.isig,
-                calibrationFactor = f.calibrationFactor,
-                sensorUptime = f.sensorUptime,
-                arrow = f.arrow,
-                noise = f.noise,
-                raw = f.raw
-            )
-        }
+        handleNewSensorData(sensorDataReadings)
+        // sensorDataReadings.bgValue.forEach { f ->
+        //
+        // }
         handleNewEvent()
         //        medtronicHistoryData.addNewHistory();
 //        long latestbg = Arrays.stream(bgs).mapToLong(f -> f.date).max().orElse(0l);
