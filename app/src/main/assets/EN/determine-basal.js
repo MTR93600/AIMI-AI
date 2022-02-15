@@ -860,8 +860,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (glucose_status.delta >=0 && eatingnow) {
         // for rises by default sens_future will remain as the current bg ie. sens with eBGweight = 0
         // favour eventualBG less as ISF grows stronger based on the sens_predType using sens_eBGweight
-        sens_eBGweight = (sens_predType=="UAM" ? profile.UAMeBGweight/100 : sens_eBGweight); // eBGw start at 50% and decreases with ISF scaling
-        sens_eBGweight = (sens_predType=="COB" ? profile.COBeBGweight/100 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
+        //sens_eBGweight = (sens_predType=="UAM" ? profile.UAMeBGweight/100 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
+        //sens_eBGweight = (sens_predType=="COB" ? profile.COBeBGweight/100 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="UAM" ? 0.60 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
         sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_future = sens_normalTarget / (((Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight))) /target_bg) * sens_BGscaler;
@@ -877,7 +879,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // sens_future overrides for COBBoost window regardless of delta for faster delivery
     if (COBBoostOK && sens_predType == "COB") {
-        sens_eBGweight = profile.COBeBGweight/100; // eBGw start at x% and decreases with ISF scaling
+        //sens_eBGweight = profile.COBeBGweight/100; // eBGw start at x% and decreases with ISF scaling
+        sens_eBGweight = 0.75; // eBGw start at 75% and decreases with ISF scaling
         sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
         sens_future = sens_normalTarget / (((Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight))) /target_bg) * sens_BGscaler;
     }
@@ -905,8 +908,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
     enlog += "* senseBGweight:\n";
-    enlog += "UAMeBGweight: " + profile.UAMeBGweight+"\n";
-    enlog += "COBeBGweight: " + profile.COBeBGweight+"\n";
+    //enlog += "UAMeBGweight: " + profile.UAMeBGweight+"\n";
+    //enlog += "COBeBGweight: " + profile.COBeBGweight+"\n";
     enlog += "sens_predType: " + sens_predType+"\n";
     enlog += "sens_eBGweight final result: " + sens_eBGweight +"\n";
 
