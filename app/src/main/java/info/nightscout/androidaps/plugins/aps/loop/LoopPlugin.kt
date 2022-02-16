@@ -56,11 +56,13 @@ import info.nightscout.androidaps.extensions.convertedToAbsolute
 import info.nightscout.androidaps.extensions.convertedToPercent
 import info.nightscout.androidaps.extensions.plannedRemainingMinutes
 import info.nightscout.androidaps.plugins.aps.events.EventLoopInvoked
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import org.monkey.d.ruffy.ruffy.driver.display.menu.BolusType
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -307,7 +309,7 @@ class LoopPlugin @Inject constructor(
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.loopsuspended)))
                     return
                 }
-                if (pump.isSuspended()) {
+                if (pump.isSuspended() && pump !is MedLinkPumpDevice) {
                     aapsLogger.debug(LTag.APS, rh.gs(R.string.pumpsuspended))
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.pumpsuspended)))
                     return
@@ -380,36 +382,69 @@ class LoopPlugin @Inject constructor(
                         if (resultAfterConstraints.bolusRequested()) lastRun.smbSetByPump = waiting
                         rxBus.send(EventLoopUpdateGui())
                         fabricPrivacy.logCustom("APSRequest")
-                        applyTBRRequest(resultAfterConstraints, profile, object : Callback() {
-                            override fun run() {
-                                if (result.enacted || result.success) {
-                                    lastRun.tbrSetByPump = result
-                                    lastRun.lastTBRRequest = lastRun.lastAPSRun
-                                    lastRun.lastTBREnact = dateUtil.now()
-                                    rxBus.send(EventLoopUpdateGui())
-                                    applySMBRequest(resultAfterConstraints, object : Callback() {
-                                        override fun run() {
-                                            // Callback is only called if a bolus was actually requested
-                                            if (result.enacted || result.success) {
-                                                lastRun.smbSetByPump = result
-                                                lastRun.lastSMBRequest = lastRun.lastAPSRun
-                                                lastRun.lastSMBEnact = dateUtil.now()
-                                            } else {
-                                                Thread {
-                                                    SystemClock.sleep(1000)
-                                                    invoke("tempBasalFallback", allowNotification, true)
-                                                }.start()
-                                            }
-                                            rxBus.send(EventLoopUpdateGui())
-                                        }
-                                    })
-                                } else {
-                                    lastRun.tbrSetByPump = result
-                                    lastRun.lastTBRRequest = lastRun.lastAPSRun
+                        if (pump is MedLinkPumpDevice) {
+                            aapsLogger.info(LTag.AUTOMATION, resultAfterConstraints.toString())
+                            applySMBRequest(resultAfterConstraints, object : Callback() {
+                                override fun run() {
+                                    // Callback is only called if a bolus was actually requested
+                                    if (result.enacted || result.success) {
+                                        lastRun!!.smbSetByPump = result
+                                        lastRun!!.lastSMBRequest = lastRun!!.lastAPSRun
+                                        lastRun!!.lastSMBEnact = dateUtil.now()
+                                    } else {
+                                        lastRun!!.tbrSetByPump = result
+                                        lastRun!!.lastTBRRequest = lastRun!!.lastAPSRun
+                                    }
                                 }
-                                rxBus.send(EventLoopUpdateGui())
-                            }
-                        })
+                            })
+                            applyTBRRequest(resultAfterConstraints, profile, object : Callback() {
+                                override fun run() {
+                                    if (result.enacted || result.success) {
+                                        lastRun!!.tbrSetByPump = result
+                                        lastRun!!.lastTBRRequest = lastRun!!.lastAPSRun
+                                        lastRun!!.lastTBREnact = dateUtil.now()
+                                        rxBus.send(EventLoopUpdateGui())
+                                    } else {
+                                        Thread {
+                                            SystemClock.sleep(1000)
+                                            invoke("tempBasalFallback", allowNotification, true)
+                                        }.start()
+                                    }
+                                    rxBus.send(EventLoopUpdateGui())
+                                }
+                            })
+                        } else {
+                            applyTBRRequest(resultAfterConstraints, profile, object : Callback() {
+                                override fun run() {
+                                    if (result.enacted || result.success) {
+                                        lastRun.tbrSetByPump = result
+                                        lastRun.lastTBRRequest = lastRun.lastAPSRun
+                                        lastRun.lastTBREnact = dateUtil.now()
+                                        rxBus.send(EventLoopUpdateGui())
+                                        applySMBRequest(resultAfterConstraints, object : Callback() {
+                                            override fun run() {
+                                                // Callback is only called if a bolus was actually requested
+                                                if (result.enacted || result.success) {
+                                                    lastRun.smbSetByPump = result
+                                                    lastRun.lastSMBRequest = lastRun.lastAPSRun
+                                                    lastRun.lastSMBEnact = dateUtil.now()
+                                                } else {
+                                                    Thread {
+                                                        SystemClock.sleep(1000)
+                                                        invoke("tempBasalFallback", allowNotification, true)
+                                                    }.start()
+                                                }
+                                                rxBus.send(EventLoopUpdateGui())
+                                            }
+                                        })
+                                    } else {
+                                        lastRun.tbrSetByPump = result
+                                        lastRun.lastTBRRequest = lastRun.lastAPSRun
+                                    }
+                                    rxBus.send(EventLoopUpdateGui())
+                                }
+                            })
+                        }
                     } else {
                         lastRun.tbrSetByPump = null
                         lastRun.smbSetByPump = null
@@ -506,17 +541,22 @@ class LoopPlugin @Inject constructor(
      * TODO: update pump drivers to support APS request in %
      */
     private fun applyTBRRequest(request: APSResult, profile: Profile, callback: Callback?) {
+        val pump = activePlugin.activePump
         if (!request.tempBasalRequested) {
+
+            if (pump is MedLinkPumpDevice) {
+                (pump as MedLinkPumpDevice).cancelTempBasal(true, callback)
+            }
             callback?.result(PumpEnactResult(injector).enacted(false).success(true).comment(R.string.nochangerequested))?.run()
             return
         }
-        val pump = activePlugin.activePump
+
         if (!pump.isInitialized()) {
             aapsLogger.debug(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpNotInitialized))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpNotInitialized).enacted(false).success(false))?.run()
             return
         }
-        if (pump.isSuspended()) {
+        if (pump.isSuspended()&& pump !is MedLinkPumpDevice) {
             aapsLogger.debug(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpsuspended))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpsuspended).enacted(false).success(false))?.run()
             return
@@ -558,6 +598,41 @@ class LoopPlugin @Inject constructor(
                 commandQueue.tempBasalPercent(request.percent, request.duration, false, profile, PumpSync.TemporaryBasalType.NORMAL, callback)
             }
         } else {
+            if (request.rate == 0.0 && request.duration == 0 || Math.abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep) {
+                if (activeTemp != null) {
+                    aapsLogger.info(LTag.APS, "applyAPSRequest: Cancelling tempbasal")
+                    if (pump is MedLinkPumpDevice) {
+                        commandQueue.cancelTempBasal(true, callback)
+                    } else {
+                        aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
+                        commandQueue.cancelTempBasal(false, callback)
+                    }
+                } else {
+                    aapsLogger.info(LTag.APS, "applyAPSRequest: Basal set correctly")
+                    callback?.result(
+                        PumpEnactResult(injector).absolute(request.rate).duration(0)
+                            .enacted(false).success(true).comment(rh.gs(R.string.basal_set_correctly))
+                    )?.run()
+                }
+            } else if (pump is MedLinkPumpDevice) {
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal " + request.rate)
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal " + pump.baseBasalRate)
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal " + request.duration)
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal $activeTemp")
+                if (activeTemp != null && (request.percent === 100 || Math.abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep)) {
+                    commandQueue.cancelTempBasal(false, callback)
+                } else if (activeTemp != null && Math.abs(request.rate - pump.baseBasalRate) >= pump.pumpDescription.basalStep) {
+                    commandQueue.tempBasalAbsolute(
+                        request.rate, request.duration,
+                        false, profile, PumpSync.TemporaryBasalType.NORMAL, callback
+                    )
+                } else if (activeTemp == null) {
+                    commandQueue.tempBasalAbsolute(
+                        request.rate, request.duration,
+                        false, profile, PumpSync.TemporaryBasalType.NORMAL, callback
+                    )
+                }
+            } else
             if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(request.rate - activeTemp.convertedToAbsolute(now, profile)) < pump.pumpDescription.basalStep) {
                 aapsLogger.debug(LTag.APS, "applyAPSRequest: Temp basal set correctly")
                 callback?.result(PumpEnactResult(injector).absolute(activeTemp.convertedToAbsolute(now, profile))
@@ -578,7 +653,13 @@ class LoopPlugin @Inject constructor(
             return
         }
         val pump = activePlugin.activePump
-        val lastBolusTime = repository.getLastBolusRecord()?.timestamp ?: 0L
+        val lastBolusTime = if (pump is MedLinkPumpDevice) {
+            activePlugin.activePump
+            repository.getLastNonTBRBolusTime()?.timestamp ?: 0L
+        } else {
+            repository.getLastBolusRecord()?.timestamp ?: 0L
+        }
+
         if (lastBolusTime != 0L && lastBolusTime + 3 * 60 * 1000 > System.currentTimeMillis()) {
             aapsLogger.debug(LTag.APS, "SMB requested but still in 3 min interval")
             callback?.result(PumpEnactResult(injector)

@@ -55,7 +55,7 @@ class XDripBroadcast @Inject constructor(
 
     // sent in 640G mode
     fun send(glucoseValue: GlucoseValue) {
-        if (sp.getBoolean(R.string.key_dexcomg5_xdripupload, false)) {
+        if (sp.getBoolean(R.string.key_dexcomg5_xdripupload, false) || sp.getBoolean(R.string.key_medlink_xdripupload, false)) {
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US)
             try {
                 val entriesBody = JSONArray()

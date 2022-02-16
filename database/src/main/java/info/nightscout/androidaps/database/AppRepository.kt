@@ -436,6 +436,9 @@ import kotlin.math.roundToInt
             .subscribeOn(Schedulers.io())
             .toWrappedSingle()
 
+    fun getLastNonTBRBolusTime(): Bolus? =
+        database.bolusDao.getLastBolusRecord(Bolus.Type.TBR)
+
     fun getLastBolusRecordOfTypeWrapped(type: Bolus.Type): Single<ValueWrapper<Bolus>> =
         database.bolusDao.getLastBolusRecordOfType(type)
             .subscribeOn(Schedulers.io())
