@@ -398,7 +398,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_TDD:" + sens_TDD +"\n";
 
     // Limit ISF for sens_currentBG with this scale like AS
-    var ISFbgMax = (profile.ISFbgMax > 0 ? (profile.ISFbgMax-normalTarget)+target_bg : normalTarget);
+    var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
     // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
