@@ -36,7 +36,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         return try {
             val commandHistory = processBolusHistory(answers)
             val bolus: Stream<JSONObject>? = null
-            medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && isBolus(f.get()) }
+            medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && !isBolus(f.get()) }
                                                            .map { f: Optional<JSONObject> -> f.get() })
             val resultStream = Supplier { commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && isBolus(f.get()) } }
             if (resultStream.get().count() < 3) {
@@ -186,7 +186,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
     @Throws(ParseException::class) private fun parsetTime(answer: String, matcher: Matcher): Long {
         val datePattern = "HH:mm dd-MM-yyyy"
         val formatter = SimpleDateFormat(datePattern, Locale.getDefault())
-        return formatter.parse(matcher.group(0)).time/1000
+        return formatter.parse(matcher.group(0)).time
     }
 
     //23:39:17.874 Bolus:

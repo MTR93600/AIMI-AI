@@ -2224,7 +2224,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     override fun generateTempId(dataObject: Any): Long {
-        return 0
+        val timestamp: Long = dataObject as Long
+        return DateTimeUtil.toATechDate(timestamp)
     }
 
     override fun model(): PumpType {
@@ -3197,7 +3198,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     fun handleNewSensorData(sens: BgSync.BgHistory) {
         if (sens.bgValue.size == 1 && lastBolusTime == 0L) {
-            lastBolusTime = pumpStatusData.lastBolusTime!!.time
+            lastBolusTime = pumpStatusData.lastBolusTime?.time ?: 0L
         }
         handleNewPumpData()
         if (sens.bgValue.size == 1 &&

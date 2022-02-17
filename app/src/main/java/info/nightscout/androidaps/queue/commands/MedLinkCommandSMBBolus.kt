@@ -15,7 +15,7 @@ import javax.inject.Inject
 class MedLinkCommandSMBBolus(
     injector: HasAndroidInjector,
     private val detailedBolusInfo: DetailedBolusInfo,
-    callback: Callback
+    callback: Callback?
 ) : Command(injector, CommandType.SMB_BOLUS, callback) {
 
     @Inject lateinit var dateUtil: DateUtil

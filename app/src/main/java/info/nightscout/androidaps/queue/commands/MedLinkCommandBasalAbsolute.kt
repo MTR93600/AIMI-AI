@@ -11,12 +11,14 @@ import info.nightscout.androidaps.queue.Callback
 import info.nightscout.shared.logging.LTag
 import javax.inject.Inject
 
-class MedLinkCommandBasalAbsolute(injector: HasAndroidInjector,
-                                  private val absolute: Double,
-                                  private val durationInMinutes: Int,
-                                  private val enforceNew: Boolean,
-                                  private val profile: Profile,
-                                  callback: Callback?
+class MedLinkCommandBasalAbsolute(
+    injector: HasAndroidInjector,
+    private val absolute: Double,
+    private val durationInMinutes: Int,
+    private val enforceNew: Boolean,
+    private val profile: Profile,
+    tbrType: PumpSync.TemporaryBasalType,
+    callback: Callback?
 ) : Command(injector, CommandType.BASAL_PROFILE, callback) {
 
     @Inject lateinit var activePlugin: ActivePlugin

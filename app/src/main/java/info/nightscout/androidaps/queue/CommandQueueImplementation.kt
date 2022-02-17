@@ -31,6 +31,8 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventDismissBo
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.queue.commands.*
 import info.nightscout.androidaps.queue.commands.Command.CommandType
 import info.nightscout.androidaps.utils.AndroidPermission
@@ -289,10 +291,38 @@ class CommandQueueImplementation @Inject constructor(
         detailedBolusInfo.insulin = constraintChecker.applyBolusConstraints(Constraint(detailedBolusInfo.insulin)).value()
         detailedBolusInfo.carbs = constraintChecker.applyCarbsConstraints(Constraint(detailedBolusInfo.carbs.toInt())).value().toDouble()
         // add new command to queue
-        if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB) {
-            add(CommandSMBBolus(injector, detailedBolusInfo, callback))
+        val pump = activePlugin.activePump
+        if (pump is MedLinkMedtronicPumpPlugin) {
+            addMedLinkBolus(detailedBolusInfo, callback, type)
         } else {
-            add(CommandBolus(injector, detailedBolusInfo, callback, type, carbsRunnable))
+            if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB) {
+                add(CommandSMBBolus(injector, detailedBolusInfo, callback))
+            } else {
+                add(CommandBolus(injector, detailedBolusInfo, callback, type, carbsRunnable))
+                aapsLogger.info(LTag.EVENTS, "Bolusing " + type)
+                if (type == CommandType.BOLUS) { // Bring up bolus progress dialog (start here, so the dialog is shown when the bolus is requested,
+                    // not when the Bolus command is starting. The command closes the dialog upon completion).
+                    showBolusProgressDialog(detailedBolusInfo)
+                    // Notify Wear about upcoming bolus
+                    rxBus.send(EventBolusRequested(detailedBolusInfo.insulin))
+                }
+            }
+        }
+        notifyAboutNewCommand()
+        return true
+    }
+
+    private fun addMedLinkBolus(
+        detailedBolusInfo: DetailedBolusInfo, callback: Callback?,
+        type: CommandType
+    ) {
+        aapsLogger.info(LTag.EVENTS, "adding mdelinkbolus")
+        if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB) {
+            aapsLogger.info(LTag.EVENTS, "bolusing smb")
+            add(MedLinkCommandSMBBolus(injector, detailedBolusInfo, callback))
+        } else {
+            add(MedLinkCommandBolus(injector, detailedBolusInfo, callback, type))
+            aapsLogger.info(LTag.EVENTS, "bolusing " + type)
             if (type == CommandType.BOLUS) { // Bring up bolus progress dialog (start here, so the dialog is shown when the bolus is requested,
                 // not when the Bolus command is starting. The command closes the dialog upon completion).
                 showBolusProgressDialog(detailedBolusInfo)
@@ -300,8 +330,6 @@ class CommandQueueImplementation @Inject constructor(
                 rxBus.send(EventBolusRequested(detailedBolusInfo.insulin))
             }
         }
-        notifyAboutNewCommand()
-        return true
     }
 
     override fun stopPump(callback: Callback?) {
@@ -338,8 +366,12 @@ class CommandQueueImplementation @Inject constructor(
         // remove all unfinished
         removeAll(CommandType.TEMPBASAL)
         val rateAfterConstraints = constraintChecker.applyBasalConstraints(Constraint(absoluteRate), profile).value()
-        // add new command to queue
-        add(CommandTempBasalAbsolute(injector, rateAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        if (activePlugin.activePump is MedLinkPumpDevice) {
+            add(MedLinkCommandBasalAbsolute(injector, rateAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        } else {
+            // add new command to queue
+            add(CommandTempBasalAbsolute(injector, rateAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        }
         notifyAboutNewCommand()
         return true
     }
@@ -353,8 +385,12 @@ class CommandQueueImplementation @Inject constructor(
         // remove all unfinished
         removeAll(CommandType.TEMPBASAL)
         val percentAfterConstraints = constraintChecker.applyBasalPercentConstraints(Constraint(percent), profile).value()
-        // add new command to queue
-        add(CommandTempBasalPercent(injector, percentAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        if (activePlugin.activePump is MedLinkPumpDevice) {
+            add(MedLinkCommandBasalPercent(injector, percentAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        } else {
+            // add new command to queue
+            add(CommandTempBasalPercent(injector, percentAfterConstraints, durationInMinutes, enforceNew, profile, tbrType, callback))
+        }
         notifyAboutNewCommand()
         return true
     }
@@ -382,8 +418,12 @@ class CommandQueueImplementation @Inject constructor(
         }
         // remove all unfinished
         removeAll(CommandType.TEMPBASAL)
-        // add new command to queue
-        add(CommandCancelTempBasal(injector, enforceNew, callback))
+        if (activePlugin.activePump is MedLinkMedtronicPumpPlugin) {
+            add(MedLinkCommandCancelTempBasal(injector, enforceNew, callback))
+        } else {
+            // add new command to queue
+            add(CommandCancelTempBasal(injector, enforceNew, callback))
+        }
         notifyAboutNewCommand()
         return true
     }
@@ -599,7 +639,13 @@ class CommandQueueImplementation @Inject constructor(
             bolusProgressDialog.setInsulin(detailedBolusInfo.insulin)
             bolusProgressDialog.setTimestamp(detailedBolusInfo.timestamp)
             bolusProgressDialog.show((detailedBolusInfo.context as AppCompatActivity).supportFragmentManager, "BolusProgress")
-        } else {
+        } else if(activePlugin is MedLinkMedtronicPumpPlugin ) {
+            val bolusProgressDialog = BolusProgressDialog()
+            bolusProgressDialog.setInsulin(detailedBolusInfo.insulin)
+            bolusProgressDialog.setTimestamp(detailedBolusInfo.timestamp)
+            bolusProgressDialog.show((detailedBolusInfo.context as AppCompatActivity).supportFragmentManager, "BolusProgress")
+        }
+        else {
             val i = Intent()
             i.putExtra("insulin", detailedBolusInfo.insulin)
             i.putExtra("timestamp", detailedBolusInfo.timestamp)

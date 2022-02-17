@@ -5,6 +5,7 @@ import info.nightscout.androidaps.data.PumpEnactResult
 import info.nightscout.androidaps.dialogs.BolusProgressDialog
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.Profile
+import info.nightscout.androidaps.interfaces.PumpSync
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.shared.logging.LTag
@@ -16,6 +17,7 @@ class MedLinkCommandBasalPercent(
     private val durationInMinutes: Int,
     private val enforceNew: Boolean,
     private val profile: Profile,
+    private val tbrType: PumpSync.TemporaryBasalType,
     callback: Callback?
 ) : Command(injector, CommandType.BASAL_PROFILE, callback) {
 
