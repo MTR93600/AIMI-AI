@@ -419,8 +419,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_currentBG = round(sens_currentBG,1);
 
     // Threshold for SMB at night
-    var EatingNowBGThreshold = (profile.EatingNowBGThreshold > 0 ? profile.EatingNowBGThreshold : normalTarget);
-    enlog += "EatingNowBGThreshold:"+EatingNowBGThreshold+"\n";
+    var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
+    enlog += "SMBbgOffset:"+SMBbgOffset+"\n";
 
     // use normal sens when EN not active at night or TT not normalTarget
     sens = (eatingnow ? sens_currentBG : sens_normalTarget);
@@ -1032,7 +1032,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (!eatingnowMaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
-    rT.reason += (!eatingnow && !eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(EatingNowBGThreshold,profile) : "");
+    rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     //rT.reason += ", TDD" + TDDReason + ": " + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
@@ -1319,7 +1319,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var EatingNowMaxSMB = maxBolus;
             var maxBolusOrig = maxBolus;
             var UAMBoosted = false, ISFBoosted = false;
-            // console.log("EatingNowBGThreshold: "+EatingNowBGThreshold);
+            // console.log("SMBbgOffset: "+SMBbgOffset);
 
             // Calculate percentage change in deltas, long to short and short to now
             if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
@@ -1455,9 +1455,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(60*worstCaseInsulinReq / profile.current_basal);
 
-            // Nightmode TBR when below EatingNowBGThreshold with no low TT / no COB
-            if (!eatingnow && !eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0)  {
-            //if (!eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0)  {
+            // Nightmode TBR when below SMBbgOffset with no low TT / no COB
+            if (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
+            //if (!eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
                 //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 microBolus = 0;
             }
