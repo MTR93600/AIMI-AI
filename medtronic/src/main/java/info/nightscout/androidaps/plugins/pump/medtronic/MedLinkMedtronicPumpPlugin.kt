@@ -1141,11 +1141,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     private fun readPumpProfile() {
         lastProfileRead = System.currentTimeMillis()
         aapsLogger.info(LTag.PUMPBTCOMM, "get basal profiles")
-        val func = BasalCallback(aapsLogger, this)
-        val profileCallback: ProfileCallback = ProfileCallback(injector, aapsLogger, context, this)
+        val basalCallback = BasalCallback(aapsLogger, this)
+        val profileCallback = ProfileCallback(injector, aapsLogger, context, this)
         val msg: MedLinkPumpMessage<BasalProfile> = BasalMedLinkMessage(
             MedLinkCommandType.ActiveBasalProfile,
-            MedLinkCommandType.BaseProfile, func, profileCallback,
+            MedLinkCommandType.BaseProfile, basalCallback, profileCallback,
             btSleepTime, BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         )
         medLinkService!!.medtronicUIComm?.executeCommandCP(msg)
@@ -3225,7 +3225,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         val intent = buildIntentSensValues(sens)
 
         bgSync.syncBgWithTempId(intent)
-        late1Min = if (sens.bgValue.first().value != 0.0) {
+        late1Min = if (sens.bgValue.isNotEmpty() && sens.bgValue.first().value != 0.0) {
             readPumpBGHistory(false)
             false
         } else {

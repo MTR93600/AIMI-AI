@@ -31,22 +31,29 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         while (answers.hasNext() && !answers.next().contains("bolus history:")) {
         }
         //Empty Line
-        answers.next()
-        var bolusHistory: Supplier<Stream<DetailedBolusInfo?>?>
-        return try {
-            val commandHistory = processBolusHistory(answers)
-            val bolus: Stream<JSONObject>? = null
-            medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && !isBolus(f.get()) }
-                                                           .map { f: Optional<JSONObject> -> f.get() })
-            val resultStream = Supplier { commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && isBolus(f.get()) } }
-            if (resultStream.get().count() < 3) {
-                medLinkPumpPlugin.readBolusHistory(true)
+        if(answers.hasNext()) {
+            answers.next()
+            var bolusHistory: Supplier<Stream<DetailedBolusInfo?>?>
+            return try {
+                val commandHistory = processBolusHistory(answers)
+                val bolus: Stream<JSONObject>? = null
+                medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && !isBolus(f.get()) }
+                                                               .map { f: Optional<JSONObject> -> f.get() })
+                val resultStream = Supplier { commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && isBolus(f.get()) } }
+                if (resultStream.get().count() < 3) {
+                    medLinkPumpPlugin.readBolusHistory(true)
+                }
+                medLinkPumpPlugin.handleNewTreatmentData(resultStream.get().map { f: Optional<JSONObject> -> f.get() })
+                MedLinkStandardReturn(ans, resultStream.get().map { f: Optional<JSONObject> -> f.get() }, emptyList())
+            } catch (e: ParseException) {
+                e.printStackTrace()
+                MedLinkStandardReturn(
+                    ans, Stream.empty(),
+                    MedLinkStandardReturn.ParsingError.BolusParsingError
+                )
             }
-            medLinkPumpPlugin.handleNewTreatmentData(resultStream.get().map { f: Optional<JSONObject> -> f.get() })
-            MedLinkStandardReturn(ans, resultStream.get().map { f: Optional<JSONObject> -> f.get() }, emptyList())
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            MedLinkStandardReturn(
+        } else{
+            return MedLinkStandardReturn(
                 ans, Stream.empty(),
                 MedLinkStandardReturn.ParsingError.BolusParsingError
             )
@@ -139,6 +146,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
             if (matcher.find()) {
                 val bolusInfo = DetailedBolusInfo()
                 bolusInfo.bolusTimestamp = parsetTime(answer, matcher)
+                bolusInfo.bolusTimestamp?.let {  bolusInfo.timestamp = it }
                 bolusInfo.deliverAtTheLatest = bolusInfo.bolusTimestamp!!
                 bolusInfo.insulin = processBolusData(answers, "given bl:")
 

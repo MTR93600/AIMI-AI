@@ -23,7 +23,7 @@ public class MedLinkBasalProfileParser {
         Pattern timePattern = Pattern.compile("\\d{2}:\\d{2}");
 
         Pattern ratePattern = Pattern.compile("\\w*rate[\\s,\\d]\\d:", Pattern.CASE_INSENSITIVE);
-        BasalProfile baseProfile = new MedLinkBasalProfile(aapsLogger);
+        BasalProfile baseProfile = new BasalProfile(aapsLogger);
         return profileText.get().collect(() -> baseProfile, (profile, currentLine) -> {
             if (currentLine.matches("basal\\s\\w*\\sprofile:\\r")) {
                 int basalIndex = currentLine.indexOf("basal");
@@ -47,7 +47,7 @@ public class MedLinkBasalProfileParser {
                     aapsLogger.error("Error parsing basal profile line " + currentLine);
                 }
             }
-        }, (a, b) -> new MedLinkBasalProfile(aapsLogger));
+        }, (a, b) -> new BasalProfile(aapsLogger));
     }
 
     public String getActiveBasalName() {

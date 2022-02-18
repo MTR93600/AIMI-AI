@@ -1340,10 +1340,10 @@ class MedLinkBLE //extends RileyLinkBLE
                         }
                         commandQueueBusy = false
                     }
-                    if (currentCommand != null && currentCommand!!.medLinkPumpMessage != null) {
+                    if (currentCommand != null ) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "command not null")
                         currentCommand!!.medLinkPumpMessage.characteristicChanged(answer, that, lastCharacteristic)
-                        if (answer.contains("time to powerdown") && !currentCommand!!.hasFinished()) {
+                        if (answer.contains("time to powerdown") && currentCommand?.let { !it.hasFinished() } == true) {
                             aapsLogger.info(LTag.PUMPBTCOMM, "clear executed")
 
 //                            currentCommand.clearExecutedCommand();

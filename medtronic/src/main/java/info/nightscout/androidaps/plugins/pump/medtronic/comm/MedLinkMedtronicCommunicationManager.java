@@ -902,10 +902,11 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
             // create message
 
 
-            BasalCallback baseResultActivity = new BasalCallback(aapsLogger, medLinkPumpPlugin);
+//            BasalCallback baseResultActivity = new BasalCallback(aapsLogger, medLinkPumpPlugin);
 
             Function<MedLinkStandardReturn<BasalProfile>, MedLinkStandardReturn<BasalProfile>> func = f -> {
-                if (baseResultActivity.getErrorMessage() == null) {
+                if (pumpMessage.getBaseCallback() instanceof  BasalCallback &&
+                        ((BasalCallback)pumpMessage.getBaseCallback()).getErrorMessage() == null) {
                     medLinkMedtronicUtil.setCurrentCommand(null);
                     medtronicPumpStatus.setPumpDeviceState(PumpDeviceState.Sleeping);
                     double[] basalEntries = new double[24];
@@ -918,14 +919,16 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                 }
                 return f;
             };
-            Function<Supplier<Stream<String>>, MedLinkStandardReturn<BasalProfile>> callback = baseResultActivity.andThen(func).andThen(function);
+            Function<Supplier<Stream<String>>, MedLinkStandardReturn<BasalProfile>> callback = pumpMessage.getBaseCallback().andThen(func).andThen(function);
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argCallback =
                     new ProfileCallback(injector, aapsLogger, context, medLinkPumpPlugin);
-            MedLinkPumpMessage msg = makePumpMessage(commandType, MedLinkCommandType.BaseProfile, callback,
-                    argCallback, medLinkPumpPlugin.getBtSleepTime(),
-                    new BleCommand(aapsLogger, medLinkServiceData));
+//            MedLinkPumpMessage msg = makePumpMessage(commandType, MedLinkCommandType.BaseProfile, callback,
+//                    argCallback, medLinkPumpPlugin.getBtSleepTime(),
+//                    new BleCommand(aapsLogger, medLinkServiceData));
             // send and wait for response
-            MedLinkPumpMessage response = sendAndListen(msg, DEFAULT_TIMEOUT + (DEFAULT_TIMEOUT * retries));
+            pumpMessage.setBaseCallback(callback);
+            MedLinkPumpMessage response = sendAndListen(pumpMessage,
+                    DEFAULT_TIMEOUT + (DEFAULT_TIMEOUT * retries));
 //                aapsLogger.debug(LTag.PUMPCOMM,"1st Response: " + HexDump.toHexStringDisplayable(response.getRawContent()));
 //                aapsLogger.debug(LTag.PUMPCOMM,"1st Response: " + HexDump.toHexStringDisplayable(response.getMessageBody().getTxData()));
 
