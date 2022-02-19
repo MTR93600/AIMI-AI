@@ -722,7 +722,8 @@ class MedLinkBLE //extends RileyLinkBLE
             return
         } else if (connectionStatus == ConnectionStatus.EXECUTING || connectionStatus == ConnectionStatus.CONNECTED ||
             connectionStatus == ConnectionStatus.CONNECTING &&
-            hasCommandsToExecute() && priorityExecutionCommandQueue.peekFirst()!!.nextCommand() == MedLinkCommandType.Notification
+            hasCommandsToExecute() && priorityExecutionCommandQueue.peekFirst() != null &&
+            priorityExecutionCommandQueue?.peekFirst()?.nextCommand() == MedLinkCommandType.Notification
         ) {
             aapsLogger.info(LTag.PUMPBTCOMM, "nextcommand")
             nextCommand()

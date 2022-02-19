@@ -92,6 +92,7 @@ import org.joda.time.Seconds
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
+import java.lang.Math.round
 import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -104,6 +105,7 @@ import java.util.function.Supplier
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.math.roundToInt
 
 /**
  * Created by dirceu on 10.07.2020.
@@ -455,7 +457,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     private fun doWeHaveAnyStatusNeededRefreshing(statusRefresh: Map<MedLinkMedtronicStatusRefreshType?, Long?>?): Boolean {
         for ((key, value) in statusRefresh!!) {
             aapsLogger.info(
-                LTag.PUMP, "Next Command " + Math.round(
+                LTag.PUMP, "Next Command " + round(
                     (value!! - System.currentTimeMillis()).toFloat()
                 )
             )
@@ -794,7 +796,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         for ((key, value) in statusRefresh!!) {
             aapsLogger.info(
-                LTag.PUMP, "Next Command " + Math.round(
+                LTag.PUMP, "Next Command " + round(
                     (value!! - System.currentTimeMillis()).toFloat()
                 )
             )
@@ -1527,22 +1529,19 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         durationInMinutes: Int,
         callback: Function1<*, *>
     ): LinkedBlockingDeque<TempBasalMicroBolusPair> {
-        var mod = 0.0
+        var mod = 0
         var mergeOperations = 0
-        var operationInterval = 0.0
-        var possibleSuspensions = 0
-        var operationDuration = 0.0
-        val durationDouble = java.lang.Double.valueOf(durationInMinutes.toDouble()) -
-            java.lang.Double.valueOf(totalSuspendedMinutes.toDouble())
-        if (durationDouble == 0.0) {
-            operationDuration = java.lang.Double.valueOf(totalSuspendedMinutes.toDouble())
+        var operationInterval = 0
+        var possibleSuspensions: Int
+        var operationDuration : Int
+        val durationDouble = durationInMinutes - totalSuspendedMinutes
+        if (durationDouble == 0) {
+            operationDuration = totalSuspendedMinutes
             possibleSuspensions = 1
         } else {
-            possibleSuspensions = Math.round(durationDouble / Constants.INTERVAL_BETWEEN_OPERATIONS).toInt()
-            val neededSuspensions = Math.round(
-                java.lang.Double.valueOf(totalSuspendedMinutes.toDouble()) /
-                    Constants.INTERVAL_BETWEEN_OPERATIONS
-            ).toInt()
+            possibleSuspensions = (durationDouble / Constants.INTERVAL_BETWEEN_OPERATIONS)
+            val neededSuspensions = (totalSuspendedMinutes.toDouble() /
+                Constants.INTERVAL_BETWEEN_OPERATIONS).roundToInt()
             if (neededSuspensions < possibleSuspensions) {
                 possibleSuspensions = neededSuspensions
             }
@@ -1553,9 +1552,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             } else {
                 operationInterval -= mod
             }
-            operationDuration = java.lang.Double.valueOf(totalSuspendedMinutes.toDouble()) / possibleSuspensions
+            operationDuration = (totalSuspendedMinutes.toDouble() / possibleSuspensions).toInt()
             if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
-                operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS as Double
+                operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS
             }
             mod = operationDuration % Constants.INTERVAL_BETWEEN_OPERATIONS
             if (mod / Constants.INTERVAL_BETWEEN_OPERATIONS > 0.5) {
@@ -1564,7 +1563,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 operationDuration -= mod
             }
             if (totalSuspendedMinutes > operationDuration * possibleSuspensions) {
-                val diff = totalSuspendedMinutes - operationDuration.toInt() * possibleSuspensions
+                val diff = totalSuspendedMinutes - operationDuration * possibleSuspensions
                 mergeOperations = diff / Constants.INTERVAL_BETWEEN_OPERATIONS
             }
             if ((operationDuration + operationInterval) * possibleSuspensions > java.lang.Double.valueOf(durationInMinutes.toDouble())) {
@@ -1594,7 +1593,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //        }
         }
         val nextStartStop = NextStartStop()
-        var startStopDateTime = nextStartStop.getNextStartStop(operationDuration.toInt(), operationInterval.toInt())
+        var startStopDateTime = nextStartStop.getNextStartStop(operationDuration, operationInterval)
         var totalSuspended = 0
         val operations = LinkedBlockingDeque<TempBasalMicroBolusPair>()
         var oper = 0
@@ -1615,17 +1614,17 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             )
             if (mergeOperations > 0) {
                 startStopDateTime = nextStartStop.getNextStartStop(
-                    operationDuration.toInt() * 2,
-                    operationInterval.toInt()
+                    operationDuration * 2,
+                    operationInterval
                 )
                 mergeOperations--
-                totalSuspended += operationDuration.toInt() * 2
+                totalSuspended += operationDuration * 2
             } else {
                 startStopDateTime = nextStartStop.getNextStartStop(
-                    operationDuration.toInt(),
-                    operationInterval.toInt()
+                    operationDuration,
+                    operationInterval
                 )
-                totalSuspended += operationDuration.toInt()
+                totalSuspended += operationDuration
             }
             oper += 1
         }
@@ -1633,7 +1632,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     private fun mergeExtraOperations(
-        operations: LinkedBlockingDeque<TempBasalMicroBolusPair>, mod: Double, suspensions: Int
+        operations: LinkedBlockingDeque<TempBasalMicroBolusPair>, mod: Int, suspensions: Int
     ): LinkedBlockingDeque<TempBasalMicroBolusPair> {
         var deltaMod = mod * suspensions
         var previousReleaseTime: LocalDateTime? = null
@@ -1669,7 +1668,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     ): PumpEnactResult? {
         this.durationInMinutes = durationInMinutes
         var totalSuspendedMinutes = 0
-        var calcPercent = percent.toDouble()
+        var calcPercent: Double
         if (pumpTempBasalType == PumpTempBasalType.Absolute) {
             if (absoluteBasalValue != 0.0) {
                 calcPercent = 1 - absoluteBasalValue / profile.getBasal()
@@ -1929,7 +1928,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         totalAmount: Double,
         result: TempBasalMicrobolusOperations
     ): LinkedBlockingDeque<TempBasalMicroBolusPair> {
-        var dosesToDecrease = Math.round((totalDose - totalAmount) / pumpType.bolusSize).toInt()
+        var dosesToDecrease = round((totalDose - totalAmount) / pumpType.bolusSize).toInt()
         val maxDosage = result.operations.stream().map { obj: TempBasalMicroBolusPair -> obj.dose }
             .max { obj: Double, anotherDouble: Double? -> obj.compareTo(anotherDouble!!) }.orElse(0.0)
         val minDosage = result.operations.stream().map { obj: TempBasalMicroBolusPair -> obj.dose }
@@ -2023,7 +2022,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             fillTempSMBWithExclusions(list, newStep, secondPosition, thirdPosition)
         } else if (diff == 2.0) {
             val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.25)).toInt()
-            val half = Math.round(operations / diff).toInt()
+            val half = round(operations / diff).toInt()
             val secondPosition = half + newStep
             fillTempSMBWithExclusions(list, newStep, secondPosition)
         } else if (diff == 1.0) {

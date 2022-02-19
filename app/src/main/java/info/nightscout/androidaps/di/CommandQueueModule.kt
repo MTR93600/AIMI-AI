@@ -29,6 +29,7 @@ abstract class CommandQueueModule {
     @ContributesAndroidInjector abstract fun commandCustomCommandInjector(): CommandCustomCommand
 
 
+    @ContributesAndroidInjector abstract fun commandMedLinkCommandCancelTempBasalInjector(): MedLinkCommandCancelTempBasal
 
     @ContributesAndroidInjector abstract fun commandMedLinkCommandBolusInjector(): MedLinkCommandBolus
     @ContributesAndroidInjector abstract fun commandMedLinkCommandSMBBolusInjector(): MedLinkCommandSMBBolus
