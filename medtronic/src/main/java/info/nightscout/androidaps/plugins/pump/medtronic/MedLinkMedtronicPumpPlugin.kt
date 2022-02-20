@@ -141,7 +141,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         .shortName(R.string.medlink_medtronic_name_short) //
         .preferencesId(R.xml.pref_medtronic_medlink)
         .description(R.string.description_pump_medtronic_medlink),  //
-    PumpType.MedLink_Medtronic_554_754_Veo,  // we default to most basic model, correct model from config is loaded later
+    PumpType.MEDLINK_MEDTRONIC_554_754_VEO,  // we default to most basic model, correct model from config is loaded later
     injector, resourceHelper!!, aapsLogger, commandQueue!!, rxBus!!, activePlugin!!, sp,
     context!!, fabricPrivacy!!, dateUtil!!,
     aapsSchedulers!!, pumpSync!!, pumpSyncStorage!!
@@ -3186,10 +3186,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //            ToastUtils.showToastInUiThread(context, R.string.pump_status_pump_unreachable);
 //        } else if (System.currentTimeMillis() - latestBGHistoryRead > 60000 * 5) { //TODO
 //            bgFailedToRead++;
-        if (sensorDataReadings.bgValue.isNotEmpty() && sensorDataReadings.bgValue.first().value != 0.0) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "pump bg history")
-            readPumpBGHistory(false)
-        }
+
+    //         if (sensorDataReadings.bgValue.isNotEmpty() && sensorDataReadings.bgValue.first().value != 0.0) {
+//             aapsLogger.info(LTag.PUMPBTCOMM, "pump bg history")
+//             readPumpBGHistory(false)
+//         }
+//
+
+
         //        } else {
 //            bgFailedToRead = 0;
 //        }

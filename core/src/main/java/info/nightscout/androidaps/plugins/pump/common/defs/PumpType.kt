@@ -359,7 +359,7 @@ enum class PumpType {
         source = Sources.DiaconnG8
     ),
 
-    MedLink_Medtronic_523_723_Revel(
+    MEDLINK_MEDTRONIC_523_723_REVEL(
         description = "Medlink Medtronic 523/723 (Revel)",
         manufacturer = ManufacturerType.Medtronic,
         model = "523/723 (Revel) Medlink",
@@ -388,10 +388,10 @@ enum class PumpType {
     //     0.025, 0.025, DoseStepSize.MedtronicVeoBasal, PumpCapability.MedtronicCapabilities
     // ),
 
-    MedLink_Medtronic_554_754_Veo(
+    MEDLINK_MEDTRONIC_554_754_VEO(
         description = "MedLink Medtronic 554/754 (Veo)",
         model = "554/754 (Veo)",
-        parent = MedLink_Medtronic_523_723_Revel,
+        parent = MEDLINK_MEDTRONIC_523_723_REVEL,
         // manufacturer = ManufacturerType.Medtronic
     ); // TODO
 
@@ -475,6 +475,8 @@ enum class PumpType {
                 InterfaceIDs.PumpType.MDI                         -> MDI
                 InterfaceIDs.PumpType.USER                        -> USER
                 InterfaceIDs.PumpType.DIACONN_G8                  -> DIACONN_G8
+                InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO       -> MEDLINK_MEDTRONIC_554_754_VEO
+
             }
     }
 
@@ -599,7 +601,7 @@ enum class PumpType {
             MDI                       -> InterfaceIDs.PumpType.MDI
             USER                      -> InterfaceIDs.PumpType.USER
             DIACONN_G8                -> InterfaceIDs.PumpType.DIACONN_G8
-            MedLink_Medtronic_523_723_Revel -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
-            MedLink_Medtronic_554_754_Veo -> InterfaceIDs.PumpType.MEDTRONIC_554_754_VEO
+            MEDLINK_MEDTRONIC_523_723_REVEL -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
+            MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDTRONIC_554_754_VEO
         }
 }

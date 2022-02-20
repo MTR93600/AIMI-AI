@@ -619,9 +619,9 @@ class LoopPlugin @Inject constructor(
                 aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal " + pump.baseBasalRate)
                 aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal " + request.duration)
                 aapsLogger.info(LTag.APS, "applyAPSRequest: Setting tempbasal $activeTemp")
-                if (activeTemp != null && (request.percent === 100 || Math.abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep)) {
+                if (activeTemp != null && (request.percent == 100 || abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep)) {
                     commandQueue.cancelTempBasal(false, callback)
-                } else if (activeTemp != null && Math.abs(request.rate - pump.baseBasalRate) >= pump.pumpDescription.basalStep) {
+                } else if (activeTemp != null && abs(request.rate - pump.baseBasalRate) >= pump.pumpDescription.basalStep) {
                     commandQueue.tempBasalAbsolute(
                         request.rate, request.duration,
                         false, profile, PumpSync.TemporaryBasalType.NORMAL, callback

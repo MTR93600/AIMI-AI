@@ -11,7 +11,7 @@ import info.nightscout.shared.logging.LTag
 class BleBolusStatusCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkServiceData) :
     BleCommand(aapsLogger, medLinkServiceData) {
 
-    private var status: MedLinkPartialBolus = MedLinkPartialBolus(PumpType.MedLink_Medtronic_554_754_Veo)
+    private var status: MedLinkPartialBolus = MedLinkPartialBolus(PumpType.MEDLINK_MEDTRONIC_554_754_VEO)
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
         answer?.let { aapsLogger.info(LTag.PUMPBTCOMM, it) }

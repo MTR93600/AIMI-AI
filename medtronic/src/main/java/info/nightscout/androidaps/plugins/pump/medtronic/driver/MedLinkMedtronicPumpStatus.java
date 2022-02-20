@@ -68,7 +68,7 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
                                       RxBus rxBus,
                                       MedLinkUtil medLinkUtil
     ) {
-        super(PumpType.MedLink_Medtronic_523_723_Revel);
+        super(PumpType.MEDLINK_MEDTRONIC_523_723_REVEL);
         this.resourceHelper = resourceHelper;
         this.sp = sp;
         this.rxBus = rxBus;
@@ -115,10 +115,10 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     private void createMedtronicPumpMap() {
 
         medtronicPumpMap = new HashMap<>();
-        medtronicPumpMap.put("523", PumpType.MedLink_Medtronic_523_723_Revel);
-        medtronicPumpMap.put("723", PumpType.MedLink_Medtronic_523_723_Revel);
-        medtronicPumpMap.put("554", PumpType.MedLink_Medtronic_554_754_Veo);
-        medtronicPumpMap.put("754", PumpType.MedLink_Medtronic_554_754_Veo);
+        medtronicPumpMap.put("523", PumpType.MEDLINK_MEDTRONIC_523_723_REVEL);
+        medtronicPumpMap.put("723", PumpType.MEDLINK_MEDTRONIC_523_723_REVEL);
+        medtronicPumpMap.put("554", PumpType.MEDLINK_MEDTRONIC_554_754_VEO);
+        medtronicPumpMap.put("754", PumpType.MEDLINK_MEDTRONIC_554_754_VEO);
 
     }
 
