@@ -211,9 +211,7 @@ General:
 UAM:
     UAMBoost Bolus Scale:       Multiply the initial UAMBoost bolus by this amount. 0 will disable UAMBoost.
     UAM maxBolus:               maxBolus to use for all BG rises without COB.  0 will use maxSMBBasalMinutes or maxUAMSMBBasalMinutes.
-    UAM eventualBG Weighting:   This will be the initial weighting for eventualBG predictions without COB.
-                                As ISF grows stronger the weighting will reduce favouring current BG ISF.
-                                Setting to 50 will make this 50%. 0 will always use currentBG ISF without max ISF Limit applied.
+
 COB:
     Use GhostCOB:               Ignore COB predictions after the COBBoost Window and rely purely on UAM. This setting can be handy when COB lingers for too long.
     COBBoost InsulinReqPct:     Percentage that will be used for EN insulinReq within the COBBoost Window.
@@ -222,6 +220,4 @@ COB:
                                 0 minutes will disable this functionality.
     COBBoost maxBolus:          maxBolus to use within the COBBoost Window. 0 will use AAPS maxBolus.
     COB maxBolus:               maxBolus to use with COB outside of the initial COBBoost Window. 0 will use AAPS maxBolus.
-    COB eventualBG Weighting:   This will be the initial weighting for eventualBG predictions with COB.
-                                As ISF grows stronger the weighting will reduce favouring current BG ISF.
-                                Setting to 50 will make this 50%. 0 will always use currentBG ISF without max ISF Limit applied.
+
