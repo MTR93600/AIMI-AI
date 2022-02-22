@@ -235,6 +235,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
     var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0);
+    // variables for deltas
+    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1;
+    // Calculate percentage change in deltas, long to short and short to now
+    if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
+    if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
+    // set the UAMBoost factor that is the UAM_deltaShortRise combined minimum of zero + 1 to allow multiply
+    UAMBoost = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
     if (now >= profile.EatingNowTimeStart && now < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
@@ -1312,33 +1319,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 maxBolus = round( profile.current_basal * profile.maxSMBBasalMinutes / 60 ,1);
             }
 
+
             // ============  EATING NOW MODE  ==================== START ===
-            // variables for deltas and defaults
-            var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAM_deltaAvgRise = 0, UAMBoost = 1;
             var insulinReqPctDefault = 0.65; // this is the default insulinReqPct and maxBolus is respected outside of eating now
             var insulinReqPct = insulinReqPctDefault; // this is the default insulinReqPct and maxBolus is respected outside of eating now
             var insulinReqOrig = insulinReq;
             var UAMBoostReason = "";
-            //UAMBoostReason += (eatingnow ? "active" : "inactive"); //reason text for oaps pill is nothing to start
             var insulinReqBoost = 0; // no boost yet
             var EatingNowMaxSMB = maxBolus;
             var maxBolusOrig = maxBolus;
             var UAMBoosted = false, ISFBoosted = false;
-            // console.log("SMBbgOffset: "+SMBbgOffset);
-
-            // Calculate percentage change in deltas, long to short and short to now
-            if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
-            if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
-            // UAM_deltaAvgRise = round(((UAM_deltaShortRise + UAM_deltaLongRise)/2),2); // pct changes combined
-            UAM_deltaAvgRise = round(((Math.max(UAM_deltaShortRise,0) + Math.max(UAM_deltaLongRise,0))/2),2); // pct changes combined
-            // set the UAMBoost factor that is the UAM_deltaShortRise combined minimum of zero + 1 to allow multiply
-            UAMBoost = round(1+UAM_deltaShortRise,2);
             var ENinsulinReqPct = (profile.EatingNowinsulinReqPct/100); // EN insulinReqPct is used from the profile
-            //console.log("UAM_delta: " +UAM_delta);
-            //console.log("UAM_deltaShortRise: " + UAM_deltaShortRise);
-            //console.log("UAM_deltaLongRise: " + UAM_deltaLongRise);
-            //console.log("UAM_deltaAvgRise: " + UAM_deltaAvgRise);
-            //console.log("UAMBoost: " + UAMBoost);
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
