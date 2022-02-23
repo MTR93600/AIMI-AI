@@ -233,7 +233,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // Eating Now Variables, relocated for SR
     var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
-    var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
+    //var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
+    var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
+    var nowdecimal = round(now.getHours()+now.getMinutes()/60,2);
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0);
     // variables for deltas
     var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1;
@@ -244,8 +246,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     UAMBoost = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    if (now >= profile.EatingNowTimeStart && now < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
-    enlog += "Now: " + now + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+    if (nowdecimal >= profile.EatingNowTimeStart && nowdecimal < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    enlog += "nowdecimal: " + nowdecimal + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
     sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
     sensitivityRatio = (!eatingnowtimeOK && !profile.temptargetSet ? Math.min(sensitivityRatio,1) : sensitivityRatio);
@@ -377,15 +379,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ** TS AutoTDD code    **
        ************************ */
     enlog += "* TDD:\n";
-    if (now < 1) {
-        now = 1;
+    if (nowdecimal < 1) {
+        nowdecimal = 1;
     } else {
-        console.error("Time now is "+now+"; ");
+        console.error("Time now is "+nowdecimal+"; ");
     }
     var tdd3 = meal_data.TDDAIMI3, tdd7 = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP;
     // adding a weighted avg favouring the last 3 days
     var tdd_avg = (tdd3 * 0.8) + (tdd7 * 0.2);
-    var tdd_pump = ( tdd_pump_now / (now / 24));
+    var tdd_pump = ( tdd_pump_now / (nowdecimal / 24));
     var TDDReason="";
     //console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
     enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
@@ -398,6 +400,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // ISF at normal target
     var sens_normalTarget = sens; // use profile sens
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
+
+
+//                    Time 00 , 01 , 02 , 03 , 04 , 05 , 06 , 07 , 08 , 09 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23
+//circadian_sensitivity = [1.4, 1.4, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.6, 0.6, 0.6, 0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.2];
+// then use circadian_sensitivity[now];
+
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
@@ -435,10 +443,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
-
-//                    Time 00 , 01 , 02 , 03 , 04 , 05 , 06 , 07 , 08 , 09 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23
-//circadian_sensitivity = [1.4, 1.4, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.6, 0.6, 0.6, 0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.2];
-// then use circadian_sensitivity[now];
 
     // **********************************************************************************************
     // *****                           End of automated TDD code                                *****
