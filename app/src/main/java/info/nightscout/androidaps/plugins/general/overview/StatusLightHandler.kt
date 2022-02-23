@@ -55,7 +55,8 @@ class StatusLightHandler @Inject constructor(
         if (pump is MedLinkMedtronicPumpPlugin) {
             val pumpStatusData = pump.pumpStatusData
             if (pumpStatusData is MedLinkMedtronicPumpStatus) {
-                if (pumpStatusData.batteryType == BatteryType.LiPo)  {
+                if (pumpStatusData.batteryType == BatteryType.LiPo || sp.getString(R.string
+                                                                                       .key_medlink_battery_info, "Age") == "Age")  {
                     handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
                 }
                 handleLevel(medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
