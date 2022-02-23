@@ -235,7 +235,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
     //var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
     var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
-    var nowdecimal = round(now.getHours()+now.getMinutes()/60,2);
+    var nowdec = round(now.getHours()+now.getMinutes()/60,2);
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0);
     // variables for deltas
     var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1;
@@ -246,8 +246,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     UAMBoost = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    if (nowdecimal >= profile.EatingNowTimeStart && nowdecimal < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
-    enlog += "nowdecimal: " + nowdecimal + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+    if (nowdec >= profile.EatingNowTimeStart && nowdec < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    enlog += "nowdec: " + nowdec + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
     sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
     sensitivityRatio = (!eatingnowtimeOK && !profile.temptargetSet ? Math.min(sensitivityRatio,1) : sensitivityRatio);
@@ -379,15 +379,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ** TS AutoTDD code    **
        ************************ */
     enlog += "* TDD:\n";
-    if (nowdecimal < 1) {
-        nowdecimal = 1;
+    if (nowdec < 1) {
+        nowdec = 1;
     } else {
-        console.error("Time now is "+nowdecimal+"; ");
+        console.error("Time now is "+nowdec+"; ");
     }
     var tdd3 = meal_data.TDDAIMI3, tdd7 = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP;
     // adding a weighted avg favouring the last 3 days
     var tdd_avg = (tdd3 * 0.8) + (tdd7 * 0.2);
-    var tdd_pump = ( tdd_pump_now / (nowdecimal / 24));
+    var tdd_pump = ( tdd_pump_now / (nowdec / 24));
     var TDDReason="";
     //console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
     enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
@@ -402,10 +402,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
 
-//                    Time 00 , 01 , 02 , 03 , 04 , 05 , 06 , 07 , 08 , 09 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23
-//circadian_sensitivity = [1.4, 1.4, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.6, 0.6, 0.6, 0.8, 0.8, 0.8, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.2];
-// then use circadian_sensitivity[now];
-
+    //circadian sensitivity curve
+    // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
+    var sens_circadian_curve = [];
+//    if (nowdec >=0 && nowdec <2) sens_circadian_curve = (0.09130*Math.pow(nowdec,3))-(0.33261*Math.pow(nowdec,2))+1.4;
+//    if (nowdec >=2 && nowdec <3) sens_circadian_curve = (0.0869*Math.pow(nowdec,3))-(0.05217*Math.pow(nowdec,2))-(0.23478*nowdec)+0.8;
+//    if (nowdec >=3 && nowdec <8) sens_circadian_curve = (0.00007*Math.pow(nowdec,3))-(0.00730*Math.pow(nowdec,2))-(0.07826*nowdec)+0.6;
+//    if (nowdec >=8 && nowdec <11.5) sens_circadian_curve = (-0.01244*Math.pow(nowdec,3))-(0.007619*Math.pow(nowdec,2))-(0.07826*nowdec)+0.4;
+//    if (nowdec >=11.5 && nowdec <15) sens_circadian_curve = (-0.00078*Math.pow(nowdec,3))-(0.00272*Math.pow(nowdec,2))-(0.07619*nowdec)+0.8;
+//    if (nowdec >=15 && nowdec <23) sens_circadian_curve = 1;
+//    if (nowdec >=23) sens_circadian_curve = (0.0125*Math.pow(nowdec,3))-(0.15*Math.pow(nowdec,2))-(0.45*nowdec)+1;
+//                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
+    sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
+    enlog += "sens_circadian_curve["+round(nowdec)+"]:" + sens_circadian_curve[round(nowdec)]+"\n";
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
