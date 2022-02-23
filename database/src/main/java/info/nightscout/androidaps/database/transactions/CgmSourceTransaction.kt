@@ -2,6 +2,7 @@ package info.nightscout.androidaps.database.transactions
 
 import info.nightscout.androidaps.database.entities.GlucoseValue
 import info.nightscout.androidaps.database.entities.TherapyEvent
+import kotlin.math.abs
 
 /**
  * Inserts data from a CGM source into the database
@@ -51,7 +52,7 @@ class CgmSourceTransaction(
                         if (glucoseValue.trendArrow == GlucoseValue.TrendArrow.NONE) {
                             glucoseValue.trendArrow = current.trendArrow
                         }
-                        if (glucoseValue.value - current.value == 1.0) {
+                        if (abs(glucoseValue.value - current.value) == 1.0) {
                             glucoseValue.value = current.value
                         }
                     }
