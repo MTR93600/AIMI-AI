@@ -45,8 +45,17 @@ class CgmSourceTransaction(
                     result.inserted.add(glucoseValue)
                 }
                 // different record, update
-                !current.contentEqualsTo(glucoseValue) && !syncer                              -> {
+                !current.contentEqualsTo(glucoseValue) && !syncer                             -> {
                     glucoseValue.id = current.id
+
+                    if (glucoseValue.sourceSensor == GlucoseValue.SourceSensor.MM_ENLITE)
+                        if (glucoseValue.trendArrow == GlucoseValue.TrendArrow.NONE) {
+                            glucoseValue.trendArrow = current.trendArrow
+                        }
+                    if(glucoseValue.value - current.value ==1.0 && ) {
+                        glucoseValue.value = current.value
+                    }
+                }
                     database.glucoseValueDao.updateExistingEntry(glucoseValue)
                     result.updated.add(glucoseValue)
                 }

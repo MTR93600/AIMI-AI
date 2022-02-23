@@ -51,7 +51,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         //TODO fix error response
         AtomicReference<BolusAnswer> pumpResponse = new AtomicReference<>();
         if (answers.get().anyMatch(f -> f.toLowerCase().contains("pump is bolusing state")) ||
-                !answers.get().anyMatch(f -> isBolusing(f))) {
+                answers.get().noneMatch(this::isBolusing)) {
             answers.get().filter(f -> f.toLowerCase().contains("last bolus:")).findFirst().map(f -> {
                 pumpResponse.set(deliveringBolus(f));
                 return pumpResponse;
@@ -69,7 +69,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
     }
 
     private boolean isBolusing(String toBeMatched) {
-        return !deliveredBolusPattern.matcher(toBeMatched).find() && deliveringBolusPattern.matcher(toBeMatched).find() || toBeMatched.toLowerCase().contains("pump is bolusing state");
+        return (!deliveredBolusPattern.matcher(toBeMatched).find() && deliveringBolusPattern.matcher(toBeMatched).find()) || toBeMatched.toLowerCase().contains("pump is bolusing state");
 
     }
 

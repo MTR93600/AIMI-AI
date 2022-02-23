@@ -105,6 +105,7 @@ import java.util.function.Supplier
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -2188,12 +2189,48 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     // }
 
     override fun cancelTempBasal(enforceNew: Boolean, callback: Callback?) {
-        aapsLogger.info(LTag.EVENTS, "canceling temp basal")
-        if (pumpStatusData.pumpStatusType == PumpStatusType.Suspended) {
-            startPump(callback)
+        aapsLogger.info(LTag.PUMP, logPrefix + "cancelTempBasal - started")
+        if (isPumpNotReachable) {
+            setRefreshButtonEnabled(true)
+            return
         }
-        tempBasalMicrobolusOperations!!.clearOperations()
-        aapsLogger.debug("Cancel temp basal: $result")
+        medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus)
+        setRefreshButtonEnabled(false)
+        val tbrCurrent = readTBR()
+        if (tbrCurrent.durationMinutes > 0) {
+            if (tbrCurrent.insulinRate > 0.0f && tbrCurrent.durationMinutes == 0) {
+                aapsLogger.info(LTag.PUMP, logPrefix + "cancelTempBasal - TBR already canceled.")
+                finishAction("TBR")
+
+            }
+        } else {
+            aapsLogger.warn(LTag.PUMP, logPrefix + "cancelTempBasal - Could not read current TBR, canceling operation.")
+            finishAction("TBR")
+        }
+        if(tempBasalMicrobolusOperations?.operations?.size ?: 0 >0 ){
+            var first = tempBasalMicrobolusOperations?.operations?.first
+            if((first?.operationType == TempBasalMicroBolusPair.OperationType.REACTIVATE && !first.isCommandIssued) ||
+                (first?.operationType == TempBasalMicroBolusPair.OperationType.SUSPEND && first.isCommandIssued) ||
+                medLinkPumpStatus.pumpStatusType == PumpStatusType.Suspended){
+                startPump(callback)
+            }
+            tempBasalMicrobolusOperations?.operations?.clear()
+        }
+        // val responseTask2 = medLinkService?.medtronicUIComm?.executeCommand(MedtronicCommandType.CancelTBR)
+        // val response = responseTask2?.result as Boolean?
+        // finishAction("TBR")
+        // return if(tbrCurrent.){
+        //     aapsLogger.info(LTag.PUMP, logPrefix + "cancelTempBasal - Cancel TBR failed.")
+        //     startPump(callback)
+        //     return
+        // } else {
+        //     aapsLogger.info(LTag.PUMP, logPrefix + "cancelTempBasal - Cancel TBR successful.")
+        //
+        //
+        //     //cancelTBRWithTemporaryId()
+        //
+        //     return
+        // }
     }
 
     override fun extendBasalTreatment(duration: Int, callback: Function1<PumpEnactResult, *>): PumpEnactResult {
@@ -3144,7 +3181,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 (PumpStatusType.Suspended.status == lastStatus ||
                     !isInitialized)
             ) {
-                createTemporaryBasalData(0, 0.0)
+                cancelTempBasal(
+                    false, null
+                )
             }
         }
         if (sensorDataReadings.bgValue.size == 1) {
