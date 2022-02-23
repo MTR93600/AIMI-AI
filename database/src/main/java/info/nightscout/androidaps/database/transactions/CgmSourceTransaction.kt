@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.database.transactions
 
 import info.nightscout.androidaps.database.entities.GlucoseValue
-import info.nightscout.androidaps.database.entities.ProfileSwitch
 import info.nightscout.androidaps.database.entities.TherapyEvent
 
 /**
