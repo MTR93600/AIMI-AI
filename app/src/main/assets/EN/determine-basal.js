@@ -440,7 +440,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
     // if above target use the scaling with profile ISF as the weakest
     sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : sens_currentBG);
-    enlog += "sens_currentBG after scaling is:" + sens_currentBG + "=" + convert_bg(sens_currentBG, profile) +"\n";
+    enlog += "sens_currentBG after scaling is:"+ convert_bg(sens_currentBG, profile) +"\n";
 
     // in the COBBoost window allow normal ISF as minimum
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
