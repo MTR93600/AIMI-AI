@@ -400,16 +400,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "* advanced ISF:\n";
     //circadian sensitivity curve
     // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
-    var sens_circadian_curve = [];
-//    if (nowdec >=0 && nowdec <2) sens_circadian_curve = (0.09130*Math.pow(nowdec,3))-(0.33261*Math.pow(nowdec,2))+1.4;
-//    if (nowdec >=2 && nowdec <3) sens_circadian_curve = (0.0869*Math.pow(nowdec,3))-(0.05217*Math.pow(nowdec,2))-(0.23478*nowdec)+0.8;
-//    if (nowdec >=3 && nowdec <8) sens_circadian_curve = (0.00007*Math.pow(nowdec,3))-(0.00730*Math.pow(nowdec,2))-(0.07826*nowdec)+0.6;
-//    if (nowdec >=8 && nowdec <11.5) sens_circadian_curve = (-0.01244*Math.pow(nowdec,3))-(0.007619*Math.pow(nowdec,2))-(0.07826*nowdec)+0.4;
-//    if (nowdec >=11.5 && nowdec <15) sens_circadian_curve = (-0.00078*Math.pow(nowdec,3))-(0.00272*Math.pow(nowdec,2))-(0.07619*nowdec)+0.8;
-//    if (nowdec >=15 && nowdec <23) sens_circadian_curve = 1;
-//    if (nowdec >=23) sens_circadian_curve = (0.0125*Math.pow(nowdec,3))-(0.15*Math.pow(nowdec,2))-(0.45*nowdec)+1;
-//                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
-    sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
+    //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
+    var sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
     enlog += "sens_circadian_curve["+nowhrs+"]:" + sens_circadian_curve[nowhrs]+"\n";
 
     // ISF at normal target
