@@ -236,6 +236,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
     var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
     var nowdec = round(now.getHours()+now.getMinutes()/60,2);
+    var nowhrs = now.getHours();
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0);
     // variables for deltas
     var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1;
@@ -246,8 +247,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     UAMBoost = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    if (nowdec >= profile.EatingNowTimeStart && nowdec < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
-    enlog += "nowdec: " + nowdec + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+    if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    enlog += "nowhrs: " + nowhrs + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
     sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
     sensitivityRatio = (!eatingnowtimeOK && !profile.temptargetSet ? Math.min(sensitivityRatio,1) : sensitivityRatio);
@@ -379,15 +380,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ** TS AutoTDD code    **
        ************************ */
     enlog += "* TDD:\n";
-    if (nowdec < 1) {
-        nowdec = 1;
+    if (nowhrs < 1) {
+        nowhrs = 1;
     } else {
-        console.error("Time now is "+nowdec+"; ");
+        console.error("Time now is "+nowhrs+"; ");
     }
     var tdd3 = meal_data.TDDAIMI3, tdd7 = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP;
     // adding a weighted avg favouring the last 3 days
     var tdd_avg = (tdd3 * 0.8) + (tdd7 * 0.2);
-    var tdd_pump = ( tdd_pump_now / (nowdec / 24));
+    var tdd_pump = ( tdd_pump_now / (nowhrs / 24));
     var TDDReason="";
     //console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
     enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
@@ -409,14 +410,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 //    if (nowdec >=23) sens_circadian_curve = (0.0125*Math.pow(nowdec,3))-(0.15*Math.pow(nowdec,2))-(0.45*nowdec)+1;
 //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
     sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
-    enlog += "sens_circadian_curve["+round(nowdec)+"]:" + sens_circadian_curve[round(nowdec)]+"\n";
+    enlog += "sens_circadian_curve["+nowhrs+"]:" + sens_circadian_curve[nowhrs]+"\n";
 
     // ISF at normal target
     var sens_normalTarget = sens; // use profile sens
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // Apply circadian variance to target ISF
-    sens_normalTarget *= sens_circadian_curve[round(nowdec)];
+    sens_normalTarget *= sens_circadian_curve[nowhrs];
     enlog += "sens_normalTarget with circadian:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
