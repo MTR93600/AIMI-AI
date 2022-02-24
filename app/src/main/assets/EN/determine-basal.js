@@ -236,7 +236,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
     var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
     var nowdec = round(now.getHours()+now.getMinutes()/60,2);
-    var nowhrs = now.getHours();
+    var nowhrs = now.getHours(), nowmins = now.getMinutes();
+
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0);
     // variables for deltas
     var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1;
@@ -400,17 +401,20 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "* advanced ISF:\n";
     //circadian sensitivity curve
     // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
-    //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
-    var sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
+    //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23 ,  24 .
+    var sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20, 1.40];
     enlog += "sens_circadian_curve["+nowhrs+"]:" + sens_circadian_curve[nowhrs]+"\n";
+    enlog +="nowmins:"+nowmins+"\n";
+    var sens_circadian_now = round(sens_circadian_curve[nowhrs]+((sens_circadian_curve[nowhrs+1]-sens_circadian_curve[nowhrs])/60) * nowmins,1);
+    enlog +="sens_circadian_now:"+sens_circadian_now+"\n";
 
     // ISF at normal target
     var sens_normalTarget = sens; // use profile sens
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // Apply circadian variance to target ISF
-    sens_normalTarget *= sens_circadian_curve[nowhrs];
-    enlog += "sens_normalTarget with circadian:" + convert_bg(sens_normalTarget, profile)+"\n";
+    sens_normalTarget *= sens_circadian_now;
+    enlog += "sens_normalTarget with circadian variance:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
