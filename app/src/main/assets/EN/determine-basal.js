@@ -423,7 +423,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
-    enlog += "sens_TDD:" + sens_TDD +"\n";
+    enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
 
     // Limit ISF for sens_currentBG with this scale like AS
     var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
