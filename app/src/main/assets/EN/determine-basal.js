@@ -397,11 +397,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog +="TDDAVG:"+round(tdd_avg,3)+", TDD Pump:"+round(tdd_pump,3)+" and TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
-    // ISF at normal target
-    var sens_normalTarget = sens; // use profile sens
-    enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
-
-
     //circadian sensitivity curve
     // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
     var sens_circadian_curve = [];
@@ -415,6 +410,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23
     sens_circadian_curve = [1.40, 1.40, 0.80, 0.60, 0.52, 0.47, 0.43, 0.41, 0.40, 0.45, 0.60, 0.72, 0.83, 0.91, 0.97, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.20];
     enlog += "sens_circadian_curve["+round(nowdec)+"]:" + sens_circadian_curve[round(nowdec)]+"\n";
+
+    // ISF at normal target
+    var sens_normalTarget = sens; // use profile sens
+    enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
+
+    // Apply circadian variance to target ISF
+    sens_normalTarget *= sens_circadian_curve[round(nowdec)];
+    enlog += "sens_normalTarget with circadian:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
