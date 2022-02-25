@@ -244,7 +244,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
         this.profile.put("COBBoostWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
         this.profile.put("COBBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
-        this.profile.put("COBeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_COBeBGweight,"0")))
+        //this.profile.put("COBeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_COBeBGweight,"0")))
 
 
         this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
@@ -255,7 +255,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
-        this.profile.put("UAMeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_UAMeBGweight,"0")))
+        //this.profile.put("UAMeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_UAMeBGweight,"0")))
 
 
 
