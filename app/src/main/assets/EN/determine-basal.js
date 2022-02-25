@@ -408,7 +408,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var sens_circadian_now = round(sens_circadian_curve[nowhrs]+((sens_circadian_curve[nowhrs+1]-sens_circadian_curve[nowhrs])/60) * nowmins,1);
     // experimenting with basal rate from 3PM for Jamies profile
     var basal_rate_3pm = 0.45;
-    var sens_circadian_now = round(profile.current_basal / basal_rate_3pm,1);
+    var sens_circadian_now = round(profile.current_basal / basal_rate_3pm,2);
     enlog +="sens_circadian_now:"+sens_circadian_now+"\n";
 
     // ISF at normal target
