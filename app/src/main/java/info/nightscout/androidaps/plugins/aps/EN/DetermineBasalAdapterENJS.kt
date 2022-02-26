@@ -319,6 +319,8 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
         this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
+        // Override profile ISF with TDD ISF if selected in prefs
+        this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
 
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         val lowMgdl = 72.0

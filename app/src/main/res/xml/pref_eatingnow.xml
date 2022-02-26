@@ -372,7 +372,13 @@
                 android:defaultValue="false"
                 android:key="key_use_3pm_basal"
                 android:title="Use 3PM Basal for ISF Variance"
-                android:summary="Use 3PM Basal as the basis for ISF changes. Only for use with a single profile ISF for 24 hours." />
+                android:summary="Use 3PM Basal as the basis for ISF changes. Only for use with if the profile uses a single ISF for 24 hours." />
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_sens_tdd"
+                android:title="Use TDD for ISF"
+                android:summary="Use the last 24H TDD for ISF. This will override the profile ISF and can be used with 3PM basal ISF variance." />
 
         </PreferenceCategory>
 

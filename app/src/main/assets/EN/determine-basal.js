@@ -386,6 +386,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDD Pump:"+round(tdd_pump,3)+" = TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
+    // ISF at normal target
+    var sens_normalTarget = sens; // use profile sens
+    enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
+
+    // ISF based on TDD
+    var sens_TDD = round((277700 / (TDD * normalTarget)),1);
+    sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
+    enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
+    // If Use TDD ISF is enabled in profile
+    sens_normalTarget = (profile.use_sens_TDD ? sens_TDD : sens_normalTarget);
+
     //circadian sensitivity curve
     // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
     //                       Time 00 ,  01 ,  02 ,  03 ,  04 ,  05 ,  06 ,  07 ,  08 ,  09 ,  10 ,  11 ,  12 ,  13 ,  14 ,  15 ,  16 ,  17 ,  18 ,  19 ,  20 ,  21 ,  22 , 23 ,  24 .
@@ -398,18 +409,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_circadian_now = (profile.enableBasalAt3PM ? round(profile.current_basal / profile.BasalAt3PM,2) : 1);
     enlog +="sens_circadian_now:"+sens_circadian_now+"\n";
 
-    // ISF at normal target
-    var sens_normalTarget = sens; // use profile sens
-    enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
-
-    // Apply circadian variance to target ISF
+    // Apply circadian variance to ISF
     sens_normalTarget *= sens_circadian_now;
     enlog += "sens_normalTarget with circadian variance:" + convert_bg(sens_normalTarget, profile)+"\n";
-
-    // ISF based on TDD
-    var sens_TDD = round((277700 / (TDD * normalTarget)),1);
-    sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
-    enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
 
     // Limit ISF for sens_currentBG with this scale like AS
     var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
