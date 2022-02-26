@@ -92,6 +92,7 @@ import org.joda.time.Seconds
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
+import java.lang.Math.abs
 import java.lang.Math.round
 import java.lang.StringBuilder
 import java.math.BigDecimal
@@ -1534,7 +1535,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         var mergeOperations = 0
         var operationInterval = 0
         var possibleSuspensions: Int
-        var operationDuration : Int
+        var operationDuration: Int
         val durationDouble = durationInMinutes - totalSuspendedMinutes
         if (durationDouble == 0) {
             operationDuration = totalSuspendedMinutes
@@ -2207,11 +2208,12 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             aapsLogger.warn(LTag.PUMP, logPrefix + "cancelTempBasal - Could not read current TBR, canceling operation.")
             finishAction("TBR")
         }
-        if(tempBasalMicrobolusOperations?.operations?.size ?: 0 >0 ){
+        if (tempBasalMicrobolusOperations?.operations?.size ?: 0 > 0) {
             var first = tempBasalMicrobolusOperations?.operations?.first
-            if((first?.operationType == TempBasalMicroBolusPair.OperationType.REACTIVATE && !first.isCommandIssued) ||
+            if ((first?.operationType == TempBasalMicroBolusPair.OperationType.REACTIVATE && !first.isCommandIssued) ||
                 (first?.operationType == TempBasalMicroBolusPair.OperationType.SUSPEND && first.isCommandIssued) ||
-                medLinkPumpStatus.pumpStatusType == PumpStatusType.Suspended){
+                medLinkPumpStatus.pumpStatusType == PumpStatusType.Suspended
+            ) {
                 startPump(callback)
             }
             tempBasalMicrobolusOperations?.operations?.clear()
@@ -3128,15 +3130,23 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
         bolusInfo.forEachOrdered { bolusJson: JSONObject ->
             val bInfo = DetailedBolusInfo.fromJsonString(bolusJson.toString())
-            if (lastDetailedBolusInfo != null && Math.abs(bInfo.bolusTimestamp!! - lastDetailedBolusInfo!!.bolusTimestamp!!) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
+            if (lastDetailedBolusInfo != null && abs(bInfo.bolusTimestamp!! - lastDetailedBolusInfo!!.bolusTimestamp!!) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
                 bInfo.carbs = lastDetailedBolusInfo!!.carbs
                 lastDetailedBolusInfo = null
             }
-            pumpSyncStorage.addBolusWithTempId(bInfo, true, this)
+
+            pumpSyncStorage.pumpSync.syncBolusWithTempId(
+                bInfo.timestamp, bInfo.insulin,
+                generateTempId(bInfo.timestamp),
+                bInfo.bolusType, bInfo.bolusPumpId,
+                this.pumpType, serialNumber()
+            )
+
+            // pumpSyncStorage.addBolusWithTempId(bInfo, true, this)
         }
     }
 
-    fun handleNewEvent() {
+    private fun handleNewEvent() {
         aapsLogger.info(LTag.EVENTS, " new event ")
         aapsLogger.info(LTag.EVENTS, "" + isInitialized)
         aapsLogger.info(LTag.EVENTS, "" + lastBolusTime)
@@ -3226,12 +3236,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //        } else if (System.currentTimeMillis() - latestBGHistoryRead > 60000 * 5) { //TODO
 //            bgFailedToRead++;
 
-    //         if (sensorDataReadings.bgValue.isNotEmpty() && sensorDataReadings.bgValue.first().value != 0.0) {
+        //         if (sensorDataReadings.bgValue.isNotEmpty() && sensorDataReadings.bgValue.first().value != 0.0) {
 //             aapsLogger.info(LTag.PUMPBTCOMM, "pump bg history")
 //             readPumpBGHistory(false)
 //         }
 //
-
 
         //        } else {
 //            bgFailedToRead = 0;
