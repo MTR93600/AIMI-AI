@@ -377,26 +377,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // If GhostCOB is enabled we will use COB when COBBoostOK but outside this window UAM will be used
     if (ignoreCOB && COBBoostOK) ignoreCOB = false;
 
-    /* ************************
-       ** TS AutoTDD code    **
-       ************************ */
-    enlog += "* TDD:\n";
-    if (nowhrs < 1) {
-        nowhrs = 1;
-    } else {
-        console.error("Time now is "+nowhrs+"; ");
-    }
-    var tdd3 = meal_data.TDDAIMI3, tdd7 = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP;
-    // adding a weighted avg favouring the last 3 days
-    var tdd_avg = (tdd3 * 0.8) + (tdd7 * 0.2);
+    var tdd24h = meal_data.TDDLAST24H, tdd3d = meal_data.TDDAIMI3, tdd7d = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP;
     var tdd_pump = ( tdd_pump_now / (nowhrs / 24));
-    var TDDReason="";
-    //console.error("Pump extrapolated TDD = "+tdd_pump+"; ");
     enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
 
     // no weighting change
-    var TDD = tdd_avg; // trying simple TDD avg
-    enlog +="TDDAVG:"+round(tdd_avg,3)+", TDD Pump:"+round(tdd_pump,3)+" and TDD:"+round(TDD,3)+"\n";
+    var TDD = (tdd24h + tdd7d + tdd_pump)/3;; // trying simple TDD avg
+    enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDD Pump:"+round(tdd_pump,3)+" = TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
     //circadian sensitivity curve
@@ -455,10 +442,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
-
-    // **********************************************************************************************
-    // *****                           End of automated TDD code                                *****
-    // **********************************************************************************************
 
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
     var lastTempAge;
@@ -1064,7 +1047,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
     rT.reason += ", UAM: " + UAMBoost;
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
-    //rT.reason += ", TDD" + TDDReason + ": " + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
+    rT.reason += ", TDD:" + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

@@ -313,6 +313,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
+        this.mealData.put("TDDLAST24H", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
         this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
