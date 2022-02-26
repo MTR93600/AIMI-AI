@@ -1169,5 +1169,6 @@
     <string name="key_eatingnow_UAMeBGweight" translatable="false">key_eatingnow_UAMeBGweight</string>
     <string name="key_use_3pm_basal" translatable="false">key_use_3pm_basal</string>
     <string name="key_use_sens_tdd" translatable="false">key_use_sens_tdd</string>
+    <string name="key_sens_tdd_scale" translatable="false">key_sens_tdd_scale</string>
 
 </resources>

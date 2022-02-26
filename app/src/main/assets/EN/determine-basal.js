@@ -392,6 +392,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
+    sens_TDD /= profile.sens_TDD_scale*100;
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
     enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
     // If Use TDD ISF is enabled in profile
@@ -1049,7 +1050,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
     rT.reason += ", UAM: " + UAMBoost;
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
-    rT.reason += ", TDD:" + round(TDD, 2) + " ("+convert_bg(sens_TDD, profile)+")";
+    rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

@@ -380,6 +380,16 @@
                 android:title="Use TDD for ISF"
                 android:summary="Use the last 24H TDD for ISF. This will override the profile ISF and can be used with 3PM basal ISF variance." />
 
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="100"
+                android:inputType="numberDecimal"
+                android:key="@string/key_sens_tdd_scale"
+                android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 50 will make TDD ISF 50% weaker."
+                android:title="TDD ISF Scaling"
+                validate:floatmaxNumber="100"
+                validate:floatminNumber="50"
+                validate:testType="floatNumericRange"/>
+
         </PreferenceCategory>
 
         </androidx.preference.PreferenceScreen>
