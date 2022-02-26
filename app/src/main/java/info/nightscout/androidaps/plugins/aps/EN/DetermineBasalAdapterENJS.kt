@@ -308,10 +308,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
-        // val now = System.currentTimeMillis()
-        // val ENStartTime: Unit = Date().setHours(profile.EatingNowTimeStart, 0, 0)
-        // val startTimeWindow = System.currentTimeMillis() - (60000 * 60 * 5.5).toLong()
-        this.profile.put("BasalAt3PM", profile.getBasal(now))
+        this.profile.put("BasalAt3PM", profile.getBasal(1645848000000))
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
