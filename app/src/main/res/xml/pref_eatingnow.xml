@@ -371,8 +371,8 @@
             <SwitchPreference
                 android:defaultValue="false"
                 android:key="key_use_3pm_basal"
-                android:title="Use 3PM Basal for ISF Variance"
-                android:summary="Use 3PM Basal as the basis for ISF changes. Only for use with if the profile uses a single ISF for 24 hours." />
+                android:title="Use 3PM Basal ISF Variance"
+                android:summary="Use 3PM Basal as the basis for ISF changes. The basal at 3PM is taken as the basis for baseline ISF.\nBasal variation from this point is used to scale the ISF, stronger basal will make ISF weaker.\nOnly use when the profile uses a single ISF for 24 hours and the basal profile is fully populated." />
 
             <SwitchPreference
                 android:defaultValue="false"
