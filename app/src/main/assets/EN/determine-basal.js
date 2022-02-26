@@ -382,7 +382,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
 
     // no weighting change
-    var TDD = (tdd24h + tdd7d + tdd_pump)/3;; // trying simple TDD avg
+    var TDD = tdd24h;
     enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDD Pump:"+round(tdd_pump,3)+" = TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
