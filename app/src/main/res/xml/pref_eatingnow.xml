@@ -221,7 +221,7 @@
                     android:inputType="numberDecimal"
                     android:title="SMB BG Offset"
                     android:key="@string/key_eatingnow_smbbgoffset"
-                    android:dialogMessage="There will be no SMB when below this BG offset at night without COB or detected resistance.\ne.g. if target bg is 99/5.5 and this setting is 27/1.5 there will be no SMB below 126/7.0"
+                    android:dialogMessage="There will be no SMB when below this BG offset at night without COB or detected resistance.\ne.g. if target bg is 5.5 and this setting is 1.5 there will be no SMB below 7.0"
                     validate:floatmaxNumber="270.0"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange" />
@@ -326,7 +326,7 @@
                 android:key="@string/key_eatingnow_cobboostminutes"
                 android:title="COBBoost Window"
                 android:dialogMessage="Window in minutes for increased maxBolus with COB.\n0 will disable and allow expected maxBolus limit."
-                validate:maxNumber="60"
+                validate:maxNumber="90"
                 validate:minNumber="0"
                 validate:testType="numericRange" />
 
@@ -360,6 +360,35 @@
 <!--                validate:floatminNumber="0"-->
 <!--                validate:testType="floatNumericRange"/>-->
 
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="EXPERIMENTAL"
+            android:summary="New features that are being tested. DO NOT USE."
+            app:initialExpandedChildrenCount="0">
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_3pm_basal"
+                android:title="Use 3PM Basal ISF Variance"
+                android:summary="Use 3PM Basal as the basis for ISF changes. The basal at 3PM is taken as the basis for baseline ISF.\nBasal variation from this point is used to scale the ISF, stronger basal will make ISF weaker.\nOnly use when the profile uses a single ISF for 24 hours and the basal profile is fully populated." />
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_sens_tdd"
+                android:title="Use TDD for ISF"
+                android:summary="Use the last 24H TDD for ISF. This will override the profile ISF and can be used with 3PM basal ISF variance." />
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="100"
+                android:inputType="numberDecimal"
+                android:key="@string/key_sens_tdd_scale"
+                android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 50 will make TDD ISF 50% weaker."
+                android:title="TDD ISF Scaling"
+                validate:floatmaxNumber="100"
+                validate:floatminNumber="50"
+                validate:testType="floatNumericRange"/>
 
         </PreferenceCategory>
 

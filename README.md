@@ -158,6 +158,8 @@ UAMSMBBasalMinutes - 60 mins. This is only used overnight when IOB is large enou
 Boost insulin required percent - recommended not to exceed 75%. Start at 50% and increase as necessary.
 
 ########################################
+Eating Now Plugin - 27/02/22
+########################################
 This version of AAPS has evolved over time using elements from AIMI and Boost.
 This AAPS variation is called "Eating Now" (EN) as it is a reactive operating mode without needing to inform the system.
 The intent of this plugin is the same, to deliver insulin earlier using mostly openAPS predictions.
@@ -221,3 +223,9 @@ COB:
     COBBoost maxBolus:          maxBolus to use within the COBBoost Window. 0 will use AAPS maxBolus.
     COB maxBolus:               maxBolus to use with COB outside of the initial COBBoost Window. 0 will use AAPS maxBolus.
 
+EXPERIMENTAL:
+•	Use 3PM Basal ISF Variance:     Use 3PM Basal as the basis for ISF changes. The basal at 3PM is taken as the basis for baseline ISF.
+                                    Basal variation from this point is used to scale the ISF, stronger basal will make ISF weaker.
+                                    Only use when the profile uses a single ISF for 24 hours and the basal profile is fully populated.
+•	Use TDD for ISF:                Use the last 24H TDD for ISF. This will override the profile ISF and can be used with 3PM basal ISF variance.
+•	TDD ISF Scaling:                This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 50 will make TDD ISF 50% weaker.

@@ -22,6 +22,7 @@ import info.nightscout.androidaps.plugins.aps.loop.ScriptReader
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
+import info.nightscout.androidaps.utils.MidnightTime
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
@@ -244,7 +245,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
         this.profile.put("COBBoostWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
         this.profile.put("COBBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
-        this.profile.put("COBeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_COBeBGweight,"0")))
+        //this.profile.put("COBeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_COBeBGweight,"0")))
 
 
         this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
@@ -255,7 +256,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
-        this.profile.put("UAMeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_UAMeBGweight,"0")))
+        //this.profile.put("UAMeBGweight",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_UAMeBGweight,"0")))
 
 
 
@@ -308,11 +309,19 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
+        // 3PM is used as a low basal point at which the rest of the day leverages for ISF variance when using one ISF in the profile
+        this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
+        this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
+
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
+        this.mealData.put("TDDLAST24H", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
         this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
+        // Override profile ISF with TDD ISF if selected in prefs
+        this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
+        this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
 
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         val lowMgdl = 72.0
