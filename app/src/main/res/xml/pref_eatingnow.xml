@@ -326,7 +326,7 @@
                 android:key="@string/key_eatingnow_cobboostminutes"
                 android:title="COBBoost Window"
                 android:dialogMessage="Window in minutes for increased maxBolus with COB.\n0 will disable and allow expected maxBolus limit."
-                validate:maxNumber="60"
+                validate:maxNumber="90"
                 validate:minNumber="0"
                 validate:testType="numericRange" />
 
@@ -360,6 +360,19 @@
 <!--                validate:floatminNumber="0"-->
 <!--                validate:testType="floatNumericRange"/>-->
 
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="EXPERIMENTAL"
+            android:summary="New features that are being tested. DO NOT USE."
+            app:initialExpandedChildrenCount="0">
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_3pm_basal"
+                android:title="Use 3PM Basal for ISF Variance"
+                android:summary="Use 3PM Basal as the basis for ISF changes. Only for use with a single profile ISF for 24 hours." />
 
         </PreferenceCategory>
 

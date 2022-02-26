@@ -310,6 +310,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         // 3PM is used as a low basal point at which the rest of the day leverages for ISF variance when using one ISF in the profile
+        this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
