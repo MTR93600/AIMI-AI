@@ -22,6 +22,7 @@ import info.nightscout.androidaps.plugins.aps.loop.ScriptReader
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
+import info.nightscout.androidaps.utils.MidnightTime
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
@@ -308,7 +309,8 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
-        this.profile.put("BasalAt3PM", profile.getBasal(1645848000000))
+        // this.profile.put("BasalAt3PM", profile.getBasal(1645848000000))
+        this.profile.put("BasalAt3PM",  MidnightTime.calc(now))
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
