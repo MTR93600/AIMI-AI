@@ -71,7 +71,7 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
         GENERALWITHDURATION,
         COBFAILOVER,
         IOBPREDICTION,
-        BUCKETED_BG
+        TBR_BOLUS, BUCKETED_BG
     }
 
     /**
@@ -245,6 +245,16 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     if (value.getLabel() != null) {
                         drawLabel45Left(endX, endY, value, canvas, scaledPxSize, scaledTextSize);
                     }
+                } else if (value.getShape() == Shape.TBR_BOLUS) {
+                    mPaint.setStrokeWidth(1);
+                    Point[] points = new Point[3];
+                    float size = value.getSize() * scaledPxSize;
+                    points[0] = new Point((int) endX, (int) (endY - size));
+                    points[1] = new Point((int) (endX + size), (int) (endY + size * 0.67));
+                    points[2] = new Point((int) (endX - size), (int) (endY + size * 0.67));
+                    mPaint.setStyle(Paint.Style.STROKE);
+//                    mPaint.setColor();
+                    drawArrows(points, canvas, mPaint);
                 } else if (value.getShape() == Shape.SMB) {
                     mPaint.setStrokeWidth(2);
                     Point[] points = new Point[3];
