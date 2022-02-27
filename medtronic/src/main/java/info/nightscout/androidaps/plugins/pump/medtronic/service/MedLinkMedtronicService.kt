@@ -27,10 +27,12 @@ import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.R
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
 import java.lang.Exception
+import javax.inject.Singleton
 
 /**
  * RileyLinkMedtronicService is intended to stay running when the gui-app is closed.
  */
+@Singleton
 class MedLinkMedtronicService : MedLinkService() {
 
     @JvmField @Inject

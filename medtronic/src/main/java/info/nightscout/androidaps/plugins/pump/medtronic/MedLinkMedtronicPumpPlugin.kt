@@ -205,6 +205,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         return absoluteRate // TODO("Evaluate")
     }
 
+    override fun applyBasalPercentConstraints(percentRate: Constraint<Int>, profile: Profile): Constraint<Int> {
+        return super.applyBasalPercentConstraints(percentRate, profile)
+    }
+
     fun stopPump(callback: Callback) {
         aapsLogger.info(LTag.PUMP, "MedtronicPumpPlugin::stopPump - ")
         aapsLogger.info(LTag.PUMP, "batteryDelta $batteryDelta")
@@ -1535,7 +1539,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         var mergeOperations = 0
         var operationInterval = 0
         var possibleSuspensions: Int
-        var operationDuration: Int
+        var operationDuration = 0
         val durationDouble = durationInMinutes - totalSuspendedMinutes
         if (durationDouble == 0) {
             operationDuration = totalSuspendedMinutes
@@ -1547,42 +1551,43 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             if (neededSuspensions < possibleSuspensions) {
                 possibleSuspensions = neededSuspensions
             }
-            operationInterval = durationDouble / possibleSuspensions
-            mod = operationInterval % Constants.INTERVAL_BETWEEN_OPERATIONS
-            if (mod / Constants.INTERVAL_BETWEEN_OPERATIONS > 0.5) {
-                operationInterval += Constants.INTERVAL_BETWEEN_OPERATIONS - mod
-            } else {
-                operationInterval -= mod
-            }
-            operationDuration = (totalSuspendedMinutes.toDouble() / possibleSuspensions).toInt()
-            if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
-                operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS
-            }
-            mod = operationDuration % Constants.INTERVAL_BETWEEN_OPERATIONS
-            if (mod / Constants.INTERVAL_BETWEEN_OPERATIONS > 0.5) {
-                operationDuration += Constants.INTERVAL_BETWEEN_OPERATIONS - mod
-            } else {
-                operationDuration -= mod
-            }
-            if (totalSuspendedMinutes > operationDuration * possibleSuspensions) {
-                val diff = totalSuspendedMinutes - operationDuration * possibleSuspensions
-                mergeOperations = diff / Constants.INTERVAL_BETWEEN_OPERATIONS
-            }
-            if ((operationDuration + operationInterval) * possibleSuspensions > java.lang.Double.valueOf(durationInMinutes.toDouble())) {
-                while (operationInterval >= 2 * Constants.INTERVAL_BETWEEN_OPERATIONS &&
-                    (operationDuration + operationInterval) * possibleSuspensions >
-                    java.lang.Double.valueOf(durationInMinutes.toDouble())
-                ) {
-                    operationInterval -= Constants.INTERVAL_BETWEEN_OPERATIONS
+            if(possibleSuspensions >0 ) {
+                operationInterval = durationDouble / possibleSuspensions
+                mod = operationInterval % Constants.INTERVAL_BETWEEN_OPERATIONS
+                if (mod / Constants.INTERVAL_BETWEEN_OPERATIONS > 0.5) {
+                    operationInterval += Constants.INTERVAL_BETWEEN_OPERATIONS - mod
+                } else {
+                    operationInterval -= mod
                 }
-                while (mergeOperations * operationDuration + (operationDuration + operationInterval) *
-                    (possibleSuspensions - mergeOperations) > durationInMinutes && possibleSuspensions > 1
-                ) {
-                    mergeOperations++
+                operationDuration = (totalSuspendedMinutes.toDouble() / possibleSuspensions).toInt()
+                if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
+                    operationDuration = Constants.INTERVAL_BETWEEN_OPERATIONS
                 }
-                possibleSuspensions -= mergeOperations
+                mod = operationDuration % Constants.INTERVAL_BETWEEN_OPERATIONS
+                if (mod / Constants.INTERVAL_BETWEEN_OPERATIONS > 0.5) {
+                    operationDuration += Constants.INTERVAL_BETWEEN_OPERATIONS - mod
+                } else {
+                    operationDuration -= mod
+                }
+                if (totalSuspendedMinutes > operationDuration * possibleSuspensions) {
+                    val diff = totalSuspendedMinutes - operationDuration * possibleSuspensions
+                    mergeOperations = diff / Constants.INTERVAL_BETWEEN_OPERATIONS
+                }
+                if ((operationDuration + operationInterval) * possibleSuspensions > java.lang.Double.valueOf(durationInMinutes.toDouble())) {
+                    while (operationInterval >= 2 * Constants.INTERVAL_BETWEEN_OPERATIONS &&
+                        (operationDuration + operationInterval) * possibleSuspensions >
+                        java.lang.Double.valueOf(durationInMinutes.toDouble())
+                    ) {
+                        operationInterval -= Constants.INTERVAL_BETWEEN_OPERATIONS
+                    }
+                    while (mergeOperations * operationDuration + (operationDuration + operationInterval) *
+                        (possibleSuspensions - mergeOperations) > durationInMinutes && possibleSuspensions > 1
+                    ) {
+                        mergeOperations++
+                    }
+                    possibleSuspensions -= mergeOperations
+                }
             }
-
 //        operationDuration = Double.valueOf(totalSuspendedMinutes) / Double.valueOf(suspensions);
 //        if (operationDuration < Constants.INTERVAL_BETWEEN_OPERATIONS) {
 //            operationDuration = (double) Constants.INTERVAL_BETWEEN_OPERATIONS;
@@ -2967,7 +2972,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             rxBus, null,
             aapsLogger
         )
-        val bolusStatusCommand = BleBolusStatusCommand(aapsLogger, medLinkService!!.medLinkServiceData)
+        val bolusStatusCommand = BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         return BolusStatusMedLinkMessage<String>(
             bolusCallback, btSleepTime,
             bolusStatusCommand

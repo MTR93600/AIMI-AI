@@ -5,6 +5,9 @@ import dagger.android.ContributesAndroidInjector
 import info.nightscout.androidaps.plugins.pump.common.dialog.MedLinkBLEConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.dialog.RileyLinkBLEConfigActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusGeneralFragment
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusHistoryFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
@@ -48,6 +51,9 @@ abstract class RileyLinkModule {
     @ContributesAndroidInjector abstract fun medLinkService(): MedLinkService
     @ContributesAndroidInjector abstract fun medLinkBleScanActivity(): MedLinkBLEConfigActivity
     @ContributesAndroidInjector abstract fun initializeMedPumpManagerTaskProvider(): info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask
+    @ContributesAndroidInjector abstract fun contributesMedLinkStatusGeneral(): MedLinkStatusGeneralFragment
+    @ContributesAndroidInjector abstract fun contributesMedLinkStatusHistoryFragment(): MedLinkStatusHistoryFragment
+    @ContributesAndroidInjector abstract fun contributesMedLinkStatusActivity(): MedLinkStatusActivity
 
 
 }

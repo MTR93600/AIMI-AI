@@ -20,18 +20,17 @@ import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
+import info.nightscout.androidaps.plugins.pump.common.events.EventMedLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
-import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.databinding.MedlinkMedtronicFragmentBinding
 import info.nightscout.androidaps.plugins.pump.medtronic.dialog.MedLinkMedtronicHistoryActivity
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
@@ -93,7 +92,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        binding.medtronicRlStatus.text = rh.gs(RileyLinkServiceState.NotStarted.resourceId)
+        binding.medtronicRlStatus.text = rh.gs(MedLinkServiceState.NotStarted.resourceId)
 
         binding.medtronicRlStatus.setTextColor(Color.WHITE)
         @SuppressLint("SetTextI18n")
@@ -123,7 +122,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
         binding.stats.setOnClickListener {
             if (medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration() == true) {
-                startActivity(Intent(context, RileyLinkStatusActivity::class.java))
+                startActivity(Intent(context, MedLinkStatusActivity::class.java))
             } else {
                 displayNotConfiguredDialog()
             }
@@ -139,7 +138,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             .observeOn(aapsSchedulers.main)
             .subscribe({ binding.refresh.isEnabled = it.newState }, fabricPrivacy::logException)
         disposable += rxBus
-            .toObservable(EventRileyLinkDeviceStatusChange::class.java)
+            .toObservable(EventMedLinkDeviceStatusChange::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({
                            aapsLogger.debug(LTag.PUMP, "onStatusEvent(EventRileyLinkDeviceStatusChange): $it")
