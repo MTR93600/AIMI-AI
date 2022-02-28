@@ -693,7 +693,7 @@ class LoopPlugin @Inject constructor(
     }
 
     private fun allowPercentage(): Boolean {
-        return virtualPumpPlugin.isEnabled()
+        return activePlugin.activePump is MedLinkPumpDevice ||  virtualPumpPlugin.isEnabled()
     }
 
     override fun goToZeroTemp(durationInMinutes: Int, profile: Profile, reason: OfflineEvent.Reason) {

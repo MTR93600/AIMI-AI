@@ -108,7 +108,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + line.trim { it <= ' ' }.length)
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + matcher.find())
                 aapsLogger.info(LTag.PUMPBTCOMM, "Invalid isig $line")
-                return null
+                break
             }
         }
         aapsLogger.info(LTag.PUMPBTCOMM, "isig")

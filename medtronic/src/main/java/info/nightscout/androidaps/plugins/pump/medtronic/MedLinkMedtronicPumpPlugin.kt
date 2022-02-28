@@ -92,7 +92,6 @@ import org.joda.time.Seconds
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
-import java.lang.Math.abs
 import java.lang.Math.round
 import java.lang.StringBuilder
 import java.math.BigDecimal
@@ -106,7 +105,6 @@ import java.util.function.Supplier
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -2160,7 +2158,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         profile: Profile, enforceNew: Boolean, callback: Function1<PumpEnactResult, *>
     ): PumpEnactResult {
         val previousBasal = temporaryBasal
-        if (previousBasal != null && previousBasal.desiredPct!! < 100 && percent >= 100) {
+        if (previousBasal?.desiredPct != null &&  previousBasal.desiredPct!! < 100 && percent >= 100) {
             startPump(object : Callback() {
                 override fun run() {}
             })
@@ -2850,6 +2848,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         lastBolusTime && bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli() -
                         lastBolusTime <= 180000
                     ) {
+                        detailedBolusInfo.timestamp= bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
+                        detailedBolusInfo.insulin = bolusAnswer.bolusAmount
                         detailedBolusInfo.bolusTimestamp = bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
                         handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
                     } else {
@@ -2875,7 +2875,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     }
                 } else if (PumpResponses.DeliveringBolus == f.functionResult.response) {
                     lastDetailedBolusInfo = detailedBolusInfo
-                    lastBolusTime = System.currentTimeMillis()
+                    lastBolusTime = pumpStatusData.lastDataTime
                     aapsLogger.info(LTag.PUMPBTCOMM, "and themmmm")
                 }
                 val recentBolus = Supplier { answer.get().filter { ans: String -> ans.contains("recent bolus") } }
@@ -2970,7 +2970,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             medLinkPumpStatus,
             rh,
             rxBus, null,
-            aapsLogger
+            aapsLogger,
+                this
         )
         val bolusStatusCommand = BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         return BolusStatusMedLinkMessage<String>(
@@ -3132,13 +3133,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
+    override fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
         bolusInfo.forEachOrdered { bolusJson: JSONObject ->
             val bInfo = DetailedBolusInfo.fromJsonString(bolusJson.toString())
-            if (lastDetailedBolusInfo != null && abs(bInfo.bolusTimestamp!! - lastDetailedBolusInfo!!.bolusTimestamp!!) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
+            if (lastDetailedBolusInfo != null && bInfo.bolusTimestamp?:0L - (lastDetailedBolusInfo?.bolusTimestamp?:0L) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
                 bInfo.carbs = lastDetailedBolusInfo!!.carbs
                 lastDetailedBolusInfo = null
             }
+
 
             pumpSyncStorage.pumpSync.syncBolusWithTempId(
                 bInfo.timestamp, bInfo.insulin,

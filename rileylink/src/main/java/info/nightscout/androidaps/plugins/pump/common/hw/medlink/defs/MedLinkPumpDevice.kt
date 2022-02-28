@@ -7,13 +7,15 @@ import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.data.PumpEnactResult
 import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.queue.Callback
+import org.json.JSONObject
+import java.util.stream.Stream
 
 /**
  * Created by Dirceu on 30/09/20.
  */
 interface MedLinkPumpDevice : CommunicatorPumpDevice {
 
-
+    fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>)
     fun getPumpInfo(): RileyLinkPumpInfo?
     fun getRileyLinkService(): MedLinkService?
 

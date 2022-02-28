@@ -844,7 +844,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
 //        rfspy.initializeRileyLink();
         aapsLogger.info(LTag.PUMPCOMM, "before wakeup ");
         BaseStringAggregatorCallback resultActivity = new BolusProgressCallback(
-                medtronicPumpStatus, resourceHelper,rxBus, null, aapsLogger);
+                medtronicPumpStatus, resourceHelper,rxBus, null, aapsLogger,
+                medLinkPumpPlugin);
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = resultActivity.andThen(s -> {
             aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + s);
             if (s.getAnswer().anyMatch(f -> f.contains("ready"))) {
@@ -920,8 +921,8 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
                 return f;
             };
             Function<Supplier<Stream<String>>, MedLinkStandardReturn<BasalProfile>> callback = pumpMessage.getBaseCallback().andThen(func).andThen(function);
-            Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argCallback =
-                    new ProfileCallback(injector, aapsLogger, context, medLinkPumpPlugin);
+//            Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argCallback =
+//                    new ProfileCallback(injector, aapsLogger, context, medLinkPumpPlugin);
 //            MedLinkPumpMessage msg = makePumpMessage(commandType, MedLinkCommandType.BaseProfile, callback,
 //                    argCallback, medLinkPumpPlugin.getBtSleepTime(),
 //                    new BleCommand(aapsLogger, medLinkServiceData));
