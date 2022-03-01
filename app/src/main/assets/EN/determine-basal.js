@@ -387,7 +387,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     enlog += "* advanced ISF:\n";
     // ISF at normal target
-    var sens_normalTarget = sens; // use profile sens
+    var sens_normalTarget = sens, sens_profile = sens; ; // use profile sens and keep profile sens with any SR
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
@@ -880,7 +880,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_eBGweight = (sens_predType=="UAM" ? 0.60 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="UAM" && UAMBoost > 1.0 ? 0.60 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
+        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
+        //sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_future = sens_normalTarget / (((Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight))) /target_bg) * sens_BGscaler;
         // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
@@ -897,7 +898,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (COBBoostOK && sens_predType == "COB") {
         //sens_eBGweight = profile.COBeBGweight/100; // eBGw start at x% and decreases with ISF scaling
         sens_eBGweight = 0.75; // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
+        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
+        //sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_normalTarget)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
         sens_future = sens_normalTarget / (((Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight))) /target_bg) * sens_BGscaler;
     }
 
