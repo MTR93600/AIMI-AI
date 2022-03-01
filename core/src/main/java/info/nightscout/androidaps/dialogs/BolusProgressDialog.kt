@@ -1,6 +1,8 @@
 package info.nightscout.androidaps.dialogs
 
 import android.content.res.Resources
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
@@ -8,6 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
+import com.ms_square.etsyblur.BlurConfig
+import com.ms_square.etsyblur.BlurDialogFragment
+import com.ms_square.etsyblur.SmartAsyncPolicy
 import dagger.android.support.DaggerDialogFragment
 import info.nightscout.androidaps.activities.BolusProgressHelperActivity
 import info.nightscout.androidaps.core.R
@@ -31,7 +37,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
-class BolusProgressDialog : DaggerDialogFragment() {
+class BolusProgressDialog : BlurDialogFragment() {
 
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var rxBus: RxBus
@@ -94,6 +100,21 @@ class BolusProgressDialog : DaggerDialogFragment() {
             theme?.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+
+        val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
+        if (drawable != null) {
+            drawable.setColorFilter( rh.getAttributeColor(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
+            // drawable.setColorFilter( PorterDuffColorFilter(rh.getAttributeColor(context, R.attr.windowBackground ), PorterDuff.Mode.MULTIPLY))
+        }
+        dialog?.window?.setBackgroundDrawable(drawable)
+
+        context?.let { SmartAsyncPolicy(it) }?.let {
+            BlurConfig.Builder()
+                .overlayColor(ContextCompat.getColor(requireContext(), R.color.white_alpha_40))  // semi-transparent white color
+                .debug(false)
+                .asyncPolicy(it)
+                .build()
         }
 
         _binding = DialogBolusprogressBinding.inflate(inflater, container, false)

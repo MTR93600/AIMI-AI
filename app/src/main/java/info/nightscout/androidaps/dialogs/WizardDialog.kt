@@ -13,6 +13,9 @@ import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import com.ms_square.etsyblur.BlurConfig
+import com.ms_square.etsyblur.BlurDialogFragment
+import com.ms_square.etsyblur.SmartAsyncPolicy
 import dagger.android.HasAndroidInjector
 import dagger.android.support.DaggerDialogFragment
 import info.nightscout.androidaps.Constants
@@ -43,7 +46,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.abs
 
-class WizardDialog : DaggerDialogFragment() {
+class WizardDialog : BlurDialogFragment() {
 
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var aapsLogger: AAPSLogger
@@ -124,6 +127,15 @@ class WizardDialog : DaggerDialogFragment() {
             drawable.setColorFilter(rh.getAttributeColor(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
         }
         dialog?.window?.setBackgroundDrawable(drawable)
+
+        context?.let { SmartAsyncPolicy(it) }?.let {
+            BlurConfig.Builder()
+                .overlayColor(rh.gc(R.color.white_alpha_40))  // semi-transparent white color
+                .debug(false)
+                .asyncPolicy(it)
+                .build()
+        }
+
         isCancelable = true
         dialog?.setCanceledOnTouchOutside(false)
 

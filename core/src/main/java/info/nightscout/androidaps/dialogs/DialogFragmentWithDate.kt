@@ -28,10 +28,13 @@ import javax.inject.Inject
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
+import com.ms_square.etsyblur.BlurConfig
+import com.ms_square.etsyblur.BlurDialogFragment
+import com.ms_square.etsyblur.SmartAsyncPolicy
 import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 
-abstract class DialogFragmentWithDate : DaggerDialogFragment() {
+abstract class DialogFragmentWithDate : BlurDialogFragment() {
 
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var aapsLogger: AAPSLogger
@@ -97,6 +100,14 @@ abstract class DialogFragmentWithDate : DaggerDialogFragment() {
            // drawable.setColorFilter( PorterDuffColorFilter(rh.getAttributeColor(context, R.attr.windowBackground ), PorterDuff.Mode.MULTIPLY))
         }
         dialog?.window?.setBackgroundDrawable(drawable)
+
+        context?.let { SmartAsyncPolicy(it) }?.let {
+            BlurConfig.Builder()
+                .overlayColor(ContextCompat.getColor(requireContext(), R.color.white_alpha_40))  // semi-transparent white color
+                .debug(false)
+                .asyncPolicy(it)
+                .build()
+        }
     }
 
     fun updateDateTime(timeMs: Long) {
