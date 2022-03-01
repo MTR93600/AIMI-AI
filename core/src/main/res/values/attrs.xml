@@ -169,6 +169,8 @@
 <attr name="targetHypoBgIconColor" format="reference|color" />
 <!---Refresh Icon Color-->
 <attr name="refreshIconColor" format="reference|color" />
+<!---First Aid Icon Color-->
+<attr name="firstAidIconColor" format="reference|color" />
 <!---NS MBG Event-->
 <attr name="therapyeventNsmbg" format="reference|color" />
 <!---Finger Stick Event-->

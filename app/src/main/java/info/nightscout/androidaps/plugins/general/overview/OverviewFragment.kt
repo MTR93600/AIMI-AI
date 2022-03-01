@@ -20,6 +20,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -598,6 +599,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                         }
                     }
         binding.buttonsLayout.userButtonsLayout.visibility = events.isNotEmpty().toVisibility()
+
+        binding.buttonsLayout.overviewButtons.visibility = View.GONE
     }
 
     private fun processAps() {
@@ -915,6 +918,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                                               rh.getAttributeColor(context, R.attr.statuslightAlarm))
         processButtonsVisibility()
         processAps()
+
+        binding.statusLightsLayout.statusLights.visibility = View.GONE
+
     }
 
     @Suppress("UNUSED_PARAMETER")

@@ -1,31 +1,35 @@
 package info.nightscout.androidaps
 
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.PersistableBundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.TaskStackBuilder
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.joanzapata.iconify.Iconify
@@ -35,9 +39,6 @@ import info.nightscout.androidaps.activities.*
 import info.nightscout.androidaps.database.entities.UserEntry.Action
 import info.nightscout.androidaps.database.entities.UserEntry.Sources
 import info.nightscout.androidaps.databinding.ActivityMainBinding
-import info.nightscout.androidaps.events.EventAppExit
-import info.nightscout.androidaps.events.EventPreferenceChange
-import info.nightscout.androidaps.events.EventRebuildTabs
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -49,8 +50,6 @@ import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicato
 import info.nightscout.androidaps.plugins.general.themeselector.ScrollingActivity
 import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.setupwizard.SetupWizardActivity
-import info.nightscout.androidaps.utils.AndroidPermission
-import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.extensions.isRunningRealPumpTest
@@ -67,6 +66,26 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.system.exitProcess
 import com.ms_square.etsyblur.BlurSupport
+import com.google.android.material.bottomappbar.BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
+import com.google.android.material.bottomappbar.BottomAppBar.FAB_ALIGNMENT_MODE_END
+import info.nightscout.androidaps.dialogs.*
+import info.nightscout.androidaps.events.*
+import info.nightscout.androidaps.extensions.directionToIcon
+import info.nightscout.androidaps.extensions.toVisibility
+import info.nightscout.androidaps.extensions.valueToUnitsString
+import info.nightscout.androidaps.plugins.aps.loop.events.EventNewOpenLoopNotification
+import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
+import info.nightscout.androidaps.plugins.constraints.bgQualityCheck.BgQualityCheckPlugin
+import info.nightscout.androidaps.plugins.general.automation.AutomationPlugin
+import info.nightscout.androidaps.plugins.general.overview.OverviewData
+import info.nightscout.androidaps.plugins.general.overview.OverviewPlugin
+import info.nightscout.androidaps.plugins.general.overview.StatusLightHandler
+import info.nightscout.androidaps.plugins.general.overview.activities.QuickWizardListActivity
+import info.nightscout.androidaps.plugins.general.overview.events.*
+import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.utils.*
+import java.util.concurrent.TimeUnit
 
 open class MainActivity : NoSplashAppCompatActivity() {
 
@@ -87,13 +106,26 @@ open class MainActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var constraintChecker: ConstraintChecker
     @Inject lateinit var signatureVerifierPlugin: SignatureVerifierPlugin
     @Inject lateinit var config: Config
+    @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var uel: UserEntryLogger
+    @Inject lateinit var trendCalculator: TrendCalculator
     @Inject lateinit var profileFunction: ProfileFunction
+    @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
+    @Inject lateinit var overviewData: OverviewData
+    @Inject lateinit var overviewPlugin: OverviewPlugin
+    @Inject lateinit var automationPlugin: AutomationPlugin
+    @Inject lateinit var bgQualityCheckPlugin: BgQualityCheckPlugin
+    @Inject lateinit var statusLightHandler: StatusLightHandler
 
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private var pluginPreferencesMenuItem: MenuItem? = null
     private var menu: Menu? = null
     private var menuOpen = false
+    private var isRotate = false
+    private var deltashort = ""
+    private var avgdelta = ""
+    private lateinit var refreshLoop: Runnable
+    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
 
     private lateinit var binding: ActivityMainBinding
 
@@ -127,6 +159,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         recreate()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Iconify.with(FontAwesomeModule())
@@ -142,7 +175,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         LocaleHelper.update(applicationContext)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding.bottomAppBar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -153,6 +186,82 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
         //bluring for navigation drawer
         BlurSupport.addTo( binding.mainDrawerLayout)
+
+        var downX = 0F
+        var downY = 0F
+        var dx = 0F
+        var dy = 0F
+        //remember 3 dot icon for switching fab icon from center to right and back
+        val overflowIcon = binding.bottomAppBar.overflowIcon
+
+        // detect single tap like click
+        class SingleTapDetector : GestureDetector.SimpleOnGestureListener() {
+
+            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                return true
+            }
+        }
+        val gestureDetector = GestureDetector(this, SingleTapDetector())
+        // set on touch listener for move detetction
+        binding.fab.setOnTouchListener(@SuppressLint("ClickableViewAccessibility")
+                                       fun(view: View, event: MotionEvent): Boolean {
+            if (gestureDetector.onTouchEvent(event)) {
+                // code for single tap or onclick
+                onClick(view)
+            } else {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        downX = event.x
+                        downY = event.y
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        dx += event.x - downX
+                        dy += event.y - downY
+                        binding.fab.translationX = dx
+                    }
+
+                    MotionEvent.ACTION_UP   -> {
+                        if (binding.bottomAppBar.fabAlignmentMode == FAB_ALIGNMENT_MODE_CENTER) {
+                            binding.bottomAppBar.fabAlignmentMode = FAB_ALIGNMENT_MODE_END
+                            binding.bottomNavigation.menu.findItem(R.id.placeholder)?.isVisible = false
+                            binding.bottomAppBar.overflowIcon = null
+                        } else {
+                            binding.bottomAppBar.fabAlignmentMode = FAB_ALIGNMENT_MODE_CENTER
+                            binding.bottomNavigation.menu.findItem(R.id.placeholder)?.isVisible = true
+                            binding.bottomAppBar.overflowIcon = overflowIcon
+                        }
+                    }
+                }
+            }
+            return true
+        })
+
+        findViewById<TextView>(R.id.overview_bg)?.setOnClickListener {
+            val fullText = avgdelta
+            this.let {
+                OKDialog.show(it, "Delta", fullText, null)
+            }
+        }
+
+
+        findViewById<ImageView>(R.id.aps_mode)?.setOnClickListener  { view: View? -> onClick(view!!) }
+        findViewById<ImageView>(R.id.aps_mode)?.setOnLongClickListener{ view: View? -> onLongClick(view!!) }
+
+        binding.mainBottomFabMenu.treatmentButton.setOnClickListener { view: View? -> onClick(view!!) }
+        binding.mainBottomFabMenu.calibrationButton.setOnClickListener { view: View? -> onClick(view!!) }
+        binding.mainBottomFabMenu.quickwizardButton.setOnClickListener { view: View? -> onClick(view!!) }
+        binding.mainBottomFabMenu.quickwizardButton.setOnLongClickListener { view: View? -> onLongClick(view!!) }
+
+        setupBottomNavigationView()
+
+        //fab menu
+        //hide the fab menu icons and label
+        ViewAnimation.init(binding.mainBottomFabMenu.calibrationButton)
+        ViewAnimation.init(binding.mainBottomFabMenu.quickwizardButton)
+        if (binding.mainBottomFabMenu != null) {
+            binding.mainBottomFabMenu.fabMenu.visibility = View.GONE
+        }
 
         // initialize screen wake lock
         processPreferenceChange(EventPreferenceChange(rh.gs(R.string.key_keep_screen_on)))
@@ -196,6 +305,226 @@ open class MainActivity : NoSplashAppCompatActivity() {
         }
     }
 
+    private fun onLongClick(v: View): Boolean {
+        when (v.id) {
+            R.id.quickwizardButton -> {
+                val i = Intent(v.context, QuickWizardListActivity::class.java)
+                startActivity(i)
+                return true
+            }
+            R.id.aps_mode     -> {
+                val args = Bundle()
+                args.putInt("showOkCancel", 0)                  // 0-> false
+                val pvd = LoopDialog()
+                pvd.arguments = args
+                pvd.show(supportFragmentManager, "Overview")
+            }
+        }
+        return false
+    }
+
+    private fun setupBottomNavigationView() {
+        val manager = supportFragmentManager
+        // try to fix  https://fabric.io/nightscout3/android/apps/info.nightscout.androidaps/issues/5aca7a1536c7b23527eb4be7?time=last-seven-days
+        // https://stackoverflow.com/questions/14860239/checking-if-state-is-saved-before-committing-a-fragmenttransaction
+        if (manager.isStateSaved) return
+        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.wizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { WizardDialog().show(manager, "Main") })
+                R.id.insulinButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { InsulinDialog().show(manager, "Main") })
+                R.id.carbsButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { CarbsDialog().show(manager, "Main") })
+
+                R.id.cgmButton -> {
+
+                }
+            }
+            true
+        }
+    }
+
+    open fun onClick(view: View) {
+        action(view, view.id, supportFragmentManager)
+    }
+
+    fun action(view: View?, id: Int, manager: FragmentManager?) {
+        val fillDialog = FillDialog()
+        val newCareDialog = CareDialog()
+
+        this.let {
+            when (id) {
+                R.id.sensorage, R.id.sensorage -> {
+                    newCareDialog.setOptions(CareDialog.EventType.SENSOR_INSERT, R.string.careportal_cgmsensorinsert).show(manager!!, "Actions")
+                    return
+                }
+
+                R.id.reservoirView, R.id.cannulaOrPatch -> {
+                    fillDialog.show(manager!!, "FillDialog")
+                    return
+                }
+
+                R.id.batteryage -> {
+                    newCareDialog.setOptions(CareDialog.EventType.BATTERY_CHANGE, R.string.careportal_pumpbatterychange).show(manager!!, "Actions")
+                    return
+                }
+
+                R.id.fab -> {
+                    isRotate = ViewAnimation.rotateFab(view, !isRotate)
+                    if (isRotate) {
+                        binding.mainBottomFabMenu.fabMenu.visibility = View.VISIBLE
+                        ViewAnimation.showIn(binding.mainBottomFabMenu.calibrationButton)
+                        ViewAnimation.showIn(binding.mainBottomFabMenu.quickwizardButton)
+                        ViewAnimation.showIn(binding.mainBottomFabMenu.treatmentButton)
+                    } else {
+                        ViewAnimation.showOut(binding.mainBottomFabMenu.calibrationButton)
+                        ViewAnimation.showOut(binding.mainBottomFabMenu.quickwizardButton)
+                        ViewAnimation.showOut( binding.mainBottomFabMenu.treatmentButton)
+                        binding.mainBottomFabMenu.fabMenu.visibility = View.GONE
+                    }
+                    binding.bottomAppBar.performHide()
+                    binding.bottomAppBar.performShow()
+                    return
+                }
+
+                R.id.treatmentButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { TreatmentDialog().show(manager!!, "MainActivity") })
+               // R.id.quickwizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { onClickQuickWizard() })
+
+                R.id.cgmButton -> {
+
+                }
+
+                R.id.calibrationButton -> {
+
+                }
+
+                R.id.aps_mode     -> {
+                    val args = Bundle()
+                    args.putInt("showOkCancel", 1)
+                    val pvd = LoopDialog()
+                    pvd.arguments = args
+                    pvd.show(manager!!, "Overview")
+                }
+            }
+        }
+    }
+
+    fun updateBg(from: String) {
+        val units = profileFunction.getUnits()
+        findViewById<TextView>(R.id.overview_bg)?.text =  overviewData.lastBg?.valueToUnitsString(units)
+        findViewById<TextView>(R.id.overview_bg)?.setTextColor((overviewData.getlastBgColor(this)))
+        findViewById<ImageView>(R.id.overview_arrow)?.setImageResource(trendCalculator.getTrendArrow(overviewData.lastBg).directionToIcon())
+        findViewById<ImageView>(R.id.overview_arrow)?.setColorFilter(overviewData.getlastBgColor(this))
+        findViewById<ImageView>(R.id.overview_arrow)?.contentDescription = overviewData.lastBgDescription + " " + rh.gs(R.string.and) + " " + trendCalculator.getTrendDescription(overviewData.lastBg)
+        val glucoseStatus = glucoseStatusProvider.glucoseStatusData
+        if (glucoseStatus != null) {
+            findViewById<TextView>(R.id.overview_delta)?.text =  Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
+            findViewById<TextView>(R.id.timeago)?.text = dateUtil.minAgo(rh, overviewData.lastBg?.timestamp)
+            avgdelta =   "         Δ " + Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
+            avgdelta +=   System.getProperty("line.separator") + "15m Δ " +  Profile.toSignedUnitsString(glucoseStatus.shortAvgDelta, glucoseStatus.shortAvgDelta * Constants.MGDL_TO_MMOLL, units)
+            avgdelta +=   System.getProperty("line.separator") + "40m Δ " +  Profile.toSignedUnitsString(glucoseStatus.longAvgDelta, glucoseStatus.longAvgDelta * Constants.MGDL_TO_MMOLL, units)
+        } else {
+            avgdelta =  ""
+        }
+
+        /*
+        binding.infoLayout.bg.text = overviewData.lastBg?.valueToUnitsString(units)
+            ?: rh.gs(R.string.notavailable)
+        binding.infoLayout.bg.setTextColor(overviewData.getlastBgColor(this))
+        binding.infoLayout.arrow.setImageResource(trendCalculator.getTrendArrow(overviewData.lastBg).directionToIcon())
+        binding.infoLayout.arrow.setColorFilter(overviewData.getlastBgColor(this))
+        binding.infoLayout.arrow.contentDescription = overviewData.lastBgDescription + " " + rh.gs(R.string.and) + " " + trendCalculator.getTrendDescription(overviewData.lastBg)
+
+        */
+
+      /*  if (glucoseStatus != null) {
+            binding.infoLayout.deltaLarge.text = Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
+            binding.infoLayout.deltaLarge.setTextColor(overviewData.getlastBgColor(this))
+            binding.infoLayout.delta.text = Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
+            binding.infoLayout.avgDelta.text = Profile.toSignedUnitsString(glucoseStatus.shortAvgDelta, glucoseStatus.shortAvgDelta * Constants.MGDL_TO_MMOLL, units)
+            binding.infoLayout.longAvgDelta.text = Profile.toSignedUnitsString(glucoseStatus.longAvgDelta, glucoseStatus.longAvgDelta * Constants.MGDL_TO_MMOLL, units)
+        } else {
+            binding.infoLayout.deltaLarge.text = ""
+            binding.infoLayout.delta.text = "Δ " + rh.gs(R.string.notavailable)
+            binding.infoLayout.avgDelta.text = ""
+            binding.infoLayout.longAvgDelta.text = ""
+        }*/
+
+        // strike through if BG is old
+       /* binding.infoLayout.bg.paintFlags =
+            if (!overviewData.isActualBg) binding.infoLayout.bg.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            else binding.infoLayout.bg.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+
+        val outDate = (if (!overviewData.isActualBg) rh.gs(R.string.a11y_bg_outdated) else "")
+        binding.infoLayout.bg.contentDescription =
+            rh.gs(R.string.a11y_blood_glucose) + " " + binding.infoLayout.bg.text.toString() + " " + overviewData.lastBgDescription + " " + outDate
+
+        binding.infoLayout.timeAgo.text = dateUtil.minAgo(rh, overviewData.lastBg?.timestamp)
+        binding.infoLayout.timeAgo.contentDescription = dateUtil.minAgoLong(rh, overviewData.lastBg?.timestamp)
+        binding.infoLayout.timeAgoShort.text = "(" + dateUtil.minAgoShort(overviewData.lastBg?.timestamp) + ")"
+
+        val qualityIcon = bgQualityCheckPlugin.icon()
+        if (qualityIcon != 0) {
+            binding.infoLayout.bgQuality.visibility = View.VISIBLE
+            binding.infoLayout.bgQuality.setImageResource(qualityIcon)
+            binding.infoLayout.bgQuality.contentDescription = rh.gs(R.string.a11y_bg_quality) + " " + bgQualityCheckPlugin.stateDescription()
+            binding.infoLayout.bgQuality.setOnClickListener {
+                this?.let { context -> OKDialog.show(context, rh.gs(R.string.data_status), bgQualityCheckPlugin.message) }
+            }
+        } else {
+            binding.infoLayout.bgQuality.visibility = View.GONE
+        }
+        */
+    }
+
+    private fun upDateStatusLight() {
+        // Status lights
+        val isPatchPump = activePlugin.activePump.pumpDescription.isPatchPump
+        binding.statusLightsLayout.apply {
+            cannulaOrPatch.setImageResource(if (isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_katheter)
+            cannulaOrPatch.contentDescription = rh.gs(if (isPatchPump) R.string.statuslights_patch_pump_age else R.string.statuslights_cannula_age)
+            cannulaOrPatch.scaleX = if (isPatchPump) 1.4f else 2f
+            cannulaOrPatch.scaleY = cannulaOrPatch.scaleX
+            insulinAge.visibility = isPatchPump.not().toVisibility()
+            statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
+        }
+        statusLightHandler.updateStatusLights(
+            findViewById<TextView>(R.id.cannulaAge),
+            findViewById<TextView>(R.id.insulinAge),
+            findViewById<TextView>(R.id.reservoirLevel),
+            findViewById<TextView>(R.id.sensorAge),
+            null,
+            findViewById<TextView>(R.id.pbAge),
+            findViewById<TextView>(R.id.batteryLevel),
+            rh.getAttributeColor(this, R.attr.statuslightNormal),
+            rh.getAttributeColor(this, R.attr.statuslightWarning),
+            rh.getAttributeColor(this, R.attr.statuslightAlarm))
+    }
+
+    fun updateTime(from: String) {
+        //binding.infoLayout.time.text = dateUtil.timeString(dateUtil.now())
+        // Status lights
+        val isPatchPump = activePlugin.activePump.pumpDescription.isPatchPump
+        binding.statusLightsLayout.apply {
+            cannulaOrPatch.setImageResource(if (isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_katheter)
+            cannulaOrPatch.contentDescription = rh.gs(if (isPatchPump) R.string.statuslights_patch_pump_age else R.string.statuslights_cannula_age)
+            cannulaOrPatch.scaleX = if (isPatchPump) 1.4f else 1.2f
+            cannulaOrPatch.scaleY = cannulaOrPatch.scaleX
+            insulinAge.visibility = isPatchPump.not().toVisibility()
+            statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
+        }
+        statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge,
+                                              binding.statusLightsLayout.insulinAge,
+                                              binding.statusLightsLayout.reservoirLevel,
+                                              binding.statusLightsLayout.sensorAge,
+                                              null,
+                                              binding.statusLightsLayout.pbAge,
+                                              binding.statusLightsLayout.batteryLevel ,
+                                              rh.getAttributeColor(this, R.attr.statuslightNormal),
+                                              rh.getAttributeColor(this, R.attr.statuslightWarning),
+                                              rh.getAttributeColor(this, R.attr.statuslightAlarm))
+        //processButtonsVisibility()
+        processAps()
+    }
+
     private fun checkPluginPreferences(viewPager: ViewPager2) {
         if (viewPager.currentItem >= 0) pluginPreferencesMenuItem?.isEnabled = (viewPager.adapter as TabPageAdapter).getPluginAt(viewPager.currentItem).preferencesId != -1
     }
@@ -219,11 +548,118 @@ open class MainActivity : NoSplashAppCompatActivity() {
                                         UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { finish() } },
                                         UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { finish() } }
         )
+        disposable += activePlugin.activeOverview.overviewBus
+            .toObservable(EventUpdateOverviewTime::class.java)
+            .debounce(1L, TimeUnit.SECONDS)
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateTime("MainActivity") }, fabricPrivacy::logException)
+        disposable += activePlugin.activeOverview.overviewBus
+            .toObservable(EventUpdateOverviewBg::class.java)
+            .debounce(1L, TimeUnit.SECONDS)
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateBg("MainActivity") }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventInitializationChanged::class.java)
+            .observeOn(aapsSchedulers.main)
+            .subscribe({ updateTime("EventInitializationChanged") }, fabricPrivacy::logException)
+
+        refreshLoop = Runnable {
+            overviewPlugin.refreshLoop("refreshLoop")
+            handler.postDelayed(refreshLoop, 60 * 1000L)
+        }
+        handler.postDelayed(refreshLoop, 60 * 1000L)
+
+        updateTime("onResume")
+        updateBg("onResume")
     }
 
     private fun setWakeLock() {
         val keepScreenOn = sp.getBoolean(R.string.key_keep_screen_on, false)
         if (keepScreenOn) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    private fun processAps() {
+        val pump = activePlugin.activePump
+
+        // aps mode
+        val closedLoopEnabled = constraintChecker.isClosedLoopAllowed()
+
+        fun apsModeSetA11yLabel(stringRes: Int) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                binding.statusLightsLayout.apsMode.stateDescription = rh.gs(stringRes)
+            } else {
+                binding.statusLightsLayout.apsMode.contentDescription = rh.gs(R.string.apsmode_title) + " " + rh.gs(stringRes)
+            }
+        }
+
+        if (config.APS && pump.pumpDescription.isTempBasalCapable) {
+            binding.statusLightsLayout.apsMode.visibility = View.VISIBLE
+            when {
+                (loop as PluginBase).isEnabled() && loop.isSuperBolus                       -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_superbolus)
+                    apsModeSetA11yLabel(R.string.superbolus)
+                    binding.statusLightsLayout.apsModeText.text = dateUtil.age(loop.minutesToEndOfSuspend() * 60000L, true, rh)
+                    binding.statusLightsLayout.apsModeText.visibility = View.VISIBLE
+                }
+
+                loop.isDisconnected                                                         -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_disconnected)
+                    apsModeSetA11yLabel(R.string.disconnected)
+                    binding.statusLightsLayout.apsModeText.text = dateUtil.age(loop.minutesToEndOfSuspend() * 60000L, true, rh)
+                    binding.statusLightsLayout.apsModeText.visibility = View.VISIBLE
+                }
+
+                (loop as PluginBase).isEnabled() && loop.isSuspended                        -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_paused)
+                    apsModeSetA11yLabel(R.string.suspendloop_label)
+                    binding.statusLightsLayout.apsModeText.text = dateUtil.age(loop.minutesToEndOfSuspend() * 60000L, true, rh)
+                    binding.statusLightsLayout.apsModeText.visibility = View.VISIBLE
+                }
+
+                pump.isSuspended()                                                          -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(
+                        if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
+                            // For Omnipod, indicate the pump as disconnected when it's suspended.
+                            // The only way to 'reconnect' it, is through the Omnipod tab
+                            apsModeSetA11yLabel(R.string.disconnected)
+                            R.drawable.ic_loop_disconnected
+                        } else {
+                            apsModeSetA11yLabel(R.string.pump_paused)
+                            R.drawable.ic_loop_paused
+                        }
+                    )
+                    binding.statusLightsLayout.apsModeText.visibility = View.GONE
+                }
+
+                (loop as PluginBase).isEnabled() && closedLoopEnabled.value() && loop.isLGS -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_lgs)
+                    apsModeSetA11yLabel(R.string.uel_lgs_loop_mode)
+                    binding.statusLightsLayout.apsModeText.visibility = View.GONE
+                }
+
+                (loop as PluginBase).isEnabled() && closedLoopEnabled.value()               -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_closed)
+                    apsModeSetA11yLabel(R.string.closedloop)
+                    binding.statusLightsLayout.apsModeText.visibility = View.GONE
+                }
+
+                (loop as PluginBase).isEnabled() && !closedLoopEnabled.value()              -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_open)
+                    apsModeSetA11yLabel(R.string.openloop)
+                    binding.statusLightsLayout.apsModeText.visibility = View.GONE
+                }
+
+                else                                                                        -> {
+                    binding.statusLightsLayout.apsMode.setImageResource(R.drawable.ic_loop_disabled)
+                    apsModeSetA11yLabel(R.string.disabledloop)
+                    binding.statusLightsLayout.apsModeText.visibility = View.GONE
+                }
+            }
+        } else {
+            //nsclient
+            binding.statusLightsLayout.apsMode.visibility = View.GONE
+            binding.statusLightsLayout.apsModeText.visibility = View.GONE
+        }
     }
 
     private fun processPreferenceChange(ev: EventPreferenceChange) {
@@ -236,10 +672,18 @@ open class MainActivity : NoSplashAppCompatActivity() {
         val pageAdapter = TabPageAdapter(this)
         binding.mainNavigationView.setNavigationItemSelectedListener { true }
         val menu = binding.mainNavigationView.menu.also { it.clear() }
+        var itemId = 0
         for (p in activePlugin.getPluginsList()) {
             pageAdapter.registerNewFragment(p)
-            if (p.isEnabled() && p.hasFragment() && !p.isFragmentVisible() && !p.pluginDescription.neverVisible) {
-                val menuItem = menu.add(p.name)
+            if (
+                p.hasFragment() && p.isFragmentVisible() && p.isEnabled(p.pluginDescription.mainType) && !p.pluginDescription.neverVisible) {
+                val menuItem = menu.add(Menu.NONE, itemId++, Menu.NONE, p.name)
+                if(p.menuIcon != -1) {
+                    menuItem.setIcon(p.menuIcon)
+                } else
+                {
+                    menuItem.setIcon(R.drawable.ic_settings)
+                }
                 menuItem.isCheckable = true
                 if (p.menuIcon != -1) {
                     menuItem.setIcon(p.menuIcon)
@@ -247,10 +691,8 @@ open class MainActivity : NoSplashAppCompatActivity() {
                     menuItem.setIcon(R.drawable.ic_settings)
                 }
                 menuItem.setOnMenuItemClickListener {
-                    val intent = Intent(this, SingleFragmentActivity::class.java)
-                    intent.putExtra("plugin", activePlugin.getPluginsList().indexOf(p))
-                    startActivity(intent)
                     binding.mainDrawerLayout.closeDrawers()
+                    binding.mainPager.setCurrentItem(it.itemId, true)
                     true
                 }
             }
@@ -263,7 +705,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
         if (sp.getBoolean(R.string.key_short_tabtitles, false)) {
             binding.tabsNormal.visibility = View.GONE
             binding.tabsCompact.visibility = View.VISIBLE
-            binding.toolbar.layoutParams = LinearLayout.LayoutParams(Toolbar.LayoutParams.MATCH_PARENT, resources.getDimension(R.dimen.compact_height).toInt())
             TabLayoutMediator(binding.tabsCompact, binding.mainPager) { tab, position ->
                 tab.text = (binding.mainPager.adapter as TabPageAdapter).getPluginAt(position).nameShort
             }.attach()
@@ -271,12 +712,12 @@ open class MainActivity : NoSplashAppCompatActivity() {
             binding.tabsNormal.visibility = View.VISIBLE
             binding.tabsCompact.visibility = View.GONE
             val typedValue = TypedValue()
-            if (theme.resolveAttribute(R.attr.actionBarSize, typedValue, true)) {
-                binding.toolbar.layoutParams = LinearLayout.LayoutParams(
+            /*if (theme.resolveAttribute(R.attr.actionBarSize, typedValue, true)) {
+                binding.toolbar.layoutParams = AppBarLayout.LayoutParams(
                     Toolbar.LayoutParams.MATCH_PARENT,
                     TypedValue.complexToDimensionPixelSize(typedValue.data, resources.displayMetrics)
                 )
-            }
+            }*/
             TabLayoutMediator(binding.tabsNormal, binding.mainPager) { tab, position ->
                 tab.text = (binding.mainPager.adapter as TabPageAdapter).getPluginAt(position).name
             }.attach()

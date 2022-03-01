@@ -59,9 +59,15 @@
         <item name="colorAccentDialog">?attr/colorAccent</item>
         <!-- Top bar icons -->
         <item name="iconSensor">@drawable/ic_dexcom_g6</item>
+        <item name="iconReservoir">@drawable/ic_cartridge</item>
+        <item name="iconCanula">@drawable/ic_katheter</item>
+        <item name="iconBattery">@drawable/ic_battery</item>
         <!-- Icons of bottom naviagtion bar -->
         <item name="iconInsulin">@drawable/ic_insulin</item>
+        <item name="iconCarbs">@drawable/ic_carb_48</item>
+        <item name="iconWizzard">@drawable/ic_calculator_48</item>
         <item name="iconCgm">@drawable/ic_blooddrop_48</item>
+        <item name="iconTreatment">@drawable/ic_treatments</item>
         <!-- Fragment background for some themes default transparent  -->
         <item name="fragmentbackground">@color/transparent</item>
         <!-- Color of graph background -->
@@ -200,6 +206,8 @@
         <item name="targetHypoBgIconColor" >@color/red</item>
         <!---Refresh Icon Color-->
         <item name="refreshIconColor" >@color/white</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/white</item>
         <!-- Icon specific colors end -->
         <!---Therapy Event Announcement-->
         <item name="therapyeventAnnouncement" >@color/notificationAnnouncement</item>
@@ -280,6 +288,8 @@
         <!---Number Picker Text Color-->
         <item name="numPickerText" >@color/black</item>
         <item name="numPickerBackground" >@color/white</item>
+        <!---Fab Menue-->
+        <item name="fabmenubackground">@color/lightgray</item>
     </style>
 
     <style name="Theme.MaterialComponents.DayNight.DarkActionBar" parent="Theme.MaterialComponents.DayNight.Bridge"/>

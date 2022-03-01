@@ -38,6 +38,7 @@ import info.nightscout.androidaps.utils.WarnColors
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.interfaces.Dana
+import info.nightscout.androidaps.utils.ViewAnimation
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.sharedPreferences.SP
@@ -94,24 +95,6 @@ class DanaFragment : DaggerFragment() {
         binding.danaPumpstatus.setBackgroundColor(rh.getAttributeColor(context, R.attr.informationBackground))
         binding.danaPumpstatus.setTextColor(rh.getAttributeColor(context, R.attr.informationText))
 
-        binding.history.setOnClickListener { startActivity(Intent(context, DanaHistoryActivity::class.java)) }
-        binding.viewprofile.setOnClickListener {
-            val profile = danaPump.createConvertedProfile()?.getDefaultProfileJson()
-                ?: return@setOnClickListener
-            val profileName = danaPump.createConvertedProfile()?.getDefaultProfileName()
-                ?: return@setOnClickListener
-            ProfileViewerDialog().also { pvd ->
-                pvd.arguments = Bundle().also { args ->
-                    args.putLong("time", dateUtil.now())
-                    args.putInt("mode", ProfileViewerDialog.Mode.CUSTOM_PROFILE.ordinal)
-                    args.putString("customProfile", profile.toString())
-                    args.putString("customProfileName", profileName)
-                }
-
-            }.show(childFragmentManager, "ProfileViewDialog")
-        }
-        binding.stats.setOnClickListener { startActivity(Intent(context, TDDStatsActivity::class.java)) }
-        binding.userOptions.setOnClickListener { startActivity(Intent(context, DanaUserOptionsActivity::class.java)) }
         binding.btConnectionLayout.setOnClickListener {
             aapsLogger.debug(LTag.PUMP, "Clicked connect to pump")
             danaPump.reset()
@@ -129,6 +112,77 @@ class DanaFragment : DaggerFragment() {
                 }
                 true
             }
+
+        ViewAnimation.showOut(binding.userOptions)
+        ViewAnimation.showOut(binding.history)
+        ViewAnimation.showOut(binding.stats)
+        ViewAnimation.showOut(binding.viewprofile)
+
+        binding.userOptions.setOnClickListener(clickListener)
+        binding.fabDanaMenu.setOnClickListener(clickListener)
+        binding.history.setOnClickListener(clickListener)
+        binding.stats.setOnClickListener(clickListener)
+        binding.viewprofile.setOnClickListener(clickListener)
+    }
+
+    private val clickListener: View.OnClickListener = View.OnClickListener { view ->
+        when ( view.id ){
+            R.id.fabDanaMenu -> {
+                if ( binding.viewprofile.visibility == View.GONE) {
+                    ViewAnimation.showIn(binding.userOptions)
+                    ViewAnimation.showIn(binding.history)
+                    ViewAnimation.showIn(binding.stats)
+                    ViewAnimation.showIn(binding.viewprofile)
+                } else  {
+                    ViewAnimation.showOut(binding.userOptions)
+                    ViewAnimation.showOut(binding.history)
+                    ViewAnimation.showOut(binding.stats)
+                    ViewAnimation.showOut(binding.viewprofile)
+                }
+            }
+            R.id.userOptions -> {
+                binding.history.setOnClickListener { startActivity(Intent(context, DanaHistoryActivity::class.java)) }
+                startActivity(Intent(context,DanaUserOptionsActivity::class.java))
+                ViewAnimation.showOut(binding.userOptions)
+                ViewAnimation.showOut(binding.history)
+                ViewAnimation.showOut(binding.stats)
+                ViewAnimation.showOut(binding.viewprofile)
+            }
+            R.id.history -> {
+                startActivity(Intent(context, DanaHistoryActivity::class.java))
+                ViewAnimation.showOut(binding.userOptions)
+                ViewAnimation.showOut(binding.history)
+                ViewAnimation.showOut(binding.stats)
+                ViewAnimation.showOut(binding.viewprofile)
+            }
+            R.id.stats -> {
+                startActivity(Intent(context, TDDStatsActivity::class.java))
+                ViewAnimation.showOut(binding.userOptions)
+                ViewAnimation.showOut(binding.history)
+                ViewAnimation.showOut(binding.stats)
+                ViewAnimation.showOut(binding.viewprofile)
+            }
+            R.id.viewprofile -> {
+                val profile = danaPump.createConvertedProfile()?.getDefaultProfileJson()
+                    ?: return@OnClickListener
+                val profileName = danaPump.createConvertedProfile()?.getDefaultProfileName()
+                    ?: return@OnClickListener
+                ProfileViewerDialog().also { pvd ->
+                    pvd.arguments = Bundle().also { args ->
+                        args.putLong("time", dateUtil.now())
+                        args.putInt("mode", ProfileViewerDialog.Mode.CUSTOM_PROFILE.ordinal)
+                        args.putString("customProfile", profile.toString())
+                        args.putString("customProfileName", profileName)
+                    }
+
+                }.show(childFragmentManager, "ProfileViewDialog")
+                ViewAnimation.showOut(binding.userOptions)
+                ViewAnimation.showOut(binding.history)
+                ViewAnimation.showOut(binding.stats)
+                ViewAnimation.showOut(binding.viewprofile)
+            }
+        }
+
     }
 
     @Synchronized
