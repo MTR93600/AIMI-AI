@@ -14,6 +14,7 @@ import android.os.HandlerThread
 import android.os.PersistableBundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
+import android.text.style.ForegroundColorSpan
 import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.*
@@ -271,6 +272,10 @@ open class MainActivity : NoSplashAppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 setPluginPreferenceMenuName()
                 checkPluginPreferences(binding.mainPager)
+                // do the trick to show bottombar >> performHide and than performShow
+                binding.bottomAppBar.performHide()
+                binding.bottomAppBar.performShow()
+                setDisabledMenuItemColorPluginPreferences()
             }
         })
 
@@ -302,6 +307,14 @@ open class MainActivity : NoSplashAppCompatActivity() {
             androidPermission.notifyForSMSPermissions(this, smsCommunicatorPlugin)
             androidPermission.notifyForSystemWindowPermissions(this)
             androidPermission.notifyForBtConnectPermission(this)
+        }
+    }
+
+    private fun setDisabledMenuItemColorPluginPreferences() {
+        if( pluginPreferencesMenuItem?.isEnabled == false){
+            val spanString = SpannableString(this.menu?.findItem(R.id.nav_plugin_preferences)?.title.toString())
+            spanString.setSpan(ForegroundColorSpan(getColor(R.color.concinnity_grey)), 0, spanString.length, 0)
+            this.menu?.findItem(R.id.nav_plugin_preferences)?.title = spanString
         }
     }
 
