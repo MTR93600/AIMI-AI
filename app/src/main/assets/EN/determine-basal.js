@@ -387,7 +387,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     enlog += "* advanced ISF:\n";
     // ISF at normal target
-    var sens_normalTarget = sens, sens_profile = sens; ; // use profile sens and keep profile sens with any SR
+    var sens_normalTarget = sens, sens_profile = sens; // use profile sens and keep profile sens with any SR
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
