@@ -441,7 +441,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "SMBbgOffset:"+SMBbgOffset+"\n";
 
     // use normal sens when EN not active at night or TT not normalTarget
-    sens = (eatingnow ? sens_currentBG : sens_normalTarget);
+    sens = (eatingnow ? sens_currentBG : sens_profile);
     // at night with SR use the sens_currentBG
     sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
