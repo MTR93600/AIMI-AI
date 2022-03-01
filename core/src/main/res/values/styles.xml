@@ -743,6 +743,7 @@
         <item name="colorAccent">@color/secondaryColorYellow</item>
         <item name="overviewPillColor">@color/overviewPillColorYellow</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="colorOnPrimary">@color/black_alpha_80</item>
         <item name="colorOnSecondary">@color/black_alpha_80</item>
         <item name="colorSurface">@color/white_alpha_70</item>

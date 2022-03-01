@@ -980,6 +980,76 @@
         <item name="android:dialogTheme">@style/APSDialogDarkside</item>
     </style>
 
+    <style name="AppTheme.YELLOW" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorYellow</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorYellow</item>
+        <item name="colorAccent">@color/secondaryColorYellow</item>
+        <item name="overviewPillColor">@color/overviewPillColorYellow</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/white</item>
+        <item name="colorOnPrimary">@color/concinnity_grey</item>
+        <item name="colorOnSecondary">@color/concinnity_bright_grey</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.AMBER" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorAmber</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorAmber</item>
+        <item name="colorAccent">@color/secondaryColorAmber</item>
+        <item name="overviewPillColor">@color/overviewPillColorAmber</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.ORANGE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorOrange</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorOrange</item>
+        <item name="colorAccent">@color/secondaryColorOrange</item>
+        <item name="overviewPillColor">@color/overviewPillColorOrange</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.DEEPORANGE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorDeepOrange</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorDeepOrange</item>
+        <item name="colorAccent">@color/secondaryColorDeepOrange</item>
+        <item name="overviewPillColor">@color/overviewPillColorDeepOrange</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.BROWN" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorBrown</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorBrown</item>
+        <item name="colorAccent">@color/secondaryColorBrown</item>
+        <item name="overviewPillColor">@color/overviewPillColorBrown</item>
+        <item name="android:windowBackground">@drawable/darkblue_gold</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.GRAY" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorGray</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorGray</item>
+        <item name="colorAccent">@color/secondaryColorGray</item>
+        <item name="overviewPillColor">@color/overviewPillColorGray</item>
+        <item name="android:windowBackground">@drawable/stone</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.BLUEGRAY" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorBlueGray</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorBlueGray</item>
+        <item name="colorAccent">@color/secondaryColorBlueGray</item>
+        <item name="overviewPillColor">@color/overviewPillColorBlueGray</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
     <style name="AppTheme.DARKSIDE" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="bgInRange">@color/blue_default</item>
