@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
-
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.interfaces.BgSync.BgHistory
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback
@@ -108,16 +107,16 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + line.trim { it <= ' ' }.length)
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + matcher.find())
                 aapsLogger.info(LTag.PUMPBTCOMM, "Invalid isig $line")
-                return null
+                break
             }
         }
         aapsLogger.info(LTag.PUMPBTCOMM, "isig")
         isigs.forEach(Consumer { f: Double? -> aapsLogger.info(LTag.PUMPBTCOMM, f.toString()) })
         isigs.reverse()
-        val bfValue = bgReadings?.bgValue?.zip(isigs)?.map{ pair ->
+        val bfValue = bgReadings?.bgValue?.zip(isigs)?.map { pair ->
             pair.first.copy(isig = pair.second)
         }
-        bgReadings?.bgValue  = bfValue!!
+        bgReadings?.bgValue = bfValue!!
         // val result: MutableList<EnliteInMemoryGlucoseValue?> = ArrayList()
         aapsLogger.info(LTag.PUMPBTCOMM, "isigs s" + isigs.size)
         aapsLogger.info(LTag.PUMPBTCOMM, "readings s" + bgReadings.bgValue.size)

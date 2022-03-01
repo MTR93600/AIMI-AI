@@ -2850,6 +2850,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         lastBolusTime && bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli() -
                         lastBolusTime <= 180000
                     ) {
+                        detailedBolusInfo.timestamp= bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
+                        detailedBolusInfo.insulin = bolusAnswer.bolusAmount
                         detailedBolusInfo.bolusTimestamp = bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
                         handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
                     } else {
@@ -2875,7 +2877,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     }
                 } else if (PumpResponses.DeliveringBolus == f.functionResult.response) {
                     lastDetailedBolusInfo = detailedBolusInfo
-                    lastBolusTime = System.currentTimeMillis()
+                    lastBolusTime = pumpStatusData.lastDataTime
                     aapsLogger.info(LTag.PUMPBTCOMM, "and themmmm")
                 }
                 val recentBolus = Supplier { answer.get().filter { ans: String -> ans.contains("recent bolus") } }
@@ -2970,7 +2972,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             medLinkPumpStatus,
             rh,
             rxBus, null,
-            aapsLogger
+            aapsLogger,
+            this
         )
         val bolusStatusCommand = BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         return BolusStatusMedLinkMessage<String>(
@@ -3132,10 +3135,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
+    override fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
         bolusInfo.forEachOrdered { bolusJson: JSONObject ->
             val bInfo = DetailedBolusInfo.fromJsonString(bolusJson.toString())
-            if (lastDetailedBolusInfo != null && abs(bInfo.bolusTimestamp!! - lastDetailedBolusInfo!!.bolusTimestamp!!) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
+            if (lastDetailedBolusInfo != null && bInfo.bolusTimestamp?:0L - (lastDetailedBolusInfo?.bolusTimestamp?:0L) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
                 bInfo.carbs = lastDetailedBolusInfo!!.carbs
                 lastDetailedBolusInfo = null
             }
@@ -3347,7 +3350,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             lastBatteryLevel = currentLevel
         }
         if ((currentLevel - batteryDelta * 5 <= minimumBatteryLevel ||
-                medLinkPumpStatus.deviceBatteryRemaining <= minimumBatteryLevel) &&
+                medLinkServiceData.batteryLevel <= minimumBatteryLevel) &&
             medLinkPumpStatus.pumpStatusType === PumpStatusType.Suspended
         ) {
             clearTempBasal()
