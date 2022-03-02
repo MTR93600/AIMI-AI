@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.general.themeselector
 
 import android.R.attr
+import android.annotation.SuppressLint
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -8,25 +9,17 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.widget.CompoundButton
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.SwitchCompat
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.button.MaterialButton
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.ColorPickerView
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.skydoves.colorpickerview.preference.ColorPickerPreferenceManager
 import info.nightscout.androidaps.MainActivity
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.databinding.ActivityHistorybrowseBinding
-import info.nightscout.androidaps.databinding.OverviewFragmentBinding
 import info.nightscout.androidaps.databinding.ThemeselectorScrollingFragmentBinding
 import info.nightscout.androidaps.plugins.general.colorpicker.CustomFlag
 import info.nightscout.androidaps.plugins.general.themeselector.adapter.RecyclerViewClickListener
@@ -112,16 +105,16 @@ class ScrollingActivity : MainActivity(), View.OnClickListener {
         }
 
         // init the bottom sheet behavior
-        mBottomSheetBehavior = BottomSheetBehavior.from( findViewById<LinearLayout>(R.id.bottom_sheet))
+        mBottomSheetBehavior = BottomSheetBehavior.from( binding.themeSelectorBottomLayout.bottomSheet))
         val backGround = sp.getBoolean("backgroundcolor", true)
-        val switchCompatBackground = findViewById<SwitchCompat>(R.id.switch_backgroundimage)
+        val switchCompatBackground = binding.themeSelectorBottomLayout.switchBackgroundimage
         switchCompatBackground.isChecked = backGround
         switchCompatBackground.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             sp.putBoolean("backgroundcolor", b)
             val delayTime = 200
             compoundButton.postDelayed(Runnable { changeTheme(sp.getInt("theme", THEME_DARKSIDE)) }, delayTime.toLong())
         }
-        val switchCompat = findViewById<SwitchCompat>(R.id.switch_dark_mode)
+        val switchCompat = binding.themeSelectorBottomLayout.switchDarkMode
         switchCompat.isChecked = nightMode
         switchCompat.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
             if (b){
@@ -172,6 +165,7 @@ class ScrollingActivity : MainActivity(), View.OnClickListener {
         binding.themeSelectorBottomLayout.recyclerView.setAdapter(mAdapter)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun prepareThemeData() {
         mThemeList.clear()
         mThemeList.addAll(themeList)
