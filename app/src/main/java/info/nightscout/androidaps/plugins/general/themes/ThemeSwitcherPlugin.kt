@@ -40,7 +40,7 @@ class ThemeSwitcherPlugin @Inject constructor(
         })
     }
 
-    private fun switchTheme() {
+    public fun switchTheme() {
         when(sp.getString(R.string.key_use_dark_mode, "dark")) {
             sp.getString(R.string.value_dark_theme, "dark") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             sp.getString(R.string.value_light_theme, "light") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

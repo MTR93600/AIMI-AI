@@ -35,5 +35,7 @@
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
     <!-- include bottom sheet -->
-    <include layout="@layout/themeselector_bottom_sheet" />
+    <include
+        android:id="@+id/theme_selector_bottom_layout"
+        layout="@layout/themeselector_bottom_sheet" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
