@@ -208,6 +208,8 @@
         <item name="refreshIconColor" >@color/white</item>
         <!---First Aid Icon Color-->
         <item name="firstAidIconColor" >@color/white</item>
+        <!---Patchpump Icon Color-->
+        <item name="patchPumpIconColor" >@color/white</item>
         <!-- Icon specific colors end -->
         <!---Therapy Event Announcement-->
         <item name="therapyeventAnnouncement" >@color/notificationAnnouncement</item>

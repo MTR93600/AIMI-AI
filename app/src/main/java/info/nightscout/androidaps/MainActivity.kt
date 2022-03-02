@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
+import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -88,6 +89,7 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.source.DexcomPlugin
 import info.nightscout.androidaps.plugins.source.XdripPlugin
 import info.nightscout.androidaps.utils.*
+import info.nightscout.androidaps.utils.ui.SingleClickButton
 import info.nightscout.androidaps.utils.wizard.QuickWizard
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -149,7 +151,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
     fun setNewTheme(newTheme: Int) {
         sp.putInt("theme", newTheme)
 
-        if ( sp.getBoolean(R.string.key_use_dark_mode, true)) {
+        if ( sp.getString(R.string.key_use_dark_mode, "dark") == "dark") {
             val cd = ColorDrawable(sp.getInt("darkBackgroundColor", info.nightscout.androidaps.core.R.color.background_dark))
             if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
         } else {
@@ -173,7 +175,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Iconify.with(FontAwesomeModule())
-        if ( sp.getBoolean(R.string.key_use_dark_mode, true)) {
+        if ( sp.getString(R.string.key_use_dark_mode, "dark") == "dark") {
             val cd = ColorDrawable(sp.getInt("darkBackgroundColor", info.nightscout.androidaps.core.R.color.background_dark))
             if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
         } else {
@@ -247,17 +249,15 @@ open class MainActivity : NoSplashAppCompatActivity() {
             return true
         })
 
-        findViewById<TextView>(R.id.overview_bg)?.setOnClickListener {
+        binding.statusLightsLayout.overviewBg.setOnClickListener {
             val fullText = avgdelta
             this.let {
                 OKDialog.show(it, "Delta", fullText, null)
             }
         }
 
-
-        findViewById<ImageView>(R.id.aps_mode)?.setOnClickListener  { view: View? -> onClick(view!!) }
-        findViewById<ImageView>(R.id.aps_mode)?.setOnLongClickListener{ view: View? -> onLongClick(view!!) }
-
+        binding.statusLightsLayout.apsMode.setOnClickListener  { view: View? -> onClick(view!!) }
+        binding.statusLightsLayout.apsMode.setOnLongClickListener{ view: View? -> onLongClick(view!!) }
         binding.mainBottomFabMenu.treatmentButton.setOnClickListener { view: View? -> onClick(view!!) }
         binding.mainBottomFabMenu.calibrationButton.setOnClickListener { view: View? -> onClick(view!!) }
         binding.mainBottomFabMenu.quickwizardButton.setOnClickListener { view: View? -> onClick(view!!) }
@@ -267,11 +267,10 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
         //fab menu
         //hide the fab menu icons and label
-        ViewAnimation.init(binding.mainBottomFabMenu.calibrationButton)
-        ViewAnimation.init(binding.mainBottomFabMenu.quickwizardButton)
-        if (binding.mainBottomFabMenu != null) {
-            binding.mainBottomFabMenu.fabMenu.visibility = View.GONE
-        }
+        //ViewAnimation.init(binding.mainBottomFabMenu.calibrationButton)
+        //ViewAnimation.init(binding.mainBottomFabMenu.quickwizardButton)
+
+        binding.mainBottomFabMenu.fabMenu.visibility = View.GONE
 
         // initialize screen wake lock
         processPreferenceChange(EventPreferenceChange(rh.gs(R.string.key_keep_screen_on)))
@@ -328,7 +327,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
     }
 
     private fun openCgmApp(packageName: String) {
-        this?.let {
+        this.let {
             val packageManager = it.packageManager
             try {
                 val intent = packageManager.getLaunchIntentForPackage(packageName)
@@ -388,7 +387,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
         this.let {
             when (id) {
-                R.id.sensorage, R.id.sensorage -> {
+                R.id.sensorage -> {
                     newCareDialog.setOptions(CareDialog.EventType.SENSOR_INSERT, R.string.careportal_cgmsensorinsert).show(manager!!, "Actions")
                     return
                 }
@@ -487,13 +486,57 @@ open class MainActivity : NoSplashAppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun processButtonsVisibility() {
+        val xDripIsBgSource = xdripPlugin.isEnabled()
+        val dexcomIsSource = dexcomPlugin.isEnabled()
+        val lastBG = iobCobCalculator.ads.lastBg()
+        val pump = activePlugin.activePump
+        val profile = profileFunction.getProfile()
+        val profileName = profileFunction.getProfileName()
+        val actualBG = iobCobCalculator.ads.actualBg()
+
+        // QuickWizard button
+        val quickWizardEntry = quickWizard.getActive()
+        if (quickWizardEntry != null && lastBG != null && profile != null && pump.isInitialized() && !pump.isSuspended() && !loop.isDisconnected) {
+            binding.mainBottomFabMenu.quickwizardButton.show()
+            val wizard = quickWizardEntry.doCalc(profile, profileName, lastBG, false)
+            binding.mainBottomFabMenu.quickwizardbuttonLabel.text = quickWizardEntry.buttonText() + "\n" + rh.gs(R.string.format_carbs, quickWizardEntry.carbs()) +
+                " " + rh.gs(R.string.formatinsulinunits, wizard.calculatedTotalInsulin)
+            if (wizard.calculatedTotalInsulin <= 0) binding.mainBottomFabMenu.quickwizardButton.hide()
+        } else binding.mainBottomFabMenu.quickwizardButton.hide()
+
+        val conditionPumpProfile = !loop.isDisconnected && pump.isInitialized() && !pump.isSuspended() && profile != null
+
+        // **** Various buttons ****
+        binding.mainBottomFabMenu.treatmentButton.visibility = (conditionPumpProfile  && sp.getBoolean(R.string.key_show_treatment_button, false)).toVisibility()
+
+        binding.bottomNavigation.menu.findItem(R.id.carbsButton)?.isVisible =
+            ((!activePlugin.activePump.pumpDescription.storesCarbInfo || pump.isInitialized() && !pump.isSuspended()) && profile != null
+                && sp.getBoolean(R.string.key_show_carbs_button, true))
+
+        binding.bottomNavigation.menu.findItem(R.id.wizardButton)?.isVisible = (conditionPumpProfile && sp.getBoolean(R.string.key_show_wizard_button, true))
+
+        binding.bottomNavigation.menu.findItem(R.id.insulinButton)?.isVisible  =  (conditionPumpProfile && sp.getBoolean(R.string.key_show_insulin_button, true))
+
+        // **** Calibration & CGM buttons ****
+        binding.mainBottomFabMenu.calibrationButton.visibility = (xDripIsBgSource && actualBG != null && sp.getBoolean(R.string.key_show_calibration_button, true)).toVisibility()
+
+        binding.bottomNavigation.menu.findItem(R.id.cgmButton)?.isVisible = (sp.getBoolean(R.string.key_show_cgm_button, false) && (xDripIsBgSource || dexcomIsSource))
+        if (dexcomIsSource) {
+            binding.bottomNavigation.menu.findItem(R.id.cgmButton).setIcon(R.drawable.ic_byoda)
+        } else if (xDripIsBgSource) {
+            binding.bottomNavigation.menu.findItem(R.id.cgmButton).setIcon(R.drawable.ic_xdrip)
+        }
+    }
+
     fun updateBg(from: String) {
         val units = profileFunction.getUnits()
-        findViewById<TextView>(R.id.overview_bg)?.text =  overviewData.lastBg?.valueToUnitsString(units)
-        findViewById<TextView>(R.id.overview_bg)?.setTextColor((overviewData.getlastBgColor(this)))
-        findViewById<ImageView>(R.id.overview_arrow)?.setImageResource(trendCalculator.getTrendArrow(overviewData.lastBg).directionToIcon())
-        findViewById<ImageView>(R.id.overview_arrow)?.setColorFilter(overviewData.getlastBgColor(this))
-        findViewById<ImageView>(R.id.overview_arrow)?.contentDescription = overviewData.lastBgDescription + " " + rh.gs(R.string.and) + " " + trendCalculator.getTrendDescription(overviewData.lastBg)
+        binding.statusLightsLayout.overviewBg.text =  overviewData.lastBg?.valueToUnitsString(units)
+        binding.statusLightsLayout.overviewBg.setTextColor((overviewData.getlastBgColor(this)))
+        binding.statusLightsLayout.overviewArrow.setImageResource(trendCalculator.getTrendArrow(overviewData.lastBg).directionToIcon())
+        binding.statusLightsLayout.overviewArrow.setColorFilter(overviewData.getlastBgColor(this))
+        binding.statusLightsLayout.overviewArrow.contentDescription = overviewData.lastBgDescription + " " + rh.gs(R.string.and) + " " + trendCalculator.getTrendDescription(overviewData.lastBg)
         val glucoseStatus = glucoseStatusProvider.glucoseStatusData
         if (glucoseStatus != null) {
             findViewById<TextView>(R.id.overview_delta)?.text =  Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
@@ -561,19 +604,19 @@ open class MainActivity : NoSplashAppCompatActivity() {
         binding.statusLightsLayout.apply {
             cannulaOrPatch.setImageResource(if (isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_katheter)
             cannulaOrPatch.contentDescription = rh.gs(if (isPatchPump) R.string.statuslights_patch_pump_age else R.string.statuslights_cannula_age)
-            cannulaOrPatch.scaleX = if (isPatchPump) 1.4f else 2f
+            cannulaOrPatch.scaleX = if (isPatchPump) 1.2f else 1.2f
             cannulaOrPatch.scaleY = cannulaOrPatch.scaleX
             insulinAge.visibility = isPatchPump.not().toVisibility()
             statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
         }
         statusLightHandler.updateStatusLights(
-            findViewById<TextView>(R.id.cannulaAge),
-            findViewById<TextView>(R.id.insulinAge),
-            findViewById<TextView>(R.id.reservoirLevel),
-            findViewById<TextView>(R.id.sensorAge),
+            binding.statusLightsLayout.cannulaAge,
+            binding.statusLightsLayout.insulinAge,
+            binding.statusLightsLayout.reservoirLevel,
+            binding.statusLightsLayout.sensorAge,
             null,
-            findViewById<TextView>(R.id.pbAge),
-            findViewById<TextView>(R.id.batteryLevel),
+            binding.statusLightsLayout.pbAge,
+            binding.statusLightsLayout.batteryLevel,
             rh.getAttributeColor(this, R.attr.statuslightNormal),
             rh.getAttributeColor(this, R.attr.statuslightWarning),
             rh.getAttributeColor(this, R.attr.statuslightAlarm))
@@ -581,27 +624,8 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
     fun updateTime(from: String) {
         //binding.infoLayout.time.text = dateUtil.timeString(dateUtil.now())
-        // Status lights
-        val isPatchPump = activePlugin.activePump.pumpDescription.isPatchPump
-        binding.statusLightsLayout.apply {
-            cannulaOrPatch.setImageResource(if (isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_katheter)
-            cannulaOrPatch.contentDescription = rh.gs(if (isPatchPump) R.string.statuslights_patch_pump_age else R.string.statuslights_cannula_age)
-            cannulaOrPatch.scaleX = if (isPatchPump) 1.4f else 1.2f
-            cannulaOrPatch.scaleY = cannulaOrPatch.scaleX
-            insulinAge.visibility = isPatchPump.not().toVisibility()
-            statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
-        }
-        statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge,
-                                              binding.statusLightsLayout.insulinAge,
-                                              binding.statusLightsLayout.reservoirLevel,
-                                              binding.statusLightsLayout.sensorAge,
-                                              null,
-                                              binding.statusLightsLayout.pbAge,
-                                              binding.statusLightsLayout.batteryLevel ,
-                                              rh.getAttributeColor(this, R.attr.statuslightNormal),
-                                              rh.getAttributeColor(this, R.attr.statuslightWarning),
-                                              rh.getAttributeColor(this, R.attr.statuslightAlarm))
-        //processButtonsVisibility()
+        upDateStatusLight()
+        processButtonsVisibility()
         processAps()
     }
 

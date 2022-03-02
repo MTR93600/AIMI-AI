@@ -171,6 +171,8 @@
 <attr name="refreshIconColor" format="reference|color" />
 <!---First Aid Icon Color-->
 <attr name="firstAidIconColor" format="reference|color" />
+<!---Patch Pump Icon Color-->
+<attr name="patchPumpIconColor" format="reference|color" />
 <!---NS MBG Event-->
 <attr name="therapyeventNsmbg" format="reference|color" />
 <!---Finger Stick Event-->
