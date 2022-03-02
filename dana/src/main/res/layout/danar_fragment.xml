@@ -88,8 +88,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -106,8 +106,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -128,18 +128,18 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:id="@+id/bt_connection_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -156,8 +156,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -179,17 +179,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -206,8 +206,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -228,17 +228,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -255,8 +255,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -276,17 +276,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -303,8 +303,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -324,17 +324,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -351,8 +351,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -372,17 +372,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -399,8 +399,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -420,17 +420,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -447,8 +447,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -468,17 +468,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -495,8 +495,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -516,17 +516,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -543,8 +543,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -564,17 +564,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -591,8 +591,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -612,17 +612,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -639,8 +639,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -660,10 +660,10 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <ImageView
@@ -671,9 +671,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:contentDescription="@string/pump_icon"
                 android:drawableTop="@drawable/ic_dana_rs"
-                android:paddingTop="10dp"
-                android:contentDescription="@string/pump_icon" />
+                android:paddingTop="10dp" />
 
         </LinearLayout>
 
@@ -705,20 +705,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
         android:background="?attr/colorPrimary"
         android:visibility="visible">
 
         <TextView
             android:id="@+id/queue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:gravity="center_vertical|center_horizontal"
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:gravity="center_vertical|center_horizontal"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
