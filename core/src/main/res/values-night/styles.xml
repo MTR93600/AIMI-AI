@@ -522,6 +522,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/ferrari3</item>
     </style>
 
@@ -588,6 +590,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/black_pink</item>
         <item name="PillColorStart">@color/primaryColorPinkVariant</item>
         <item name="PillColorEnd">@color/primaryColorPink</item>
@@ -698,6 +702,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -753,6 +759,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/black_blue</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -841,6 +849,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="android:windowBackground">@drawable/green_domina</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
@@ -898,6 +908,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/buggati</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -954,6 +966,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -1027,6 +1041,8 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorBrown</item>
         <item name="colorAccent">@color/secondaryColorBrown</item>
         <item name="overviewPillColor">@color/overviewPillColorBrown</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/darkblue_gold</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -1121,6 +1137,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <!-- Color of dialogs -->
         <item name="android:alertDialogTheme">@style/APSDialogDarkside</item>
         <item name="android:dialogTheme">@style/APSDialogDarkside</item>

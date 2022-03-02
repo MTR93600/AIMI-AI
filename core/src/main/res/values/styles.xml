@@ -675,6 +675,8 @@
         <item name="userOptionsIconColor" >@color/white</item>
         <!---Target Hypo Icon Color-->
         <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/winter</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
