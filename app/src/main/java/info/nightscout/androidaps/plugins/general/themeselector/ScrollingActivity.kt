@@ -105,7 +105,7 @@ class ScrollingActivity : MainActivity(), View.OnClickListener {
         }
 
         // init the bottom sheet behavior
-        mBottomSheetBehavior = BottomSheetBehavior.from( binding.themeSelectorBottomLayout.bottomSheet))
+        mBottomSheetBehavior = BottomSheetBehavior.from( binding.themeSelectorBottomLayout.bottomSheet)
         val backGround = sp.getBoolean("backgroundcolor", true)
         val switchCompatBackground = binding.themeSelectorBottomLayout.switchBackgroundimage
         switchCompatBackground.isChecked = backGround
