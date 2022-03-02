@@ -2,6 +2,8 @@ package info.nightscout.androidaps.plugins.general.overview.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -22,10 +24,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.DaggerAppCompatActivityWithResult
+import info.nightscout.androidaps.activities.MyPreferenceFragment
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
+import info.nightscout.androidaps.databinding.ActivityPreferencesBinding
 import info.nightscout.androidaps.databinding.OverviewQuickwizardlistActivityBinding
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.dialogs.EditQuickWizardDialog
 import info.nightscout.androidaps.plugins.general.overview.events.EventQuickWizardChange
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
@@ -36,14 +42,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
-class QuickWizardListActivity : DaggerAppCompatActivityWithResult() {
+class QuickWizardListActivity : NoSplashAppCompatActivity() {
 
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var quickWizard: QuickWizard
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var sp: SP
-    @Inject lateinit var rxBus: RxBus
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 
@@ -184,6 +189,17 @@ class QuickWizardListActivity : DaggerAppCompatActivityWithResult() {
         title = rh.gs(R.string.quickwizard)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        // important to set the theme here again for preferences - normal way do not work here
+        var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        try {
+            setTheme(themeToSet)
+            val theme = super.getTheme()
+            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
+            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         binding.recyclerview.setHasFixedSize(true)
         binding.recyclerview.layoutManager = LinearLayoutManager(this)

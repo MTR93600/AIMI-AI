@@ -85,8 +85,12 @@ import info.nightscout.androidaps.plugins.general.overview.activities.QuickWizar
 import info.nightscout.androidaps.plugins.general.overview.events.*
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.plugins.source.DexcomPlugin
+import info.nightscout.androidaps.plugins.source.XdripPlugin
 import info.nightscout.androidaps.utils.*
+import info.nightscout.androidaps.utils.wizard.QuickWizard
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 open class MainActivity : NoSplashAppCompatActivity() {
 
@@ -117,6 +121,11 @@ open class MainActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var automationPlugin: AutomationPlugin
     @Inject lateinit var bgQualityCheckPlugin: BgQualityCheckPlugin
     @Inject lateinit var statusLightHandler: StatusLightHandler
+    @Inject lateinit var iobCobCalculator: IobCobCalculator
+    @Inject lateinit var quickWizard: QuickWizard
+    @Inject lateinit var dexcomPlugin: DexcomPlugin
+    @Inject lateinit var dexcomMediator: DexcomPlugin.DexcomMediator
+    @Inject lateinit var xdripPlugin: XdripPlugin
 
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private var pluginPreferencesMenuItem: MenuItem? = null
@@ -318,6 +327,20 @@ open class MainActivity : NoSplashAppCompatActivity() {
         }
     }
 
+    private fun openCgmApp(packageName: String) {
+        this?.let {
+            val packageManager = it.packageManager
+            try {
+                val intent = packageManager.getLaunchIntentForPackage(packageName)
+                    ?: throw ActivityNotFoundException()
+                intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                it.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                OKDialog.show(it, "", rh.gs(R.string.error_starting_cgm))
+            }
+        }
+    }
+
     private fun onLongClick(v: View): Boolean {
         when (v.id) {
             R.id.quickwizardButton -> {
@@ -399,14 +422,36 @@ open class MainActivity : NoSplashAppCompatActivity() {
                 }
 
                 R.id.treatmentButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { TreatmentDialog().show(manager!!, "MainActivity") })
-               // R.id.quickwizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { onClickQuickWizard() })
+                R.id.quickwizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { onClickQuickWizard() })
 
                 R.id.cgmButton -> {
-
+                    if (xdripPlugin.isEnabled())
+                        openCgmApp("com.eveningoutpost.dexdrip")
+                    else if (dexcomPlugin.isEnabled()) {
+                        dexcomMediator.findDexcomPackageName()?.let {
+                            openCgmApp(it)
+                        }
+                            ?: ToastUtils.showToastInUiThread(this, rh.gs(R.string.dexcom_app_not_installed))
+                    }
                 }
 
-                R.id.calibrationButton -> {
-
+                R.id.calibration_button  -> {
+                    if (xdripPlugin.isEnabled()) {
+                        CalibrationDialog().show(supportFragmentManager, "CalibrationDialog")
+                    } else if (dexcomPlugin.isEnabled()) {
+                        try {
+                            dexcomMediator.findDexcomPackageName()?.let {
+                                startActivity(
+                                    Intent("com.dexcom.cgm.activities.MeterEntryActivity")
+                                        .setPackage(it)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                )
+                            }
+                                ?: ToastUtils.showToastInUiThread(this, rh.gs(R.string.dexcom_app_not_installed))
+                        } catch (e: ActivityNotFoundException) {
+                            ToastUtils.showToastInUiThread(this, rh.gs(R.string.g5appnotdetected))
+                        }
+                    }
                 }
 
                 R.id.aps_mode     -> {
@@ -415,6 +460,28 @@ open class MainActivity : NoSplashAppCompatActivity() {
                     val pvd = LoopDialog()
                     pvd.arguments = args
                     pvd.show(manager!!, "Overview")
+                }
+            }
+        }
+    }
+
+    private fun onClickQuickWizard() {
+        val actualBg = iobCobCalculator.ads.actualBg()
+        val profile = profileFunction.getProfile()
+        val profileName = profileFunction.getProfileName()
+        val pump = activePlugin.activePump
+        val quickWizardEntry = quickWizard.getActive()
+        if (quickWizardEntry != null && actualBg != null && profile != null) {
+            binding.mainBottomFabMenu.quickwizardButton.show()
+            val wizard = quickWizardEntry.doCalc(profile, profileName, actualBg, true)
+            if (wizard.calculatedTotalInsulin > 0.0 && quickWizardEntry.carbs() > 0.0) {
+                val carbsAfterConstraints = constraintChecker.applyCarbsConstraints(Constraint(quickWizardEntry.carbs())).value()
+                this.let {
+                    if (abs(wizard.insulinAfterConstraints - wizard.calculatedTotalInsulin) >= pump.pumpDescription.pumpType.determineCorrectBolusStepSize(wizard.insulinAfterConstraints) || carbsAfterConstraints != quickWizardEntry.carbs()) {
+                        OKDialog.show(this, rh.gs(R.string.treatmentdeliveryerror), rh.gs(R.string.constraints_violation) + "\n" + rh.gs(R.string.changeyourinput))
+                        return
+                    }
+                    wizard.confirmAndExecute(it)
                 }
             }
         }
