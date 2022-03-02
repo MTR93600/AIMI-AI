@@ -272,7 +272,6 @@ class TreatmentsBolusCarbsFragment : DaggerFragment() {
                 holder.binding.cbCarbsRemove.isChecked = selectedItems.get(position) != null
             }
             holder.binding.calculation.tag = ml
-            val nextTimestamp = if (mealLinks.size != position + 1) timestamp(mealLinks[position + 1]) else 0L
         }
 
         override fun getItemCount() = mealLinks.size
