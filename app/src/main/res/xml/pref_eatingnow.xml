@@ -186,7 +186,7 @@
 
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="17"
-                    android:dialogMessage="Enter Eating Now end time in 24h e.g. 5PM is 17"
+                    android:dialogMessage="Enter Eating Now end time in 24h e.g. 5PM is 17, 24 is midnight"
                     android:inputType="number"
                     android:key="@string/key_eatingnow_timeend"
                     android:title="End Time"
