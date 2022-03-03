@@ -115,7 +115,8 @@ android {
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
         buildConfigField "String", "HEAD", '"' + generateGitBuild() + '"'
         buildConfigField "String", "COMMITTED", '"' + allCommitted() + '"'
-
+        renderscriptTargetApi 28
+        renderscriptSupportModeEnabled true
     }
 
     flavorDimensions "standard"

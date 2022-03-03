@@ -21,7 +21,7 @@ import dagger.android.support.DaggerDialogFragment
  *
  * @author Manabu-GT on 3/17/17.
  */
-abstract class BlurDialogFragment : DaggerDialogFragment() {
+abstract class BlurAlertDialog : DaggerDialogFragment() {
 
     private var blur: Blur? = null
     private var root: ViewGroup? = null
@@ -151,7 +151,7 @@ abstract class BlurDialogFragment : DaggerDialogFragment() {
     }
 
     companion object {
-        private val TAG = BlurDialogFragment::class.java.simpleName
+        private val TAG = BlurAlertDialog::class.java.simpleName
         const val DEFAULT_ANIM_DURATION = 400
         const val DEFAULT_BACKGROUND_DIMMING_ENABLED = false
     }
