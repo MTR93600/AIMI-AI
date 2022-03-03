@@ -379,10 +379,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var tdd24h = meal_data.TDDLAST24H, tdd1d = meal_data.TDDAIMI1, tdd3d = meal_data.TDDAIMI3, tdd7d = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP, tdd_pump_now_ms = meal_data.TDDPUMPNOWMS;
     var tdd_pump = ( tdd_pump_now / (nowhrs / 24));
-    enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
+    //enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
 
     var TDD = (tdd24h+tdd7d+tdd_pump_now_ms)/3;
-    enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDD Pump:"+round(tdd_pump,3)+" = TDD:"+round(TDD,3)+"\n";
+    enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDDPUMPNOWMS:"+round(tdd_pump_now_ms,3)+" = TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
     // ISF at normal target
