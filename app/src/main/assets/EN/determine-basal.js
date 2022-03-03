@@ -232,7 +232,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     // Eating Now Variables, relocated for SR
-    var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
+    var eatingnow = false, eatingnowtimeOKclock = false, eatingnowtimeOKtrigger = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
     //var now = new Date().getHours();  //Create the time variable to be used to allow the Boost function only between certain hours
     var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
     var nowdec = round(now.getHours()+now.getMinutes()/60,2);
@@ -248,7 +248,26 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     UAMBoost = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    //if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    //Wrap time code addition, DE 3/3/22:
+    if (profile.EatingNowTimeEnd > profile.EatingNowTimeStart) {
+        if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd) {var eatingnowtimeOKclock = true ;}
+    } else {
+        if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd+24) {
+            var eatingnowtimeOKclock = true ;
+        } else {
+            if (nowhrs < profile.EatingNowTimeEnd ) { var eatingnowtimeOKclock = true ;}
+        }
+    }
+
+    if (profile.EatingNowTimeEnd > profile.EatingNowTimeStart) {
+        if (meal_data.lastNormalCarbTime >= profile.EatingNowTimeStart || meal_data.lastBolusNormalTime >= profile.EatingNowTimeStart) {var eatingnowtimeOKtrigger = true ;}
+    } else {
+        if (meal_data.lastNormalCarbTime+24 >= profile.EatingNowTimeStart || meal_data.lastBolusNormalTime+24 >= profile.EatingNowTimeStart) {var eatingnowtimeOKtrigger = true ;}
+    }
+
+    var eatingnowtimeOK = eatingnowtimeOKclock && eatingnowtimeOKtrigger ;
+
     enlog += "nowhrs: " + nowhrs + ", ENStartTime: " + ENStartTime + ", lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
     sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
@@ -319,7 +338,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         max_iob = round(max_iob,2);
     }
     //eatingnow = false; //DEBUG
-    enlog += "eatingnow: " + eatingnow + ", eatingnowtimeOK: " + eatingnowtimeOK+"\n";
+    enlog += "eatingnow: " + eatingnow + ", eatingnowtimeOKclock: " + eatingnowtimeOKclock + ", eatingnowtimeOKtrigger: " + eatingnowtimeOKtrigger + ", eatingnowtimeOK: " + eatingnowtimeOK+"\n";
     enlog += "eatingnowMaxIOBOK: " + eatingnowMaxIOBOK + ", max_iob: " + max_iob+"\n";
 
     // patches ===== END
