@@ -654,7 +654,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         )
         disposable += activePlugin.activeOverview.overviewBus
             .toObservable(EventUpdateOverviewTime::class.java)
-            .debounce(1L, TimeUnit.SECONDS)
+            .debounce(2L, TimeUnit.SECONDS)
             .observeOn(aapsSchedulers.main)
             .subscribe({ updateTime("MainActivity") }, fabricPrivacy::logException)
         disposable += activePlugin.activeOverview.overviewBus
@@ -665,13 +665,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         disposable += rxBus
             .toObservable(EventInitializationChanged::class.java)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ updateTime("EventInitializationChanged") }, fabricPrivacy::logException)
-
-        refreshLoop = Runnable {
-            overviewPlugin.refreshLoop("refreshLoop")
-            handler.postDelayed(refreshLoop, 60 * 1000L)
-        }
-        handler.postDelayed(refreshLoop, 60 * 1000L)
+            .subscribe({ updateTime("MainActivity") }, fabricPrivacy::logException)
 
         updateTime("onResume")
         updateBg("onResume")

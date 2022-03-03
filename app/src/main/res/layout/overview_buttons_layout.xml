@@ -5,7 +5,8 @@
     android:id="@+id/overview_buttons"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:visibility="gone">
 
     <info.nightscout.androidaps.utils.ui.SingleClickButton
         android:id="@+id/accept_temp_button"

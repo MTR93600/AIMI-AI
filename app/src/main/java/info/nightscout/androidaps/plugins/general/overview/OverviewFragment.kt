@@ -895,6 +895,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     @Suppress("UNUSED_PARAMETER")
     fun updateTime(from: String) {
+        /*
         binding.infoLayout.time.text = dateUtil.timeString(dateUtil.now())
         // Status lights
         val isPatchPump = activePlugin.activePump.pumpDescription.isPatchPump
@@ -920,7 +921,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         processAps()
 
         binding.statusLightsLayout.statusLights.visibility = View.GONE
-
+*/
     }
 
     @Suppress("UNUSED_PARAMETER")
