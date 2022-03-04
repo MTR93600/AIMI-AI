@@ -1085,7 +1085,7 @@
         <item name="colorPrimaryVariant">@color/primaryLightColorDarkside</item>
         <item name="colorSecondaryVariant">@color/secondaryLightColorDarkside</item>
         <item name="colorOnPrimary">@color/primaryTextColorDarkside</item>
-        <item name="colorSurface">@color/black_alpha_60</item>
+        <item name="colorSurface">@color/black_alpha_80</item>
         <item name="colorOnSurface">@color/white</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="android:windowBackground">@drawable/carbonfiber03</item>
