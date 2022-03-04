@@ -1349,7 +1349,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 // ============== UAMBOOST ============== START ===
                 // if within time window of first bolus max mode
                 // set UAMBoost Bolus size based on TDD
-                var UAMBoost_bolus = ((TDD * 0.4) / 24 );
+                var UAMBoost_bolus = basal;
                 // set the scale from the profile
                 var UAMBoost_bolus_scale = profile.UAMBoost_Bolus_Scale;
                 // default is UAMBoost is NOT OK. Sensitive threshold is low normal is high
