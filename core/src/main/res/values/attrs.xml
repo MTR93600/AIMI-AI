@@ -173,6 +173,8 @@
 <attr name="firstAidIconColor" format="reference|color" />
 <!---Patch Pump Icon Color-->
 <attr name="patchPumpIconColor" format="reference|color" />
+<!---Add Cross Icon Color-->
+<attr name="addCrossIconColor" format="reference|color" />
 <!---NS MBG Event-->
 <attr name="therapyeventNsmbg" format="reference|color" />
 <!---Finger Stick Event-->

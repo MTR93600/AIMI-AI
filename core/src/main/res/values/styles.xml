@@ -208,6 +208,8 @@
         <item name="firstAidIconColor" >@color/white</item>
         <!---Patchpump Icon Color-->
         <item name="patchPumpIconColor" >@color/black</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/black</item>
         <!-- Icon specific colors end -->
         <!---Therapy Event Announcement-->
         <item name="therapyeventAnnouncement" >@color/notificationAnnouncement</item>

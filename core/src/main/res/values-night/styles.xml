@@ -111,7 +111,7 @@
         <item name="actionsConfirm" >@color/lightyellow</item>
         <!-- local profil dialog -->
         <item name="errorBackground" >@color/lightPastelRed</item>
-        <item name="okBackground" >@color/darkgray</item>
+        <item name="okBackground" >?attr/windowBackground</item>
         <item name="defaultBackground" >@color/darkgrayVariant</item>
         <!-- Custom tabs background -->
         <item name="tabBgColorSelected" >@color/kobaltblue</item>
@@ -210,6 +210,8 @@
         <item name="firstAidIconColor" >@color/white</item>
         <!---Patchpump Icon Color-->
         <item name="patchPumpIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/concinnity_grey</item>
         <!-- Icon specific colors end -->
         <!---Therapy Event Announcement-->
         <item name="therapyeventAnnouncement" >@color/notificationAnnouncement</item>
@@ -1168,10 +1170,10 @@
         <item name="colorPrimarySurface">@color/white</item>
         <item name="android:textColor">@color/white</item>
         <item name="matButtonBackground">@color/white</item>
-        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorSecondary">@color/ios_blue_default</item>
         <item name="android:textColorPrimary">@color/ios_blue_default</item>
         <item name="android:background">@color/transparent</item>
-        <item name="android:backgroundTint">@color/black_alpha_30</item>
+        <item name="android:backgroundTint">@color/black_alpha_40</item>
         <item name="android:backgroundTintMode">multiply</item>
         <!---Bluring enabled for dialogs-->
         <item name="android:windowBlurBehindEnabled" ns2:targetApi="s">true</item>
