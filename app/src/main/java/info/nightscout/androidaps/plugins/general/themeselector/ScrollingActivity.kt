@@ -122,9 +122,7 @@ class ScrollingActivity : MainActivity(), View.OnClickListener {
             } else {
                 sp.putString(R.string.key_use_dark_mode, "light")
             }
-            var delayTime = 200
             if ((mBottomSheetBehavior as BottomSheetBehavior<*>).getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                delayTime = 400
                 (mBottomSheetBehavior as BottomSheetBehavior<*>).setState(BottomSheetBehavior.STATE_EXPANDED)
             }
             themeSwitcherPlugin.switchTheme()
