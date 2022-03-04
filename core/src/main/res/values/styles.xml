@@ -759,6 +759,8 @@
         <item name="targetHypoBgIconColor" >@color/white</item>
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/winter</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -772,6 +774,56 @@
         <item name="overviewPillColor">@color/overviewPillColorCyan</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -781,8 +833,59 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorTeal</item>
         <item name="colorAccent">@color/secondaryColorTeal</item>
         <item name="overviewPillColor">@color/overviewPillColorTeal</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -792,8 +895,59 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorGreen</item>
         <item name="colorAccent">@color/secondaryColorGreen</item>
         <item name="overviewPillColor">@color/overviewPillColorGreen</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -803,8 +957,59 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorLightGreen</item>
         <item name="colorAccent">@color/secondaryColorLightGreen</item>
         <item name="overviewPillColor">@color/overviewPillColorLightGreen</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -813,11 +1018,63 @@
         <item name="colorPrimary">@color/primaryColorLime</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorLime</item>
         <item name="colorAccent">@color/secondaryColorLime</item>
-        <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
         <!-- Color of pills -->
         <item name="PillColorStart">@color/PillColorStartLime</item>
         <item name="PillColorEnd">@color/PillColorEndLime</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
     </style>
 
     <style name="AppTheme.YELLOW" parent="AppTheme.NoActionBar">
@@ -826,14 +1083,66 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorYellow</item>
         <item name="colorAccent">@color/secondaryColorYellow</item>
         <item name="overviewPillColor">@color/overviewPillColorYellow</item>
-        <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="colorOnPrimary">@color/black_alpha_80</item>
         <item name="colorOnSecondary">@color/black_alpha_80</item>
         <item name="colorSurface">@color/white_alpha_70</item>
         <item name="android:popupBackground">@color/white_alpha_80</item>
         <item name="android:windowBackground">@drawable/minions2</item>
         <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
         <!-- Fragment background for some themes default transparent  -->
         <item name="fragmentbackground">@color/white_alpha_40</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
@@ -845,8 +1154,61 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorAmber</item>
         <item name="colorAccent">@color/secondaryColorAmber</item>
         <item name="overviewPillColor">@color/overviewPillColorAmber</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -856,8 +1218,61 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorOrange</item>
         <item name="colorAccent">@color/secondaryColorOrange</item>
         <item name="overviewPillColor">@color/overviewPillColorOrange</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -867,8 +1282,61 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorDeepOrange</item>
         <item name="colorAccent">@color/secondaryColorDeepOrange</item>
         <item name="overviewPillColor">@color/overviewPillColorDeepOrange</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
         <item name="android:windowBackground">@drawable/orange</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -890,8 +1358,61 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorGray</item>
         <item name="colorAccent">@color/secondaryColorGray</item>
         <item name="overviewPillColor">@color/overviewPillColorGray</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -901,8 +1422,9 @@
         <item name="colorPrimaryDark">@color/primaryDarkColorBlueGray</item>
         <item name="colorAccent">@color/secondaryColorBlueGray</item>
         <item name="overviewPillColor">@color/overviewPillColorBlueGray</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorbottomAppbar">@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -917,9 +1439,6 @@
         <item name="colorSecondaryVariant">@color/secondaryLightColorDarkside</item>
         <item name="colorOnPrimary">@color/primaryTextColorDarkside</item>
         <item name="overviewPillColor">@color/plastic_grey</item>
-
-        <item name="iconColorbottomAppbar">@color/sphere_plastic_grey</item>
-        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="android:navigationBarColor">@color/sphere_plastic_grey</item>
         <item name="android:windowBackground">@drawable/ic_overview_bg_gradient</item>
         <item name="bottomAppBarStyle">@style/BottomAppbar</item>
@@ -933,6 +1452,58 @@
         <!-- Icons of bottom naviagtion bar -->
         <item name="iconInsulin">@drawable/ic_pumpe_48</item>
         <item name="iconCarbs">@drawable/ic_carb_48</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
