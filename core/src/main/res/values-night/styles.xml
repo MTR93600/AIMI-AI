@@ -1170,8 +1170,12 @@
         <item name="android:textColorSecondary">@color/white</item>
         <item name="android:textColorPrimary">@color/ios_blue_default</item>
         <item name="android:background">@color/transparent</item>
-        <item name="android:backgroundTint">@color/black_alpha_80</item>
+        <item name="android:backgroundTint">@color/black_alpha_30</item>
         <item name="android:backgroundTintMode">multiply</item>
+        <!---Bluring enabled for dialogs-->
+        <item name="android:windowBlurBehindEnabled" ns2:targetApi="s">true</item>
+        <item name="android:windowBlurBehindRadius" ns2:targetApi="s">10dp</item>
+        <item name="android:windowBackgroundBlurRadius" ns2:targetApi="s">10dp</item>
     </style>
 
 </resources>
