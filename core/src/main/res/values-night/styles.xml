@@ -393,6 +393,7 @@
         <item name="buttonBarNegativeButtonStyle">@style/DialogOkCancelButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/DialogOkCancelButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="android:windowBackground">?attr/windowBackground</item>
     </style>
 
     <style name="DialogOkCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
