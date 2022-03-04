@@ -340,6 +340,7 @@
                 android:paddingLeft="1dp"
                 android:paddingRight="1dp"
                 android:text="@string/reset"
+                android:elevation="20dp"
                 app:icon="@drawable/ic_local_reset"
                 app:iconTint="@color/ic_local_reset" />
 
@@ -355,6 +356,7 @@
                 android:paddingLeft="1dp"
                 android:paddingRight="1dp"
                 android:text="@string/save"
+                android:elevation="20dp"
                 app:icon="@drawable/ic_local_save"
                 app:iconTint="@color/ic_local_save" />
         </LinearLayout>
