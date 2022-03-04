@@ -1,38 +1,35 @@
 package info.nightscout.androidaps.dialogs
 
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.res.Resources
 import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.FragmentManager
-import dagger.android.support.DaggerDialogFragment
-import info.nightscout.androidaps.core.R
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.extensions.toVisibility
-import info.nightscout.shared.sharedPreferences.SP
-import java.util.*
-import javax.inject.Inject
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.ms_square.etsyblur.BlurConfig
 import com.ms_square.etsyblur.BlurDialogFragment
 import com.ms_square.etsyblur.SmartAsyncPolicy
+import info.nightscout.androidaps.core.R
+import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
+import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
+import info.nightscout.shared.sharedPreferences.SP
+import java.util.*
+import javax.inject.Inject
 
 abstract class DialogFragmentWithDate : BlurDialogFragment() {
 
@@ -126,39 +123,42 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
         eventDateView?.text = dateUtil.dateString(eventTime)
         eventTimeView?.text = dateUtil.timeString(eventTime)
 
-        // create an OnDateSetListener
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val cal = Calendar.getInstance()
-                cal.timeInMillis = eventTime
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                eventTime = cal.timeInMillis
-                eventDateView?.text = dateUtil.dateString(eventTime)
-                callValueChangedListener()
-            }
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setSelection(eventTime)
+                .setTitleText("Select date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
 
-        eventDateView?.setOnClickListener {
-            context?.let {
-                val cal = Calendar.getInstance()
-                cal.timeInMillis = eventTime
-                DatePickerDialog(
-                    it, R.style.MaterialPickerTheme,
-                    dateSetListener,
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }
-        }
-
-        // create an OnTimeSetListener
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+        datePicker.addOnPositiveButtonClickListener {
             val cal = Calendar.getInstance()
             cal.timeInMillis = eventTime
-            cal.set(Calendar.HOUR_OF_DAY, hour)
-            cal.set(Calendar.MINUTE, minute)
+            cal.time = Date(it)
+
+            val c = Calendar.getInstance()
+            c.time =  Date(it)
+            cal.set(Calendar.YEAR, c.get(Calendar.YEAR))
+            cal.set(Calendar.MONTH,  c.get(Calendar.MONTH))
+            cal.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH))
+            eventTime = cal.timeInMillis
+            eventDateView?.text = dateUtil.dateString(eventTime)
+            callValueChangedListener()
+        }
+
+        val cinit = Calendar.getInstance()
+        cinit.time =  Date(eventTime)
+
+        val timePicker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setHour( cinit.get(Calendar.HOUR_OF_DAY))
+            .setMinute(cinit.get(Calendar.MINUTE))
+            .build()
+
+        timePicker.addOnPositiveButtonClickListener {
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = eventTime
+            cal.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+            cal.set(Calendar.MINUTE, timePicker.minute)
             cal.set(
                 Calendar.SECOND,
                 seconds++
@@ -168,18 +168,12 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
             callValueChangedListener()
         }
 
+        eventDateView?.setOnClickListener {
+            datePicker.show(getParentFragmentManager(), "Test")
+        }
+
         eventTimeView?.setOnClickListener {
-            context?.let {
-                val cal = Calendar.getInstance()
-                cal.timeInMillis = eventTime
-                TimePickerDialog(
-                    it, R.style.MaterialPickerTheme,
-                    timeSetListener,
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    DateFormat.is24HourFormat(context)
-                ).show()
-            }
+            timePicker.show(getParentFragmentManager(), "Set Time")
         }
 
         (view.findViewById(R.id.notes_layout) as View?)?.visibility =
