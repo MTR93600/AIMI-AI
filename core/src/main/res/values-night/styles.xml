@@ -1514,6 +1514,8 @@
         <item name="overviewPillColor">@color/overviewPillColorBlueGray</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <!---More Icon Color-->
+        <item name="dotmoreIconColor" >@color/black</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
