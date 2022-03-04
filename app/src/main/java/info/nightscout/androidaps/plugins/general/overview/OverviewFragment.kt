@@ -731,6 +731,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 graph.layoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
                 graph.gridLabelRenderer?.gridColor = rh.gc(R.color.graphgrid)
+                graph.gridLabelRenderer?.horizontalLabelsColor = rh.getAttributeColor(context,R.attr.graphHorizontalLabelText )
+                graph.gridLabelRenderer?.verticalLabelsColor = rh.getAttributeColor(context,R.attr.graphVerticalLabelText )
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
