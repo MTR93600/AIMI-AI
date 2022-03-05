@@ -326,7 +326,7 @@
                 android:key="@string/key_eatingnow_cobboostminutes"
                 android:title="COBBoost Window"
                 android:dialogMessage="Window in minutes for increased maxBolus with COB.\n0 will disable and allow expected maxBolus limit."
-                validate:maxNumber="90"
+                validate:maxNumber="120"
                 validate:minNumber="0"
                 validate:testType="numericRange" />
 
