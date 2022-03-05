@@ -545,7 +545,7 @@
     </style>
 
     <!-- Custom Theme -->
-    <style name="CustomTheme" parent="AppTheme.DARKSIDE">
+    <style name="CustomTheme" parent="AppTheme.NoActionBar">
     </style>
 
     <style name="AppTheme_DEFAULT" parent="AppTheme.NoActionBar"> </style>
