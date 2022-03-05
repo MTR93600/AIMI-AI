@@ -46,7 +46,6 @@ public class ComboFragment extends DaggerFragment {
 
     private final CompositeDisposable disposable = new CompositeDisposable();
     SwipeRefreshLayout swipeRefresh;
-    import android.os.Handler;
     private TextView stateView;
     private TextView activityView;
     private TextView batteryView;
