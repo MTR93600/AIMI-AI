@@ -8,12 +8,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import javax.inject.Inject;
 
@@ -44,7 +45,8 @@ public class ComboFragment extends DaggerFragment {
     @Inject ComboErrorUtil errorUtil;
 
     private final CompositeDisposable disposable = new CompositeDisposable();
-
+    SwipeRefreshLayout swipeRefresh;
+    import android.os.Handler;
     private TextView stateView;
     private TextView activityView;
     private TextView batteryView;
@@ -53,7 +55,6 @@ public class ComboFragment extends DaggerFragment {
     private TextView lastBolusView;
     private TextView baseBasalRate;
     private TextView tempBasalText;
-    private Button refreshButton;
     private TextView bolusCount;
     private TextView tbrCount;
     private ColorStateList defaultStateTextColors = null;
@@ -90,15 +91,22 @@ public class ComboFragment extends DaggerFragment {
         errorCountDots = view.findViewById(R.id.combo_connection_error_dots);
         errorCountValue = view.findViewById(R.id.combo_connection_error_value);
 
-        refreshButton = view.findViewById(R.id.combo_refresh_button);
-        refreshButton.setOnClickListener(v -> {
-            refreshButton.setEnabled(false);
-            commandQueue.readStatus(rh.gs(R.string.user_request), new Callback() {
-                @Override
-                public void run() {
-                    runOnUiThread(() -> refreshButton.setEnabled(true));
-                }
-            });
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
+        swipeRefresh.setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default);
+        swipeRefresh.setProgressBackgroundColorSchemeColor(ResourcesCompat.getColor(getResources(), R.color.black_alpha_10, null));
+
+        this.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //do the refresh of data here
+                commandQueue.readStatus("User request", new Callback() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> swipeRefresh.setRefreshing(false));
+                    }
+                });
+                swipeRefresh.setRefreshing(false);
+            }
         });
 
         return view;

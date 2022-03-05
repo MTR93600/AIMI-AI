@@ -1,18 +1,23 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="5dp"
     tools:context="info.nightscout.androidaps.plugins.pump.combo.ComboFragment">
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id = "@+id/swipeRefresh"
+        android:layout_width = "match_parent"
+        android:layout_height = "match_parent">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -529,37 +534,10 @@
 
         </LinearLayout>
 
-    </ScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:paddingEnd="4dp"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <info.nightscout.androidaps.utils.ui.SingleClickButton
-                android:id="@+id/combo_refresh_button"
-                style="@style/ButtonSmallFontStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:drawableTop="@drawable/ic_actions_refill"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:textAlignment="center"
-                android:text="@string/refresh" />
-        </LinearLayout>
-
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     </RelativeLayout>
 
-</FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
