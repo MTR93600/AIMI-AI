@@ -1,9 +1,12 @@
 package info.nightscout.androidaps.plugins.aps.loop
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.LoopFragmentBinding
@@ -21,6 +24,7 @@ import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.*
 import javax.inject.Inject
 
 class LoopFragment : DaggerFragment() {
@@ -33,6 +37,7 @@ class LoopFragment : DaggerFragment() {
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var loop: Loop
     @Inject lateinit var dateUtil: DateUtil
+
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 
@@ -51,9 +56,16 @@ class LoopFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.run.setOnClickListener {
-            binding.lastrun.text = rh.gs(R.string.executing)
-            Thread { loop.invoke("Loop button", true) }.start()
+        with (binding.swipeRefreshLoop) {
+            setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
+            setProgressBackgroundColorSchemeColor(rh.getAttributeColor(context,R.attr.swipeRefreshBackground ))
+            setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    binding.lastrun.text = rh.gs(R.string.executing)
+                    Thread { loop.invoke("Loop swiperefresh", true) }.start()
+                    binding.swipeRefreshLoop.isRefreshing = false
+                }, 3500)
+            }
         }
     }
 

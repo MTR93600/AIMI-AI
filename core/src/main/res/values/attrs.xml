@@ -253,6 +253,7 @@
 <attr name="okButtonSelected" format="reference" />
 <attr name="numPickerText" format="reference" />
 <attr name="numPickerBackground" format="reference" />
+<attr name="swipeRefreshBackground" format="reference" />
 
 <declare-styleable name="NumberPicker">
 <attr name="customContentDescription" format="string" />

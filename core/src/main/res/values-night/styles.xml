@@ -294,6 +294,8 @@
         <!---Number Picker Text Color-->
         <item name="numPickerText" >@color/black</item>
         <item name="numPickerBackground" >@color/white</item>
+        <!---Swipe Refresh Color-->
+        <item name="swipeRefreshBackground" >@color/white_alpha_20</item>
         <!---Fab Menue-->
         <item name="fabmenubackground">@color/lightgray</item>
         <!---Bluring enabled for dialogs-->
