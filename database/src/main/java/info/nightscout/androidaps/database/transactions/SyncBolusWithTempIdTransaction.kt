@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.database.transactions
 
+import info.nightscout.androidaps.database.embedments.InterfaceIDs
 import info.nightscout.androidaps.database.entities.Bolus
 
 /**
@@ -18,16 +19,20 @@ class SyncBolusWithTempIdTransaction(
         if (current != null) {
             current.timestamp = bolus.timestamp
             current.amount = bolus.amount
-            current.type = newType ?: current.type
+            current.type = if(current.isSMBorBasal()) current.type else  newType?: current.type
             current.interfaceIDs.pumpId = bolus.interfaceIDs.pumpId
-            database.bolusDao.updateExistingEntry(current)
-            result.updated.add(current)
+            if (database.bolusDao.updateExistingEntry(current) >0 ) {
+                result.updated.add(current)
+            }
+        } else if(bolus.interfaceIDs.pumpType == InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO) {
+            database.bolusDao.insertNewEntry(bolus)
+            result.inserted.add(bolus)
         }
         return result
     }
 
     class TransactionResult {
-
+        val inserted = mutableListOf<Bolus>()
         val updated = mutableListOf<Bolus>()
     }
 }

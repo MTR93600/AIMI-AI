@@ -19,7 +19,7 @@ class BolusDataPoint @Inject constructor(
     private var yValue = 0.0
 
     override fun getX(): Double = data.timestamp.toDouble()
-    override fun getY(): Double = if (data.type == Bolus.Type.SMB) defaultValueHelper.determineLowLine() else yValue
+    override fun getY(): Double = if (data.isSMBorBasal()) defaultValueHelper.determineLowLine() else yValue
     override val label
         get() = DecimalFormatter.toPumpSupportedBolus(data.amount, activePlugin.activePump, rh)
     override val duration = 0L

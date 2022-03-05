@@ -1313,7 +1313,7 @@ class MedLinkBLE //extends RileyLinkBLE
                 val answer = String(characteristic.value).toLowerCase()
                 lastReceivedCharacteristic = System.currentTimeMillis()
                 removeNotificationCommand()
-                aapsLogger.info(LTag.PUMPBTCOMM, answer)
+//                aapsLogger.info(LTag.PUMPBTCOMM, answer)
                 if (lastCharacteristic == answer) {
                     setNotification_blocking(
                         UUID.fromString(GattAttributes.SERVICE_UUID),  //
@@ -1331,9 +1331,8 @@ class MedLinkBLE //extends RileyLinkBLE
                 //                String[] processed = processCharacteristics(new StringBuffer(previousLine), answer);
 //                previousLine = processed[1];
 //                answer = processed[0];
-                aapsLogger.info(LTag.PUMPBTCOMM, answer)
+//                aapsLogger.info(LTag.PUMPBTCOMM, answer)
                 if (!answer.trim { it <= ' ' }.isEmpty()) {
-                    aapsLogger.info(LTag.PUMPBTCOMM, "answer not empty")
                     if (answer.contains("time to powerdown")) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "time to powerdown")
                         if (!answer.contains("5")) {
@@ -1560,7 +1559,7 @@ class MedLinkBLE //extends RileyLinkBLE
                     //                    SystemClock.sleep(6000);
                     aapsLogger.info(LTag.PUMPBTCOMM, "descriptor written " + descriptor.uuid)
                     changeConnectionStatus(ConnectionStatus.DISCOVERING)
-                    currentCommand!!.commandExecuted()
+                    currentCommand?.commandExecuted()
                     completedCommand()
                 }
             }

@@ -51,20 +51,24 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
     fun nextFunction(): Function<Supplier<Stream<String>>, out MedLinkStandardReturn<*>?>? {
         return if (functionPosition == 0 && medLinkPumpMessage.baseCallback != null) {
             currentCommand = medLinkPumpMessage.commandType
-            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+            medLinkPumpMessage.baseCallback.compose {
+                aapsLogger.info(
+                        LTag.APS, "applied"
+                )
                 functionPosition += 1
-                f
+                it
             }
+
         } else if (functionPosition == 1 && medLinkPumpMessage.argCallback != null) {
             currentCommand = medLinkPumpMessage.argument
-            medLinkPumpMessage.argCallback.andThen { f: MedLinkStandardReturn<*>? ->
+            medLinkPumpMessage.argCallback.compose {
                 functionPosition += 1
-                f
+                it
             }
         } else if (functionPosition == 1 && medLinkPumpMessage.commandType == MedLinkCommandType.ActiveBasalProfile){
-            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+            medLinkPumpMessage.baseCallback.compose {
                 functionPosition += 1
-                f
+                it
             }
         } else null
     }

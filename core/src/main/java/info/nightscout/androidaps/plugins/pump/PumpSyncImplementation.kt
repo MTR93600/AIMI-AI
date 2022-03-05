@@ -170,7 +170,9 @@ class PumpSyncImplementation @Inject constructor(
             .blockingGet()
             .also { result ->
                 result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated Bolus $it") }
-                return result.updated.size > 0
+                result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted Bolus $it") }
+
+                return result.inserted.size > 0
             }
     }
 

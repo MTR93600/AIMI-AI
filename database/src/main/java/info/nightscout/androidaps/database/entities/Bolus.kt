@@ -63,6 +63,9 @@ data class Bolus(
             previous.interfaceIDs.nightscoutId == null &&
             interfaceIDs.nightscoutId != null
 
+    public fun isSMBorBasal() =
+            this.type == Type.SMB || this.type == Type.TBR
+
     enum class Type {
         NORMAL,
         SMB,

@@ -21,10 +21,11 @@ import java.util.function.Supplier
 import java.util.stream.Stream
 import kotlin.math.roundToInt
 
-data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
-                                 val resourceHelper: ResourceHelper,
-                                 val rxBus: RxBus,
-                                 private val commandExecutor: CommandExecutor?,
+data class BolusProgressCallback(
+    val pumpStatus: MedLinkPumpStatus,
+    val resourceHelper: ResourceHelper,
+    val rxBus: RxBus,
+    private val commandExecutor: CommandExecutor?,
                                  val aapsLogger: AAPSLogger,
                                  val medLinkPumpPlugin: MedLinkPumpDevice) : BaseStringAggregatorCallback() {
 
@@ -36,13 +37,17 @@ data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
 
     override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<String> {
         var ans = answer.get().iterator()
-        ans.next()
-        ans.next()
+        while(ans.hasNext()){
+            val currentLine = ans.next()
+            if(currentLine.contains("square bolus")){
+
+            }
+        }
         MedLinkStatusParser.parseBolusInfo(ans, pumpStatus)
-        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.lastBolusAmount)
-        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.bolusDeliveredAmount)
-        aapsLogger.info(LTag.PUMPBTCOMM, ""+pumpStatus.lastBolusInfo)
-        if(pumpStatus.lastBolusAmount !=null ) {
+        aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.lastBolusAmount)
+        aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.bolusDeliveredAmount)
+        aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.lastBolusInfo)
+        if (pumpStatus.lastBolusAmount != null) {
             val bolusEvent = EventOverviewBolusProgress
             bolusEvent.t = t
             bolusEvent.status = resourceHelper.gs(R.string.bolusdelivering, pumpStatus.bolusDeliveredAmount, pumpStatus.lastBolusAmount)
@@ -69,7 +74,7 @@ data class BolusProgressCallback(val pumpStatus: MedLinkPumpStatus,
                 // rxBus.send(bolusEvent)
                 rxBus.send(EventDismissBolusProgressIfRunning(null, pumpStatus.lastBolusTime?.time))
                 resend = false
-            }else commandExecutor?.clearExecutedCommand()
+            } else commandExecutor?.clearExecutedCommand()
         }
         return super.apply(answer)
     }

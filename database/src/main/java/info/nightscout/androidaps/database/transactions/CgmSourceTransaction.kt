@@ -56,8 +56,9 @@ class CgmSourceTransaction(
                             glucoseValue.value = current.value
                         }
                     }
-                    database.glucoseValueDao.updateExistingEntry(glucoseValue)
-                    result.updated.add(glucoseValue)
+                    if(database.glucoseValueDao.updateExistingEntry(glucoseValue)>0) {
+                        result.updated.add(glucoseValue)
+                    }
                 }
                 // update NS id if didn't exist and now provided
                 current.interfaceIDs.nightscoutId == null && it.nightscoutId != null && syncer -> {

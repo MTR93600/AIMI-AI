@@ -92,7 +92,6 @@ import org.joda.time.Seconds
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
-import java.lang.Math.abs
 import java.lang.Math.round
 import java.lang.StringBuilder
 import java.math.BigDecimal
@@ -106,7 +105,6 @@ import java.util.function.Supplier
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -135,7 +133,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     pumpSyncStorage: PumpSyncStorage?,
     private val bgSync: BgSync
 ) : MedLinkPumpPluginAbstract(
-    PluginDescription() //
+    PluginDescription(
+
+    ) //
         .mainType(PluginType.PUMP) //
         .fragmentClass(MedLinkMedtronicFragment::class.java.name) //
         .pluginIcon(R.drawable.ic_veo_medlink)
@@ -2160,7 +2160,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         profile: Profile, enforceNew: Boolean, callback: Function1<PumpEnactResult, *>
     ): PumpEnactResult {
         val previousBasal = temporaryBasal
-        if (previousBasal != null && previousBasal.desiredPct!! < 100 && percent >= 100) {
+        if (previousBasal?.desiredPct != null &&  previousBasal.desiredPct!! < 100 && percent >= 100) {
             startPump(object : Callback() {
                 override fun run() {}
             })
@@ -2973,7 +2973,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             rh,
             rxBus, null,
             aapsLogger,
-            this
+                this
         )
         val bolusStatusCommand = BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         return BolusStatusMedLinkMessage<String>(
@@ -3067,17 +3067,17 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         // var gvPosition = 0
         var meterPosition = 0
         var isigPosition = 0
-        sensorDataReadings.forEach { it ->
+        sensorDataReadings.forEach { value ->
 
             aapsLogger.info(LTag.BGSOURCE, "User bg source")
-            it.bgCalibration.forEach {
+            value.bgCalibration.forEach {
                 val bgBundle = Bundle()
                 bgBundle.putDouble("meterValue", it.value)
                 bgBundle.putLong("timestamp", it.timestamp)
                 fingerValues.putBundle("" + meterPosition, bgBundle)
                 meterPosition++
             }
-            it.bgValue.forEach {
+            value.bgValue.forEach {
                 //     val bgBundle = Bundle()
                 //     bgBundle.putDouble("value", it.value)
                 //     bgBundle.putLong("date", it.timestamp)
@@ -3127,7 +3127,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     fun handleNewCareportalEvent(events: Stream<JSONObject?>) {
         events.forEach { e: JSONObject? ->
             pumpSync.insertTherapyEventIfNewWithTimestamp(
-                e!!.getLong("bolusTimestamp"),
+                e!!.getLong("mills"),
                 DetailedBolusInfo.EventType.valueOf(e.getString("eventType")),
                 pumpSerial = medLinkServiceData.pumpID,
                 pumpType = pumpType
@@ -3143,9 +3143,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 lastDetailedBolusInfo = null
             }
 
+            val mod = bInfo.timestamp % 60000
+
             pumpSyncStorage.pumpSync.syncBolusWithTempId(
-                bInfo.timestamp, bInfo.insulin,
-                generateTempId(bInfo.timestamp),
+                bInfo.timestamp - mod, bInfo.insulin,
+                generateTempId(bInfo.timestamp - mod),
                 bInfo.bolusType, bInfo.bolusPumpId,
                 this.pumpType, serialNumber()
             )
@@ -3184,7 +3186,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 readBolusHistory()
             }
         } else {
-            lastBolusTime = medLinkPumpStatus.lastBolusTime!!.time
+            lastBolusTime = medLinkPumpStatus.lastBolusTime?.time ?: 0L
         }
     }
 
@@ -3237,6 +3239,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //
         // }
         handleNewEvent()
+
+        handleDailyDoseUpdate()
         //        medtronicHistoryData.addNewHistory();
 //        long latestbg = Arrays.stream(bgs).mapToLong(f -> f.date).max().orElse(0l);
 //        if (bgFailedToRead > 6) {
@@ -3253,6 +3257,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        } else {
 //            bgFailedToRead = 0;
 //        }
+    }
+
+    private fun handleDailyDoseUpdate() {
+//        pumpSync.
+//        pumpSync.createOrUpdateTotalDailyDose()
     }
 
     fun handleNewSensorData(sens: BgSync.BgHistory) {
