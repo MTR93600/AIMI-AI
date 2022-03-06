@@ -373,15 +373,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "TIR3LIH: " + TIR3Below + "/" + TIR3InRange + "/" + TIR3Above+"\n";
     enlog += "TIR1LIH: " + TIR1Below + "/" + TIR1InRange + "/" + TIR1Above+"\n";
     //enlog += "TIRLIH: " + TIRBelow + "/" + TIRInRange + "/" + TIRAbove+"\n";
-    // iTime is minutes since last manual bolus correction or carbs
-    var iTime = (( new Date(systemTime).getTime() - Math.max(meal_data.lastBolusNormalTime, meal_data.lastCarbTime)) / 60000);
     // cTime could be used for bolusing based on recent COB with Ghost COB
     var cTime = (( new Date(systemTime).getTime() - meal_data.lastCarbTime) / 60000);
-    // COBBoostOK is the when no SMB has been delivered since the COB entry
-    var COBBoostOK = meal_data.mealCOB > 0 && profile.COBBoostWindow > 0 && cTime <= profile.COBBoostWindow;
-    // for the first half of the window allow more inuslinReqPct
-    var COBBoostPctOK = COBBoostOK && cTime <= 20;
-    enlog += "cTime:" +cTime+ ", iTime:" +iTime+", COBBoostOK:" + COBBoostOK+"\n";
+    // COBBoostOK is when there is a recent COB entry
+    var COBBoostOK = meal_data.mealCOB > 0 && profile.COBBoostWindow > 0 && (cTime <= profile.COBBoostWindow || profile.temptargetSet && target_bg > normalTarget);
+    enlog += "cTime:" +cTime+", COBBoostOK:" + COBBoostOK+"\n";
     // If GhostCOB is enabled we will use COB when COBBoostOK but outside this window UAM will be used
     if (ignoreCOB && COBBoostOK) ignoreCOB = false;
 
@@ -1439,7 +1435,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== UAMBoost Reason ==============
                 if (COBBoostOK) {
-                    UAMBoostReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m";
+                    UAMBoostReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
                 }
             }
             // END === if we are eating now and BGL prediction is higher than normal target ===
