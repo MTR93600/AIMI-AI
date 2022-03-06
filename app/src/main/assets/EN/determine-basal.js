@@ -883,7 +883,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.2 ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
-        sens_eBGweight = (eventualBG < bg ? 1 : 0);
+        //sens_eBGweight = (eventualBG < bg ? 1 : sens_eBGweight);
         sens_future = sens_normalTarget / (sens_future_bg / target_bg);
         // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
         //sens_future = (bg >= ISFbgMax ? sens_currentBG : sens_future);
