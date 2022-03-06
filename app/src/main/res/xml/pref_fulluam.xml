@@ -109,14 +109,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_LuymjevU200"
             android:summary="Dependency AIMI_UAM Mode, specify Luymjev U200"
             android:title="AIMI UAM with Luymjev U200" />
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_LuymjevU100"
             android:summary="Dependency AIMI_UAM Mode, specify Luymjev U100"
             android:title="AIMI UAM with Luymjev U100" />
