@@ -382,10 +382,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (ignoreCOB && COBBoostOK) ignoreCOB = false;
 
     var tdd24h = meal_data.TDDLAST24H, tdd1d = meal_data.TDDAIMI1, tdd3d = meal_data.TDDAIMI3, tdd7d = meal_data.TDDAIMI7, tdd_pump_now = meal_data.TDDPUMP, tdd_pump_now_ms = meal_data.TDDPUMPNOWMS;
-    var tdd_pump = ( tdd_pump_now / (nowhrs / 24));
-    //enlog += "Pump extrapolated TDD:"+round(tdd_pump,3)+"\n";
 
-    var TDD = (eatingnowtimeOK ? (tdd24h+tdd7d+tdd_pump_now_ms)/3 : tdd3d);
+    // just after midnight there is a big spike in TDD this will use the 3d avg during this time
+    var TDD = (nowhrs >=2 ? (tdd24h+tdd7d+tdd_pump_now_ms)/3 : tdd3d);
     enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDDPUMPNOWMS:"+round(tdd_pump_now_ms,3)+" = TDD:"+round(TDD,3)+"\n";
 
     enlog += "* advanced ISF:\n";
