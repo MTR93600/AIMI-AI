@@ -874,7 +874,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // should the delta be 120% more than the short_avg (UAMBoost) increase weighting to eventualBG
     // delta condition is replaced with a safety that weights eventualBG if it is lower than current bg
     if (eatingnow) {
-        sens_eBGweight = (sens_predType=="UAM" ? 0.60 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="UAM" ? 0.70 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
         sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.2 ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
