@@ -214,6 +214,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         halfBasalTarget = 160; // when temptarget is 160 mg/dL, run 50% basal (120 = 75%; 140 = 60%)
         // 80 mg/dL with low_temptarget_lowers_sensitivity would give 1.5x basal, but is limited to autosens_max (1.2x by default)
     }
+    /*
     if ( high_temptarget_raises_sensitivity && profile.temptargetSet && target_bg > normalTarget
         || profile.low_temptarget_lowers_sensitivity && profile.temptargetSet && target_bg < normalTarget ) {
         // w/ target 100, temp target 110 = .89, 120 = 0.8, 140 = 0.67, 160 = .57, and 200 = .44
@@ -230,6 +231,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = autosens_data.ratio;
         console.log("Autosens ratio: "+sensitivityRatio+"; ");
     }
+    */
 
     // Eating Now Variables, relocated for SR
     var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
@@ -256,6 +258,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "ENStartOffset: " + ENStartOffset + ", ENStartTime: " + ENStartTime +"\n";
     enlog += "ENEndOffset: " + ENEndOffset + ", ENEndTime: " + ENEndTime +"\n";
     enlog += "lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+
+    /*
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
     sensitivityRatio = (eatingnowtimeOK && !profile.temptargetSet ? Math.max(sensitivityRatio,1) : sensitivityRatio);
     sensitivityRatio = (profile.use_sens_TDD && !profile.temptargetSet ? 1 : sensitivityRatio);
@@ -291,6 +295,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             target_bg = new_target_bg;
         }
     }
+    */
 
     if (typeof iob_data === 'undefined' ) {
         rT.error ='Error: iob_data undefined. ';
@@ -346,6 +351,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var profile_sens = round(profile.sens,1)
     var sens = profile.sens;
+    /*
     if (typeof autosens_data !== 'undefined' && autosens_data) {
         sens = profile.sens / sensitivityRatio;
         sens = round(sens, 1);
@@ -357,6 +363,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //console.log(" (autosens ratio "+sensitivityRatio+")");
     }
     //console.error("CR:", );
+    */
 
     // TIR 1 (now),3 & 7 day average
     var TIR7Below = meal_data.TIR7Below, TIR7InRange = meal_data.TIR7InRange, TIR7Above = meal_data.TIR7Above;
@@ -399,7 +406,69 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
     enlog += "sens_TDD scaled by "+profile.sens_TDD_scale+"%:" + convert_bg(sens_TDD, profile) +"\n";
     // If Use TDD ISF is enabled in profile also adjust for when a high TT using SR if applicable
-    sens_normalTarget = (profile.use_sens_TDD ? sens_TDD / sensitivityRatio : sens_normalTarget);
+    sens_normalTarget = (profile.use_sens_TDD ? sens_TDD : sens_normalTarget);
+
+     //NEW SR CODE
+    // SensitivityRatio code relocated for sens_TDD
+    if ( high_temptarget_raises_sensitivity && profile.temptargetSet && target_bg > normalTarget || profile.low_temptarget_lowers_sensitivity && profile.temptargetSet && target_bg < normalTarget ) {
+        // w/ target 100, temp target 110 = .89, 120 = 0.8, 140 = 0.67, 160 = .57, and 200 = .44
+        // e.g.: Sensitivity ratio set to 0.8 based on temp target of 120; Adjusting basal from 1.65 to 1.35; ISF from 58.9 to 73.6
+        //sensitivityRatio = 2/(2+(target_bg-normalTarget)/40);
+        var c = halfBasalTarget - normalTarget;
+        sensitivityRatio = c/(c+target_bg-normalTarget);
+        // limit sensitivityRatio to profile.autosens_max (1.2x by default)
+        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        sensitivityRatio = round(sensitivityRatio,2);
+        enlog += "Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ";
+        sens_normalTarget =  sens_normalTarget / sensitivityRatio ; // CHECK THIS  LINE
+        //sens =  sens / sensitivityRatio ; // CHECK THIS  LINE
+        sens_normalTarget = round(sens_normalTarget, 1);
+        enlog += "sens_normalTarget now "+sens_normalTarget+ "due to temp target; ";
+    } else {
+        sensitivityRatio = TDD/tdd24h;
+        if (sensitivityRatio > 1) {
+            sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+            sensitivityRatio = round(sensitivityRatio,2);
+            enlog += "Sensitivity ratio >1 is now: "+sensitivityRatio+";\n";
+        } else if (sensitivityRatio < 1) {
+            sensitivityRatio = Math.max(sensitivityRatio, profile.autosens_min);
+            sensitivityRatio = round(sensitivityRatio,2);
+            enlog += "Sensitivity ratio <1 is now: "+sensitivityRatio+";\n";
+        }
+    }
+    //enlog +="****** DEBUG ******\n"+"TDD/tdd24h = "+TDD+"/"+tdd24h+"="+TDD/tdd24h+"\n****** DEBUG ******\n";
+
+
+    if (sensitivityRatio) {
+        basal = profile.current_basal * sensitivityRatio;
+        basal = round_basal(basal, profile);
+        if (basal !== profile_current_basal) {
+            enlog += "Adjusting basal from "+profile_current_basal+" to "+basal+"; ";
+        } else {
+           enlog += "Basal unchanged: "+basal+"; ";
+        }
+    }
+
+    // adjust min, max, and target BG for sensitivity, such that 50% increase in ISF raises target from 100 to 120
+    if (profile.temptargetSet) {
+        //console.log("Temp Target set, not adjusting with autosens; ");
+    } else {
+        if ( profile.sensitivity_raises_target && sensitivityRatio < 1 || profile.resistance_lowers_target && sensitivityRatio > 1 ) {
+            // with a target of 100, default 0.7-1.2 autosens min/max range would allow a 93-117 target range
+            min_bg = round((min_bg - 60) / sensitivityRatio) + 60;
+            max_bg = round((max_bg - 60) / sensitivityRatio) + 60;
+            var new_target_bg = round((target_bg - 60) / sensitivityRatio) + 60;
+            // don't allow target_bg below 80
+            new_target_bg = Math.max(80, new_target_bg);
+            if (target_bg === new_target_bg) {
+                console.log("target_bg unchanged: "+new_target_bg+"; ");
+            } else {
+                console.log("target_bg from "+target_bg+" to "+new_target_bg+"; ");
+            }
+            target_bg = new_target_bg;
+        }
+    }
+    //NEW SR CODE
 
     //circadian sensitivity curve
     // https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3879757/
@@ -447,7 +516,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // at night with SR use the sens_currentBG
     sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
-
 
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
     var lastTempAge;
@@ -1037,6 +1105,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", UAM: " + UAMBoost;
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
+    rT.reason += ", TDD24H:" + round(tdd24h, 2);
     rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
