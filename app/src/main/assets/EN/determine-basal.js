@@ -881,6 +881,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
         sens_future = sens_normalTarget / (sens_future_bg / target_bg);
+        sens_future *= sens_BGscaler; // try this again
+        //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
         // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
         //sens_future = (bg >= ISFbgMax ? sens_currentBG : sens_future);
         //sens_future_max = (bg >= ISFbgMax);
