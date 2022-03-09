@@ -139,6 +139,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
     private lateinit var refreshLoop: Runnable
     private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
 
+    private var isProtectionCheckActive = false
     private lateinit var binding: ActivityMainBinding
 
     // change to selected theme in theme manager
@@ -648,10 +649,13 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        protectionCheck.queryProtection(this, ProtectionCheck.Protection.APPLICATION, null,
-                                        UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { finish() } },
-                                        UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { finish() } }
-        )
+                if (!isProtectionCheckActive) {
+            isProtectionCheckActive = true
+            protectionCheck.queryProtection(this, ProtectionCheck.Protection.APPLICATION, UIRunnable { isProtectionCheckActive = false },
+                                            UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { isProtectionCheckActive = false; finish() } },
+                                            UIRunnable { OKDialog.show(this, "", rh.gs(R.string.authorizationfailed)) { isProtectionCheckActive = false; finish() } }
+            )
+        }
         disposable += activePlugin.activeOverview.overviewBus
             .toObservable(EventUpdateOverviewTime::class.java)
             .debounce(2L, TimeUnit.SECONDS)
