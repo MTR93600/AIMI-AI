@@ -947,6 +947,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.2 ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
+        sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
         sens_future = sens_normalTarget / (sens_future_bg / target_bg);
         sens_future *= sens_BGscaler; // try this again
@@ -957,7 +958,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     // sens_future overrides for COBBoost window regardless of delta for faster delivery
-    if (COBBoostOK && sens_predType == "COB") {
         sens_eBGweight = 0.75; // eBGw start at 75% and decreases with ISF scaling
         sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
