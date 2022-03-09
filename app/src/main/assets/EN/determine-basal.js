@@ -957,13 +957,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_future_max = (bg >= ISFbgMax);
     }
 
-    // sens_future overrides for COBBoost window regardless of delta for faster delivery
-        sens_eBGweight = 0.75; // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight) : 0); // start at eBGw, max eBGw, min 0
-        sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
-        sens_future = sens_normalTarget / (sens_future_bg / target_bg);
-    }
-
     // if BG below threshold then take the max of the sens vars
     sens_future = (bg <= threshold ? Math.max(sens_normalTarget, sens_currentBG, sens_future) : sens_future);
 
