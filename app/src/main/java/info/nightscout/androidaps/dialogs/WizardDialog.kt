@@ -124,7 +124,7 @@ class WizardDialog : BlurDialogFragment() {
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, info.nightscout.androidaps.core.R.drawable.dialog) }
         if (drawable != null) {
-            drawable.setColorFilter(rh.getAttributeColor(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
+            drawable.setColorFilter(rh.gac(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
         }
         dialog?.window?.setBackgroundDrawable(drawable)
 
@@ -459,10 +459,10 @@ class WizardDialog : BlurDialogFragment() {
         )
 
         wizard?.let { wizard ->
-            binding.bg.text = String.format(rh.gs(R.string.format_bg_isf), valueToUnitsToString(Profile.toMgdl(bg, profileFunction.getUnits()), profileFunction.getUnits().asText), wizard.sens)
+            binding.bg.text = rh.gs(R.string.format_bg_isf, valueToUnitsToString(Profile.toMgdl(bg, profileFunction.getUnits()), profileFunction.getUnits().asText), wizard.sens)
             binding.bgInsulin.text = rh.gs(R.string.formatinsulinunits, wizard.insulinFromBG)
 
-            binding.carbs.text = String.format(rh.gs(R.string.format_carbs_ic), carbs.toDouble(), wizard.ic)
+            binding.carbs.text = rh.gs(R.string.format_carbs_ic, carbs.toDouble(), wizard.ic)
             binding.carbsInsulin.text = rh.gs(R.string.formatinsulinunits, wizard.insulinFromCarbs)
 
             binding.iobInsulin.text = rh.gs(R.string.formatinsulinunits, wizard.insulinFromBolusIOB + wizard.insulinFromBasalIOB)
@@ -485,7 +485,7 @@ class WizardDialog : BlurDialogFragment() {
 
             // COB
             if (binding.cobCheckbox.isChecked) {
-                binding.cob.text = String.format(rh.gs(R.string.format_cob_ic), cob, wizard.ic)
+                binding.cob.text = rh.gs(R.string.format_cob_ic, cob, wizard.ic)
                 binding.cobInsulin.text = rh.gs(R.string.formatinsulinunits, wizard.insulinFromCOB)
             } else {
                 binding.cob.text = ""
@@ -494,11 +494,11 @@ class WizardDialog : BlurDialogFragment() {
 
             if (wizard.calculatedTotalInsulin > 0.0 || carbsAfterConstraint > 0.0) {
                 val insulinText = if (wizard.calculatedTotalInsulin > 0.0) rh.gs(R.string.formatinsulinunits, wizard.calculatedTotalInsulin).formatColor(rh, R.color.bolus) else ""
-                val carbsText = if (carbsAfterConstraint > 0.0) rh.gs(R.string.format_carbs, carbsAfterConstraint).formatColorFromAttribute(rh.getAttributeColor(context,R.attr.carbsColor )) else ""
+                val carbsText = if (carbsAfterConstraint > 0.0) rh.gs(R.string.format_carbs, carbsAfterConstraint).formatColorFromAttribute(rh.gac(context,R.attr.carbsColor )) else ""
                 binding.total.text = HtmlHelper.fromHtml(rh.gs(R.string.result_insulin_carbs, insulinText, carbsText))
                 binding.okcancel.ok.visibility = View.VISIBLE
             } else {
-                binding.total.text = HtmlHelper.fromHtml(rh.gs(R.string.missing_carbs, wizard.carbsEquivalent.toInt()).formatColorFromAttribute(rh.getAttributeColor(context,R.attr.carbsColor )))
+                binding.total.text = HtmlHelper.fromHtml(rh.gs(R.string.missing_carbs, wizard.carbsEquivalent.toInt()).formatColorFromAttribute(rh.gac(context,R.attr.carbsColor )))
                 binding.okcancel.ok.visibility = View.INVISIBLE
             }
             binding.percentUsed.text = rh.gs(R.string.format_percent, wizard.percentageCorrection)
