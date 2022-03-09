@@ -614,9 +614,9 @@ open class MainActivity : NoSplashAppCompatActivity() {
             null,
             binding.statusLightsLayout.pbAge,
             binding.statusLightsLayout.batteryLevel,
-            rh.getAttributeColor(this, R.attr.statuslightNormal),
-            rh.getAttributeColor(this, R.attr.statuslightWarning),
-            rh.getAttributeColor(this, R.attr.statuslightAlarm))
+            rh.gac(this, R.attr.statuslightNormal),
+            rh.gac(this, R.attr.statuslightWarning),
+            rh.gac(this, R.attr.statuslightAlarm))
     }
 
     fun updateTime() {
