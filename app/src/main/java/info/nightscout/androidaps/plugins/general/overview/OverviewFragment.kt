@@ -424,12 +424,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                                 protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, UIRunnable {
                                     OKDialog.showConfirmation(activity, rh.gs(R.string.tempbasal_label), lastRun.constraintsProcessed?.toSpanned()
                                         ?: "".toSpanned(), {
-                                                                  uel.log(Action.ACCEPTS_TEMP_BASAL, Sources.Overview)
-                                                                  (context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?)?.cancel(Constants.notificationID)
-                                                                  rxBus.send(EventWearInitiateAction("cancelChangeRequest"))
-                                                                  Thread { loop.acceptChangeRequest() }.run()
-                                                                  binding.buttonsLayout.acceptTempButton.visibility = View.GONE
-                                                              })
+                                      uel.log(Action.ACCEPTS_TEMP_BASAL, Sources.Overview)
+                                      (context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?)?.cancel(Constants.notificationID)
+                                      rxBus.send(EventWearInitiateAction("cancelChangeRequest"))
+                                      Thread { loop.acceptChangeRequest() }.run()
+                                      binding.buttonsLayout.acceptTempButton.visibility = View.GONE
+                                  })
                                 })
                             }
                         }
@@ -478,8 +478,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 }
             }
 
-            R.id.temp_target         -> v.performClick()
-            R.id.active_profile      -> activity?.let { activity ->
+            R.id.temp_target -> v.performClick()
+            R.id.active_profile -> activity?.let { activity ->
                 if (loop.isDisconnected) OKDialog.show(activity, rh.gs(R.string.not_available_full), rh.gs(R.string.smscommunicator_pumpdisconnected))
                 else
                     protectionCheck.queryProtection(
@@ -731,8 +731,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 graph.layoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
                 graph.gridLabelRenderer?.gridColor = rh.gc(R.color.graphgrid)
-                graph.gridLabelRenderer?.horizontalLabelsColor = rh.getAttributeColor(context,R.attr.graphHorizontalLabelText )
-                graph.gridLabelRenderer?.verticalLabelsColor = rh.getAttributeColor(context,R.attr.graphVerticalLabelText )
+                graph.gridLabelRenderer?.horizontalLabelsColor = rh.gac(context,R.attr.graphHorizontalLabelText )
+                graph.gridLabelRenderer?.verticalLabelsColor = rh.gac(context,R.attr.graphVerticalLabelText )
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
@@ -871,7 +871,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         binding.activeProfile.setTextColor(profileTextColor)
         val drawable: Drawable = binding.activeProfile.background
         val drawableLeft: Array<Drawable?> = binding.activeProfile.compoundDrawables
-        if (drawableLeft[0] != null) rh.gac(context, R.attr.defaultPillTextColor).let { drawableLeft[0]!!.setTint(it) }
+        if (drawableLeft[0] != null) profileTextColor.let { drawableLeft[0]!!.setTint(it) }
+        drawable.setColorFilter(profileBackgroundColor, PorterDuff.Mode.SRC_IN)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -962,10 +963,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val tempTarget = overviewData.temporaryTarget
         if (tempTarget != null) {
             binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarning))
-            binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonWarning))
             binding.tempTarget.text = Profile.toTargetRangeString(tempTarget.lowTarget, tempTarget.highTarget, GlucoseUnit.MGDL, units) + " " + dateUtil.untilString(tempTarget.end, rh)
-            val drawableLeft: Array<Drawable?> = binding.tempTarget.compoundDrawables
             if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
+            drawable.setColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN)
         } else {
             // If the target is not the same as set in the profile then oref has overridden it
             profileFunction.getProfile()?.let { profile ->
@@ -975,15 +975,13 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                     aapsLogger.debug("Adjusted target. Profile: ${profile.getTargetMgdl()} APS: $targetUsed")
                     binding.tempTarget.text = Profile.toTargetRangeString(targetUsed, targetUsed, GlucoseUnit.MGDL, units)
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarning))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonWarning))
-                    val drawableLeft: Array<Drawable?> = binding.tempTarget.compoundDrawables
                     if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
+                    drawable.setColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN)
                 } else {
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.defaultPillTextColor))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonDefault))
                     binding.tempTarget.text = Profile.toTargetRangeString(profile.getTargetLowMgdl(), profile.getTargetHighMgdl(), GlucoseUnit.MGDL, units)
-                    val drawableLeft: Array<Drawable?> = binding.tempTarget.compoundDrawables
                     if (drawableLeft[0] != null) rh.gac(context, R.attr.defaultPillTextColor).let { drawableLeft[0]!!.setTint(it) }
+                    drawable.setColorFilter(resources.getColor(R.color.ribbonDefault, requireContext().theme), PorterDuff.Mode.SRC_IN)
                 }
             }
         }

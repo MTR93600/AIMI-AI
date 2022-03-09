@@ -58,7 +58,7 @@ class LoopFragment : DaggerFragment() {
 
         with (binding.swipeRefreshLoop) {
             setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
-            setProgressBackgroundColorSchemeColor(rh.getAttributeColor(context,R.attr.swipeRefreshBackground ))
+            setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
             setOnRefreshListener {
                 Handler(Looper.getMainLooper()).postDelayed({
                     binding.lastrun.text = rh.gs(R.string.executing)

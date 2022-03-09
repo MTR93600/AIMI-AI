@@ -104,8 +104,8 @@ class BolusProgressDialog : BlurDialogFragment() {
 
         val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
         if (drawable != null) {
-            drawable.setColorFilter( rh.getAttributeColor(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
-            // drawable.setColorFilter( PorterDuffColorFilter(rh.getAttributeColor(context, R.attr.windowBackground ), PorterDuff.Mode.MULTIPLY))
+            drawable.setColorFilter( rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
+            // drawable.setColorFilter( PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.MULTIPLY))
         }
         dialog?.window?.setBackgroundDrawable(drawable)
 

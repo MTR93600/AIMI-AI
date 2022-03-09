@@ -180,7 +180,7 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
         if (activePlugin.activePump.pumpDescription.needsManualTDDLoad){
             with (binding.swipeRefreshLoop) {
                 setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
-                setProgressBackgroundColorSchemeColor(rh.getAttributeColor(context,R.attr.swipeRefreshBackground ))
+                setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
                 setOnRefreshListener {
                     binding.mainTableHeader.visibility = View.INVISIBLE
                     binding.connectionStatus.visibility = View.VISIBLE
