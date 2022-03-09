@@ -364,17 +364,24 @@ open class MainActivity : NoSplashAppCompatActivity() {
         // try to fix  https://fabric.io/nightscout3/android/apps/info.nightscout.androidaps/issues/5aca7a1536c7b23527eb4be7?time=last-seven-days
         // https://stackoverflow.com/questions/14860239/checking-if-state-is-saved-before-committing-a-fragmenttransaction
         if (manager.isStateSaved) return
-        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.wizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { WizardDialog().show(manager, "Main") })
                 R.id.insulinButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { InsulinDialog().show(manager, "Main") })
                 R.id.carbsButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { CarbsDialog().show(manager, "Main") })
 
                 R.id.cgmButton -> {
-
+                    if (xdripPlugin.isEnabled())
+                        openCgmApp("com.eveningoutpost.dexdrip")
+                    else if (dexcomPlugin.isEnabled()) {
+                        dexcomMediator.findDexcomPackageName()?.let {
+                            openCgmApp(it)
+                        }
+                            ?: ToastUtils.showToastInUiThread(this, rh.gs(R.string.dexcom_app_not_installed))
+                    }
                 }
             }
-            true
+            return@setOnItemSelectedListener true
         }
     }
 
@@ -423,17 +430,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
                 R.id.treatmentButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { TreatmentDialog().show(manager!!, "MainActivity") })
                 R.id.quickwizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { onClickQuickWizard() })
-
-                R.id.cgmButton -> {
-                    if (xdripPlugin.isEnabled())
-                        openCgmApp("com.eveningoutpost.dexdrip")
-                    else if (dexcomPlugin.isEnabled()) {
-                        dexcomMediator.findDexcomPackageName()?.let {
-                            openCgmApp(it)
-                        }
-                            ?: ToastUtils.showToastInUiThread(this, rh.gs(R.string.dexcom_app_not_installed))
-                    }
-                }
 
                 R.id.calibration_button  -> {
                     if (xdripPlugin.isEnabled()) {
@@ -531,7 +527,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         }
     }
 
-    fun updateBg(from: String) {
+    fun updateBg() {
         val units = profileFunction.getUnits()
         binding.statusLightsLayout.overviewBg.text =  overviewData.lastBg?.valueToUnitsString(units)
         binding.statusLightsLayout.overviewBg.setTextColor((overviewData.getlastBgColor(this)))
@@ -543,8 +539,8 @@ open class MainActivity : NoSplashAppCompatActivity() {
             findViewById<TextView>(R.id.overview_delta)?.text =  Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
             findViewById<TextView>(R.id.timeago)?.text = dateUtil.minAgo(rh, overviewData.lastBg?.timestamp)
             avgdelta =   "         Δ " + Profile.toSignedUnitsString(glucoseStatus.delta, glucoseStatus.delta * Constants.MGDL_TO_MMOLL, units)
-            avgdelta +=   System.getProperty("line.separator") + "15m Δ " +  Profile.toSignedUnitsString(glucoseStatus.shortAvgDelta, glucoseStatus.shortAvgDelta * Constants.MGDL_TO_MMOLL, units)
-            avgdelta +=   System.getProperty("line.separator") + "40m Δ " +  Profile.toSignedUnitsString(glucoseStatus.longAvgDelta, glucoseStatus.longAvgDelta * Constants.MGDL_TO_MMOLL, units)
+            avgdelta +=   "\n15m Δ " +  Profile.toSignedUnitsString(glucoseStatus.shortAvgDelta, glucoseStatus.shortAvgDelta * Constants.MGDL_TO_MMOLL, units)
+            avgdelta +=   "\n40m Δ " +  Profile.toSignedUnitsString(glucoseStatus.longAvgDelta, glucoseStatus.longAvgDelta * Constants.MGDL_TO_MMOLL, units)
         } else {
             avgdelta =  ""
         }
@@ -623,7 +619,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
             rh.getAttributeColor(this, R.attr.statuslightAlarm))
     }
 
-    fun updateTime(from: String) {
+    fun updateTime() {
         //binding.infoLayout.time.text = dateUtil.timeString(dateUtil.now())
         upDateStatusLight()
         processButtonsVisibility()
@@ -660,19 +656,19 @@ open class MainActivity : NoSplashAppCompatActivity() {
             .toObservable(EventUpdateOverviewTime::class.java)
             .debounce(2L, TimeUnit.SECONDS)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ updateTime("MainActivity") }, fabricPrivacy::logException)
+            .subscribe({ updateTime() }, fabricPrivacy::logException)
         disposable += activePlugin.activeOverview.overviewBus
             .toObservable(EventUpdateOverviewBg::class.java)
             .debounce(1L, TimeUnit.SECONDS)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ updateBg("MainActivity") }, fabricPrivacy::logException)
+            .subscribe({ updateBg() }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventInitializationChanged::class.java)
             .observeOn(aapsSchedulers.main)
-            .subscribe({ updateTime("MainActivity") }, fabricPrivacy::logException)
+            .subscribe({ updateTime() }, fabricPrivacy::logException)
 
-        updateTime("onResume")
-        updateBg("onResume")
+        updateTime()
+        updateBg()
     }
 
     private fun setWakeLock() {
@@ -813,13 +809,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
         } else {
             binding.tabsNormal.visibility = View.VISIBLE
             binding.tabsCompact.visibility = View.GONE
-            val typedValue = TypedValue()
-            /*if (theme.resolveAttribute(R.attr.actionBarSize, typedValue, true)) {
-                binding.toolbar.layoutParams = AppBarLayout.LayoutParams(
-                    Toolbar.LayoutParams.MATCH_PARENT,
-                    TypedValue.complexToDimensionPixelSize(typedValue.data, resources.displayMetrics)
-                )
-            }*/
             TabLayoutMediator(binding.tabsNormal, binding.mainPager) { tab, position ->
                 tab.text = (binding.mainPager.adapter as TabPageAdapter).getPluginAt(position).name
             }.attach()
