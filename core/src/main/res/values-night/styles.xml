@@ -558,6 +558,8 @@
         <item name="quickwizzardIconColor" >@color/white</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/ferrari3</item>
     </style>
 
