@@ -55,8 +55,12 @@ class CgmSourceTransaction(
                         if (abs(glucoseValue.value - current.value) == 1.0) {
                             glucoseValue.value = current.value
                         }
-                    }
-                    if(database.glucoseValueDao.updateExistingEntry(glucoseValue)>0) {
+                        if(!glucoseValue.contentEqualsTo(current)){
+                            database.glucoseValueDao.updateExistingEntry(glucoseValue)
+                            result.updated.add(glucoseValue)
+                        }
+                    } else
+                    if( database.glucoseValueDao.updateExistingEntry(glucoseValue)>0) {
                         result.updated.add(glucoseValue)
                     }
                 }

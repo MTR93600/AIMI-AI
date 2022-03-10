@@ -46,7 +46,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
         Optional<PumpDriverState> result = filtered.reduce((first, second) -> second).map(f -> {
             if (f.contains("normal")) {
                 medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
-                medlinkPumpPlugin.createTemporaryBasalData(0,0);
+                medlinkPumpPlugin.createTemporaryBasalData(5,100);
                 return PumpDriverState.Initialized;
             } else if (f.contains("suspend")) {
                 medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);

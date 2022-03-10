@@ -56,9 +56,7 @@ data class GlucoseValue(
             trendArrow == other.trendArrow &&
             noise == other.noise &&
             sourceSensor == other.sourceSensor &&
-            isig == other.isig &&
-            calibrationFactor == other.calibrationFactor &&
-            sensorUptime == other.sensorUptime
+            isig == other.isig
 
     fun onlyNsIdAdded(previous: GlucoseValue): Boolean =
         previous.id != id &&

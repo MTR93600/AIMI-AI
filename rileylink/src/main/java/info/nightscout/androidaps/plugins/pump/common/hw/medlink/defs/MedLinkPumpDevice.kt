@@ -38,7 +38,7 @@ interface MedLinkPumpDevice : CommunicatorPumpDevice {
         profile: Profile,
         enforceNew: Boolean,
         callback: Function1<PumpEnactResult, *>
-    ): PumpEnactResult
+    )
 
     fun cancelTempBasal(enforceNew: Boolean, callback: Callback?)
     fun extendBasalTreatment(duration: Int, callback: Function1<PumpEnactResult, *>): PumpEnactResult

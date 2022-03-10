@@ -15,7 +15,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
 public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
 
 
-    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> argCallBack;
+    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> profileCallback;
 
     public BasalMedLinkMessage(MedLinkCommandType commandType, MedLinkCommandType argument,
                                Function<Supplier<Stream<String>>,
@@ -26,7 +26,7 @@ public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
                                BleCommand bleCommand
                                ) {
         super(commandType, argument, baseCallBack,btSleepSize, bleCommand);
-        this.argCallBack = profileCallback;
+        this.profileCallback = profileCallback;
     }
 
 //    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> getArgCallback() {

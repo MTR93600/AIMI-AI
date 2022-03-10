@@ -39,8 +39,8 @@ data class BolusProgressCallback(
         var ans = answer.get().iterator()
         while(ans.hasNext()){
             val currentLine = ans.next()
-            if(currentLine.contains("square bolus")){
-
+            if(currentLine.contains("confirmed")){
+                break
             }
         }
         MedLinkStatusParser.parseBolusInfo(ans, pumpStatus)

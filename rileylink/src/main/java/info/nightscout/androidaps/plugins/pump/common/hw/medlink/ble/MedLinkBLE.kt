@@ -1355,6 +1355,7 @@ class MedLinkBLE //extends RileyLinkBLE
                     latestReceivedAnswer = System.currentTimeMillis()
                     if (answer.contains("command con") && currentCommand != null) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "confirmed")
+//                        characteristicChanged!!.characteristicChanged(answer, that, lastCharacteristic)
 
 //                        if (!answer.startsWith(currentCommand.nextCommand().code.toLowerCase())) {
 //                            aapsLogger.info(LTag.PUMPBTCOMM, "closing");

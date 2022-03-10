@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
@@ -65,8 +66,8 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
                 functionPosition += 1
                 it
             }
-        } else if (functionPosition == 1 && medLinkPumpMessage.commandType == MedLinkCommandType.ActiveBasalProfile){
-            medLinkPumpMessage.baseCallback.compose {
+        } else if (functionPosition == 1 && medLinkPumpMessage is BasalMedLinkMessage){
+            medLinkPumpMessage.profileCallback.compose {
                 functionPosition += 1
                 it
             }
