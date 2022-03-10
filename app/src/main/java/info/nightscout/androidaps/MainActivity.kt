@@ -431,7 +431,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
                 R.id.treatmentButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { TreatmentDialog().show(manager!!, "MainActivity") })
                 R.id.quickwizardButton -> protectionCheck.queryProtection(this, ProtectionCheck.Protection.BOLUS, UIRunnable { onClickQuickWizard() })
 
-                R.id.calibration_button  -> {
+                R.id.calibrationButton  -> {
                     if (xdripPlugin.isEnabled()) {
                         CalibrationDialog().show(supportFragmentManager, "CalibrationDialog")
                     } else if (dexcomPlugin.isEnabled()) {
@@ -449,7 +449,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
                         }
                     }
                 }
-
                 R.id.aps_mode     -> {
                     val args = Bundle()
                     args.putInt("showOkCancel", 1)
