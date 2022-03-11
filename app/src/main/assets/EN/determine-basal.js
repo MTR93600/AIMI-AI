@@ -244,7 +244,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0,0)-ENStartOffset, ENEndTime = new Date().setHours(profile.EatingNowTimeEnd,0,0,0) + ENEndOffset;
 
     // variables for deltas
-    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.1;
+    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.2, UAM_deltaPct = 1.05;
     // Calculate percentage change in deltas, long to short and short to now
     if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
     if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
@@ -944,7 +944,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (eatingnow) {
         sens_eBGweight = (sens_predType=="UAM" ? 0.70 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > UAMBoost_threshold ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
+        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > UAM_deltaPct ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
@@ -1441,7 +1441,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== DELTA RESTRICTIONS ==============
                 // if the delta difference is below threshold limit max SMB unless prediction is COB
-                if (UAMBoost > UAMBoost_threshold || sens_predType == "COB" || COBBoostOK) {
+                if (UAMBoost > UAM_deltaPct || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = EatingNowMaxSMB;
                 } else {
