@@ -244,7 +244,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0,0)-ENStartOffset, ENEndTime = new Date().setHours(profile.EatingNowTimeEnd,0,0,0) + ENEndOffset;
 
     // variables for deltas
-    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.2;
+    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.1;
     // Calculate percentage change in deltas, long to short and short to now
     if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
     if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
