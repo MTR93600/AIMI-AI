@@ -1076,15 +1076,12 @@ class MedtronicPumpPlugin @Inject constructor(
                     val differenceTime = System.currentTimeMillis() - runningTBR.date
                     //val tbrData = runningTBR
 
-                    val result = pumpSync.syncTemporaryBasalWithPumpId(
+                    val result = pumpSync.syncStopTemporaryBasalWithPumpId(
                         runningTBR.date,
-                        runningTBR.rate,
-                        differenceTime,
-                        runningTBR.isAbsolute,
-                        runningTBR.tbrType,
                         runningTBR.pumpId!!,
                         runningTBR.pumpType,
                         runningTBR.serialNumber)
+
 
                     val differenceTimeMin = floor(differenceTime / (60.0 * 1000.0))
 

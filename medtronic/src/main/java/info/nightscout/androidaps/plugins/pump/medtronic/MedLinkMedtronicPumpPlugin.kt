@@ -55,6 +55,7 @@ import info.nightscout.androidaps.interfaces.Profile.ProfileValue
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
 import info.nightscout.androidaps.events.EventRefreshOverview
+import info.nightscout.androidaps.extensions.notify
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpTempBasalType
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.plugins.pump.medtronic.data.NextStartStop
@@ -84,6 +85,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.*
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.*
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.*
 import info.nightscout.androidaps.queue.Callback
+import info.nightscout.androidaps.utils.T
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
@@ -282,6 +284,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                                 pumpType = pumpType ?: PumpType.GENERIC_AAPS,
                                 pumpSerial = serialNumber()
                         )
+                        pumpStatusData.tempBasalAmount = profile?.getBasal()?: basalProfile?.getEntryForTime(Instant.now())?.rate
                         PumpEnactResult(injector).success(true).enacted(true)
                     }
                     f.functionResult === PumpDriverState.Suspended -> {
@@ -913,14 +916,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
         val tempData = PumpDbEntryTBR(dose, true, duration, type)
         val result = pumpSync.syncTemporaryBasalWithPumpId(
-                dateUtil.now(),
-                dose,
-                (duration * 60000).toLong(),
-                false,
-                tempData.tbrType,
-                dateUtil.now(),
-                pumpType,
-                serialNumber())
+            dateUtil.now(),
+            dose,
+            T.mins(duration.toLong()).msecs(),
+            false,
+            tempData.tbrType,
+            dateUtil.now(),
+            pumpType,
+            serialNumber())
         pumpStatusData.tempBasalLength = duration
         pumpStatusData.tempBasalAmount = dose
         pumpSyncStorage.addTemporaryBasalRateWithTempId(tempData, true, this)
