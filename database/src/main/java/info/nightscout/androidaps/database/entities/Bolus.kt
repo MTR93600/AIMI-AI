@@ -49,7 +49,14 @@ data class Bolus(
     var insulinConfiguration: InsulinConfiguration? = null
 ) : TraceableDBEntry, DBEntryWithTime {
 
-    private fun contentEqualsTo(other: Bolus): Boolean =
+    fun contentToBeAdded(other: Bolus): Boolean =
+            isValid == other.isValid &&
+                    timestamp == other.timestamp &&
+                    utcOffset == other.utcOffset &&
+                    amount == other.amount
+
+
+    fun contentEqualsTo(other: Bolus): Boolean =
         isValid == other.isValid &&
             timestamp == other.timestamp &&
             utcOffset == other.utcOffset &&
@@ -62,6 +69,9 @@ data class Bolus(
             contentEqualsTo(previous) &&
             previous.interfaceIDs.nightscoutId == null &&
             interfaceIDs.nightscoutId != null
+
+    public fun isSMBorBasal() =
+            this.type == Type.SMB || this.type == Type.TBR
 
     enum class Type {
         NORMAL,

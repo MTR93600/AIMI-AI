@@ -41,8 +41,10 @@ public class BleCommand {
         aapsLogger.info(LTag.PUMPBTCOMM, answer);
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand);
         CommandExecutor currentCommand = bleComm.getCurrentCommand();
-        if (pumpResponse.length() == 0) {
+        if (pumpResponse.length() == 0)  {
             pumpResponse.append(System.currentTimeMillis()).append("\n");
+        } else if ((lastCommand + answer).contains("command confirmed")){
+            pumpResponse.append("\n");
         }
         pumpResponse.append(answer);
 

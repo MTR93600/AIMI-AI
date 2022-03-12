@@ -37,8 +37,12 @@ data class BolusProgressCallback(
 
     override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<String> {
         var ans = answer.get().iterator()
-        ans.next()
-        ans.next()
+        while(ans.hasNext()){
+            val currentLine = ans.next()
+            if(currentLine.contains("confirmed")){
+                break
+            }
+        }
         MedLinkStatusParser.parseBolusInfo(ans, pumpStatus)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.lastBolusAmount)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.bolusDeliveredAmount)

@@ -2,6 +2,7 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
@@ -51,20 +52,24 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
     fun nextFunction(): Function<Supplier<Stream<String>>, out MedLinkStandardReturn<*>?>? {
         return if (functionPosition == 0 && medLinkPumpMessage.baseCallback != null) {
             currentCommand = medLinkPumpMessage.commandType
-            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+            medLinkPumpMessage.baseCallback.compose {
+                aapsLogger.info(
+                        LTag.APS, "applied"
+                )
                 functionPosition += 1
-                f
+                it
             }
+
         } else if (functionPosition == 1 && medLinkPumpMessage.argCallback != null) {
             currentCommand = medLinkPumpMessage.argument
-            medLinkPumpMessage.argCallback.andThen { f: MedLinkStandardReturn<*>? ->
+            medLinkPumpMessage.argCallback.compose {
                 functionPosition += 1
-                f
+                it
             }
-        } else if (functionPosition == 1 && medLinkPumpMessage.commandType == MedLinkCommandType.ActiveBasalProfile){
-            medLinkPumpMessage.baseCallback.andThen { f: MedLinkStandardReturn<*>? ->
+        } else if (functionPosition == 1 && medLinkPumpMessage is BasalMedLinkMessage){
+            medLinkPumpMessage.profileCallback.compose {
                 functionPosition += 1
-                f
+                it
             }
         } else null
     }

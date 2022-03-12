@@ -367,7 +367,7 @@ enum class PumpType {
         specialBolusSize = null, //
         extendedBolusSettings = DoseSettings(0.1, 30, 8 * 60, 0.1), //
         pumpTempBasalType = PumpTempBasalType.Percent, //
-        tbrSettings = DoseSettings(0.0, 5, 24 * 60, 0.0, 15.0),
+        tbrSettings = DoseSettings(1.0, 5, 24 * 60, 0.0, 500.0),
         specialBasalDurations = PumpCapability.BasalRate_Duration30minAllowed, //
         baseBasalMinValue = 0.025,
         baseBasalMaxValue = 3.0,
@@ -602,6 +602,6 @@ enum class PumpType {
             USER                      -> InterfaceIDs.PumpType.USER
             DIACONN_G8                -> InterfaceIDs.PumpType.DIACONN_G8
             MEDLINK_MEDTRONIC_523_723_REVEL -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
-            MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDTRONIC_554_754_VEO
+            MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO
         }
 }

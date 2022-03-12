@@ -297,7 +297,7 @@ class ActionsFragment : DaggerFragment() {
             }
         }
 
-        if (!pump.pumpDescription.isTempBasalCapable || !pump.isInitialized() || pump.isSuspended() || loop.isDisconnected || config.NSCLIENT || (pump.isSuspended() && pump !is MedLinkPumpDevice)) {
+        if (!pump.pumpDescription.isTempBasalCapable || !pump.isInitialized()  || loop.isDisconnected || config.NSCLIENT || (pump.isSuspended() && pump !is MedLinkPumpDevice)) {
             setTempBasal?.visibility = View.GONE
             cancelTempBasal?.visibility = View.GONE
         } else {
@@ -314,7 +314,7 @@ class ActionsFragment : DaggerFragment() {
         }
         val activeBgSource = activePlugin.activeBgSource
         historyBrowser?.visibility = (profile != null).toVisibility()
-        fill?.visibility = (pump.pumpDescription.isRefillingCapable && pump.isInitialized() && !pump.isSuspended()).toVisibility()
+        fill?.visibility = (pump.pumpDescription.isRefillingCapable && pump.isInitialized() && (!pump.isSuspended() || pump is MedLinkPumpDevice)).toVisibility()
         if (pump is DiaconnG8Plugin) {
             pumpBatteryChange?.visibility = (pump.pumpDescription.isBatteryReplaceable && !pump.isBatteryChangeLoggingEnabled()).toVisibility()
         } else {

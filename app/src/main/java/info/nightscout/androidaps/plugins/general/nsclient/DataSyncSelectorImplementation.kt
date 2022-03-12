@@ -11,6 +11,7 @@ import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.profile.local.LocalProfilePlugin
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
@@ -18,46 +19,46 @@ import javax.inject.Singleton
 
 @Singleton
 class DataSyncSelectorImplementation @Inject constructor(
-    private val sp: SP,
-    private val aapsLogger: AAPSLogger,
-    private val dateUtil: DateUtil,
-    private val profileFunction: ProfileFunction,
-    private val nsClientPlugin: NSClientPlugin,
-    private val activePlugin: ActivePlugin,
-    private val appRepository: AppRepository,
-    private val localProfilePlugin: LocalProfilePlugin
+        private val sp: SP,
+        private val aapsLogger: AAPSLogger,
+        private val dateUtil: DateUtil,
+        private val profileFunction: ProfileFunction,
+        private val nsClientPlugin: NSClientPlugin,
+        private val activePlugin: ActivePlugin,
+        private val appRepository: AppRepository,
+        private val localProfilePlugin: LocalProfilePlugin
 ) : DataSyncSelector {
 
     class QueueCounter(
-        var bolusesRemaining: Long = -1L,
-        var carbsRemaining: Long = -1L,
-        var bcrRemaining: Long = -1L,
-        var ttsRemaining: Long = -1L,
-        var foodsRemaining: Long = -1L,
-        var gvsRemaining: Long = -1L,
-        var tesRemaining: Long = -1L,
-        var dssRemaining: Long = -1L,
-        var tbrsRemaining: Long = -1L,
-        var ebsRemaining: Long = -1L,
-        var pssRemaining: Long = -1L,
-        var epssRemaining: Long = -1L,
-        var oesRemaining: Long = -1L
+            var bolusesRemaining: Long = -1L,
+            var carbsRemaining: Long = -1L,
+            var bcrRemaining: Long = -1L,
+            var ttsRemaining: Long = -1L,
+            var foodsRemaining: Long = -1L,
+            var gvsRemaining: Long = -1L,
+            var tesRemaining: Long = -1L,
+            var dssRemaining: Long = -1L,
+            var tbrsRemaining: Long = -1L,
+            var ebsRemaining: Long = -1L,
+            var pssRemaining: Long = -1L,
+            var epssRemaining: Long = -1L,
+            var oesRemaining: Long = -1L
     ) {
 
         fun size(): Long =
-            bolusesRemaining +
-                carbsRemaining +
-                bcrRemaining +
-                ttsRemaining +
-                foodsRemaining +
-                gvsRemaining +
-                tesRemaining +
-                dssRemaining +
-                tbrsRemaining +
-                ebsRemaining +
-                pssRemaining +
-                epssRemaining +
-                oesRemaining
+                bolusesRemaining +
+                        carbsRemaining +
+                        bcrRemaining +
+                        ttsRemaining +
+                        foodsRemaining +
+                        gvsRemaining +
+                        tesRemaining +
+                        dssRemaining +
+                        tbrsRemaining +
+                        ebsRemaining +
+                        pssRemaining +
+                        epssRemaining +
+                        oesRemaining
     }
 
     private val queueCounter = QueueCounter()
@@ -134,11 +135,11 @@ class DataSyncSelectorImplementation @Inject constructor(
     override fun changedBoluses(): List<Bolus> {
         val startId = sp.getLong(R.string.key_ns_bolus_last_synced_id, 0)
         return appRepository.getModifiedBolusesDataFromId(startId)
-            .blockingGet()
-            .filter { it.type != Bolus.Type.PRIMING }
-            .also {
-                aapsLogger.debug(LTag.NSCLIENT, "Loading Bolus data for sync from $startId. Records ${it.size}")
-            }
+                .blockingGet()
+                .filter { it.type != Bolus.Type.PRIMING }
+                .also {
+                    aapsLogger.debug(LTag.NSCLIENT, "Loading Bolus data for sync from $startId. Records ${it.size}")
+                }
     }
 
     //private var lastBolusId = -1L
@@ -159,7 +160,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading Bolus data Start: $startId ID: ${bolus.first.id} HistoryID: ${bolus.second.id} ")
             when {
                 // only NsId changed, no need to upload
-                bolus.first.onlyNsIdAdded(bolus.second)       -> {
+                bolus.first.onlyNsIdAdded(bolus.second) -> {
                     confirmLastBolusIdIfGreater(bolus.second.id)
                     //lastBolusId = -1
                     processChangedBolusesCompat()
@@ -171,17 +172,22 @@ class DataSyncSelectorImplementation @Inject constructor(
                     nsClientPlugin.nsClientService?.dbAdd("treatments", bolus.first.toJson(true, dateUtil), DataSyncSelector.PairBolus(bolus.first, bolus.second.id), "$startId/$lastDbId")
                 // with nsId = update
                 bolus.first.interfaceIDs.nightscoutId != null ->
-                    nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        bolus.first.interfaceIDs.nightscoutId,
-                        bolus.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairBolus(bolus.first, bolus.second.id),
-                        "$startId/$lastDbId"
-                    )
+                    bolusNsUpdate(bolus, startId,lastDbId)
             }
             return true
         }
         return false
+    }
+
+    private fun bolusNsUpdate(bolus: Pair<Bolus, Bolus>, startId: Long, lastDbId: Long) {
+//        if(activePlugin.activePump !is MedLinkPumpPluginAbstract || (!bolus.first.contentEqualsTo(bolus.second)) )
+        nsClientPlugin.nsClientService?.dbUpdate(
+                "treatments",
+                bolus.first.interfaceIDs.nightscoutId,
+                bolus.first.toJson(false, dateUtil),
+                DataSyncSelector.PairBolus(bolus.first, bolus.second.id),
+                "$startId/$lastDbId"
+        )
     }
 
     override fun confirmLastCarbsIdIfGreater(lastSynced: Long) {
@@ -217,7 +223,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading Carbs data Start: $startId ID: ${carb.first.id} HistoryID: ${carb.second.id} ")
             when {
                 // only NsId changed, no need to upload
-                carb.first.onlyNsIdAdded(carb.second)        -> {
+                carb.first.onlyNsIdAdded(carb.second) -> {
                     confirmLastCarbsIdIfGreater(carb.second.id)
                     //lastCarbsId = -1
                     processChangedCarbsCompat()
@@ -230,11 +236,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // with nsId = update
                 carb.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        carb.first.interfaceIDs.nightscoutId,
-                        carb.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairCarbs(carb.first, carb.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            carb.first.interfaceIDs.nightscoutId,
+                            carb.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairCarbs(carb.first, carb.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -283,18 +289,18 @@ class DataSyncSelectorImplementation @Inject constructor(
                     return false
                 }
                 // without nsId = create new
-                bolusCalculatorResult.first.interfaceIDs.nightscoutId == null           ->
+                bolusCalculatorResult.first.interfaceIDs.nightscoutId == null ->
                     nsClientPlugin.nsClientService?.dbAdd(
-                        "treatments",
-                        bolusCalculatorResult.first.toJson(true, dateUtil),
-                        DataSyncSelector.PairBolusCalculatorResult(bolusCalculatorResult.first, bolusCalculatorResult.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            bolusCalculatorResult.first.toJson(true, dateUtil),
+                            DataSyncSelector.PairBolusCalculatorResult(bolusCalculatorResult.first, bolusCalculatorResult.second.id),
+                            "$startId/$lastDbId"
                     )
                 // with nsId = update
-                bolusCalculatorResult.first.interfaceIDs.nightscoutId != null           ->
+                bolusCalculatorResult.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments", bolusCalculatorResult.first.interfaceIDs.nightscoutId, bolusCalculatorResult.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairBolusCalculatorResult(bolusCalculatorResult.first, bolusCalculatorResult.second.id), "$startId/$lastDbId"
+                            "treatments", bolusCalculatorResult.first.interfaceIDs.nightscoutId, bolusCalculatorResult.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairBolusCalculatorResult(bolusCalculatorResult.first, bolusCalculatorResult.second.id), "$startId/$lastDbId"
                     )
             }
             return true
@@ -343,7 +349,7 @@ class DataSyncSelectorImplementation @Inject constructor(
                     return false
                 }
                 // only NsId changed, no need to upload
-                tt.first.onlyNsIdAdded(tt.second)          -> {
+                tt.first.onlyNsIdAdded(tt.second) -> {
                     confirmLastTempTargetsIdIfGreater(tt.second.id)
                     //lastTtId = -1
                     processChangedTempTargetsCompat()
@@ -353,19 +359,19 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // without nsId = create new
                 tt.first.interfaceIDs.nightscoutId == null ->
                     nsClientPlugin.nsClientService?.dbAdd(
-                        "treatments",
-                        tt.first.toJson(true, profileFunction.getUnits(), dateUtil),
-                        DataSyncSelector.PairTemporaryTarget(tt.first, tt.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            tt.first.toJson(true, profileFunction.getUnits(), dateUtil),
+                            DataSyncSelector.PairTemporaryTarget(tt.first, tt.second.id),
+                            "$startId/$lastDbId"
                     )
                 // existing with nsId = update
                 tt.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        tt.first.interfaceIDs.nightscoutId,
-                        tt.first.toJson(false, profileFunction.getUnits(), dateUtil),
-                        DataSyncSelector.PairTemporaryTarget(tt.first, tt.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            tt.first.interfaceIDs.nightscoutId,
+                            tt.first.toJson(false, profileFunction.getUnits(), dateUtil),
+                            DataSyncSelector.PairTemporaryTarget(tt.first, tt.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -406,7 +412,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading Food data Start: $startId ID: ${food.first.id} HistoryID: ${food.second} ")
             when {
                 // only NsId changed, no need to upload
-                food.first.onlyNsIdAdded(food.second)        -> {
+                food.first.onlyNsIdAdded(food.second) -> {
                     confirmLastFoodIdIfGreater(food.second.id)
                     //lastFoodId = -1
                     processChangedFoodsCompat()
@@ -419,11 +425,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // with nsId = update
                 food.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "food",
-                        food.first.interfaceIDs.nightscoutId,
-                        food.first.toJson(false),
-                        DataSyncSelector.PairFood(food.first, food.second.id),
-                        "$startId/$lastDbId"
+                            "food",
+                            food.first.interfaceIDs.nightscoutId,
+                            food.first.toJson(false),
+                            DataSyncSelector.PairFood(food.first, food.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -473,7 +479,7 @@ class DataSyncSelectorImplementation @Inject constructor(
                         tailCall = true
                     }
                     // only NsId changed, no need to upload
-                    gv.first.onlyNsIdAdded(gv.second)          -> {
+                    gv.first.onlyNsIdAdded(gv.second) -> {
                         confirmLastGlucoseValueIdIfGreater(gv.second.id)
                         //lastGvId = -1
                         aapsLogger.info(LTag.NSCLIENT, "Ignoring GlucoseValue. Only NS id changed ID: ${gv.first.id} HistoryID: ${gv.second.id} ")
@@ -484,13 +490,7 @@ class DataSyncSelectorImplementation @Inject constructor(
                         nsClientPlugin.nsClientService?.dbAdd("entries", gv.first.toJson(true, dateUtil), DataSyncSelector.PairGlucoseValue(gv.first, gv.second.id), "$startId/$lastDbId")
                     // with nsId = update
                     else ->  //  gv.first.interfaceIDs.nightscoutId != null
-                        nsClientPlugin.nsClientService?.dbUpdate(
-                            "entries",
-                            gv.first.interfaceIDs.nightscoutId,
-                            gv.first.toJson(false, dateUtil),
-                            DataSyncSelector.PairGlucoseValue(gv.first, gv.second.id),
-                            "$startId/$lastDbId"
-                        )
+                        needToUpdate(gv, startId, lastDbId)
                 }
             } else {
                 confirmLastGlucoseValueIdIfGreater(gv.second.id)
@@ -503,6 +503,18 @@ class DataSyncSelectorImplementation @Inject constructor(
         }
     }
 
+    private fun needToUpdate(gv: Pair<GlucoseValue, GlucoseValue>, startId: Long, lastDbId: Long) {
+//        if(gv.first.sourceSensor != GlucoseValue.SourceSensor.MM_ENLITE || (
+//                        !gv.first.contentEqualsTo(gv.second))){
+                    nsClientPlugin.nsClientService?.dbUpdate(
+                            "entries",
+                            gv.first.interfaceIDs.nightscoutId,
+                            gv.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairGlucoseValue(gv.first, gv.second.id),
+                            "$startId/$lastDbId"
+                    )
+//                }
+    }
     override fun confirmLastTherapyEventIdIfGreater(lastSynced: Long) {
         if (lastSynced > sp.getLong(R.string.key_ns_therapy_event_last_synced_id, 0)) {
             aapsLogger.debug(LTag.NSCLIENT, "Setting TherapyEvents data sync from $lastSynced")
@@ -536,7 +548,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading TherapyEvents data Start: $startId ID: ${te.first.id} HistoryID: ${te.second} ")
             when {
                 // only NsId changed, no need to upload
-                te.first.onlyNsIdAdded(te.second)          -> {
+                te.first.onlyNsIdAdded(te.second) -> {
                     confirmLastTherapyEventIdIfGreater(te.second.id)
                     //lastTeId = -1
                     processChangedTherapyEventsCompat()
@@ -549,11 +561,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // nsId = update
                 te.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        te.first.interfaceIDs.nightscoutId,
-                        te.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairTherapyEvent(te.first, te.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            te.first.interfaceIDs.nightscoutId,
+                            te.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairTherapyEvent(te.first, te.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -646,7 +658,7 @@ class DataSyncSelectorImplementation @Inject constructor(
                         return false
                     }
                     // only NsId changed, no need to upload
-                    tb.first.onlyNsIdAdded(tb.second)          -> {
+                    tb.first.onlyNsIdAdded(tb.second) -> {
                         confirmLastTemporaryBasalIdIfGreater(tb.second.id)
                         //lastTbrId = -1
                         processChangedTemporaryBasalsCompat()
@@ -656,19 +668,19 @@ class DataSyncSelectorImplementation @Inject constructor(
                     // without nsId = create new
                     tb.first.interfaceIDs.nightscoutId == null ->
                         nsClientPlugin.nsClientService?.dbAdd(
-                            "treatments",
-                            tb.first.toJson(true, profile, dateUtil),
-                            DataSyncSelector.PairTemporaryBasal(tb.first, tb.second.id),
-                            "$startId/$lastDbId"
+                                "treatments",
+                                tb.first.toJson(true, profile, dateUtil),
+                                DataSyncSelector.PairTemporaryBasal(tb.first, tb.second.id),
+                                "$startId/$lastDbId"
                         )
                     // with nsId = update
                     tb.first.interfaceIDs.nightscoutId != null ->
                         nsClientPlugin.nsClientService?.dbUpdate(
-                            "treatments",
-                            tb.first.interfaceIDs.nightscoutId,
-                            tb.first.toJson(false, profile, dateUtil),
-                            DataSyncSelector.PairTemporaryBasal(tb.first, tb.second.id),
-                            "$startId/$lastDbId"
+                                "treatments",
+                                tb.first.interfaceIDs.nightscoutId,
+                                tb.first.toJson(false, profile, dateUtil),
+                                DataSyncSelector.PairTemporaryBasal(tb.first, tb.second.id),
+                                "$startId/$lastDbId"
                         )
                 }
                 return true
@@ -724,7 +736,7 @@ class DataSyncSelectorImplementation @Inject constructor(
                         return false
                     }
                     // only NsId changed, no need to upload
-                    eb.first.onlyNsIdAdded(eb.second)          -> {
+                    eb.first.onlyNsIdAdded(eb.second) -> {
                         confirmLastExtendedBolusIdIfGreater(eb.second.id)
                         //lastEbId = -1
                         processChangedExtendedBolusesCompat()
@@ -734,19 +746,19 @@ class DataSyncSelectorImplementation @Inject constructor(
                     // without nsId = create new
                     eb.first.interfaceIDs.nightscoutId == null ->
                         nsClientPlugin.nsClientService?.dbAdd(
-                            "treatments",
-                            eb.first.toJson(true, profile, dateUtil),
-                            DataSyncSelector.PairExtendedBolus(eb.first, eb.second.id),
-                            "$startId/$lastDbId"
+                                "treatments",
+                                eb.first.toJson(true, profile, dateUtil),
+                                DataSyncSelector.PairExtendedBolus(eb.first, eb.second.id),
+                                "$startId/$lastDbId"
                         )
                     // with nsId = update
                     eb.first.interfaceIDs.nightscoutId != null ->
                         nsClientPlugin.nsClientService?.dbUpdate(
-                            "treatments",
-                            eb.first.interfaceIDs.nightscoutId,
-                            eb.first.toJson(false, profile, dateUtil),
-                            DataSyncSelector.PairExtendedBolus(eb.first, eb.second.id),
-                            "$startId/$lastDbId"
+                                "treatments",
+                                eb.first.interfaceIDs.nightscoutId,
+                                eb.first.toJson(false, profile, dateUtil),
+                                DataSyncSelector.PairExtendedBolus(eb.first, eb.second.id),
+                                "$startId/$lastDbId"
                         )
                 }
                 return true
@@ -791,7 +803,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading ProfileSwitch data Start: $startId ID: ${ps.first.id} HistoryID: ${ps.second} ")
             when {
                 // only NsId changed, no need to upload
-                ps.first.onlyNsIdAdded(ps.second)          -> {
+                ps.first.onlyNsIdAdded(ps.second) -> {
                     confirmLastProfileSwitchIdIfGreater(ps.second.id)
                     //lastPsId = -1
                     processChangedProfileSwitchesCompat()
@@ -804,11 +816,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // with nsId = update
                 ps.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        ps.first.interfaceIDs.nightscoutId,
-                        ps.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairProfileSwitch(ps.first, ps.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            ps.first.interfaceIDs.nightscoutId,
+                            ps.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairProfileSwitch(ps.first, ps.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -848,7 +860,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading EffectiveProfileSwitch data Start: $startId ID: ${ps.first.id} HistoryID: ${ps.second} ")
             when {
                 // only NsId changed, no need to upload
-                ps.first.onlyNsIdAdded(ps.second)          -> {
+                ps.first.onlyNsIdAdded(ps.second) -> {
                     confirmLastEffectiveProfileSwitchIdIfGreater(ps.second.id)
                     //lastEpsId = -1
                     processChangedEffectiveProfileSwitchesCompat()
@@ -861,11 +873,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // with nsId = update
                 ps.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        ps.first.interfaceIDs.nightscoutId,
-                        ps.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairEffectiveProfileSwitch(ps.first, ps.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            ps.first.interfaceIDs.nightscoutId,
+                            ps.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairEffectiveProfileSwitch(ps.first, ps.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
@@ -906,7 +918,7 @@ class DataSyncSelectorImplementation @Inject constructor(
             aapsLogger.info(LTag.NSCLIENT, "Loading OfflineEvent data Start: $startId ID: ${oe.first.id} HistoryID: ${oe.second} ")
             when {
                 // only NsId changed, no need to upload
-                oe.first.onlyNsIdAdded(oe.second)          -> {
+                oe.first.onlyNsIdAdded(oe.second) -> {
                     confirmLastOfflineEventIdIfGreater(oe.second.id)
                     //lastOeId = -1
                     processChangedOfflineEventsCompat()
@@ -919,11 +931,11 @@ class DataSyncSelectorImplementation @Inject constructor(
                 // existing with nsId = update
                 oe.first.interfaceIDs.nightscoutId != null ->
                     nsClientPlugin.nsClientService?.dbUpdate(
-                        "treatments",
-                        oe.first.interfaceIDs.nightscoutId,
-                        oe.first.toJson(false, dateUtil),
-                        DataSyncSelector.PairOfflineEvent(oe.first, oe.second.id),
-                        "$startId/$lastDbId"
+                            "treatments",
+                            oe.first.interfaceIDs.nightscoutId,
+                            oe.first.toJson(false, dateUtil),
+                            DataSyncSelector.PairOfflineEvent(oe.first, oe.second.id),
+                            "$startId/$lastDbId"
                     )
             }
             return true
