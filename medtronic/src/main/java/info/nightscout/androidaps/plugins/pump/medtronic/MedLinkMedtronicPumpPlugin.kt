@@ -274,12 +274,22 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger,
                     ChangeStatusCallback.OperationType.START, this
             ).andThen { f: MedLinkStandardReturn<PumpDriverState> ->
-                result = if (f.functionResult === PumpDriverState.Initialized) {
-                    PumpEnactResult(injector).success(true).enacted(true)
-                } else if (f.functionResult === PumpDriverState.Suspended) {
-                    PumpEnactResult(injector).success(false).enacted(true)
-                } else {
-                    PumpEnactResult(injector).success(false).enacted(false)
+                result = when {
+                    f.functionResult === PumpDriverState.Initialized -> {
+                        pumpSync.syncStopTemporaryBasalWithPumpId(
+                                timestamp = dateUtil.now(),
+                                endPumpId = dateUtil.now(),
+                                pumpType = pumpType ?: PumpType.GENERIC_AAPS,
+                                pumpSerial = serialNumber()
+                        )
+                        PumpEnactResult(injector).success(true).enacted(true)
+                    }
+                    f.functionResult === PumpDriverState.Suspended -> {
+                        PumpEnactResult(injector).success(false).enacted(true)
+                    }
+                    else -> {
+                        PumpEnactResult(injector).success(false).enacted(false)
+                    }
                 }
                 sendPumpUpdateEvent()
                 callback?.result(result)?.run()
@@ -1351,7 +1361,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     override fun setTempBasalAbsolute(
             absoluteRate: Double, durationInMinutes: Int, profile: Profile,
             enforceNew: Boolean, callback: Function1<PumpEnactResult, *>
-    ): PumpEnactResult {
+    ) {
         val result: PumpEnactResult
         checkPumpNeedToBeStarted(absoluteRate, profile)
         aapsLogger.info(LTag.PUMPBTCOMM, "absolute rate $absoluteRate $durationInMinutes")
@@ -1365,7 +1375,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             aapsLogger.info(LTag.EVENTS, "" + pumpDescription.bolusStep)
             tempBasalMicrobolusOperations!!.operations.clear()
             clearTempBasal()
-            return PumpEnactResult(injector).enacted(true).success(true)
+            PumpEnactResult(injector).enacted(true).success(true)
         } else if (temporaryBasal != null && temporaryBasal!!.desiredRate == absoluteRate && absoluteRate == 0.0) {
             aapsLogger.info(LTag.EVENTS, "extendbasaltreatment")
             extendBasalTreatment(durationInMinutes, callback)
@@ -1404,7 +1414,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //        result.comment = MainApp.gs(R.string.pumperror);
         }
         aapsLogger.info(LTag.EVENTS, "Settings temp basal percent: $result")
-        return result
+
     }
 
     fun setTempBasalAbsolute(
@@ -1732,13 +1742,20 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             tempBasalMicrobolusOperations.let {
                 if (it != null && it.operations.isNotEmpty() &&
                         it.operations.first.operationType == TempBasalMicroBolusPair.OperationType.SUSPEND &&
-                        pumpStatusData.pumpStatusType == PumpStatusType.Suspended) {
+                        pumpStatusData.pumpStatusType == PumpStatusType.Suspended && it.operations.first.releaseTime.isBefore(LocalDateTime.now())) {
+                    operations.removeFirst()
+                } else if (it != null && it.operations.isNotEmpty() &&
+                        it.operations.first.operationType == TempBasalMicroBolusPair.OperationType.SUSPEND &&
+                        pumpStatusData.pumpStatusType == PumpStatusType.Suspended && percent > 0) {
                     startPump(object : Callback() {
                         override fun run() {}
                     })
                 }
+                it
             }
         }
+
+
         refreshAnyStatusThatNeedsToBeRefreshed()
         //criar fila de comandos aqui, esta fila deverá ser consumida a cada execução de checagem de status
         return buildPumpEnactResult().success(true).comment(rh.gs(R.string.medtronic_cmd_desc_set_tbr))
@@ -2210,13 +2227,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         return result
     }
 
-    // fun setExtendedBolus(insulin: Double?, durationInMinutes: Int?): PumpEnactResult {
-    //     val result = buildPumpEnactResult()
-    //     result.success = false
-    //     medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, rh, rxBus)
-    //     aapsLogger.debug("Setting extended bolus: $result")
-    //     return result
-    // }
+// fun setExtendedBolus(insulin: Double?, durationInMinutes: Int?): PumpEnactResult {
+//     val result = buildPumpEnactResult()
+//     result.success = false
+//     medtronicUtil.sendNotification(MedtronicNotificationType.PumpExtendedBolusNotEnabled, rh, rxBus)
+//     aapsLogger.debug("Setting extended bolus: $result")
+//     return result
+// }
 
     override fun cancelTempBasal(enforceNew: Boolean, callback: Callback?) {
         aapsLogger.info(LTag.PUMP, logPrefix + "cancelTempBasal - started")
@@ -2278,13 +2295,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         return result
     }
 
-    // override fun cancelExtendedBolus(): PumpEnactResult {
-    //     val result = PumpEnactResult(injector)
-    //     result.success = false
-    //     medtronicUtil.sendNotification(MedtronicNotificationType.No, rh, rxBus)
-    //     aapsLogger.debug("Canceling extended bolus: $result")
-    //     return result
-    // }
+// override fun cancelExtendedBolus(): PumpEnactResult {
+//     val result = PumpEnactResult(injector)
+//     result.success = false
+//     medtronicUtil.sendNotification(MedtronicNotificationType.No, rh, rxBus)
+//     aapsLogger.debug("Canceling extended bolus: $result")
+//     return result
+// }
 
     override fun manufacturer(): ManufacturerType {
         return ManufacturerType.Medtronic
@@ -2300,59 +2317,59 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     //    @Override public PumpType getPumpType() {
-    //        return pumpDescription.pumpType;
-    //    }
+//        return pumpDescription.pumpType;
+//    }
     override fun serialNumber(): String {
         return medLinkPumpStatus.serialNumber
     }
 
-    // override fun shortStatus(veryShort: Boolean): String {
-    //     var ret = ""
-    //     if (pumpStatusData.lastConnection != 0L) {
-    //         val agoMsec = System.currentTimeMillis() - pumpStatusData.lastConnection
-    //         val agoMin = (agoMsec / 60.0 / 1000.0).toInt()
-    //         ret += "LastConn: $agoMin min ago\n"
-    //     }
-    //     if (pumpStatusData.lastBolusTime != null && pumpStatusData.lastBolusTime!!.time != 0L) {
-    //         ret += """
-    //             LastBolus: ${to2Decimal(pumpStatusData.lastBolusAmount!!)}U @${DateFormat.format("HH:mm", pumpStatusData.lastBolusTime)}
-    //
-    //             """.trimIndent()
-    //     }
-    //     val activeTemp: TemporaryBasal = activePlugin.getActiveTreatments().getRealTempBasalFromHistory(System.currentTimeMillis())
-    //     if (activeTemp != null) {
-    //         ret += """
-    //             Temp: ${activeTemp.toStringFull().toString()}
-    //
-    //             """.trimIndent()
-    //     }
-    //     val activeExtendedBolus: ExtendedBolus = activePlugin.getActiveTreatments().getExtendedBolusFromHistory(
-    //         System.currentTimeMillis()
-    //     )
-    //     if (activeExtendedBolus != null) {
-    //         ret += """
-    //             Extended: ${activeExtendedBolus.toString().toString()}
-    //
-    //             """.trimIndent()
-    //     }
-    //     // if (!veryShort) {
-    //     // ret += "TDD: " + DecimalFormatter.to0Decimal(pumpStatus.dailyTotalUnits) + " / "
-    //     // + pumpStatus.maxDailyTotalUnits + " U\n";
-    //     // }
-    //     ret += """
-    //         IOB: ${pumpStatusData.iob}U
-    //
-    //         """.trimIndent()
-    //     ret += """
-    //         Reserv: ${to0Decimal(pumpStatusData.reservoirLevel)}U
-    //
-    //         """.trimIndent()
-    //     ret += """
-    //         Batt: ${pumpStatusData.batteryVoltage}
-    //
-    //         """.trimIndent()
-    //     return ret
-    // }
+// override fun shortStatus(veryShort: Boolean): String {
+//     var ret = ""
+//     if (pumpStatusData.lastConnection != 0L) {
+//         val agoMsec = System.currentTimeMillis() - pumpStatusData.lastConnection
+//         val agoMin = (agoMsec / 60.0 / 1000.0).toInt()
+//         ret += "LastConn: $agoMin min ago\n"
+//     }
+//     if (pumpStatusData.lastBolusTime != null && pumpStatusData.lastBolusTime!!.time != 0L) {
+//         ret += """
+//             LastBolus: ${to2Decimal(pumpStatusData.lastBolusAmount!!)}U @${DateFormat.format("HH:mm", pumpStatusData.lastBolusTime)}
+//
+//             """.trimIndent()
+//     }
+//     val activeTemp: TemporaryBasal = activePlugin.getActiveTreatments().getRealTempBasalFromHistory(System.currentTimeMillis())
+//     if (activeTemp != null) {
+//         ret += """
+//             Temp: ${activeTemp.toStringFull().toString()}
+//
+//             """.trimIndent()
+//     }
+//     val activeExtendedBolus: ExtendedBolus = activePlugin.getActiveTreatments().getExtendedBolusFromHistory(
+//         System.currentTimeMillis()
+//     )
+//     if (activeExtendedBolus != null) {
+//         ret += """
+//             Extended: ${activeExtendedBolus.toString().toString()}
+//
+//             """.trimIndent()
+//     }
+//     // if (!veryShort) {
+//     // ret += "TDD: " + DecimalFormatter.to0Decimal(pumpStatus.dailyTotalUnits) + " / "
+//     // + pumpStatus.maxDailyTotalUnits + " U\n";
+//     // }
+//     ret += """
+//         IOB: ${pumpStatusData.iob}U
+//
+//         """.trimIndent()
+//     ret += """
+//         Reserv: ${to0Decimal(pumpStatusData.reservoirLevel)}U
+//
+//         """.trimIndent()
+//     ret += """
+//         Batt: ${pumpStatusData.batteryVoltage}
+//
+//         """.trimIndent()
+//     return ret
+// }
 
     override fun getCustomActions(): List<CustomAction>? {
         if (customActions == null) {
@@ -2603,6 +2620,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 if (answer.response == PumpResponses.BolusDelivered &&
                         answer.bolusAmount == detailedBolusInfo.insulin
                 ) {
+                    detailedBolusInfo.timestamp = answer.bolusDeliveryTime.toInstant().toEpochMilli()
                     detailedBolusInfo.deliverAtTheLatest = answer.bolusDeliveryTime.toInstant().toEpochMilli()
                     handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
                 } else if (answer.response == PumpResponses.DeliveringBolus) {
@@ -2860,6 +2878,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 aapsLogger.info(LTag.PUMPBTCOMM, f.functionResult.response.name)
                 if (PumpResponses.BolusDelivered == f.functionResult.response) {
                     bolusDeliveryType = MedtronicPumpPluginInterface.BolusDeliveryType.Idle
+                    bolus.timestamp = f.functionResult.bolusDeliveryTime.toInstant().toEpochMilli()
                     processDeliveredBolus(f.functionResult, bolus)
                     //                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
                     func.invoke(
@@ -3038,9 +3057,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         return RileyLinkPumpInfo(frequency, model, serialNumber)
     }
 
-    // override fun getLastConnectionTimeMillis(): Long {
-    //     return pumpStatusData.lastConnection
-    // }
+// override fun getLastConnectionTimeMillis(): Long {
+//     return pumpStatusData.lastConnection
+// }
 
     override fun setLastCommunicationToNow() {
         medLinkPumpStatus.setLastCommunicationToNow()
@@ -3051,36 +3070,36 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         isRefresh = true
     }
 
-    // private fun buildIntentSensValues(vararg bgs: InMemoryGlucoseValue): Intent {
-    //     val intent = Intent()
-    //     intent.putExtra("sensorType", "Enlite")
-    //     val glucoseValues = Bundle()
-    //     val fingerValues = Bundle()
-    //     var gvPosition = 0
-    //     var meterPosition = 0
-    //     for (bg in bgs) {
-    //         if (bg ==GlucoseValue.SourceSensor.UNKNOW) {
-    //             aapsLogger.info(LTag.BGSOURCE, "User bg source")
-    //             val bgBundle = Bundle()
-    //             bgBundle.putDouble("meterValue", bg.value)
-    //             bgBundle.putLong("timestamp", bg.timestamp)
-    //             fingerValues.putBundle("" + meterPosition, bgBundle)
-    //             meterPosition++
-    //         } else {
-    //             val bgBundle = Bundle()
-    //             bgBundle.putDouble("value", bg.value)
-    //             bgBundle.putLong("date", bg.timestamp)
-    //             bgBundle.putString("direction", bg.get)
-    //             //            bgBundle.putString("raw", bg.raw);
-    //             glucoseValues.putBundle("" + gvPosition, bgBundle)
-    //             gvPosition++
-    //         }
-    //     }
-    //     intent.putExtra("glucoseValues", glucoseValues)
-    //     intent.putExtra("meters", fingerValues)
-    //     intent.putExtra("isigValues", Bundle())
-    //     return intent
-    // }
+// private fun buildIntentSensValues(vararg bgs: InMemoryGlucoseValue): Intent {
+//     val intent = Intent()
+//     intent.putExtra("sensorType", "Enlite")
+//     val glucoseValues = Bundle()
+//     val fingerValues = Bundle()
+//     var gvPosition = 0
+//     var meterPosition = 0
+//     for (bg in bgs) {
+//         if (bg ==GlucoseValue.SourceSensor.UNKNOW) {
+//             aapsLogger.info(LTag.BGSOURCE, "User bg source")
+//             val bgBundle = Bundle()
+//             bgBundle.putDouble("meterValue", bg.value)
+//             bgBundle.putLong("timestamp", bg.timestamp)
+//             fingerValues.putBundle("" + meterPosition, bgBundle)
+//             meterPosition++
+//         } else {
+//             val bgBundle = Bundle()
+//             bgBundle.putDouble("value", bg.value)
+//             bgBundle.putLong("date", bg.timestamp)
+//             bgBundle.putString("direction", bg.get)
+//             //            bgBundle.putString("raw", bg.raw);
+//             glucoseValues.putBundle("" + gvPosition, bgBundle)
+//             gvPosition++
+//         }
+//     }
+//     intent.putExtra("glucoseValues", glucoseValues)
+//     intent.putExtra("meters", fingerValues)
+//     intent.putExtra("isigValues", Bundle())
+//     return intent
+// }
 
     private fun buildIntentSensValues(vararg sensorDataReadings: BgSync.BgHistory): Bundle {
         val baseBundle = Bundle()
@@ -3130,24 +3149,24 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     //    private Bundle buildIntentSensValues(SensorDataReading... sens) {
-    //        Bundle isigValues = new Bundle();
-    //
-    //        int gvPosition = 0;
-    //        int meterPosition = 0;
-    //        for (SensorDataReading bg : sens) {
-    //            Bundle bgBundle = new Bundle();
-    //            bgBundle.putDouble("value", bg.value);
-    //            bgBundle.putLong("date", bg.date);
-    //            bgBundle.putString("direction", bg.direction);
-    //            bgBundle.putDouble("calibrationFactor", bg.calibrationFactor);
-    //            bgBundle.putInt("sensorUptime", bg.sensorUptime);
-    //            bgBundle.putDouble("isig", bg.isig);
-    //            bgBundle.putDouble("delta", bg.deltaSinceLastBG);
-    //            isigValues.putBundle("" + gvPosition, bgBundle);
-    //            gvPosition++;
-    //        }
-    //        return isigValues;
-    //    }
+//        Bundle isigValues = new Bundle();
+//
+//        int gvPosition = 0;
+//        int meterPosition = 0;
+//        for (SensorDataReading bg : sens) {
+//            Bundle bgBundle = new Bundle();
+//            bgBundle.putDouble("value", bg.value);
+//            bgBundle.putLong("date", bg.date);
+//            bgBundle.putString("direction", bg.direction);
+//            bgBundle.putDouble("calibrationFactor", bg.calibrationFactor);
+//            bgBundle.putInt("sensorUptime", bg.sensorUptime);
+//            bgBundle.putDouble("isig", bg.isig);
+//            bgBundle.putDouble("delta", bg.deltaSinceLastBG);
+//            isigValues.putBundle("" + gvPosition, bgBundle);
+//            gvPosition++;
+//        }
+//        return isigValues;
+//    }
     fun handleNewCareportalEvent(events: Stream<JSONObject?>) {
         events.forEach { e: JSONObject? ->
             pumpSync.insertTherapyEventIfNewWithTimestamp(

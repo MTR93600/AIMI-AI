@@ -26,9 +26,9 @@ data class BolusProgressCallback(
     val resourceHelper: ResourceHelper,
     val rxBus: RxBus,
     private val commandExecutor: CommandExecutor?,
-                                 val aapsLogger: AAPSLogger,
-                                 val medLinkPumpPlugin: MedLinkPumpDevice) : BaseStringAggregatorCallback() {
-
+    val aapsLogger: AAPSLogger,
+    val medLinkPumpPlugin: MedLinkPumpDevice
+) : BaseStringAggregatorCallback() {
 
     var resend = true;
     fun resend(): Boolean {

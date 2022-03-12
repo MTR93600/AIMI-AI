@@ -601,13 +601,9 @@ class LoopPlugin @Inject constructor(
             if (request.rate == 0.0 && request.duration == 0 || Math.abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep) {
                 if (activeTemp != null) {
                     aapsLogger.info(LTag.APS, "applyAPSRequest: Cancelling tempbasal")
-                    if (pump is MedLinkPumpDevice) {
-                        commandQueue.cancelTempBasal(true, callback)
-                    } else {
                         aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
                         commandQueue.cancelTempBasal(false, callback)
-                    }
-                } else {
+                      } else {
                     aapsLogger.info(LTag.APS, "applyAPSRequest: Basal set correctly")
                     callback?.result(
                         PumpEnactResult(injector).absolute(request.rate).duration(0)
