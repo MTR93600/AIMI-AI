@@ -146,7 +146,7 @@ class AndroidPermission @Inject constructor(
                         // Show alert dialog to the user saying a separate permission is needed
                         // Launch the settings activity if the user prefers
                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:" + activity.packageName))
+                                            Uri.parse("package:" + activity.packageName))
                         activity.startActivity(intent)
                     }
                 }

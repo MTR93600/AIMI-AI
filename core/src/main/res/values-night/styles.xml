@@ -123,11 +123,11 @@
         <item name="deviationMinus" >@color/lightPastelRed</item>
         <item name="deviationEqual" >@color/lightSandGray</item>
         <!---Notification -->
-        <item name="notificationUrgent" >@color/red</item>
-        <item name="notificationNormal" >@color/notificationNormal</item>
-        <item name="notificationLow" >@color/notificationLow</item>
-        <item name="notificationInfo" >@color/notificationInfo</item>
-        <item name="notificationAnnouncement" >@color/notificationAnnouncement</item>
+        <item name="notificationUrgent">@color/notificationUrgent</item>
+        <item name="notificationNormal">@color/notificationNormal</item>
+        <item name="notificationLow">@color/notificationLow</item>
+        <item name="notificationInfo">@color/notificationInfo</item>
+        <item name="notificationAnnouncement">@color/notificationAnnouncement</item>
         <!---The pills for active profile and temp target -->
         <item name="ribbonTextWarning" >@color/black</item>
         <item name="defaultPillTextColor" >@color/white</item>
@@ -416,6 +416,9 @@
         <item name="buttonBarNegativeButtonStyle">@style/DialogOkCancelButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/DialogOkCancelButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/DialogOkCancelButtonStyle</item>
         <item name="android:windowBackground">?attr/windowBackground</item>
     </style>
 

@@ -53,9 +53,10 @@
     <color name="warningAlertBackground">#FFFB8C00</color>
     <color name="statuslight_Warning" >#FF9900</color>
     <color name="notificationAnnouncement">#FF8C00</color>
+    <color name="notificationUrgent">#ff0400</color>
     <color name="metadataTextWarning">#FF8C00</color>
     <color name="cob">#f0a30a</color>
-    <color name="carbsOrange">#FEAD01</color>
+    <color name="carbsOrange">#C98301</color>
     <color name="midorange">#f0a30a</color>
 
     <!-- Green Colors -->
