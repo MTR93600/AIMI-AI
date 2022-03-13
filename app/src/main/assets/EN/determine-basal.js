@@ -1441,7 +1441,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== DELTA RESTRICTIONS ==============
                 // if the delta difference is below threshold limit max SMB unless prediction is COB
-                if (UAMBoost > 1 || sens_predType == "COB" || COBBoostOK) {
+                if (UAMBoost > 1.1 || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = EatingNowMaxSMB;
                 } else {
