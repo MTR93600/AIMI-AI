@@ -72,10 +72,34 @@ abstract class InsulinOrefBasePlugin(
         val result = Iob()
         val peak = peak
         if (bolus.amount != 0.0) {
+            val now = System.currentTimeMillis() / (1000*60*60)
+
+            var circadian_sensitivity = 1.0
+            if (now >= 0 && now < 2){
+                //circadian_sensitivity = 1.4;
+                circadian_sensitivity = (0.09130*Math.pow(now.toDouble(),3.0))-(0.33261*Math.pow(now.toDouble(),2.0))+1.4
+            }else if (now >= 2 && now < 3){
+                //circadian_sensitivity = 0.8;
+                circadian_sensitivity = (0.0869*Math.pow(now.toDouble(),3.0))-(0.05217*Math.pow(now.toDouble(),2.0))-(0.23478*now)+0.8
+            }else if (now >= 3 && now < 8){
+                //circadian_sensitivity = 0.8;
+                circadian_sensitivity = (0.0007*Math.pow(now.toDouble(),3.0))-(0.000730*Math.pow(now.toDouble(),2.0))-(0.0007826*now)+0.6
+            }else if (now >= 8 && now < 11){
+                //circadian_sensitivity = 0.6;
+                circadian_sensitivity = (0.001244*Math.pow(now.toDouble(),3.0))-(0.007619*Math.pow(now.toDouble(),2.0))-(0.007826*now)+0.4
+            }else if (now >= 11 && now < 15){
+                //circadian_sensitivity = 0.8;
+                circadian_sensitivity = (0.00078*Math.pow(now.toDouble(),3.0))-(0.00272*Math.pow(now.toDouble(),2.0))-(0.07619*now)+0.8
+            }else if (now >= 15 && now <= 22){
+                circadian_sensitivity = 1.0
+            }else if (now >= 22 && now <= 24){
+                //circadian_sensitivity = 1.2;
+                circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
+            }
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            val td = dia * 60 //getDIA() always >= MIN_DIA
-            val tp = peak.toDouble()
+            val td = dia * 60 * circadian_sensitivity //getDIA() always >= MIN_DIA
+            val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
                 val tau = tp * (1 - tp / td) / (1 - 2 * tp / td)
