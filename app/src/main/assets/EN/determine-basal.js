@@ -979,12 +979,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_eBGweight final result: " + sens_eBGweight +"\n";
 
     enlog += "*** TESTING FUTURE DELTA ***\n";
-    enlog += "insulinPeak5m: "+18+"\n";
-    console.log(insulinPeak5m);
+    var insulinPeak5m = 18, COBpredBGsDelta, UAMpredBGsDelta;
+    enlog += "insulinPeak5m: "+insulinPeak5m+"\n";
     enlog += "COBpredBGs.length: " + COBpredBGs.length+"\n";
     enlog += "UAMpredBGs.length: " + UAMpredBGs.length+"\n";
-    var COBpredBGsDelta = COBpredBGs[18+2]-COBpredBGs[18];
-    var UAMpredBGsDelta = UAMpredBGs[18+2]-UAMpredBGs[18];
+    COBpredBGsDelta = (COBpredBGs.length >= insulinPeak5m + 2 ? COBpredBGs[insulinPeak5m+2]-COBpredBGs[insulinPeak5m] : 0);
+    UAMpredBGsDelta = (UAMpredBGs.length >= insulinPeak5m + 2 ? UAMpredBGs[insulinPeak5m+2]-UAMpredBGs[insulinPeak5m] : 0);
     enlog += "COBpredBGsDelta: " + COBpredBGsDelta+"\n";
     enlog += "UAMpredBGsDelta: " + UAMpredBGsDelta+"\n";
     enlog += "*** TESTING FUTURE DELTA ***\n";
