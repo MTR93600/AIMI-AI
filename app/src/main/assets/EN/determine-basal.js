@@ -1111,7 +1111,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TDD24H:" + round(tdd24h, 2);
-    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below + ",H" + TIR3Above+ "/" + TIR1Above;
+    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
     rT.reason += ", predDelta: COB " + COBpredBGsDelta+", UAM " + UAMpredBGsDelta;
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
