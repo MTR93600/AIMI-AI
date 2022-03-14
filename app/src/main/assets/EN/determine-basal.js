@@ -965,7 +965,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (!eatingnow) {
         // Current bg at night
         sens_predType = "BGL";
-        sens_future_bg = Math.min(bg,eventualBG);
+        sens_future_bg = Math.min(bg,eventualBG,40);
         sens_eBGweight = (eventualBG < bg ? 1 : 0);
         sens_future = sens_normalTarget / (sens_future_bg / target_bg);
         // limit sens_future to autosens max
