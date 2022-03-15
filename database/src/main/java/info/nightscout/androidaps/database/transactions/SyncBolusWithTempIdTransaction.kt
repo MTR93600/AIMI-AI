@@ -16,7 +16,7 @@ class SyncBolusWithTempIdTransaction(
             throw IllegalStateException("Some pump ID is null")
         val result = TransactionResult()
         val current = database.bolusDao.findByPumpTempIds(bolus.interfaceIDs.temporaryId!!, bolus.interfaceIDs.pumpType!!, bolus.interfaceIDs.pumpSerial!!)
-        if(current?.type == Bolus.Type.SMB && bolus.type == Bolus.Type.NORMAL){
+        if(current != null && current.type != Bolus.Type.NORMAL && bolus.type == Bolus.Type.NORMAL){
             bolus.type = current.type
         }
         if (current != null && !current.contentToBeAdded(bolus)) {

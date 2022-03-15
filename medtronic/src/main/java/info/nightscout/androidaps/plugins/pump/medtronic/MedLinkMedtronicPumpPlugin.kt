@@ -3184,9 +3184,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     override fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
         bolusInfo.forEachOrdered { bolusJson: JSONObject ->
             val bInfo = DetailedBolusInfo.fromJsonString(bolusJson.toString())
-            if (lastDetailedBolusInfo != null && bInfo.bolusTimestamp ?: 0L - (lastDetailedBolusInfo?.bolusTimestamp
-                            ?: 0L) < 220000L && bInfo.insulin == lastDetailedBolusInfo!!.insulin && lastDetailedBolusInfo!!.carbs != 0.0) {
-                bInfo.carbs = lastDetailedBolusInfo!!.carbs
+            if (lastDetailedBolusInfo != null  && bInfo.insulin == lastDetailedBolusInfo!!.insulin) {
+                                if(lastDetailedBolusInfo!!.carbs != 0.0) {
+                                    bInfo.carbs = lastDetailedBolusInfo!!.carbs
+                                }
+                                if(lastDetailedBolusInfo?.bolusType != DetailedBolusInfo.BolusType.NORMAL){
+                                    bInfo.bolusType = lastDetailedBolusInfo!!.bolusType
+                                }
                 lastDetailedBolusInfo = null
             }
 
@@ -3285,7 +3289,6 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         // sensorDataReadings.bgValue.forEach { f ->
         //
         // }
-        handleNewEvent()
 
         handleDailyDoseUpdate()
         //        medtronicHistoryData.addNewHistory();
