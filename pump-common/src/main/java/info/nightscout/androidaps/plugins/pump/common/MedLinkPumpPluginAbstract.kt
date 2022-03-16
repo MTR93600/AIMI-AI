@@ -91,4 +91,6 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
         detailedBolusInfo: DetailedBolusInfo,
         func: (PumpEnactResult) -> Unit
     )
+
+    abstract fun storeCancelTempBasal()
 }

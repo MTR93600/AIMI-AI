@@ -269,6 +269,16 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return sleepTime * 1000L
         }
 
+    override fun storeCancelTempBasal() {
+        pumpSync.syncStopTemporaryBasalWithPumpId(
+                timestamp = dateUtil.now(),
+                endPumpId = dateUtil.now(),
+                pumpType = pumpType ?: PumpType.GENERIC_AAPS,
+                pumpSerial = serialNumber()
+        )
+        pumpStatusData.tempBasalAmount = profile?.getBasal()?: basalProfile?.getEntryForTime(Instant.now())?.rate
+
+    }
     fun startPump(callback: Callback?) {
         aapsLogger.info(LTag.PUMP, "MedtronicPumpPlugin::startPump - ")
         if (medLinkPumpStatus.pumpStatusType !== PumpStatusType.Running) {
@@ -278,13 +288,6 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             ).andThen { f: MedLinkStandardReturn<PumpDriverState> ->
                 result = when {
                     f.functionResult === PumpDriverState.Initialized -> {
-                        pumpSync.syncStopTemporaryBasalWithPumpId(
-                                timestamp = dateUtil.now(),
-                                endPumpId = dateUtil.now(),
-                                pumpType = pumpType ?: PumpType.GENERIC_AAPS,
-                                pumpSerial = serialNumber()
-                        )
-                        pumpStatusData.tempBasalAmount = profile?.getBasal()?: basalProfile?.getEntryForTime(Instant.now())?.rate
                         PumpEnactResult(injector).success(true).enacted(true)
                     }
                     f.functionResult === PumpDriverState.Suspended -> {
@@ -3196,13 +3199,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
             val mod = bInfo.timestamp % 60000
 
-            pumpSyncStorage.pumpSync.syncBolusWithTempId(
-                    bInfo.timestamp - mod, bInfo.insulin,
-                    generateTempId(bInfo.timestamp - mod),
-                    bInfo.bolusType, bInfo.bolusPumpId,
-                    this.pumpType, serialNumber()
-            )
-
+            if(bInfo.insulin >0) {
+                pumpSyncStorage.pumpSync.syncBolusWithTempId(
+                        bInfo.timestamp - mod, bInfo.insulin,
+                        generateTempId(bInfo.timestamp - mod),
+                        bInfo.bolusType, bInfo.bolusPumpId,
+                        this.pumpType, serialNumber()
+                )
+            }
             // pumpSyncStorage.addBolusWithTempId(bInfo, true, this)
         }
     }
