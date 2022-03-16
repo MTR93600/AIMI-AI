@@ -213,7 +213,7 @@
     <color name="bottomBarBackgroundPurple">#6200EE</color>
 
 
-    <!-- DEEPPURPLE Theme -->
+#    <!-- DEEPPURPLE Theme -->
     <color name="primaryColorDeepPurple">#673AB7</color>
     <color name="primaryLightColorDeepPurple">#D1C4E9</color>
     <color name="primaryDarkColorDeepPurple">#512DA8</color>

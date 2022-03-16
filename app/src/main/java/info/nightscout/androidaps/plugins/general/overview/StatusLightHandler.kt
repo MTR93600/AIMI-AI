@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.general.overview
 
 import android.graphics.Color
-import android.view.View
 import android.widget.TextView
 import androidx.annotation.StringRes
 import info.nightscout.androidaps.R
@@ -32,7 +31,6 @@ class StatusLightHandler @Inject constructor(
     private val config: Config,
     private val repository: AppRepository
 ) {
-
     /**
      * applies the extended statusLight subview on the overview fragment
      */
@@ -40,39 +38,34 @@ class StatusLightHandler @Inject constructor(
         val pump = activePlugin.activePump
         val bgSource = activePlugin.activeBgSource
         handleAge(careportal_cannula_age, TherapyEvent.Type.CANNULA_CHANGE, R.string.key_statuslights_cage_warning, 48.0, R.string.key_statuslights_cage_critical, 72.0, colorNormal, colorWarning, colorAlarm)
-        if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
-            careportal_insulin_age?.visibility = View.GONE
-        } else {
-            careportal_insulin_age?.visibility = View.VISIBLE
-            handleAge(careportal_insulin_age, TherapyEvent.Type.INSULIN_CHANGE, R.string.key_statuslights_iage_warning, 72.0, R.string.key_statuslights_iage_critical, 144.0 , colorNormal, colorWarning, colorAlarm)
-        }
-        handleAge(careportal_sensor_age, TherapyEvent.Type.SENSOR_CHANGE, R.string.key_statuslights_sage_warning, 216.0, R.string.key_statuslights_sage_critical, 240.0 , colorNormal, colorWarning, colorAlarm)
-        if (pump.pumpDescription.isBatteryReplaceable || (pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel && pump.isBatteryChangeLoggingEnabled)) {
+        handleAge(careportal_insulin_age, TherapyEvent.Type.INSULIN_CHANGE, R.string.key_statuslights_iage_warning, 72.0, R.string.key_statuslights_iage_critical, 144.0, colorNormal, colorWarning, colorAlarm)
+        handleAge(careportal_sensor_age, TherapyEvent.Type.SENSOR_CHANGE, R.string.key_statuslights_sage_warning, 216.0, R.string.key_statuslights_sage_critical, 240.0, colorNormal, colorWarning, colorAlarm)
+        if (pump.pumpDescription.isBatteryReplaceable || pump.isBatteryChangeLoggingEnabled()) {
             handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0, colorNormal, colorWarning, colorAlarm)
         }
         if (!config.NSCLIENT) {
             if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
-                handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U"  , colorNormal, colorWarning, colorAlarm)
+                handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U", colorNormal, colorWarning, colorAlarm)
             } else {
-                handleLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U" , colorNormal, colorWarning, colorAlarm)
+                handleLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U", colorNormal, colorWarning, colorAlarm)
             }
             if (bgSource.sensorBatteryLevel != -1)
-                handleLevel(careportal_sensor_battery_level, R.string.key_statuslights_sbat_critical, 5.0, R.string.key_statuslights_sbat_warning, 20.0, bgSource.sensorBatteryLevel.toDouble(), "%" , colorNormal, colorWarning, colorAlarm )
+                handleLevel(careportal_sensor_battery_level, R.string.key_statuslights_sbat_critical, 5.0, R.string.key_statuslights_sbat_warning, 20.0, bgSource.sensorBatteryLevel.toDouble(), "%", colorNormal, colorWarning, colorAlarm)
             else
                 careportal_sensor_battery_level?.text = ""
         }
 
         if (!config.NSCLIENT) {
-            if (pump.model() == PumpType.OMNIPOD_DASH) {
-                // Omnipod Dash does not report its battery level
+            // The Omnipod Eros does not report its battery level. However, some RileyLink alternatives do.
+            // Depending on the user's configuration, we will either show the battery level reported by the RileyLink or "n/a"
+            // Pump instance check is needed because at startup, the pump can still be VirtualPumpPlugin and that will cause a crash
+            val erosBatteryLinkAvailable = pump.model() == PumpType.OMNIPOD_EROS && pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel
+
+            if (pump.model().supportBatteryLevel || erosBatteryLinkAvailable) {
+                handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%",colorNormal, colorWarning, colorAlarm)
+            } else {
                 careportal_battery_level?.text = rh.gs(R.string.notavailable)
-                careportal_battery_level?.setTextColor(rh.gac( null, R.attr.statuslightNormal ))
-            } else if (pump.model() == PumpType.OMNIPOD_EROS && pump is OmnipodErosPumpPlugin) { // instance of check is needed because at startup, pump can still be VirtualPumpPlugin and that will cause a crash because of the class cast below
-                // The Omnipod Eros does not report its battery level. However, some RileyLink alternatives do.
-                // Depending on the user's configuration, we will either show the battery level reported by the RileyLink or "n/a"
-                handleOmnipodErosBatteryLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%", pump.isUseRileyLinkBatteryLevel , colorNormal, colorWarning, colorAlarm)
-            } else if (pump.model() !=  PumpType.ACCU_CHEK_COMBO) {
-                handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%" , colorNormal, colorWarning, colorAlarm)
+                careportal_battery_level?.setTextColor(Color.GRAY)
             }
         }
     }
@@ -109,13 +102,4 @@ class StatusLightHandler @Inject constructor(
         }
     }
 
-    @Suppress("SameParameterValue")
-    private fun handleOmnipodErosBatteryLevel(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String, useRileyLinkBatteryLevel: Boolean,  colorNormal: Int, colorWarning: Int, colorAlarm: Int) {
-        if (useRileyLinkBatteryLevel) {
-            handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units , colorNormal, colorWarning, colorAlarm)
-        } else {
-            view?.text = rh.gs(R.string.notavailable)
-            view?.setTextColor(colorNormal)
-        }
-    }
 }

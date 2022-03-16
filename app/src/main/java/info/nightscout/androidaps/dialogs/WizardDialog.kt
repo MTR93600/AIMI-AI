@@ -36,6 +36,7 @@ import info.nightscout.androidaps.extensions.valueToUnits
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.utils.*
 import info.nightscout.androidaps.utils.extensions.formatColorFromAttribute
+import info.nightscout.androidaps.utils.protection.ProtectionCheck
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.sharedPreferences.SP
@@ -62,6 +63,7 @@ class WizardDialog : BlurDialogFragment() {
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var dateUtil: DateUtil
+    @Inject lateinit var protectionCheck: ProtectionCheck
 
     private var wizard: BolusWizard? = null
     private var calculatedPercentage = 100.0
@@ -516,6 +518,19 @@ class WizardDialog : BlurDialogFragment() {
             }
         } catch (e: IllegalStateException) {
             aapsLogger.debug(e.localizedMessage ?: "")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.let { activity ->
+            val cancelFail = {
+                aapsLogger.debug(LTag.APS, "Dialog canceled on resume protection: ${this.javaClass.name}")
+                ToastUtils.showToastInUiThread(ctx, R.string.dialog_cancled)
+                dismiss()
+            }
+
+            protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, {}, cancelFail, fail = cancelFail)
         }
     }
 }
