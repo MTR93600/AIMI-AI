@@ -1,5 +1,5 @@
 <resources xmlns:ns2="http://schemas.android.com/tools">
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!--The Base 3 Color of this theme !!! CHANGE this 3 color for a new colored  theme -->
         <item name="colorPrimary">@color/primaryColorDefault</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorDefault</item>
@@ -48,7 +48,7 @@
         <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
         <item name="popupMenuStyle">@style/Widget.MaterialComponents.PopupMenu</item>
-        <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.Material3.PopupMenu.Overflow</item>
         <!-- Color of bg value -->
         <item name="bgInRange">@color/lightGreen</item>
         <item name="bgLow">@color/red</item>
@@ -303,12 +303,12 @@
         <item name="android:windowBlurBehindRadius" ns2:targetApi="s">10dp</item>
         <item name="android:windowBackgroundBlurRadius" ns2:targetApi="s">10dp</item>
         <!---material calender-->
-        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
-        <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen</item>
+        <item name="materialCalendarStyle">@style/Widget.Material3.MaterialCalendar</item>
+        <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.Material3.MaterialCalendar.Fullscreen</item>
         <item name="materialCalendarTheme">@style/MaterialDatePickerTheme</item>
         <!---material time picker -->
         <item name="materialTimePickerTheme">@style/AppTheme.MaterialTimePickerTheme</item>
-        <item name="materialTimePickerStyle">@style/Widget.MaterialComponents.TimePicker</item>
+        <item name="materialTimePickerStyle">@style/Widget.Material3.MaterialTimePicker</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
@@ -334,7 +334,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="BottomAppbar" parent="Widget.MaterialComponents.BottomAppBar.Colored" >
+    <style name="BottomAppbar" parent="Widget.Material3.BottomAppBar" >
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -374,7 +374,7 @@
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
 
-    <style name="InsightAlertDialog" parent="Theme.MaterialComponents.Dialog">
+    <style name="InsightAlertDialog" parent="Theme.Material3.Dark.Dialog">
         <item name="android:windowMinWidthMajor">96%</item>
         <item name="android:windowMinWidthMinor">96%</item>
     </style>
