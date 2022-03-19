@@ -241,7 +241,6 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
 //**********************************************************************************************************************************************
         // patches ==== START
         this.profile.put("normal_target_bg", profile.getTargetMgdl().roundToInt())
-        this.profile.put("percentage", profile.percentage)
 
         this.profile.put("enableGhostCOB", sp.getBoolean(R.string.key_use_ghostcob, false))
         this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
