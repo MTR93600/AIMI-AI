@@ -199,7 +199,6 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     private val bolusDeliveryTime = 0L
     private var pumpTimeDelta = 0L
     private var lastDetailedBolusInfo: DetailedBolusInfo? = null
-    private var initCommands: Set<String>? = null
     private var late1Min = false
     private var checkBolusAtNextStatus = false
     private var lastProfileRead: Long = 0
@@ -365,7 +364,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         val initC: Any = rh.gs(R.string.key_medlink_init_command)
         //        if(initC instanceof HashSet) {
-        initCommands = sp.getStringSet(rh.gs(R.string.key_medlink_init_command), emptySet<String>())
+
         //        }else{
 //            this.initCommands= new HashSet<>();
 //        }
@@ -1065,10 +1064,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        }
 
 //        readPumpBGHistory(true);
-        if (initCommands!!.contains(rh.gs(R.string.key_medlink_init_commands_previous_bg_history))) {
+        if (rh.gb(R.string.key_medlink_init_commands_previous_bg_history)) {
             previousBGHistory
         }
-        if (initCommands!!.contains(rh.gs(R.string.key_medlink_init_commands_last_bolus_history))) {
+        if (rh.gb(R.string.key_medlink_init_commands_last_bolus_history)) {
             aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history")
             readBolusHistory()
         }
@@ -2929,16 +2928,16 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     lastBolusTime = pumpStatusData.lastDataTime
                     aapsLogger.info(LTag.PUMPBTCOMM, "and themmmm")
                 }
-                val recentBolus = Supplier { answer.get().filter { ans: String -> ans.contains("recent bolus") } }
-                if (recentBolus.get().findFirst().isPresent) {
-                    val result = recentBolus.get().findFirst().get()
-                    aapsLogger.info(LTag.PUMPBTCOMM, result)
-                    val pattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}")
-                    val matcher = pattern.matcher(result)
-                    if (matcher.find()) {
-                        detailedBolusInfo.insulin = matcher.group(0).toDouble()
-                    }
-                }
+//                val recentBolus = Supplier { answer.get().filter { ans: String -> ans.contains("recent bolus") } }
+//                if (recentBolus.get().findFirst().isPresent) {
+//                    val result = recentBolus.get().findFirst().get()
+//                    aapsLogger.info(LTag.PUMPBTCOMM, result)
+//                    val pattern = Pattern.compile("\\d{1,2}\\.\\d{1,2}")
+//                    val matcher = pattern.matcher(result)
+//                    if (matcher.find()) {
+//                        detailedBolusInfo.insulin = matcher.group(0).toDouble()
+//                    }
+//                }
                 MedLinkStandardReturn({ f.answer }, f.functionResult.answer)
             })
             if (pumpStatusData.pumpStatusType == PumpStatusType.Suspended &&

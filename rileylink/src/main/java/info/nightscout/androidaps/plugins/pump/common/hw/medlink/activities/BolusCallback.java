@@ -51,7 +51,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         //TODO fix error response
         AtomicReference<BolusAnswer> pumpResponse = new AtomicReference<>();
         if (answers.get().anyMatch(f -> f.toLowerCase().contains("pump is bolusing state")) ||
-                answers.get().noneMatch(this::isBolusing)) {
+                answers.get().anyMatch(this::isBolusing)) {
             answers.get().filter(f -> f.toLowerCase().contains("last bolus:")).findFirst().map(f -> {
                 pumpResponse.set(deliveringBolus(f));
                 return pumpResponse;

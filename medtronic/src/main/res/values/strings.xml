@@ -22,7 +22,7 @@
     <string name="medlink_delivered">%1$.2f U / %2$.2f U delivered</string>
     <!-- Medtronic (MDT) - Base -->
     <string name="medtronic_name" translatable="false">Medtronic</string>
-    <string name="medlink_medtronic_name" translatable="false">Medtronic</string>
+    <string name="medlink_medtronic_name" translatable="false">Medtronic Pump</string>
     <string name="medtronic_name_short" translatable="false">MDT</string>
     <string name="medlink_medtronic_name_short" translatable="false">MDT-ML</string>
     <string name="mdt_next_calibration" translatable="false">%1$s at %2$s</string>
