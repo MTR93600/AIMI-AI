@@ -1064,13 +1064,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        }
 
 //        readPumpBGHistory(true);
-        if (rh.gb(R.string.key_medlink_init_commands_previous_bg_history)) {
+//         if (rh.gb(R.string.key_medlink_init_commands_previous_bg_history)) {
             previousBGHistory
-        }
-        if (rh.gb(R.string.key_medlink_init_commands_last_bolus_history)) {
+        // }
+        // if (rh.gb(R.string.key_medlink_init_commands_last_bolus_history)) {
             aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history")
             readBolusHistory()
-        }
+        // }
         val errorCount = medLinkService!!.medtronicUIComm?.invalidResponsesCount
         if (errorCount!! >= 5) {
             aapsLogger.error("Number of error counts was 5 or more. Starting tunning.")
