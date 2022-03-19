@@ -1,5 +1,5 @@
 <resources xmlns:ns2="http://schemas.android.com/tools">
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark">
         <!--The Base 3 Color of this theme !!! CHANGE this 3 color for a new colored  theme -->
         <item name="colorPrimary">@color/primaryColorDefault</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorDefault</item>
@@ -11,6 +11,7 @@
         <item name="colorOnPrimary">@color/primaryTextColorDefault</item>
         <item name="colorSurface">@color/black</item>
         <item name="colorOnSurface">@color/gray</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorOnBackground">@color/white</item>
         <item name="colorOnError">@color/black</item>

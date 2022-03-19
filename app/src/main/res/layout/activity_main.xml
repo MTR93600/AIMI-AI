@@ -17,7 +17,7 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/transparent"
+
             app:expanded="true"
             app:liftOnScroll="true">
 
@@ -29,7 +29,7 @@
                 android:paddingBottom="2dp"
                 android:fitsSystemWindows="false"
                 app:layout_scrollFlags="scroll|enterAlways"
-                android:background="@color/transparent"
+
                 android:minHeight="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:contentInsetStart="4dp"
@@ -160,8 +160,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:headerLayout="@layout/navigation_drawer_header"
-        app:itemIconTint="@drawable/navigation_drawer"
-        app:itemTextColor="@drawable/navigation_drawer"
         app:itemBackground="@drawable/navigation_item_bg"
         android:fitsSystemWindows="true"
         android:layout_gravity="start" />

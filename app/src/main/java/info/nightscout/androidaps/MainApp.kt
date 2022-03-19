@@ -51,6 +51,7 @@ import net.danlew.android.joda.JodaTimeAndroid
 import java.io.IOException
 import java.net.SocketException
 import javax.inject.Inject
+import com.google.android.material.color.DynamicColors;
 
 class MainApp : DaggerApplication() {
 
@@ -78,6 +79,8 @@ class MainApp : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
+        // Activate material 3 dynamic colors
+        DynamicColors.applyToActivitiesIfAvailable(this);
         aapsLogger.debug("onCreate")
         RxDogTag.install()
         setRxErrorHandler()
