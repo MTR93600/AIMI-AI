@@ -81,6 +81,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpH
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryResult
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask
+import info.nightscout.androidaps.plugins.pump.medtronic.R.string
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.*
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.*
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.*
@@ -141,10 +142,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 .mainType(PluginType.PUMP) //
                 .fragmentClass(MedLinkMedtronicFragment::class.java.name) //
                 .pluginIcon(R.drawable.ic_veo_medlink)
-                .pluginName(R.string.medtronic_name)
-                .shortName(R.string.medlink_medtronic_name_short) //
+                .pluginName(string.medtronic_name)
+                .shortName(string.medlink_medtronic_name_short) //
                 .preferencesId(R.xml.pref_medtronic_medlink)
-                .description(R.string.description_pump_medtronic_medlink),  //
+                .description(string.description_pump_medtronic_medlink),  //
         PumpType.MEDLINK_MEDTRONIC_554_754_VEO,  // we default to most basic model, correct model from config is loaded later
         injector, resourceHelper!!, aapsLogger, commandQueue!!, rxBus!!, activePlugin!!, sp,
         context!!, fabricPrivacy!!, dateUtil!!,
@@ -221,9 +222,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             i.putExtra("soundid", R.raw.boluserror)
             i.putExtra(
                     "status",
-                    rh.gs(R.string.medlink_medtronic_cmd_stop_could_not_be_delivered)
+                    rh.gs(string.medlink_medtronic_cmd_stop_could_not_be_delivered)
             )
-            i.putExtra("title", rh.gs(R.string.medtronic_errors))
+            i.putExtra("title", rh.gs(string.medtronic_errors))
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(i)
             return
@@ -264,7 +265,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     val btSleepTime: Long
         get() {
-            val sleepTime = sp.getInt(rh.gs(R.string.medlink_key_interval_between_bt_connections), 5)
+            val sleepTime = sp.getInt(rh.gs(string.medlink_key_interval_between_bt_connections), 5)
             return sleepTime * 1000L
         }
 
@@ -329,9 +330,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     override fun updatePreferenceSummary(pref: Preference) {
         super.updatePreferenceSummary(pref)
-        if (pref.key == rh.gs(R.string.key_medlink_mac_address)) {
-            val value = sp.getStringOrNull(R.string.key_medlink_mac_address, null)
-            pref.summary = value ?: rh.gs(R.string.not_set_short)
+        if (pref.key == rh.gs(string.key_medlink_mac_address)) {
+            val value = sp.getStringOrNull(string.key_medlink_mac_address, null)
+            pref.summary = value ?: rh.gs(string.not_set_short)
         }
     }
 
@@ -360,9 +361,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     private fun migrateSettings() {
         if ("US (916 MHz)" == sp.getString(MedLinkMedtronicConst.Prefs.PumpFrequency, "US (916 MHz)")) {
-            sp.putString(MedLinkMedtronicConst.Prefs.PumpFrequency, rh.gs(R.string.key_medtronic_pump_frequency_us_ca))
+            sp.putString(MedLinkMedtronicConst.Prefs.PumpFrequency, rh.gs(string.key_medtronic_pump_frequency_us_ca))
         }
-        val initC: Any = rh.gs(R.string.key_medlink_init_command)
+        val initC: Any = rh.gs(string.key_medlink_init_command)
         //        if(initC instanceof HashSet) {
 
         //        }else{
@@ -867,7 +868,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                             PumpEnactResult(injector) //
                                     .success(false) //
                                     .enacted(false) //
-                                    .comment(rh.gs(R.string.tempbasaldeliveryerror))
+                                    .comment(rh.gs(string.tempbasaldeliveryerror))
                     )
                 }
 
@@ -877,7 +878,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                             PumpEnactResult(injector) //
                                     .success(isConnect) //
                                     .enacted(isConnect) //
-                                    .comment(rh.gs(R.string.careportal_tempbasalend))
+                                    .comment(rh.gs(string.careportal_tempbasalend))
                     )
                     if (isConnect) {
                         lastStatus = PumpStatusType.Running.status
@@ -893,7 +894,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                             PumpEnactResult(injector) //
                                     .success(!isConnect) //
                                     .enacted(!isConnect) //
-                                    .comment(rh.gs(R.string.careportal_tempbasalstart))
+                                    .comment(rh.gs(string.careportal_tempbasalstart))
                     )
                     if (!isConnect) {
                         lastStatus = PumpStatusType.Suspended.status
@@ -1064,13 +1065,13 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        }
 
 //        readPumpBGHistory(true);
-//         if (rh.gb(R.string.key_medlink_init_commands_previous_bg_history)) {
+        if (sp.getBoolean(R.bool.key_medlink_init_commands_previous_bg_history, false)) {
             previousBGHistory
-        // }
-        // if (rh.gb(R.string.key_medlink_init_commands_last_bolus_history)) {
+        }
+        if (sp.getBoolean(R.bool.key_medlink_init_commands_last_bolus_history,false)) {
             aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history")
             readBolusHistory()
-        // }
+        }
         val errorCount = medLinkService!!.medtronicUIComm?.invalidResponsesCount
         if (errorCount!! >= 5) {
             aapsLogger.error("Number of error counts was 5 or more. Starting tunning.")
@@ -1154,7 +1155,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
 //                medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetRealTimeClock);
                 if (clock.timeDifference == 0) {
-                    val notification = Notification(Notification.INSIGHT_DATE_TIME_UPDATED, rh.gs(R.string.pump_time_updated), Notification.INFO, 60)
+                    val notification = Notification(Notification.INSIGHT_DATE_TIME_UPDATED, rh.gs(string.pump_time_updated), Notification.INFO, 60)
                     rxBus.send(EventNewNotification(notification))
                 }
             } else {
@@ -1418,6 +1419,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             //        result.success = false;
 //        result.comment = MainApp.gs(R.string.pumperror);
         }
+
         aapsLogger.info(LTag.EVENTS, "Settings temp basal percent: $result")
 
     }
@@ -1434,7 +1436,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_pump_status_pump_unreachable))
+                    .comment(rh.gs(string.medtronic_pump_status_pump_unreachable))
         }
         medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus)
         aapsLogger.info(LTag.PUMP, logPrefix + "setTempBasalAbsolute: rate: " + absoluteRate + ", duration=" + durationInMinutes)
@@ -1445,7 +1447,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             aapsLogger.warn(LTag.PUMP, logPrefix + "setTempBasalAbsolute - Could not read current TBR, canceling operation.")
             finishAction("TBR")
             return PumpEnactResult(injector).success(false).enacted(false)
-                    .comment(rh.gs(R.string.medtronic_cmd_cant_read_tbr))
+                    .comment(rh.gs(string.medtronic_cmd_cant_read_tbr))
         } else {
             aapsLogger.info(LTag.PUMP, logPrefix + "setTempBasalAbsolute: Current Basal: duration: " + tbrCurrent.durationMinutes + " min, rate=" + tbrCurrent.insulinRate)
         }
@@ -1490,11 +1492,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //
 //                finishAction("TBR");
             return PumpEnactResult(injector).success(false).enacted(false)
-                    .comment(rh.gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op))
+                    .comment(rh.gs(string.medtronic_cmd_cant_cancel_tbr_stop_op))
             //            }
         }
         return PumpEnactResult(injector).success(false).enacted(false)
-                .comment(rh.gs(R.string.medtronic_cmd_cant_cancel_tbr_stop_op))
+                .comment(rh.gs(string.medtronic_cmd_cant_cancel_tbr_stop_op))
         // now start new TBR
 //        MedtronicUITask responseTask = null;//rileyLinkMedtronicService.getMedtronicUIComm().executeCommand(MedtronicCommandType.SetTemporaryBasal,
 //        //absoluteRate, durationInMinutes);
@@ -1548,7 +1550,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         val result = buildPumpEnactResult()
         tempBasalMicrobolusOperations!!.clearOperations()
         result.success = true
-        result.comment = rh.gs(R.string.canceltemp)
+        result.comment = rh.gs(string.canceltemp)
         if (pumpStatusData.pumpStatusType == PumpStatusType.Suspended) {
             startPump(object : Callback() {
                 override fun run() {
@@ -1763,7 +1765,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
         refreshAnyStatusThatNeedsToBeRefreshed()
         //criar fila de comandos aqui, esta fila deverá ser consumida a cada execução de checagem de status
-        return buildPumpEnactResult().success(true).comment(rh.gs(R.string.medtronic_cmd_desc_set_tbr))
+        return buildPumpEnactResult().success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
     }
 
     private fun calculateTotalSuspended(calcPercent: Double): Int {
@@ -2137,7 +2139,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 basalProfilesFromTemp, durationInMinutes, callback, absoluteBasalValue, basalType
         )
         refreshAnyStatusThatNeedsToBeRefreshed()
-        return buildPumpEnactResult().success(true).comment(rh.gs(R.string.medtronic_cmd_desc_set_tbr))
+        return buildPumpEnactResult().success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
     }
 
     private fun extractTempProfiles(profile: Profile, endTas: Long, currentTas: Int): LinkedList<ProfileValue?> {
@@ -2288,7 +2290,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     override fun extendBasalTreatment(duration: Int, callback: Function1<PumpEnactResult, *>): PumpEnactResult {
 //TODO implement
-        val result = PumpEnactResult(injector).success(true).enacted(true).comment(rh.gs(R.string.let_temp_basal_run))
+        val result = PumpEnactResult(injector).success(true).enacted(true).comment(rh.gs(string.let_temp_basal_run))
         val reactivateOper = tempBasalMicrobolusOperations!!.operations.stream().filter { f: TempBasalMicroBolusPair ->
             f.operationType ==
                     TempBasalMicroBolusPair.OperationType.REACTIVATE
@@ -2395,8 +2397,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger.debug("Medronic Pump plugin intent")
                     val i = Intent(context, ErrorHelperActivity::class.java)
                     i.putExtra("soundid", R.raw.boluserror)
-                    i.putExtra("status", rh.gs(R.string.medtronic_error_operation_not_possible_no_configuration))
-                    i.putExtra("title", rh.gs(R.string.medtronic_warning))
+                    i.putExtra("status", rh.gs(string.medtronic_error_operation_not_possible_no_configuration))
+                    i.putExtra("title", rh.gs(string.medtronic_warning))
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(i)
                 }
@@ -2440,7 +2442,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow, validProfile))
+                    .comment(rh.gs(string.medtronic_cmd_set_profile_pattern_overflow, validProfile))
         }
         return if (this.profile == null) {
 
@@ -2448,7 +2450,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profile.basalProfileToString()))
+                    .comment(rh.gs(string.medtronic_cmd_set_profile_pattern_overflow, profile.basalProfileToString()))
         } else if (convertProfileToMedtronicProfile(this.profile) != profile) {
 //            getAapsLogger().info(LTag.PUMPBTCOMM,profile.toString());
             aapsLogger.info(LTag.PUMPBTCOMM, this.profile.toString())
@@ -2466,7 +2468,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     .enacted(false) //
                     .comment(
                             rh.gs(
-                                    R.string.medtronic_cmd_set_profile_pattern_overflow,
+                                    string.medtronic_cmd_set_profile_pattern_overflow,
                                     profile.basalProfileToString()
                             )
                     )
@@ -2474,7 +2476,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             PumpEnactResult(injector) //
                     .success(true) //
                     .enacted(true) //
-                    .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow))
+                    .comment(rh.gs(string.medtronic_cmd_set_profile_pattern_overflow))
         }
     }
 
@@ -2486,7 +2488,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                     .success(true) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_cmd_basal_profile_not_set_is_same))
+                    .comment(rh.gs(string.medtronic_cmd_basal_profile_not_set_is_same))
         }
         setRefreshButtonEnabled(false)
         if (isPumpNotReachable) {
@@ -2495,7 +2497,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_pump_status_pump_unreachable))
+                    .comment(rh.gs(string.medtronic_pump_status_pump_unreachable))
         }
         medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus)
         val basalProfile = convertProfileToMedtronicProfile(profile)
@@ -2504,9 +2506,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid))
+                    .comment(rh.gs(string.medtronic_cmd_set_profile_pattern_overflow, profileInvalid))
         }
-        Toast.makeText(context, rh.gs(R.string.medtronic_cmd_basal_profile_could_not_be_set, 40), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, rh.gs(string.medtronic_cmd_basal_profile_could_not_be_set, 40), Toast.LENGTH_LONG).show()
 
 //        MedtronicUITask responseTask = medLinkService.getMedtronicUIComm().executeCommand(MedLinkMedtronicCommandType.SetBasalProfileSTD,
 //                basalProfile);
@@ -2562,12 +2564,12 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             PumpEnactResult(injector) //
                     .success(false) //
                     .enacted(false) //
-                    .comment(rh.gs(R.string.medtronic_pump_status_pump_unreachable))
+                    .comment(rh.gs(string.medtronic_pump_status_pump_unreachable))
         }
     }
 
     private val customActionClearBolusBlock = CustomAction(
-            R.string.medtronic_custom_action_clear_bolus_block, MedtronicCustomActionType.ClearBolusBlock, false
+            string.medtronic_custom_action_clear_bolus_block, MedtronicCustomActionType.ClearBolusBlock, false
     )
 
     private fun setEnableCustomAction(customAction: MedtronicCustomActionType, isEnabled: Boolean) {
@@ -2589,7 +2591,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     .enacted(false) //
                     .comment(
                             rh.gs(
-                                    R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
+                                    string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
                                     medLinkPumpStatus.reservoirLevel,
                                     detailedBolusInfo.insulin
                             )
@@ -2679,8 +2681,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         // + MainApp.instance().getApplicationContext());
                         val i = Intent(context, ErrorHelperActivity::class.java)
                         i.putExtra("soundid", R.raw.boluserror)
-                        i.putExtra("status", rh.gs(R.string.medtronic_cmd_cancel_bolus_not_supported))
-                        i.putExtra("title", rh.gs(R.string.medtronic_warning))
+                        i.putExtra("status", rh.gs(string.medtronic_cmd_cancel_bolus_not_supported))
+                        i.putExtra("title", rh.gs(string.medtronic_warning))
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         context.startActivity(i)
                     }.start()
@@ -2707,7 +2709,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 PumpEnactResult(injector) //
                         .success(bolusDeliveryType == MedtronicPumpPluginInterface.BolusDeliveryType.CancelDelivery) //
                         .enacted(false) //
-                        .comment(rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered))
+                        .comment(rh.gs(string.medtronic_cmd_bolus_could_not_be_delivered))
             }
         } finally {
             finishAction("Bolus")
@@ -2843,7 +2845,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                             .enacted(false) //
                             .comment(
                                     rh.gs(
-                                            R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
+                                            string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
                                             medLinkPumpStatus.reservoirLevel,
                                             detailedBolusInfo.insulin
                                     )
@@ -2911,12 +2913,12 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                                     PumpEnactResult(injector) //
                                             .success(bolusDeliveryType == MedtronicPumpPluginInterface.BolusDeliveryType.CancelDelivery) //
                                             .enacted(false) //
-                                            .comment(rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered))
+                                            .comment(rh.gs(string.medtronic_cmd_bolus_could_not_be_delivered))
                             )
                             val i = Intent(context, ErrorHelperActivity::class.java)
                             i.putExtra("soundid", R.raw.boluserror)
                             i.putExtra("status", f.answer.collect(Collectors.joining()))
-                            i.putExtra("title", rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered))
+                            i.putExtra("title", rh.gs(string.medtronic_cmd_bolus_could_not_be_delivered))
                             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(i)
                         } else {
@@ -2987,8 +2989,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         // + MainApp.instance().getApplicationContext());
                         val i = Intent(context, ErrorHelperActivity::class.java)
                         i.putExtra("soundid", R.raw.boluserror)
-                        i.putExtra("status", rh.gs(R.string.medtronic_cmd_cancel_bolus_not_supported))
-                        i.putExtra("title", rh.gs(R.string.medtronic_warning))
+                        i.putExtra("status", rh.gs(string.medtronic_cmd_cancel_bolus_not_supported))
+                        i.putExtra("title", rh.gs(string.medtronic_warning))
                         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         context.startActivity(i)
                     }.start()
@@ -3056,7 +3058,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     override fun getPumpInfo(): RileyLinkPumpInfo? {
-        val frequency = rh.gs(if (medLinkPumpStatus.pumpFrequency == "medtronic_pump_frequency_us_ca") R.string.medtronic_pump_frequency_us_ca else R.string.medtronic_pump_frequency_worldwide)
+        val frequency = rh.gs(if (medLinkPumpStatus.pumpFrequency == "medtronic_pump_frequency_us_ca") string.medtronic_pump_frequency_us_ca else string.medtronic_pump_frequency_worldwide)
         val model = if (!medtronicUtil.isModelSet) "???" else "Medtronic " + medLinkPumpStatus.medtronicDeviceType.pumpModel
         val serialNumber = medLinkPumpStatus.serialNumber
         return RileyLinkPumpInfo(frequency, model, serialNumber)
@@ -3224,7 +3226,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 readBolusHistory()
             } else if (lastBolusTime > 0 && lastDetailedBolusInfo != null) {
                 lastBolusTime = lastDetailedBolusInfo!!.deliverAtTheLatest
-                if (sp.getBoolean(R.string.medlink_key_force_bolus_history_read, false) ||
+                if (sp.getBoolean(string.medlink_key_force_bolus_history_read, false) ||
                         pumpStatusData.lastBolusAmount != lastDetailedBolusInfo!!.insulin
                 ) {
                     aapsLogger.info(LTag.PUMPBTCOMM, "read bolus history")
@@ -3398,7 +3400,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 val i = Intent(context, ErrorHelperActivity::class.java)
                 i.putExtra("soundid", R.raw.boluserror)
                 i.putExtra("status", result!!.comment)
-                i.putExtra("title", rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered))
+                i.putExtra("title", rh.gs(string.medtronic_cmd_bolus_could_not_be_delivered))
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(i)
             }
@@ -3483,20 +3485,20 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     override fun getBatteryInfoConfig(): String? {
-        return sp.getString(rh.gs(R.string.key_medlink_battery_info), "Age")
+        return sp.getString(rh.gs(string.key_medlink_battery_info), "Age")
     }
 
     override fun getJSONStatus(profile: Profile, profileName: String, version: String): JSONObject {
         val result = super.getJSONStatus(profile, profileName, version)
         val battery = JSONObject()
         try {
-            if (sp.getString(R.string.key_medlink_battery_info, "Age") !== "Age") {
+            if (sp.getString(string.key_medlink_battery_info, "Age") !== "Age") {
                 battery.put("voltage", pumpStatusData.batteryVoltage)
             } else {
                 val dto = BatteryStatusDTO()
                 dto.voltage = pumpStatusData.batteryVoltage
                 dto.batteryStatusType = BatteryStatusDTO.BatteryStatusType.Unknown
-                val type = BatteryType.valueOf(sp.getString(R.string.key_medtronic_battery_type, BatteryType.None.name))
+                val type = BatteryType.valueOf(sp.getString(string.key_medtronic_battery_type, BatteryType.None.name))
                 pumpStatusData.deviceBatteryRemaining = dto.getCalculatedPercent(type)
                 battery.put("percent", pumpStatusData.deviceBatteryRemaining)
             }

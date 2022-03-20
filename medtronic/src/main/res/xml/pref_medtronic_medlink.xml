@@ -10,15 +10,15 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="@string/key_medlink_init_commands_last_bg_history"
+            android:key="@bool/key_medlink_init_commands_last_bg_history"
             android:title="@string/medlink_init_commands_last_bg_history" />
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="@string/key_medlink_init_commands_previous_bg_history"
+            android:key="@bool/key_medlink_init_commands_previous_bg_history"
             android:title="@string/medlink_init_commands_previous_bg_history" />
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="@string/key_medlink_init_commands_last_bolus_history"
+            android:key="@bool/key_medlink_init_commands_last_bolus_history"
             android:title="@string/medlink_init_commands_last_bolus_history" />
     </PreferenceCategory>
         <PreferenceCategory

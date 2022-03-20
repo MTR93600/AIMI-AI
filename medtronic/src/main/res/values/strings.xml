@@ -10,9 +10,9 @@
     <string name="medlink_init_commands">Commands to be executed on first connect</string>
 
 <!--    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>-->
-    <string name="key_medlink_init_commands_last_bg_history" translatable="false">medlink_init_commands_last_bg_history</string>
-    <string name="key_medlink_init_commands_previous_bg_history" translatable="false">medlink_init_commands_previous_bg_history</string>
-    <string name="key_medlink_init_commands_last_bolus_history" translatable="false">medlink_init_commands_last_bolus_history</string>
+    <bool name="key_medlink_init_commands_last_bg_history">false</bool>
+    <bool name="key_medlink_init_commands_previous_bg_history">false</bool>
+    <bool name="key_medlink_init_commands_last_bolus_history">false</bool>
     <string name="medlink_init_commands_last_bolus_history">Last Bolus History Page(H)</string>
     <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(T and J)</string>
 <!--    <string name="medlink_init_commands_profile">Profile Data (E and F)</string>-->
