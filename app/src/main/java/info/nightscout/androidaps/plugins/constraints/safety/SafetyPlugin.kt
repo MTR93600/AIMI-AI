@@ -194,8 +194,8 @@ class SafetyPlugin @Inject constructor(
     override fun applyMaxIOBConstraints(maxIob: Constraint<Double>): Constraint<Double> {
         val apsMode = sp.getString(R.string.key_aps_mode, "open")
         val maxIobPref: Double = when {
-            fullUAMPlugin.isEnabled(PluginType.APS)     -> sp.getDouble( R.string.key_openapssmb_max_iob,3.0
-                ENPlugin.isEnabled(PluginType.APS)          -> sp.getDouble( R.string.key_openapssmb_max_iob,3.0)
+            fullUAMPlugin.isEnabled(PluginType.APS)     -> sp.getDouble( R.string.key_openapssmb_max_iob,3.0)
+            ENPlugin.isEnabled(PluginType.APS)          -> sp.getDouble( R.string.key_openapssmb_max_iob,3.0)
             openAPSSMBPlugin.isEnabled(PluginType.APS)  -> sp.getDouble( R.string.key_openapssmb_max_iob,3.0)
             else                                        -> sp.getDouble( R.string.key_openapsma_max_iob,1.5)
         }

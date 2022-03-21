@@ -88,7 +88,6 @@
     <string name="description_EN">Eating Now bolusing method</string>
     <string name="description_fulluam">Automated Insulin Management Interface</string>
     <string name="description_Boost">Boost based accelerated bolusing</string>
-    <string name="description_EN">Eating Now bolusing method</string>
     <string name="description_overview">Displays the current state of your loop and buttons for most common actions</string>
     <string name="description_persistent_notification">Shows an ongoing notification with a short overview of what your loop is doing</string>
     <string name="description_profile_local">Define a profile which is available offline.</string>
