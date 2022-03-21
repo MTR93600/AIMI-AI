@@ -85,6 +85,7 @@
     <string name="description_ns_client">Synchronizes your data with Nightscout</string>
     <string name="description_ama">State of the algorithm in 2017</string>
     <string name="description_smb">Most recent algorithm for advanced users</string>
+    <string name="description_EN">Eating Now bolusing method</string>
     <string name="description_fulluam">Automated Insulin Management Interface</string>
     <string name="description_Boost">Boost based accelerated bolusing</string>
     <string name="description_EN">Eating Now bolusing method</string>
