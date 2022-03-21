@@ -1050,7 +1050,13 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDPUMP ){
         //var future_sens = ( 277700 / (TDD * eventualBG));
         //var future_sens = round(future_sens,1);
-        if( glucose_status.delta >= 0 && iTime < iTimeProfile ) {
+        if(AIMI_ISF && AIMI_UAM && !AIMI_BreakFastLight && iTime > iTimeProfile){
+
+            //var future_sens = ( 277700 / (TDD * TrigPredAIMI));
+            var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
+            console.log("*****Future state sensitivity is " +future_sens+" based on bg("+bg+")\n");
+
+        }else if( AIMI_UAM && glucose_status.delta >= 0 && iTime < iTimeProfile ) {
         var future_sens = ( MagicNumber / (TDD * ( (eventualBG * 0.6) + (bg * 0.4) )));
         console.log("Future state sensitivity is " +future_sens+" based on a weighted average of bg & eventual bg");
         }else if (iTime < iTimeProfile){
@@ -1073,12 +1079,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
     var future_sens = sens;
     console.log("*****Future_sens is not use with light breakfast");
-
-}else if(AIMI_ISF && AIMI_UAM && C1 > C2){
-
-    //var future_sens = ( 277700 / (TDD * TrigPredAIMI));
-    var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
-    console.log("*****Future state sensitivity is " +future_sens+" based on bg("+bg+")\n");
 
 }
         console.log("------------------------------");
