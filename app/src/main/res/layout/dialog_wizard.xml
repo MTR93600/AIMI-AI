@@ -214,7 +214,7 @@
                 android:paddingRight="10dp"
                 android:text="50%"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/bolus"
+                android:textColor="?attr/bolusColor"
                 tools:ignore="HardcodedText" />
 
         </LinearLayout>

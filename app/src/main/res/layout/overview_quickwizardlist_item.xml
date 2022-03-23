@@ -59,7 +59,7 @@
                             android:paddingStart="10dp"
                             android:text="Sample button text"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="@color/cardObjectiveText"
+                            android:textColor="?attr/cardObjectiveText"
                             android:textStyle="normal|bold"
                             tools:ignore="HardcodedText,RtlSymmetry" />
 
@@ -70,7 +70,7 @@
                             android:paddingStart="10dp"
                             android:text="36g"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="@color/cardObjectiveText"
+                            android:textColor="?attr/cardObjectiveText"
                             android:textStyle="normal|bold"
                             tools:ignore="HardcodedText,RtlSymmetry" />
 

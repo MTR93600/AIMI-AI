@@ -114,7 +114,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@color/ribbonDefault"
+                    android:background="?attr/activity_title_backgroundColor"
                     android:padding="8dp"
                     android:textColor="?attr/automationTitleText"
                     android:text="@string/edit_short" />
@@ -178,7 +178,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@color/ribbonDefault"
+                    android:background="?attr/activity_title_backgroundColor"
                     android:padding="8dp"
                     android:textColor="?attr/automationTitleText"
                     android:text="@string/add_short" />

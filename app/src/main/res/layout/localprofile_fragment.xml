@@ -193,7 +193,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:text="@string/dia_long_label"
-                    android:textColor="@android:color/white"
                     android:textSize="20sp" />
 
                 <LinearLayout

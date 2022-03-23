@@ -235,6 +235,7 @@
         <activity
             android:name=".setupwizard.SetupWizardActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_setup_wizard" />
 
         <activity

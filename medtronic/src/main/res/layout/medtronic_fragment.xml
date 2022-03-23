@@ -85,7 +85,8 @@
                     android:gravity="start"
                     android:paddingStart="5dp"
                     android:text="{fa-bluetooth-b}"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
 
 
             </LinearLayout>
@@ -139,7 +140,8 @@
                     android:gravity="start"
                     android:paddingStart="5dp"
                     android:text=""
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
 
             </LinearLayout>
@@ -189,7 +191,8 @@
                     android:gravity="start"
                     android:paddingStart="5dp"
                     android:text="{fa-bluetooth-b}"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
 
 
             </LinearLayout>
@@ -245,7 +248,8 @@
                     android:gravity="start"
                     android:paddingStart="5dp"
                     android:text=""
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
 
             </LinearLayout>
@@ -292,8 +296,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
@@ -339,8 +344,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
@@ -387,8 +393,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
@@ -434,8 +441,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
@@ -482,8 +490,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
@@ -530,8 +539,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:paddingLeft="5dp"
-                    android:textSize="14sp" />
+                    android:paddingStart="5dp"
+                    android:textSize="14sp"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 

@@ -511,7 +511,6 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:paddingLeft="5dp"
-                    android:textColor="@android:color/white"
                     android:textSize="14sp" />
 
             </LinearLayout>

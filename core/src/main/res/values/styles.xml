@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns2="http://schemas.android.com/tools">
     <style name="AppTheme" parent="Theme.Material3.DynamicColors.Light">
         <!--The Base 3 Color of this theme !!! CHANGE this 3 color for a new colored  theme -->
@@ -307,6 +308,74 @@
         <!---material time picker -->
         <item name="materialTimePickerTheme">@style/AppTheme.MaterialTimePickerTheme</item>
         <item name="materialTimePickerStyle">@style/Widget.MaterialComponents.TimePicker</item>
+
+
+        <item name="actionModeCloseDrawable">@drawable/ic_close</item>
+        <!---bolus color -->
+        <item name="bolusColor">@color/bolus</item>
+        <!---Treatment button color -->
+        <item name="treatmentButton">@color/colorTreatmentButton</item>
+        <!---NS Client action text color -->
+        <item name="actionButton">@android:color/holo_orange_light</item>
+        <!---Text color for Quickwizard and more -->
+        <item name="cardObjectiveText">@color/cardObjectiveText</item>
+        <!---Text color for misc buttons and texts -->
+        <item name="alarmColor">@color/alarm</item>
+        <!-- BG source temp button -->
+        <item name="setTempButton">@color/colorSetTempButton</item>
+        <!-- Card Item-->
+        <item name="cardItemBackgroundColor">@color/cardColorBackground</item>
+        <!-- Exercise -->
+        <item name="exerciseColor">@color/exercise</item>
+        <!-- BG low -->
+        <item name="lowColor">@color/low</item>
+        <!-- Treatments -->
+        <item name="setExtendedButtonColor">@color/colorSetExtendedButton</item>
+        <!-- Carbs Button -->
+        <item name="carbsButtonColor">@color/colorCarbsButton</item>
+        <!-- Temp Button Button -->
+        <item name="acceptTempButtonColor">@color/colorAcceptTempButton</item>
+        <!-- Treatment Button -->
+        <item name="treatmentButtonColor">@color/colorTreatmentButton</item>
+        <!-- Insulin Button -->
+        <item name="insulinButtonColor">@color/colorInsulinButton</item>
+        <!-- Calculator Button -->
+        <item name="calculatorButtonColor">@color/colorCalculatorButton</item>
+        <!-- Calibration Button -->
+        <item name="calibrationButtonColor">@color/colorCalibrationButton</item>
+        <!-- QuickWizard Button -->
+        <item name="quickWizardButtonColor">@color/colorQuickWizardButton</item>
+        <!-- Pump -->
+        <item name="pumpStatusBackground">@color/pumpStatusBackground</item>
+        <!-- Objectives -->
+        <item name="objectivesBackgroundColor">@color/objectivesBackground</item>
+        <item name="objectivesDisabledTextColor">@color/colorObjectivesDisabledText</item>
+        <!---Import List -->
+        <item name="importListFileNameColor">@color/importListFileName</item>
+        <item name="importListAdditionalInfoColor">@color/importListAdditionalInfo</item>
+        <item name="metadataTextWarningColor">@color/metadataTextWarning</item>
+        <item name="metadataTextOkColor">@color/metadataOk</item>
+        <!---Delete selection -->
+        <item name="trashBinTintColor">@color/black</item>
+        <!---Dialog  -->
+        <item name="activity_title_backgroundColor">@color/activity_title_background</item>
+        <!---Automation  -->
+        <item name="ribbonDefaultColor">@color/ribbonDefault</item>
+        <!---Main Activity Tab  -->
+        <item name="tabSelectedTextColor">@color/tabSelectedText</item>
+        <item name="tabTextColor">@color/tabText</item>
+        <!---Background  -->
+        <item name="defaultbackground">@color/white</item>
+        <!---Toast  -->
+        <item name="toastBaseTextColor">@color/toastBase</item>
+        <!---Input  -->
+        <item name="boxStrokeColor">@color/white</item>
+        <!---Splash Background  -->
+        <item name="splashBackgroundColor">@color/splashBackground</item>
+        <!---Dialog Helper  -->
+        <item name="materialAlertDialogTheme">@style/DialogTheme</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
@@ -316,26 +385,10 @@
 
     <style name="Theme.MaterialComponents.DayNight.DarkActionBar" parent="Theme.MaterialComponents.DayNight.Bridge"/>
 
-    <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
-    <style name="AppTheme.Launcher"  parent="Theme.MaterialComponents.NoActionBar">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-        <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
-        <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
-    </style>
-
     <style name="AppTheme.base" parent="Theme.MaterialComponents">
         <item name="android:textColorSecondary">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColor">@color/white</item>
-        <!---Notification -->
-        <item name="notificationUrgent">@color/notificationUrgent</item>
-        <item name="notificationNormal">@color/notificationNormal</item>
-        <item name="notificationLow">@color/notificationLow</item>
-        <item name="notificationInfo">@color/notificationInfo</item>
-        <item name="notificationAnnouncement">@color/notificationAnnouncement</item>
-
-        <item name="actionModeCloseDrawable">@drawable/ic_close</item>
-        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -377,14 +430,12 @@
     <style name="Buton.Borderless" parent="Widget.AppCompat.Button.Borderless"/>
     <style name="Buton.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored"/>
 
+    <!--    Buttons from MaterialDateTimePicker, Dialogs ...    -->
+    <dimen name="material_button_height">48dp</dimen>
+    <dimen name="material_button_text_size">14sp</dimen>
+    <dimen name="material_button_min_width">64dp</dimen>
+    <dimen name="material_button_text_padding_horizontal">8dp</dimen>
 
-    <style name="Theme.AppCompat.Translucent" parent="AppTheme">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation</item>
-    </style>
 
     <style name="InsightAlertDialog" parent="Theme.MaterialComponents.Dialog">
         <item name="android:windowMinWidthMajor">96%</item>
@@ -399,26 +450,6 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
-    </style>
-
-    <style name="section_header_label">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">15dp</item>
-        <item name="android:paddingStart">15dp</item>
-        <item name="android:paddingEnd">15dp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="warning_label">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:paddingStart">15dp</item>
-        <item name="android:paddingEnd">15dp</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textColor">#ff0000</item>
     </style>
 
     <style name="WizardPagePodContent">
@@ -1525,5 +1556,32 @@
 
     <style name="NavigationDrawer" />
 
+
+    <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
+    <style name="AppTheme.Launcher"  parent="AppTheme">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
+        <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
+    </style>
+
+    <style name="section_header_label">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:paddingEnd">15dp</item>
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="warning_label">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:paddingEnd">15dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">#ff0000</item>
+    </style>
 
 </resources>

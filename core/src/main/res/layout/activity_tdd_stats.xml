@@ -176,7 +176,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="@string/warning_Message"
-            android:textColor="#ff0000"
+            android:textColor="?attr/alarmColor"
             android:textSize="15sp"
             android:textStyle="bold" />
 

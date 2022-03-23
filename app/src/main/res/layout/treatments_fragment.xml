@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        app:titleTextColor="@android:color/white" />
+        android:minHeight="?attr/actionBarSize" />
 
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"

@@ -1,10 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="defaulttextcolor">#000000</color>
+    <!-- Default theme color -->
+    <!-- This section describes the main theme colors -->
+    <color name="colorPrimary">#787878</color>
+    <color name="colorPrimaryDark">#676767</color>
+    <color name="colorAccent">#40bbaa</color>
+    <color name="mdtp_white">#ffffff</color>
+    <color name="cardColorBackground">#999999</color>
+    <color name="black_overlay">#66000000</color>
+
+    <color name="defaultbackground">#999999</color>
+    <color name="defaulttextcolor">#B3FFFFFF</color>
+
+    <!--    Tabs-->
+    <color name="tabText">#d0d0d0</color>
+    <color name="tabSelectedText">@color/white</color>
+
+    <!--    Buttons-->
+    <color name="buttonBackground">#555555</color>
+    <color name="buttonText">#ffffff</color>
+    <color name="okButtonText">@color/colorAccent</color>
+
+    <color name="ic_actions_refill">#E93057</color>
+
+    <!--    Fragments-->
+    <color name="pumpStatusBackground">#505050</color>
+
+    <!--    Dialogs-->
+    <color name="dialog_title_background">#303030</color>
+    <color name="dialog_title_color">#FFFFFF</color>
+    <color name="dialog_title_icon_tint">#FFFFFF</color>
+    <color name="warningAlertHeaderText">#FF000000</color>
+    <color name="errorAlertBackground">#FFFF5555</color>
+    <color name="errorAlertHeaderText">#FF000000</color>
+    <color name="helperProfile">#C803A9F4</color>
+    <color name="examinedProfile">#FFFF5555</color>
+    <color name="defaulttext">#BBBBBB</color>
+
+    <!--    Treatment-->
+    <color name="list_delimiter">#505050</color>
+
+    <!-- Import/Export -->
+    <color name="importListAdditionalInfo">#BBBBBB</color>
+    <color name="importListFileName">#FFFFFF</color>
+
+    <!--    Loop     -->
+    <color name="loopDisconnected">#939393</color>
+    <color name="loopClosed">#00C03E</color>
+    <color name="loopSuspended">#FFFF13</color>
+    <color name="loopOpened">#4983D7</color>
+    <color name="loopDisabled">#FF1313</color>
+
+    <!--    BgReading-->
+    <color name="inrange">#00FF00</color>
+    <color name="low">#FF0000</color>
+    <color name="high">#FFFF00</color>
+    <color name="extendedBolus">#67DFE8</color>
+    <color name="carbs">#FFFB8C00</color>
+    <color name="uam">#c9bd60</color>
+    <color name="zt">#00d2d2</color>
+    <color name="calibration">#E83258</color>
+
     <color name="daySelected">#D000FF00</color>
     <color name="weekdayOutline">#1ea3e5</color>
     <color name="weekendOutline">#1e88e5</color>
-
 
     <!--    Toasts-->
     <color name="toastBorder">#666666</color>
@@ -20,6 +79,7 @@
     <color name="black_alpha_50">#80000000</color>
     <color name="black_alpha_60">#99000000</color>
     <color name="black_alpha_65">#A6000000</color>
+    <color name="black_alpha_70">#B3000000</color>
     <color name="black_alpha_80">#CC000000</color>
     <color name="black_alpha_90">#E6000000</color>
 
@@ -92,6 +152,7 @@
     <color name="statuslight_Warning" >#FF9900</color>
     <color name="notificationAnnouncement">#FF8C00</color>
     <color name="notificationUrgent">#ff0400</color>
+    <!-- Maintenance -->
     <color name="metadataTextWarning">#FF8C00</color>
     <color name="cob">#f0a30a</color>
     <color name="carbsOrange">#C98301</color>
@@ -143,6 +204,7 @@
     <color name="plastic_grey">#666666</color>
     <color name="graphgrid">#757575</color>
     <color name="mdtp_line_dark">#808080</color>
+    <color name="objectivesBackground">#3C3C3C</color>
     <color name="sphere_plastic_grey">#8c8c8c</color>
     <color name="lightSandGray">#72000000</color>
     <color name="sandGray">#c8666666</color>
@@ -480,4 +542,36 @@
     <color name="ic_local_reset">#E93057</color>
     <color name="ic_local_save">#67E86A</color>
     <color name="okButtonSelected">#33969696</color>
+    <color name="iobPred">#00d2d2</color>
+    <color name="ratio">#FFFFFF</color>
+    <color name="actionsConfirm">#FFFF00</color>
+    <color name="tabBgColorSelected">#FF666666</color>
+    <color name="deviations">#FF0000</color>
+    <color name="inrangebackground">#2800FF00</color>
+    <color name="warning">#ff1a1a</color>
+    <color name="error_background">#66FC0000</color>
+    <color name="ok_background">@color/black</color>
+
+    <color name="exercise">#67DFE8</color>
+
+    <color name="action">#ffffbb33</color>
+    <color name="alarm">#ffff4444</color>
+
+    <color name="colorAcceptTempButton">#f4d700</color>
+    <color name="colorTreatmentButton">#67dfe8</color>
+    <color name="colorCarbsButton">#ffae01</color>
+    <color name="colorCalibrationButton">#e93057</color>
+    <color name="colorQuickWizardButton">#ffae01</color>
+    <color name="colorProfileSwitchButton">#ca77dd</color>
+
+    <color name="colorObjectivesDisabledText">#FF5722</color>
+
+    <color name="colorScheduled">#de7550</color>
+    <color name="colorActive">#25912e</color>
+
+    <color name="deviationgrey">#c8666666</color>
+    <color name="deviationgreen">#7200FF00</color>
+    <color name="deviationred">#72FF0000</color>
+    <color name="deviationblack">#72000000</color>
+
 </resources>

@@ -78,7 +78,7 @@
                 android:paddingEnd="10dp"
                 android:text="PH"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/colorSetTempButton"
+                android:textColor="?attr/setTempButton"
                 tools:ignore="HardcodedText,RtlSymmetry" />
 
             <TextView
@@ -87,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:paddingEnd="10dp"
                 android:text="NS"
-                android:textColor="@color/colorSetTempButton"
+                android:textColor="?attr/setTempButton"
                 tools:ignore="HardcodedText,RtlSymmetry" />
 
         </LinearLayout>

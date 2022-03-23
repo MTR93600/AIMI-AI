@@ -694,6 +694,7 @@
             android:paddingBottom="6dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:background="?attr/pumpStatusBackground"
             android:gravity="center_vertical|center_horizontal"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
@@ -712,11 +713,12 @@
             android:id="@+id/queue"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
             android:gravity="center_vertical|center_horizontal"
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="?attr/pumpStatusBackground"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 

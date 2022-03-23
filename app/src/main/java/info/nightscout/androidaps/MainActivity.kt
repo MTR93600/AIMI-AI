@@ -26,6 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.TaskStackBuilder
 import androidx.core.view.GravityCompat
@@ -175,6 +176,8 @@ open class MainActivity : NoSplashAppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // temp while switch is not public
+        setTheme(R.style.AppTheme)
         Iconify.with(FontAwesomeModule())
         if ( sp.getString(R.string.key_use_dark_mode, "dark") == "dark") {
             val cd = ColorDrawable(sp.getInt("darkBackgroundColor", info.nightscout.androidaps.core.R.color.background_dark))
