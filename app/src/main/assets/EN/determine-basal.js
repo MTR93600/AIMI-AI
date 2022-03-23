@@ -941,13 +941,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // for rises by default sens_future will remain as the current bg ie. sens with eBGweight = 0
     // favour eventualBG less as ISF grows stronger based on the sens_predType using sens_eBGweight
-    // should the delta be 120% more than the short_avg (UAMBoost) increase weighting to eventualBG
+    // should the delta be 110% more than the short_avg (UAMBoost) increase weighting to eventualBG
     // delta condition is replaced with a safety that weights eventualBG if it is lower than current bg
     if (eatingnow) {
-        sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 60% and decreases with ISF scaling
+        sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 25% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.1 && bg <= ISFbgMax ?  sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0
-        //sens_eBGweight = (sens_eBGweight > 0 ? Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight) : sens_eBGweight); // start at eBGw, max eBGw, min 0
+        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.1 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - UAMBoost 1.1 respects eBGw initial weighting
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
@@ -956,8 +955,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_future *= sens_BGscaler; // try this again
         //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
         // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
-        //sens_future = (bg >= ISFbgMax ? sens_currentBG : sens_future);
-        //sens_future_max = (bg >= ISFbgMax);
+        sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
+        sens_future_max = (bg >= ISFbgMax);
     }
 
     // if BG below threshold then take the max of the sens vars
