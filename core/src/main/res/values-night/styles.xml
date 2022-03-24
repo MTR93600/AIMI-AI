@@ -274,6 +274,7 @@
         <item name="android:windowBackground">?attr/windowBackground</item>
         <item name="background">?attr/windowBackground</item>
         <item name="windowBackground" >@color/background_dark</item>
+        <item name="backgroundColor" >@color/background_dark</item>
         <item name="objectivesBackground" >@color/darkgrayVariant</item>
         <item name="extendedBolus" >@color/cyan</item>
         <item name="TitleAndLabelTextColor" >@color/white</item>
@@ -370,11 +371,12 @@
         <item name="materialAlertDialogTheme">@style/DialogTheme</item>
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
-        <item name="android:dialogCornerRadius">12dp</item>
         <!---Disabled Text Color  -->
         <item name="disabledTextColor">@color/sandGray</item>
         <!---Splash Background  -->
         <item name="splashBackgroundColor">@color/splashBackground</item>
+         <!---Dialogfragment Background Color  -->
+         <item name="android:dialogCornerRadius">12dp</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">

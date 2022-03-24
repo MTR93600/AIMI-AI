@@ -24,7 +24,7 @@
         <item name="android:actionBarTheme">@android:style/Theme.Material.Light</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/iconColorbottomAppbar</item>
-        <item name="iconColorToolbar">@color/black</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iobBorder">@color/white</item>
         <item name="cobBorder">@color/white</item>
         <item name="iobColor">@color/iob</item>
@@ -279,6 +279,7 @@
         <item name="colorScheduled" >@color/squash</item>
         <!---windowBackground -->
         <item name="windowBackground" >?attr/colorSurface</item>
+        <item name="backgroundColor" >?attr/colorSurface</item>
         <item name="activity_title_background" >@color/background_light</item>
         <item name="graphViwewportBackground" >@color/black_alpha_20</item>
         <!---diaconn -->
@@ -510,7 +511,7 @@
     <style name="PodInfoListView" parent="@android:style/Widget.ListView">
         <item name="android:background">@color/colorLightGray</item>
         <item name="android:cacheColorHint">@android:color/transparent</item>
-        <item name="android:divider">@android:color/black</item>
+        <item name="android:divider">?attr/colorControlNormal</item>
         <item name="android:dividerHeight">1dp</item>
     </style>
 
@@ -573,16 +574,20 @@
 
     <style name="mdtp_ActionButton.Text" ns2:ignore="NewApi">
         <item name="android:textSize">@dimen/mdtp_material_button_textsize</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:gravity">center</item>
-        <item name="android:stateListAnimator">@null</item>
-        <item name="android:minWidth">@dimen/mdtp_material_button_minwidth</item>
-        <item name="android:paddingStart">@dimen/mdtp_material_button_textpadding_horizontal</item>
-        <item name="android:paddingEnd">@dimen/mdtp_material_button_textpadding_horizontal</item>
-        <item name="android:textColor">@color/mdtp_button_color</item>
-        <item name="android:textAllCaps">true</item>
     </style>
+    <style name="StyleDialog">
+        <item name="android:padding">0dp</item>
+        <item name="android:minWidth">300dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/dialog</item>
+    </style>
+
+    <style name="StyleDialogHeader">
+        <item name="android:padding">5dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@drawable/dialog_header</item>
+    </style>
+
 
     <style name="ProfileHelperAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
 
@@ -637,6 +642,7 @@
         <item name="colorAccent">@color/secondaryColorRed</item>
         <item name="overviewPillColor">@color/overviewPillColorRed</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
         <item name="bgInRange">@color/primaryColorPurple</item>
@@ -661,7 +667,7 @@
         <item name="android:textColorPrimary">@color/primaryTextColorPink</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
-        <item name="iconColorToolbar">@color/concinnity_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="overviewPillColor">@color/overviewPillColorPink</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
@@ -737,6 +743,7 @@
         <item name="colorAccent">@color/secondaryColorPurple</item>
         <item name="overviewPillColor">@color/overviewPillColorPurple</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -748,6 +755,7 @@
         <item name="colorAccent">@color/secondaryColorDeepPurple</item>
         <item name="overviewPillColor">@color/overviewPillColorDeepPurple</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -759,6 +767,7 @@
         <item name="colorAccent">@color/secondaryColorIndigo</item>
         <item name="overviewPillColor">@color/overviewPillColorIndigo</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
@@ -786,7 +795,7 @@
         <item name="PillColorStart">@color/primaryColorLightBlue</item>
         <item name="PillColorEnd">@color/primaryDarkColorLightBlue</item>
         <item name="iconColor">@color/white_alpha_80</item>
-        <item name="iconColorToolbar">@color/white_alpha_80</item>
+        <item name="iconColorToolbar">@color/gray</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:textColor">@color/black</item>
@@ -852,6 +861,7 @@
         <item name="colorAccent">@color/secondaryColorCyan</item>
         <item name="overviewPillColor">@color/overviewPillColorCyan</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
         <item name="iconColorbottomAppbar">@color/white</item>
         <!---Bolus Icon Color-->
         <item name="bolusIconColor" >@color/white</item>

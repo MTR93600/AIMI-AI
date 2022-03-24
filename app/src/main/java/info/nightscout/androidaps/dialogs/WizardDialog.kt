@@ -125,9 +125,9 @@ class WizardDialog : BlurDialogFragment() {
 
         dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, info.nightscout.androidaps.core.R.drawable.dialog) }
-        drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
-        dialog?.window?.setBackgroundDrawable(drawable)
+        /* val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
+          drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
+          dialog?.window?.setBackgroundDrawable(drawable)*/
 
         context?.let { SmartAsyncPolicy(it) }?.let {
             BlurConfig.Builder()

@@ -82,9 +82,9 @@ class ProfileViewerDialog : DaggerDialogFragment() {
         dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 
-        val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
+       /* val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
         drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
-        dialog?.window?.setBackgroundDrawable(drawable)
+        dialog?.window?.setBackgroundDrawable(drawable)*/
 
         isCancelable = true
         dialog?.setCanceledOnTouchOutside(false)
