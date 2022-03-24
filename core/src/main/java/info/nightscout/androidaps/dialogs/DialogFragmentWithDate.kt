@@ -125,17 +125,17 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
         val datePicker =
             MaterialDatePicker.Builder.datePicker()
                 .setSelection(eventTime)
-                .setTitleText("Select date")
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .build()
 
-        datePicker.addOnPositiveButtonClickListener {
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = eventTime
-            cal.time = Date(it)
 
+
+        datePicker.addOnPositiveButtonClickListener {
             val c = Calendar.getInstance()
             c.time =  Date(it)
+            val cal = Calendar.getInstance()
+            cal.time =  Date(eventTime)
+            cal.timeInMillis = eventTime
             cal.set(Calendar.YEAR, c.get(Calendar.YEAR))
             cal.set(Calendar.MONTH,  c.get(Calendar.MONTH))
             cal.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH))
@@ -146,7 +146,6 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
 
         val cinit = Calendar.getInstance()
         cinit.time =  Date(eventTime)
-
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_12H)
             .setHour( cinit.get(Calendar.HOUR_OF_DAY))
