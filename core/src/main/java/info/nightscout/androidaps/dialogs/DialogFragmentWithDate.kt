@@ -152,6 +152,7 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
             .setHour( cinit.get(Calendar.HOUR_OF_DAY))
             .setMinute(cinit.get(Calendar.MINUTE))
             .setInputMode(INPUT_MODE_CLOCK)
+            .setTheme(R.style.AppTheme_MaterialTimePickerTheme)
             .build()
 
         timePicker.addOnPositiveButtonClickListener {

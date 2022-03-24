@@ -304,7 +304,6 @@
         <item name="materialCalendarTheme">@style/MaterialDatePickerTheme</item>
         <!---material time picker -->
         <item name="materialTimePickerTheme">@style/AppTheme.MaterialTimePickerTheme</item>
-        <item name="materialTimePickerStyle">@style/Widget.MaterialComponents.TimePicker</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close</item>
         <!---bolus color -->
         <item name="bolusColor">@color/bolus</item>
@@ -417,7 +416,7 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <!-- Theme for Material Time Picker -->
-    <style name="AppTheme.MaterialTimePickerTheme" parent="Widget.MaterialComponents.TimePicker">
+    <style name="AppTheme.MaterialTimePickerTheme" parent="ThemeOverlay.MaterialComponents.TimePicker">
         <item name="android:layout_height">wrap_content</item>
     </style>
 
