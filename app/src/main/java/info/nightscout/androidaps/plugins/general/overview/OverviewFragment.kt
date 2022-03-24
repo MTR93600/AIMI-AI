@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -873,7 +874,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val drawable: Drawable = binding.activeProfile.background
         val drawableLeft: Array<Drawable?> = binding.activeProfile.compoundDrawables
         if (drawableLeft[0] != null) profileTextColor.let { drawableLeft[0]!!.setTint(it) }
-        drawable.setColorFilter(profileBackgroundColor, PorterDuff.Mode.SRC_IN)
+        drawable.setColorFilter(PorterDuffColorFilter(profileBackgroundColor, PorterDuff.Mode.SRC_IN))
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -972,7 +973,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarning))
             binding.tempTarget.text = Profile.toTargetRangeString(tempTarget.lowTarget, tempTarget.highTarget, GlucoseUnit.MGDL, units) + " " + dateUtil.untilString(tempTarget.end, rh)
             if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
-            drawable.setColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN)
+            drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN))
+
         } else {
             // If the target is not the same as set in the profile then oref has overridden it
             profileFunction.getProfile()?.let { profile ->
@@ -983,12 +985,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                     binding.tempTarget.text = Profile.toTargetRangeString(targetUsed, targetUsed, GlucoseUnit.MGDL, units)
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarning))
                     if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
-                    drawable.setColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN)
+                    drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN))
                 } else {
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.defaultPillTextColor))
                     binding.tempTarget.text = Profile.toTargetRangeString(profile.getTargetLowMgdl(), profile.getTargetHighMgdl(), GlucoseUnit.MGDL, units)
                     if (drawableLeft[0] != null) rh.gac(context, R.attr.defaultPillTextColor).let { drawableLeft[0]!!.setTint(it) }
-                    drawable.setColorFilter(resources.getColor(R.color.ribbonDefault, requireContext().theme), PorterDuff.Mode.SRC_IN)
+                    drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonDefault, requireContext().theme), PorterDuff.Mode.SRC_IN))
                 }
             }
         }

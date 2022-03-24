@@ -3,6 +3,7 @@ package info.nightscout.androidaps.dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Editable
@@ -125,9 +126,7 @@ class WizardDialog : BlurDialogFragment() {
         dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, info.nightscout.androidaps.core.R.drawable.dialog) }
-        if (drawable != null) {
-            drawable.setColorFilter(rh.gac(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
-        }
+        drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, info.nightscout.androidaps.core.R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
         dialog?.window?.setBackgroundDrawable(drawable)
 
         context?.let { SmartAsyncPolicy(it) }?.let {

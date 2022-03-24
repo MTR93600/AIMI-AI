@@ -2,6 +2,7 @@ package info.nightscout.androidaps.dialogs
 
 import android.content.res.Resources
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.SystemClock
@@ -103,10 +104,7 @@ class BolusProgressDialog : BlurDialogFragment() {
         }
 
         val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
-        if (drawable != null) {
-            drawable.setColorFilter( rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN)
-            // drawable.setColorFilter( PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.MULTIPLY))
-        }
+        drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
         dialog?.window?.setBackgroundDrawable(drawable)
 
         context?.let { SmartAsyncPolicy(it) }?.let {

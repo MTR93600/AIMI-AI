@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.res.Resources
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
 import com.google.android.material.timepicker.TimeFormat
 import com.ms_square.etsyblur.BlurConfig
 import com.ms_square.etsyblur.BlurDialogFragment
@@ -92,9 +94,7 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
         }
 
         val drawable: Drawable? = context?.let { ContextCompat.getDrawable(it, R.drawable.dialog) }
-        if (drawable != null) {
-            drawable.setColorFilter( rh.gac(context, R.attr.windowBackground ) , PorterDuff.Mode.SRC_IN)
-        }
+        drawable?.setColorFilter(PorterDuffColorFilter(rh.gac(context, R.attr.windowBackground ), PorterDuff.Mode.SRC_IN))
         dialog?.window?.setBackgroundDrawable(drawable)
 
         context?.let { SmartAsyncPolicy(it) }?.let {
@@ -148,9 +148,10 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
         cinit.time =  Date(eventTime)
 
         val timePicker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setTimeFormat(TimeFormat.CLOCK_12H)
             .setHour( cinit.get(Calendar.HOUR_OF_DAY))
             .setMinute(cinit.get(Calendar.MINUTE))
+            .setInputMode(INPUT_MODE_CLOCK)
             .build()
 
         timePicker.addOnPositiveButtonClickListener {
