@@ -128,8 +128,6 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .build()
 
-
-
         datePicker.addOnPositiveButtonClickListener {
             val c = Calendar.getInstance()
             c.time =  Date(it)
