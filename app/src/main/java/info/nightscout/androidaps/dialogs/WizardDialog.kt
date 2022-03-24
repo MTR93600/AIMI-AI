@@ -322,6 +322,7 @@ class WizardDialog : BlurDialogFragment() {
         binding.trendCheckboxIcon.visibility = binding.calculationCheckbox.isChecked.not().toVisibility()
         binding.iobCheckboxIcon.visibility = binding.calculationCheckbox.isChecked.not().toVisibility()
         binding.cobCheckboxIcon.visibility = binding.calculationCheckbox.isChecked.not().toVisibility()
+        binding.checkboxRow.visibility = binding.calculationCheckbox.isChecked.not().toVisibility()
     }
 
     private fun saveCheckedStates() {
