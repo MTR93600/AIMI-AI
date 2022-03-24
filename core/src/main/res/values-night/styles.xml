@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns2="http://schemas.android.com/tools">
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/secondaryColorDefault</item>
-        <!-- New MaterialComponents attributes. -->dialogTitleBackground
+        <!-- New MaterialComponents attributes. -->
         <item name="colorSecondary">@color/secondaryColorDefault</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorDefault</item>
         <item name="colorSecondaryVariant">@color/secondaryLightColorDefault</item>
@@ -270,8 +269,6 @@
         <item name="automationTitleText" >@color/white</item>
         <item name="automationSelectedItemBackground" >@color/gray</item>
         <item name="fortyfiveup" >@color/white</item>
-        <!---Round dialog corner only if sdk >= 28 -->
-        <item name="android:dialogCornerRadius" ns2:targetApi="p">8dp</item>
         <item name="colorScheduled" >@color/squash</item>
         <!---windowBackground -->
         <item name="android:windowBackground">?attr/windowBackground</item>
@@ -364,26 +361,32 @@
         <!---Main Activity Tab  -->
         <item name="tabSelectedTextColor">@color/tabSelectedText</item>
         <item name="tabTextColor">@color/tabText</item>
-        <!---Background  -->
-        <item name="defaultbackground">@color/defaultbackground</item>
         <!---Toast  -->
         <item name="toastBaseTextColor">@color/toastBase</item>
         <!---Input  -->
         <item name="boxStrokeColor">@color/white</item>
         <!---Profile Helper  -->
         <item name="tabBgColorSelected">@color/tabBgColorSelected</item>
-        <!---Splash Background  -->
-        <item name="splashBackgroundColor">@color/splashBackground</item>
         <!---Dialog Helper  -->
         <item name="materialAlertDialogTheme">@style/DialogTheme</item>
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
+        <item name="android:dialogCornerRadius">12dp</item>
+        <!---Disabled Text Color  -->
+        <item name="disabledTextColor">@color/sandGray</item>
+        <!---Splash Background  -->
+        <item name="splashBackgroundColor">@color/splashBackground</item>
+    </style>
+
+    <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
     </style>
 
     <style name="Theme.MaterialComponents.DayNight.DarkActionBar" parent="Theme.MaterialComponents.DayNight.Bridge"/>
 
     <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
-    <style name="AppTheme.Launcher"  parent="Theme.MaterialComponents.NoActionBar">
+    <style name="AppTheme.Launcher"  parent="AppTheme.NoActionBar" >
         <item name="android:windowBackground">@drawable/launch_screen_night</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
@@ -393,15 +396,15 @@
         <item name="android:textColorSecondary">@color/white</item>
     </style>
 
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="BottomAppbar" parent="Widget.Material3.BottomAppBar" >
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
-        <item name="buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
-    </style>
 
     <!-- Theme for Material Time Picker -->
     <style name="AppTheme.MaterialTimePickerTheme" parent="Widget.MaterialComponents.TimePicker">
@@ -430,16 +433,7 @@
     <style name="Buton.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored"/>
 
 
-    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_close</item>
-    </style>
-
-    <!-- BolusProgress, Error -->
-    <style name="Theme.MaterialComponents.Translucent" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="Theme.AppCompat.Translucent" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
@@ -509,39 +503,20 @@
     <style name="mdtp_ActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/mdtp_material_button_height</item>
-        <item name="dialogTitleBackground">@color/dialog_title_background</item>
-    </style>
-
-    <!--    Buttons from MaterialDateTimePicker, Dialogs ...    -->
-    <dimen name="material_button_height">48dp</dimen>
-    <dimen name="material_button_text_size">14sp</dimen>
-    <dimen name="material_button_min_width">64dp</dimen>
-    <dimen name="material_button_text_padding_horizontal">8dp</dimen>
-
-    <style name="OkCancelButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/material_button_height</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:focusable">true</item>
     </style>
 
     <style name="mdtp_ActionButton.Text" ns2:ignore="NewApi">
         <item name="android:textSize">@dimen/mdtp_material_button_textsize</item>
-    </style>
-
-    <style name="OkCancelButton.Text" ns2:ignore="NewApi">
-        <item name="android:textSize">@dimen/material_button_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:gravity">center</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:minWidth">@dimen/mdtp_material_button_minwidth</item>
         <item name="android:paddingStart">@dimen/mdtp_material_button_textpadding_horizontal</item>
         <item name="android:paddingEnd">@dimen/mdtp_material_button_textpadding_horizontal</item>
-        <item name="android:background">@drawable/material_button_background</item>
-        <item name="android:minWidth">@dimen/material_button_min_width</item>
-        <item name="android:paddingLeft">@dimen/material_button_text_padding_horizontal</item>
-        <item name="android:paddingRight">@dimen/material_button_text_padding_horizontal</item>
-        <item name="android:textColor">@color/okButtonText</item>
+        <item name="android:textColor">@color/mdtp_button_color</item>
         <item name="android:textAllCaps">true</item>
     </style>
 
@@ -556,6 +531,34 @@
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
+    <!-- BolusProgress, Error -->
+    <style name="Theme.MaterialComponents.Translucent" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="OkCancelButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/mdtp_material_button_height</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="OkCancelButton.Text" ns2:ignore="NewApi">
+        <item name="android:textSize">@dimen/mdtp_material_button_textsize</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:background">@drawable/material_button_background</item>
+        <item name="android:minWidth">@dimen/mdtp_material_button_minwidth</item>
+        <item name="android:paddingLeft">@dimen/mdtp_material_button_textpadding_horizontal</item>
+        <item name="android:paddingRight">@dimen/mdtp_material_button_textpadding_horizontal</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
 
     <!-- Custom Theme -->
     <style name="CustomTheme" parent="AppTheme.NoActionBar">
@@ -638,7 +641,7 @@
         <item name="colorSecondary">@color/colorSecondaryPink</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantPink</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryPink</item>
-        <item name="colorOnSecondary">@color/colorOnSecondaryPink</item>
+        <item name="colorOnSecondary">@color/white</item>
         <item name="colorAccent">@color/primaryColorPink</item>
         <item name="colorOnBackground">@color/colorOnBackgroundPink</item>
         <item name="colorOnSurface">@color/colorOnSurfacePink</item>
@@ -1695,6 +1698,5 @@
         <item name="android:windowBlurBehindRadius" ns2:targetApi="s">10dp</item>
         <item name="android:windowBackgroundBlurRadius" ns2:targetApi="s">10dp</item>
     </style>
-
 
 </resources>

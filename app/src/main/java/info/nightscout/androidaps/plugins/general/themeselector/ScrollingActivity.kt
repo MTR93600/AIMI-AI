@@ -125,7 +125,7 @@ class ScrollingActivity : MainActivity(), View.OnClickListener {
             if ((mBottomSheetBehavior as BottomSheetBehavior<*>).getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 (mBottomSheetBehavior as BottomSheetBehavior<*>).setState(BottomSheetBehavior.STATE_EXPANDED)
             }
-            themeSwitcherPlugin.switchTheme()
+            themeSwitcherPlugin.setThemeMode()
         }
         binding.themeSelectorBottomLayout.selectBackgroundcolordark.setBackgroundColor(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, info.nightscout.androidaps.core.R.color.background_dark)))
         binding.themeSelectorBottomLayout.selectBackgroundcolorlight.setBackgroundColor(sp.getInt("lightBackgroundColor", ContextCompat.getColor(this, info.nightscout.androidaps.core.R.color

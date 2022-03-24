@@ -34,6 +34,7 @@ import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.ToastUtils
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.protection.ProtectionCheck
+import info.nightscout.androidaps.utils.protection.ProtectionCheck.Protection.BOLUS
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -56,14 +57,12 @@ class ProfileSwitchDialog : DialogFragmentWithDate() {
     @Inject lateinit var ctx: Context
     @Inject lateinit var protectionCheck: ProtectionCheck
 
+    private var queryingProtection = false
     private var profileIndex: Int? = null
-
     private val disposable = CompositeDisposable()
-
     private var _binding: DialogProfileswitchBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     private val textWatcher: TextWatcher = object : TextWatcher {
@@ -116,8 +115,7 @@ class ProfileSwitchDialog : DialogFragmentWithDate() {
 
         // profile
         context?.let { context ->
-            val profileStore = activePlugin.activeProfileSource.profile
-                ?: return
+            val profileStore = activePlugin.activeProfileSource.profile ?: return
             val profileListToCheck = profileStore.getProfileList()
             val profileList = ArrayList<CharSequence>()
             for (profileName in profileListToCheck) {
@@ -129,15 +127,16 @@ class ProfileSwitchDialog : DialogFragmentWithDate() {
                 dismiss()
                 return
             }
-            val adapter = ArrayAdapter(context, R.layout.spinner_centered, profileList)
-            binding.profile.adapter = adapter
+            binding.profileList.setAdapter(ArrayAdapter(context, R.layout.spinner_centered, profileList))
             // set selected to actual profile
             if (profileIndex != null)
-                binding.profile.setSelection(profileIndex as Int)
-            else
+                binding.profileList.setText(profileList[profileIndex as Int], false)
+            else {
+                binding.profileList.setText(profileList[0], false)
                 for (p in profileList.indices)
                     if (profileList[p] == profileFunction.getOriginalProfileName())
-                        binding.profile.setSelection(p)
+                        binding.profileList.setText(profileList[p], false)
+            }
         }
 
         profileFunction.getProfile()?.let { profile ->
@@ -172,7 +171,7 @@ class ProfileSwitchDialog : DialogFragmentWithDate() {
         val duration = binding.duration.value.toInt()
         if (duration > 0L)
             actions.add(rh.gs(R.string.duration) + ": " + rh.gs(R.string.format_mins, duration))
-        val profileName = binding.profile.selectedItem.toString()
+        val profileName = binding.profileList.text.toString()
         actions.add(rh.gs(R.string.profile) + ": " + profileName)
         val percent = binding.percentage.value.toInt()
         if (percent != 100)
@@ -252,14 +251,17 @@ class ProfileSwitchDialog : DialogFragmentWithDate() {
 
     override fun onResume() {
         super.onResume()
-        activity?.let { activity ->
-            val cancelFail = {
-                aapsLogger.debug(LTag.APS, "Dialog canceled on resume protection: ${this.javaClass.name}")
-                ToastUtils.showToastInUiThread(ctx, R.string.dialog_cancled)
-                dismiss()
+        if(!queryingProtection) {
+            queryingProtection = true
+            activity?.let { activity ->
+                val cancelFail = {
+                    queryingProtection = false
+                    aapsLogger.debug(LTag.APS, "Dialog canceled on resume protection: ${this.javaClass.name}")
+                    ToastUtils.showToastInUiThread(ctx, R.string.dialog_canceled)
+                    dismiss()
+                }
+                protectionCheck.queryProtection(activity, BOLUS, { queryingProtection = false }, cancelFail, cancelFail)
             }
-
-            protectionCheck.queryProtection(activity, ProtectionCheck.Protection.BOLUS, {}, cancelFail, fail = cancelFail)
         }
     }
 }

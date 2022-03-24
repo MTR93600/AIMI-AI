@@ -187,10 +187,11 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         }
 
         val dm = DisplayMetrics()
+        @Suppress("DEPRECATION")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R)
             display?.getRealMetrics(dm)
         else
-            @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(dm)
+            windowManager.defaultDisplay.getMetrics(dm)
 
 
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
@@ -304,7 +305,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
     private fun loadAll(from: String) {
         updateDate()
         Thread {
-            overviewData.prepareBgData("$from")
+            overviewData.prepareBgData(from)
             overviewData.prepareTreatmentsData(from)
             rxBus.send(EventRefreshOverview("loadAll_$from"))
             overviewData.prepareTemporaryTargetData(from)
@@ -343,6 +344,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     @Volatile
     var runningRefresh = false
+    @Suppress("SameParameterValue")
     private fun refreshLoop(from: String) {
         if (runningRefresh) return
         runningRefresh = true

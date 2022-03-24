@@ -322,13 +322,13 @@
     <!---Main Activity Tab  -->
     <attr name="tabSelectedTextColor" format="reference|color" />
     <attr name="tabTextColor" format="reference|color" />
-    <!---Background  -->
-    <attr name="defaultbackground" format="reference|color" />
     <!---Toast  -->
     <attr name="toastBaseTextColor" format="reference|color" />
     <!---Input  -->
     <attr name="boxStrokeColor" format="reference|color" />
     <!---Splash Background  -->
     <attr name="splashBackgroundColor" format="reference|color" />
+    <!---Disabled Text Color  -->
+    <attr name="disabledTextColor" format="reference|color" />
 
 </resources>

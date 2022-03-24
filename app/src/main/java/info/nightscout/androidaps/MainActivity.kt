@@ -176,8 +176,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // temp while switch is not public
-        setTheme(R.style.AppTheme)
         Iconify.with(FontAwesomeModule())
         if ( sp.getString(R.string.key_use_dark_mode, "dark") == "dark") {
             val cd = ColorDrawable(sp.getInt("darkBackgroundColor", info.nightscout.androidaps.core.R.color.background_dark))
@@ -319,14 +317,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
             androidPermission.notifyForSMSPermissions(this, smsCommunicatorPlugin)
             androidPermission.notifyForSystemWindowPermissions(this)
             androidPermission.notifyForBtConnectPermission(this)
-        }
-    }
-
-    private fun setDisabledMenuItemColorPluginPreferences() {
-        if( pluginPreferencesMenuItem?.isEnabled == false){
-            val spanString = SpannableString(this.menu?.findItem(R.id.nav_plugin_preferences)?.title.toString())
-            spanString.setSpan(ForegroundColorSpan(getColor(R.color.concinnity_grey)), 0, spanString.length, 0)
-            this.menu?.findItem(R.id.nav_plugin_preferences)?.title = spanString
         }
     }
 
@@ -833,6 +823,14 @@ open class MainActivity : NoSplashAppCompatActivity() {
         return super.dispatchTouchEvent(event)
     }
 
+    private fun setDisabledMenuItemColorPluginPreferences() {
+        if( pluginPreferencesMenuItem?.isEnabled == false){
+            val spanString = SpannableString(this.menu?.findItem(R.id.nav_plugin_preferences)?.title.toString())
+            spanString.setSpan(ForegroundColorSpan(rh.gac(R.attr.disabledTextColor)), 0, spanString.length, 0)
+            this.menu?.findItem(R.id.nav_plugin_preferences)?.title = spanString
+        }
+    }
+
     private fun setPluginPreferenceMenuName() {
         if (binding.mainPager.currentItem >= 0) {
             val plugin = (binding.mainPager.adapter as TabPageAdapter).getPluginAt(binding.mainPager.currentItem)
@@ -880,6 +878,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
         pluginPreferencesMenuItem = menu.findItem(R.id.nav_plugin_preferences)
         setPluginPreferenceMenuName()
         checkPluginPreferences(binding.mainPager)
+        setDisabledMenuItemColorPluginPreferences()
         return true
     }
 

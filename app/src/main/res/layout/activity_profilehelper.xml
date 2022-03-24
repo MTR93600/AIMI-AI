@@ -10,15 +10,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:background="?attr/defaultBackground"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingBottom="10dp">
 
             <TextView
                 android:id="@+id/menu1"
@@ -26,10 +25,10 @@
                 android:layout_height="30dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textColor="?attr/TitleAndLabelTextColor"
-                android:text="1" />
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="1"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/menu2"
@@ -37,29 +36,27 @@
                 android:layout_height="30dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textColor="?attr/TitleAndLabelTextColor"
-                android:text="2" />
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="2"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/profiletype_title"
+            android:id="@+id/profile_type_title"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="10dp"
             android:hint="@string/profiletype"
             android:textColorHint="?attr/tabBgColorSelected"
             app:boxStrokeColor="?attr/tabBgColorSelected">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/profiletype"
+                android:id="@+id/profile_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:clickable="true"
                 android:cursorVisible="false"
                 android:focusable="false"
@@ -81,7 +78,6 @@
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="2dp"
                     android:gravity="center_vertical">
 
                     <TextView
@@ -89,6 +85,7 @@
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
+                        android:layout_marginTop="4dp"
                         android:text="@string/age"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -96,6 +93,7 @@
                         android:id="@+id/age"
                         android:layout_width="130dp"
                         android:layout_height="40dp"
+                        android:layout_marginTop="4dp"
                         android:layout_marginBottom="2dp"
                         app:customContentDescription="@string/age" />
 
@@ -105,7 +103,6 @@
                     android:id="@+id/tdd_row"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="2dp"
                     android:gravity="center_vertical">
 
                     <TextView
@@ -113,6 +110,7 @@
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
+                        android:layout_marginTop="1dp"
                         android:text="@string/tdd_total"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -120,6 +118,7 @@
                         android:id="@+id/tdd"
                         android:layout_width="130dp"
                         android:layout_height="40dp"
+                        android:layout_marginTop="1dp"
                         android:layout_marginBottom="2dp"
                         app:customContentDescription="@string/tdd_total" />
 
@@ -149,13 +148,13 @@
                 </TableRow>
 
                 <TableRow
-                    android:id="@+id/basalpctfromtdd_row"
+                    android:id="@+id/basal_pct_from_tdd_row"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/basalpctfromtdd_label"
+                        android:id="@+id/basal_pct_from_tdd_label"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
@@ -163,7 +162,7 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                     <info.nightscout.androidaps.utils.ui.NumberPicker
-                        android:id="@+id/basalpctfromtdd"
+                        android:id="@+id/basal_pct_from_tdd"
                         android:layout_width="130dp"
                         android:layout_height="40dp"
                         app:customContentDescription="@string/basalpctfromtdd_label" />
@@ -172,16 +171,16 @@
 
             </TableLayout>
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/tdds"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                android:orientation="vertical" />
 
             <info.nightscout.androidaps.utils.ui.SingleClickButton
-                android:id="@+id/copytolocalprofile"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:id="@+id/copy_to_local_profile"
+                style="?android:attr/buttonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_clone_48"
@@ -261,8 +260,8 @@
         </LinearLayout>
 
         <info.nightscout.androidaps.utils.ui.SingleClickButton
-            android:id="@+id/compareprofile"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:id="@+id/compare_profiles"
+            style="?android:attr/buttonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_compare_profiles"
