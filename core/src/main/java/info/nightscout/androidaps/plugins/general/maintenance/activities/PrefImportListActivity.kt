@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerAppCompatActivity
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.core.databinding.MaintenanceImportListActivityBinding
 import info.nightscout.androidaps.core.databinding.MaintenanceImportListItemBinding
@@ -19,20 +20,20 @@ import info.nightscout.androidaps.plugins.general.maintenance.PrefsFile
 import info.nightscout.androidaps.plugins.general.maintenance.PrefsFileContract
 import info.nightscout.androidaps.plugins.general.maintenance.formats.PrefsMetadataKey
 import info.nightscout.androidaps.plugins.general.maintenance.formats.PrefsStatus
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.locale.LocaleHelper
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import javax.inject.Inject
 
-class PrefImportListActivity : DaggerAppCompatActivity() {
+class PrefImportListActivity : NoSplashAppCompatActivity() {
 
-    @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var prefFileListProvider: PrefFileListProvider
 
     private lateinit var binding: MaintenanceImportListActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
+        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)))
         binding = MaintenanceImportListActivityBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)

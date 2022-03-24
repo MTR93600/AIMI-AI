@@ -54,7 +54,6 @@ class QuickWizardListActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var quickWizard: QuickWizard
     @Inject lateinit var dateUtil: DateUtil
-    @Inject lateinit var sp: SP
 
     private var disposable: CompositeDisposable = CompositeDisposable()
     private var selectedItems: SparseArray<QuickWizardEntry> = SparseArray()
@@ -193,7 +192,7 @@ class QuickWizardListActivity : NoSplashAppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
         // important to set the theme here again for preferences - normal way do not work here
-        var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
         try {
             setTheme(themeToSet)
             val theme = super.getTheme()

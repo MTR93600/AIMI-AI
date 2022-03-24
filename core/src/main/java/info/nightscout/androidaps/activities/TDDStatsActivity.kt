@@ -49,8 +49,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class TDDStatsActivity : NoSplashAppCompatActivity() {
-    
-    @Inject lateinit var sp: SP
+
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var commandQueue: CommandQueue
@@ -71,7 +70,7 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
         try {
             setTheme(themeToSet)
             val theme = super.getTheme()
@@ -81,12 +80,12 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
             e.printStackTrace()
         }
 
-        if ( spSplash.getBoolean(info.nightscout.androidaps.core.R.string.key_use_dark_mode, true)) {
-            val cd = ColorDrawable(spSplash.getInt("darkBackgroundColor", ContextCompat.getColor(this, R.color.background_dark)))
-            if ( !spSplash.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
+        if ( sp.getBoolean(info.nightscout.androidaps.core.R.string.key_use_dark_mode, true)) {
+            val cd = ColorDrawable(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, R.color.background_dark)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
         } else {
-            val cd = ColorDrawable(spSplash.getInt("lightBackgroundColor", ContextCompat.getColor(this, R.color.background_light)))
-            if ( !spSplash.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
+            val cd = ColorDrawable(sp.getInt("lightBackgroundColor", ContextCompat.getColor(this, R.color.background_light)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
         }
 
         binding = ActivityTddStatsBinding.inflate(layoutInflater)

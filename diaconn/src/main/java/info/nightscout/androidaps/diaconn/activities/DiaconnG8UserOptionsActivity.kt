@@ -30,7 +30,6 @@ class DiaconnG8UserOptionsActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var diaconnG8Pump: DiaconnG8Pump
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var commandQueue: CommandQueue
-    @Inject lateinit var sp: SP
 
     private val disposable = CompositeDisposable()
 

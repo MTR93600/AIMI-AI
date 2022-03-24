@@ -24,7 +24,6 @@ class EnterPinActivity : NoSplashAppCompatActivity() {
 
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var danaRSPlugin: DanaRSPlugin
-    @Inject lateinit var sp: SP
     @Inject lateinit var bleComm: BLEComm
     @Inject lateinit var aapsSchedulers: AapsSchedulers
 

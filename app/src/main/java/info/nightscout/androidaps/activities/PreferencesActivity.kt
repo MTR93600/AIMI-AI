@@ -27,7 +27,7 @@ class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompa
         setContentView(binding.root)
 
         // important to set the theme here again for preferences - normal way do not work here
-        var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
         try {
             setTheme(themeToSet)
             val theme = super.getTheme()

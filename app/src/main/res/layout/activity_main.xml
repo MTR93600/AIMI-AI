@@ -49,6 +49,7 @@
                 app:tabIndicatorAnimationDuration="1400"
                 app:tabIndicatorFullWidth="false"
                 app:tabUnboundedRipple="false"
+                app:tabSelectedTextColor="?attr/colorPrimary"
                 android:layout_height="28dp"
                 android:layout_width="wrap_content" />
 
@@ -60,6 +61,7 @@
                 app:tabIndicatorAnimationDuration="1400"
                 app:tabIndicatorFullWidth="false"
                 app:tabUnboundedRipple="false"
+                app:tabSelectedTextColor="?attr/colorPrimary"
                 android:layout_height="24dp"
                 android:layout_width="wrap_content" />
 

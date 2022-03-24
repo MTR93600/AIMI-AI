@@ -35,7 +35,6 @@ class SetupWizardActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var localProfilePlugin: LocalProfilePlugin
     @Inject lateinit var swDefinition: SWDefinition
-    @Inject lateinit var sp: SP
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     @Inject lateinit var uel: UserEntryLogger
@@ -51,7 +50,7 @@ class SetupWizardActivity : NoSplashAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
         try {
             setTheme(themeToSet)
             val theme = super.getTheme()

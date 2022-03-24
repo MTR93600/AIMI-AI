@@ -101,7 +101,6 @@ open class MainActivity : NoSplashAppCompatActivity() {
 
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     @Inject lateinit var androidPermission: AndroidPermission
-    @Inject lateinit var sp: SP
     @Inject lateinit var versionCheckerUtils: VersionCheckerUtils
     @Inject lateinit var smsCommunicatorPlugin: SmsCommunicatorPlugin
     @Inject lateinit var loop: Loop

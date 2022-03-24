@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 
 open class NoSplashAppCompatActivity : DaggerAppCompatActivityWithResult() {
-    @Inject lateinit var spSplash: SP
+    @Inject lateinit var sp: SP
     @Inject lateinit var rxBus: RxBus
 
     private val compositeDisposable = CompositeDisposable()
@@ -27,7 +27,7 @@ open class NoSplashAppCompatActivity : DaggerAppCompatActivityWithResult() {
         setTheme(R.style.AppTheme_NoActionBar)
 
         compositeDisposable.add(rxBus.toObservable(EventThemeSwitch::class.java).subscribe {
-            var themeToSet = spSplash.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+            var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
             try {
                 setTheme(themeToSet)
                 val theme = super.getTheme()
@@ -39,12 +39,12 @@ open class NoSplashAppCompatActivity : DaggerAppCompatActivityWithResult() {
             recreate()
         })
 
-        if ( spSplash.getBoolean(R.string.key_use_dark_mode, true)) {
-            val cd = ColorDrawable(spSplash.getInt("darkBackgroundColor", ContextCompat.getColor(this, R.color.background_dark)))
-            if ( !spSplash.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
+        if ( sp.getBoolean(R.string.key_use_dark_mode, true)) {
+            val cd = ColorDrawable(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, R.color.background_dark)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
         } else {
-            val cd = ColorDrawable(spSplash.getInt("lightBackgroundColor", ContextCompat.getColor(this, R.color.background_light)))
-            if ( !spSplash.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
+            val cd = ColorDrawable(sp.getInt("lightBackgroundColor", ContextCompat.getColor(this, R.color.background_light)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
         }
     }
 
