@@ -386,6 +386,7 @@
     <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
     <style name="AppTheme.Launcher"  parent="AppTheme.NoActionBar">
         <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
     </style>
@@ -660,11 +661,7 @@
         <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
-
-        <!---Bolus Icon Color-->
-        <item name="bolusIconColor" >@color/white</item>
-        <!---Carbs Icon Color-->
-        <item name="carbsIconColor" >@color/white</item>
+        <item name="android:dialogCornerRadius">12dp</item>
         <!---Wizard Icon Color-->
         <item name="wizardIconColor" >@color/white</item>
         <!---CGM BOYDA Icon Color-->
@@ -674,10 +671,6 @@
         <!---Temp target Icon Color-->
         <item name="temptargetIconColor" >@color/white</item>
         <item name="temptargetIconColor1" >@color/white</item>
-        <!---Start temp basal Icon Color-->
-        <item name="tempbasalIconColor" >@color/white</item>
-        <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->

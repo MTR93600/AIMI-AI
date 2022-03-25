@@ -387,6 +387,7 @@
     <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
     <style name="AppTheme.Launcher"  parent="AppTheme.NoActionBar" >
         <item name="android:windowBackground">@drawable/launch_screen_night</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
     </style>
@@ -589,8 +590,6 @@
         <item name="colorPrimaryInverse">@color/md_theme_dark_primaryInverse</item>
         <item name="android:dialogCornerRadius">12dp</item>
 
-        <!---Bolus Icon Color-->
-        <item name="bolusIconColor" >@color/white</item>
         <!---Carbs Icon Color-->
         <item name="carbsIconColor" >@color/white</item>
         <!---Wizard Icon Color-->
