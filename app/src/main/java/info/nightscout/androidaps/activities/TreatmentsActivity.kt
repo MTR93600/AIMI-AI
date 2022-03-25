@@ -9,6 +9,7 @@ import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.fragments.*
 import info.nightscout.androidaps.databinding.TreatmentsFragmentBinding
 import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import javax.inject.Inject
 
@@ -21,6 +22,7 @@ class TreatmentsActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
         binding = TreatmentsFragmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //binding.tempBasals.visibility = buildHelper.isEngineeringMode().toVisibility()

@@ -626,13 +626,94 @@
         <item name="android:paddingLeft">@dimen/mdtp_material_button_textpadding_horizontal</item>
         <item name="android:paddingRight">@dimen/mdtp_material_button_textpadding_horizontal</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <!-- Custom Theme -->
     <style name="CustomTheme" parent="AppTheme.NoActionBar">
     </style>
 
-    <style name="AppTheme_DEFAULT" parent="AppTheme.NoActionBar"> </style>
+    <style name="AppTheme_DEFAULT" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
+
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+    </style>
 
 
     <style name="AppTheme.RED" parent="AppTheme.NoActionBar">

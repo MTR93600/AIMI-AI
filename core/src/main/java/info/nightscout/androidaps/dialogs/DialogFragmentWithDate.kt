@@ -1,11 +1,6 @@
 package info.nightscout.androidaps.dialogs
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.res.Resources
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -126,6 +121,7 @@ abstract class DialogFragmentWithDate : BlurDialogFragment() {
             MaterialDatePicker.Builder.datePicker()
                 .setSelection(eventTime)
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setTheme(R.style.MaterialDatePickerTheme)
                 .build()
 
         datePicker.addOnPositiveButtonClickListener {

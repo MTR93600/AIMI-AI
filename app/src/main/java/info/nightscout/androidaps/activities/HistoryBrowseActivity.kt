@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.activities
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -9,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.jjoe64.graphview.GraphView
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
@@ -22,11 +22,11 @@ import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.Loop
 import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSDeviceStatus
 import info.nightscout.androidaps.plugins.general.overview.OverviewData
 import info.nightscout.androidaps.plugins.general.overview.OverviewMenus
 import info.nightscout.androidaps.plugins.general.overview.graphData.GraphData
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventBucketedDataCreated
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress
@@ -41,7 +41,6 @@ import info.nightscout.androidaps.utils.Translator
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.LTag
-import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.util.*
@@ -85,6 +84,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
         binding = ActivityHistorybrowseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -156,33 +156,33 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             true
         }
 
-        // create an OnDateSetListener
-        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-            Calendar.getInstance().also { calendar ->
-                calendar.timeInMillis = overviewData.fromTime
-                calendar[Calendar.YEAR] = year
-                calendar[Calendar.MONTH] = monthOfYear
-                calendar[Calendar.DAY_OF_MONTH] = dayOfMonth
-                calendar[Calendar.MILLISECOND] = 0
-                calendar[Calendar.SECOND] = 0
-                calendar[Calendar.MINUTE] = 0
-                calendar[Calendar.HOUR_OF_DAY] = 0
-                setTime(calendar.timeInMillis)
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setTheme(info.nightscout.androidaps.core.R.style.MaterialDatePickerTheme)
+                .build()
+
+        datePicker.addOnPositiveButtonClickListener {
+            val c = Calendar.getInstance()
+            c.time =  Date(it)
+
+            Calendar.getInstance().also { cal ->
+                cal.timeInMillis = overviewData.fromTime
+                cal.set(Calendar.YEAR, c.get(Calendar.YEAR))
+                cal.set(Calendar.MONTH, c.get(Calendar.MONTH))
+                cal.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH))
+                cal.set(Calendar.MILLISECOND, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                setTime(cal.timeInMillis)
                 binding.date.text = dateUtil.dateAndTimeString(overviewData.fromTime)
             }
             loadAll("onClickDate")
         }
 
         binding.date.setOnClickListener {
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = overviewData.fromTime
-            DatePickerDialog(
-                this, R.style.MaterialPickerTheme,
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            datePicker.show( getSupportFragmentManager(), "Set Date")
         }
 
         val dm = DisplayMetrics()

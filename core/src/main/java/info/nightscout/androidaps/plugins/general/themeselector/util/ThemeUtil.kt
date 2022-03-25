@@ -54,7 +54,7 @@ object ThemeUtil {
             THEME_GRAY       -> themeId = R.style.AppTheme_GRAY
             THEME_BLUEGRAY   -> themeId = R.style.AppTheme_BLUEGRAY
             THEME_DARKSIDE   -> themeId = R.style.AppTheme_DARKSIDE
-            THEME_DEFAULT    -> themeId = R.style.CustomTheme
+            THEME_DEFAULT    -> themeId = R.style.AppTheme_DEFAULT
 
             else             -> {
             }
