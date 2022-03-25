@@ -7,6 +7,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedL
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback
+import info.nightscout.androidaps.plugins.pump.medtronic.R
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.ParseException
@@ -83,7 +84,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
                 processBolus(answers)
             } else if (answer.contains("battery insert")) {
                 processBattery(answers.next())
-            } else if (answer.contains("reservoir change")) {
+            } else if (answer.contains("reservoir change") && medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)) {
                 processSite(answers.next())
             } else if (answer.contains("reservoir rewind")) {
                 processReservoir(answers.next())

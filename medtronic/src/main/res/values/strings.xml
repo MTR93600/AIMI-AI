@@ -8,8 +8,11 @@
     <string name="medlink_key_force_bolus_history_read" translatable="false">medlink_key_force_bolus_history_read_summary</string>
     <string name="key_medlink_init_command" translatable="false">pref_medlink_init_command</string>
     <string name="medlink_init_commands">Commands to be executed on first connect</string>
-
+    <string name="medlink_change_cannula_action">Do you change the cannula together with reservoir?</string>
+    <string name="medlink_change_cannula_summary">When you enable this option, whenever there is a reservoir change, a change cannula event will be created.</string>
 <!--    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>-->
+    <bool name="key_medlink_change_cannula">true</bool>
+
     <bool name="key_medlink_init_commands_last_bg_history">false</bool>
     <bool name="key_medlink_init_commands_previous_bg_history">false</bool>
     <bool name="key_medlink_init_commands_last_bolus_history">false</bool>

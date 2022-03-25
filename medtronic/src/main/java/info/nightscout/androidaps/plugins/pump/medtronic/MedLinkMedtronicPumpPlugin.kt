@@ -114,7 +114,7 @@ import kotlin.math.roundToInt
  * Created by dirceu on 10.07.2020.
  */
 @Singleton
-open class MedLinkMedtronicPumpPlugin @Inject constructor(
+open class  MedLinkMedtronicPumpPlugin @Inject constructor(
         injector: HasAndroidInjector?,
         aapsLogger: AAPSLogger,
         rxBus: RxBus?,
@@ -270,12 +270,16 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
 
     override fun storeCancelTempBasal() {
+        aapsLogger.info(LTag.DATABASE,"stopping basal")
+        val timestemp = if(pumpStatusData.runningTBR != null) pumpStatusData.runningTBR.date
+        else dateUtil.now()
         pumpSync.syncStopTemporaryBasalWithPumpId(
-                timestamp = dateUtil.now(),
-                endPumpId = dateUtil.now(),
+                timestamp = timestemp,
+                endPumpId = timestemp,
                 pumpType = pumpType ?: PumpType.GENERIC_AAPS,
                 pumpSerial = serialNumber()
         )
+        pumpStatusData.runningTBR = null
         pumpStatusData.tempBasalAmount = profile?.getBasal()?: basalProfile?.getEntryForTime(Instant.now())?.rate
 
     }
@@ -911,20 +915,26 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     fun createTemporaryBasalData(duration: Int, dose: Double) {
-
-
         val type: TemporaryBasalType = if (dose == 0.0) TemporaryBasalType.PUMP_SUSPEND else {
             TemporaryBasalType.NORMAL
         }
 
-        val tempData = PumpDbEntryTBR(dose, true, duration, type)
+        val timestamp = dateUtil.now()
+        val tempData = PumpDbEntryTBR(
+                timestamp,
+                timestamp,  pumpType,
+                serialNumber(), null,
+                dose,
+                false, duration, type)
+        pumpStatusData.runningTBR = tempData
+        aapsLogger.info(LTag.DATABASE, "syncing temp basal data")
         val result = pumpSync.syncTemporaryBasalWithPumpId(
-            dateUtil.now(),
+            timestamp,
             dose,
             T.mins(duration.toLong()).msecs(),
             false,
             tempData.tbrType,
-            dateUtil.now(),
+                timestamp,
             pumpType,
             serialNumber())
         pumpStatusData.tempBasalLength = duration

@@ -281,7 +281,6 @@ class DataSyncSelectorImplementation @Inject constructor(
         queueCounter.bcrRemaining = lastDbId - startId
         appRepository.getNextSyncElementBolusCalculatorResult(startId).blockingGet()?.let { bolusCalculatorResult ->
             aapsLogger.info(LTag.NSCLIENT, "Loading BolusCalculatorResult data Start: $startId ID: ${bolusCalculatorResult.first.id} HistoryID: ${bolusCalculatorResult.second.id} ")
-            aapsLogger.info(LTag.NSCLIENT, "Loading Bolus data: $startId ID: ${bolusCalculatorResult.first} HistoryID: ${bolusCalculatorResult.second} ")
             when {
                 // only NsId changed, no need to upload
                 bolusCalculatorResult.first.onlyNsIdAdded(bolusCalculatorResult.second) -> {

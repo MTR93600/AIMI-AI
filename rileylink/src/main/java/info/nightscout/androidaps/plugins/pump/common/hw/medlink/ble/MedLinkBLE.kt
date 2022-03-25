@@ -382,7 +382,7 @@ class MedLinkBLE //extends RileyLinkBLE
                     } else if (!priorityExecutionCommandQueue.contains(commandExecutor)) {
                         priorityExecutionCommandQueue.add(commandExecutor)
                     }
-                } else if (commandPriority == CommandPriority.NORMAL) {
+                } else if (commandPriority == CommandPriority.NORMAL && !executionCommandQueue.contains(commandExecutor)) {
                     executionCommandQueue.add(commandExecutor)
                 } else if (!lowPriorityExecutionCommandQueue.contains(commandExecutor)) {
                     lowPriorityExecutionCommandQueue.add(commandExecutor)

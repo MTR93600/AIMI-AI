@@ -20,10 +20,16 @@
             android:defaultValue="true"
             android:key="@bool/key_medlink_init_commands_last_bolus_history"
             android:title="@string/medlink_init_commands_last_bolus_history" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_change_cannula"
+            android:summary="@string/medlink_change_cannula_summary"
+            android:title="@string/medlink_change_cannula_action" />
+
     </PreferenceCategory>
         <PreferenceCategory
         android:title="@string/medlink_medtronic_name"
-        app:initialExpandedChildrenCount="0">
+        app:initialExpandedChildrenCount="40">
 
         <EditTextPreference
             android:defaultValue="000000"

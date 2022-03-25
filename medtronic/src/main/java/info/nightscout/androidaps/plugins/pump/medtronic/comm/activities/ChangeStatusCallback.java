@@ -54,6 +54,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
                 if( tempBasalData!= null) {
                     medlinkPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
                             0);
+
                 }else{
                     medlinkPumpPlugin.createTemporaryBasalData(30, 0);
                 }

@@ -650,7 +650,6 @@ class LoopPlugin @Inject constructor(
         }
         val pump = activePlugin.activePump
         val lastBolusTime = if (pump is MedLinkPumpDevice) {
-            activePlugin.activePump
             repository.getLastNonTBRBolusTime()?.timestamp ?: 0L
         } else {
             repository.getLastBolusRecord()?.timestamp ?: 0L
@@ -668,7 +667,7 @@ class LoopPlugin @Inject constructor(
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpNotInitialized).enacted(false).success(false))?.run()
             return
         }
-        if (pump.isSuspended()) {
+        if (pump.isSuspended() && pump !is MedLinkPumpDevice) {
             aapsLogger.debug(LTag.APS, "applySMBRequest: " + rh.gs(R.string.pumpsuspended))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpsuspended).enacted(false).success(false))?.run()
             return
