@@ -317,6 +317,8 @@
     <attr name="trashBinTintColor" format="reference|color" />
     <!---Dialog  -->
     <attr name="activity_title_backgroundColor" format="reference|color" />
+    <!---Dialog  -->
+    <attr name="dialogbackgroundColor" format="reference|color" />
     <!---Automation  -->
     <attr name="ribbonDefaultColor" format="reference|color" />
     <!---Main Activity Tab  -->

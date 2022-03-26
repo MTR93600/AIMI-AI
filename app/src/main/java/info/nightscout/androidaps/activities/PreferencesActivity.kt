@@ -22,20 +22,8 @@ class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
         binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // important to set the theme here again for preferences - normal way do not work here
-        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
-        try {
-            setTheme(themeToSet)
-            val theme = super.getTheme()
-            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
-            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
         binding.prefFilter.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}

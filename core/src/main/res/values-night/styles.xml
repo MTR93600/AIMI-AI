@@ -377,6 +377,7 @@
         <item name="splashBackgroundColor">@color/splashBackground</item>
          <!---Dialogfragment Background Color  -->
          <item name="android:dialogCornerRadius">12dp</item>
+        <item name="dialogbackgroundColor">?attr/backgroundColor</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.Material3.MaterialCalendar">
@@ -642,9 +643,35 @@
         <item name="calibrationIconColor" >@color/white</item>
     </style>
 
-    <style name="AppTheme.RED" parent="AppTheme.NoActionBar">
+    <style name="AppTheme.RED" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorRed</item>
+        <item name="colorPrimary">@color/red_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/red_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/red_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/red_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/red_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/red_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/red_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/red_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/red_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/red_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/red_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/red_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/red_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/red_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/red_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/red_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/red_theme_dark_background</item>
+        <item name="colorOnBackground">@color/red_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/red_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/red_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/red_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/red_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/red_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/red_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/red_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/red_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorRed</item>
         <item name="colorAccent">@color/secondaryColorRed</item>
         <item name="overviewPillColor">@color/overviewPillColorRed</item>
@@ -707,21 +734,42 @@
         <!---Calibration Icon Color-->
         <item name="calibrationIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/ferrari3</item>
+        <item name="android:dialogCornerRadius">12dp</item>
     </style>
 
     <style name="AppTheme.PINK" parent="AppTheme.NoActionBar">
         <!-- PINK Theme -->
-        <item name="colorPrimary">@color/primaryColorPink</item>
+        <item name="colorPrimary">@color/pink_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/pink_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/pink_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/pink_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/pink_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/pink_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/pink_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/pink_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/pink_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/pink_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/pink_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/pink_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/pink_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/pink_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/pink_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/pink_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/pink_theme_dark_background</item>
+        <item name="colorOnBackground">@color/pink_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/pink_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/pink_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/pink_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/pink_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/pink_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/pink_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/pink_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/pink_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorPink</item>
         <item name="colorPrimaryVariant">@color/primaryColorPinkVariant</item>
-        <item name="colorSecondary">@color/colorSecondaryPink</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantPink</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryPink</item>
-        <item name="colorOnSecondary">@color/white</item>
         <item name="colorAccent">@color/primaryColorPink</item>
-        <item name="colorOnBackground">@color/colorOnBackgroundPink</item>
-        <item name="colorOnSurface">@color/colorOnSurfacePink</item>
-        <item name="colorOnError">@color/colorOnErrorPink</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="overviewPillColor">@color/overviewPillColorPink</item>
@@ -783,19 +831,39 @@
         <item name="PillColorEnd">@color/primaryColorPink</item>
     </style>
 
-    <style name="AppTheme.PURPLE" parent="AppTheme.NoActionBar">
+    <style name="AppTheme.PURPLE" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorPurple</item>
+        <item name="colorPrimary">@color/purple_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/purple_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/purple_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/purple_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/purple_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/purple_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/purple_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/purple_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/purple_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/purple_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/purple_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/purple_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/purple_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/purple_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/purple_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/purple_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/purple_theme_dark_background</item>
+        <item name="colorOnBackground">@color/purple_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/purple_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/purple_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/purple_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/purple_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/purple_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/purple_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/purple_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/purple_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorPurple</item>
         <item name="colorPrimaryVariant">@color/primaryColorPurpleVariant</item>
-        <item name="colorSecondary">@color/colorSecondaryPurple</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantPurple</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
-        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
-        <item name="colorAccent">@color/secondaryColorPurple</item>
-        <item name="colorOnBackground">@color/colorOnBackgroundPurple</item>
-        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
-        <item name="colorOnError">@color/colorOnErrorPurple</item>
+        <item name="colorAccent">@color/purple_theme_dark_secondary</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
@@ -854,21 +922,42 @@
         <item name="fragmentbackground">@color/black_alpha_10</item>
         <item name="android:windowBackground">@drawable/stone_wall</item>
         <item name="overviewPillColor">@color/overviewPillColorPurple</item>
+        <item name="android:dialogCornerRadius">12dp</item>
     </style>
 
     <style name="AppTheme.DEEPPURPLE" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorPrimaryContainer">@color/deeppurple_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/deeppurple_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/deeppurple_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/deeppurple_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/deeppurple_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/deeppurple_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/deeppurple_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/deeppurple_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/deeppurple_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/deeppurple_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/deeppurple_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/deeppurple_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/deeppurple_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/deeppurple_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/deeppurple_theme_dark_background</item>
+        <item name="colorOnBackground">@color/deeppurple_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/deeppurple_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/deeppurple_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/deeppurple_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/deeppurple_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/deeppurple_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/deeppurple_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/deeppurple_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/deeppurple_theme_dark_primaryInverse</item>
+
         <item name="colorPrimary">@color/primaryColorDeepPurple</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorDeepPurple</item>
         <item name="colorPrimaryVariant">@color/primaryColorPurpleVariant</item>
-        <item name="colorSecondary">@color/secondaryColorDeepPurple</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantPurple</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
-        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
         <item name="colorAccent">@color/secondaryColorDeepPurple</item>
-        <item name="colorOnBackground">@color/colorOnBackgroundPurple</item>
-        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
-        <item name="colorOnError">@color/colorOnErrorPurple</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
         <item name="overviewPillColor">@color/overviewPillColorDeepPurple</item>
@@ -928,11 +1017,38 @@
         <item name="quickwizzardIconColor" >@color/black</item>
         <!---More Icon Color-->
         <item name="dotmoreIconColor" >@color/black</item>
+        <item name="android:dialogCornerRadius">12dp</item>
     </style>
 
     <style name="AppTheme.INDIGO" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorIndigo</item>
+        <item name="colorPrimary">@color/indigo_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/indigo_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/indigo_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/indigo_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/indigo_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/indigo_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/indigo_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/indigo_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/indigo_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/indigo_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/indigo_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/indigo_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/indigo_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/indigo_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/indigo_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/indigo_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/indigo_theme_dark_background</item>
+        <item name="colorOnBackground">@color/indigo_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/indigo_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/indigo_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/indigo_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/indigo_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/indigo_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/indigo_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/indigo_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/indigo_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorIndigo</item>
         <item name="colorAccent">@color/secondaryColorIndigo</item>
         <item name="overviewPillColor">@color/overviewPillColorIndigo</item>
@@ -950,7 +1066,33 @@
 
     <style name="AppTheme.BLUE" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorBlue</item>
+        <item name="colorPrimary">@color/blue_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/blue_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/blue_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/blue_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/blue_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/blue_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/blue_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/blue_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/blue_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/blue_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/blue_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/blue_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/blue_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/blue_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/blue_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/blue_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/blue_theme_dark_background</item>
+        <item name="colorOnBackground">@color/blue_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/blue_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/blue_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/blue_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/blue_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/blue_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/blue_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/blue_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/blue_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorBlue</item>
         <item name="colorAccent">@color/secondaryColorBlue</item>
         <item name="overviewPillColor">@color/overviewPillColorBlue</item>
@@ -1012,8 +1154,34 @@
     </style>
 
     <style name="AppTheme.LIGHTBLUE" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/lightblue_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/lightblue_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lightblue_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lightblue_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lightblue_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/lightblue_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lightblue_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lightblue_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lightblue_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/lightblue_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lightblue_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lightblue_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/lightblue_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/lightblue_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/lightblue_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/lightblue_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lightblue_theme_dark_background</item>
+        <item name="colorOnBackground">@color/lightblue_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/lightblue_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/lightblue_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lightblue_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lightblue_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lightblue_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lightblue_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lightblue_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lightblue_theme_dark_primaryInverse</item>
+
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorLightBlue</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorLightBlue</item>
         <item name="colorAccent">@color/secondaryColorLightBlue</item>
         <item name="overviewPillColor">@color/overviewPillColorLightBlue</item>
@@ -1071,21 +1239,41 @@
         <item name="firstAidIconColor" >@color/black</item>
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/black</item>
+        <item name="iconColorbottomAppbar" >@color/lightblue_theme_dark_onPrimary</item>
         <item name="android:windowBackground">@drawable/black_blue</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
     <style name="AppTheme.CYAN" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorCyan</item>
+        <item name="colorPrimary">@color/cyan_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/cyan_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/cyan_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/cyan_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/cyan_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/cyan_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/cyan_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/cyan_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/cyan_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/cyan_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/cyan_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/cyan_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/cyan_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/cyan_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/cyan_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/cyan_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/cyan_theme_dark_background</item>
+        <item name="colorOnBackground">@color/cyan_theme_dark_onBackground</item>
+        <item name="colorOnSurface">@color/cyan_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/cyan_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/cyan_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/cyan_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/cyan_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/cyan_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/cyan_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorCyan</item>
         <item name="colorPrimaryVariant">@color/primaryDarkColorCyan</item>
-        <item name="colorSecondary">@color/secondaryColorCyan</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
-        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
-        <item name="colorOnBackground">@color/colorOnBackgroundPurple</item>
-        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
-        <item name="colorOnError">@color/colorOnErrorPurple</item>
         <item name="colorAccent">@color/secondaryColorCyan</item>
         <item name="overviewPillColor">@color/overviewPillColorCyan</item>
         <!-- Color of pills -->
@@ -1148,6 +1336,7 @@
         <item name="dotmoreIconColor" >@color/black</item>
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/black</item>
+        <item name="iconColorbottomAppbar" >@color/cyan_theme_dark_onPrimary</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="android:windowBackground">@drawable/tron_legacy02</item>
         <item name="colorGraphBackground">@color/black_alpha_10</item>
@@ -1156,19 +1345,39 @@
 
     <style name="AppTheme.TEAL" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorTeal</item>
+        <item name="colorPrimary">@color/teal_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/teal_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/teal_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/teal_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/teal_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/teal_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/teal_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/teal_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/teal_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/teal_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/teal_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/teal_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/teal_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/teal_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/teal_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/teal_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/teal_theme_dark_background</item>
+        <item name="colorOnBackground">@color/teal_theme_dark_onBackground</item>
+
+        <item name="colorOnSurface">@color/teal_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/teal_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/teal_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/teal_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/teal_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/teal_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/teal_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorTeal</item>
         <item name="colorPrimaryVariant">@color/primaryDarkColorTeal</item>
-        <item name="colorSecondary">@color/secondaryColorTeal</item>
         <item name="colorAccent">@color/secondaryColorTeal</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
-        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
-        <item name="colorOnBackground">@color/colorOnBackgroundPurple</item>
-        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
-        <item name="colorOnError">@color/colorOnErrorPurple</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="overviewPillColor">@color/overviewPillColorTeal</item>
-        <item name="colorSurface">@color/black_alpha_40</item>
+        <item name="colorSurface">@color/black_alpha_65</item>
         <!---Bolus Icon Color-->
         <item name="bolusIconColor" >@color/white</item>
         <!---Carbs Icon Color-->
@@ -1225,6 +1434,7 @@
         <item name="dotmoreIconColor" >@color/black</item>
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/black</item>
+        <item name="iconColorbottomAppbar" >@color/teal_theme_dark_onPrimary</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="android:windowBackground">@drawable/green_domina</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
@@ -1232,7 +1442,33 @@
 
     <style name="AppTheme.GREEN" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorGreen</item>
+        <item name="colorPrimary">@color/green_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/green_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/green_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/green_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/green_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/green_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/green_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/green_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/green_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/green_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/green_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/green_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/green_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/green_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/green_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/green_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/green_theme_dark_background</item>
+        <item name="colorOnBackground">@color/green_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/green_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/green_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/green_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/green_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/green_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/green_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/green_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/green_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorGreen</item>
         <item name="colorAccent">@color/secondaryColorGreen</item>
         <item name="overviewPillColor">@color/overviewPillColorGreen</item>
@@ -1288,13 +1524,40 @@
         <item name="quickwizzardIconColor" >@color/white</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <item name="iconColorbottomAppbar" >@color/green_theme_dark_onPrimary</item>
         <item name="android:windowBackground">@drawable/buggati</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
     <style name="AppTheme.LIGHTGREEN" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorLightGreen</item>
+        <item name="colorPrimary">@color/lightgreen_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/lightgreen_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lightgreen_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lightgreen_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lightgreen_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/lightgreen_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lightgreen_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lightgreen_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lightgreen_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/lightgreen_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lightgreen_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lightgreen_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/lightgreen_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/lightgreen_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/lightgreen_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/lightgreen_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lightgreen_theme_dark_background</item>
+        <item name="colorOnBackground">@color/lightgreen_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/lightgreen_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/lightgreen_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lightgreen_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lightgreen_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lightgreen_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lightgreen_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lightgreen_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lightgreen_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorLightGreen</item>
         <item name="colorAccent">@color/secondaryColorLightGreen</item>
         <item name="overviewPillColor">@color/overviewPillColorLightGreen</item>
@@ -1350,19 +1613,41 @@
         <item name="quickwizzardIconColor" >@color/white</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <item name="iconColorbottomAppbar" >@color/lightgreen_theme_dark_onPrimary</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
     <style name="AppTheme.LIME" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorLime</item>
+        <item name="colorPrimary">@color/lime_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/lime_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lime_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lime_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lime_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/lime_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lime_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lime_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lime_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/lime_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lime_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lime_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/lime_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/lime_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/lime_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/lime_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lime_theme_dark_background</item>
+        <item name="colorOnBackground">@color/lime_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/black_alpha_65</item>
+        <item name="colorOnSurface">@color/lime_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lime_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lime_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lime_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lime_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lime_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lime_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorLime</item>
         <item name="colorAccent">@color/secondaryColorLime</item>
-        <item name="colorSecondary">@color/secondaryColorLime</item>
-        <item name="colorOnSecondary">@color/primaryTextColorLime</item>
-        <item name="colorOnPrimary">@color/primaryTextColorLime</item>
-        <item name="colorSurface">@color/black_alpha_60</item>
-        <item name="colorOnSurface">@color/white</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
         <!-- Color of pills -->
@@ -1371,20 +1656,45 @@
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
         <!-- Color of bg value -->
-        <item name="bgInRange">@color/bgInRangeColorLime</item>
+        <item name="bgInRange">@color/lime_theme_dark_secondary</item>
+        <item name="iconColorbottomAppbar" >@color/lime_theme_dark_onPrimary</item>
         <item name="android:windowBackground">@drawable/auroraborealis02</item>
     </style>
 
     <style name="AppTheme.YELLOW" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorYellow</item>
+        <item name="colorPrimary">@color/yellow_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/yellow_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/yellow_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/yellow_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/yellow_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/yellow_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/yellow_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/yellow_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/yellow_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/yellow_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/yellow_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/yellow_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/yellow_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/yellow_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/yellow_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/yellow_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/yellow_theme_dark_background</item>
+        <item name="colorOnBackground">@color/yellow_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/yellow_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/yellow_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/yellow_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/yellow_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/yellow_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/yellow_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/yellow_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/yellow_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorYellow</item>
         <item name="colorAccent">@color/secondaryColorYellow</item>
         <item name="overviewPillColor">@color/overviewPillColorYellow</item>
         <item name="iconColor">@color/sphere_plastic_grey</item>
         <item name="iconColorToolbar">@color/white</item>
-        <item name="colorOnPrimary">@color/concinnity_grey</item>
-        <item name="colorOnSecondary">@color/concinnity_bright_grey</item>
         <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
         <!---Bolus Icon Color-->
         <item name="bolusIconColor" >@color/black</item>
@@ -1445,7 +1755,33 @@
 
     <style name="AppTheme.AMBER" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorAmber</item>
+        <item name="colorPrimary">@color/amber_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/amber_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/amber_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/amber_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/amber_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/amber_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/amber_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/amber_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/amber_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/amber_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/amber_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/amber_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/amber_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/amber_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/amber_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/amber_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/amber_theme_dark_background</item>
+        <item name="colorOnBackground">@color/amber_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/amber_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/amber_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/amber_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/amber_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/amber_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/amber_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/amber_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/amber_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorAmber</item>
         <item name="colorAccent">@color/secondaryColorAmber</item>
         <item name="overviewPillColor">@color/overviewPillColorAmber</item>
@@ -1503,12 +1839,39 @@
         <item name="firstAidIconColor" >@color/white</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <item name="iconColorbottomAppbar" >@color/amber_theme_dark_onPrimary</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
     <style name="AppTheme.ORANGE" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorOrange</item>
+        <item name="colorPrimary">@color/orange_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/orange_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/orange_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/orange_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/orange_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/orange_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/orange_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/orange_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/orange_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/orange_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/orange_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/orange_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/orange_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/orange_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/orange_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/orange_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/orange_theme_dark_background</item>
+        <item name="colorOnBackground">@color/orange_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/orange_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/orange_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/orange_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/orange_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/orange_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/orange_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/orange_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/orange_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorOrange</item>
         <item name="colorAccent">@color/secondaryColorOrange</item>
         <item name="overviewPillColor">@color/overviewPillColorOrange</item>
@@ -1566,12 +1929,40 @@
         <item name="firstAidIconColor" >@color/white</item>
         <!---Add Cross Icon Color-->
         <item name="addCrossIconColor" >@color/white</item>
+        <item name="dialogbackgroundColor">@color/orange_theme_dark_surface</item>
+        <item name="iconColorbottomAppbar">@color/orange_theme_dark_onPrimary</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
     <style name="AppTheme.DEEPORANGE" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/primaryColorDeepOrange</item>
+        <item name="colorPrimary">@color/deeporange_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/deeporange_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/deeporange_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/deeporange_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/deeporange_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/deeporange_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/deeporange_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/deeporange_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/deeporange_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/deeporange_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/deeporange_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/deeporange_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/deeporange_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/deeporange_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/deeporange_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/deeporange_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/deeporange_theme_dark_background</item>
+        <item name="colorOnBackground">@color/deeporange_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/deeporange_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/deeporange_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/deeporange_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/deeporange_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/deeporange_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/deeporange_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/deeporange_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/deeporange_theme_dark_primaryInverse</item>
+
         <item name="colorPrimaryDark">@color/primaryDarkColorDeepOrange</item>
         <item name="colorAccent">@color/secondaryColorDeepOrange</item>
         <item name="overviewPillColor">@color/overviewPillColorDeepOrange</item>
@@ -1634,6 +2025,32 @@
 
     <style name="AppTheme.BROWN" parent="AppTheme.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorOnPrimary">@color/brown_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/brown_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/brown_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/brown_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/brown_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/brown_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/brown_theme_dark_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/brown_theme_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/brown_theme_dark_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/brown_theme_dark_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/brown_theme_dark_onTertiaryContainer</item>
+        <item name="colorError">@color/brown_theme_dark_error</item>
+        <item name="colorErrorContainer">@color/brown_theme_dark_errorContainer</item>
+        <item name="colorOnError">@color/brown_theme_dark_onError</item>
+        <item name="colorOnErrorContainer">@color/brown_theme_dark_onErrorContainer</item>
+        <item name="android:colorBackground">@color/brown_theme_dark_background</item>
+        <item name="colorOnBackground">@color/brown_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/brown_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/brown_theme_dark_onSurface</item>
+        <item name="colorSurfaceVariant">@color/brown_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/brown_theme_dark_onSurfaceVariant</item>
+        <item name="colorOutline">@color/brown_theme_dark_outline</item>
+        <item name="colorOnSurfaceInverse">@color/brown_theme_dark_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/brown_theme_dark_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/brown_theme_dark_primaryInverse</item>
+
         <item name="colorPrimary">@color/primaryColorBrown</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorBrown</item>
         <item name="colorAccent">@color/secondaryColorBrown</item>
@@ -1641,6 +2058,7 @@
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/white</item>
         <item name="android:windowBackground">@drawable/darkblue_gold</item>
+        <item name="iconColorbottomAppbar">@color/deeporange_theme_dark_onPrimary</item>
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
@@ -1679,7 +2097,7 @@
         <item name="colorPrimaryVariant">@color/primaryLightColorDarkside</item>
         <item name="colorSecondaryVariant">@color/secondaryLightColorDarkside</item>
         <item name="colorOnPrimary">@color/primaryTextColorDarkside</item>
-        <item name="colorSurface">@color/black_alpha_80</item>
+        <item name="colorSurface">@color/black_alpha_90</item>
         <item name="colorOnSurface">@color/white</item>
         <item name="android:popupBackground">@color/black_alpha_80</item>
         <item name="android:windowBackground">@drawable/carbonfiber03</item>
@@ -1749,7 +2167,6 @@
 
     <style name="APSDialogDarkside" parent="Theme.MaterialComponents.Dialog">
         <!-- Customize your theme here. -->
-        <item name="android:dialogCornerRadius">10dp</item>
         <item name="colorPrimary">@color/ios_blue_default</item>
         <item name="colorPrimaryDark">@color/primaryDarkColorDarkside</item>
         <item name="colorAccent">@color/secondaryColorDarkside</item>
@@ -1767,12 +2184,9 @@
         <item name="android:textColorSecondary">@color/ios_blue_default</item>
         <item name="android:textColorPrimary">@color/ios_blue_default</item>
         <item name="android:background">@color/transparent</item>
-        <item name="android:backgroundTint">@color/black_alpha_40</item>
+        <item name="android:backgroundTint">@color/black_alpha_65</item>
         <item name="android:backgroundTintMode">multiply</item>
-        <!---Bluring enabled for dialogs-->
-        <item name="android:windowBlurBehindEnabled" ns2:targetApi="s">true</item>
-        <item name="android:windowBlurBehindRadius" ns2:targetApi="s">10dp</item>
-        <item name="android:windowBackgroundBlurRadius" ns2:targetApi="s">10dp</item>
+        <item name="android:dialogCornerRadius">12dp</item>
     </style>
 
 </resources>

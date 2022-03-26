@@ -74,7 +74,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".plugins.general.maintenance.activities.PrefImportListActivity" />
+        <activity android:name=".plugins.general.maintenance.activities.PrefImportListActivity"
+            android:theme="@style/AppTheme"  />
         <activity android:name=".activities.HistoryBrowseActivity"
             android:theme="@style/AppTheme"  />
         <activity android:name=".activities.SurveyActivity"

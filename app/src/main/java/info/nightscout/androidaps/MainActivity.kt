@@ -71,6 +71,7 @@ import kotlin.system.exitProcess
 import com.ms_square.etsyblur.BlurSupport
 import com.google.android.material.bottomappbar.BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
 import com.google.android.material.bottomappbar.BottomAppBar.FAB_ALIGNMENT_MODE_END
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import info.nightscout.androidaps.dialogs.*
 import info.nightscout.androidaps.events.*
 import info.nightscout.androidaps.extensions.directionToIcon
@@ -183,8 +184,8 @@ open class MainActivity : NoSplashAppCompatActivity() {
             val cd = ColorDrawable(sp.getInt("lightBackgroundColor", info.nightscout.androidaps.core.R.color.background_light))
             if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
         }
-        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)))
-        ThemeUtil.setActualTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)))
+        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
+        ThemeUtil.setActualTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
         LocaleHelper.update(applicationContext)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -934,7 +935,7 @@ open class MainActivity : NoSplashAppCompatActivity() {
                 message += rh.gs(R.string.about_link_urls)
                 val messageSpanned = SpannableString(message)
                 Linkify.addLinks(messageSpanned, Linkify.WEB_URLS)
-                AlertDialog.Builder(this, R.style.DialogTheme)
+                MaterialAlertDialogBuilder(this, R.style.DialogTheme)
                     .setTitle(rh.gs(R.string.app_name) + " " + BuildConfig.VERSION)
                     .setIcon(iconsProvider.getIcon())
                     .setMessage(messageSpanned)

@@ -84,7 +84,6 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
         binding = ActivityHistorybrowseBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

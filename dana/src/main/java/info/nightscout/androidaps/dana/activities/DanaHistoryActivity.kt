@@ -84,16 +84,6 @@ class DanaHistoryActivity : NoSplashAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
-        try {
-            setTheme(themeToSet)
-            val theme = super.getTheme()
-            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
-            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
         if ( sp.getBoolean(info.nightscout.androidaps.core.R.string.key_use_dark_mode, true)) {
             val cd = ColorDrawable(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, info.nightscout.androidaps.core.R.color.background_dark)))
             if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
@@ -104,7 +94,6 @@ class DanaHistoryActivity : NoSplashAppCompatActivity() {
 
         binding = DanarHistoryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setTheme(R.style.AppTheme)
 
         binding.recyclerview.setHasFixedSize(true)
         binding.recyclerview.layoutManager = LinearLayoutManager(this)

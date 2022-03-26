@@ -24,18 +24,10 @@ open class NoSplashAppCompatActivity : DaggerAppCompatActivityWithResult() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme_NoActionBar)
+        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
 
         compositeDisposable.add(rxBus.toObservable(EventThemeSwitch::class.java).subscribe {
-            var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
-            try {
-                setTheme(themeToSet)
-                val theme = super.getTheme()
-                // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
-                theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
             recreate()
         })
 

@@ -33,7 +33,6 @@ class PrefImportListActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)))
         binding = MaintenanceImportListActivityBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)

@@ -8,6 +8,7 @@ import android.widget.TextView
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
 import info.nightscout.androidaps.databinding.ActivityLogsettingBinding
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.shared.logging.L
 import javax.inject.Inject
 
