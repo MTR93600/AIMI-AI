@@ -636,6 +636,7 @@
     </style>
 
     <style name="AppTheme_DEFAULT" parent="AppTheme.NoActionBar">
+        <item name="android:statusBarColor">@color/md_theme_light_primary</item>
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
@@ -707,6 +708,7 @@
         <item name="addCrossIconColor" >@color/white</item>
         <!---Calibration Icon Color-->
         <item name="calibrationIconColor" >@color/white</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
     </style>
 
 
