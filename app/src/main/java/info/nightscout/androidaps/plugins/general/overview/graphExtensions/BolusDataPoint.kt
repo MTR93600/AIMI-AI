@@ -26,14 +26,15 @@ class BolusDataPoint @Inject constructor(
     override val size = 2f
 
     override val shape
-        get() = if (data.type == Bolus.Type.SMB) PointsWithLabelGraphSeries.Shape.SMB else if (data.type == Bolus.Type.TBR) PointsWithLabelGraphSeries.Shape.TBR_BOLUS else PointsWithLabelGraphSeries.Shape
-            .BOLUS
+        get() = if (data.type == Bolus.Type.SMB) PointsWithLabelGraphSeries.Shape.SMB
+//        else if (data.type == Bolus.Type.TBR) PointsWithLabelGraphSeries.Shape.TBR_BOLUS
+        else PointsWithLabelGraphSeries.Shape.BOLUS
 
     override val color
         get() =
             when {
                 data.type == Bolus.Type.SMB -> rh.gc(R.color.tempbasal)
-                data.type == Bolus.Type.TBR -> Color.GREEN
+//                data.type == Bolus.Type.TBR -> Color.GREEN
                 data.isValid                -> Color.CYAN
                 else                        -> rh.gc(android.R.color.holo_red_light)
             }

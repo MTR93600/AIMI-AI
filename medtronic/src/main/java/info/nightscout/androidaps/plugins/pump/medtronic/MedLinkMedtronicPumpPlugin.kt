@@ -55,7 +55,6 @@ import info.nightscout.androidaps.interfaces.Profile.ProfileValue
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
 import info.nightscout.androidaps.events.EventRefreshOverview
-import info.nightscout.androidaps.extensions.notify
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpTempBasalType
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.plugins.pump.medtronic.data.NextStartStop
@@ -105,7 +104,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Function
 import java.util.function.Supplier
-import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.math.roundToInt
@@ -2659,8 +2657,8 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
                 MedLinkCommandType
                         .Bolus
             val msg = BolusMedLinkMessage(bolusCommand,
-                    detailedBolusInfo.insulin,
-                    andThem, buildBolusStatusMessage(),
+                    detailedBolusInfo,
+                    andThem, buildBolusStatusMessage(detailedBolusInfo.copy()),
                     BleBolusCommand(aapsLogger, medLinkService!!.medLinkServiceData),
                     buildBolusCommands(),
                     tempBasalMicrobolusOperations != null &&
@@ -2965,9 +2963,9 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
                     if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.TBR) MedLinkCommandType.TBRBolus else if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB) MedLinkCommandType.SMBBolus else MedLinkCommandType.Bolus
             var bolusStatusMessage: MedLinkPumpMessage<*>? = null
             if (detailedBolusInfo.insulin > 0.3) {
-                bolusStatusMessage = buildBolusStatusMessage()
+                bolusStatusMessage = buildBolusStatusMessage(detailedBolusInfo.copy())
             }
-            val msg = BolusMedLinkMessage(bolusCommand, bolus.insulin,
+            val msg = BolusMedLinkMessage(bolusCommand, bolus,
                     andThen, bolusStatusMessage,
                     BleBolusCommand(aapsLogger, medLinkService!!.medLinkServiceData),
                     buildBolusCommands(),
@@ -3027,13 +3025,13 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    private fun buildBolusStatusMessage(): MedLinkPumpMessage<*> {
+    private fun buildBolusStatusMessage(bolusInfo: DetailedBolusInfo): MedLinkPumpMessage<*> {
         val bolusCallback = BolusProgressCallback(
                 medLinkPumpStatus,
                 rh,
                 rxBus, null,
             aapsLogger,
-                this
+                this, bolusInfo
         )
         val bolusStatusCommand = BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)
         return BolusStatusMedLinkMessage<String>(

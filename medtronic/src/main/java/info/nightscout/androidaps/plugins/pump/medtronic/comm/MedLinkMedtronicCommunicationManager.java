@@ -29,6 +29,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunic
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusStatusCommand;
@@ -843,9 +844,10 @@ public class MedLinkMedtronicCommunicationManager extends MedLinkCommunicationMa
         rfspy.initializeMedLink();
 //        rfspy.initializeRileyLink();
         aapsLogger.info(LTag.PUMPCOMM, "before wakeup ");
-        BaseStringAggregatorCallback resultActivity = new BolusProgressCallback(
-                medtronicPumpStatus, resourceHelper,rxBus, null, aapsLogger,
-                medLinkPumpPlugin);
+        ConnectionCallback resultActivity = new ConnectionCallback(
+//                medtronicPumpStatus, resourceHelper,rxBus, null, aapsLogger,
+//                medLinkPumpPlugin
+        );
         Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> activity = resultActivity.andThen(s -> {
             aapsLogger.info(LTag.PUMPCOMM, "wakeup: raw response is " + s);
             if (s.getAnswer().anyMatch(f -> f.contains("ready"))) {

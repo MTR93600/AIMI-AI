@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities
 
 import android.os.SystemClock
+import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.shared.logging.AAPSLogger
 
 import info.nightscout.shared.logging.LTag
@@ -27,7 +28,8 @@ data class BolusProgressCallback(
     val rxBus: RxBus,
     private val commandExecutor: CommandExecutor?,
     val aapsLogger: AAPSLogger,
-    val medLinkPumpPlugin: MedLinkPumpDevice
+    val medLinkPumpPlugin: MedLinkPumpDevice,
+    val detailedBolusInfo: DetailedBolusInfo
 ) : BaseStringAggregatorCallback() {
 
     var resend = true;
@@ -63,6 +65,7 @@ data class BolusProgressCallback(
                     pumpStatus.lastBolusAmount.let { amount ->
                         it.insulin = amount?: it.insulin
                     }
+                    it.bolusType = detailedBolusInfo.bolusType
                     medLinkPumpPlugin.handleNewTreatmentData(Stream.of(JSONObject(it.toJsonString())))
                 }
                 SystemClock.sleep(200)

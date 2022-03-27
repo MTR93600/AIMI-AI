@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleBolusCommand;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
@@ -16,7 +17,7 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 
     private static MedLinkCommandType bolusArgument = MedLinkCommandType.BolusAmount;
     private final MedLinkPumpMessage bolusProgressMessage;
-    private final double bolusAmount;
+    private final DetailedBolusInfo detailedBolusInfo;
 
     private final List<MedLinkPumpMessage> startStopCommands;
     private final boolean shouldBeSuspended;
@@ -29,14 +30,14 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
 //    }
 
     public BolusMedLinkMessage(MedLinkCommandType bolusCommand,
-                               double bolusAmount,
+                               DetailedBolusInfo detailedBolusInfo,
                                Function<Supplier<Stream<String>>,
                                        MedLinkStandardReturn<String>> bolusCallback,
                                MedLinkPumpMessage bolusProgressMessage, BleBolusCommand bleBolusCommand,
                                List<MedLinkPumpMessage> postCommands,
                                boolean shouldBeSuspended) {
         super(bolusCommand, bleBolusCommand);
-        this.bolusAmount = bolusAmount;
+        this.detailedBolusInfo = detailedBolusInfo;
         super.argument = bolusArgument;
         super.baseCallback = bolusCallback;
         this.bolusProgressMessage = bolusProgressMessage;
@@ -44,12 +45,12 @@ public class BolusMedLinkMessage extends MedLinkPumpMessage<String> {
         this.shouldBeSuspended = shouldBeSuspended;
     }
 
-    public double getBolusAmount() {
-        return bolusAmount;
+    public DetailedBolusInfo getDetailedBolusInfo() {
+        return detailedBolusInfo;
     }
 
     @Override public byte[] getArgumentData() {
-        bolusArgument.insulinAmount = bolusAmount;
+        bolusArgument.insulinAmount = detailedBolusInfo.insulin;
         return bolusArgument.getRaw();
     }
 

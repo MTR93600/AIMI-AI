@@ -353,7 +353,7 @@ class MedLinkBLE //extends RileyLinkBLE
         return rval
     }
 
-    fun addWriteCharacteristic(
+    private fun addWriteCharacteristic(
         serviceUUID: UUID, charaUUID: UUID,
         command: MedLinkPumpMessage<*>,
         commandPriority: CommandPriority
