@@ -378,6 +378,7 @@
          <!---Dialogfragment Background Color  -->
          <item name="android:dialogCornerRadius">12dp</item>
         <item name="dialogbackgroundColor">?attr/backgroundColor</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.Material3.MaterialCalendar">
@@ -562,7 +563,8 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <style name="AppTheme_DEFAULT" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="AppTheme_DEFAULT" parent="AppTheme.NoActionBar">
+        <item name="android:statusBarColor">@color/md_theme_dark_primary</item>
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
