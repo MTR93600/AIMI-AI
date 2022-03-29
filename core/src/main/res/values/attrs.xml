@@ -212,7 +212,6 @@
 <attr name="lightblue" format="reference|color" />
 <attr name="ribbonDefault" format="reference|color" />
 <attr name="tempTargetBackground" format="reference|color" />
-<attr name="defaultTextColor" format="reference|color" />
 <attr name="defaultPillTextColor" format="reference|color" />
 <attr name="automationBgUrgent" format="reference|color" />
 <attr name="iobPredAS" format="reference|color" />
@@ -350,4 +349,13 @@
     <!---Local profile -->
     <attr name="okBackgroundColor" format="reference|color" />
     <attr name="errorBackgroundColor" format="reference|color" />
+    <!---Warning  -->
+    <attr name="warningColor" format="reference|color" />
+    <!---TextColor -->
+    <attr name="defaultTextColor" format="reference|color" />
+    <!---Profile viewer TempBasal -->
+    <attr name="tempBasalColor" format="reference|color" />
+    <attr name="infoColor" format="reference|color" />
+    <!---Bolus wizard -->
+    <attr name="cobAlertColor" format="reference|color" />
 </resources>
