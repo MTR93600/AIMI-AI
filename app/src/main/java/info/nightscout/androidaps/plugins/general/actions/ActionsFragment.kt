@@ -87,7 +87,7 @@ class ActionsFragment : DaggerFragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         //check screen width
         dm = DisplayMetrics()
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -290,9 +290,9 @@ class ActionsFragment : DaggerFragment() {
         binding.tempTarget.visibility = (profile != null && !loop.isDisconnected).toVisibility()
         binding.tddStats.visibility = pump.pumpDescription.supportsTDDs.toVisibility()
         binding.status.apply {
-            cannulaOrPatch?.text = if (pump.pumpDescription.isPatchPump) rh.gs(R.string.patch_pump) else rh.gs(R.string.cannula)
+            cannulaOrPatch.text = if (pump.pumpDescription.isPatchPump) rh.gs(R.string.patch_pump) else rh.gs(R.string.cannula)
             val imageResource = if (pump.pumpDescription.isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_cp_age_cannula
-            cannulaOrPatch?.setCompoundDrawablesWithIntrinsicBounds(imageResource, 0, 0, 0)
+            cannulaOrPatch.setCompoundDrawablesWithIntrinsicBounds(imageResource, 0, 0, 0)
 
             if (!config.NSCLIENT) {
                 statusLightHandler.updateStatusLights(
@@ -300,16 +300,16 @@ class ActionsFragment : DaggerFragment() {
                     rh.gac(context, R.attr.statuslightWarning),
                     rh.gac(context, R.attr.statuslightAlarm)
                 )
-                sensorLevelLabel?.text = if (activeBgSource.sensorBatteryLevel == -1) "" else rh.gs(R.string.careportal_level_label)
+                sensorLevelLabel.text = if (activeBgSource.sensorBatteryLevel == -1) "" else rh.gs(R.string.careportal_level_label)
             } else {
                 statusLightHandler.updateStatusLights(
                     cannulaAge, insulinAge, null, sensorAge, null, pbAge, null, rh.gac(context, R.attr.statuslightNormal),
                     rh.gac(context, R.attr.statuslightWarning),
                     rh.gac(context, R.attr.statuslightAlarm)
                 )
-                sensorLevelLabel?.text = ""
-                insulinLevelLabel?.text = ""
-                pbLevelLabel?.text = ""
+                sensorLevelLabel.text = ""
+                insulinLevelLabel.text = ""
+                pbLevelLabel.text = ""
             }
         }
         checkPumpCustomActions()
