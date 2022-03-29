@@ -16,7 +16,7 @@
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/defaultBackground"
+        android:background="?attr/defaultbackground"
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexDirection="row"

@@ -48,7 +48,8 @@
             android:layout_weight="0.5"
             android:drawableTop="@drawable/icon_insulin_carbs"
             android:text="@string/overview_treatment_label"
-            android:textAlignment="center"
+            android:textColor="?attr/treatmentButton"
+            android:textSize="10sp"
             android:visibility="gone"
             tools:ignore="SmallSp" />
 

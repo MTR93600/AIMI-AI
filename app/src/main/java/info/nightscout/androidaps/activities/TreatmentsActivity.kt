@@ -88,14 +88,14 @@ class TreatmentsActivity : NoSplashAppCompatActivity() {
     }
 
     private fun setBackgroundColorOnSelected(selected: View) {
-        binding.treatments.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.extendedBoluses.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.tempBasals.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.tempTargets.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.profileSwitches.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.careportal.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        binding.userentry.setBackgroundColor(rh.gac( selected.context, R.attr.defaultBackground))
-        selected.setBackgroundColor(rh.gac( selected.context, R.attr.tabBgColorSelected))
+        binding.treatments.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.extendedBoluses.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.tempBasals.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.tempTargets.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.profileSwitches.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.careportal.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        binding.userentry.setBackgroundColor(rh.gac(this, R.attr.defaultbackground))
+        selected.setBackgroundColor(rh.gac(this, R.attr.tabBgColorSelected))
     }
 
 }
