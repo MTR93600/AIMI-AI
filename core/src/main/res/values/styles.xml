@@ -49,10 +49,6 @@
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
         <item name="popupMenuStyle">@style/Widget.MaterialComponents.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow</item>
-        <!-- Color of bg value -->
-        <item name="bgInRange">@color/lightGreen</item>
-        <item name="bgLow">@color/red</item>
-        <item name="bgHigh">@color/midorange</item>
         <!-- Color of dialog -->
         <item name="colorPrimaryDialog">?attr/colorPrimary</item>
         <item name="colorPrimaryDarkDialog">?attr/colorPrimaryDark</item>
@@ -308,8 +304,6 @@
         <item name="actionModeCloseDrawable">@drawable/ic_close</item>
         <!---bolus color -->
         <item name="bolusColor">@color/bolus</item>
-        <!---Number Picker text color -->
-        <item name="numPickerText">@color/black</item>
         <!---NS Client action text color -->
         <item name="actionButton">@android:color/holo_orange_light</item>
         <!---Text color for Quickwizard and more -->
@@ -373,7 +367,6 @@
         <item name="materialAlertDialogTheme">@style/DialogTheme</item>
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
-        <item name="android:dialogCornerRadius">12dp</item>
         <!---Disabled Text Color  -->
         <item name="disabledTextColor">@color/sandGray</item>
         <!---Splash Background  -->
@@ -391,9 +384,9 @@
         <item name="cgmdexColor">@color/colorLightGray</item>
         <item name="cgmxdripColor">@color/colorCalibrationButton</item>
         <!---BG color-->
-        <item name="bgLow">@color/low</item>
-        <item name="bgHigh">@color/high</item>
-        <item name="bgInRange">@color/inrange</item>
+        <item name="bgInRange">@color/lightGreen</item>
+        <item name="bgLow">@color/red</item>
+        <item name="bgHigh">@color/midorange</item>
         <!---Profile Helper -->
         <item name="helperProfileColor">@color/helperProfile</item>
         <item name="examinedProfileColor">@color/examinedProfile</item>
@@ -689,6 +682,8 @@
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
         <item name="android:dialogCornerRadius">12dp</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
         <!---Wizard Icon Color-->
         <item name="wizardIconColor" >@color/white</item>
         <!---CGM BOYDA Icon Color-->

@@ -49,10 +49,6 @@
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
         <item name="popupMenuStyle">@style/Widget.MaterialComponents.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.Material3.PopupMenu.Overflow</item>
-        <!-- Color of bg value -->
-        <item name="bgInRange">@color/lightGreen</item>
-        <item name="bgLow">@color/red</item>
-        <item name="bgHigh">@color/lightyellow</item>
         <!-- Color of dialog -->
         <item name="colorPrimaryDialog">?attr/colorPrimary</item>
         <item name="colorPrimaryDarkDialog">?attr/colorPrimaryDark</item>
@@ -308,8 +304,6 @@
         <item name="actionModeCloseDrawable">@drawable/ic_close</item>
         <!---bolus color -->
         <item name="bolusColor">@color/bolus</item>
-        <!---Number Picker text color -->
-        <item name="numPickerText">@color/black</item>
         <!---NS Client action text color -->
         <item name="actionButton">@color/action</item>
         <!---Text color for Quickwizard and more -->
@@ -381,12 +375,8 @@
         <item name="disabledTextColor">@color/sandGray</item>
         <!---Splash Background  -->
         <item name="splashBackgroundColor">@color/splashBackground</item>
-         <!---Dialogfragment Background Color  -->
-         <item name="android:dialogCornerRadius">12dp</item>
         <item name="dialogbackgroundColor">?attr/backgroundColor</item>
         <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
-        <!---Application Background Color  -->
-        <item name="android:windowBackground">@color/black</item>
         <!---Dialogfragment Background Color  -->
         <item name="android:dialogCornerRadius">12dp</item>
         <!---Overview and Historybrowser  -->
@@ -397,9 +387,9 @@
         <item name="cgmdexColor">@color/colorLightGray</item>
         <item name="cgmxdripColor">@color/colorCalibrationButton</item>
         <!---BG color-->
-        <item name="bgLow">@color/low</item>
-        <item name="bgHigh">@color/high</item>
-        <item name="bgInRange">@color/inrange</item>
+        <item name="bgInRange">@color/lightGreen</item>
+        <item name="bgLow">@color/red</item>
+        <item name="bgHigh">@color/lightyellow</item>
         <!---Profile Helper -->
         <item name="helperProfileColor">@color/helperProfile</item>
         <item name="examinedProfileColor">@color/examinedProfile</item>
