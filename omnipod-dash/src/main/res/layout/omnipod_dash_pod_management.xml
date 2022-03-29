@@ -19,7 +19,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="10dp"
-
             android:gravity="center"
             android:text="@string/omnipod_common_pod_management_title"
             android:textAlignment="center"
@@ -35,7 +34,6 @@
             android:text="@string/omnipod_common_pod_management_heading_actions" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
             android:id="@+id/Actions_Row_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -111,7 +109,7 @@
                 app:layout_constraintRight_toLeftOf="@+id/Actions_Col_1_Row_2_vertical_guideline"
                 app:layout_constraintTop_toTopOf="parent" />
 
-           <info.nightscout.androidaps.utils.ui.SingleClickButton
+            <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/button_pod_history"
                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
@@ -132,7 +130,7 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/button_discard_pod"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
@@ -148,5 +146,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </LinearLayout>
+
 </ScrollView>

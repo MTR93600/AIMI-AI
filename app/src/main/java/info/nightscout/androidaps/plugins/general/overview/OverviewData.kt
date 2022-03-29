@@ -142,12 +142,13 @@ class OverviewData @Inject constructor(
             lastBg.valueToUnits(profileFunction.getUnits()) > defaultValueHelper.determineHighLine()
         } ?: false
 
-    val lastBgColor: Int
-        get() = when {
-            isLow  -> rh.gac(null, R.attr.bgLow)
-            isHigh -> rh.gac(null, R.attr.bgHigh)
-            else   -> rh.gac(null, R.attr.bgInRange)
+    fun lastBgColor(context: Context?): Int {
+        return when {
+            isLow  -> rh.gac(context, R.attr.bgLow)
+            isHigh -> rh.gac(context, R.attr.bgHigh)
+            else   -> rh.gac(context, R.attr.bgInRange)
         }
+    }
 
     fun getlastBgColor(context: Context?): Int {
         return when {

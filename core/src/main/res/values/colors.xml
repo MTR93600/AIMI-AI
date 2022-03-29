@@ -195,6 +195,9 @@
     <color name="bgi">#00DADA</color>
     <color name="cyan">#00C6C6</color>
     <color name="cyan_blue">#5AABB4</color>
+    <color name="ribbonCritical">#ff0400</color>
+    <color name="ribbonTextDefault">#000000</color>
+    <color name="ribbonTextWarning">#303030</color>
 
     <!-- Gray colors -->
     <color name="darkgray">#323232</color>

@@ -19,7 +19,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="10dp"
-
             android:gravity="center"
             android:text="@string/omnipod_common_pod_management_title"
             android:textAlignment="center"
@@ -51,6 +50,7 @@
                 android:text="@string/omnipod_eros_pod_management_waiting_for_riley_link_connection"
                 android:textAlignment="center"
                 android:textSize="8pt" />
+
         </LinearLayout>
 
         <TextView
@@ -62,7 +62,6 @@
             android:text="@string/omnipod_common_pod_management_heading_actions" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
             android:id="@+id/Actions_Row_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -128,7 +127,7 @@
                 android:orientation="horizontal"
                 app:layout_constraintGuide_percent="0" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/button_play_test_beep"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
@@ -169,7 +168,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         <TextView
             android:layout_width="match_parent"
@@ -234,7 +232,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
             android:id="@+id/Tools_Row_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -269,7 +266,7 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/button_pulse_log"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
@@ -286,5 +283,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </LinearLayout>
+
 </ScrollView>
