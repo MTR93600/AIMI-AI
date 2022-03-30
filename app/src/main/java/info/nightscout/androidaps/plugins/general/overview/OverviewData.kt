@@ -35,6 +35,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+import info.nightscout.androidaps.plugins.general.overview.OverviewFragment
 
 @Singleton
 class OverviewData @Inject constructor(
@@ -517,7 +518,7 @@ class OverviewData @Inject constructor(
         val filteredTreatments: MutableList<DataPointWithLabelInterface> = java.util.ArrayList()
         repository.getBolusesDataFromTimeToTime(fromTime, endTime, true).blockingGet()
             .map { BolusDataPoint(it, rh, activePlugin, defaultValueHelper) }
-            .filter { it.data.type == Bolus.Type.NORMAL || it.data.type == Bolus.Type.SMB }
+            .filter { it.data.type == Bolus.Type.NORMAL || it.data.type == Bolus.Type.SMB || it.data.type == Bolus.Type.TBR }
             .forEach {
                 it.y = getNearestBg(it.x.toLong())
                 filteredTreatments.add(it)

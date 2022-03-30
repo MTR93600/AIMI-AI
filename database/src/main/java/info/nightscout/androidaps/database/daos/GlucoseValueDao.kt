@@ -18,6 +18,9 @@ internal interface GlucoseValueDao : TraceableDao<GlucoseValue> {
     @Query("DELETE FROM $TABLE_GLUCOSE_VALUES")
     override fun deleteAllEntries()
 
+    @Query("SELECT * FROM $TABLE_GLUCOSE_VALUES WHERE isValid = 1 AND referenceId IS NULL ORDER BY timestamp DESC limit 1")
+    fun getLastMedLink(): Maybe<GlucoseValue>
+
     @Query("SELECT * FROM $TABLE_GLUCOSE_VALUES WHERE isValid = 1 AND referenceId IS NULL ORDER BY id DESC limit 1")
     fun getLast(): Maybe<GlucoseValue>
 

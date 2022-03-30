@@ -523,9 +523,10 @@ class MedLinkBLE //extends RileyLinkBLE
         }
         addCommands(serviceUUID, charaUUID, msg)
         aapsLogger.info(LTag.PUMPBTCOMM, "before connect")
-        if (!connectionStatus.isConnecting) {
+        if (!connectionStatus.isConnecting || System.currentTimeMillis() - connectionStatusChange> 600000) {
             medLinkConnect()
-        } else if (System.currentTimeMillis() - connectionStatusChange > 130000) {
+        }
+        else if (System.currentTimeMillis() - connectionStatusChange > 130000) {
             disconnect()
         }
     }
@@ -1313,7 +1314,8 @@ class MedLinkBLE //extends RileyLinkBLE
                 val answer = String(characteristic.value).toLowerCase()
                 lastReceivedCharacteristic = System.currentTimeMillis()
                 removeNotificationCommand()
-//                aapsLogger.info(LTag.PUMPBTCOMM, answer)
+                aapsLogger.info(LTag.PUMPBTCOMM, answer)
+                aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
                 if (lastCharacteristic == answer) {
                     setNotification_blocking(
                         UUID.fromString(GattAttributes.SERVICE_UUID),  //

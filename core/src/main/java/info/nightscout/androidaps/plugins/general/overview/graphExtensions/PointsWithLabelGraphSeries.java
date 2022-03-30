@@ -246,12 +246,12 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                         drawLabel45Left(endX, endY, value, canvas, scaledPxSize, scaledTextSize);
                     }
                 } else if (value.getShape() == Shape.TBR_BOLUS) {
-                    mPaint.setStrokeWidth(2);
+                    mPaint.setStrokeWidth(1);
                     Point[] points = new Point[3];
                     float size = value.getSize() * scaledPxSize;
                     points[0] = new Point((int) endX, (int) (endY - size));
-                    points[1] = new Point((int) (endX + size), (int) (endY + size * 0.67));
-                    points[2] = new Point((int) (endX - size), (int) (endY + size * 0.67));
+                    points[1] = new Point((int) (endX + size), (int) (endY + size * 0.37));
+                    points[2] = new Point((int) (endX - size), (int) (endY + size * 0.37));
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 //                    mPaint.setColor();
                     drawArrows(points, canvas, mPaint);

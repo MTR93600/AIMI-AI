@@ -32,6 +32,7 @@
 
     <!--    Treatment-->
     <color name="tempbasal">#C803A9F4</color>
+    <color name="tempbasalbolus">#602970FF</color>
     <color name="list_delimiter">#505050</color>
     <color name="basal">#00ffff</color>
 

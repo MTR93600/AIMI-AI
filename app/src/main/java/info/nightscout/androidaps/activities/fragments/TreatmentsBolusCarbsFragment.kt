@@ -310,6 +310,7 @@ class TreatmentsBolusCarbsFragment : DaggerFragment() {
                 holder.binding.mealOrCorrection.text =
                     when (ml.bolus.type) {
                         Bolus.Type.SMB     -> "SMB"
+                        Bolus.Type.TBR     -> "TBR"
                         Bolus.Type.NORMAL  -> rh.gs(R.string.mealbolus)
                         Bolus.Type.PRIMING -> rh.gs(R.string.prime)
                         else ->  rh.gs(R.string.mealbolus)

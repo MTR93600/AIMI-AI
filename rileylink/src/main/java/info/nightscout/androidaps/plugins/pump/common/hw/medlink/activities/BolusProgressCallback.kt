@@ -49,11 +49,12 @@ data class BolusProgressCallback(
         aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.lastBolusAmount)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.bolusDeliveredAmount)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + pumpStatus.lastBolusInfo)
+        aapsLogger.info(LTag.PUMPBTCOMM, detailedBolusInfo.toJsonString())
         if (pumpStatus.lastBolusAmount != null) {
             val bolusEvent = EventOverviewBolusProgress
             bolusEvent.t = t
             bolusEvent.status = resourceHelper.gs(R.string.bolusdelivering, pumpStatus.bolusDeliveredAmount, pumpStatus.lastBolusAmount)
-            bolusEvent.percent = (pumpStatus.bolusDeliveredAmount / pumpStatus.lastBolusAmount!!).roundToInt()
+            bolusEvent.percent = ((pumpStatus.bolusDeliveredAmount / detailedBolusInfo.insulin) * 100) .roundToInt()
 
             rxBus.send(bolusEvent)
             if (bolusEvent.percent == 100 || pumpStatus.bolusDeliveredAmount == 0.0) {
@@ -66,6 +67,8 @@ data class BolusProgressCallback(
                         it.insulin = amount?: it.insulin
                     }
                     it.bolusType = detailedBolusInfo.bolusType
+                    it.carbs = detailedBolusInfo.carbs
+                    it.eventType = detailedBolusInfo.eventType
                     medLinkPumpPlugin.handleNewTreatmentData(Stream.of(JSONObject(it.toJsonString())))
                 }
                 SystemClock.sleep(200)

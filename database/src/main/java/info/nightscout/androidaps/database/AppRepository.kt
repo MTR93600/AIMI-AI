@@ -83,6 +83,11 @@ import kotlin.math.roundToInt
             .subscribeOn(Schedulers.io())
             .toWrappedSingle()
 
+    fun getLastMedLinkGlucoseValueWrapped(): Single<ValueWrapper<GlucoseValue>> =
+            database.glucoseValueDao.getLast()
+                    .subscribeOn(Schedulers.io())
+                    .toWrappedSingle()
+
     fun getLastGlucoseValueWrapped(): Single<ValueWrapper<GlucoseValue>> =
         database.glucoseValueDao.getLast()
             .subscribeOn(Schedulers.io())

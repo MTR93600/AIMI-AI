@@ -73,7 +73,7 @@ class PumpSyncImplementation @Inject constructor(
             return timestamp > dateUtil.now() - T.mins(1).msecs() // allow first record to be 1 min old
         }
 
-        if (type.description == storedType && serialNumber == storedSerial && timestamp >= storedTimestamp) {
+        if (type.description == storedType && serialNumber == storedSerial && (timestamp >= storedTimestamp || type.description == PumpType.MEDLINK_MEDTRONIC_554_754_VEO.description)) {
             // data match
             return true
         }

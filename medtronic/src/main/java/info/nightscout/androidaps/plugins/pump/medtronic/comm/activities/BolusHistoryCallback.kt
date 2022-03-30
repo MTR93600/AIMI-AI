@@ -74,6 +74,10 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         while (answers.hasNext()) {
             resultList.add(processData(answers))
         }
+        if(resultList.any { f -> f.isPresent && f.get().has("eventType") && f.get().getString("eventType") == DetailedBolusInfo.EventType.INSULIN_CHANGE.name } &&
+                (medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true))){
+            return Supplier {  resultList.filter { f -> f.isPresent && f.get().has("eventType") && f.get().getString("eventType") != DetailedBolusInfo.EventType.CANNULA_CHANGE.name}.stream()}
+        }
         return Supplier { resultList.stream() }
     }
 
@@ -84,7 +88,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
                 processBolus(answers)
             } else if (answer.contains("battery insert")) {
                 processBattery(answers.next())
-            } else if (answer.contains("reservoir change") && medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)) {
+            } else if (answer.contains("reservoir change")) {
                 processSite(answers.next())
             } else if (answer.contains("reservoir rewind")) {
                 processReservoir(answers.next())

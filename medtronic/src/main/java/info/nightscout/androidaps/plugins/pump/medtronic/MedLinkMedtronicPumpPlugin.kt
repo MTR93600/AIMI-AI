@@ -82,6 +82,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLink
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask
 import info.nightscout.androidaps.plugins.pump.medtronic.R.string
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.activities.*
+import info.nightscout.androidaps.plugins.pump.medtronic.data.EnliteWaitPeriod
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.*
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.*
 import info.nightscout.androidaps.queue.Callback
@@ -387,7 +388,7 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
         // check status every minute (if any status needs refresh we send readStatus command)
         Thread {
             do {
-                SystemClock.sleep(60000)
+                SystemClock.sleep(20000)
                 if (this.isInitialized) {
                     val statusRefresh = workWithStatusRefresh(
                             StatusRefreshAction.GetData, null, null
@@ -483,6 +484,16 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
     //    @Override
     //    public void stopConnecting() {
     //    }
+    private val enliteIntervals = arrayOf(EnliteWaitPeriod(0,0),
+            EnliteWaitPeriod(0,0),
+                    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0),
+    EnliteWaitPeriod(0,0))
+
     private fun doWeHaveAnyStatusNeededRefreshing(statusRefresh: Map<MedLinkMedtronicStatusRefreshType?, Long?>?): Boolean {
         for ((key, value) in statusRefresh!!) {
             aapsLogger.info(
@@ -2632,20 +2643,21 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
             val bolusCallback = BolusCallback(aapsLogger, this)
             val andThem: Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> = bolusCallback.andThen(Function { f: MedLinkStandardReturn<BolusAnswer> ->
                 val answer = f.functionResult
-                if (answer.response == PumpResponses.BolusDelivered &&
-                        answer.bolusAmount == detailedBolusInfo.insulin
-                ) {
-                    detailedBolusInfo.timestamp = answer.bolusDeliveryTime.toInstant().toEpochMilli()
-                    detailedBolusInfo.deliverAtTheLatest = answer.bolusDeliveryTime.toInstant().toEpochMilli()
-                    handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
-                } else if (answer.response == PumpResponses.DeliveringBolus) {
-                    lastDetailedBolusInfo = detailedBolusInfo
-                    lastBolusTime = System.currentTimeMillis()
-                    aapsLogger.info(LTag.PUMPBTCOMM, "pump is delivering")
-                    response.set(true)
-                    //                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
-//                    processDeliveredBolus(answer, detailedBolusInfo);
-                } else if (answer.response == PumpResponses.UnknownAnswer) {
+//                if (answer.response == PumpResponses.BolusDelivered &&
+//                        answer.bolusAmount == detailedBolusInfo.insulin
+//                ) {
+//                    detailedBolusInfo.timestamp = answer.bolusDeliveryTime.toInstant().toEpochMilli()
+//                    detailedBolusInfo.deliverAtTheLatest = answer.bolusDeliveryTime.toInstant().toEpochMilli()
+//                    handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
+//                } else if (answer.response == PumpResponses.DeliveringBolus) {
+//                    lastDetailedBolusInfo = detailedBolusInfo
+//                    lastBolusTime = System.currentTimeMillis()
+//                    aapsLogger.info(LTag.PUMPBTCOMM, "pump is delivering")
+//                    response.set(true)
+//                    //                    bolusInProgress(detailedBolusInfo, bolusDeliveryTime);
+////                    processDeliveredBolus(answer, detailedBolusInfo);
+//                } else
+                    if (answer.response == PumpResponses.UnknownAnswer) {
                     aapsLogger.info(LTag.PUMPBTCOMM, "need to check bolus")
                     //                    processDeliveredBolus(answer, detailedBolusInfo);
                     checkBolusAtNextStatus = true
@@ -2774,6 +2786,7 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
         lastBolusTime = detailedBolusInfo.deliverAtTheLatest
         lastDeliveredBolus = detailedBolusInfo.insulin
         lastDetailedBolusInfo = null
+        handleBolusDelivered(detailedBolusInfo)
         //        if (answer.get().anyMatch(ans -> ans.trim().contains("recent bolus bl"))) {
 //            answer.get().filter(ans -> ans.trim().contains("recent bolus bl")).forEach(
 //                    bolusStr -> {
@@ -2883,9 +2896,9 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
             bolusDeliveryType = MedtronicPumpPluginInterface.BolusDeliveryType.Delivering
             // LOG.debug("MedtronicPumpPlugin::deliverBolus - Start delivery");
             val response = AtomicReference(false)
-            if (lastDetailedBolusInfo != null) {
-                readBolusData(lastDetailedBolusInfo!!)
-            }
+//            if (lastDetailedBolusInfo != null) {
+//                readBolusData(lastDetailedBolusInfo!!)
+//            }
             val bolus = detailedBolusInfo.copy()
             val bolusCallback = BolusCallback(aapsLogger, this, bolus)
             val andThen: Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>> = bolusCallback.andThen(Function { f: MedLinkStandardReturn<BolusAnswer> ->
@@ -2911,7 +2924,7 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
                         detailedBolusInfo.timestamp= bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
                         detailedBolusInfo.insulin = bolusAnswer.bolusAmount
                         detailedBolusInfo.bolusTimestamp = bolusAnswer.bolusDeliveryTime.toInstant().toEpochMilli()
-                        handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
+//                        handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
                     } else {
                         //TODO postpone this message to later,  call status logic before to guarantee that the bolus has not been delivered
                         aapsLogger.info(LTag.PUMPBTCOMM, "pump is not deliverying")
@@ -3196,6 +3209,8 @@ open class  MedLinkMedtronicPumpPlugin @Inject constructor(
     override fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>) {
         bolusInfo.forEachOrdered { bolusJson: JSONObject ->
             val bInfo = DetailedBolusInfo.fromJsonString(bolusJson.toString())
+            aapsLogger.info(LTag.PUMPBTCOMM, bolusJson.toString())
+            aapsLogger.info(LTag.PUMPBTCOMM, bInfo.toJsonString())
             if (lastDetailedBolusInfo != null  && bInfo.insulin == lastDetailedBolusInfo!!.insulin) {
                                 if(lastDetailedBolusInfo!!.carbs != 0.0) {
                                     bInfo.carbs = lastDetailedBolusInfo!!.carbs
