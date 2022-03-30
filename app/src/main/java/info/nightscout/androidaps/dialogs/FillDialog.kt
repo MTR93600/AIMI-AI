@@ -116,18 +116,17 @@ class FillDialog : DialogFragmentWithDate() {
         if (insulinAfterConstraints > 0) {
             actions.add(rh.gs(R.string.fillwarning))
             actions.add("")
-            actions.add(rh.gs(R.string.bolus) + ": " + DecimalFormatter.toPumpSupportedBolus(insulinAfterConstraints, activePlugin.activePump, rh).formatColorFromAttribute( rh.gac
-                (context, R.attr.colorInsulinButton )))
+            actions.add(rh.gs(R.string.bolus) + ": " + DecimalFormatter.toPumpSupportedBolus(insulinAfterConstraints, activePlugin.activePump, rh).formatColor(context, rh, R.attr.insulinButtonColor))
             if (abs(insulinAfterConstraints - insulin) > 0.01)
-                actions.add(rh.gs(R.string.bolusconstraintappliedwarn, insulin, insulinAfterConstraints).formatColorFromAttribute( rh.gac(context, R.attr.dialogUrgent )))
+                actions.add(rh.gs(R.string.bolusconstraintappliedwarn, insulin, insulinAfterConstraints).formatColor(context, rh, R.attr.warningColor))
         }
         val siteChange = binding.fillCatheterChange.isChecked
         if (siteChange)
-            actions.add(rh.gs(R.string.record_pump_site_change).formatColorFromAttribute(rh.gac(context, R.attr.actionsConfirm)))
+            actions.add(rh.gs(R.string.record_pump_site_change).formatColor(context, rh, R.attr.actionsConfirmColor))
         val insulinChange = binding.fillCartridgeChange.isChecked
         if (insulinChange)
-            actions.add(rh.gs(R.string.record_insulin_cartridge_change).formatColorFromAttribute(rh.gac(context, R.attr.actionsConfirm)))
-        val notes = binding.notesLayout.notes.text.toString()
+            actions.add(rh.gs(R.string.record_insulin_cartridge_change).formatColor(context, rh, R.attr.actionsConfirmColor))
+        val notes: String = binding.notesLayout.notes.text.toString()
         if (notes.isNotEmpty())
             actions.add(rh.gs(R.string.notes_label) + ": " + notes)
         eventTime -= eventTime % 1000
