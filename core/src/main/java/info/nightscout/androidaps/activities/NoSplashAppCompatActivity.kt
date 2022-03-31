@@ -1,5 +1,4 @@
 package info.nightscout.androidaps.activities
-
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable

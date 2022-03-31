@@ -37,7 +37,7 @@ class GlucoseValueDataPoint @Inject constructor(
         return when {
             isPrediction                   -> predictionColor
             valueToUnits(units) < lowLine  -> rh.gac(context, R.attr.bgLow)
-            valueToUnits(units) > highLine -> rh.gac(context, R.attr.bgHigh)
+            valueToUnits(units) > highLine -> rh.gac(context, R.attr.highColor)
             else                           -> rh.gac(context, R.attr.bgInRange)
         }
     }

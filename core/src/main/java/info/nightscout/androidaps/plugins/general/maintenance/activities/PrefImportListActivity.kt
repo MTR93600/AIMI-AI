@@ -88,26 +88,18 @@ class PrefImportListActivity : NoSplashAppCompatActivity() {
 
                 prefFile.metadata[PrefsMetadataKey.AAPS_FLAVOUR]?.let {
                     metaVariantFormat.text = it.value
-                    metaVariantFormat.setTextColor(
-                        if (it.status == PrefsStatus.OK) rh.gac( R.attr.metadataOk) else rh.gac(
-                            null,
-                            R.attr.metadataTextWarning
-                        )
-                    )
+                    val colorattr = if (it.status == PrefsStatus.OK) R.attr.metadataTextOkColor else R.attr.metadataTextWarningColor
+                    metaVariantFormat.setTextColor(rh.gac( metaVariantFormat.context, colorattr))
                 }
 
                 prefFile.metadata[PrefsMetadataKey.CREATED_AT]?.let {
                     metaDateTime.text = prefFileListProvider.formatExportedAgo(it.value)
                 }
 
-                prefFile.metadata[PrefsMetadataKey.AAPS_FLAVOUR]?.let {
-                    metaVariantFormat.text = it.value
-                    metaVariantFormat.setTextColor(
-                        if (it.status == PrefsStatus.OK) rh.gac( R.attr.metadataOk) else rh.gac(
-                            null,
-                            R.attr.metadataTextWarning
-                        )
-                    )
+                prefFile.metadata[PrefsMetadataKey.AAPS_VERSION]?.let {
+                    metaAppVersion.text = it.value
+                    val colorattr = if (it.status == PrefsStatus.OK) R.attr.metadataTextOkColor else R.attr.metadataTextWarningColor
+                    metaAppVersion.setTextColor(rh.gac( metaVariantFormat.context, colorattr))
                 }
 
                 prefFile.metadata[PrefsMetadataKey.DEVICE_NAME]?.let {

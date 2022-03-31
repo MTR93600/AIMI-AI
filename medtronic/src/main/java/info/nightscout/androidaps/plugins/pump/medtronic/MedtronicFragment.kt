@@ -95,7 +95,7 @@ class MedtronicFragment : DaggerFragment() {
 
         binding.rlStatus.text = rh.gs(RileyLinkServiceState.NotStarted.resourceId)
 
-        binding.pumpStatusIcon.setTextColor(rh.gac(context,R.attr.iconColorToolbar ))
+        binding.pumpStatusIcon.setTextColor(rh.gac(context,R.attr.defaultTextColor))
         @SuppressLint("SetTextI18n")
         binding.pumpStatusIcon.text = "{fa-bed}"
 
@@ -203,7 +203,7 @@ class MedtronicFragment : DaggerFragment() {
                 rileyLinkServiceData.rileyLinkServiceState.isError && rileyLinkError != null   -> "{fa-bluetooth-b}   " + rh.gs(rileyLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
                 else                                                                           -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
             }
-        binding.rlStatus.setTextColor(if (rileyLinkError != null) rh.gac(context, R.attr.statuslightAlarm)  else rh.gac(context, R.attr.defaultTextColor))
+        binding.rlStatus.setTextColor(rh.gac( context, if (rileyLinkError != null) R.attr.warningColor else R.attr.defaultTextColor))
 
         binding.errors.text =
             rileyLinkServiceData.rileyLinkError?.let {
@@ -275,7 +275,7 @@ class MedtronicFragment : DaggerFragment() {
             val min = (System.currentTimeMillis() - medtronicPumpStatus.lastConnection) / 1000 / 60
             if (medtronicPumpStatus.lastConnection + 60 * 1000 > System.currentTimeMillis()) {
                 binding.lastConnection.setText(R.string.medtronic_pump_connected_now)
-                binding.lastConnection.setTextColor(rh.gac(context, R.attr.defaultTextColor))
+                binding.lastConnection.setTextColor(rh.gac(context,R.attr.defaultTextColor))
             } else if (medtronicPumpStatus.lastConnection + 30 * 60 * 1000 < System.currentTimeMillis()) {
 
                 if (min < 60) {
@@ -291,10 +291,10 @@ class MedtronicFragment : DaggerFragment() {
                     binding.lastConnection.text = (rh.gq(R.plurals.duration_days, d, d) + " "
                         + rh.gs(R.string.ago))
                 }
-                binding.lastConnection.setTextColor(rh.gac(context, R.attr.statuslightAlarm))
+                binding.lastConnection.setTextColor(rh.gac(context,R.attr.warningColor))
             } else {
                 binding.lastConnection.text = minAgo
-                binding.lastConnection.setTextColor(rh.gac(context, R.attr.defaultTextColor))
+                binding.lastConnection.setTextColor(rh.gac(context,R.attr.defaultTextColor))
             }
         }
 
@@ -335,16 +335,12 @@ class MedtronicFragment : DaggerFragment() {
         } else {
             binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
         }
-        warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0, rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
 
 
         // reservoir
         binding.reservoir.text = rh.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)
-        warnColors.setColorInverse(binding.reservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0, rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.reservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0)
 
         medtronicPumpPlugin.rileyLinkService?.verifyConfiguration()
         binding.errors.text = medtronicPumpStatus.errorInfo

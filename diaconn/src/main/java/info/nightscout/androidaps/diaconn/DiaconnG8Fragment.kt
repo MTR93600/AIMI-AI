@@ -161,9 +161,7 @@ class DiaconnG8Fragment : DaggerFragment() {
             val agoMsec = System.currentTimeMillis() - pump.lastConnection
             val agoMin = (agoMsec.toDouble() / 60.0 / 1000.0).toInt()
             binding.lastconnection.text = dateUtil.timeString(pump.lastConnection) + " (" + rh.gs(R.string.minago, agoMin) + ")"
-            warnColors.setColor(binding.lastconnection, agoMin.toDouble(), 16.0, 31.0 , rh.gac(context, R.attr.statuslightNormal),
-                rh.gac(context, R.attr.statuslightWarning),
-                rh.gac(context, R.attr.statuslightAlarm))
+            warnColors.setColor(binding.lastconnection, agoMin.toDouble(), 16.0, 31.0)
         }
         if (pump.lastBolusTime != 0L) {
             val agoMsec = System.currentTimeMillis() - pump.lastBolusTime
@@ -178,21 +176,15 @@ class DiaconnG8Fragment : DaggerFragment() {
         val todayInsulinAmount = (pump.todayBaseAmount + pump.todaySnackAmount + pump.todayMealAmount)
         val todayInsulinLimitAmount = (pump.maxBasal.toInt() * 24) + pump.maxBolusePerDay.toInt()
         binding.dailyunits.text = rh.gs(R.string.reservoirvalue, todayInsulinAmount, todayInsulinLimitAmount)
-        warnColors.setColor(binding.dailyunits, todayInsulinAmount, todayInsulinLimitAmount * 0.75, todayInsulinLimitAmount * 0.9 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColor(binding.dailyunits, todayInsulinAmount, todayInsulinLimitAmount * 0.75, todayInsulinLimitAmount * 0.9)
         binding.basabasalrate.text = pump.baseInjAmount.toString() +" / "+ rh.gs(R.string.pump_basebasalrate, plugin.baseBasalRate)
 
         binding.tempbasal.text = diaconnG8Pump.temporaryBasalToString()
         binding.extendedbolus.text = diaconnG8Pump.extendedBolusToString()
         binding.reservoir.text = rh.gs(R.string.reservoirvalue, pump.systemRemainInsulin, 307)
-        warnColors.setColorInverse(binding.reservoir, pump.systemRemainInsulin , 50.0, 20.0 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.reservoir, pump.systemRemainInsulin , 50.0, 20.0)
         binding.battery.text = "{fa-battery-" + pump.systemRemainBattery / 25  + "}" + " ("+ pump.systemRemainBattery + " %)"
-        warnColors.setColorInverse(binding.battery, pump.systemRemainBattery.toDouble(), 51.0, 26.0 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.battery, pump.systemRemainBattery.toDouble(), 51.0, 26.0)
         binding.firmware.text = rh.gs(R.string.diaconn_g8_pump) + "\nVersion: " + pump.majorVersion.toString() + "." +  pump.minorVersion.toString() + "\nCountry: "+pump.country.toString() + "\nProductType: "+ pump.productType.toString() + "\nManufacture: " + pump.makeYear + "." + pump.makeMonth + "." + pump.makeDay
         binding.basalstep.text = pump.basalStep.toString()
         binding.bolusstep.text = pump.bolusStep.toString()

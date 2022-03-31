@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.utils
 
-import android.graphics.Color
 import android.widget.TextView
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.database.entities.TherapyEvent
@@ -12,24 +11,25 @@ import javax.inject.Singleton
 @Singleton
 class WarnColors @Inject constructor(val rh: ResourceHelper) {
 
-    fun setColor(view: TextView?, value: Double, warnLevel: Double, urgentLevel: Double, colorNormal: Int, colorWarning: Int, colorAlarm: Int) =
-        view?.setTextColor(when {
-            value >= urgentLevel -> colorAlarm
-            value >= warnLevel   -> colorWarning
-            else                 -> colorNormal
-        })
 
-    fun setColorInverse(view: TextView?, value: Double, warnLevel: Double, urgentLevel: Double, colorNormal: Int, colorWarning: Int, colorAlarm: Int) =
-        view?.setTextColor(when {
-            value <= urgentLevel -> colorAlarm
-            value <= warnLevel   -> colorWarning
-            else                 -> colorNormal
-        })
+    fun setColor(view: TextView?, value: Double, warnLevel: Double, urgentLevel: Double) =
+        view?.setTextColor( rh.gac( view.context ,when {
+            value >= urgentLevel -> R.attr.urgentColor
+            value >= warnLevel   -> R.attr.warnColor
+            else                 -> R.attr.defaultTextColor
+        }))
 
-    fun setColorByAge(view: TextView?, therapyEvent: TherapyEvent, warnThreshold: Double, urgentThreshold: Double, colorNormal: Int, colorWarning: Int, colorAlarm: Int) =
-        view?.setTextColor(when {
-            therapyEvent.isOlderThan(urgentThreshold) -> colorAlarm
-            therapyEvent.isOlderThan(warnThreshold)   -> colorWarning
-            else                                         -> colorNormal
-        })
+    fun setColorInverse(view: TextView?, value: Double, warnLevel: Double, urgentLevel: Double) =
+        view?.setTextColor( rh.gac( view.context , when {
+            value <= urgentLevel -> R.attr.urgentColor
+            value <= warnLevel   -> R.attr.warnColor
+            else                 -> R.attr.defaultTextColor
+        }))
+
+    fun setColorByAge(view: TextView?, therapyEvent: TherapyEvent, warnThreshold: Double, urgentThreshold: Double) =
+        view?.setTextColor( rh.gac( view.context , when {
+            therapyEvent.isOlderThan(urgentThreshold) -> R.attr.lowColor
+            therapyEvent.isOlderThan(warnThreshold)   -> R.attr.highColor
+            else                                      -> R.attr.defaultTextColor
+        }))
 }

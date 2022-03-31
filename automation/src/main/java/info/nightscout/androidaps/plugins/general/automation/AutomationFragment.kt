@@ -173,10 +173,10 @@ class AutomationFragment : DaggerFragment(), OnStartDragListener {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val automation = automationPlugin.at(position)
             holder.binding.rootLayout.setBackgroundColor(
-                rh.gac(context,
-                    if (automation.userAction) R.attr.PillColorEnd
-                    else if (automation.areActionsValid()) R.attr.ribbonDefault
-                    else R.attr.statuslightAlarm
+                rh.gac( context,
+                    if (automation.userAction) R.attr.userAction
+                    else if (automation.areActionsValid()) R.attr.validActions
+                    else R.attr.actionsError
                 )
             )
             holder.binding.eventTitle.text = automation.title

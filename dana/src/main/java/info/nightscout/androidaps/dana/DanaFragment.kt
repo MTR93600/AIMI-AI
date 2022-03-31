@@ -265,9 +265,7 @@ class DanaFragment : DaggerFragment() {
             val agoMilliseconds = System.currentTimeMillis() - pump.lastConnection
             val agoMin = (agoMilliseconds.toDouble() / 60.0 / 1000.0).toInt()
             binding.lastconnection.text = dateUtil.timeString(pump.lastConnection) + " (" + rh.gs(R.string.minago, agoMin) + ")"
-            warnColors.setColor(binding.lastconnection, agoMin.toDouble(), 16.0, 31.0, rh.gac(context, R.attr.statuslightNormal),
-                rh.gac(context, R.attr.statuslightWarning),
-                rh.gac(context, R.attr.statuslightAlarm))
+            warnColors.setColor(binding.lastconnection, agoMin.toDouble(), 16.0, 31.0)
         }
         if (pump.lastBolusTime != 0L) {
             val agoMilliseconds = System.currentTimeMillis() - pump.lastBolusTime
@@ -280,21 +278,15 @@ class DanaFragment : DaggerFragment() {
         }
 
         binding.dailyunits.text = rh.gs(R.string.reservoirvalue, pump.dailyTotalUnits, pump.maxDailyTotalUnits)
-        warnColors.setColor(binding.dailyunits, pump.dailyTotalUnits, pump.maxDailyTotalUnits * 0.75, pump.maxDailyTotalUnits * 0.9 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColor(binding.dailyunits, pump.dailyTotalUnits, pump.maxDailyTotalUnits * 0.75, pump.maxDailyTotalUnits * 0.9)
         binding.basabasalrate.text = "( " + (pump.activeProfile + 1) + " )  " + rh.gs(R.string.pump_basebasalrate, plugin.baseBasalRate)
         // DanaRPlugin, DanaRKoreanPlugin
         binding.tempbasal.text = danaPump.temporaryBasalToString()
         binding.extendedbolus.text = danaPump.extendedBolusToString()
         binding.reservoir.text = rh.gs(R.string.reservoirvalue, pump.reservoirRemainingUnits, 300)
-        warnColors.setColorInverse(binding.reservoir, pump.reservoirRemainingUnits, 50.0, 20.0 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.reservoir, pump.reservoirRemainingUnits, 50.0, 20.0)
         binding.battery.text = "{fa-battery-" + pump.batteryRemaining / 25 + "}"
-        warnColors.setColorInverse(binding.battery, pump.batteryRemaining.toDouble(), 51.0, 26.0 , rh.gac(context, R.attr.statuslightNormal),
-            rh.gac(context, R.attr.statuslightWarning),
-            rh.gac(context, R.attr.statuslightAlarm))
+        warnColors.setColorInverse(binding.battery, pump.batteryRemaining.toDouble(), 51.0, 26.0)
         binding.firmware.text = rh.gs(R.string.dana_model, pump.modelFriendlyName(), pump.hwModel, pump.protocol, pump.productCode)
         binding.basalBolusStep .text = pump.basalStep.toString() + "/" + pump.bolusStep.toString()
         binding.serialNumber.text = pump.serialNumber

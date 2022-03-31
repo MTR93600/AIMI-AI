@@ -10,7 +10,7 @@ fun ColorGroup.attributId(): Int {
         ColorGroup.TT               -> R.attr.tempTargetConfirmation
         ColorGroup.Profile          -> R.attr.defaultTextColor
         ColorGroup.Loop             -> R.attr.loopClosed
-        ColorGroup.Careportal       -> R.attr.bgHigh
+        ColorGroup.Careportal       -> R.attr.highColor
         ColorGroup.Pump             -> R.attr.iobColor
         ColorGroup.Aaps             -> R.attr.defaultTextColor
         else                        -> R.attr.defaultTextColor
