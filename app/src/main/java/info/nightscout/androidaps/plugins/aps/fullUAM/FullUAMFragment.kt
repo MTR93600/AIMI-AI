@@ -10,6 +10,7 @@ import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.OpenapsamaFragmentBinding
 import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateResultGui
@@ -19,8 +20,8 @@ import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.JSONFormatter
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.json.JSONArray
 import org.json.JSONException
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class FullUAMFragment : DaggerFragment() {
     @Inject lateinit var rxBus: RxBus
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var fabricPrivacy: FabricPrivacy
-    @Inject lateinit var fullUAMPlugin: FullUAMPlugin
+    @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var jsonFormatter: JSONFormatter
 
@@ -44,8 +45,7 @@ class FullUAMFragment : DaggerFragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = OpenapsamaFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -54,7 +54,7 @@ class FullUAMFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.run.setOnClickListener {
-            fullUAMPlugin.invoke("OpenAPSSMB button", false)
+            activePlugin.activeAPS.invoke("OpenAPSSMB button", false)
         }
     }
 
@@ -92,11 +92,12 @@ class FullUAMFragment : DaggerFragment() {
     @Synchronized
     fun updateGUI() {
         if (_binding == null) return
+        val fullUAMPlugin = activePlugin.activeAPS
         fullUAMPlugin.lastAPSResult?.let { lastAPSResult ->
             binding.result.text = jsonFormatter.format(lastAPSResult.json)
             binding.request.text = lastAPSResult.toSpanned()
         }
-        fullUAMPlugin.lastDetermineBasalAdapterUAMJS?.let { determineBasalAdapterUAMJS ->
+        fullUAMPlugin.lastDetermineBasalAdapter?.let { determineBasalAdapterUAMJS ->
             binding.glucosestatus.text = jsonFormatter.format(determineBasalAdapterUAMJS.glucoseStatusParam)
             binding.currenttemp.text = jsonFormatter.format(determineBasalAdapterUAMJS.currentTempParam)
             try {
@@ -110,7 +111,7 @@ class FullUAMFragment : DaggerFragment() {
 
             binding.profile.text = jsonFormatter.format(determineBasalAdapterUAMJS.profileParam)
             binding.mealdata.text = jsonFormatter.format(determineBasalAdapterUAMJS.mealDataParam)
-            binding.scriptdebugdata.text = determineBasalAdapterUAMJS.scriptDebug
+            binding.scriptdebugdata.text = determineBasalAdapterUAMJS.scriptDebug.replace("\\s+".toRegex(), " ")
             fullUAMPlugin.lastAPSResult?.inputConstraints?.let {
                 binding.constraints.text = it.getReasons(aapsLogger)
             }

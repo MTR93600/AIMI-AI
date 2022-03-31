@@ -37,7 +37,7 @@ class FullUAMPlugin @Inject constructor(
     private val constraintChecker: ConstraintChecker,
     resourceHelper: ResourceHelper,
     private val profileFunction: ProfileFunction,
-    private val context: Context,
+    val context: Context,
     private val activePlugin: ActivePlugin,
     private val iobCobCalculator: IobCobCalculator,
     private val hardLimits: HardLimits,
@@ -46,7 +46,8 @@ class FullUAMPlugin @Inject constructor(
     private val dateUtil: DateUtil,
     private val repository: AppRepository,
     private val glucoseStatusProvider: GlucoseStatusProvider
-) : PluginBase(PluginDescription()
+)  : PluginBase(
+    PluginDescription()
     .mainType(PluginType.APS)
     .fragmentClass(FullUAMFragment::class.java.name)
     .pluginIcon(R.drawable.ic_generic_icon)
@@ -60,8 +61,8 @@ class FullUAMPlugin @Inject constructor(
     // last values
     override var lastAPSRun: Long = 0
     override var lastAPSResult: DetermineBasalResultUAM? = null
-    var lastDetermineBasalAdapterUAMJS: DetermineBasalAdapterUAMJS? = null
-    var lastAutosensResult = AutosensResult()
+    override var lastDetermineBasalAdapter: DetermineBasalAdapterInterface? = null
+    override var lastAutosensResult = AutosensResult()
 
     override fun specialEnableCondition(): Boolean {
         return try {
@@ -125,9 +126,27 @@ class FullUAMPlugin @Inject constructor(
         val tempTarget = repository.getTemporaryTargetActiveAt(dateUtil.now()).blockingGet()
         if (tempTarget is ValueWrapper.Existing) {
             isTempTarget = true
-            minBg = hardLimits.verifyHardLimits(tempTarget.value.lowTarget, R.string.temp_target_low_target, HardLimits.VERY_HARD_LIMIT_TEMP_MIN_BG[0].toDouble(), HardLimits.VERY_HARD_LIMIT_TEMP_MIN_BG[1].toDouble())
-            maxBg = hardLimits.verifyHardLimits(tempTarget.value.highTarget, R.string.temp_target_high_target, HardLimits.VERY_HARD_LIMIT_TEMP_MAX_BG[0].toDouble(), HardLimits.VERY_HARD_LIMIT_TEMP_MAX_BG[1].toDouble())
-            targetBg = hardLimits.verifyHardLimits(tempTarget.value.target(), R.string.temp_target_value, HardLimits.VERY_HARD_LIMIT_TEMP_TARGET_BG[0].toDouble(), HardLimits.VERY_HARD_LIMIT_TEMP_TARGET_BG[1].toDouble())
+            minBg =
+                hardLimits.verifyHardLimits(
+                    tempTarget.value.lowTarget,
+                    R.string.temp_target_low_target,
+                    HardLimits.VERY_HARD_LIMIT_TEMP_MIN_BG[0].toDouble(),
+                    HardLimits.VERY_HARD_LIMIT_TEMP_MIN_BG[1].toDouble()
+                )
+            maxBg =
+                hardLimits.verifyHardLimits(
+                    tempTarget.value.highTarget,
+                    R.string.temp_target_high_target,
+                    HardLimits.VERY_HARD_LIMIT_TEMP_MAX_BG[0].toDouble(),
+                    HardLimits.VERY_HARD_LIMIT_TEMP_MAX_BG[1].toDouble()
+                )
+            targetBg =
+                hardLimits.verifyHardLimits(
+                    tempTarget.value.target(),
+                    R.string.temp_target_value,
+                    HardLimits.VERY_HARD_LIMIT_TEMP_TARGET_BG[0].toDouble(),
+                    HardLimits.VERY_HARD_LIMIT_TEMP_TARGET_BG[1].toDouble()
+                )
         }
         if (!hardLimits.checkHardLimits(profile.dia, R.string.profile_dia, hardLimits.minDia(), hardLimits.maxDia())) return
         if (!hardLimits.checkHardLimits(profile.getIcTimeFromMidnight(Profile.secondsFromMidnight()), R.string.profile_carbs_ratio_value, hardLimits.minIC(), hardLimits.maxIC())) return
@@ -164,8 +183,9 @@ class FullUAMPlugin @Inject constructor(
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()
 
-        DetermineBasalAdapterUAMJS(ScriptReader(context), injector).also { determineBasalAdapterUAMJS ->
-            determineBasalAdapterUAMJS.setData(profile, maxIob, maxBasal, minBg, maxBg, targetBg,
+        provideDetermineBasalAdapter().also { determineBasalAdapterUAMJS ->
+            determineBasalAdapterUAMJS.setData(
+                profile, maxIob, maxBasal, minBg, maxBg, targetBg,
                 activePlugin.activePump.baseBasalRate,
                 iobArray,
                 glucoseStatus,
@@ -181,7 +201,7 @@ class FullUAMPlugin @Inject constructor(
             profiler.log(LTag.APS, "SMB calculation", start)
             if (determineBasalResultUAM == null) {
                 aapsLogger.error(LTag.APS, "SMB calculation returned null")
-                lastDetermineBasalAdapterUAMJS = null
+                lastDetermineBasalAdapter = null
                 lastAPSResult = null
                 lastAPSRun = 0
             } else {
@@ -191,7 +211,7 @@ class FullUAMPlugin @Inject constructor(
                 determineBasalResultUAM.iob = iobArray[0]
                 determineBasalResultUAM.json?.put("timestamp", dateUtil.toISOString(now))
                 determineBasalResultUAM.inputConstraints = inputConstraints
-                lastDetermineBasalAdapterUAMJS = determineBasalAdapterUAMJS
+                lastDetermineBasalAdapter = determineBasalAdapterUAMJS
                 lastAPSResult = determineBasalResultUAM
                 lastAPSRun = now
             }
@@ -203,4 +223,5 @@ class FullUAMPlugin @Inject constructor(
         value.set(aapsLogger, false)
         return value
     }
+    fun provideDetermineBasalAdapter(): DetermineBasalAdapterInterface = DetermineBasalAdapterUAMJS(ScriptReader(context), injector)
 }
