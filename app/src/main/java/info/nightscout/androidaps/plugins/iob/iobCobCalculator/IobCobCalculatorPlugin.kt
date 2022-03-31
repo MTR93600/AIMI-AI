@@ -34,8 +34,8 @@ import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.sharedPreferences.SP
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.json.JSONArray
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
@@ -574,17 +574,17 @@ class IobCobCalculatorPlugin @Inject constructor(
     override fun getTempBasalIncludingConvertedExtended(timestamp: Long): TemporaryBasal? {
         val tb = repository.getTemporaryBasalActiveAt(timestamp).blockingGet()
         if (tb is ValueWrapper.Existing) return tb.value
-        return getConvertedExtended(timestamp);
+        return getConvertedExtended(timestamp)
     }
 
     override fun getTempBasalIncludingConvertedExtendedForRange(startTime: Long, endTime: Long, calculationStep: Long): Map<Long, TemporaryBasal?> {
-        val tempBasals = HashMap<Long, TemporaryBasal?>();
+        val tempBasals = HashMap<Long, TemporaryBasal?>()
         val tbs = repository.getTemporaryBasalsDataActiveBetweenTimeAndTime(startTime, endTime).blockingGet()
         for (t in startTime until endTime step calculationStep) {
             val tb = tbs.firstOrNull { basal -> basal.timestamp <= t && (basal.timestamp + basal.duration) > t }
             tempBasals[t] = tb ?: getConvertedExtended(t)
         }
-        return tempBasals;
+        return tempBasals
     }
 
     override fun calculateAbsoluteIobFromBaseBasals(toTime: Long): IobTotal {

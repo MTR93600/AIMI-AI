@@ -42,8 +42,8 @@ import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
@@ -52,7 +52,6 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var aapsSchedulers: AapsSchedulers
-    @Inject lateinit var rxBus: RxBus
     @Inject lateinit var sp: SP
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var defaultValueHelper: DefaultValueHelper
@@ -179,7 +178,8 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             val cal = Calendar.getInstance()
             cal.timeInMillis = overviewData.fromTime
             DatePickerDialog(
-                this, dateSetListener,
+                this, R.style.MaterialPickerTheme,
+                dateSetListener,
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
                 cal.get(Calendar.DAY_OF_MONTH)
@@ -187,14 +187,15 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         }
 
         val dm = DisplayMetrics()
+        @Suppress("DEPRECATION")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R)
             display?.getRealMetrics(dm)
         else
-            @Suppress("DEPRECATION") windowManager.defaultDisplay.getMetrics(dm)
+            windowManager.defaultDisplay.getMetrics(dm)
 
 
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
-        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gc(R.color.graphgrid)
+        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gac(this,  R.attr.graphgrid)
         binding.bgGraph.gridLabelRenderer?.reloadStyles()
         binding.bgGraph.gridLabelRenderer?.labelVerticalWidth = axisWidth
 
@@ -278,12 +279,12 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
                 val graph = GraphView(this)
                 graph.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(100)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = rh.gc(R.color.graphgrid)
+                graph.gridLabelRenderer?.gridColor = rh.gac( R.attr.graphgrid)
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
                 graph.gridLabelRenderer?.numVerticalLabels = 3
-                graph.viewport.backgroundColor = Color.argb(20, 255, 255, 255) // 8% of gray
+                graph.viewport.backgroundColor =rh.gac(this , R.attr.viewPortbackgroundColor)
                 relativeLayout.addView(graph)
 
                 val label = TextView(this)
@@ -304,7 +305,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
     private fun loadAll(from: String) {
         updateDate()
         Thread {
-            overviewData.prepareBgData("$from")
+            overviewData.prepareBgData(from)
             overviewData.prepareTreatmentsData(from)
             rxBus.send(EventRefreshOverview("loadAll_$from"))
             overviewData.prepareTemporaryTargetData(from)
@@ -343,6 +344,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     @Volatile
     var runningRefresh = false
+    @Suppress("SameParameterValue")
     private fun refreshLoop(from: String) {
         if (runningRefresh) return
         runningRefresh = true

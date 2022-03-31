@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.general.overview
 
+import android.content.Context
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import com.jjoe64.graphview.series.BarGraphSeries
@@ -128,14 +129,30 @@ class OverviewData @Inject constructor(
 
     var lastBg: GlucoseValue? = null
 
-    val lastBgColor: Int
+    private val isLow: Boolean
         get() = lastBg?.let { lastBg ->
-            when {
-                lastBg.valueToUnits(profileFunction.getUnits()) < defaultValueHelper.determineLowLine()  -> rh.gc(R.color.low)
-                lastBg.valueToUnits(profileFunction.getUnits()) > defaultValueHelper.determineHighLine() -> rh.gc(R.color.high)
-                else                                                                                     -> rh.gc(R.color.inrange)
-            }
-        } ?: rh.gc(R.color.inrange)
+            lastBg.valueToUnits(profileFunction.getUnits()) < defaultValueHelper.determineLowLine()
+        } ?: false
+
+    private val isHigh: Boolean
+        get() = lastBg?.let { lastBg ->
+            lastBg.valueToUnits(profileFunction.getUnits()) > defaultValueHelper.determineHighLine()
+        } ?: false
+
+    fun lastBgColor(context: Context?): Int {
+        return when {
+            isLow  -> rh.gac(context, R.attr.bgLow)
+            isHigh -> rh.gac(context, R.attr.highColor)
+            else   -> rh.gac(context, R.attr.bgInRange)
+        }
+    }
+
+    val lastBgDescription: String
+        get() = when {
+            isLow  -> rh.gs(R.string.a11y_low)
+            isHigh -> rh.gs(R.string.a11y_high)
+            else   -> rh.gs(R.string.a11y_inrange)
+        }
 
     val isActualBg: Boolean
         get() =
