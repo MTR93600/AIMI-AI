@@ -26,7 +26,7 @@ class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
     fun belowPct() = if (count > 0) (below.toDouble() / count * 100.0).roundToInt() else 0
     fun inRangePct() = if (count > 0) 100 - belowPct() - abovePct() else 0
     fun abovePct() = if (count > 0) (above.toDouble() / count * 100.0).roundToInt() else 0
-
+    companion object {
         fun toTableRowHeader(context: Context, rh: ResourceHelper): TableRow =
             TableRow(context).also { header ->
                 val lp = TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT)
@@ -37,7 +37,7 @@ class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
                 header.addView(TextView(context).apply { layoutParams = lp.apply { column = 2; weight = 1f }; text = rh.gs(R.string.in_range) })
                 header.addView(TextView(context).apply { layoutParams = lp.apply { column = 3; weight = 1f }; text = rh.gs(R.string.above) })
             }
-    //}
+    }
     
     fun toTableRow(context: Context, rh: ResourceHelper, dateUtil: DateUtil): TableRow =
         TableRow(context).also { row ->
