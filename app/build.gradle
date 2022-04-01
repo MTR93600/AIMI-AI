@@ -109,13 +109,14 @@ android {
     defaultConfig {
         multiDexEnabled true
         versionCode 1500
-        version "3.0.0.1-dev-h"
+        version "3.0.0.1-dev-h-newsurface"
         buildConfigField "String", "VERSION", '"' + version + '"'
         buildConfigField "String", "BUILDVERSION", '"' + generateGitBuild() + '-' + generateDate() + '"'
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
         buildConfigField "String", "HEAD", '"' + generateGitBuild() + '"'
         buildConfigField "String", "COMMITTED", '"' + allCommitted() + '"'
-
+        renderscriptTargetApi 28
+        renderscriptSupportModeEnabled true
     }
 
     flavorDimensions "standard"

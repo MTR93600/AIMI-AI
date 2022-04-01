@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import android.os.Build
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Data
@@ -51,6 +53,7 @@ import java.io.IOException
 import java.net.SocketException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import com.google.android.material.color.DynamicColors;
 
 class MainApp : DaggerApplication() {
 
@@ -78,6 +81,8 @@ class MainApp : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
+        // Activate material 3 dynamic colors
+        DynamicColors.applyToActivitiesIfAvailable(this);
         aapsLogger.debug("onCreate")
         RxDogTag.install()
         setRxErrorHandler()
@@ -105,7 +110,7 @@ class MainApp : DaggerApplication() {
         disposable += compatDBHelper.dbChangeDisposable()
         registerActivityLifecycleCallbacks(activityMonitor)
         JodaTimeAndroid.init(this)
-        profileSwitchPlugin.setThemeMode()
+        selectThemeMode()
         aapsLogger.debug("Version: " + BuildConfig.VERSION_NAME)
         aapsLogger.debug("BuildVersion: " + BuildConfig.BUILDVERSION)
         aapsLogger.debug("Remote: " + BuildConfig.REMOTE)
@@ -135,6 +140,13 @@ class MainApp : DaggerApplication() {
         uel.log(UserEntry.Action.START_AAPS, UserEntry.Sources.Aaps)
     }
 
+    private fun selectThemeMode() {
+        when(sp.getString(R.string.key_use_dark_mode, "dark")) {
+            sp.getString(R.string.value_dark_theme, "dark") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            sp.getString(R.string.value_light_theme, "light") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+    }
     private fun setRxErrorHandler() {
         RxJavaPlugins.setErrorHandler { t: Throwable ->
             var e = t

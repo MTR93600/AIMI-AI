@@ -4,7 +4,8 @@ import android.graphics.Typeface
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import info.nightscout.androidaps.automation.R
+import info.nightscout.androidaps.core.R
+import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.plugins.general.automation.triggers.Trigger
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 
@@ -38,6 +39,7 @@ class StaticLabel(private val rh: ResourceHelper) : Element() {
                         }
                         setPadding(px, px, px, px)
                         setTypeface(typeface, Typeface.BOLD)
+                        setTextColor(rh.gac( R.attr.TitleAndLabelTextColor))
                     })
                 trigger?.let {
                     addView(it.createDeleteButton(root.context, it))

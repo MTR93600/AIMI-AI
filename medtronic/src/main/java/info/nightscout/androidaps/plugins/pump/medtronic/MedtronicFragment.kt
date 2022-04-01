@@ -90,6 +90,9 @@ class MedtronicFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.pumpStatus.setBackgroundColor(rh.gac(context, R.attr.informationBackground))
+        binding.pumpStatus.setTextColor(rh.gac(context, R.attr.informationText))
+
         binding.rlStatus.text = rh.gs(RileyLinkServiceState.NotStarted.resourceId)
 
         binding.pumpStatusIcon.setTextColor(rh.gac(context,R.attr.defaultTextColor))
@@ -310,6 +313,7 @@ class MedtronicFragment : DaggerFragment() {
             binding.lastBolus.text = rh.gs(R.string.mdt_last_bolus, bolus, unit, ago)
         } else {
             binding.lastBolus.text = ""
+            binding.lastBolus.setTextColor(rh.gac(context, R.attr.defaultTextColor))
         }
 
         // base basal rate
@@ -332,6 +336,7 @@ class MedtronicFragment : DaggerFragment() {
             binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus.batteryVoltage)
         }
         warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
+
 
         // reservoir
         binding.reservoir.text = rh.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)

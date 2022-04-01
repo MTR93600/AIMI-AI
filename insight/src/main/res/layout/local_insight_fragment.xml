@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -19,11 +20,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:drawableTop="@drawable/ic_insight"
-            android:paddingTop="10dp" />
+            android:paddingTop="10dp"
+            app:drawableTopCompat="@drawable/ic_insight" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/refresh"
             android:layout_width="match_parent"
             android:layout_height="100dp"
@@ -32,7 +33,7 @@
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/operating_mode"
             android:layout_width="match_parent"
             android:layout_height="100dp"
@@ -40,7 +41,7 @@
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/tbr_over_notification"
             android:layout_width="match_parent"
             android:layout_height="100dp"

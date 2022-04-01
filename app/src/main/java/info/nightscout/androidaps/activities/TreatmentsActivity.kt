@@ -9,6 +9,7 @@ import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.fragments.*
 import info.nightscout.androidaps.databinding.TreatmentsFragmentBinding
 import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
 import javax.inject.Inject
 

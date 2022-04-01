@@ -132,14 +132,14 @@ class TreatmentsUserEntryFragment : DaggerFragment() {
             holder.binding.date.visibility = newDay.toVisibility()
             holder.binding.date.text = if (newDay) dateUtil.dateStringRelative(current.timestamp, rh) else ""
             holder.binding.time.text = dateUtil.timeStringWithSeconds(current.timestamp)
-            holder.binding.action.text = userEntryPresentationHelper.actionToColoredString(current.action)
+            holder.binding.action.text = context?.let { userEntryPresentationHelper.actionToColoredString(it, current.action) }
             holder.binding.notes.text = current.note
             holder.binding.notes.visibility = (current.note != "").toVisibility()
             holder.binding.iconSource.setImageResource(userEntryPresentationHelper.iconId(current.source))
             holder.binding.values.text = userEntryPresentationHelper.listToPresentationString(current.values)
             holder.binding.values.visibility = (holder.binding.values.text != "").toVisibility()
             val nextTimestamp = if (entries.size != position + 1) entries[position + 1].timestamp else 0L
-            holder.binding.delimiter.visibility = dateUtil.isSameDayGroup(current.timestamp, nextTimestamp).toVisibility()
+            //holder.binding.delimiter.visibility = dateUtil.isSameDayGroup(current.timestamp, nextTimestamp).toVisibility()
         }
 
         inner class UserEntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

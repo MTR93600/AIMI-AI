@@ -1,9 +1,6 @@
 package info.nightscout.androidaps.plugins.general.themes
 
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.events.EventPreferenceChange
@@ -27,32 +24,29 @@ class ThemeSwitcherPlugin @Inject constructor(
     private val sp: SP,
     private val rxBus: RxBus,
 ) : PluginBase(PluginDescription()
-                   .mainType(PluginType.GENERAL)
-                   .neverVisible(true)
-                   .alwaysEnabled(true)
-                   .showInList(false)
-                   .pluginName(R.string.dst_plugin_name),
-               aapsLogger, rh, injector
+    .mainType(PluginType.GENERAL)
+    .neverVisible(true)
+    .alwaysEnabled(true)
+    .showInList(false)
+    .pluginName(R.string.dst_plugin_name),
+    aapsLogger, rh, injector
 ) {
 
     private val compositeDisposable = CompositeDisposable()
 
     override fun onStart() {
         compositeDisposable.add(rxBus.toObservable(EventPreferenceChange::class.java).subscribe {
-            if (it.isChanged(rh, id = R.string.key_use_dark_mode)) {
-                setThemeMode()
-                rxBus.send(EventThemeSwitch())
-            }
+            if (it.isChanged(rh, id = R.string.key_use_dark_mode)) setThemeMode()
         })
     }
 
-    fun setThemeMode() {
-        val mode = when (sp.getString(R.string.key_use_dark_mode, "dark")) {
-            sp.getString(R.string.value_dark_theme, "dark")   -> MODE_NIGHT_YES
-            sp.getString(R.string.value_light_theme, "light") -> MODE_NIGHT_NO
-            else                                              -> MODE_NIGHT_FOLLOW_SYSTEM
+    public fun setThemeMode() {
+        when(sp.getString(R.string.key_use_dark_mode, "dark")) {
+            sp.getString(R.string.value_dark_theme, "dark") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            sp.getString(R.string.value_light_theme, "light") -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
-        AppCompatDelegate.setDefaultNightMode(mode)
+        rxBus.send(EventThemeSwitch())
     }
 
     override fun onStop() {

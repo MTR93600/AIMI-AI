@@ -45,8 +45,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp" />
 
     <TextView
         android:id="@+id/stoppressed"
@@ -62,9 +62,9 @@
 
     <ProgressBar
         android:id="@+id/progressbar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
+        style="@android:style/Widget.Material.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="10dp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
         android:layout_marginRight="5dp"
@@ -72,7 +72,7 @@
         android:minHeight="3dp" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/GrayButton"
+        style="@style/Widget.MaterialComponents.Button"
         android:id="@+id/stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -18,6 +18,6 @@ class SkinLargeDisplay @Inject constructor(private val config: Config): SkinInte
 
     override fun preProcessLandscapeOverviewLayout(dm: DisplayMetrics, binding: OverviewFragmentBinding, isLandscape: Boolean, isTablet: Boolean, isSmallHeight: Boolean) {
         super.preProcessLandscapeOverviewLayout(dm, binding, isLandscape, isTablet, isSmallHeight)
-        if (!config.NSCLIENT && (isSmallHeight || isLandscape)) moveButtonsLayout(binding.root)
+        //if (!config.NSCLIENT && (isSmallHeight || isLandscape)) moveButtonsLayout(binding.root)
     }
 }

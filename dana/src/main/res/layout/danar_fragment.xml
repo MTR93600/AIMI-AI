@@ -1,16 +1,84 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="info.nightscout.androidaps.dana.DanaFragment"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="5dp"
+    tools:context="info.nightscout.androidaps.dana.DanaFragment">
 
-    <ScrollView
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabDanaMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="38dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_more" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/userOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="110dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:textAlignment="textEnd"
+        android:text="@string/danar_useroptions"
+        android:visibility="gone"
+        app:icon="@drawable/ic_danar_useropt"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="180dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/stats"
+        app:icon="@drawable/ic_danarstats"
+        android:visibility="gone"
+        app:fabSize="auto" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="250dp"
+        android:text="@string/pumphistory"
+        app:icon="@drawable/ic_pump_history"
+        android:visibility="gone"
+        app:fabSize="auto" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/viewprofile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="320dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/viewprofile"
+        app:icon="@drawable/ic_danarprofile"
+        android:visibility="gone"
+        app:fabSize="auto" />
+
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingTop="5dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,8 +88,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -38,8 +106,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -60,9 +128,7 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
@@ -70,8 +136,8 @@
                 android:id="@+id/bt_connection_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -88,8 +154,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -111,17 +177,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -138,8 +204,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -160,17 +226,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -187,8 +253,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -208,17 +274,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -235,8 +301,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -256,17 +322,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -283,8 +349,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -304,17 +370,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -331,8 +397,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -352,17 +418,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -379,8 +445,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -400,17 +466,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -427,8 +493,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -448,17 +514,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -475,8 +541,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -496,17 +562,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -523,8 +589,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -544,17 +610,17 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:focusable="true">
+                android:focusable="true"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -571,8 +637,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:gravity="center_horizontal"
-                    android:paddingEnd="2dp"
                     android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text=":"
                     android:textSize="14sp"
                     tools:ignore="HardcodedText" />
@@ -592,10 +658,10 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="2dip"
-                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
                 android:background="?android:attr/dividerHorizontal" />
 
             <ImageView
@@ -603,16 +669,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:contentDescription="@string/pump_icon"
                 android:drawableTop="@drawable/ic_dana_rs"
-                android:paddingTop="10dp"
-                android:contentDescription="@string/pump_icon" />
+                android:paddingTop="10dp" />
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
-        android:id="@+id/pump_status_layout"
+        android:id="@+id/dana_pumpstatuslayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -621,7 +687,7 @@
         android:visibility="visible">
 
         <TextView
-            android:id="@+id/pump_status"
+            android:id="@+id/dana_pumpstatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
@@ -638,75 +704,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:background="?attr/colorPrimary"
         android:visibility="visible">
 
         <TextView
             android:id="@+id/queue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:background="?attr/pumpStatusBackground"
-            android:gravity="center_vertical|center_horizontal"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/view_profile"
-            style="@style/ButtonSmallFontStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_danarprofile"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
-            android:text="@string/viewprofile" />
-
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/history"
-            style="@style/ButtonSmallFontStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_pump_history"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
-            android:text="@string/pumphistory"
-            tools:ignore="TooManyViews" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/stats"
-            style="@style/ButtonSmallFontStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_danarstats"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
-            android:text="@string/stats" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/user_options"
-            style="@style/ButtonSmallFontStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_danar_useropt"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
-            android:text="@string/danar_useroptions" />
-
-    </LinearLayout>
-
-</LinearLayout>
+    </RelativeLayout>

@@ -146,7 +146,7 @@ class TreatmentsExtendedBolusesFragment : DaggerFragment() {
                 holder.binding.time.setTextColor(rh.gac(context , R.attr.activeColor))
             } else {
                 holder.binding.time.text = dateUtil.timeRangeString(extendedBolus.timestamp, extendedBolus.end)
-                holder.binding.time.setTextColor(holder.binding.insulin.currentTextColor)
+                holder.binding.time.setTextColor(rh.gac(context, R.attr.treatmentActive))
             }
             val profile = profileFunction.getProfile(extendedBolus.timestamp) ?: return
             holder.binding.duration.text = rh.gs(R.string.format_mins, T.msecs(extendedBolus.duration).mins())
@@ -166,8 +166,6 @@ class TreatmentsExtendedBolusesFragment : DaggerFragment() {
                 }
                 holder.binding.cbRemove.isChecked = actionHelper.isSelected(position)
             }
-            val nextTimestamp = if (extendedBolusList.size != position + 1) extendedBolusList[position + 1].timestamp else 0L
-            holder.binding.delimiter.visibility = dateUtil.isSameDayGroup(extendedBolus.timestamp, nextTimestamp).toVisibility()
         }
 
         override fun getItemCount() = extendedBolusList.size

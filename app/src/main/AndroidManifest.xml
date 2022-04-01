@@ -63,10 +63,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PreferencesActivity" />
-        <activity android:name=".plugins.general.overview.activities.QuickWizardListActivity"
-            android:theme="@style/AppTheme"
-            android:exported="false">
+
+        <activity android:name=".plugins.general.themeselector.ScrollingActivity" />
+        <activity android:name=".activities.PreferencesActivity"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".plugins.general.overview.activities.QuickWizardListActivity" android:exported="false">
             <intent-filter>
                 <action android:name="info.nightscout.androidaps.plugins.general.overview.activities.QuickWizardListActivity" />
 
@@ -74,15 +75,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".plugins.general.maintenance.activities.PrefImportListActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"  />
         <activity android:name=".activities.HistoryBrowseActivity"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".activities.TreatmentsActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"  />
         <activity android:name=".activities.SurveyActivity"
             android:theme="@style/AppTheme" />
+        <activity android:name=".activities.TreatmentsActivity" />
         <activity android:name=".activities.ProfileHelperActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/ProfileHelperAppTheme" />
         <activity android:name=".activities.StatsActivity"
             android:theme="@style/AppTheme" />
         <activity
@@ -96,9 +96,9 @@
 
         <!-- Receive new BG readings from other local apps -->
         <receiver
-                android:name=".receivers.DataReceiver"
-                android:enabled="true"
-                android:exported="true">
+            android:name=".receivers.DataReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <!-- Receiver from xDrip -->
                 <action android:name="com.eveningoutpost.dexdrip.BgEstimate"/>
@@ -117,10 +117,10 @@
 
         <!-- Receive new SMS messages -->
         <receiver
-                android:name=".receivers.SmsReceiver"
-                android:enabled="true"
-                android:exported="true"
-                android:permission="android.permission.BROADCAST_SMS">
+            android:name=".receivers.SmsReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
@@ -233,7 +233,6 @@
         <activity
             android:name=".setupwizard.SetupWizardActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/AppTheme"
             android:label="@string/title_activity_setup_wizard" />
 
         <activity
@@ -241,7 +240,8 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".plugins.general.maintenance.activities.LogSettingActivity" />
         <activity android:name=".activities.RequestDexcomPermissionActivity" />
-        <activity android:name=".plugins.general.smsCommunicator.activities.SmsCommunicatorOtpActivity">
+        <activity android:name=".plugins.general.smsCommunicator.activities.SmsCommunicatorOtpActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="info.nightscout.androidaps.plugins.general.smsCommunicator.activities.SmsCommunicatorOtpActivity" />
 

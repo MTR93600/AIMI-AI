@@ -7,7 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +21,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -167,14 +172,17 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         smallHeight = screenHeight <= Constants.SMALL_HEIGHT
         val landscape = screenHeight < screenWidth
 
-        skinProvider.activeSkin().preProcessLandscapeOverviewLayout(dm, binding, landscape, rh.gb(R.bool.isTablet), smallHeight)
+        //skinProvider.activeSkin().preProcessLandscapeOverviewLayout(dm, view, landscape, rh.gb(R.bool.isTablet), smallHeight)
         binding.nsclientLayout.visibility = config.NSCLIENT.toVisibility()
 
         binding.notifications.setHasFixedSize(false)
         binding.notifications.layoutManager = LinearLayoutManager(view.context)
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
-        binding.graphsLayout.bgGraph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphgrid)
+        binding.graphsLayout.bgGraph.gridLabelRenderer?.gridColor = rh.gac(context,R.attr.graphgrid)
+        binding.graphsLayout.bgGraph.setBackgroundColor(rh.gac(context,R.attr.colorGraphBackground ))
         binding.graphsLayout.bgGraph.gridLabelRenderer?.reloadStyles()
+        binding.graphsLayout.bgGraph.gridLabelRenderer?.horizontalLabelsColor = rh.gac(context,R.attr.graphHorizontalLabelText )
+        binding.graphsLayout.bgGraph.gridLabelRenderer?.verticalLabelsColor = rh.gac(context,R.attr.graphVerticalLabelText )
         binding.graphsLayout.bgGraph.gridLabelRenderer?.labelVerticalWidth = axisWidth
         binding.graphsLayout.bgGraph.layoutParams?.height = rh.dpToPx(skinProvider.activeSkin().mainGraphHeight)
 
@@ -473,8 +481,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 }
             }
 
-            R.id.temp_target         -> v.performClick()
-            R.id.active_profile      -> activity?.let { activity ->
+            R.id.temp_target -> v.performClick()
+            R.id.active_profile -> activity?.let { activity ->
                 if (loop.isDisconnected) OKDialog.show(activity, rh.gs(R.string.not_available_full), rh.gs(R.string.smscommunicator_pumpdisconnected))
                 else
                     protectionCheck.queryProtection(
@@ -590,6 +598,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                         }
                     }
         binding.buttonsLayout.userButtonsLayout.visibility = events.isNotEmpty().toVisibility()
+
+        binding.buttonsLayout.overviewButtons.visibility = View.GONE
     }
 
     private fun processAps() {
@@ -719,7 +729,9 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 val graph = GraphView(context)
                 graph.layoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphgrid)
+                graph.gridLabelRenderer?.gridColor = rh.gc(R.color.graphgrid)
+                graph.gridLabelRenderer?.horizontalLabelsColor = rh.gac(context,R.attr.graphHorizontalLabelText )
+                graph.gridLabelRenderer?.verticalLabelsColor = rh.gac(context,R.attr.graphVerticalLabelText )
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
@@ -807,6 +819,25 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         }
     }
 
+    fun setPillStyle(textView: TextView, colorStart: Int, colorEnd: Int, colorText: Int  ){
+        val drawableLeft: Array<Drawable?> = textView.compoundDrawables
+        val theme = requireContext().theme
+        if (theme != null) {
+            // create a gradient drawable
+            val typedValueStart = TypedValue()
+            theme.resolveAttribute(colorStart, typedValueStart, true)
+            val typedValueEnd = TypedValue()
+            theme.resolveAttribute(colorEnd, typedValueEnd, true)
+            val colors = intArrayOf(typedValueStart.data, typedValueEnd.data)
+            val gradientDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors)
+            gradientDrawable.shape = GradientDrawable.RECTANGLE
+            gradientDrawable.cornerRadius = 40f
+            textView.background = gradientDrawable
+            if (drawableLeft[0] != null) rh.gc(colorText).let { drawableLeft[0]!!.setTint(it) }
+            rh.gc(colorText).let { textView.setTextColor(it) }
+        }
+    }
+
     @Suppress("UNUSED_PARAMETER")
     fun updateProfile(from: String) {
         val profileBackgroundColor =
@@ -836,8 +867,11 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             } ?: rh.gac(context, R.attr.ribbonTextDefaultColor)
 
         binding.activeProfile.text = profileFunction.getProfileNameWithRemainingTime()
-        binding.activeProfile.setBackgroundColor(profileBackgroundColor)
         binding.activeProfile.setTextColor(profileTextColor)
+        val drawable: Drawable = binding.activeProfile.background
+        val drawableLeft: Array<Drawable?> = binding.activeProfile.compoundDrawables
+        if (drawableLeft[0] != null) profileTextColor.let { drawableLeft[0]!!.setTint(it) }
+        drawable.setColorFilter(PorterDuffColorFilter(profileBackgroundColor, PorterDuff.Mode.SRC_IN))
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -862,6 +896,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
     @Suppress("UNUSED_PARAMETER")
     fun updateTime(from: String) {
+        /*
         binding.infoLayout.time.text = dateUtil.timeString(dateUtil.now())
         // Status lights
         val pump = activePlugin.activePump
@@ -879,17 +914,21 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             batteryLevel.visibility = useBatteryLevel.toVisibility()
             statusLights.visibility = (sp.getBoolean(R.string.key_show_statuslights, true) || config.NSCLIENT).toVisibility()
         }
-        statusLightHandler.updateStatusLights(
-            binding.statusLightsLayout.cannulaAge,
-            binding.statusLightsLayout.insulinAge,
-            binding.statusLightsLayout.reservoirLevel,
-            binding.statusLightsLayout.sensorAge,
-            null,
-            binding.statusLightsLayout.pbAge,
-            binding.statusLightsLayout.batteryLevel
-        )
+        statusLightHandler.updateStatusLights(binding.statusLightsLayout.cannulaAge,
+                                              binding.statusLightsLayout.insulinAge,
+                                              binding.statusLightsLayout.reservoirLevel,
+                                              binding.statusLightsLayout.sensorAge,
+                                              null,
+                                              binding.statusLightsLayout.pbAge,
+                                              binding.statusLightsLayout.batteryLevel ,
+                                              rh.gac(context, R.attr.statuslightNormal),
+                                              rh.gac(context, R.attr.statuslightWarning),
+                                              rh.gac(context, R.attr.statuslightAlarm))
         processButtonsVisibility()
         processAps()
+
+        binding.statusLightsLayout.statusLights.visibility = View.GONE
+*/
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -924,11 +963,15 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     fun updateTemporaryTarget(from: String) {
         val units = profileFunction.getUnits()
         if (overviewData.temporaryTarget?.isInProgress(dateUtil) == false) overviewData.temporaryTarget = null
+        val drawable: Drawable = binding.tempTarget.background
+        val drawableLeft: Array<Drawable?> = binding.tempTarget.compoundDrawables
         val tempTarget = overviewData.temporaryTarget
         if (tempTarget != null) {
             binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarningColor))
-            binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonWarningColor))
             binding.tempTarget.text = Profile.toTargetRangeString(tempTarget.lowTarget, tempTarget.highTarget, GlucoseUnit.MGDL, units) + " " + dateUtil.untilString(tempTarget.end, rh)
+            if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
+            drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN))
+
         } else {
             // If the target is not the same as set in the profile then oref has overridden it
             profileFunction.getProfile()?.let { profile ->
@@ -938,11 +981,13 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                     aapsLogger.debug("Adjusted target. Profile: ${profile.getTargetMgdl()} APS: $targetUsed")
                     binding.tempTarget.text = Profile.toTargetRangeString(targetUsed, targetUsed, GlucoseUnit.MGDL, units)
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarningColor))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.tempTargetBackgroundColor))
+                    if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextWarning).let { drawableLeft[0]!!.setTint(it) }
+                    drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonWarning, requireContext().theme), PorterDuff.Mode.SRC_IN))
                 } else {
                     binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextDefaultColor))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonDefaultColor))
                     binding.tempTarget.text = Profile.toTargetRangeString(profile.getTargetLowMgdl(), profile.getTargetHighMgdl(), GlucoseUnit.MGDL, units)
+                    if (drawableLeft[0] != null) rh.gac(context, R.attr.ribbonTextDefaultColor).let { drawableLeft[0]!!.setTint(it) }
+                    drawable.setColorFilter(PorterDuffColorFilter(resources.getColor(R.color.ribbonDefault, requireContext().theme), PorterDuff.Mode.SRC_IN))
                 }
             }
         }
@@ -953,7 +998,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val pump = activePlugin.activePump
         val graphData = GraphData(injector, binding.graphsLayout.bgGraph, overviewData)
         val menuChartSettings = overviewMenus.setting
-        graphData.addInRangeArea(overviewData.fromTime, overviewData.endTime, defaultValueHelper.determineLowLine(), defaultValueHelper.determineHighLine())
+        context?.let { graphData.addInRangeArea(overviewData.fromTime, overviewData.endTime, defaultValueHelper.determineLowLine(), defaultValueHelper.determineHighLine(), it) }
         graphData.addBgReadings(menuChartSettings[0][OverviewMenus.CharType.PRE.ordinal])
         if (buildHelper.isDev()) graphData.addBucketedData()
         graphData.addTreatments()
@@ -1051,6 +1096,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val status = overviewData.pumpStatus
         binding.pumpStatus.text = status
         binding.pumpStatusLayout.visibility = (status != "").toVisibility()
+        binding.pumpStatusLayout.setBackgroundColor(rh.gac(context, R.attr.informationBackground))
+        binding.pumpStatus.setTextColor(rh.gac(context, R.attr.informationText))
     }
 
     @Suppress("UNUSED_PARAMETER")

@@ -1,6 +1,8 @@
 package info.nightscout.androidaps.plugins.aps.openAPSAMA
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +10,7 @@ import android.view.ViewGroup
 import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.OpenapsamaFragmentBinding
+import info.nightscout.androidaps.interfaces.Loop
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
@@ -36,6 +39,7 @@ class OpenAPSAMAFragment : DaggerFragment() {
     @Inject lateinit var openAPSAMAPlugin: OpenAPSAMAPlugin
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var jsonFormatter: JSONFormatter
+    @Inject lateinit var loop: Loop
 
     private var _binding: OpenapsamaFragmentBinding? = null
 
@@ -52,8 +56,15 @@ class OpenAPSAMAFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.run.setOnClickListener {
-            openAPSAMAPlugin.invoke("OpenAPSAMA button", false)
+        with (binding.swipeRefreshLoop) {
+            setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
+            setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
+            setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    openAPSAMAPlugin.invoke("OpenAPSAMA button", false)
+                    binding.swipeRefreshLoop.isRefreshing = false
+                }, 3500)
+            }
         }
     }
 

@@ -5,18 +5,24 @@
     android:orientation="horizontal">
 
     <com.google.android.material.button.MaterialButton
-        style="@style/GrayButton"
         android:id="@+id/button_cancel"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:layout_weight="1"
+        android:textAlignment="center"
         android:text="@string/omnipod_common_wizard_button_cancel" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/GrayButton"
         android:id="@+id/button_next"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:layout_weight="1"
+        android:textAlignment="center"
         android:text="@string/omnipod_common_wizard_button_next" />
 </LinearLayout>

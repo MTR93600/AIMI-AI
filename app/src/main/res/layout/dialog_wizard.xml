@@ -21,8 +21,10 @@
 
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:importantForAccessibility="no"
+                android:paddingTop="2dp"
                 app:srcCompat="@drawable/ic_calculator" />
 
             <TextView
@@ -32,7 +34,7 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:text="@string/boluswizard"
+                android:text="@string/carbs"
                 android:textAlignment="center"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -78,7 +80,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="start"
-                    android:padding="5dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:text="@string/mgdl"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -112,7 +115,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="start"
-                    android:padding="5dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:text="@string/shortgramm"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -166,7 +170,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="start"
-                    android:padding="5dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:text="@string/insulin_unit_shortname"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -181,7 +186,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
-            android:background="?attr/dialogTitleBackground"
+            android:background="@drawable/background_total"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
             android:paddingTop="5dp"
@@ -389,7 +394,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="start"
-                    android:padding="5dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:text="@string/unit_minute_short"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 

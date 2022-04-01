@@ -8,11 +8,13 @@ import android.view.MenuItem
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.interfaces.PluginBase
 import info.nightscout.androidaps.plugins.configBuilder.PluginStore
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.locale.LocaleHelper
 import info.nightscout.androidaps.utils.protection.ProtectionCheck
+import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
 
-class SingleFragmentActivity : DaggerAppCompatActivityWithResult() {
+class SingleFragmentActivity : NoSplashAppCompatActivity() {
 
     @Inject lateinit var pluginStore: PluginStore
     @Inject lateinit var protectionCheck: ProtectionCheck
@@ -22,6 +24,7 @@ class SingleFragmentActivity : DaggerAppCompatActivityWithResult() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_single_fragment)
+
         plugin = pluginStore.plugins[intent.getIntExtra("plugin", -1)]
         title = plugin?.name
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

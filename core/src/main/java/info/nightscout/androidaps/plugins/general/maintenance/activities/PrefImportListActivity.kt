@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.android.support.DaggerAppCompatActivity
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.core.databinding.MaintenanceImportListActivityBinding
 import info.nightscout.androidaps.core.databinding.MaintenanceImportListItemBinding
@@ -19,13 +20,13 @@ import info.nightscout.androidaps.plugins.general.maintenance.PrefsFile
 import info.nightscout.androidaps.plugins.general.maintenance.PrefsFileContract
 import info.nightscout.androidaps.plugins.general.maintenance.formats.PrefsMetadataKey
 import info.nightscout.androidaps.plugins.general.maintenance.formats.PrefsStatus
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.locale.LocaleHelper
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import javax.inject.Inject
 
-class PrefImportListActivity : DaggerAppCompatActivity() {
+class PrefImportListActivity : NoSplashAppCompatActivity() {
 
-    @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var prefFileListProvider: PrefFileListProvider
 
     private lateinit var binding: MaintenanceImportListActivityBinding
@@ -109,15 +110,15 @@ class PrefImportListActivity : DaggerAppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            if (item.itemId == android.R.id.home) {
+                finish()
+                return true
+            }
+            return false
         }
-        return false
-    }
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.wrap(newBase))
+        override fun attachBaseContext(newBase: Context) {
+            super.attachBaseContext(LocaleHelper.wrap(newBase))
+        }
     }
-}

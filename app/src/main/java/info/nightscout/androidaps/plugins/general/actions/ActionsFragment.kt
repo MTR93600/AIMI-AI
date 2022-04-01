@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.TEXT_ALIGNMENT_CENTER
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
@@ -19,6 +20,7 @@ import info.nightscout.androidaps.database.ValueWrapper
 import info.nightscout.androidaps.database.entities.UserEntry.Action
 import info.nightscout.androidaps.database.entities.UserEntry.Sources
 import info.nightscout.androidaps.databinding.ActionsFragmentBinding
+import info.nightscout.androidaps.diaconn.DiaconnG8Plugin
 import info.nightscout.androidaps.dialogs.*
 import info.nightscout.androidaps.events.EventCustomActionsChanged
 import info.nightscout.androidaps.events.EventExtendedBolusChange
@@ -34,6 +36,7 @@ import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.actions.defs.CustomAction
 import info.nightscout.androidaps.plugins.general.overview.StatusLightHandler
+import info.nightscout.androidaps.plugins.pump.omnipod.eros.OmnipodErosPumpPlugin
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.skins.SkinProvider
 import info.nightscout.androidaps.utils.DateUtil
@@ -84,7 +87,7 @@ class ActionsFragment : DaggerFragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         //check screen width
         dm = DisplayMetrics()
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -278,21 +281,32 @@ class ActionsFragment : DaggerFragment() {
         val activeBgSource = activePlugin.activeBgSource
         binding.historyBrowser.visibility = (profile != null).toVisibility()
         binding.fill.visibility = (pump.pumpDescription.isRefillingCapable && pump.isInitialized() && !pump.isSuspended()).toVisibility()
-        binding.pumpBatteryChange.visibility = (pump.pumpDescription.isBatteryReplaceable || pump.isBatteryChangeLoggingEnabled()).toVisibility()
+        if (pump is DiaconnG8Plugin) {
+            binding.pumpBatteryChange.visibility = (pump.pumpDescription.isBatteryReplaceable && !pump.isBatteryChangeLoggingEnabled()).toVisibility()
+        } else {
+            binding.pumpBatteryChange.visibility =
+                (pump.pumpDescription.isBatteryReplaceable || (pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel && pump.isBatteryChangeLoggingEnabled())).toVisibility()
+        }
         binding.tempTarget.visibility = (profile != null && !loop.isDisconnected).toVisibility()
         binding.tddStats.visibility = pump.pumpDescription.supportsTDDs.toVisibility()
-        val isPatchPump = pump.pumpDescription.isPatchPump
         binding.status.apply {
-            cannulaOrPatch.text = if (isPatchPump) rh.gs(R.string.patch_pump) else rh.gs(R.string.cannula)
-            val imageResource = if (isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_cp_age_cannula
+            cannulaOrPatch.text = if (pump.pumpDescription.isPatchPump) rh.gs(R.string.patch_pump) else rh.gs(R.string.cannula)
+            val imageResource = if (pump.pumpDescription.isPatchPump) R.drawable.ic_patch_pump_outline else R.drawable.ic_cp_age_cannula
             cannulaOrPatch.setCompoundDrawablesWithIntrinsicBounds(imageResource, 0, 0, 0)
-            batteryLayout.visibility = (!isPatchPump || pump.pumpDescription.useHardwareLink).toVisibility()
 
             if (!config.NSCLIENT) {
-                statusLightHandler.updateStatusLights(cannulaAge, insulinAge, reservoirLevel, sensorAge, sensorLevel, pbAge, batteryLevel)
+                statusLightHandler.updateStatusLights(
+                    cannulaAge, insulinAge, reservoirLevel, sensorAge, sensorLevel, pbAge, batteryLevel, rh.gac(context, R.attr.statuslightNormal),
+                    rh.gac(context, R.attr.statuslightWarning),
+                    rh.gac(context, R.attr.statuslightAlarm)
+                )
                 sensorLevelLabel.text = if (activeBgSource.sensorBatteryLevel == -1) "" else rh.gs(R.string.careportal_level_label)
             } else {
-                statusLightHandler.updateStatusLights(cannulaAge, insulinAge, null, sensorAge, null, pbAge, null)
+                statusLightHandler.updateStatusLights(
+                    cannulaAge, insulinAge, null, sensorAge, null, pbAge, null, rh.gac(context, R.attr.statuslightNormal),
+                    rh.gac(context, R.attr.statuslightWarning),
+                    rh.gac(context, R.attr.statuslightAlarm)
+                )
                 sensorLevelLabel.text = ""
                 insulinLevelLabel.text = ""
                 pbLevelLabel.text = ""
@@ -311,8 +325,9 @@ class ActionsFragment : DaggerFragment() {
         for (customAction in customActions) {
             if (!customAction.isEnabled) continue
 
-            val btn = SingleClickButton(currentContext, null, android.R.attr.buttonStyle)
+            val btn = SingleClickButton(currentContext, null, info.nightscout.androidaps.core.R.style.Widget_MaterialComponents_Button_UnelevatedButton)
             btn.text = rh.gs(customAction.name)
+            btn.setBackgroundColor(rh.gac(context, R.attr.colorPrimary))
 
             val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f
@@ -328,6 +343,7 @@ class ActionsFragment : DaggerFragment() {
             }
             val top = activity?.let { ContextCompat.getDrawable(it, customAction.iconResourceId) }
             btn.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null)
+            btn.textAlignment = TEXT_ALIGNMENT_CENTER
 
             binding.buttonsLayout.addView(btn)
 

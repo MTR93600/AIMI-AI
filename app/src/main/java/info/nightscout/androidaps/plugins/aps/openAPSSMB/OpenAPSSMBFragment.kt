@@ -2,6 +2,8 @@ package info.nightscout.androidaps.plugins.aps.openAPSSMB
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,7 @@ import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.OpenapsamaFragmentBinding
 import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.Loop
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.androidaps.plugins.aps.events.EventOpenAPSUpdateResultGui
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -38,6 +41,7 @@ class OpenAPSSMBFragment : DaggerFragment() {
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var jsonFormatter: JSONFormatter
+    @Inject lateinit var loop: Loop
 
     private var _binding: OpenapsamaFragmentBinding? = null
 
@@ -53,9 +57,17 @@ class OpenAPSSMBFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.run.setOnClickListener {
-            activePlugin.activeAPS.invoke("OpenAPSSMB button", false)
+        with (binding.swipeRefreshLoop) {
+            setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
+            setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
+            setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    binding.swipeRefreshLoop.isRefreshing = false
+                    activePlugin.activeAPS.invoke("OpenAPSSMB swipefrefresh", false)
+                }, 3500)
+            }
         }
+
     }
 
     @Synchronized

@@ -1,63 +1,323 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns2="http://schemas.android.com/tools">
-
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <!---Example light theme colors -->
-        <item name="colorPrimary">@color/lightSandGray</item>
-        <item name="colorOnPrimary">@color/aaps_theme_light_onPrimary</item>
-        <item name="colorSecondary">@color/aaps_theme_light_secondary</item>
-        <item name="colorOnSecondary">@color/aaps_theme_light_onSecondary</item>
-        <item name="colorError">@color/aaps_theme_light_error</item>
-        <item name="colorOnError">@color/aaps_theme_light_onError</item>
-        <item name="android:colorBackground">@color/aaps_theme_light_background</item>
-        <item name="colorOnBackground">@color/aaps_theme_light_onBackground</item>
-        <item name="colorSurface">@color/aaps_theme_light_surface</item>
-        <item name="colorOnSurface">@color/aaps_theme_light_onSurface</item>
-
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Light">
+        <!--The Base 3 Color of this theme !!! CHANGE this 3 color for a new colored  theme -->
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/aaps_theme_light_secondary</item>
-        <item name="dialogTitleBackground">@color/dialog_title_background</item>
-        <item name="dialogTitleColor">@color/dialog_title_color</item>
-        <item name="dialogTitleIconTint">@color/dialog_title_icon_tint</item>
+        <item name="colorAccent">@color/secondaryColorDefault</item>
         <!-- New MaterialComponents attributes. -->
+        <item name="colorSecondary">@color/white</item>
         <item name="colorPrimaryVariant">@color/primaryLightColorDefault</item>
         <item name="colorSecondaryVariant">@color/secondaryLightColorDefault</item>
+        <item name="colorSurface">@color/plastic</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="colorOnError">@color/black</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnSurfaceVariant">@color/black</item>
         <item name="scrimBackground">@color/white</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColor">@color/black_alpha_80</item>
+        <!-- Misc. colors -->
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
+        <item name="android:actionBarTheme">@android:style/Theme.Material.Light</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/iconColorbottomAppbar</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iobBorder">@color/white</item>
+        <item name="cobBorder">@color/white</item>
+        <item name="iobColor">@color/iob</item>
+        <item name="cobColor">@color/cob</item>
+        <item name="uamColor">@color/swampGreen</item>
+        <item name="smbColor">@color/cyan</item>
+        <item name="ztColor">@color/cyan</item>
+        <item name="ratio">@color/lightgray</item>
+        <item name="InMemoryGlucoseValue">@color/black</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.MaterialComponents.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.MaterialComponents.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.MaterialComponents.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.MaterialComponents.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.MaterialComponents.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.MaterialComponents.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
         <item name="popupMenuStyle">@style/Widget.MaterialComponents.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.MaterialComponents.PopupMenu.Overflow</item>
+        <!-- Color of dialog -->
+        <item name="colorPrimaryDialog">?attr/colorPrimary</item>
+        <item name="colorPrimaryDarkDialog">?attr/colorPrimaryDark</item>
+        <item name="colorAccentDialog">?attr/colorAccent</item>
+        <!-- Color of graph background -->
+        <item name="colorGraphBackground">@color/black_alpha_10</item>
+        <item name="inrangeBackground">@color/black_alpha_10</item>
+        <!-- Top bar icons -->
+        <item name="iconSensor">@drawable/ic_dexcom_g6</item>
+        <item name="iconReservoir">@drawable/ic_cartridge</item>
+        <item name="iconCanula">@drawable/ic_katheter</item>
+        <item name="iconBattery">@drawable/ic_battery</item>
+        <!-- Icons of bottom naviagtion bar -->
+        <item name="iconInsulin">@drawable/ic_insulin</item>
+        <item name="iconCarbs">@drawable/ic_carb_48</item>
+        <item name="iconWizzard">@drawable/ic_calculator_48</item>
+        <item name="iconCgm">@drawable/ic_blooddrop_48</item>
+        <item name="iconTreatment">@drawable/ic_treatments</item>
+        <!-- Fragment background for some themes default transparent  -->
+        <item name="fragmentbackground">@color/transparent</item>
+        <!-- Graph specific colors  -->
+        <item name="graphHorizontalLabelText">@color/sphere_plastic_grey</item>
+        <item name="graphVerticalLabelText">@color/sphere_plastic_grey</item>
+        <item name="graphGrid">@color/graphgrid</item>
+        <!-- Dialog specific colors  -->
+        <item name="dialogTitleBackground">?attr/colorPrimary</item>
+        <item name="dialogTitleColor">@color/white</item>
+        <item name="dialogTitleIconTint">@color/white</item>
+        <item name="dialogUrgent" >@color/red</item>
+        <!-- wizard dialog -->
+        <item name="totalBackground" >@color/gray</item>
+        <!-- TDD Stats   -->
+        <item name="backgroundStatsColor">@color/background_stats_color</item>
+        <!---Android Dark ans Light Theme Base colors-->
+        <item name="backgroundBaseColorDark" >@color/background_dark</item>
+        <item name="backgroundBaseColorLight" >@color/background_light</item>
+        <item name="backgroundBaseColor" >@color/background_light</item>
+        <!-- colors for statuslight handler    -->
+        <item name="statuslightNormal" >@color/black</item>
+        <item name="statuslightWarning" >@color/statuslight_Warning</item>
+        <item name="statuslightAlarm" >@color/red</item>
+        <!-- back arrow actionbar    -->
+        <!--  <item name="android:homeAsUpIndicator">@drawable/ic_arrowleft</item>    -->
+        <!-- colors for splash background    -->
+        <item name="splashBackground" >@color/splashBackground</item>
+        <!-- colors for information background  -->
+        <item name="informationBackground" >?attr/colorPrimary</item>
+        <item name="informationText" >?attr/colorOnPrimary</item>
+        <!-- colors for default cases ( near white ) -->
+        <item name="defaultColor" >@color/gray</item>
+        <!-- treatment -->
+        <item name="treatmentSheduled" >@color/squash</item>
+        <item name="treatmentActive" >@color/emerald</item>
+        <!-- filling dialog -->
+        <item name="actionsConfirm" >@color/midyellow</item>
+        <!-- local profil dialog -->
+        <item name="errorBackground" >@color/lightPastelRed</item>
+        <item name="okBackground" >@color/gray</item>
+        <item name="defaultbackground" >@color/darkgrayVariant</item>
+        <!-- Custom tabs background -->
+        <item name="tabBgColorSelected" >@color/kobaltblue</item>
+        <!-- Predictions -->
+        <item name="iobPred" >@color/cyan</item>
+        <!---Deviation in Graph -->
+        <item name="deviationCsf" >@color/sandGray</item>
+        <item name="deviationPlus" >@color/lightGreen</item>
+        <item name="deviationMinus" >@color/lightPastelRed</item>
+        <item name="deviationEqual" >@color/lightSandGray</item>
         <!---Notification -->
         <item name="notificationUrgent">@color/notificationUrgent</item>
         <item name="notificationNormal">@color/notificationNormal</item>
         <item name="notificationLow">@color/notificationLow</item>
         <item name="notificationInfo">@color/notificationInfo</item>
         <item name="notificationAnnouncement">@color/notificationAnnouncement</item>
-        <!-- Fragment background for some themes default transparent  -->
-        <item name="fragmentbackground">@color/transparent</item>
+        <!---The pills for active profile and temp target -->
+        <item name="ribbonTextWarning" >@color/black</item>
+        <item name="defaultPillTextColor" >@color/white</item>
+        <!---TDD Statistics -->
+        <item name="rowBackgroundEven" >@color/darkgray</item>
+        <item name="rowBackgroundOdd" >@color/gray</item>
+        <item name="rowTextColor" >@color/white</item>
+        <!-- Icon specific colors begin -->
+        <!---Loop Paused Icon Color-->
+        <item name="loopPaused" >@color/ribbonWarning</item>
+        <!---Loop Closed Icon Color-->
+        <item name="loopClosed" >@color/loopGreen</item>
+        <!---Loop Disabled Icon Color-->
+        <item name="loopDisabled" >@color/sandGray</item>
+        <!---Loop Disconnected Icon Color-->
+        <item name="loopDisconnected" >@color/red</item>
+        <!---Loop Opened Icon Color-->
+        <item name="loopOpened" >@color/blue_default</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Sensitivity Icon Color-->
+        <item name="sensitivityIconColor" >@color/sensGreen</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/cyan_blue</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/carbsOrange</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/calcGreen</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/calibrationRed</item>
+        <!---CGM Icon Color-->
+        <item name="cgmIconColor" >@color/darkRed</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/colorLightGray</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/carbsOrange</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/lightGreen</item>
+        <item name="temptargetIconColor1" >@color/tempTargetConfirmation</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/pastellPurple</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/pastellPurple</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/cyan_blue</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/carbsOrange</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/calibrationRed</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/cyan_blue</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/cyan_blue</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/carbsOrange</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/carbsOrange</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/cyan_blue</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/carbsOrange</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/pastellPurple</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/cyan_blue</item>
+        <item name="exerciseIconColor02" >@color/lightGreen</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/lightGreen</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/calcGreen</item>
+        <!---Refill Icon Color-->
+        <item name="refillIconColor" >@color/calibrationRed</item>
+        <!---Trashbin Icon Color-->
+        <item name="trashbinIconColor" >@color/gray</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/red</item>
+        <!---Refresh Icon Color-->
+        <item name="refreshIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/white</item>
+        <!---Patchpump Icon Color-->
+        <item name="patchPumpIconColor" >@color/black</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/black</item>
+        <!---More Icon Color-->
+        <item name="dotmoreIconColor" >@color/black</item>
+        <!---More Icon Color-->
+        <!-- Icon specific colors end -->
+        <!---Therapy Event Announcement-->
+        <item name="therapyeventAnnouncement" >@color/notificationAnnouncement</item>
+        <!-- bgsource dialog -->
+        <item name="errorAlertBackground" >@color/metadataTextError</item>
+        <!---NS MBG Event-->
+        <item name="therapyeventNsmbg" >@color/red</item>
+        <!---Finger Stick Event-->
+        <item name="therapyeventFingerstick" >@color/red</item>
+        <!---Exercise Event-->
+        <item name="therapyeventExercise" >@color/blue_default</item>
+        <!---AAPS offline Event-->
+        <item name="therapyeventAapsoffline" >@color/lightSandGray</item>
+        <!---Default  Event-->
+        <item name="therapyeventDefault" >@color/gray</item>
+        <!---SMS Communicator -->
+        <item name="smsCommunicatorOK" >@color/lightGreen</item>
+        <item name="smsCommunicatorWrongLength" >@color/midyellow</item>
+        <item name="smsCommunicatorWrongPin" >@color/red</item>
+        <item name="smsCommunicatorOtp" >@color/red</item>
+        <!---Misc -->
+        <item name="carbsColor" >@color/carbsOrange</item>
+        <item name="tempTargetConfirmation" >@color/tempTargetConfirmation</item>
+        <item name="lightGreen" >@color/lightGreen</item>
+        <item name="prediction" >@color/prediction</item>
+        <item name="basal" >@color/basal</item>
+        <item name="overviewShowDeviations" >@color/red</item>
+        <item name="overviewShowSensitivity" >@color/sphere_plastic_grey</item>
+        <item name="activity" >@color/activity</item>
+        <item name="bgi" >@color/bgi</item>
+        <item name="devslopepos" >@color/devslopepos</item>
+        <item name="devslopeneg" >@color/devslopeneg</item>
+        <item name="bolus" >@color/bolus</item>
+        <item name="colorInsulinButton" >@color/colorInsulinButton</item>
+        <item name="cobAlert" >@color/cobAlert</item>
+        <item name="info" >@color/info</item>
+        <item name="basebasal" >@color/basebasal</item>
+        <item name="tempbasal" >@color/tempbasal</item>
+        <item name="lightblue" >@color/lightblue</item>
+        <item name="ribbonWarning" >@color/ribbonWarning</item>
+        <item name="ribbonDefault" >@color/ribbonDefault</item>
+        <item name="tempTargetBackground" >@color/tempTargetBackground</item>
+        <item name="defaultTextColor" >@color/defaulttextcolor</item>
+        <item name="automationBgUrgent" >@color/red</item>
+        <item name="iobPredAS" >@color/iobPredAS</item>
+        <item name="labelBackground" >@color/sphere_plastic_grey</item>
+        <item name="examinedProfile" >@color/red</item>
+        <item name="spinnerBackground" >@color/black_alpha_40</item>
+        <item name="triggerConnectorBackground" >@color/mdtp_line_dark</item>
+        <item name="treatmentsRed" >@color/red</item>
+        <item name="profilViewerLabel" >@color/white</item>
+        <item name="metadataOk" >@color/metadataOk</item>
+        <item name="metadataTextWarning" >@color/metadataTextWarning</item>
+        <item name="trendarrow" >@color/black</item>
+        <item name="profilSwitch" >@color/black</item>
+        <item name="automationTitleText" >@color/white</item>
+        <item name="automationSelectedItemBackground" >@color/gray</item>
+        <item name="fortyfiveup" >@color/darkgrayVariant</item>
+        <item name="objectivesBackground" >@color/darkgrayVariant</item>
+        <item name="extendedBolus" >@color/cyan</item>
+        <item name="TitleAndLabelTextColor" >@color/white</item>
+        <item name="tddStatsActivityBackgroundColor" >@color/transparent</item>
+        <item name="colorScheduled" >@color/squash</item>
+        <!---windowBackground -->
+        <item name="windowBackground" >?attr/colorSurface</item>
+        <item name="backgroundColor" >?attr/colorSurface</item>
+        <item name="activity_title_background" >@color/background_light</item>
+        <item name="graphViwewportBackground" >@color/black_alpha_20</item>
+        <!---diaconn -->
+        <item name="colorInitializingBorder" >@color/colorInitializingBorder</item>
+        <item name="ic_actions_refill" >@color/calibrationRed</item>
+        <item name="ic_local_reset" >@color/calibrationRed</item>
+        <item name="ic_local_activate" >@color/ic_local_activate</item>
+        <item name="okButtonSelected" >@color/okButtonSelected</item>
+        <!---Number Picker Text Color-->
+        <item name="numPickerText" >@color/black</item>
+        <item name="numPickerBackground" >@color/white</item>
+        <!---Swipe Refresh Color-->
+        <item name="swipeRefreshBackground" >@color/white_alpha_20</item>
+        <!---Fab Menue-->
+        <item name="fabmenubackground">@color/lightgray</item>
+        <!---Bluring enabled for dialogs-->
+        <item name="android:windowBlurBehindEnabled" ns2:targetApi="s">true</item>
+        <item name="android:windowBlurBehindRadius" ns2:targetApi="s">10dp</item>
+        <item name="android:windowBackgroundBlurRadius" ns2:targetApi="s">10dp</item>
+        <!---material calender-->
+        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
+        <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen</item>
+        <item name="materialCalendarTheme">@style/MaterialDatePickerTheme</item>
+        <!---material time picker -->
+        <item name="materialTimePickerTheme">@style/AppTheme.MaterialTimePickerTheme</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close</item>
         <!---bolus color -->
         <item name="bolusColor">@color/bolus</item>
-        <!---Number Picker text color -->
-        <item name="numPickerText">@color/black</item>
         <!---NS Client action text color -->
         <item name="actionButton">@android:color/holo_orange_light</item>
         <!---Text color for Quickwizard and more -->
         <item name="cardObjectiveText">@color/cardObjectiveText</item>
         <!---Text color for misc buttons and texts -->
         <item name="alarmColor">@color/alarm</item>
-        <!-- Number picker and more -->
-        <item name="totalBackground">@color/gray</item>
         <!-- BG source temp button -->
         <item name="setTempButton">@color/colorSetTempButton</item>
         <!-- Card Item-->
         <item name="cardItemBackgroundColor">@color/cardColorBackground</item>
-        <!-- Carbs -->
-        <item name="carbsColor">@color/carbs</item>
         <!-- Exercise -->
         <item name="exerciseColor">@color/exercise</item>
         <!-- BG low -->
         <item name="lowColor">@color/low</item>
-        <!-- Temp Target -->
-        <item name="tempTargetConfirmation">@color/tempTargetConfirmation</item>
         <!-- Treatments -->
         <item name="setExtendedButtonColor">@color/colorSetExtendedButton</item>
         <item name="activeColor">@color/colorActive</item>
@@ -99,14 +359,10 @@
         <!---Main Activity Tab  -->
         <item name="tabSelectedTextColor">@color/tabSelectedText</item>
         <item name="tabTextColor">@color/tabText</item>
-        <!---Background  -->
-        <item name="defaultbackground">@color/white</item>
         <!---Toast  -->
         <item name="toastBaseTextColor">@color/toastBase</item>
         <!---Input  -->
         <item name="boxStrokeColor">@color/white</item>
-        <!---Profile Helper  -->
-        <item name="tabBgColorSelected">@color/tabBgColorSelected</item>
         <!---Dialog Helper  -->
         <item name="materialAlertDialogTheme">@style/DialogTheme</item>
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
@@ -117,6 +373,7 @@
         <item name="splashBackgroundColor">@color/splashBackground</item>
         <!---Application Background Color  -->
         <item name="android:windowBackground">@color/white</item>
+        <item name="dialogbackgroundColor">?attr/backgroundColor</item>
         <!---Dialogfragment Background Color  -->
         <item name="android:dialogCornerRadius">12dp</item>
         <!---Overview and Historybrowser  -->
@@ -138,8 +395,6 @@
         <item name="errorBackgroundColor">@color/error_background</item>
         <!---Warning  -->
         <item name="warningColor">@color/warning</item>
-        <!---TextColor -->
-        <item name="defaultTextColor">@color/black</item>
         <!---TempBasal -->
         <item name="tempBasalColor">@color/tempbasal</item>
         <item name="infoColor">@color/info</item>
@@ -182,38 +437,206 @@
 
     </style>
 
+    <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
+    </style>
+
     <style name="Theme.MaterialComponents.DayNight.DarkActionBar" parent="Theme.MaterialComponents.DayNight.Bridge"/>
 
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
-        <item name="windowActionModeOverlay">true</item>
+    <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
+    <style name="AppTheme.Launcher"  parent="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
+        <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
+    </style>
+
+    <style name="AppTheme.base" parent="Theme.MaterialComponents">
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+        <!---Notification -->
+        <item name="notificationUrgent">@color/notificationUrgent</item>
+        <item name="notificationNormal">@color/notificationNormal</item>
+        <item name="notificationLow">@color/notificationLow</item>
+        <item name="notificationInfo">@color/notificationInfo</item>
+        <item name="notificationAnnouncement">@color/notificationAnnouncement</item>
+
         <item name="actionModeCloseDrawable">@drawable/ic_close</item>
-        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- BolusProgress, Error -->
-    <style name="Theme.MaterialComponents.Translucent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="BottomAppbar" parent="Widget.MaterialComponents.BottomAppBar.Colored" >
+        <item name="android:backgroundTint">@color/plastic</item>
+        <item name="android:textColor">@color/sphere_plastic_grey</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <!-- Theme for Material Time Picker -->
+    <style name="AppTheme.MaterialTimePickerTheme" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <!-- Text styles -->
+    <style name="Text" parent="TextAppearance.AppCompat"/>
+    <style name="Text.Caption" parent="TextAppearance.AppCompat.Caption"/>
+    <style name="Text.Small" parent="TextAppearance.AppCompat.Small"/>
+    <style name="Text.Body1" parent="TextAppearance.AppCompat.Body1"/>
+    <style name="Text.Body2" parent="TextAppearance.AppCompat.Body2"/>
+    <style name="Text.Medium" parent="TextAppearance.AppCompat.Medium"/>
+    <style name="Text.Large" parent="TextAppearance.AppCompat.Large"/>
+    <style name="Text.Headline" parent="TextAppearance.AppCompat.Headline"/>
+    <style name="Text.Title" parent="TextAppearance.AppCompat.Title"/>
+    <style name="Text.Display1" parent="TextAppearance.AppCompat.Display1"/>
+    <style name="Text.Subhead" parent="TextAppearance.AppCompat.Subhead"/>
+    <style name="Text.Button" parent="TextAppearance.AppCompat.Button"/>
+
+    <!-- Button Styles-->
+    <style name="Buton" parent="Widget.AppCompat.Button"/>
+    <style name="Buton.Small" parent="Widget.AppCompat.Button.Small"/>
+    <style name="Buton.Colored" parent="Widget.MaterialComponents.Button"/>
+    <style name="Buton.Borderless" parent="Widget.AppCompat.Button.Borderless"/>
+    <style name="Buton.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored"/>
+
+
+    <style name="Theme.AppCompat.Translucent" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
-        <item name="dialogTitleBackground">@color/dialog_title_background</item>
     </style>
 
-    <!--    Buttons from MaterialDateTimePicker, Dialogs ...    -->
-    <dimen name="material_button_height">48dp</dimen>
-    <dimen name="material_button_text_size">14sp</dimen>
-    <dimen name="material_button_min_width">64dp</dimen>
-    <dimen name="material_button_text_padding_horizontal">8dp</dimen>
+    <style name="InsightAlertDialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowMinWidthMajor">96%</item>
+        <item name="android:windowMinWidthMinor">96%</item>
+    </style>
 
-    <style name="OkCancelButton">
+    <!-- TODO: themes below are still missing light/dark variant or parent! -->
+
+    <style name="Theme.AppCompat.NoTitle" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="section_header_label">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:paddingEnd">15dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="warning_label">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:paddingEnd">15dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">#ff0000</item>
+    </style>
+
+    <style name="WizardPagePodContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingStart">20px</item>
+        <item name="android:paddingEnd">20px</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="WizardPagePodListItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:paddingTop">20px</item>
+        <item name="android:paddingBottom">20px</item>
+        <item name="android:paddingStart">60px</item>
+        <item name="android:paddingEnd">60px</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="PodInfoListView" parent="@android:style/Widget.ListView">
+        <item name="android:background">@color/colorLightGray</item>
+        <item name="android:cacheColorHint">@android:color/transparent</item>
+        <item name="android:divider">?attr/colorControlNormal</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <!-- Alert Dialogs -->
+    <style name="DialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="buttonBarNegativeButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/DialogOkCancelButtonStyle</item>
+        <item name="android:windowBackground">?attr/windowBackground</item>
+    </style>
+
+    <style name="DialogOkCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="AppThemeWarningDialog" parent="DialogTheme">
+        <item name="alertDialogTheme">@style/AppThemeWarningDialogTheme</item>
+        <item name="dialogTitleBackground">@color/warningAlertBackground</item>
+        <item name="dialogTitleColor">@color/black</item>
+        <item name="dialogTitleIconTint">@color/black</item>
+    </style>
+
+    <style name="AppThemeWarningDialogTheme" parent="Theme.MaterialComponents.Dialog.MinWidth">
+        <item name="android:windowBackground">@drawable/alert_border_warning</item>
+        <item name="colorAccent">@color/warningAlertBackground</item>
+    </style>
+
+    <style name="AppThemeErrorDialog" parent="DialogTheme">
+        <item name="alertDialogTheme">@style/AppThemeErrorDialogTheme</item>
+        <item name="dialogTitleBackground">@color/red</item>
+        <item name="dialogTitleColor">@color/black</item>
+        <item name="dialogTitleIconTint">@color/black</item>
+    </style>
+
+    <style name="AppThemeErrorDialogTheme" parent="Theme.MaterialComponents.Dialog.MinWidth">
+        <item name="android:windowBackground">@drawable/alert_border_error</item>
+        <item name="colorAccent">@color/red</item>
+    </style>
+
+    <style name="ButtonMediumFontStyle">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="ButtonSmallFontStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <!--    Buttons from MaterialDateTimePicker    -->
+    <dimen name="mdtp_material_button_height">48dp</dimen>
+    <dimen name="mdtp_material_button_textsize">14sp</dimen>
+    <dimen name="mdtp_material_button_minwidth">64dp</dimen>
+    <dimen name="mdtp_material_button_textpadding_horizontal">8dp</dimen>
+
+    <style name="mdtp_ActionButton">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/material_button_height</item>
+        <item name="android:layout_height">@dimen/mdtp_material_button_height</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:focusable">true</item>
     </style>
 
+    <style name="mdtp_ActionButton.Text" ns2:ignore="NewApi">
+        <item name="android:textSize">@dimen/mdtp_material_button_textsize</item>
+    </style>
     <style name="StyleDialog">
         <item name="android:padding">0dp</item>
         <item name="android:minWidth">300dp</item>
@@ -227,116 +650,1602 @@
         <item name="android:background">@drawable/dialog_header</item>
     </style>
 
+
+    <style name="ProfileHelperAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
+
+    <style name="MaterialPickerTheme" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
+    </style>
+    <style name="PickerTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <!-- BolusProgress, Error -->
+    <style name="Theme.MaterialComponents.Translucent" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="OkCancelButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/mdtp_material_button_height</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:focusable">true</item>
+    </style>
+
     <style name="OkCancelButton.Text" ns2:ignore="NewApi">
-        <item name="android:textSize">@dimen/material_button_text_size</item>
+        <item name="android:textSize">@dimen/mdtp_material_button_textsize</item>
         <item name="android:singleLine">true</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:gravity">center</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:background">@drawable/material_button_background</item>
-        <item name="android:minWidth">@dimen/material_button_min_width</item>
-        <item name="android:paddingLeft">@dimen/material_button_text_padding_horizontal</item>
-        <item name="android:paddingRight">@dimen/material_button_text_padding_horizontal</item>
-        <item name="android:textColor">@color/okButtonText</item>
+        <item name="android:minWidth">@dimen/mdtp_material_button_minwidth</item>
+        <item name="android:paddingLeft">@dimen/mdtp_material_button_textpadding_horizontal</item>
+        <item name="android:paddingRight">@dimen/mdtp_material_button_textpadding_horizontal</item>
         <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <style name="MaterialPickerTheme" parent="android:Theme.Material.Dialog.Alert">
-        <item name="android:buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
-        <item name="android:textColorPrimary">@color/okButtonText</item>
-        <item name="android:colorPrimary">@color/okButtonText</item>
-        <item name="android:calendarTextColor">@color/okButtonText</item>
-        <item name="android:colorAccent">@color/okButtonText</item>
-    </style>
-    <style name="PickerTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/okButtonText</item>
+    <!-- Custom Theme -->
+    <style name="CustomTheme" parent="AppTheme.NoActionBar">
     </style>
 
-    <!--    Common Buttons -->
-    <dimen name="gray_material_button_margin_horizontal">5dp</dimen>
-
-    <style name="GrayButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:backgroundTint">@color/buttonBackground</item>
-        <item name="android:textColor">@color/buttonText</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:gravity">center</item>
-        <item name="android:layout_marginStart">@dimen/gray_material_button_margin_horizontal</item>
-        <item name="android:layout_marginEnd">@dimen/gray_material_button_margin_horizontal</item>
-        <item name="android:textAllCaps">true</item>
+    <style name="AppTheme_DEFAULT" parent="AppTheme.NoActionBar">
+        <item name="android:statusBarColor">@color/md_theme_light_primary</item>
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
+        <item name="android:dialogCornerRadius">12dp</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="android:navigationBarColor">?attr/colorPrimary</item>
     </style>
 
-    <style name="ButtonSmallFontStyle" parent="GrayButton">
-        <item name="android:textSize">10sp</item>
+
+    <style name="AppTheme.RED" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/red_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/red_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/red_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/red_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/red_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/red_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/red_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/red_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/red_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/red_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/red_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/red_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/red_theme_light_error</item>
+        <item name="colorErrorContainer">@color/red_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/red_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/red_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/red_theme_light_background</item>
+        <item name="colorOnBackground">@color/red_theme_light_onBackground</item>
+        <item name="colorSurface">@color/red_theme_light_surface</item>
+        <item name="colorOnSurface">@color/red_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/red_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/red_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/red_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/red_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/red_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/red_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorRed</item>
+        <item name="colorAccent">@color/secondaryColorRed</item>
+        <item name="overviewPillColor">@color/overviewPillColorRed</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+        <item name="bgInRange">@color/primaryColorPurple</item>
+        <!-- Color of pills -->
+        <item name="PillColorStart">@color/PillColorStartRed</item>
+        <item name="PillColorEnd">@color/PillColorEndRed</item>
+
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
     </style>
 
-    <style name="ButtonMediumFontStyle" parent="GrayButton">
-        <item name="android:textSize">15sp</item>
+    <style name="AppTheme.PINK" parent="AppTheme.NoActionBar">
+        <!-- PINK Theme -->
+        <item name="colorPrimary">@color/pink_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/pink_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/pink_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/pink_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/pink_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/pink_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/pink_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/pink_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/pink_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/pink_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/pink_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/pink_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/pink_theme_light_error</item>
+        <item name="colorErrorContainer">@color/pink_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/pink_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/pink_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/pink_theme_light_background</item>
+        <item name="colorOnBackground">@color/pink_theme_light_onBackground</item>
+        <item name="colorSurface">@color/pink_theme_light_surface</item>
+        <item name="colorOnSurface">@color/pink_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/pink_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/pink_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/pink_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/pink_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/pink_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/pink_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorPink</item>
+        <item name="colorPrimaryVariant">@color/primaryColorPinkVariant</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariantPink</item>
+        <item name="colorAccent">@color/primaryColorPink</item>
+        <item name="android:textColorPrimary">@color/primaryTextColorPink</item>
+        <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="overviewPillColor">@color/overviewPillColorPink</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+        <item name="PillColorStart">@color/primaryColorPinkVariant</item>
+        <item name="PillColorEnd">@color/primaryColorPink</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/white</item>
+        <item name="android:windowBackground">@drawable/fancy03</item>
     </style>
 
-    <!-- Alert Dialogs -->
-    <style name="DialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="buttonBarNegativeButtonStyle">@style/DialogOkCancelButtonStyle</item>
-        <item name="buttonBarPositiveButtonStyle">@style/DialogOkCancelButtonStyle</item>
-        <item name="dialogTitleBackground">@color/dialog_title_background</item>
-        <item name="buttonBarNeutralButtonStyle">@style/DialogOkCancelButtonStyle</item>
+    <style name="AppTheme.PURPLE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/purple_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/purple_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/purple_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/purple_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/purple_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/purple_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/purple_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/purple_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/purple_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/purple_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/purple_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/purple_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/purple_theme_light_error</item>
+        <item name="colorErrorContainer">@color/purple_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/purple_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/purple_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/purple_theme_light_background</item>
+        <item name="colorOnBackground">@color/purple_theme_light_onBackground</item>
+        <item name="colorSurface">@color/purple_theme_light_surface</item>
+        <item name="colorOnSurface">@color/purple_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/purple_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/purple_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/purple_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/purple_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/purple_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/purple_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryVariant">@color/primaryColorPurpleVariant</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariantPurple</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorPurple</item>
+        <item name="colorAccent">@color/secondaryColorPurple</item>
+        <item name="overviewPillColor">@color/overviewPillColorPurple</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+        <item name="android:dialogCornerRadius">12dp</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Add Cross Icon Color-->
+        <item name="addCrossIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
     </style>
 
-    <style name="DialogOkCancelButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/okButtonText</item>
+    <style name="AppTheme.DEEPPURPLE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/deeppurple_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/deeppurple_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/deeppurple_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/deeppurple_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/deeppurple_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/deeppurple_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/deeppurple_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/deeppurple_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/deeppurple_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/deeppurple_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/deeppurple_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/deeppurple_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/deeppurple_theme_light_error</item>
+        <item name="colorErrorContainer">@color/deeppurple_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/deeppurple_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/deeppurple_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/deeppurple_theme_light_background</item>
+        <item name="colorOnBackground">@color/deeppurple_theme_light_onBackground</item>
+        <item name="colorSurface">@color/deeppurple_theme_light_surface</item>
+        <item name="colorOnSurface">@color/deeppurple_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/deeppurple_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/deeppurple_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/deeppurple_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/deeppurple_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/deeppurple_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/deeppurple_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorDeepPurple</item>
+        <item name="colorAccent">@color/purple_theme_light_secondary</item>
+        <item name="overviewPillColor">@color/overviewPillColorDeepPurple</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="AppThemeWarningDialog" parent="DialogTheme">
-        <item name="alertDialogTheme">@style/AppThemeWarningDialogTheme</item>
-        <item name="dialogTitleBackground">@color/warningAlertBackground</item>
-        <item name="dialogTitleColor">@color/warningAlertHeaderText</item>
-        <item name="dialogTitleIconTint">@color/warningAlertHeaderText</item>
+    <style name="AppTheme.INDIGO" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/indigo_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/indigo_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/indigo_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/indigo_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/indigo_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/indigo_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/indigo_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/indigo_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/indigo_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/indigo_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/indigo_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/indigo_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/indigo_theme_light_error</item>
+        <item name="colorErrorContainer">@color/indigo_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/indigo_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/indigo_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/indigo_theme_light_background</item>
+        <item name="colorOnBackground">@color/indigo_theme_light_onBackground</item>
+        <item name="colorSurface">@color/indigo_theme_light_surface</item>
+        <item name="colorOnSurface">@color/indigo_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/indigo_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/indigo_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/indigo_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/indigo_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/indigo_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/indigo_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorIndigo</item>
+        <item name="colorAccent">@color/secondaryColorIndigo</item>
+        <item name="overviewPillColor">@color/overviewPillColorIndigo</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="AppThemeWarningDialogTheme" parent="Theme.MaterialComponents.Dialog.MinWidth">
-        <item name="android:windowBackground">@drawable/alert_border_warning</item>
-        <item name="colorAccent">@color/warningAlertBackground</item>
+    <style name="AppTheme.BLUE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/blue_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/blue_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/blue_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/blue_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/blue_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/blue_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/blue_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/blue_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/blue_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/blue_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/blue_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/blue_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/blue_theme_light_error</item>
+        <item name="colorErrorContainer">@color/blue_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/blue_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/blue_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/blue_theme_light_background</item>
+        <item name="colorOnBackground">@color/blue_theme_light_onBackground</item>
+        <item name="colorSurface">@color/blue_theme_light_surface</item>
+        <item name="colorOnSurface">@color/blue_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/blue_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/blue_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/blue_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/blue_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/blue_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/blue_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorBlue</item>
+        <item name="colorAccent">@color/secondaryColorBlue</item>
+        <item name="overviewPillColor">@color/overviewPillColorBlue</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="android:windowBackground">@drawable/frozen04</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="AppThemeErrorDialog" parent="DialogTheme">
-        <item name="alertDialogTheme">@style/AppThemeErrorDialogTheme</item>
-        <item name="dialogTitleBackground">@color/errorAlertBackground</item>
-        <item name="dialogTitleColor">@color/errorAlertHeaderText</item>
-        <item name="dialogTitleIconTint">@color/errorAlertHeaderText</item>
+    <style name="AppTheme.LIGHTBLUE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/lightblue_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/lightblue_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lightblue_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lightblue_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lightblue_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/lightblue_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lightblue_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lightblue_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lightblue_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/lightblue_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lightblue_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lightblue_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/lightblue_theme_light_error</item>
+        <item name="colorErrorContainer">@color/lightblue_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/lightblue_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/lightblue_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lightblue_theme_light_background</item>
+        <item name="colorOnBackground">@color/lightblue_theme_light_onBackground</item>
+        <item name="colorSurface">@color/lightblue_theme_light_surface</item>
+        <item name="colorOnSurface">@color/lightblue_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lightblue_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lightblue_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lightblue_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lightblue_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lightblue_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lightblue_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorLightBlue</item>
+        <item name="colorAccent">@color/secondaryColorLightBlue</item>
+        <item name="PillColorStart">@color/primaryColorLightBlue</item>
+        <item name="PillColorEnd">@color/primaryDarkColorLightBlue</item>
+        <item name="iconColor">@color/white_alpha_80</item>
+        <item name="iconColorToolbar">@color/gray</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="android:windowBackground">@drawable/winter</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="AppThemeErrorDialogTheme" parent="Theme.MaterialComponents.Dialog.MinWidth">
-        <item name="android:windowBackground">@drawable/alert_border_error</item>
-        <item name="colorAccent">@color/errorAlertBackground</item>
+    <style name="AppTheme.CYAN" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/cyan_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/cyan_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/cyan_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/cyan_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/cyan_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/cyan_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/cyan_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/cyan_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/cyan_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/cyan_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/cyan_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/cyan_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/cyan_theme_light_error</item>
+        <item name="colorErrorContainer">@color/cyan_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/cyan_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/cyan_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/cyan_theme_light_background</item>
+        <item name="colorOnBackground">@color/cyan_theme_light_onBackground</item>
+        <item name="colorSurface">@color/cyan_theme_light_surface</item>
+        <item name="colorOnSurface">@color/cyan_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/cyan_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/cyan_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/cyan_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/cyan_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/cyan_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/cyan_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorCyan</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColorCyan</item>
+        <item name="colorAccent">@color/secondaryColorCyan</item>
+        <item name="overviewPillColor">@color/overviewPillColorCyan</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
-    <style name="AppTheme.Launcher"  parent="AppTheme.NoActionBar">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-        <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
-        <!-- <item name="colorPrimaryDark">@android:color/white</item> -->
+    <style name="AppTheme.TEAL" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/teal_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/teal_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/teal_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/teal_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/teal_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/teal_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/teal_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/teal_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/teal_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/teal_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/teal_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/teal_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/teal_theme_light_error</item>
+        <item name="colorErrorContainer">@color/teal_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/teal_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/teal_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/teal_theme_light_background</item>
+        <item name="colorOnBackground">@color/teal_theme_light_onBackground</item>
+        <item name="colorSurface">@color/teal_theme_light_surface</item>
+        <item name="colorOnSurface">@color/teal_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/teal_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/teal_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/teal_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/teal_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/teal_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/teal_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorTeal</item>
+        <item name="colorAccent">@color/secondaryColorTeal</item>
+        <item name="overviewPillColor">@color/overviewPillColorTeal</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="section_header_label">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">15dp</item>
-        <item name="android:paddingStart">15dp</item>
-        <item name="android:paddingEnd">15dp</item>
-        <item name="android:textColor">@color/colorAccent</item>
+    <style name="AppTheme.GREEN" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/green_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/green_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/green_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/green_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/green_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/green_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/green_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/green_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/green_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/green_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/green_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/green_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/green_theme_light_error</item>
+        <item name="colorErrorContainer">@color/green_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/green_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/green_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/green_theme_light_background</item>
+        <item name="colorOnBackground">@color/green_theme_light_onBackground</item>
+        <item name="colorSurface">@color/green_theme_light_surface</item>
+        <item name="colorOnSurface">@color/green_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/green_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/green_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/green_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/green_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/green_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/green_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorGreen</item>
+        <item name="colorAccent">@color/secondaryColorGreen</item>
+        <item name="overviewPillColor">@color/overviewPillColorGreen</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 
-    <style name="warning_label">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:paddingStart">15dp</item>
-        <item name="android:paddingEnd">15dp</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textColor">#ff0000</item>
+    <style name="AppTheme.LIGHTGREEN" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/lightgreen_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/lightgreen_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lightgreen_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lightgreen_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lightgreen_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/lightgreen_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lightgreen_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lightgreen_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lightgreen_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/lightgreen_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lightgreen_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lightgreen_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/lightgreen_theme_light_error</item>
+        <item name="colorErrorContainer">@color/lightgreen_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/lightgreen_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/lightgreen_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lightgreen_theme_light_background</item>
+        <item name="colorOnBackground">@color/lightgreen_theme_light_onBackground</item>
+        <item name="colorSurface">@color/lightgreen_theme_light_surface</item>
+        <item name="colorOnSurface">@color/lightgreen_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lightgreen_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lightgreen_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lightgreen_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lightgreen_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lightgreen_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lightgreen_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorLightGreen</item>
+        <item name="colorAccent">@color/secondaryColorLightGreen</item>
+        <item name="overviewPillColor">@color/overviewPillColorLightGreen</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
+
+    <style name="AppTheme.LIME" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/lime_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/lime_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/lime_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/lime_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/lime_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/lime_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/lime_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/lime_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/lime_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/lime_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/lime_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/lime_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/lime_theme_light_error</item>
+        <item name="colorErrorContainer">@color/lime_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/lime_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/lime_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/lime_theme_light_background</item>
+        <item name="colorOnBackground">@color/lime_theme_light_onBackground</item>
+        <item name="colorSurface">@color/lime_theme_light_surface</item>
+        <item name="colorOnSurface">@color/lime_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/lime_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/lime_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/lime_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/lime_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/lime_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/lime_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorLime</item>
+        <item name="colorAccent">@color/secondaryColorLime</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+        <!-- Color of pills -->
+        <item name="PillColorStart">@color/PillColorStartLime</item>
+        <item name="PillColorEnd">@color/PillColorEndLime</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/white</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/white</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/white</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/white</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+    </style>
+
+    <style name="AppTheme.YELLOW" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryDarkColorYellow</item>
+        <item name="colorOnPrimary">@color/yellow_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/yellow_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/yellow_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/yellow_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/yellow_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/yellow_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/yellow_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/yellow_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/yellow_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/yellow_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/yellow_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/yellow_theme_light_error</item>
+        <item name="colorErrorContainer">@color/yellow_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/yellow_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/yellow_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/yellow_theme_light_background</item>
+        <item name="colorOnBackground">@color/yellow_theme_light_onBackground</item>
+        <item name="colorSurface">@color/yellow_theme_light_surface</item>
+        <item name="colorOnSurface">@color/yellow_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/yellow_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/yellow_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/yellow_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/yellow_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/yellow_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/yellow_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorYellow</item>
+        <item name="colorAccent">@color/secondaryColorYellow</item>
+        <item name="overviewPillColor">@color/overviewPillColorYellow</item>
+        <item name="android:popupBackground">@color/white_alpha_80</item>
+        <item name="android:windowBackground">@drawable/minions2</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
+        <!-- Fragment background for some themes default transparent  -->
+        <item name="fragmentbackground">@color/white_alpha_40</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.AMBER" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorAmber</item>
+        <item name="colorOnPrimary">@color/amber_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/amber_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/amber_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/amber_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/amber_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/amber_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/amber_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/amber_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/amber_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/amber_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/amber_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/amber_theme_light_error</item>
+        <item name="colorErrorContainer">@color/amber_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/amber_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/amber_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/amber_theme_light_background</item>
+        <item name="colorOnBackground">@color/amber_theme_light_onBackground</item>
+        <item name="colorSurface">@color/amber_theme_light_surface</item>
+        <item name="colorOnSurface">@color/amber_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/amber_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/amber_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/amber_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/amber_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/amber_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/amber_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorAmber</item>
+        <item name="colorAccent">@color/secondaryColorAmber</item>
+        <item name="overviewPillColor">@color/overviewPillColorAmber</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
+        <item name="iconColorbottomAppbar" >@color/white</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.ORANGE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/orange_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/orange_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/orange_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/orange_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/orange_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/orange_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/orange_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/orange_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/orange_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/orange_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/orange_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/orange_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/orange_theme_light_error</item>
+        <item name="colorErrorContainer">@color/orange_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/orange_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/orange_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/orange_theme_light_background</item>
+        <item name="colorOnBackground">@color/orange_theme_light_onBackground</item>
+        <item name="colorSurface">@color/orange_theme_light_surface</item>
+        <item name="colorOnSurface">@color/orange_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/orange_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/orange_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/orange_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/orange_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/orange_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/orange_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorOrange</item>
+        <item name="colorAccent">@color/secondaryColorOrange</item>
+        <item name="overviewPillColor">@color/overviewPillColorOrange</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.DEEPORANGE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/deeporange_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/deeporange_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/deeporange_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/deeporange_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/deeporange_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/deeporange_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/deeporange_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/deeporange_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/deeporange_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/deeporange_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/deeporange_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/deeporange_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/deeporange_theme_light_error</item>
+        <item name="colorErrorContainer">@color/deeporange_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/deeporange_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/deeporange_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/deeporange_theme_light_background</item>
+        <item name="colorOnBackground">@color/deeporange_theme_light_onBackground</item>
+        <item name="colorSurface">@color/deeporange_theme_light_surface</item>
+        <item name="colorOnSurface">@color/deeporange_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/deeporange_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/deeporange_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/deeporange_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/deeporange_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/deeporange_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/deeporange_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorDeepOrange</item>
+        <item name="colorAccent">@color/secondaryColorDeepOrange</item>
+        <item name="overviewPillColor">@color/overviewPillColorDeepOrange</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
+        <item name="android:windowBackground">@drawable/orange</item>
+        <item name="iconColorbottomAppbar">@color/deeporange_theme_light_onPrimary</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.BROWN" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/brown_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/brown_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/brown_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/brown_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/brown_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/brown_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/brown_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/brown_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/brown_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/brown_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/brown_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/brown_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/brown_theme_light_error</item>
+        <item name="colorErrorContainer">@color/brown_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/brown_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/brown_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/brown_theme_light_background</item>
+        <item name="colorOnBackground">@color/brown_theme_light_onBackground</item>
+        <item name="colorSurface">@color/brown_theme_light_surface</item>
+        <item name="colorOnSurface">@color/brown_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/brown_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/brown_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/brown_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/brown_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/brown_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/brown_theme_light_primaryInverse</item>
+
+        <item name="colorPrimaryDark">@color/primaryDarkColorBrown</item>
+        <item name="colorAccent">@color/secondaryColorBrown</item>
+        <item name="overviewPillColor">@color/overviewPillColorBrown</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/deeporange_theme_light_onPrimary</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.GRAY" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorGray</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorGray</item>
+        <item name="colorAccent">@color/secondaryColorGray</item>
+        <item name="overviewPillColor">@color/overviewPillColorGray</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <!---Bolus Icon Color-->
+        <item name="bolusIconColor" >@color/black</item>
+        <!---Carbs Icon Color-->
+        <item name="carbsIconColor" >@color/black</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/black</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="canceltempbasalIconColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/black</item>
+        <!---First Aid Icon Color-->
+        <item name="firstAidIconColor" >@color/black</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.BLUEGRAY" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primaryColorBlueGray</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorBlueGray</item>
+        <item name="colorAccent">@color/secondaryColorBlueGray</item>
+        <item name="overviewPillColor">@color/overviewPillColorBlueGray</item>
+        <item name="iconColorbottomAppbar">@color/black_alpha_60</item>
+        <item name="iconColorToolbar">@color/black_alpha_60</item>
+        <item name="iconColor">@color/sphere_plastic_grey</item>
+        <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
+    </style>
+
+    <style name="AppTheme.DARKSIDE" parent="AppTheme.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="bgInRange">@color/blue_default</item>
+        <item name="colorPrimary">@color/primaryColorDarkside</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColorDarkside</item>
+        <item name="colorAccent">@color/secondaryColorDarkside</item>
+        <item name="colorSecondary">@color/secondaryColorDarkside</item>
+        <item name="colorPrimaryVariant">@color/primaryLightColorDarkside</item>
+        <item name="colorSecondaryVariant">@color/secondaryLightColorDarkside</item>
+        <item name="colorOnPrimary">@color/primaryTextColorDarkside</item>
+        <item name="overviewPillColor">@color/plastic_grey</item>
+        <item name="android:navigationBarColor">@color/sphere_plastic_grey</item>
+        <item name="android:windowBackground">@drawable/ic_overview_bg_gradient</item>
+        <item name="bottomAppBarStyle">@style/BottomAppbar</item>
+        <item name="colorSurface">@color/plastic</item>
+        <item name="colorOnSurface">@color/sphere_plastic_grey</item>
+        <item name="fabmenubackground">@color/fabmenubackgroundDarkside</item>
+        <!-- Color of pills -->
+        <item name="PillColorStart">@color/PillColorStartDarkside</item>
+        <item name="PillColorEnd">@color/PillColorEndDarkside</item>
+        <item name="colorGraphBackground">@color/plastic_grey</item>
+        <!-- Icons of bottom naviagtion bar -->
+        <item name="iconInsulin">@drawable/ic_pumpe_48</item>
+        <item name="iconCarbs">@drawable/ic_carb_48</item>
+        <item name="iconColorToolbar">@color/sphere_plastic_grey</item>
+        <item name="iconColorbottomAppbar">@color/sphere_plastic_grey</item>
+        <!---Wizard Icon Color-->
+        <item name="wizardIconColor" >@color/white</item>
+        <!---CGM BOYDA Icon Color-->
+        <item name="boyda" >@color/white</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/white</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/white</item>
+        <item name="temptargetIconColor1" >@color/white</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/white</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="cancelextbolusIconColor" >@color/white</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/white</item>
+        <!---Prime fill Icon Color-->
+        <item name="primefillIconColor" >@color/white</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/white</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/white</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/white</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/white</item>
+        <item name="exerciseIconColor02" >@color/white</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/white</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/white</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/white</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/white</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/white</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/white</item>
+        <!---QuickWizzard Icon Color-->
+        <item name="quickwizzardIconColor" >@color/white</item>
+        <!---Calibration Icon Color-->
+        <item name="calibrationIconColor" >@color/white</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="NavigationDrawer" />
+
 
 </resources>

@@ -31,11 +31,10 @@ class StatusLightHandler @Inject constructor(
     private val config: Config,
     private val repository: AppRepository
 ) {
-
     /**
      * applies the extended statusLight subview on the overview fragment
      */
-    fun updateStatusLights(careportal_cannula_age: TextView?, careportal_insulin_age: TextView?, careportal_reservoir_level: TextView?, careportal_sensor_age: TextView?, careportal_sensor_battery_level: TextView?, careportal_pb_age: TextView?, careportal_battery_level: TextView?) {
+    fun updateStatusLights(careportal_cannula_age: TextView?, careportal_insulin_age: TextView?, careportal_reservoir_level: TextView?, careportal_sensor_age: TextView?, careportal_sensor_battery_level: TextView?, careportal_pb_age: TextView?, careportal_battery_level: TextView?,  colorNormal: Int, colorWarning: Int, colorAlarm: Int) {
         val pump = activePlugin.activePump
         val bgSource = activePlugin.activeBgSource
         handleAge(careportal_cannula_age, TherapyEvent.Type.CANNULA_CHANGE, R.string.key_statuslights_cage_warning, 48.0, R.string.key_statuslights_cage_critical, 72.0)
@@ -46,7 +45,7 @@ class StatusLightHandler @Inject constructor(
         }
         if (!config.NSCLIENT) {
             if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
-                handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U")
+                handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U", colorNormal, colorWarning, colorAlarm)
             } else {
                 handleLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, "U")
             }
@@ -76,8 +75,8 @@ class StatusLightHandler @Inject constructor(
         val urgent = sp.getDouble(urgentSettings, defaultUrgentThreshold)
         val therapyEvent = repository.getLastTherapyRecordUpToNow(type).blockingGet()
         if (therapyEvent is ValueWrapper.Existing) {
-            warnColors.setColorByAge(view, therapyEvent.value, warn, urgent)
-            view?.text = therapyEvent.value.age(rh.shortTextMode(), rh, dateUtil)
+            warnColors.setColorByAge(view,  therapyEvent.value, warn, urgent)
+            view?.text =  therapyEvent.value.age(rh.shortTextMode(), rh, dateUtil)
         } else {
             view?.text = if (rh.shortTextMode()) "-" else rh.gs(R.string.notavailable)
         }
@@ -93,11 +92,11 @@ class StatusLightHandler @Inject constructor(
 
     // Omnipod only reports reservoir level when it's 50 units or less, so we display "50+U" for any value > 50
     @Suppress("SameParameterValue")
-    private fun handleOmnipodReservoirLevel(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String) {
+    private fun handleOmnipodReservoirLevel(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String, colorNormal: Int, colorWarning: Int, colorAlarm: Int) {
         if (level > OmnipodConstants.MAX_RESERVOIR_READING) {
             @Suppress("SetTextI18n")
             view?.text = " 50+$units"
-            view?.setTextColor(Color.WHITE)
+            view?.setTextColor(colorNormal)
         } else {
             handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units)
         }

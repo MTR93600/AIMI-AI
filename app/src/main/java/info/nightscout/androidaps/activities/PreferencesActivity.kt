@@ -9,6 +9,8 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.ActivityPreferencesBinding
+import info.nightscout.androidaps.events.EventThemeSwitch
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.locale.LocaleHelper
 
 class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
@@ -20,7 +22,6 @@ class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
         binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

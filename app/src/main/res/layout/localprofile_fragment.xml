@@ -1,4 +1,4 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,7 +12,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/unlock"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -31,7 +31,8 @@
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
                 android:hint="@string/select_profile"
-                app:boxStrokeColor="@color/list_delimiter">
+                android:textColorHint="@color/white"
+                app:boxStrokeColor="?attr/tabBgColorSelected">
 
                 <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                     android:id="@+id/profileList"
@@ -321,7 +322,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileswitch"
-                style="@style/GrayButton"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
@@ -342,7 +343,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/reset"
-                    style="@style/GrayButton"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -357,7 +358,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/save"
-                    style="@style/GrayButton"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -375,6 +376,4 @@
 
     </LinearLayout>
 
-</ScrollView>
-
-
+</androidx.core.widget.NestedScrollView>

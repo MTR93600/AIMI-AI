@@ -22,7 +22,7 @@
                 android:stretchColumns="2" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/GrayButton"
+                style="@style/Widget.MaterialComponents.Button"
                 android:id="@+id/summary_details_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,7 +33,6 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 android:text="@string/check_preferences_details_btn"
-                android:textColor="?attr/treatmentButton"
                 android:visibility="gone" />
 
         </LinearLayout>

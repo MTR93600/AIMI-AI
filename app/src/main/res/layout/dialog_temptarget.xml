@@ -48,6 +48,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
             android:orientation="horizontal">
 
             <TextView
@@ -143,14 +144,14 @@
 
             <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/target_cancel"
-                style="?android:attr/buttonStyle"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0px"
                 android:layout_height="fill_parent"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginEnd="2dp"
                 android:layout_weight="0.5"
                 android:drawableTop="@drawable/ic_target_cancel"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:text="@string/cancel"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/tempTargetConfirmation"
@@ -158,14 +159,14 @@
 
             <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/eating_soon"
-                style="?android:attr/buttonStyle"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0px"
                 android:layout_height="fill_parent"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginEnd="2dp"
                 android:layout_weight="0.5"
                 android:drawableTop="@drawable/ic_target_eatingsoon"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:text="@string/eatingsoon"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/carbsColor"
@@ -173,14 +174,14 @@
 
             <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/activity"
-                style="?android:attr/buttonStyle"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0px"
                 android:layout_height="fill_parent"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginEnd="2dp"
                 android:layout_weight="0.5"
                 android:drawableTop="@drawable/ic_target_activity"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:text="@string/activity"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/exerciseColor"
@@ -188,13 +189,13 @@
 
             <info.nightscout.androidaps.utils.ui.SingleClickButton
                 android:id="@+id/hypo"
-                style="?android:attr/buttonStyle"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0px"
                 android:layout_height="fill_parent"
                 android:layout_weight="0.5"
                 android:drawableTop="@drawable/ic_target_hypo"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:text="@string/hypo"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/lowColor"
@@ -213,4 +214,3 @@
     </LinearLayout>
 
 </ScrollView>
-

@@ -4,6 +4,8 @@ import android.graphics.Typeface
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import dagger.android.HasAndroidInjector
+import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 
 class LabelWithElement(
@@ -22,6 +24,7 @@ class LabelWithElement(
                 text = textPre
                 setPadding(px, px, px, px)
                 setTypeface(typeface, Typeface.BOLD)
+                setTextColor(rh.gac( R.attr.TitleAndLabelTextColor))
                 gravity = Gravity.CENTER
             }
         )

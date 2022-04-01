@@ -7,7 +7,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/unlock"
-        style="@style/GrayButton"
+         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -21,7 +21,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/nav_logsettings"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -29,12 +29,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/nav_logsettings"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/nav_logsettings" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/log_send"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -42,12 +41,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/send_all_logs"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/send_all_logs" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/log_delete"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -55,12 +53,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/delete_logs"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/delete_logs" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/nav_export"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -68,12 +65,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/nav_export"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/nav_export" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/nav_import"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -81,13 +77,12 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/nav_import"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/nav_import" />
 
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/export_csv"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -95,12 +90,11 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/ue_export_to_csv"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/ue_export_to_csv"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/nav_resetdb"
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -108,8 +102,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="3dp"
             android:layout_weight="0.5"
-            android:text="@string/nav_resetdb"
-            android:textColor="?attr/treatmentButton" />
+            android:text="@string/nav_resetdb" />
 
     </LinearLayout>
 

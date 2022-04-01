@@ -219,8 +219,7 @@ class TreatmentsProfileSwitchFragment : DaggerFragment() {
             }
             holder.binding.clone.visibility = (profileSwitch is ProfileSealed.PS).toVisibility()
             holder.binding.spacer.visibility = (profileSwitch is ProfileSealed.PS).toVisibility()
-            val nextTimestamp = if (profileSwitchList.size != position + 1) profileSwitchList[position + 1].timestamp else 0L
-            holder.binding.delimiter.visibility = dateUtil.isSameDayGroup(profileSwitch.timestamp, nextTimestamp).toVisibility()
+            holder.binding.root.setBackgroundColor(rh.gac(view?.context, if (profileSwitch is ProfileSealed.PS) R.attr.colorSurface else R.attr.okBackground))
         }
 
         override fun getItemCount() = profileSwitchList.size

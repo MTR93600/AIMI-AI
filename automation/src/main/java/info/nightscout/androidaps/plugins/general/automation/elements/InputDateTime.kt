@@ -7,6 +7,9 @@ import android.text.format.DateFormat
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.findFragment
+import com.google.android.material.datepicker.MaterialDatePicker
 import info.nightscout.androidaps.automation.R
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.resources.ResourceHelper
@@ -33,7 +36,7 @@ class InputDateTime(private val rh: ResourceHelper, private val dateUtil: DateUt
                         setPadding(px, px, px, px)
                         setOnClickListener {
                             root.context?.let {
-                                val cal = Calendar.getInstance()
+                              val cal = Calendar.getInstance()
                                 cal.timeInMillis = value
                                 DatePickerDialog(
                                     it, R.style.MaterialPickerTheme,
@@ -50,6 +53,26 @@ class InputDateTime(private val rh: ResourceHelper, private val dateUtil: DateUt
                                     cal.get(Calendar.MONTH),
                                     cal.get(Calendar.DAY_OF_MONTH)
                                 ).show()
+
+                                /*
+                                val datePicker =
+                                    MaterialDatePicker.Builder.datePicker()
+                                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                                        .setTheme(info.nightscout.androidaps.core.R.style.MaterialDatePickerTheme)
+                                        .build()
+
+                                datePicker.addOnPositiveButtonClickListener {
+                                    val c = Calendar.getInstance()
+                                    c.time =  Date(it)
+
+                                    Calendar.getInstance().also { cal ->
+                                        cal.timeInMillis = value
+                                        cal.set(Calendar.YEAR, c.get(Calendar.YEAR))
+                                        cal.set(Calendar.MONTH, c.get(Calendar.MONTH))
+                                        cal.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH))
+                                        text = dateUtil.dateString(value)
+                                    }
+                                }*/
                             }
                         }
                     })

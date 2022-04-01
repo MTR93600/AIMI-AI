@@ -3,7 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="40dp"
-    android:paddingLeft="15dp">
+    android:paddingStart="15dp">
 
     <TextView
         android:id="@+id/rileylink_device_label"
@@ -14,7 +14,7 @@
         android:textSize="12dp" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/GrayButton"
+        style="@style/Widget.MaterialComponents.Button"
         android:id="@+id/rileylink_device_action"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"

@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.MaterialComponents.CardView"
     android:id="@+id/cv"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
     android:layout_margin="1dp"
-    card_view:cardBackgroundColor="?attr/notificationUrgent"
-    card_view:cardCornerRadius="6dp">
+    app:cardCornerRadius="6dp"
+    app:contentPadding="2dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/notificationUrgent"
+    app:cardUseCompatPadding="false"
+    android:layout_gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:background="?attr/notificationUrgent"
         android:orientation="horizontal">
 
         <TextView
@@ -29,13 +34,14 @@
             tools:ignore="HardcodedText" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/GrayButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/dismiss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="2dp"
             android:minHeight="0dp"
             android:text="@string/dismiss" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

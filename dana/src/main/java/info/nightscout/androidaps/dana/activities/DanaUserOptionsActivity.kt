@@ -1,7 +1,9 @@
 package info.nightscout.androidaps.dana.activities
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.activities.ErrorHelperActivity
 import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
@@ -12,6 +14,7 @@ import info.nightscout.androidaps.events.EventInitializationChanged
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.CommandQueue
 import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -61,6 +64,25 @@ class DanaUserOptionsActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        try {
+            setTheme(themeToSet)
+            val theme = super.getTheme()
+            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
+            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        if ( sp.getBoolean(info.nightscout.androidaps.core.R.string.key_use_dark_mode, true)) {
+            val cd = ColorDrawable(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, info.nightscout.androidaps.core.R.color.background_dark)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
+        } else {
+            val cd = ColorDrawable(sp.getInt("lightBackgroundColor", ContextCompat.getColor(this, info.nightscout.androidaps.core.R.color.background_light)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
+        }
+
         binding = DanarUserOptionsActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

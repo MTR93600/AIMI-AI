@@ -437,7 +437,7 @@
             android:layout_margin="20dp" />
 
         <include
-            android:id="@+id/close_layout"
+            android:id="@+id/closeLayoutProfileviewer"
             layout="@layout/close" />
 
     </LinearLayout>

@@ -1,18 +1,20 @@
 package info.nightscout.androidaps.plugins.pump.combo;
 
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import javax.inject.Inject;
 
@@ -43,7 +45,7 @@ public class ComboFragment extends DaggerFragment {
     @Inject ComboErrorUtil errorUtil;
 
     private final CompositeDisposable disposable = new CompositeDisposable();
-
+    SwipeRefreshLayout swipeRefresh;
     private TextView stateView;
     private TextView activityView;
     private TextView batteryView;
@@ -52,9 +54,13 @@ public class ComboFragment extends DaggerFragment {
     private TextView lastBolusView;
     private TextView baseBasalRate;
     private TextView tempBasalText;
-    private Button refreshButton;
     private TextView bolusCount;
     private TextView tbrCount;
+    private ColorStateList defaultStateTextColors = null;
+    private ColorStateList defaultActivityColors = null;
+    private ColorStateList defaultBatteryColors = null;
+    private ColorStateList defaultReservoirColors = null;
+    private ColorStateList defaultConnectionColors = null;
 
     private View errorCountDelimiter;
     private LinearLayout errorCountLayout;
@@ -84,15 +90,22 @@ public class ComboFragment extends DaggerFragment {
         errorCountDots = view.findViewById(R.id.combo_connection_error_dots);
         errorCountValue = view.findViewById(R.id.combo_connection_error_value);
 
-        refreshButton = view.findViewById(R.id.combo_refresh_button);
-        refreshButton.setOnClickListener(v -> {
-            refreshButton.setEnabled(false);
-            commandQueue.readStatus(rh.gs(R.string.user_request), new Callback() {
-                @Override
-                public void run() {
-                    runOnUiThread(() -> refreshButton.setEnabled(true));
-                }
-            });
+        swipeRefresh = view.findViewById(R.id.swipeRefresh);
+        swipeRefresh.setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default);
+        swipeRefresh.setProgressBackgroundColorSchemeColor(ResourcesCompat.getColor(getResources(), R.color.black_alpha_10, null));
+
+        this.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //do the refresh of data here
+                commandQueue.readStatus("User request", new Callback() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> swipeRefresh.setRefreshing(false));
+                    }
+                });
+                swipeRefresh.setRefreshing(false);
+            }
         });
 
         return view;
@@ -129,6 +142,9 @@ public class ComboFragment extends DaggerFragment {
 
     public void updateGui() {
 
+        if (this.defaultStateTextColors == null) {
+            this.defaultStateTextColors = stateView.getTextColors();
+        }
         // state
         stateView.setText(comboPlugin.getStateSummary());
         PumpState ps = comboPlugin.getPump().state;
@@ -145,6 +161,9 @@ public class ComboFragment extends DaggerFragment {
             stateView.setTypeface(null, Typeface.NORMAL);
         }
 
+        if (this.defaultActivityColors == null) {
+            this.defaultActivityColors = activityView.getTextColors();
+        }
         // activity
         String activity = comboPlugin.getPump().activity;
         if (activity != null) {
@@ -166,6 +185,9 @@ public class ComboFragment extends DaggerFragment {
         }
 
         if (comboPlugin.isInitialized()) {
+            if (this.defaultBatteryColors == null) {
+                this.defaultBatteryColors = batteryView.getTextColors();
+            }
             // battery
             batteryView.setTextSize(20);
             if (ps.batteryState == PumpState.EMPTY) {
@@ -176,7 +198,7 @@ public class ComboFragment extends DaggerFragment {
                 batteryView.setTextColor(rh.gac(getContext(), R.attr.omniYellowColor));
             } else {
                 batteryView.setText("{fa-battery-full}");
-                batteryView.setTextColor(Color.WHITE);
+                batteryView.setTextColor(this.defaultBatteryColors);
             }
 
             // reservoir
@@ -191,6 +213,9 @@ public class ComboFragment extends DaggerFragment {
                 reservoirView.setText(rh.gs(R.string.combo_reservoir_normal));
             }
 
+            if (this.defaultReservoirColors == null) {
+                this.defaultReservoirColors = reservoirView.getTextColors();
+            }
             if (ps.insulinState == PumpState.UNKNOWN) {
                 reservoirView.setTextColor(rh.gac(getContext(), R.attr.defaultTextColor));
                 reservoirView.setTypeface(null, Typeface.NORMAL);
@@ -205,6 +230,9 @@ public class ComboFragment extends DaggerFragment {
                 reservoirView.setTypeface(null, Typeface.NORMAL);
             }
 
+            if (this.defaultConnectionColors == null) {
+                this.defaultConnectionColors = lastConnectionView.getTextColors();
+            }
             // last connection
             String minAgo = dateUtil.minAgo(rh, comboPlugin.getPump().lastSuccessfulCmdTime);
             long min = (System.currentTimeMillis() - comboPlugin.getPump().lastSuccessfulCmdTime) / 1000 / 60;

@@ -80,6 +80,7 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="1dp"
                 android:layout_gravity="center_vertical">
 
                 <LinearLayout
@@ -138,6 +139,7 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="1dp"
                 android:layout_gravity="center_vertical">
 
                 <TextView
@@ -215,17 +217,19 @@
             android:padding="5dp">
 
             <com.google.android.material.button.MaterialButton
-                style="@style/GrayButton"
+                style="@style/Widget.MaterialComponents.Button"
                 android:id="@+id/plus1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="2dp"
                 android:layout_weight="1"
                 android:text="+5"
                 tools:ignore="HardcodedText" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/GrayButton"
+                style="@style/Widget.MaterialComponents.Button"
                 android:id="@+id/plus2"
+                android:layout_marginEnd="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -233,7 +237,7 @@
                 tools:ignore="HardcodedText" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/GrayButton"
+                style="@style/Widget.MaterialComponents.Button"
                 android:id="@+id/plus3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

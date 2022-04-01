@@ -3,7 +3,10 @@ package info.nightscout.androidaps.activities
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -15,6 +18,7 @@ import android.widget.EditText
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.core.databinding.ActivityTddStatsBinding
 import info.nightscout.androidaps.database.AppRepository
@@ -24,8 +28,10 @@ import info.nightscout.androidaps.events.EventPumpStatusChanged
 import info.nightscout.androidaps.extensions.total
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.CommandQueue
+import info.nightscout.androidaps.interfaces.Loop
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -44,13 +50,13 @@ import kotlin.math.roundToInt
 
 class TDDStatsActivity : NoSplashAppCompatActivity() {
 
-    @Inject lateinit var sp: SP
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var commandQueue: CommandQueue
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var aapsSchedulers: AapsSchedulers
+    @Inject lateinit var loop: Loop
 
     private lateinit var binding: ActivityTddStatsBinding
     private val disposable = CompositeDisposable()
@@ -63,6 +69,25 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        try {
+            setTheme(themeToSet)
+            val theme = super.getTheme()
+            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
+            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        if ( sp.getBoolean(info.nightscout.androidaps.core.R.string.key_use_dark_mode, true)) {
+            val cd = ColorDrawable(sp.getInt("darkBackgroundColor", ContextCompat.getColor(this, R.color.background_dark)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable(cd)
+        } else {
+            val cd = ColorDrawable(sp.getInt("lightBackgroundColor", ContextCompat.getColor(this, R.color.background_light)))
+            if ( !sp.getBoolean("backgroundcolor", true)) window.setBackgroundDrawable( cd)
+        }
+
         binding = ActivityTddStatsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -81,8 +106,6 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
             sp.putString("TBB", tbb)
         }
         binding.totalBaseBasal.setText(tbb)
-        if (!activePlugin.activePump.pumpDescription.needsManualTDDLoad) binding.reload.visibility = View.GONE
-
         // stats table
 
         // add stats headers to tables
@@ -153,22 +176,30 @@ class TDDStatsActivity : NoSplashAppCompatActivity() {
             }, TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT)
         )
 
-        binding.reload.setOnClickListener {
-            binding.reload.visibility = View.GONE
-            binding.connectionStatus.visibility = View.VISIBLE
-            binding.message.visibility = View.VISIBLE
-            binding.message.text = rh.gs(R.string.warning_Message)
-            commandQueue.loadTDDs(object : Callback() {
-                override fun run() {
-                    loadDataFromDB()
-                    runOnUiThread {
-                        binding.reload.visibility = View.VISIBLE
-                        binding.connectionStatus.visibility = View.GONE
-                        binding.message.visibility = View.GONE
-                    }
+        if (activePlugin.activePump.pumpDescription.needsManualTDDLoad){
+            with (binding.swipeRefreshLoop) {
+                setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
+                setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
+                setOnRefreshListener {
+                    binding.mainTableHeader.visibility = View.INVISIBLE
+                    binding.connectionStatus.visibility = View.VISIBLE
+                    binding.message.visibility = View.VISIBLE
+                    binding.message.text = rh.gs(R.string.warning_Message)
+                    commandQueue.loadTDDs(object : Callback() {
+                        override fun run() {
+                            loadDataFromDB()
+                            runOnUiThread {
+                                binding.mainTableHeader.visibility = View.VISIBLE
+                                binding.connectionStatus.visibility = View.GONE
+                                binding.message.visibility = View.GONE
+                                binding.swipeRefreshLoop.isRefreshing = false
+                            }
+                        }
+                    })
                 }
-            })
+            }
         }
+
         binding.totalBaseBasal.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 binding.totalBaseBasal.clearFocus()

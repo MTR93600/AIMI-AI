@@ -19,6 +19,7 @@ import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.plugins.profile.local.LocalProfilePlugin
 import info.nightscout.androidaps.plugins.profile.local.events.EventLocalProfileChanged
 import info.nightscout.androidaps.utils.DateUtil
@@ -69,6 +70,7 @@ class ProfileHelperActivity : NoSplashAppCompatActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityProfilehelperBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -170,12 +172,12 @@ class ProfileHelperActivity : NoSplashAppCompatActivity() {
 
         binding.basalPctFromTdd.setParams(32.0, 32.0, 37.0, 1.0, DecimalFormat("0"), false, null)
 
-        binding.tdds.addView(TextView(this).apply { text = rh.gs(R.string.tdd) + ": " + rh.gs(R.string.calculation_in_progress) })
+        binding.tdd.addView(TextView(this).apply { text = rh.gs(R.string.tdd) + ": " + rh.gs(R.string.calculation_in_progress) })
         Thread {
             val tdds = tddCalculator.stats(this)
             runOnUiThread {
-                binding.tdds.removeAllViews()
-                binding.tdds.addView(tdds)
+                binding.tdd.removeAllViews()
+                binding.tdd.addView(tdds)
             }
         }.start()
 

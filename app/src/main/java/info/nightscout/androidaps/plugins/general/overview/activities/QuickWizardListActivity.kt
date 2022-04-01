@@ -2,6 +2,17 @@ package info.nightscout.androidaps.plugins.general.overview.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.util.SparseArray
 import android.view.*
 import androidx.core.util.forEach
@@ -11,6 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.activities.DaggerAppCompatActivityWithResult
+import info.nightscout.androidaps.activities.MyPreferenceFragment
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
+import info.nightscout.androidaps.databinding.ActivityPreferencesBinding
 import info.nightscout.androidaps.databinding.OverviewQuickwizardlistActivityBinding
 import info.nightscout.androidaps.databinding.OverviewQuickwizardlistItemBinding
 import info.nightscout.androidaps.extensions.toVisibility
@@ -20,6 +34,7 @@ import info.nightscout.androidaps.utils.dragHelpers.OnStartDragListener
 import info.nightscout.androidaps.utils.dragHelpers.SimpleItemTouchHelperCallback
 import info.nightscout.androidaps.plugins.general.overview.dialogs.EditQuickWizardDialog
 import info.nightscout.androidaps.plugins.general.overview.events.EventQuickWizardChange
+import info.nightscout.androidaps.plugins.general.themeselector.util.ThemeUtil
 import info.nightscout.androidaps.utils.ActionModeHelper
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -32,14 +47,12 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
-class QuickWizardListActivity : DaggerAppCompatActivityWithResult(), OnStartDragListener {
+class QuickWizardListActivity : NoSplashAppCompatActivity() , OnStartDragListener{
 
     @Inject lateinit var aapsSchedulers: AapsSchedulers
-    @Inject lateinit var rxBus: RxBus
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var quickWizard: QuickWizard
     @Inject lateinit var dateUtil: DateUtil
-    @Inject lateinit var sp: SP
 
     private var disposable: CompositeDisposable = CompositeDisposable()
     private lateinit var actionHelper: ActionModeHelper<QuickWizardEntry>
@@ -129,6 +142,17 @@ class QuickWizardListActivity : DaggerAppCompatActivityWithResult(), OnStartDrag
         title = rh.gs(R.string.quickwizard)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        // important to set the theme here again for preferences - normal way do not work here
+        var themeToSet = sp.getInt("theme", ThemeUtil.THEME_DARKSIDE)
+        try {
+            setTheme(themeToSet)
+            val theme = super.getTheme()
+            // https://stackoverflow.com/questions/11562051/change-activitys-theme-programmatically
+            theme.applyStyle(ThemeUtil.getThemeId(themeToSet), true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         binding.recyclerview.setHasFixedSize(true)
         binding.recyclerview.layoutManager = LinearLayoutManager(this)

@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="?attr/fragmentbackground"
     tools:context=".plugins.general.overview.OverviewFragment">
 
-    <ScrollView
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/top_part_scrollbar"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:id="@+id/inner_layout"
@@ -37,11 +49,15 @@
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical|center_horizontal"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
                     android:hint="active profile"
                     android:text="Profile"
                     android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:background="@drawable/ic_concinnity_pille"
+                    app:drawableStartCompat="@drawable/ic_user_white"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -51,11 +67,15 @@
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:gravity="center_vertical|center_horizontal"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
                     android:hint="temp target"
                     android:text="@string/notavailable"
                     android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:background="@drawable/ic_concinnity_pille"
+                    app:drawableStartCompat="@drawable/ic_zielkreuz_white"
                     tools:ignore="HardcodedText" />
 
             </LinearLayout>
@@ -120,7 +140,7 @@
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/pump_status_layout"
@@ -149,3 +169,4 @@
         layout="@layout/overview_buttons_layout" />
 
 </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

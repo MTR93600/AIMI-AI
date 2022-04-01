@@ -34,7 +34,7 @@ class TriggerBTDeviceTest : TriggerTestBase() {
 
     @Test
     fun icon() {
-        Assert.assertEquals(Optional.of(R.drawable.ic_bluetooth_white_48dp), TriggerBTDevice(injector).icon())
+        Assert.assertEquals(Optional.of(R.drawable.ic_bluetooth_48dp), TriggerBTDevice(injector).icon())
     }
 
     @Test fun duplicate() {

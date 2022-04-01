@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.data
 
+import android.content.Context
 import info.nightscout.androidaps.plugins.general.overview.graphExtensions.DataPointWithLabelInterface
 import info.nightscout.androidaps.plugins.general.overview.graphExtensions.PointsWithLabelGraphSeries
 import info.nightscout.androidaps.utils.DateUtil
@@ -83,11 +84,9 @@ class IobTotal(val time: Long) : DataPointWithLabelInterface {
             json.put("lastBolusTime", lastBolusTime)
             json.put("time", dateUtil.toISOString(time))
             /*
-
             This is requested by SMB determine_basal but by based on Scott's info
             it's MDT specific safety check only
             It's causing rounding issues in determine_basal
-
             JSONObject lastTemp = new JSONObject();
             lastTemp.put("date", lastTempDate);
             lastTemp.put("rate", lastTempRate);
@@ -104,7 +103,7 @@ class IobTotal(val time: Long) : DataPointWithLabelInterface {
     }
 
     // DataPoint interface
-    override var color = 0
+    private var color = 0
     override fun getX(): Double = time.toDouble()
     override fun getY(): Double = iob
     override fun setY(y: Double) {}
@@ -112,6 +111,9 @@ class IobTotal(val time: Long) : DataPointWithLabelInterface {
     override val duration = 0L
     override val shape = PointsWithLabelGraphSeries.Shape.IOBPREDICTION
     override val size = 0.5f
+    override fun getColor(context: Context?): Int {
+        return color
+    }
 
     fun setColor(color: Int): IobTotal {
         this.color = color

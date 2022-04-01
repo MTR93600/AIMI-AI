@@ -2,6 +2,8 @@ package info.nightscout.androidaps.plugins.general.automation.elements
 
 import android.view.Gravity
 import android.widget.LinearLayout
+import androidx.core.view.marginBottom
+import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.automation.R
 import info.nightscout.androidaps.utils.ui.NumberPicker
 import java.text.DecimalFormat

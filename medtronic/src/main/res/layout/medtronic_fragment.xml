@@ -2,6 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/fragmentbackground"
     tools:context="info.nightscout.androidaps.plugins.pump.medtronic.MedtronicFragment">
 
 
@@ -32,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:background="?attr/pumpStatusBackground"
+                    android:background="?attr/fragmentbackground"
                     android:gravity="center_vertical|center_horizontal"
                     android:text="@string/initializing"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -570,38 +572,47 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
+        <info.nightscout.androidaps.utils.ui.SingleClickButton
             android:id="@+id/refresh"
             style="@style/ButtonSmallFontStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_actions_refill"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
+            android:textAlignment="center"
             android:text="@string/refresh" />
 
 
-        <com.google.android.material.button.MaterialButton
+        <info.nightscout.androidaps.utils.ui.SingleClickButton
             android:id="@+id/history"
             style="@style/ButtonSmallFontStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_pump_history"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
+            android:textAlignment="center"
             android:text="@string/pumphistory" />
 
-        <com.google.android.material.button.MaterialButton
+        <info.nightscout.androidaps.utils.ui.SingleClickButton
             android:id="@+id/stats"
             style="@style/ButtonSmallFontStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_danarstats"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
+            android:textAlignment="center"
             android:text="RL Stats" />
 
 

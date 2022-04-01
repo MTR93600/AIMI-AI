@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.dialogs
 
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -45,6 +46,7 @@ import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class LoopDialog : DaggerDialogFragment() {
 
@@ -90,10 +92,23 @@ class LoopDialog : DaggerDialogFragment() {
         savedInstanceState.putInt("showOkCancel", if (showOkCancel) 1 else 0)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+   /* private var dialogView: View? = null
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return MaterialAlertDialogBuilder(requireContext(), theme).apply {
+            dialogView = onCreateView(LayoutInflater.from(requireContext()), null, savedInstanceState)
+
+            dialogView?.let { onViewCreated(it, savedInstanceState) }
+            setView(dialogView)
+        }.create()
+    }
+
+    override fun getView(): View? {
+        return dialogView
+    } */
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         // load data from bundle
         (savedInstanceState ?: arguments)?.let { bundle ->
             showOkCancel = bundle.getInt("showOkCancel", 1) == 1

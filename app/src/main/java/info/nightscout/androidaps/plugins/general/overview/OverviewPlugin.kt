@@ -317,5 +317,4 @@ class OverviewPlugin @Inject constructor(
 
         overviewBus.send(EventUpdateOverviewIobCob(from))
     }
-
 }

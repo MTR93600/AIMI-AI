@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.extensions
 
+import androidx.annotation.ColorInt
 import android.content.Context
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
