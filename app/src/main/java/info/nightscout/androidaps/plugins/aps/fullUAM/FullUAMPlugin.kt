@@ -212,7 +212,7 @@ class FullUAMPlugin @Inject constructor(
                 determineBasalResultUAM.json?.put("timestamp", dateUtil.toISOString(now))
                 determineBasalResultUAM.inputConstraints = inputConstraints
                 lastDetermineBasalAdapter = determineBasalAdapterUAMJS
-                lastAPSResult = determineBasalResultUAM
+                lastAPSResult = determineBasalResultUAM as DetermineBasalResultUAM
                 lastAPSRun = now
             }
         }
@@ -225,3 +225,5 @@ class FullUAMPlugin @Inject constructor(
     }
     fun provideDetermineBasalAdapter(): DetermineBasalAdapterInterface = DetermineBasalAdapterUAMJS(ScriptReader(context), injector)
 }
+
+

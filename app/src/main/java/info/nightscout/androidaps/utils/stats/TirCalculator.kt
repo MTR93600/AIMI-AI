@@ -116,7 +116,7 @@ class TirCalculator @Inject constructor(
                     gravity = Gravity.CENTER_HORIZONTAL
                     setTextAppearance(android.R.style.TextAppearance_Material_Medium)
                 })
-            layout.addView(TIR.toTableRowHeader(context, rh))
+            //layout.addView(TIR.toTableRowHeader(context, rh))
             for (i in 0 until tir7.size()) layout.addView(tir7.valueAt(i).toTableRow(context, rh, dateUtil))
             layout.addView(
                 TextView(context).apply {

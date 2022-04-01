@@ -8,6 +8,7 @@ import android.widget.TextView
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.resources.ResourceHelper
+import kotlin.math.roundToInt
 
 class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
 
@@ -36,7 +37,7 @@ class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
                 header.addView(TextView(context).apply { layoutParams = lp.apply { column = 2; weight = 1f }; text = rh.gs(R.string.in_range) })
                 header.addView(TextView(context).apply { layoutParams = lp.apply { column = 3; weight = 1f }; text = rh.gs(R.string.above) })
             }
-    }
+    //}
     
     fun toTableRow(context: Context, rh: ResourceHelper, dateUtil: DateUtil): TableRow =
         TableRow(context).also { row ->
