@@ -2,6 +2,8 @@ package info.nightscout.androidaps.plugins.aps.fullUAM
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -53,9 +55,17 @@ class FullUAMFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.run.setOnClickListener {
-            activePlugin.activeAPS.invoke("OpenAPSSMB button", false)
+        with (binding.swipeRefreshLoop) {
+            setColorSchemeResources(R.color.carbsOrange, R.color.calcGreen, R.color.blue_default)
+            setProgressBackgroundColorSchemeColor(rh.gac(context,R.attr.swipeRefreshBackground ))
+            setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({
+                binding.swipeRefreshLoop.isRefreshing = false
+                activePlugin.activeAPS.invoke("OpenAPSSMB swipefrefresh", false)
+            }, 3500)
+            }
         }
+
     }
 
     @Synchronized
