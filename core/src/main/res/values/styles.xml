@@ -758,7 +758,7 @@
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
         <item name="android:dialogCornerRadius">12dp</item>
         <!---Carbs Icon Color-->
-        <item name="carbsIconColor" >@color/white</item>
+        <item name="carbsIconColor" >@color/black</item>
         <!---Wizard Icon Color-->
         <item name="wizardIconColor" >@color/white</item>
         <!---CGM BOYDA Icon Color-->
