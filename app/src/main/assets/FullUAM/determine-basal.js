@@ -336,7 +336,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
         //var tdd7 = meal_data.TDDAIMI7;
         var tdd7 = ((basal * 12)*100)/21;
-        var tdd24 = meal_data.TDDLast24;
+        var tdd24 = meal_data.TDDLast8 * 2;
         var tdd724 = (tdd7 + tdd24)/2;
         // Experimental base on 50% basal use during a normal day,
          //which is 21% of the current TDD base on an average data
@@ -455,7 +455,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
 
 
-        if (iTime < profile.iTime && CurrentTIRinRange <= 96 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >=4 && statinrange <= 95 && statTirBelow >= 4 && bg < 170 || smbTDD === 1 && bg < 170 ){iTimeProfile *=0.7; }
+        if (iTime < profile.iTime && CurrentTIRinRange <= 96 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >=4 && bg < 170 || smbTDD === 1 && bg < 170 ){iTimeProfile *=0.7; }
 
 
 
