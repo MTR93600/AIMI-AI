@@ -9,7 +9,6 @@
     <!---Android Dark and Light Theme Base colors-->
     <color name="background_dark">#262626</color>
     <color name="background_light">#FFFFFF</color>
-    <color name="splashBackground">#000000</color>
 
     <!-- Default theme color -->
     <!-- This section describes the main theme colors -->
@@ -136,6 +135,9 @@
     <color name="examinedProfile">#FFFF5555</color>
     <color name="defaulttext">#BBBBBB</color>
 
+    <!--    Datepicker-->
+    <color name="dateTimePickerBackground">@color/buttonBackground</color>
+
     <!--    Treatment-->
     <color name="list_delimiter">#505050</color>
 
@@ -159,6 +161,8 @@
     <color name="uam">#c9bd60</color>
     <color name="zt">#00d2d2</color>
     <color name="calibration">#E83258</color>
+    <color name="bolusDataPointColor">#00FFFF</color>
+    <color name="profileSwitch">#00FFFF</color>
 
     <color name="daySelected">#D000FF00</color>
     <color name="weekdayOutline">#1ea3e5</color>
@@ -228,6 +232,19 @@
     <color name="deviationred">#72FF0000</color>
     <color name="deviationblack">#72000000</color>
 
+    <color name="splashBackground">#000000</color>
+
+    <color name="extBolusStop">#FEAF05</color>
+    <color name="actionBasal">#CF8BFE</color>
+    <color name="pumpCanula">#67dfe8</color>
+    <color name="cgmInsert">#67dfe8</color>
+    <color name="pumpBattery">#36FF00</color>
+    <color name="note">#FEAF05</color>
+    <color name="announcement">#CF8BFE</color>
+    <color name="question">#FEAF05</color>
+    <color name="pumpHistory">#67DFE8</color>
+    <color name="userOption">#6AE86D</color>
+
     <!-- Gray colors -->
     <color name="darkgray">#323232</color>
     <color name="darkgrayVariant">#424242</color>
@@ -237,6 +254,7 @@
     <color name="graphgrid">#757575</color>
     <color name="mdtp_line_dark">#808080</color>
     <color name="objectivesBackground">#3C3C3C</color>
+    <color name="byodagray">#999999</color>
     <color name="sphere_plastic_grey">#8c8c8c</color>
     <color name="lightSandGray">#72000000</color>
     <color name="sandGray">#c8666666</color>

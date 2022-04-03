@@ -28,10 +28,6 @@
         <item name="iobBorder">@color/white</item>
         <item name="cobBorder">@color/white</item>
         <item name="iobColor">@color/iob</item>
-        <item name="cobColor">@color/cob</item>
-        <item name="uamColor">@color/swampGreen</item>
-        <item name="smbColor">@color/cyan</item>
-        <item name="ztColor">@color/cyan</item>
         <item name="ratio">@color/lightgray</item>
         <item name="InMemoryGlucoseValue">@color/white</item>
         <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
@@ -68,7 +64,6 @@
         <item name="fragmentbackground">@color/transparent</item>
         <!-- Color of graph background -->
         <item name="colorGraphBackground">@color/black_alpha_20</item>
-        <item name="inrangeBackground">@color/white_alpha_08</item>
         <!-- Graph specific colors  -->
         <item name="graphHorizontalLabelText">@color/white</item>
         <item name="graphVerticalLabelText">@color/white</item>
@@ -130,16 +125,6 @@
         <item name="rowBackgroundOdd" >@color/lightSandGray</item>
         <item name="rowTextColor" >@color/white</item>
         <!-- Icon specific colors begin -->
-        <!---Loop Icon Color-->
-        <item name="loopPaused" >@color/lightyellow</item>
-        <!---Loop Closed Icon Color-->
-        <item name="loopClosed" >@color/loopGreen</item>
-        <!---Loop Disabled Icon Color-->
-        <item name="loopDisabled" >@color/gray</item>
-        <!---Loop Disconnected Icon Color-->
-        <item name="loopDisconnected" >@color/red</item>
-        <!---Loop Opened Icon Color-->
-        <item name="loopOpened" >@color/blue_default</item>
         <!---Profile Switch Icon Color-->
         <item name="profileswitchIconColor" >@color/white</item>
         <!---Sensitivity Icon Color-->
@@ -161,16 +146,8 @@
         <item name="temptargetIconColor1" >@color/tempTargetConfirmation</item>
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/pastellPurple</item>
-        <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/pastellPurple</item>
-        <!---Start extended bolus Icon Color-->
-        <item name="startextbolusIconColor" >@color/cyan_blue</item>
-        <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/carbsOrange</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/calibrationRed</item>
-        <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/cyan_blue</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/cyan_blue</item>
         <!---CGM BOYDA Icon Color-->
@@ -318,8 +295,6 @@
         <item name="exerciseColor">@color/exercise</item>
         <!-- BG low -->
         <item name="lowColor">@color/low</item>
-        <!-- Temp Target -->
-        <item name="tempTargetConfirmation">@color/tempTargetConfirmation</item>
         <!-- Treatments -->
         <item name="setExtendedButtonColor">@color/colorSetExtendedButton</item>
         <item name="activeColor">@color/colorActive</item>
@@ -384,7 +359,7 @@
         <item name="viewPortbackgroundColor">@color/white_alpha_20</item>
         <item name="tempTargetBackgroundColor">@color/tempTargetBackground</item>
         <!---CGM source-->
-        <item name="cgmdexColor">@color/colorLightGray</item>
+        <item name="cgmdexColor">@color/byodagray</item>
         <item name="cgmxdripColor">@color/colorCalibrationButton</item>
         <!---BG color-->
         <item name="bgLow">@color/low</item>
@@ -415,7 +390,6 @@
         <!---Warning Colors : WarnColors.kt-->
         <item name="warnColor">@color/omni_yellow</item>
         <item name="urgentColor">@color/alarm</item>
-
         <!---Automation -->
         <item name="userAction">@color/mdtp_line_dark</item>
         <item name="validActions">@color/ribbonDefault</item>
@@ -429,7 +403,6 @@
         <item name="mainTableBackground">@android:color/transparent</item>
         <item name="dummyBackground">@color/dummy_background</item>
         <!-- Icon Colors -->
-        <item name="icCheckboxTrendColor">@color/white</item>
         <!-- Overview Buttons -->
         <item name="icBolusColor">@color/colorInsulinButton</item>
         <item name="icBolusCarbsColor">@color/colorCarbsButton</item>
@@ -437,6 +410,54 @@
         <item name="icQuickWizardColor">@color/colorQuickWizardButton</item>
         <item name="icCalibrationColor">@color/colorCalibrationButton</item>
         <item name="icTreatmentColor">@color/colorTreatmentButton</item>
+        <!-- Temp Target -->
+        <item name="tempTargetConfirmation">@color/tempTargetConfirmation</item>
+        <!---Loop Icon-->
+        <!---Loop Paused Icon Color-->
+        <item name="loopPaused">@color/loopSuspended</item>
+        <!---Loop Closed Icon Color-->
+        <item name="loopClosed">@color/loopClosed</item>
+        <!---Loop Disabled Icon Color-->
+        <item name="loopDisabled">@color/loopDisabled</item>
+        <!---Loop Disconnected Icon Color-->
+        <item name="loopDisconnected">@color/loopDisconnected</item>
+        <!---Loop Opened Icon Color-->
+        <item name="loopOpened">@color/loopOpened</item>
+        <!---Loop Super Bolus Icon Color-->
+        <item name="loopSuperBolus">@color/carbs</item>
+        <!---Action Icons Color-->
+        <item name="extBolusColor">@color/extendedBolus</item>
+        <item name="extBolusStopColor">@color/extBolusStop</item>
+        <item name="basalstartColor">@color/actionBasal</item>
+        <item name="basalCancelColor">@color/actionBasal</item>
+        <item name="pumpCanulaColor">@color/pumpCanula</item>
+        <item name="cgmInsertColor">@color/cgmInsert</item>
+        <item name="pumpBatteryColor">@color/pumpBattery</item>
+        <item name="noteColor">@color/note</item>
+        <item name="announcementColor">@color/announcement</item>
+        <item name="questionColor">@color/question</item>
+        <item name="pumpHistoryColor">@color/pumpHistory</item>
+        <item name="userOptionColor">@color/userOption</item>
+        <!---Graph data glucose value point colors-->
+        <item name="cobColor">@color/cob</item>
+        <item name="uamColor">@color/uam</item>
+        <item name="ztColor">@color/zt</item>
+        <item name="smbColor">@color/tempbasal</item>
+        <item name="bolusDataPointColor">@color/pumpHistory</item>
+        <item name="profileSwitchColor">@color/profileSwitch</item>
+        <item name="inMemoryColor">@color/white</item>
+        <item name="therapyEvent_NS_MBG">@color/red</item>
+        <item name="therapyEvent_FINGER_STICK_BG_VALUE">@color/red</item>
+        <item name="therapyEvent_EXERCISE">@color/blue</item>
+        <item name="therapyEvent_APS_OFFLINE">@color/mdtp_line_dark</item>
+        <item name="therapyEvent_Default">@color/mdtp_line_dark</item>
+        <!-- Graph specific colors  -->
+        <item name="inrangeBackground">@color/white_alpha_08</item>
+        <item name="devslopeposColor">@color/devslopepos</item>
+        <item name="predictionColor">@color/prediction</item>
+        <item name="bgiColor">@color/bgi</item>
+        <item name="ratioColor">@color/ratio</item>
+        <item name="activityColor">@color/activity</item>
     </style>
 
     <style name="MaterialDatePickerTheme" parent="@style/ThemeOverlay.Material3.MaterialCalendar"></style>
@@ -579,6 +600,7 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+
     <style name="MaterialPickerTheme" parent="android:Theme.Material.Dialog.Alert">
         <item name="android:buttonBarPositiveButtonStyle">@style/PickerTextButton</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/PickerTextButton</item>
@@ -664,15 +686,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -756,15 +778,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -851,15 +873,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -944,15 +966,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1036,15 +1058,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1175,15 +1197,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1260,15 +1282,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1355,15 +1377,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1453,15 +1475,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1549,15 +1571,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1638,15 +1660,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1771,15 +1793,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/black</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/black</item>
+        <item name="basalCancelColor" >@color/black</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/black</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/black</item>
+        <item name="extBolusStopColor" >@color/black</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/black</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/black</item>
+        <item name="pumpCanulaColor" >@color/black</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/black</item>
         <!---Pump Battery Icon Color-->
@@ -1860,15 +1882,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -1950,15 +1972,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -2041,15 +2063,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->
@@ -2187,15 +2209,15 @@
         <!---Start temp basal Icon Color-->
         <item name="tempbasalIconColor" >@color/white</item>
         <!---Cancel temp basal Icon Color-->
-        <item name="canceltempbasalIconColor" >@color/white</item>
+        <item name="basalCancelColor" >@color/white</item>
         <!---Start extended bolus Icon Color-->
         <item name="startextbolusIconColor" >@color/white</item>
         <!---Cancel extended bolus Icon Color-->
-        <item name="cancelextbolusIconColor" >@color/white</item>
+        <item name="extBolusStopColor" >@color/white</item>
         <!---BG check Icon Color-->
         <item name="bgcheckIconColor" >@color/white</item>
         <!---Prime fill Icon Color-->
-        <item name="primefillIconColor" >@color/white</item>
+        <item name="pumpCanulaColor" >@color/white</item>
         <!---CGM insert Icon Color-->
         <item name="cgminsertIconColor" >@color/white</item>
         <!---Pump Battery Icon Color-->

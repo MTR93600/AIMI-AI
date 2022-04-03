@@ -11,10 +11,6 @@
 <attr name="iconColorDialog" format="reference|color" />
 <attr name="iobBorder" format="reference|color" />
 <attr name="cobBorder" format="reference|color" />
-<attr name="iobColor" format="reference|color" />
-<attr name="cobColor" format="reference|color" />
-<attr name="uamColor" format="reference|color" />
-<attr name="ztColor" format="reference|color" />
 <attr name="matButtonBackground" format="reference|color" />
 <attr name="color_val" format="reference|color" />
 <attr name="colorPrimaryDialog" format="reference|color" />
@@ -36,10 +32,6 @@
 <!-- Fragment background for some themes default transparent  -->
 <attr name="fragmentbackground" format="reference|color" />
 <!-- Graph specific colors  -->
-<attr name="graphHorizontalLabelText" format="reference|color" />
-<attr name="graphVerticalLabelText" format="reference|color" />
-<attr name="inrangeBackground" format="reference|color" />
-<attr name="graphGrid" format="reference|color" />
 <attr name="dialogUrgent" format="reference" />
 <!-- TDD Stats   -->
 <attr name="backgroundStatsColor" format="reference" />
@@ -127,16 +119,10 @@
 <attr name="temptargetIconColor1" format="reference|color" />
 <!---Start temp basal Icon Color-->
 <attr name="tempbasalIconColor" format="reference|color" />
-<!---Cancel temp basal Icon Color-->
-<attr name="canceltempbasalIconColor" format="reference|color" />
 <!---Start extended bolus Icon Color-->
 <attr name="startextbolusIconColor" format="reference|color" />
-<!---Cancel extended bolus Icon Color-->
-<attr name="cancelextbolusIconColor" format="reference|color" />
 <!---BG check Icon Color-->
 <attr name="bgcheckIconColor" format="reference|color" />
-<!---Prime fill Icon Color-->
-<attr name="primefillIconColor" format="reference|color" />
 <!---CGM insert Icon Color-->
 <attr name="cgminsertIconColor" format="reference|color" />
 <!---CGM insert Icon Color-->
@@ -193,11 +179,9 @@
     <attr name="graphViwewportBackground" format="reference|color" />
 <!---Misc -->
 <attr name="carbsColor" format="reference|color" />
-<attr name="smbColor" format="reference|color" />
 <attr name="tempTargetConfirmation" format="reference|color" />
 <attr name="lightGreen" format="reference|color" />
 <attr name="prediction" format="reference|color" />
-<attr name="basal" format="reference|color" />
 <attr name="overviewShowDeviations" format="reference|color" />
 <attr name="overviewShowSensitivity" format="reference|color" />
 <attr name="activity" format="reference|color" />
@@ -392,4 +376,47 @@
     <attr name="icQuickWizardColor" format="reference|color" />
     <attr name="icCalibrationColor" format="reference|color" />
     <attr name="icTreatmentColor" format="reference|color" />
+    <!-- IOB -->
+    <attr name="iobColor" format="reference|color" />
+    <!-- Basal -->
+    <attr name="basal" format="reference|color" />
+    <!---Loop Icon-->
+    <!---Loop Super Bolus Icon Color-->
+    <attr name="loopSuperBolus" format="reference|color" />
+    <!---Extended Bolus Icon Color-->
+    <attr name="extBolusColor" format="reference|color" />
+    <attr name="extBolusStopColor" format="reference|color" />
+    <attr name="basalstartColor" format="reference|color" />
+    <attr name="basalCancelColor" format="reference|color" />
+    <attr name="pumpCanulaColor" format="reference|color" />
+    <attr name="cgmInsertColor" format="reference|color" />
+    <attr name="pumpBatteryColor" format="reference|color" />
+    <attr name="noteColor" format="reference|color" />
+    <attr name="announcementColor" format="reference|color" />
+    <attr name="questionColor" format="reference|color" />
+    <attr name="pumpHistoryColor" format="reference|color" />
+    <attr name="userOptionColor" format="reference|color" />
+    <!---Glucose Value Color-->
+    <attr name="cobColor" format="reference|color" />
+    <attr name="uamColor" format="reference|color" />
+    <attr name="ztColor" format="reference|color" />
+    <attr name="smbColor" format="reference|color" />
+    <attr name="bolusDataPointColor" format="reference|color" />
+    <attr name="profileSwitchColor" format="reference|color" />
+    <attr name="inMemoryColor" format="reference|color" />
+    <attr name="therapyEvent_NS_MBG" format="reference|color" />
+    <attr name="therapyEvent_FINGER_STICK_BG_VALUE" format="reference|color" />
+    <attr name="therapyEvent_EXERCISE" format="reference|color" />
+    <attr name="therapyEvent_APS_OFFLINE" format="reference|color" />
+    <attr name="therapyEvent_Default" format="reference|color" />
+    <!-- Graph specific colors  -->
+    <attr name="graphHorizontalLabelText" format="reference|color" />
+    <attr name="graphVerticalLabelText" format="reference|color" />
+    <attr name="inrangeBackground" format="reference|color" />
+    <attr name="graphGrid" format="reference|color" />
+    <attr name="devslopeposColor" format="reference|color" />
+    <attr name="predictionColor" format="reference|color" />
+    <attr name="bgiColor" format="reference|color" />
+    <attr name="ratioColor" format="reference|color" />
+    <attr name="activityColor" format="reference|color" />
 </resources>

@@ -19,9 +19,10 @@ class CarbsDataPoint @Inject constructor(
     override val duration = 0L
     override val size = 2f
     override val shape = PointsWithLabelGraphSeries.Shape.CARBS
-    override fun getColor(context: Context?): Int =
-        if (data.isValid) rh.gac(context,R.attr.carbsColor)
-        else rh.gac(context,R.attr.statuslightAlarm)
+
+    override fun color(context: Context?): Int {
+        return if (data.isValid) rh.gac(context, R.attr.cobColor) else rh.gac(context, R.attr.alarmColor)
+    }
 
     override fun setY(y: Double) {
         yValue = y

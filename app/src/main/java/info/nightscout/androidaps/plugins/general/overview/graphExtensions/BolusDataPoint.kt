@@ -29,10 +29,11 @@ class BolusDataPoint @Inject constructor(
     override val shape
         get() = if (data.type == Bolus.Type.SMB) PointsWithLabelGraphSeries.Shape.SMB else PointsWithLabelGraphSeries.Shape.BOLUS
 
-    override fun getColor(context: Context?): Int =
+    override fun color(context: Context?): Int =
         if (data.type == Bolus.Type.SMB) rh.gac(context, R.attr.smbColor)
-        else if (data.isValid) Color.CYAN
-        else rh.gac( R.attr.statuslightAlarm)
+        else if (data.isValid) rh.gac(context,  R.attr.bolusDataPointColor)
+        else rh.gac(context,  R.attr.alarmColor)
+
 
     override fun setY(y: Double) {
         yValue = y
