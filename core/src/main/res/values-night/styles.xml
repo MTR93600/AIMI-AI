@@ -1136,12 +1136,52 @@
         <item name="android:windowBackground">@drawable/blue_ball</item>
         <item name="android:textColorSecondary">@color/secondaryTextColorPink</item>
         <item name="android:textColor">@color/white</item>
+        <item name="carbsIconColor" >@color/black</item>
         <!---Calibration Icon Color-->
         <item name="calibrationIconColor" >@color/black</item>
         <!---First Aid Icon Color-->
         <item name="firstAidIconColor" >@color/black</item>
         <!---QuickWizzard Icon Color-->
         <item name="quickwizzardIconColor" >@color/black</item>
+        <!---Profile Switch Icon Color-->
+        <item name="profileswitchIconColor" >@color/black</item>
+        <!---Temp target Icon Color-->
+        <item name="temptargetIconColor" >@color/black</item>
+        <item name="temptargetIconColor1" >@color/black</item>
+        <!---Start temp basal Icon Color-->
+        <item name="tempbasalIconColor" >@color/black</item>
+        <!---Cancel temp basal Icon Color-->
+        <item name="basalCancelColor" >@color/black</item>
+        <!---Start extended bolus Icon Color-->
+        <item name="startextbolusIconColor" >@color/black</item>
+        <!---Cancel extended bolus Icon Color-->
+        <item name="extBolusStopColor" >@color/black</item>
+        <!---BG check Icon Color-->
+        <item name="bgcheckIconColor" >@color/black</item>
+        <!---Prime fill Icon Color-->
+        <item name="pumpCanulaColor" >@color/black</item>
+        <!---CGM insert Icon Color-->
+        <item name="cgminsertIconColor" >@color/black</item>
+        <!---Pump Battery Icon Color-->
+        <item name="pumpBatteryIconColor" >@color/black</item>
+        <!---Note Icon Color-->
+        <item name="noteIconColor" >@color/black</item>
+        <!---Exercise Icon Color-->
+        <item name="exerciseIconColor01" >@color/black</item>
+        <item name="exerciseIconColor02" >@color/black</item>
+        <!---Announcement Icon Color-->
+        <item name="announcementIconColor" >@color/black</item>
+        <!---Question Icon Color-->
+        <item name="questionIconColor" >@color/black</item>
+        <!---History Icon Color-->
+        <item name="historyIconColor" >@color/black</item>
+        <!---Stats Icon Color-->
+        <item name="statsIconColor" >@color/black</item>
+        <!---User Option Icon Color-->
+        <item name="userOptionsIconColor" >@color/black</item>
+        <!---Target Hypo Icon Color-->
+        <item name="targetHypoBgIconColor" >@color/black</item>
+
         <item name="bottomAppBarStyle">@style/Widget.MaterialComponents.BottomAppBar.Colored</item>
     </style>
 

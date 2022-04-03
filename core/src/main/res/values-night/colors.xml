@@ -201,7 +201,7 @@
     <color name="iobPred">#00d2d2</color>
     <color name="ratio">#FFFFFF</color>
     <color name="actionsConfirm">#FFFF00</color>
-    <color name="tabBgColorSelected">#FF666666</color>
+    <color name="tabBgColorSelected">@color/black_alpha_20</color>
     <color name="deviations">#FF0000</color>
     <color name="inrangebackground">#2800FF00</color>
     <color name="warning">#ff1a1a</color>
