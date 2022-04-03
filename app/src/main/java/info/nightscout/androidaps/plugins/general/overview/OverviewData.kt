@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import androidx.core.content.res.ResourcesCompat
+import androidx.annotation.ColorInt
 import com.jjoe64.graphview.series.BarGraphSeries
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -66,7 +67,7 @@ class OverviewData @Inject constructor(
 
     fun reset() {
         pumpStatus = ""
-        calcProgress = ""
+        calcProgressPct = 100
         lastBg = null
         bolusIob = null
         basalIob = null
@@ -124,7 +125,7 @@ class OverviewData @Inject constructor(
      * CALC PROGRESS
      */
 
-    var calcProgress: String = ""
+    var calcProgressPct: Int = 100
 
     /*
      * BG
@@ -132,23 +133,23 @@ class OverviewData @Inject constructor(
 
     var lastBg: GlucoseValue? = null
 
-    private val isLow: Boolean
+    val isLow: Boolean
         get() = lastBg?.let { lastBg ->
             lastBg.valueToUnits(profileFunction.getUnits()) < defaultValueHelper.determineLowLine()
         } ?: false
 
-    private val isHigh: Boolean
+    val isHigh: Boolean
         get() = lastBg?.let { lastBg ->
             lastBg.valueToUnits(profileFunction.getUnits()) > defaultValueHelper.determineHighLine()
         } ?: false
 
-    fun lastBgColor(context: Context?): Int {
-        return when {
+    @ColorInt
+    fun lastBgColor(context: Context?): Int =
+        when {
             isLow  -> rh.gac(context, R.attr.bgLow)
             isHigh -> rh.gac(context, R.attr.highColor)
             else   -> rh.gac(context, R.attr.bgInRange)
         }
-    }
 
     fun getlastBgColor(context: Context?): Int {
         return when {
@@ -559,7 +560,7 @@ class OverviewData @Inject constructor(
 
         // ProfileSwitch
         repository.getEffectiveProfileSwitchDataFromTimeToTime(fromTime, endTime, true).blockingGet()
-            .map { EffectiveProfileSwitchDataPoint(it, rh) }
+            .map { EffectiveProfileSwitchDataPoint(it,rh) }
             .forEach(filteredTreatments::add)
 
         // OfflineEvent

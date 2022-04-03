@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.general.overview
 
+import android.content.Context
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
@@ -33,18 +34,17 @@ class OverviewMenus @Inject constructor(
     private val loop: Loop,
     private val config: Config
 ) {
-
     enum class CharType(@StringRes val nameId: Int, @AttrRes val attrId: Int, val primary: Boolean, val secondary: Boolean, @StringRes val shortnameId: Int) {
-        PRE(R.string.overview_show_predictions, R.attr.prediction, primary = true, secondary = false, shortnameId = R.string.prediction_shortname),
+        PRE(R.string.overview_show_predictions, R.attr.predictionColor, primary = true, secondary = false, shortnameId = R.string.prediction_shortname),
         BAS(R.string.overview_show_basals, R.attr.basal, primary = true, secondary = false,shortnameId = R.string.basal_shortname),
         ABS(R.string.overview_show_absinsulin, R.attr.iobColor, primary = false, secondary = true,shortnameId = R.string.abs_insulin_shortname),
         IOB(R.string.overview_show_iob, R.attr.iobColor, primary = false, secondary = true,shortnameId = R.string.iob),
         COB(R.string.overview_show_cob, R.attr.cobColor, primary = false, secondary = true,shortnameId = R.string.cob),
-        DEV(R.string.overview_show_deviations, R.attr.overviewShowDeviations, primary = false, secondary = true,shortnameId = R.string.deviation_shortname),
-        SEN(R.string.overview_show_sensitivity, R.attr.overviewShowSensitivity, primary = false, secondary = true,shortnameId = R.string.sensitivity_shortname),
-        ACT(R.string.overview_show_activity, R.attr.activity, primary = true, secondary = false,shortnameId = R.string.activity_shortname),
-        BGI(R.string.overview_show_bgi, R.attr.bgi, primary = false, secondary = true,shortnameId = R.string.bgi_shortname),
-        DEVSLOPE(R.string.overview_show_deviationslope, R.attr.devslopepos, primary = false, secondary = true,shortnameId = R.string.devslope_shortname)
+        DEV(R.string.overview_show_deviations, R.attr.bgiColor, primary = false, secondary = true,shortnameId = R.string.deviation_shortname),
+        BGI(R.string.overview_show_bgi, R.attr.bgiColor, primary = false, secondary = true,shortnameId = R.string.bgi_shortname),
+        SEN(R.string.overview_show_sensitivity, R.attr.ratioColor, primary = false, secondary = true,shortnameId = R.string.sensitivity_shortname),
+        ACT(R.string.overview_show_activity, R.attr.activityColor, primary = true, secondary = false,shortnameId = R.string.activity_shortname),
+        DEVSLOPE(R.string.overview_show_deviationslope, R.attr.devslopeposColor, primary = false, secondary = true,shortnameId = R.string.devslope_shortname)
     }
 
 
@@ -89,7 +89,7 @@ class OverviewMenus @Inject constructor(
         }
     }
 
-    fun setupChartMenu(chartButton: ImageButton) {
+    fun setupChartMenu(context: Context, chartButton: ImageButton) {
         val settingsCopy = setting
         val numOfGraphs = settingsCopy.size // 1 main + x secondary
 
@@ -122,10 +122,9 @@ class OverviewMenus @Inject constructor(
                     if (insert) {
                         val item = popup.menu.add(Menu.NONE, m.ordinal + 100 * (g + 1), Menu.NONE, rh.gs(m.nameId))
                         val title = item.title
-                        // we need a liitle bit space left and right of the string for better visualization
                         val s = SpannableString(" " + title + " ")
                         s.setSpan(ForegroundColorSpan(rh.gc(R.color.black)), 0, s.length, 0)
-                        s.setSpan(BackgroundColorSpan(rh.gac(m.attrId)), 0, s.length, 0)
+                        s.setSpan(BackgroundColorSpan(rh.gac(context, m.attrId)), 0, s.length, 0)
                         item.title = s
                         item.isCheckable = true
                         item.isChecked = settingsCopy[g][m.ordinal]
@@ -157,7 +156,7 @@ class OverviewMenus @Inject constructor(
                     }
                 }
                 storeGraphConfig()
-                setupChartMenu(chartButton)
+                setupChartMenu(context, chartButton)
                 rxBus.send(EventRefreshOverview("OnMenuItemClickListener", now = true))
                 return@setOnMenuItemClickListener true
             }

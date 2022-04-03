@@ -2,7 +2,7 @@ package info.nightscout.androidaps.plugins.general.overview.graphExtensions
 
 import android.content.Context
 import android.graphics.Color
-import info.nightscout.androidaps.R
+import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.database.entities.ExtendedBolus
 import info.nightscout.androidaps.extensions.toStringTotal
 import info.nightscout.androidaps.utils.resources.ResourceHelper
@@ -21,7 +21,9 @@ class ExtendedBolusDataPoint @Inject constructor(
     override val duration get() = data.duration
     override val size = 10f
     override val shape = PointsWithLabelGraphSeries.Shape.EXTENDEDBOLUS
-    override fun getColor(context: Context?): Int =  rh.gac(context, R.attr.smbColor)
+    override fun color(context: Context?): Int {
+        return rh.gac(context, R.attr.extBolusColor)
+    }
 
     override fun setY(y: Double) {
         yValue = y

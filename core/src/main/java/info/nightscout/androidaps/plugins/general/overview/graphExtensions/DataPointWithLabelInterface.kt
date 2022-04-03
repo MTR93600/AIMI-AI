@@ -13,5 +13,5 @@ interface DataPointWithLabelInterface : DataPointInterface {
     val duration: Long
     val shape: PointsWithLabelGraphSeries.Shape?
     val size: Float
-    fun getColor(context: Context?): Int
+    fun color(context: Context?): Int
 }
