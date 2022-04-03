@@ -56,11 +56,11 @@ class TirCalculator @Inject constructor(
         if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
         val startTime = MidnightTime.calc(dateUtil.now())
         val endTime = dateUtil.now()
-        val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
 
+        val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
         val result = LongSparseArray<TIR>()
         for (bg in bgReadings) {
-            //val midnight = MidnightTime.calc(bg.date)
+            //val midnight = MidnightTime.calc(bg.timestamp)
             var tir = result[startTime]
             if (tir == null) {
                 tir = TIR(startTime, lowMgdl, highMgdl)
