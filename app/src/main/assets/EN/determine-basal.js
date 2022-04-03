@@ -382,9 +382,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // cTime could be used for bolusing based on recent COB with Ghost COB
     var cTime = (( new Date(systemTime).getTime() - meal_data.lastCarbTime) / 60000);
+    var c1Time = (typeof meal_data.firstCarbTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.firstCarbTime) / 60000) : null);
     // COBBoostOK is when there is a recent COB entry
     var COBBoostOK = meal_data.mealCOB > 0 && profile.COBBoostWindow > 0 && (cTime <= profile.COBBoostWindow || profile.temptargetSet && target_bg == normalTarget);
-    enlog += "cTime:" +cTime+", COBBoostOK:" + COBBoostOK+"\n";
+    var firstMeal = (COBBoostOK && c1Time <= profile.COBBoostWindow);
+
+    enlog += "c1Time:" +c1Time+", firstMeal:" +firstMeal+", cTime:" +cTime+", COBBoostOK:" + COBBoostOK+"\n";
     // If GhostCOB is enabled we will use COB when COBBoostOK but outside this window UAM will be used
     if (ignoreCOB && COBBoostOK) ignoreCOB = false;
 
@@ -1115,6 +1118,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", TDD24H:" + round(tdd24h, 2);
     rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
     rT.reason += ", predDelta: COB " + convert_bg(COBpredBGsDelta,profile)+", UAM " + convert_bg(UAMpredBGsDelta,profile);
+    rT.reason += ", fM: " + (firstMeal ? "Y":"N");
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;

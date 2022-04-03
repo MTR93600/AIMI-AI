@@ -304,6 +304,12 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
+        // get the first carb time since EN activation
+        val ENStartTime = 3600000 * sp.getInt(R.string.key_eatingnow_timestart, 9) + MidnightTime.calc(now)
+        val getCarbsSinceENStart = repository.getCarbsDataFromTime(ENStartTime,true).blockingGet()
+        val firstCarbTime = getCarbsSinceENStart.lastOrNull()?.timestamp
+        this.mealData.put("firstCarbTime",firstCarbTime)
+
         // 3PM is used as a low basal point at which the rest of the day leverages for ISF variance when using one ISF in the profile
         this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
