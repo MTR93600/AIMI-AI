@@ -34,7 +34,7 @@ import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
-//import info.nightscout.androidaps.dana.DanaPump
+
 
 
 
@@ -49,7 +49,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     @Inject lateinit var activePlugin: ActivePlugin
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var dateUtil: DateUtil
-    //@Inject lateinit var danaPump: DanaPump
+    
 
 
     private var profile = JSONObject()
@@ -64,12 +64,12 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var saveCgmSource = false
     private var lastBolusNormalTime: Long = 0
     private var lastBolusNormalTimeValue: Long = 0
-    private var AIMI_lastCarbUnit: Long = 0
-    private var AIMI_lastCarbTime: Long = 0
+    private var aimiLCU: Long = 0
+    private var aimiLCT: Long = 0
     private val millsToThePast = T.hours(4).msecs()
     private val millsToThePastSMB = T.hours(1).msecs()
     private var tddAIMI: TddCalculator? = null
-    private var StatTIR: TirCalculator? = null
+    var statTIR: TirCalculator? = null
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -288,10 +288,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         } else {
             mGlucoseStatus.put("delta", glucoseStatus.delta)
         }
-        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
-        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime) lastBolusNormalTimeValue = bolus.amount.toLong() }
-
-
+        
         mGlucoseStatus.put("short_avgdelta", glucoseStatus.shortAvgDelta)
         mGlucoseStatus.put("long_avgdelta", glucoseStatus.longAvgDelta)
         mGlucoseStatus.put("date", glucoseStatus.date)
@@ -312,10 +309,10 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         val getlastBolusNormal = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.NORMAL).blockingGet()
         val lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount else 0L
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
-        CarbsMealLinks(now)?.forEach { Carbs -> if (Carbs.isValid && Carbs.timestamp > AIMI_lastCarbTime ) AIMI_lastCarbTime = Carbs.timestamp }
-        CarbsMealLinks(now)?.forEach { Carbs -> if (Carbs.isValid && Carbs.amount > 30 ) AIMI_lastCarbUnit = Carbs.amount.toLong() }
-        this.mealData.put("AIMI_lastCarbTime", AIMI_lastCarbTime)
-        this.mealData.put("AIMI_lastCarbUnit", AIMI_lastCarbUnit)
+        carbsMealLinks(now)?.forEach { Carbs -> if (Carbs.isValid && Carbs.timestamp > aimiLCT ) aimiLCT = Carbs.timestamp }
+        carbsMealLinks(now)?.forEach { Carbs -> if (Carbs.isValid && Carbs.amount > 30 ) aimiLCU = Carbs.amount.toLong() }
+        this.mealData.put("AIMI_lastCarbTime", aimiLCT)
+        this.mealData.put("AIMI_lastCarbUnit", aimiLCU)
 
 
 
@@ -341,15 +338,15 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
         this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)
-        //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
-        StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
-        this.mealData.put("StatLow7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).belowPct())
-        this.mealData.put("StatInRange7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).inRangePct())
-        this.mealData.put("StatAbove7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).abovePct())
-        this.mealData.put("currentTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).belowPct())
-        this.mealData.put("currentTIRRange", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).inRangePct())
-        this.mealData.put("currentTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).abovePct())
-        this.mealData.put("currentTIR_70_140_Above", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(70.0, 140.0)).abovePct())
+        
+        statTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
+        this.mealData.put("StatLow7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).belowPct())
+        this.mealData.put("StatInRange7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).inRangePct())
+        this.mealData.put("StatAbove7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).abovePct())
+        this.mealData.put("currentTIRLow", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).belowPct())
+        this.mealData.put("currentTIRRange", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).inRangePct())
+        this.mealData.put("currentTIRAbove", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).abovePct())
+        this.mealData.put("currentTIR_70_140_Above", statTIR!!.averageTIR1(statTIR!!.calculateDaily(70.0, 140.0)).abovePct())
         //this.mealData.put("TDDPUMP1", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP2", pumpHistory.tddHistory.get(DEFAULT_BUFFER_SIZE))
 
@@ -376,7 +373,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     }
 
     private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
-    private fun CarbsMealLinks(now: Long) = repository.getCarbsDataFromTime(now - millsToThePast, false).blockingGet()
+    private fun carbsMealLinks(now: Long) = repository.getCarbsDataFromTime(now - millsToThePast, false).blockingGet()
     //private fun bolusMealLinksSMB(now: Long) = repository.getBolusesDataFromTime(now - millsToThePastSMB, false).blockingGet()
 
 

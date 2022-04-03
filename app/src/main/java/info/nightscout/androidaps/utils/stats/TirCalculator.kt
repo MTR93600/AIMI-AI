@@ -51,19 +51,19 @@ class TirCalculator @Inject constructor(
         return result
     }
 
-    fun calculateDaily(lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR> {
+    fun calculateDaily(lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR1> {
         if (lowMgdl < 39) throw RuntimeException("Low below 39")
         if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
         val startTime = MidnightTime.calc(dateUtil.now())
         val endTime = dateUtil.now()
 
         val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
-        val result = LongSparseArray<TIR>()
+        val result = LongSparseArray<TIR1>()
         for (bg in bgReadings) {
             //val midnight = MidnightTime.calc(bg.timestamp)
             var tir = result[startTime]
             if (tir == null) {
-                tir = TIR(startTime, lowMgdl, highMgdl)
+                tir = TIR1(startTime, lowMgdl, highMgdl)
                 result.append(startTime, tir)
             }
             if (bg.value < 39) tir.error()
@@ -74,12 +74,28 @@ class TirCalculator @Inject constructor(
         return result
     }
 
+    fun averageTIR1(tirs: LongSparseArray<TIR1>): TIR1 {
+        val totalTir = if (tirs.size() > 0) {
+            TIR1(tirs.valueAt(0).date, tirs.valueAt(0).lowThreshold, tirs.valueAt(0).highThreshold)
+        } else {
+            TIR1(7, 65.0, 180.0)
+        }
+        for (i in 0 until tirs.size()) {
+            val tir = tirs.valueAt(i)
+            totalTir.below += tir.below
+            totalTir.inRange += tir.inRange
+            totalTir.above += tir.above
+            totalTir.error += tir.error
+            totalTir.count += tir.count
+        }
+        return totalTir
+    }
 
     fun averageTIR(tirs: LongSparseArray<TIR>): TIR {
         val totalTir = if (tirs.size() > 0) {
             TIR(tirs.valueAt(0).date, tirs.valueAt(0).lowThreshold, tirs.valueAt(0).highThreshold)
         } else {
-            TIR(7, 70.0, 180.0)
+            TIR(7, 65.0, 180.0)
         }
         for (i in 0 until tirs.size()) {
             val tir = tirs.valueAt(i)
@@ -138,3 +154,5 @@ class TirCalculator @Inject constructor(
             layout.addView(averageTit30.toTableRow(context, rh, tit30.size()))
         }
 }
+
+
