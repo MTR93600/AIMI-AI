@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.DynamicColors
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.events.EventThemeSwitch
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -24,9 +25,11 @@ open class NoSplashAppCompatActivity : DaggerAppCompatActivityWithResult() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
+        DynamicColors.applyToActivitiesIfAvailable(getApplication());
 
         compositeDisposable.add(rxBus.toObservable(EventThemeSwitch::class.java).subscribe {
             setTheme(ThemeUtil.getThemeId(sp.getInt("theme", ThemeUtil.THEME_DEFAULT)))
+            DynamicColors.applyToActivitiesIfAvailable(getApplication());
             recreate()
         })
 
