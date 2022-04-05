@@ -399,6 +399,8 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var AIMI_UAM_U100 = profile.enable_AIMI_UAM_U100;
         var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
         var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;
+        var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24) * 1.618;
+        enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
         //var AIMI_PBolus = profile.key_use_AIMI_PBolus;
         var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
         var AIMI_BL_StartTime = profile.key_AIMI_BreakFastLight_timestart;
@@ -1082,9 +1084,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     console.log("*****Future_sens is not use with light breakfast");
 
 }
-        console.log("------------------------------");
+        console.log("---");
                 console.log(" AAPS-MASTER-3.0.1-AIMI V17 04/04/2022 ");
-                console.log("------------------------------");
+                console.log("---");
                 if ( meal_data.TDDPUMP ){
                 console.log(enlog);
                 }
@@ -1220,7 +1222,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", ISF: " + convert_bg(sens, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", eRatio" + eRatio + ", Target: " + convert_bg(target_bg, profile) + ",minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", ISF: " + convert_bg(sens, profile) + ", TDD: "+TDD+", MagicNumber: "+MagicNumber+", CR: " + round(profile.carb_ratio, 2) + ", eRatio" + eRatio + ", Target: " + convert_bg(target_bg, profile) + ",minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
     if (lastCOBpredBG > 0) {
         rT.reason += ", COBpredBG " + convert_bg(lastCOBpredBG, profile);
     }
