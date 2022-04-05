@@ -400,6 +400,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
         var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;
         var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24) * 1.618;
+        AIMI_BasalAv3 -= AIMI_BasalAv3 * (statTirBelow/100);
         enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
         //var AIMI_PBolus = profile.key_use_AIMI_PBolus;
         var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
