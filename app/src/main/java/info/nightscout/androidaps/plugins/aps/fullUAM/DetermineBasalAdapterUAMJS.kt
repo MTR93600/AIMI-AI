@@ -246,7 +246,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("temptargetSet", tempTargetSet)
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_autosens_max, "1.2")))
 //**********************************************************************************************************************************************
-        this.profile.put("UAM_InsulinReq",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_InsulinReq,"65")))
+        //this.profile.put("UAM_InsulinReq",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_InsulinReq,"65")))
         this.profile.put("iTime",SafeParse.stringToDouble(sp.getString(R.string.key_iTime,"180")))
         this.profile.put("iTime_MaxBolus_minutes",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_MaxBolus_minutes,"200")))
         this.profile.put("iTime_Bolus",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Bolus,"2")))
@@ -344,10 +344,10 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("StatLow7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).belowPct())
         this.mealData.put("StatInRange7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).inRangePct())
         this.mealData.put("StatAbove7", statTIR!!.averageTIR(statTIR!!.calculate(7, 65.0, 160.0)).abovePct())
-        this.mealData.put("currentTIRLow", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).belowPct())
-        this.mealData.put("currentTIRRange", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).inRangePct())
-        this.mealData.put("currentTIRAbove", statTIR!!.averageTIR1(statTIR!!.calculateDaily(80.0, 160.0)).abovePct())
-        this.mealData.put("currentTIR_70_140_Above", statTIR!!.averageTIR1(statTIR!!.calculateDaily(70.0, 140.0)).abovePct())
+        this.mealData.put("currentTIRLow", statTIR!!.averageTIR(statTIR!!.calculateDaily(80.0, 160.0)).belowPct())
+        this.mealData.put("currentTIRRange", statTIR!!.averageTIR(statTIR!!.calculateDaily(80.0, 160.0)).inRangePct())
+        this.mealData.put("currentTIRAbove", statTIR!!.averageTIR(statTIR!!.calculateDaily(80.0, 160.0)).abovePct())
+        this.mealData.put("currentTIR_70_140_Above", statTIR!!.averageTIR(statTIR!!.calculateDaily(70.0, 140.0)).abovePct())
         //this.mealData.put("TDDPUMP1", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP2", pumpHistory.tddHistory.get(DEFAULT_BUFFER_SIZE))
 
