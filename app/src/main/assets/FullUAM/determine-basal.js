@@ -399,6 +399,10 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var AIMI_UAM_U100 = profile.enable_AIMI_UAM_U100;
         var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
         var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;
+        var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24) * 1.618;
+        AIMI_BasalAv3 -= AIMI_BasalAv3 * (statTirBelow/100);
+        enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
+
         //var AIMI_PBolus = profile.key_use_AIMI_PBolus;
         var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
         var AIMI_BL_StartTime = profile.key_AIMI_BreakFastLight_timestart;
@@ -1083,7 +1087,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-MASTER-3.0.1-AIMI V17 04/04/2022 ");
+                console.log(" AAPS-MASTER-3.0.1-AIMI V17 06/04/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDPUMP ){
                 console.log(enlog);
@@ -1511,7 +1515,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         console.log("data in mmol");
                         }*/
             var insulinQ = insulinReq;
-            var insulinReqPCT = profile.UAM_InsulinReq/100;
+            //var insulinReqPCT = profile.UAM_InsulinReq/100;
             var InsulinTDD = (TDD * 0.6) / 24;
             var maxBolusTT = maxBolus;
             var roundSMBTo = 1 / profile.bolus_increment;
@@ -1626,7 +1630,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                             console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg);
                             console.log("Adjusting basal from "+profile_current_basal+" to "+basal);
                             console.log("maxBolusTT : "+maxBolusTT);
-                            console.log("InsulinReqPCT : "+(insulinReqPCT * 100)+"%");
+                            //console.log("InsulinReqPCT : "+(insulinReqPCT * 100)+"%");
                             console.log("insulinReq : "+insulinReq);
                             if(iTime < iTimeProfile && smbTDD === 0){
                             console.log("insulinQ : "+insulinQ);
@@ -1646,11 +1650,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             //if (!eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0)  {
                 //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 microBolus = 0;
-                UAMAIMIReason += ", no SMB, ";
+                UAMAIMIReason += ", No SMB, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                     if(TimeSMB < 15){
                     microBolus = 0;
-                    UAMAIMIReason += ", no SMB because last one was "+meal_data.lastBolusSMBUnits+" U, ";
+                    UAMAIMIReason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, ";
                     }
             }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
@@ -1670,7 +1674,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 smbLowTempReq = round( basal * durationReq/30 ,2);
                 durationReq = 30;
             }
-            rT.reason += " insulinReq " + insulinReq + ", InsulinReqPCT " + insulinReqPCT*100+"%, smbRatio : " + smb_ratio;
+            if (iTime < iTimeProfile){
+            rT.reason += " MagicNumber: " + MagicNumber + ", TDD " + TDD + ", smbRatio: " + smb_ratio + ",limitIOB: " + limitIOB + ", bgDegree: " + bgDegree;
+            }else{
+            rT.reason += " insulinReq " + insulinReq + ", TDD " + TDD + "%, smbRatio : " + smb_ratio;
+            }
+
             if (microBolus >= maxBolus) {
                 rT.reason +=  "; maxBolusTT " + maxBolusTT;
             }
