@@ -59,13 +59,10 @@ data class BolusProgressCallback(
             rxBus.send(bolusEvent)
             if (bolusEvent.percent == 100 || pumpStatus.bolusDeliveredAmount == 0.0) {
                 pumpStatus.lastBolusInfo.let {
-                    pumpStatus.lastBolusTime.let { date ->
-                        it.timestamp = date?.time ?: it.timestamp
+                    it.timestamp = pumpStatus.lastBolusTime?.time ?: it.timestamp
 
-                    }
-                    pumpStatus.lastBolusAmount.let { amount ->
-                        it.insulin = amount?: it.insulin
-                    }
+                    it.insulin = pumpStatus.lastBolusAmount?: it.insulin
+
                     it.bolusType = detailedBolusInfo.bolusType
                     it.carbs = detailedBolusInfo.carbs
                     it.eventType = detailedBolusInfo.eventType

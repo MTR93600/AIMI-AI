@@ -303,7 +303,7 @@ class OverviewPlugin @Inject constructor(
     }
 
     private fun loadBg(from: String) {
-        var gvWrapped = repository.getLastGlucoseValueWrapped().blockingGet()
+            var gvWrapped = repository.getLastGlucoseValueWrapped().blockingGet()
         if (gvWrapped is ValueWrapper.Existing) {
             if (gvWrapped.value.sourceSensor == GlucoseValue.SourceSensor.MM_ENLITE) {
                 gvWrapped = repository.getLastMedLinkGlucoseValueWrapped().blockingGet()

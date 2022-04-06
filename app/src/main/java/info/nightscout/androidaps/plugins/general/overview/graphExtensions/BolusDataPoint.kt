@@ -34,7 +34,7 @@ class BolusDataPoint @Inject constructor(
         get() =
             when {
                 data.type == Bolus.Type.SMB -> rh.gc(R.color.tempbasal)
-                data.type == Bolus.Type.TBR -> rh.gc(R.color.tempbasalbolus)
+                data.type == Bolus.Type.TBR -> rh.gc(R.color.basal)
                 data.isValid                -> Color.CYAN
                 else                        -> rh.gc(android.R.color.holo_red_light)
             }

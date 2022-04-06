@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
+import com.google.gson.JsonObject
 import info.nightscout.androidaps.utils.JsonHelper.safeGetString
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
@@ -32,14 +33,14 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         while (answers.hasNext() && !answers.next().contains("bolus history:")) {
         }
         //Empty Line
-        if(answers.hasNext()) {
+        if (answers.hasNext()) {
             answers.next()
             var bolusHistory: Supplier<Stream<DetailedBolusInfo?>?>
             return try {
                 val commandHistory = processBolusHistory(answers)
                 val bolus: Stream<JSONObject>? = null
                 medLinkPumpPlugin.handleNewCareportalEvent(commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && !isBolus(f.get()) }
-                                                               .map { f: Optional<JSONObject> -> f.get() })
+                        .map { f: Optional<JSONObject> -> f.get() })
                 val resultStream = Supplier { commandHistory.get().filter { f: Optional<JSONObject> -> f.isPresent && isBolus(f.get()) } }
                 if (resultStream.get().count() < 3) {
                     medLinkPumpPlugin.readBolusHistory(true)
@@ -49,39 +50,51 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
             } catch (e: ParseException) {
                 e.printStackTrace()
                 MedLinkStandardReturn(
-                    ans, Stream.empty(),
-                    MedLinkStandardReturn.ParsingError.BolusParsingError
+                        ans, Stream.empty(),
+                        MedLinkStandardReturn.ParsingError.BolusParsingError
                 )
             }
-        } else{
+        } else {
             return MedLinkStandardReturn(
-                ans, Stream.empty(),
-                MedLinkStandardReturn.ParsingError.BolusParsingError
+                    ans, Stream.empty(),
+                    MedLinkStandardReturn.ParsingError.BolusParsingError
             )
         }
     }
 
     private fun isBolus(json: JSONObject): Boolean {
         return safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.CORRECTION_BOLUS.name
+                DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ==
+                DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ==
+                DetailedBolusInfo.EventType.CORRECTION_BOLUS.name
     }
 
     @Throws(ParseException::class)
     private fun processBolusHistory(answers: Iterator<String>): Supplier<Stream<Optional<JSONObject>>> {
         val resultList: MutableList<Optional<JSONObject>> = ArrayList()
+        var canulaChange: Optional<JSONObject> = Optional.empty()
+        var verifyNext = false
         while (answers.hasNext()) {
-            resultList.add(processData(answers))
-        }
-        if(resultList.any { f -> f.isPresent && f.get().has("eventType") && f.get().getString("eventType") == DetailedBolusInfo.EventType.INSULIN_CHANGE.name } &&
-                (medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true))){
-            return Supplier {  resultList.filter { f -> f.isPresent && f.get().has("eventType") && f.get().getString("eventType") != DetailedBolusInfo.EventType.CANNULA_CHANGE.name}.stream()}
+            var data = processData(answers)
+            if(verifyNext && data.get().get("eventType") != DetailedBolusInfo.EventType.INSULIN_CHANGE
+                    && canulaChange.isPresent){
+                resultList.add(canulaChange)
+                canulaChange = Optional.empty()
+            }
+            if (!verifyNext && data.isPresent
+                    && data.get().get("eventType") == DetailedBolusInfo.EventType.CANNULA_CHANGE
+                    && !medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)) {
+                canulaChange = data
+                data = Optional.empty()
+                verifyNext = true
+            }
+            resultList.add(data)
         }
         return Supplier { resultList.stream() }
     }
 
-    @Throws(ParseException::class) private fun processData(answers: Iterator<String>): Optional<JSONObject> {
+    @Throws(ParseException::class)
+    private fun processData(answers: Iterator<String>): Optional<JSONObject> {
         val answer = answers.next()
         return try {
             if (answer.contains("bolus:")) {
@@ -89,8 +102,10 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
             } else if (answer.contains("battery insert")) {
                 processBattery(answers.next())
             } else if (answer.contains("reservoir change")) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "reservoir change")
                 processSite(answers.next())
             } else if (answer.contains("reservoir rewind")) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "reservoir rewind")
                 processReservoir(answers.next())
             } else {
                 Optional.empty()
@@ -101,15 +116,16 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         }
     }
 
-    @Throws(ParseException::class, JSONException::class) private fun processSite(answer: String): Optional<JSONObject> {
+    @Throws(ParseException::class, JSONException::class)
+    private fun processSite(answer: String): Optional<JSONObject> {
         val matcher = parseMatcher(answer)
         if (matcher.find()) {
             val json = JSONObject()
             val date = parsetTime(answer, matcher)
             json.put("mills", date)
             json.put(
-                "eventType",
-                DetailedBolusInfo.EventType.CANNULA_CHANGE
+                    "eventType",
+                    DetailedBolusInfo.EventType.CANNULA_CHANGE
             )
             json.put("enteredBy", "PUMP")
             aapsLogger.debug("USER ENTRY: CAREPORTAL \${careportalEvent.eventType} json: \${careportalEvent.json}")
@@ -118,7 +134,8 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         return Optional.empty()
     }
 
-    @Throws(ParseException::class, JSONException::class) private fun processReservoir(answer: String): Optional<JSONObject> {
+    @Throws(ParseException::class, JSONException::class)
+    private fun processReservoir(answer: String): Optional<JSONObject> {
         val matcher = parseMatcher(answer)
         if (matcher.find()) {
             val json = JSONObject()
@@ -131,7 +148,8 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         return Optional.empty()
     }
 
-    @Throws(ParseException::class, JSONException::class) private fun processBattery(answer: String): Optional<JSONObject> {
+    @Throws(ParseException::class, JSONException::class)
+    private fun processBattery(answer: String): Optional<JSONObject> {
         val matcher = parseMatcher(answer)
         if (matcher.find()) {
             val json = JSONObject()
@@ -144,14 +162,15 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         return Optional.empty()
     }
 
-    @Throws(ParseException::class, JSONException::class) private fun processBolus(answers: Iterator<String>): Optional<JSONObject> {
+    @Throws(ParseException::class, JSONException::class)
+    private fun processBolus(answers: Iterator<String>): Optional<JSONObject> {
         if (answers.hasNext()) {
             val answer = answers.next()
             val matcher = parseMatcher(answer)
             if (matcher.find()) {
                 val bolusInfo = DetailedBolusInfo()
                 bolusInfo.bolusTimestamp = parsetTime(answer, matcher)
-                bolusInfo.bolusTimestamp?.let {  bolusInfo.timestamp = it }
+                bolusInfo.bolusTimestamp?.let { bolusInfo.timestamp = it }
                 bolusInfo.deliverAtTheLatest = bolusInfo.bolusTimestamp!!
                 bolusInfo.insulin = processBolusData(answers, "given bl:")
 
@@ -196,7 +215,8 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         return bolusDatePattern.matcher(answer)
     }
 
-    @Throws(ParseException::class) private fun parsetTime(answer: String, matcher: Matcher): Long {
+    @Throws(ParseException::class)
+    private fun parsetTime(answer: String, matcher: Matcher): Long {
         val datePattern = "HH:mm dd-MM-yyyy"
         val formatter = SimpleDateFormat(datePattern, Locale.getDefault())
         return formatter.parse(matcher.group(0)).time

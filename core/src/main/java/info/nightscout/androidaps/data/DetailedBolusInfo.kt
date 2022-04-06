@@ -77,6 +77,7 @@ class DetailedBolusInfo {
         CANNULA_CHANGE,
         INSULIN_CHANGE,
         PUMP_BATTERY_CHANGE,
+        SENSOR_CHANGE,
         NOTE;
 
         fun toDBbEventType(): TherapyEvent.Type =
@@ -88,6 +89,7 @@ class DetailedBolusInfo {
                 CANNULA_CHANGE   -> TherapyEvent.Type.CANNULA_CHANGE
                 INSULIN_CHANGE   -> TherapyEvent.Type.INSULIN_CHANGE
                 PUMP_BATTERY_CHANGE -> TherapyEvent.Type.PUMP_BATTERY_CHANGE
+                SENSOR_CHANGE -> TherapyEvent.Type.SENSOR_CHANGE
                 NOTE -> TherapyEvent.Type.NOTE
             }
     }

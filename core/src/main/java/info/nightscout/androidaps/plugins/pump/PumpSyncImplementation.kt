@@ -157,7 +157,7 @@ class PumpSyncImplementation @Inject constructor(
         val bolus = Bolus(
             timestamp = timestamp,
             amount = amount,
-            type = Bolus.Type.NORMAL, // not used for update
+            type = type?.toDBbBolusType()?: Bolus.Type.NORMAL, // not used for update
             interfaceIDs_backing = InterfaceIDs(
                 temporaryId = temporaryId,
                 pumpId = pumpId,
