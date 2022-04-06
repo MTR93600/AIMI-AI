@@ -1675,7 +1675,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 durationReq = 30;
             }
             if (iTime < iTimeProfile){
-            rT.reason += " MagicNumber: " + MagicNumber + ", TDD " + TDD + ", smbRatio: " + smb_ratio + ",limitIOB: " + limitIOB + ", bgDegree: " + bgDegree;
+            rT.reason += "iTime: " + iTime + ", MagicNumber: " + MagicNumber + ", TDD " + TDD + ", smbRatio: " + smb_ratio + ",limitIOB: " + limitIOB + ", bgDegree: " + bgDegree;
             }else{
             rT.reason += " insulinReq " + insulinReq + ", TDD " + TDD + "%, smbRatio : " + smb_ratio;
             }
@@ -1688,7 +1688,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             }
             rT.reason += ". ";
             rT.reason += UAMAIMIReason;
-
+            if (now > 0 && now < 7){
+            rT.reason += "Basal Unique value suggestion: " + AIMI_BasalAv3;
+            }
             //allow SMBs every 3 minutes by default
             var SMBInterval = 3;
             if (profile.SMBInterval) {
