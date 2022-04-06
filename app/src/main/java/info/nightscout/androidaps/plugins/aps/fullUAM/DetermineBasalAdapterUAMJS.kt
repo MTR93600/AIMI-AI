@@ -253,7 +253,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("temptargetSet", tempTargetSet)
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_autosens_max, "1.2")))
 //**********************************************************************************************************************************************
-        this.profile.put("UAM_InsulinReq",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_InsulinReq,"65")))
+        //this.profile.put("UAM_InsulinReq",SafeParse.stringToDouble(sp.getString(R.string.key_UAM_InsulinReq,"65")))
         this.profile.put("iTime",SafeParse.stringToDouble(sp.getString(R.string.key_iTime,"180")))
         this.profile.put("iTime_MaxBolus_minutes",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_MaxBolus_minutes,"200")))
         this.profile.put("iTime_Bolus",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Bolus,"2")))
@@ -345,6 +345,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
+        this.mealData.put("TDDAIMIBASAL3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.basalAmount)
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
         this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)

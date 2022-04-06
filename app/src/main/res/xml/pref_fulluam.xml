@@ -27,7 +27,7 @@
             validate:floatmaxNumber="25.0"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="100"
             android:enabled="true"
             android:dialogMessage="@string/UAM_InsulinReq_summary"
@@ -36,7 +36,7 @@
             android:title="@string/UAM_InsulinReq_title"
             validate:floatmaxNumber="150"
             validate:floatminNumber="50"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="180"
