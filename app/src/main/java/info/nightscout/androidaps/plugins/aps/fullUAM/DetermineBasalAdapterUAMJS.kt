@@ -338,6 +338,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.totalAmount)
+        this.mealData.put("TDDAIMIBASAL3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.basalAmount)
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
         this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)
