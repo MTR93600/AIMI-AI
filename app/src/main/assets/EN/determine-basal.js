@@ -491,8 +491,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_normalTarget *= sens_circadian_now;
     enlog += "sens_normalTarget with circadian variance:" + convert_bg(sens_normalTarget, profile)+"\n";
 
-    // Limit ISF for sens_currentBG with this scale like AS
-    var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
+    // Limit ISF increase for sens_currentBG at 10mmol / 180mgdl
+    var ISFbgMax = 180;
+    //var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
     // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
