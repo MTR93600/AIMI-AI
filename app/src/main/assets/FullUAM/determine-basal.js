@@ -400,8 +400,15 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
         var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;
         var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24) * 1.618;
+        var AIMI_BasalAv7 = (meal_data.TDDAIMIBASAL7/24)*1.618;
+        AIMI_BasalAv7 -= AIMI_BasalAv7 * (statTirBelow/100);
         AIMI_BasalAv3 -= AIMI_BasalAv3 * (statTirBelow/100);
+        enlog += "###Basal average 7 days : "+AIMI_BasalAv7+"### \n";
         enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
+
+        AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 2;
+        enlog += "###Basal average days : "+AIMI_Basal+"### \n";
+
 
         //var AIMI_PBolus = profile.key_use_AIMI_PBolus;
         var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
@@ -1087,7 +1094,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-MASTER-3.0.1-AIMI V17 06/04/2022 ");
+                console.log(" AAPS-MASTER-3.0.1-AIMI V17 08/04/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDPUMP ){
                 console.log(enlog);
@@ -1646,17 +1653,21 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             durationReq = round(30*worstCaseInsulinReq / basal);
             var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
 
-            if (TriggerPredSMB_future_sens_45 < 80)  {
-            //if (!eatingnowtimeOK && bg < EatingNowBGThreshold && meal_data.mealCOB==0)  {
-                //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
-                microBolus = 0;
-                UAMAIMIReason += ", No SMB, ";
-            }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
-                    if(TimeSMB < 15){
-                    microBolus = 0;
-                    UAMAIMIReason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, ";
-                    }
-            }
+            if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp){
+                        microBolus = 0;
+                        UAMAIMIReason += ", No SMB beacuase Fiasp and Pred < 90, ";
+                        }else if (TriggerPredSMB_future_sens_45 < 100 && AIMI_UAM_Novorapid){
+                        microBolus = 0;
+                        UAMAIMIReason += ", No SMB beacuase Novorapid and Pred < 100, ";
+                        }else if (TriggerPredSMB_future_sens_45 < 80)  {
+                            microBolus = 0;
+                            UAMAIMIReason += ", No SMB because Luymjev and Pred < 80, ";
+                        }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
+                                if(TimeSMB < 15){
+                                microBolus = 0;
+                                UAMAIMIReason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, ";
+                                }
+                        }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
                 durationReq = 0;
@@ -1689,7 +1700,10 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             rT.reason += ". ";
             rT.reason += UAMAIMIReason;
             if (now > 0 && now < 7){
-            rT.reason += "Basal Unique value suggestion: " + AIMI_BasalAv3;
+            rT.reason += " ; Basal Av3 : " + AIMI_BasalAv3;
+            rT.reason += " ; Basal Av7 : " + AIMI_BasalAv7;
+            rT.reason += " ; Basal proposition : " + AIMI_Basal;
+
             }
             //allow SMBs every 3 minutes by default
             var SMBInterval = 3;
