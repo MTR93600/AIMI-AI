@@ -1451,7 +1451,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                         EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
                     }
                     ISFBoosted = true;
-                    insulinReqPct = (COBBoostOK ? profile.COBinsulinReqPct/100 : ENinsulinReqPct);
+                    insulinReqPct = ENinsulinReqPct;
+                    //insulinReqPct = (COBBoostOK ? profile.COBinsulinReqPct/100 : ENinsulinReqPct);
                 }
                 // ============== ISF BOOST ============== END ===
 
