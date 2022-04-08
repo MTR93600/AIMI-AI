@@ -1402,7 +1402,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var EatingNowMaxSMB = maxBolus;
             var maxBolusOrig = maxBolus;
             var UAMBoosted = false, ISFBoosted = false;
-            var ENinsulinReqPct = (profile.EatingNowinsulinReqPct/100); // EN insulinReqPct is used from the profile
+            var ENinsulinReqPct = 0.75; // EN insulinReqPct is 75%
+            //var ENinsulinReqPct = (profile.EatingNowinsulinReqPct/100); // EN insulinReqPct is used from the profile
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
