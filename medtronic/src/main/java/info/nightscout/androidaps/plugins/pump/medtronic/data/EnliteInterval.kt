@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.pump.medtronic.data
+    package info.nightscout.androidaps.plugins.pump.medtronic.data
 
 object EnliteInterval {
     private val currentIntervals = arrayOf(240000, 315000, 370000, 400000)
