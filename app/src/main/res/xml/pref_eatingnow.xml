@@ -206,15 +206,15 @@
                     validate:floatminNumber="50"
                     validate:testType="floatNumericRange" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="30"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_iobmax"
-                    android:dialogMessage="This will use a percentage of max-iob and suspend EatingNow until IOB limit is lower. Setting to 70 will make this 70%"
-                    android:title="Max IOB Percentage"
-                    validate:floatmaxNumber="100"
-                    validate:floatminNumber="10"
-                    validate:testType="floatNumericRange"/>
+<!--                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference-->
+<!--                    android:defaultValue="30"-->
+<!--                    android:inputType="numberDecimal"-->
+<!--                    android:key="@string/key_eatingnow_iobmax"-->
+<!--                    android:dialogMessage="This will use a percentage of max-iob and suspend EatingNow until IOB limit is lower. Setting to 70 will make this 70%"-->
+<!--                    android:title="Max IOB Percentage"-->
+<!--                    validate:floatmaxNumber="100"-->
+<!--                    validate:floatminNumber="10"-->
+<!--                    validate:testType="floatNumericRange"/>-->
 
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="0"

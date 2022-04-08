@@ -234,7 +234,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     */
 
     // Eating Now Variables, relocated for SR
-    var eatingnow = false, eatingnowtimeOK = false, eatingnowMaxIOBOK = false, enlog = ""; // nah not eating yet
+    var eatingnow = false, eatingnowtimeOK = false, ENmaxIOBOK = false, enlog = ""; // nah not eating yet
     var now = new Date();  //Create the time variable to be used to allow the Boost function only between certain hours
     var nowdec = round(now.getHours()+now.getMinutes()/60,2);
     var nowhrs = now.getHours(), nowmins = now.getMinutes();
@@ -317,10 +317,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ignoreCOB = profile.enableGhostCOB; //MD#01: Ignore any COB and rely purely on UAM after initial rise
 
     // Check that max iob is OK
-    if (iob_data.iob <= (max_iob * (profile.EatingNowIOBMax/100))) eatingnowMaxIOBOK = true;
+    if (iob_data.iob <= max_iob) ENmaxIOBOK = true;
+    //if (iob_data.iob <= (max_iob * (profile.EatingNowIOBMax/100))) ENmaxIOBOK = true;
 
     // If we have UAM and GhostCOB enabled with low enough IOB we will enable eating now mode
-    if (profile.enableUAM && eatingnowMaxIOBOK) {
+    if (profile.enableUAM && ENmaxIOBOK) {
         // enable eatingnow if no TT and within safe hours
         if (eatingnowtimeOK) eatingnow = true;
         // If there are COB enable eating now
@@ -328,12 +329,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // no EN with a TT other than normal target
         if (profile.temptargetSet) eatingnow = false;
         if (profile.temptargetSet && target_bg <= normalTarget) eatingnow = true;
-        if (eatingnow) max_iob *= (profile.EatingNowIOBMax/100); // set maxIOB using the EN percentage
-        max_iob = round(max_iob,2);
+        //if (eatingnow) max_iob *= (profile.EatingNowIOBMax/100); // set maxIOB using the EN percentage
+        //max_iob = round(max_iob,2);
     }
     //eatingnow = false; //DEBUG
     enlog += "eatingnow: " + eatingnow + ", eatingnowtimeOK: " + eatingnowtimeOK+"\n";
-    enlog += "eatingnowMaxIOBOK: " + eatingnowMaxIOBOK + ", max_iob: " + max_iob+"\n";
+    enlog += "ENmaxIOBOK: " + ENmaxIOBOK + ", max_iob: " + max_iob+"\n";
 
     // patches ===== END
 
@@ -1109,7 +1110,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // extra reason text
 
     rT.reason += ", EN: " + (eatingnow ? "Active" : "Inactive");
-    rT.reason += (!eatingnowMaxIOBOK ? " IOB" : "");
+    rT.reason += (!ENmaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
