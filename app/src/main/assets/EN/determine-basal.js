@@ -1447,7 +1447,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
                     // if COBBoostOK allow increase max SMB within the window
                     if (COBBoostOK) {
-                        EatingNowMaxSMB = profile.COBBoost_maxBolus; // max SMB can be all of insulinReq as it will be restricted by ENinsulinReqPct and treatmentssafety_maxbolus
+                        EatingNowMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
                         EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
                     }
                     ISFBoosted = true;
