@@ -323,6 +323,16 @@
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="0"
                 android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_cobboost_maxbolus_breakfast"
+                android:title="COBBoost Breakfast maxBolus"
+                android:dialogMessage="COBBoost Breakfast maxBolus for BGL rises within the COBBoost Window.\nThis will impact the first carb entry after EN start time.\n0 will use existing maxBolus limit"
+                validate:floatmaxNumber="8"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
                 android:key="@string/key_eatingnow_cobboost_maxbolus"
                 android:title="COBBoost maxBolus"
                 android:dialogMessage="COBBoost maxBolus for BGL rises within the COBBoost Window.\n0 will use existing maxBolus limit"
