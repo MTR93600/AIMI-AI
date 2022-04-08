@@ -243,14 +243,15 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("normal_target_bg", profile.getTargetMgdl().roundToInt())
 
         this.profile.put("enableGhostCOB", sp.getBoolean(R.string.key_use_ghostcob, false))
-        this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
+        //this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
         this.profile.put("COBBoostWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
+        this.profile.put("COBBoost_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus_breakfast, 0.0))
         this.profile.put("COBBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
 
-        this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
+        //this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
         this.profile.put("EatingNowTimeStart", sp.getInt(R.string.key_eatingnow_timestart, 9))
         this.profile.put("EatingNowTimeEnd", sp.getInt(R.string.key_eatingnow_timeend, 17))
-        this.profile.put("EatingNowinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_insulinreqpct,"65")))
+        //this.profile.put("EatingNowinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_insulinreqpct,"65")))
 
         this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
@@ -258,7 +259,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
 
         this.profile.put("ISFBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_isfboost_maxbolus, 0.0))
         this.profile.put("SMBbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_smbbgoffset, 0.0),profileFunction.getUnits()))
-        this.profile.put("ISFbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgoffset, 0.0),profileFunction.getUnits()))
+        //this.profile.put("ISFbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgoffset, 0.0),profileFunction.getUnits()))
         this.profile.put("ISFbgscaler", sp.getDouble(R.string.key_eatingnow_isfbgscaler, 0.0))
 
         // patches ==== END
@@ -303,6 +304,12 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         val lastCarbTime = if (getlastCarbs is ValueWrapper.Existing) getlastCarbs.value.timestamp else 0L
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
+
+        // get the first carb time since EN activation
+        val ENStartTime = 3600000 * sp.getInt(R.string.key_eatingnow_timestart, 9) + MidnightTime.calc(now)
+        val getCarbsSinceENStart = repository.getCarbsDataFromTime(ENStartTime,true).blockingGet()
+        val firstCarbTime = getCarbsSinceENStart.lastOrNull()?.timestamp
+        this.mealData.put("firstCarbTime",firstCarbTime)
 
         // 3PM is used as a low basal point at which the rest of the day leverages for ISF variance when using one ISF in the profile
         this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
