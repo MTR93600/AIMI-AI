@@ -219,9 +219,9 @@
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="0"
                     android:inputType="numberDecimal"
-                    android:title="SMB BG Offset"
+                    android:title="Overnight SMB Restriction"
                     android:key="@string/key_eatingnow_smbbgoffset"
-                    android:dialogMessage="There will be no SMB when below this BG offset at night without COB or detected resistance.\ne.g. if target bg is 5.5 and this setting is 1.5 there will be no SMB below 7.0"
+                    android:dialogMessage="There will be no SMB when below this BG offset at night unless COB or a TT <= normalTarget\ne.g. if normalTarget is 5.5 (99) and this setting is 1.5 (27) there will be no SMB below 7.0 (126)"
                     validate:floatmaxNumber="270.0"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange" />
