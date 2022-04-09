@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.general.overview
 
 import android.graphics.Color
-import android.view.View
 import android.widget.TextView
 import androidx.annotation.StringRes
 import info.nightscout.androidaps.R
@@ -41,34 +40,45 @@ class StatusLightHandler @Inject constructor(
     /**
      * applies the extended statusLight subview on the overview fragment
      */
-    fun updateStatusLights(careportal_cannula_age: TextView?, careportal_insulin_age: TextView?, careportal_reservoir_level: TextView?, careportal_sensor_age: TextView?, careportal_sensor_battery_level: TextView?, careportal_pb_age: TextView?, careportal_battery_level: TextView?, medlink_battery_level: TextView?) {
+    fun updateStatusLights(
+        careportal_cannula_age: TextView?,
+        careportal_insulin_age: TextView?,
+        careportal_reservoir_level: TextView?,
+        careportal_sensor_age: TextView?,
+        careportal_sensor_battery_level: TextView?,
+        careportal_pb_age: TextView?,
+        careportal_battery_level: TextView?,
+        medlink_battery_level: TextView?
+    ) {
         val pump = activePlugin.activePump
         val bgSource = activePlugin.activeBgSource
         handleAge(careportal_cannula_age, TherapyEvent.Type.CANNULA_CHANGE, R.string.key_statuslights_cage_warning, 48.0, R.string.key_statuslights_cage_critical, 72.0)
-        if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
-            careportal_insulin_age?.visibility = View.GONE
-        } else {
-            careportal_insulin_age?.visibility = View.VISIBLE
-            handleAge(careportal_insulin_age, TherapyEvent.Type.INSULIN_CHANGE, R.string.key_statuslights_iage_warning, 72.0, R.string.key_statuslights_iage_critical, 144.0)
-        }
+        handleAge(careportal_insulin_age, TherapyEvent.Type.INSULIN_CHANGE, R.string.key_statuslights_iage_warning, 72.0, R.string.key_statuslights_iage_critical, 144.0)
         handleAge(careportal_sensor_age, TherapyEvent.Type.SENSOR_CHANGE, R.string.key_statuslights_sage_warning, 216.0, R.string.key_statuslights_sage_critical, 240.0)
         if (pump is MedLinkMedtronicPumpPlugin) {
             val pumpStatusData = pump.pumpStatusData
             if (pumpStatusData is MedLinkMedtronicPumpStatus) {
-                if (pumpStatusData.batteryType == BatteryType.LiPo || sp.getString(R.string
-                                                                                       .key_medlink_battery_info, "Age") == "Age")  {
+                if (pumpStatusData.batteryType == BatteryType.LiPo || sp.getString(
+                        R.string
+                            .key_medlink_battery_info, "Age"
+                    ) == "Age"
+                ) {
                     handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 100.0, R.string.key_statuslights_bage_critical, 120.0)
                 }
-                handleLevel(medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
-                            pump.getRileyLinkService().medLinkServiceData.batteryLevel.toDouble()
+                handleLevel(
+                    medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
+                    pump.getRileyLinkService().medLinkServiceData.batteryLevel.toDouble()
                     // pump.pumpStatusData.deviceBatteryRemaining.toDouble()
-                            , "%")
+                    , "%"
+                )
+            } else if (pump.pumpDescription.isBatteryReplaceable || pump.isBatteryChangeLoggingEnabled()) {
+                handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0)
             } else {
                 medlink_battery_level?.visibility = false.toVisibility()
             }
-        } else if (pump.pumpDescription.isBatteryReplaceable || (pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel && pump.isBatteryChangeLoggingEnabled)) {
+        } else if (pump.pumpDescription.isBatteryReplaceable || (pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel && pump.isBatteryChangeLoggingEnabled())) {
             handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0)
-            }
+        }
         careportal_sensor_battery_level?.text = ""
         if (!config.NSCLIENT) {
             if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
@@ -83,40 +93,46 @@ class StatusLightHandler @Inject constructor(
         }
 
         if (!config.NSCLIENT) {
-            if (pump.model() == PumpType.OMNIPOD_DASH) {
-                // Omnipod Dash does not report its battery level
-                careportal_battery_level?.text = rh.gs(R.string.notavailable)
-                careportal_battery_level?.setTextColor(Color.WHITE)
-            } else if (pump.model() == PumpType.OMNIPOD_EROS && pump is OmnipodErosPumpPlugin) { // instance of check is needed because at startup, pump can still be VirtualPumpPlugin and that will cause a crash because of the class cast below
-                // The Omnipod Eros does not report its battery level. However, some RileyLink alternatives do.
-                // Depending on the user's configuration, we will either show the battery level reported by the RileyLink or "n/a"
-                handleOmnipodErosBatteryLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%", pump.isUseRileyLinkBatteryLevel)
-            } else if (pump !is MedLinkPumpDevice && pump.model() != PumpType.ACCU_CHEK_COMBO) {
+            // The Omnipod Eros does not report its battery level. However, some RileyLink alternatives do.
+            // Depending on the user's configuration, we will either show the battery level reported by the RileyLink or "n/a"
+            val erosBatteryLinkAvailable = pump.model() == PumpType.OMNIPOD_EROS && pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel
+
+            if (pump.model().supportBatteryLevel || erosBatteryLinkAvailable || pump !is MedLinkPumpDevice && pump.model() != PumpType.ACCU_CHEK_COMBO) {
                 handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.batteryLevel.toDouble(), "%")
             } else if (pump is MedLinkMedtronicPumpPlugin) {
-                if (sp.getString(R.string
-                        .key_medlink_battery_info, "Age") != "Age") {
-                            if(pump.pumpStatusData.batteryVoltage != null) {
-                                handleDecimal(careportal_battery_level, R.string.key_statuslights_bat_critical, 1.30, R.string.key_statuslights_bat_warning, 1.20,
-                                              pump.pumpStatusData.batteryVoltage!!, "V")
-                            }
+                if (sp.getString(
+                        R.string
+                            .key_medlink_battery_info, "Age"
+                    ) != "Age"
+                ) {
+                    if (pump.pumpStatusData.batteryVoltage != null) {
+                        handleDecimal(
+                            careportal_battery_level, R.string.key_statuslights_bat_critical, 1.30, R.string.key_statuslights_bat_warning, 1.20,
+                            pump.pumpStatusData.batteryVoltage!!, "V"
+                        )
+                    }
                 }
                 // else {
                 //     handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.pumpStatusData.batteryRemaining.toDouble(), "%")
                 // }
+            } else {
+                careportal_battery_level?.text = rh.gs(R.string.notavailable)
+                careportal_battery_level?.setTextColor(rh.gac(careportal_battery_level.context, R.attr.defaultTextColor))
             }
-            // if(resourceHelper.gs(R.string.key_medlink_battery_info).equals()){
-            //
+            // else {
+            //     handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.pumpStatusData.batteryRemaining.toDouble(), "%")
             // }
         }
-
     }
+    // if(resourceHelper.gs(R.string.key_medlink_battery_info).equals()){
+    //
+    // }
 
     private fun handleAge(view: TextView?, type: TherapyEvent.Type, @StringRes warnSettings: Int, defaultWarnThreshold: Double, @StringRes urgentSettings: Int, defaultUrgentThreshold: Double) {
         val warn = sp.getDouble(warnSettings, defaultWarnThreshold)
         val urgent = sp.getDouble(urgentSettings, defaultUrgentThreshold)
         val therapyEvent = repository.getLastTherapyRecordUpToNow(type).blockingGet()
-        if (therapyEvent is ValueWrapper.Existing) {
+        if (therapyEvent is ValueWrapper.Existing<TherapyEvent>) {
             warnColors.setColorByAge(view, therapyEvent.value, warn, urgent)
             view?.text = therapyEvent.value.age(rh.shortTextMode(), rh, dateUtil)
         } else {
@@ -152,13 +168,4 @@ class StatusLightHandler @Inject constructor(
         }
     }
 
-    @Suppress("SameParameterValue")
-    private fun handleOmnipodErosBatteryLevel(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String, useRileyLinkBatteryLevel: Boolean) {
-        if (useRileyLinkBatteryLevel) {
-            handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units)
-        } else {
-            view?.text = rh.gs(R.string.notavailable)
-            view?.setTextColor(Color.WHITE)
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.general.overview.graphExtensions
 
+import android.content.Context
 import android.graphics.Color
 import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.database.entities.Bolus
@@ -23,23 +24,23 @@ class BolusDataPoint @Inject constructor(
     override val label
         get() = DecimalFormatter.toPumpSupportedBolus(data.amount, activePlugin.activePump, rh)
     override val duration = 0L
+    override fun setY(y: Double) {
+        yValue = y
+    }
+
     override val size = 2f
+
 
     override val shape
         get() = if (data.type == Bolus.Type.SMB) PointsWithLabelGraphSeries.Shape.SMB
         else if (data.type == Bolus.Type.TBR) PointsWithLabelGraphSeries.Shape.TBR_BOLUS
         else PointsWithLabelGraphSeries.Shape.BOLUS
 
-    override val color
-        get() =
+    override fun color(context: Context?) =
             when {
-                data.type == Bolus.Type.SMB -> rh.gc(R.color.tempbasal)
-                data.type == Bolus.Type.TBR -> rh.gc(R.color.basal)
-                data.isValid                -> Color.CYAN
-                else                        -> rh.gc(android.R.color.holo_red_light)
+                data.type == Bolus.Type.SMB -> rh.gac(context, R.attr.smbColor)
+                data.type == Bolus.Type.TBR -> rh.gac(context, R.attr.basal)
+                data.isValid                -> rh.gac(context,  R.attr.bolusDataPointColor)
+                else                        -> rh.gac(context,  R.attr.alarmColor)
             }
-
-    override fun setY(y: Double) {
-        yValue = y
-    }
 }

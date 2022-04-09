@@ -151,6 +151,7 @@ class ProfileViewerDialog : DaggerDialogFragment() {
                     binding.basalGraph.show(profile1, profile2)
                     binding.isfGraph.show(profile1, profile2)
                     binding.icGraph.show(profile1, profile2)
+                    binding.targetGraph.show(profile1, profile2)
                 }
 
                 binding.noprofile.visibility = View.GONE
@@ -171,6 +172,7 @@ class ProfileViewerDialog : DaggerDialogFragment() {
                 binding.basalGraph.show(it)
                 binding.isfGraph.show(it)
                 binding.icGraph.show(it)
+                binding.targetGraph.show(it)
 
                 binding.noprofile.visibility = View.GONE
                 val validity = it.isValid("ProfileViewDialog", activePlugin.activePump, config, rh, rxBus, hardLimits, false)
@@ -204,20 +206,20 @@ class ProfileViewerDialog : DaggerDialogFragment() {
     }
 
     private fun formatColors(label: String, text1: String, text2: String, units: String): String {
-        var s = "<font color='${rh.gc(R.color.white)}'>$label</font>"
+        var s = "<font color='${rh.gac(context, R.attr.defaultTextColor)}'>$label</font>"
         s += "    "
-        s += "<font color='${rh.gc(R.color.tempbasal)}'>$text1</font>"
+        s += "<font color='${rh.gac(context, R.attr.tempBasalColor)}'>$text1</font>"
         s += "    "
-        s += "<font color='${rh.gc(R.color.examinedProfile)}'>$text2</font>"
+        s += "<font color='${rh.gac(context, R.attr.examinedProfileColor)}'>$text2</font>"
         s += "    "
-        s += "<font color='${rh.gc(R.color.white)}'>$units</font>"
+        s += "<font color='${rh.gac(context, R.attr.defaultTextColor)}'>$units</font>"
         return s
     }
 
     private fun formatColors(text1: String, text2: String): String {
-        var s = "<font color='${rh.gc(R.color.tempbasal)}'>$text1</font>"
+        var s = "<font color='${rh.gac(context, R.attr.tempBasalColor)}'>$text1</font>"
         s += "<BR/>"
-        s += "<font color='${rh.gc(R.color.examinedProfile)}'>$text2</font>"
+        s += "<font color='${rh.gac(context, R.attr.examinedProfileColor)}'>$text2</font>"
         return s
     }
 
@@ -291,8 +293,8 @@ class ProfileViewerDialog : DaggerDialogFragment() {
             val val1h = profile1.getTargetHighMgdlTimeFromMidnight(hour * 60 * 60)
             val val2l = profile2.getTargetLowMgdlTimeFromMidnight(hour * 60 * 60)
             val val2h = profile2.getTargetHighMgdlTimeFromMidnight(hour * 60 * 60)
-            val txt1 = dateUtil.format_HH_MM(hour * 60 * 60) + " " + Profile.toUnitsString(val1l, val1l * Constants.MGDL_TO_MMOLL, units) + " - " + Profile.toUnitsString(val1h, val1h * Constants.MGDL_TO_MMOLL, units) + " " + units
-            val txt2 = dateUtil.format_HH_MM(hour * 60 * 60) + " " + Profile.toUnitsString(val2l, val2l * Constants.MGDL_TO_MMOLL, units) + " - " + Profile.toUnitsString(val2h, val2h * Constants.MGDL_TO_MMOLL, units) + " " + units
+            val txt1 = dateUtil.format_HH_MM(hour * 60 * 60) + " " + Profile.toUnitsString(val1l, val1l * Constants.MGDL_TO_MMOLL, units) + " - " + Profile.toUnitsString(val1h, val1h * Constants.MGDL_TO_MMOLL, units) + " " + units.asText
+            val txt2 = dateUtil.format_HH_MM(hour * 60 * 60) + " " + Profile.toUnitsString(val2l, val2l * Constants.MGDL_TO_MMOLL, units) + " - " + Profile.toUnitsString(val2h, val2h * Constants.MGDL_TO_MMOLL, units) + " " + units.asText
             if (val1l != prev1l || val1h != prev1h || val2l != prev2l || val2h != prev2h) {
                 s.append(formatColors(txt1, txt2))
                 s.append("<br>")

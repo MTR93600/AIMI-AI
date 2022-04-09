@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    card_view:cardBackgroundColor="?android:colorBackground">
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="?android:attr/dividerHorizontal"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="1.1.2000" />
 
         <LinearLayout
             android:id="@+id/metadata_layout"
@@ -25,16 +38,16 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="5dp"
                 android:gravity="center"
-                android:text="{fa-clock-o}"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="{fa-clock-o}" />
 
             <TextView
-                android:id="@+id/date"
+                android:id="@+id/calc_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="1.1.2000"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="11:45" />
 
             <TextView
                 android:layout_width="0dp"
@@ -65,18 +78,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="15dp"
+                android:layout_marginStart="5dp"
                 android:gravity="center"
-                android:text="{fa-clock-o}"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="{fa-clock-o}" />
 
             <TextView
-                android:id="@+id/bolus_date"
+                android:id="@+id/bolus_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="1.1.2000"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="11:45" />
 
             <TextView
                 android:id="@+id/insulin"
@@ -84,9 +97,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"
-                android:text="1.00 U"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                tools:text="1.00 U" />
 
             <TextView
                 android:id="@+id/iob_label"
@@ -102,9 +114,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="0.45U"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                tools:text="0.45U" />
 
             <TextView
                 android:layout_width="0dp"
@@ -117,27 +128,24 @@
                 android:id="@+id/meal_or_correction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Meal"
                 android:textAlignment="textEnd"
-                tools:ignore="HardcodedText" />
+                tools:text="Meal" />
 
             <TextView
                 android:id="@+id/bolus_ns"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="NS"
-                android:textColor="@color/colorSetTempButton"
-                tools:ignore="HardcodedText" />
+                android:textColor="?attr/setTempButton"
+                tools:text="NS" />
 
             <TextView
                 android:id="@+id/bolus_pump"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="PH"
-                android:textColor="@color/colorSetTempButton"
-                tools:ignore="HardcodedText" />
+                android:textColor="?attr/setTempButton"
+                tools:text="PH" />
 
             <TextView
                 android:id="@+id/bolus_invalid"
@@ -147,14 +155,13 @@
                 android:text="@string/invalid"
                 android:textColor="@android:color/holo_red_light" />
 
-            <TextView
-                android:id="@+id/bolus_remove"
+            <CheckBox
+                android:id="@+id/cb_bolus_remove"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="@string/remove_button"
-                android:textAlignment="viewEnd"
-                android:textColor="@android:color/holo_orange_light" />
+                android:layout_height="19dp"
+                android:contentDescription="@string/select_for_removal"
+                android:minWidth="0dp"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -173,18 +180,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="15dp"
+                android:layout_marginStart="5dp"
                 android:gravity="center"
-                android:text="{fa-clock-o}"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="{fa-clock-o}" />
 
             <TextView
-                android:id="@+id/carbs_date"
+                android:id="@+id/carbs_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="1.1.2000"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="RtlSymmetry"
+                tools:text="11:45" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -220,18 +227,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="NS"
-                android:textColor="@color/colorSetTempButton"
-                tools:ignore="HardcodedText" />
+                android:textColor="?attr/setTempButton"
+                tools:text="NS" />
 
             <TextView
                 android:id="@+id/carbs_pump"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="PH"
-                android:textColor="@color/colorSetTempButton"
-                tools:ignore="HardcodedText" />
+                android:textColor="?attr/setTempButton"
+                tools:text="PH" />
 
             <TextView
                 android:id="@+id/carbs_invalid"
@@ -241,14 +246,13 @@
                 android:text="@string/invalid"
                 android:textColor="@android:color/holo_red_light" />
 
-            <TextView
-                android:id="@+id/carbs_remove"
+            <CheckBox
+                android:id="@+id/cb_carbs_remove"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="@string/remove_button"
-                android:textAlignment="viewEnd"
-                android:textColor="@android:color/holo_orange_light" />
+                android:layout_height="19dp"
+                android:contentDescription="@string/select_for_removal"
+                android:minWidth="0dp"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -258,13 +262,14 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/delimiter"
             android:layout_width="fill_parent"
             android:layout_height="2dip"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
-            android:background="@color/list_delimiter" />
+            android:background="?android:attr/dividerHorizontal" />
 
     </LinearLayout>
 
