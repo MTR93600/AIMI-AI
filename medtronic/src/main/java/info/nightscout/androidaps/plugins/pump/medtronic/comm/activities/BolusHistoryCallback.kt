@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
-import com.google.gson.JsonObject
 import info.nightscout.androidaps.utils.JsonHelper.safeGetString
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
@@ -72,19 +71,20 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
     @Throws(ParseException::class)
     private fun processBolusHistory(answers: Iterator<String>): Supplier<Stream<Optional<JSONObject>>> {
         val resultList: MutableList<Optional<JSONObject>> = ArrayList()
-        var canulaChange: Optional<JSONObject> = Optional.empty()
+        var cannulaChange: Optional<JSONObject> = Optional.empty()
         var verifyNext = false
         while (answers.hasNext()) {
             var data = processData(answers)
-            if(verifyNext && data.get().get("eventType") != DetailedBolusInfo.EventType.INSULIN_CHANGE
-                    && canulaChange.isPresent){
-                resultList.add(canulaChange)
-                canulaChange = Optional.empty()
+            if(verifyNext && data.isPresent && data.get().get("eventType") != DetailedBolusInfo.EventType.INSULIN_CHANGE
+                    && cannulaChange.isPresent){
+                resultList.add(cannulaChange)
+                cannulaChange = Optional.empty()
+                verifyNext = false
             }
             if (!verifyNext && data.isPresent
                     && data.get().get("eventType") == DetailedBolusInfo.EventType.CANNULA_CHANGE
                     && !medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)) {
-                canulaChange = data
+                cannulaChange = data
                 data = Optional.empty()
                 verifyNext = true
             }

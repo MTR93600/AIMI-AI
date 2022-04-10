@@ -20,6 +20,7 @@
     <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(T and J)</string>
 <!--    <string name="medlink_init_commands_profile">Profile Data (E and F)</string>-->
     <string name="medlink_init_commands_last_bg_history">Last BG History Page(C and I)</string>
+    <string name="onetothreedigitnumber" translatable="false">^\\d{1,3}</string>
 
     <string name="key_medlink_init_commands" translatable="false">medlink_init_commands</string>
     <string name="medlink_delivered">%1$.2f U / %2$.2f U delivered</string>
