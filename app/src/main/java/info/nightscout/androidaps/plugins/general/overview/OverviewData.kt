@@ -113,9 +113,19 @@ class OverviewData @Inject constructor(
 
     val lastBg: GlucoseValue?
         get() =
+
             repository.getLastGlucoseValueWrapped().blockingGet().let { gvWrapped ->
-                if (gvWrapped is ValueWrapper.Existing) gvWrapped.value
-                else null
+
+                if (gvWrapped is ValueWrapper.Existing) {
+                    if (gvWrapped.value.sourceSensor == GlucoseValue.SourceSensor.MM_ENLITE) {
+                        repository.getLastMedLinkGlucoseValueWrapped().blockingGet().let { medWrapped ->
+                            if (medWrapped is ValueWrapper.Existing) medWrapped.value
+                            else null
+                        }
+                    } else {
+                        gvWrapped.value
+                    }
+                } else null
             }
 
     val isLow: Boolean
@@ -182,8 +192,8 @@ class OverviewData @Inject constructor(
             }
         } ?: R.drawable.ic_cp_basal_no_tbr
 
-    fun temporaryBasalColor(context: Context?, iobCobCalculator: IobCobCalculator): Int = iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now())?.let { rh.gac(context , R.attr.basal) }
-            ?: rh.gac(context, R.attr.textAppearancemediumColor)
+    fun temporaryBasalColor(context: Context?, iobCobCalculator: IobCobCalculator): Int = iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now())?.let { rh.gac(context, R.attr.basal) }
+        ?: rh.gac(context, R.attr.textAppearancemediumColor)
 
     /*
      * EXTENDED BOLUS

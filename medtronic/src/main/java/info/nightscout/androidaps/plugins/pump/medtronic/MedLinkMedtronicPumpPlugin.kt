@@ -403,7 +403,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         }
                     }
                     if (System.currentTimeMillis() - pumpStatusData.lastConnection > 590000) {
-                        readPumpHistory()
+                        readPumpHistory(false)
                     }
                     clearBusyQueue()
                 }
@@ -644,10 +644,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    protected fun readPumpHistory() {
+    private fun readPumpHistory(scheduled: Boolean) {
 //        if (isLoggingEnabled())
 //            LOG.error(getLogPrefix() + "readPumpHistory WIP.");
-        scheduleNextReadState()
+        scheduleNextReadState(scheduled)
         aapsLogger.info(LTag.CONFIGBUILDER, "read pump history")
         readPumpHistoryLogic()
 
@@ -687,14 +687,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         // this.medtronicHistoryData.setLastHistoryRecordTime(this.lastPumpHistoryEntry.atechDateTime);
     }
 
-    fun scheduleNextReadState(): Int {
+    fun scheduleNextReadState(scheduled:Boolean): Int {
         if (pumpStatusData.getLastBGTimestamp() != 0L) {
             var bgDelta = Math.toIntExact(
                     (pumpStatusData.lastDataTime -
                             pumpStatusData.getLastBGTimestamp()) / 60000
             )
-            if (isInitialized) {
-                if (bgDelta in 5..9) {
+            if (isInitialized && scheduled) {
+                if (bgDelta in 7..9) {
                     aapsLogger.info(LTag.PUMPBTCOMM, "reading failed increasing")
                     EnliteInterval.currentFailed()
                 } else if (bgDelta < 4) {
@@ -859,7 +859,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 when (key) {
                     MedLinkMedtronicStatusRefreshType.PumpHistory -> {
                         aapsLogger.info(LTag.PUMPBTCOMM, "refreshing")
-                        readPumpHistory()
+                        readPumpHistory(true)
                     }
 
                     MedLinkMedtronicStatusRefreshType.PumpTime -> {
@@ -872,7 +872,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         if (statusRefreshMap.isEmpty() || System.currentTimeMillis() - lastTryToConnect >= 600000) {
             lastTryToConnect = System.currentTimeMillis()
-            readPumpHistory()
+            readPumpHistory(false)
             scheduleNextRefresh(MedLinkMedtronicStatusRefreshType.PumpHistory)
             aapsLogger.info(LTag.PUMPBTCOMM, "posthistory")
             //            scheduleNextRefresh(PumpHistory);
@@ -1005,7 +1005,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     override fun getPumpStatus(status: String) {
         if (status.lowercase(Locale.getDefault()) == "clicked refresh") {
-            readPumpHistory()
+            readPumpHistory(false)
         } else if (firstRun) {
             initializePump(!isRefresh)
         } else {
@@ -1034,7 +1034,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             aapsLogger.info(LTag.PUMP, "nullmedlinkservice$medLinkService")
         }
         setRefreshButtonEnabled(false)
-        readPumpHistory()
+        readPumpHistory(false)
     }
 
     fun postInit() {
