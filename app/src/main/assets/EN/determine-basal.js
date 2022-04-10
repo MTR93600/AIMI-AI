@@ -405,7 +405,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
-    var sens_TDD_new =  1800 / ( TDD * (Math.log(( bg / 75 ) + 1 ) ) );
+    var sens_TDD_new =  1800 / ( TDD * (Math.log(( normalTarget / 75 ) + 1 ) ) );
     enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
     sens_TDD = sens_TDD / (profile.sens_TDD_scale/100);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
