@@ -244,12 +244,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0,0)-ENStartOffset, ENEndTime = new Date().setHours(profile.EatingNowTimeEnd,0,0,0) + ENEndOffset;
 
     // variables for deltas
-    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.2;
+    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, DeltaPct = 1, UAMBoost_threshold = 1.2;
     // Calculate percentage change in deltas, long to short and short to now
     if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
     if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
-    // set the UAMBoost factor that is the UAM_deltaShortRise combined minimum of zero + 1 to allow multiply
-    UAMBoost = round(1+UAM_deltaShortRise,2);
+    // set the DeltaPct factor that is the UAM_deltaShortRise combined minimum of zero + 1 to allow multiply
+    DeltaPct = round(1+UAM_deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
     //if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
@@ -946,12 +946,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // for rises by default sens_future will remain as the current bg ie. sens with eBGweight = 0
     // favour eventualBG less as ISF grows stronger based on the sens_predType using sens_eBGweight
-    // should the delta be 110% more than the short_avg (UAMBoost) increase weighting to eventualBG
+    // should the delta be 110% more than the short_avg (DeltaPct) increase weighting to eventualBG
     // delta condition is replaced with a safety that weights eventualBG if it is lower than current bg
     if (eatingnow) {
         sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 25% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.05 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - UAMBoost 1.1 respects eBGw initial weighting
+        sens_eBGweight = (sens_eBGweight > 0 && DeltaPct > 1.05 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - DeltaPct 1.1 respects eBGw initial weighting
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
@@ -1099,7 +1099,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + glucose_status.short_avgdelta + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", eBGweight: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + glucose_status.short_avgdelta + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", eBGweight: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
 
     if (lastCOBpredBG > 0) {
         rT.reason += ", " + (ignoreCOB && !COBBoostOK ? "!" : "") + "COBpredBG " + convert_bg(lastCOBpredBG, profile);
@@ -1114,7 +1114,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
-    rT.reason += ", UAM: " + UAMBoost;
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TDD24H:" + round(tdd24h, 2);
@@ -1426,9 +1425,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
                 // If boost is allowed and there is sufficient short term delta change calculate boosted insulin
-                if (UAMBoostOK && UAMBoost > UAMBoost_threshold) {
+                if (UAMBoostOK && DeltaPct > UAMBoost_threshold) {
                     // calculate the insulin boost
-                    insulinReqBoost = UAMBoost * UAMBoost_bolus * UAMBoost_bolus_scale;
+                    insulinReqBoost = DeltaPct * UAMBoost_bolus * UAMBoost_bolus_scale;
                     // set SMB limit for UAMBoost
                     EatingNowMaxSMB = profile.UAMBoost_maxBolus;
                     EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
@@ -1464,7 +1463,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== DELTA RESTRICTIONS ==============
                 // if the delta difference is below threshold limit max SMB unless prediction is COB
-                if (UAMBoost > 1.1 || sens_predType == "COB" || COBBoostOK) {
+                if (DeltaPct > 1.1 || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = EatingNowMaxSMB;
                 } else {
@@ -1509,7 +1508,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== INSULIN BOOST  ==============
                 //UAMBoostReason =  "UAM" + (UAMBoosted ? ">" + round(UAMBoost_threshold,1) : "") + "=" + UAMBoost + (UAMBoosted ? "*" + round(UAMBoost_bolus,2)+ "*" + UAMBoost_bolus_scale :"") + UAMBoostReason;
-                UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + UAMBoost + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
+                UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + DeltaPct + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
 
                 // use insulinReqBoost if it is more than insulinReq
                 insulinReq = round(Math.max(insulinReq,insulinReqBoost),2);
