@@ -951,7 +951,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (eatingnow) {
         sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 25% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.1 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - UAMBoost 1.1 respects eBGw initial weighting
+        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.05 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - UAMBoost 1.1 respects eBGw initial weighting
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
