@@ -1118,7 +1118,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+"/"+convert_bg(sens_TDD_new, profile)+")";
     //rT.reason += ", TDD24H:" + round(tdd24h, 2);
-    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
+    //rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
     //rT.reason += ", predDelta: COB " + convert_bg(COBpredBGsDelta,profile)+", UAM " + convert_bg(UAMpredBGsDelta,profile);
     //rT.reason += ", fM: " + (firstMeal ? "Y":"N");
     rT.reason += "; ";
