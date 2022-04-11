@@ -698,7 +698,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger.info(LTag.PUMPBTCOMM, "reading failed increasing")
                     EnliteInterval.currentFailed()
                 } else if (bgDelta < 4) {
-                    EnliteInterval.currentSuccess(pumpStatusData.lastConnection)
+                    EnliteInterval.currentSuccess(pumpStatusData.lastDataTime)
                 }
             }
             pumpTimeDelta = pumpStatusData.lastConnection -
