@@ -1403,7 +1403,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var maxBolusOrig = maxBolus;
             var UAMBoosted = false, ISFBoosted = false;
             var ENinsulinReqPct = 0.75; // EN insulinReqPct is 75%
-            //var ENinsulinReqPct = (profile.EatingNowinsulinReqPct/100); // EN insulinReqPct is used from the profile
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
@@ -1473,20 +1472,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     //UAMBoostReason = "; delta slowing: maxBolus";
                     insulinReqPct = 0; // will TBR for delta that isn't increasing be sufficient?
                 }
-
-                /*
-                if (UAM_deltaShortRise < -0.10 && !COBBoostOK) {
-                    // insulinReqPct = insulinReqPctDefault;
-                    // insulinReqPct = 0;
-                    EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
-                    UAMBoostReason = "; delta slowing: maxBolus";
-                    // this may help after sensor errors
-                    insulinReqPct = (UAM_delta == 0 && glucose_status.short_avgdelta == 0 ? 0 : insulinReqPct);
-                } else {
-                    insulinReqPct = insulinReqPct;
-                    EatingNowMaxSMB = EatingNowMaxSMB;
-                }
-                */
                 // ===================================================
 
 
@@ -1509,7 +1494,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
                 // ============== INSULIN BOOST  ==============
-                //UAMBoostReason =  "UAM" + (UAMBoosted ? ">" + round(UAMBoost_threshold,1) : "") + "=" + UAMBoost + (UAMBoosted ? "*" + round(UAMBoost_bolus,2)+ "*" + UAMBoost_bolus_scale :"") + UAMBoostReason;
                 UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + DeltaPct + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
 
                 // use insulinReqBoost if it is more than insulinReq
@@ -1541,8 +1525,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             // Nightmode TBR when below SMBbgOffset with no low TT / no COB
             if (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
-            //if (!eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
-                //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 microBolus = 0;
             }
 
