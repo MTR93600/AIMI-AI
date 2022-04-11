@@ -1471,6 +1471,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
                     //UAMBoostReason = "; delta slowing: maxBolus";
+                    insulinReqPct = 0; // will TBR for delta that isn't increasing be sufficient?
                 }
 
                 /*
