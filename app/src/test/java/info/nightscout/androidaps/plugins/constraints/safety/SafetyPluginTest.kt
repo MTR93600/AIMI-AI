@@ -9,6 +9,7 @@ import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.Constraint
 import info.nightscout.androidaps.interfaces.PumpDescription
+import info.nightscout.androidaps.plugins.aps.fullUAM.FullUAMPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSSMBDynamicISF.OpenAPSSMBDynamicISFPlugin
@@ -31,6 +32,7 @@ class SafetyPluginTest : TestBaseWithProfile() {
     @Mock lateinit var constraintChecker: ConstraintChecker
     @Mock lateinit var openAPSAMAPlugin: OpenAPSAMAPlugin
     @Mock lateinit var openAPSSMBPlugin: OpenAPSSMBPlugin
+    @Mock lateinit var fullUAMPlugin: FullUAMPlugin
     @Mock lateinit var openAPSSMBDynamicISFPlugin: OpenAPSSMBDynamicISFPlugin
     @Mock lateinit var sensitivityOref1Plugin: SensitivityOref1Plugin
     @Mock lateinit var activePlugin: ActivePlugin
@@ -71,7 +73,7 @@ class SafetyPluginTest : TestBaseWithProfile() {
         `when`(virtualPumpPlugin.pumpDescription).thenReturn(pumpDescription)
         hardLimits = HardLimits(aapsLogger, rxBus, sp, rh, context, repository)
         `when`(config.APS).thenReturn(true)
-        safetyPlugin = SafetyPlugin(injector, aapsLogger, rh, sp, rxBus, constraintChecker, openAPSAMAPlugin, openAPSSMBPlugin, openAPSSMBDynamicISFPlugin, sensitivityOref1Plugin, activePlugin,
+        safetyPlugin = SafetyPlugin(injector, aapsLogger, rh, sp, rxBus, constraintChecker, openAPSAMAPlugin, openAPSSMBPlugin, fullUAMPlugin, openAPSSMBDynamicISFPlugin, sensitivityOref1Plugin, activePlugin,
                                     hardLimits, buildHelper,
                                     iobCobCalculator, config, dateUtil)
     }
