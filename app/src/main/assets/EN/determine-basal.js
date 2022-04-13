@@ -434,6 +434,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = (!profile.use_sens_TDD && typeof autosens_data !== 'undefined' && autosens_data ? autosens_data.ratio : sensitivityRatio);
         if (sensitivityRatio > 1) {
             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+            sensitivityRatio = (lastCarbAge) CUNT
             sensitivityRatio = round(sensitivityRatio,2);
             enlog += "Sensitivity ratio >1 is now: "+sensitivityRatio+";\n";
         } else if (sensitivityRatio < 1) {
