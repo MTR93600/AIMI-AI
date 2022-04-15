@@ -58,7 +58,7 @@ class PrepareTreatmentsDataWorker(
 
         repository.getBolusesDataFromTimeToTime(data.overviewData.fromTime, data.overviewData.endTime, true).blockingGet()
             .map { BolusDataPoint(it, rh, activePlugin, defaultValueHelper) }
-            .filter { it.data.type == Bolus.Type.NORMAL || it.data.type == Bolus.Type.SMB }
+            .filter { it.data.type == Bolus.Type.NORMAL || it.data.type == Bolus.Type.SMB || it.data.type == Bolus.Type.TBR  }
             .forEach {
                 it.y = getNearestBg(data.overviewData, it.x.toLong())
                 filteredTreatments.add(it)

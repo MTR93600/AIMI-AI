@@ -5,7 +5,6 @@ import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.TestBase
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.R
 import info.nightscout.androidaps.utils.DateUtil
@@ -15,6 +14,8 @@ import info.nightscout.shared.sharedPreferences.SP
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.argThat
+import org.mockito.Mockito.times
 import java.util.function.Supplier
 
 class BolusHistoryCallbackTest : TestBase() {
@@ -92,9 +93,52 @@ Time PD:  0.0h  IOB:  5.450 U
         plugin)
         Mockito.`when`(plugin.sp).thenReturn(sp)
         Mockito.`when`(sp.getBoolean(R.bool.key_medlink_change_cannula, true)).thenReturn(false)
-        val spplited = changeReservoirString.split("\n")
         callback.apply(Supplier{changeReservoirString.split("\n").stream()})
-
+        Mockito.verify(plugin,times(1)).handleNewCareportalEvent(
+            argThat{ it.get().count() ==2L })
+        // Mockito.verify(pumpSync, times(2)).insertTherapyEventIfNewWithTimestamp(anyLong(),
+        //                                                                         anyObject(), anyString(), anyLong(), anyObject(), anyString())
     }
 
+    @Test
+    fun testReservoirCannulaChange() {
+        val callback = BolusHistoryCallback(aapsLogger,
+                                            plugin)
+        Mockito.`when`(plugin.sp).thenReturn(sp)
+        Mockito.`when`(sp.getBoolean(R.bool.key_medlink_change_cannula, true)).thenReturn(true)
+        callback.apply(Supplier{changeReservoirString.split("\n").stream()})
+
+        Mockito.verify(plugin,times(1)).handleNewCareportalEvent(
+            anyObject())
+        // Mockito.verify(pumpSync, times(2)).insertTherapyEventIfNewWithTimestamp(anyLong(),
+        //                                                                         anyObject(), anyString(), anyLong(), anyObject(), anyString())
+    }
+
+    @Test
+    fun testCannulaChangeOptEnabled() {
+        val callback = BolusHistoryCallback(aapsLogger,
+                                            plugin)
+        Mockito.`when`(plugin.sp).thenReturn(sp)
+        Mockito.`when`(sp.getBoolean(R.bool.key_medlink_change_cannula, true)).thenReturn(true)
+        callback.apply(Supplier{changeCannulaString.split("\n").stream()})
+
+        Mockito.verify(plugin,times(1)).handleNewCareportalEvent(
+            anyObject())
+        // Mockito.verify(pumpSync, times(2)).insertTherapyEventIfNewWithTimestamp(anyLong(),
+        //                                                                         anyObject(), anyString(), anyLong(), anyObject(), anyString())
+    }
+
+    @Test
+    fun testCannulaChangeOptDisabled() {
+        val callback = BolusHistoryCallback(aapsLogger,
+                                            plugin)
+        Mockito.`when`(plugin.sp).thenReturn(sp)
+        Mockito.`when`(sp.getBoolean(R.bool.key_medlink_change_cannula, true)).thenReturn(false)
+        callback.apply(Supplier{changeCannulaString.split("\n").stream()})
+
+        Mockito.verify(plugin,times(1)).handleNewCareportalEvent(
+            anyObject())
+        // Mockito.verify(pumpSync, times(2)).insertTherapyEventIfNewWithTimestamp(anyLong(),
+        //                                                                         anyObject(), anyString(), anyLong(), anyObject(), anyString())
+    }
 }

@@ -1280,7 +1280,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             StatusRefreshAction.Add     -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, DateTime(System.currentTimeMillis() + time).toString())
                 //                if(!statusRefreshMap.containsKey(statusRefreshType)) {
-                statusRefreshMap[statusRefreshType] = pumpStatusData.lastDataTime + time
+                statusRefreshMap[statusRefreshType] = time
                 //                }
                 null
             }
@@ -3229,8 +3229,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //        }
 //        return isigValues;
 //    }
-    fun handleNewCareportalEvent(events: Stream<JSONObject?>) {
-        events.forEach { e: JSONObject? ->
+    fun handleNewCareportalEvent(events: Supplier<Stream<JSONObject>>) {
+        events.get().forEach { e: JSONObject? ->
             pumpSync.insertTherapyEventIfNewWithTimestamp(
                 e!!.getLong("mills"),
                 DetailedBolusInfo.EventType.valueOf(e.getString("eventType")),
