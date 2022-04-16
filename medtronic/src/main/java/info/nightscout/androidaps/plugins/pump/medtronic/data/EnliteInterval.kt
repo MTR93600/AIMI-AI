@@ -46,10 +46,10 @@ object EnliteInterval {
 
     fun nextBGTime(): Long {
         var interval = 0L
-        if (currentBGTime()) {
-            interval =  nextInterval()
+        interval = if (currentBGTime()) {
+            nextInterval()
         } else {
-            interval =  currentIntervals[enliteIntervals[index].interval]
+            currentIntervals[enliteIntervals[index].interval]
         }
         return currentBGTime + interval + delta
     }
@@ -67,16 +67,19 @@ object EnliteInterval {
     private const val MAX_FAILED_TIMES = 3
     var lastFailed = 0L
     fun currentFailed() {
+        if (enliteIntervals[index].interval == 3 && enliteIntervals[index].failedTimes > MAX_FAILED_TIMES && System.currentTimeMillis() - lastFailed > currentIntervals[0] ) {
+            enliteIntervals[index].failedTimes = 0
+            enliteIntervals[index].interval = 0
+        } else
         if (lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0] &&
             enliteIntervals[index].interval != 3 && (enliteIntervals[index].lastSuccess == 0L || enliteIntervals[index].failedTimes < MAX_FAILED_TIMES)
         ) {
             enliteIntervals[index].interval++
-            if (enliteIntervals[index].failedTimes > MAX_FAILED_TIMES) {
-                enliteIntervals[index].failedTimes = 0
-            }
         } else if (lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0]) {
             enliteIntervals[index].failedTimes++
+
         }
+        lastFailed = System.currentTimeMillis()
     }
 
     override fun toString(): String {

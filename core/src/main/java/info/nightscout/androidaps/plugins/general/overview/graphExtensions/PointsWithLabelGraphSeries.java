@@ -248,8 +248,8 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     Point[] points = new Point[3];
                     float size = value.getSize() * scaledPxSize;
                     points[0] = new Point((int) endX, (int) (endY - size));
-                    points[1] = new Point((int) (endX + size), (int) (endY + size * 0.27));
-                    points[2] = new Point((int) (endX - size), (int) (endY + size * 0.27));
+                    points[1] = new Point((int) (endX + size), (int) (endY + size * 0.57));
+                    points[2] = new Point((int) (endX - size), (int) (endY + size * 0.57));
                     mPaint.setStyle(Paint.Style.STROKE);
 //                    mPaint.setColor();
                     drawArrows(points, canvas, mPaint);

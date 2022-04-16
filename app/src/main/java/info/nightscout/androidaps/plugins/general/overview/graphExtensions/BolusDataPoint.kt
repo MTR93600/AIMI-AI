@@ -39,7 +39,7 @@ class BolusDataPoint @Inject constructor(
     override fun color(context: Context?) =
             when {
                 data.type == Bolus.Type.SMB -> rh.gac(context, R.attr.smbColor)
-                data.type == Bolus.Type.TBR -> rh.gac(context, R.attr.basal)
+                data.type == Bolus.Type.TBR -> rh.gac(context, R.attr.bolusDataPointColor)
                 data.isValid                -> rh.gac(context,  R.attr.bolusDataPointColor)
                 else                        -> rh.gac(context,  R.attr.alarmColor)
             }
