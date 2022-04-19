@@ -36,9 +36,9 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.activities.ErrorHelperActivity
+import info.nightscout.androidaps.data.InMemoryGlucoseValue
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
@@ -50,7 +50,6 @@ import info.nightscout.androidaps.interfaces.PumpSync.TemporaryBasalType
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryTBR
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpValuesChanged
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage
 import info.nightscout.androidaps.interfaces.Profile.ProfileValue
 import info.nightscout.androidaps.plugins.pump.common.events.EventRefreshButtonState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
@@ -65,16 +64,14 @@ import info.nightscout.androidaps.plugins.general.actions.defs.CustomActionType
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ResetRileyLinkConfigurationTask
 import info.nightscout.androidaps.queue.commands.CustomCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusCallback
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusAnswer
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusStatusMedLinkMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusDeliverCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.*
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.*
 import info.nightscout.androidaps.utils.TimeChangeType
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkPumpInfo
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntryType
@@ -100,6 +97,9 @@ import java.lang.Math.round
 import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
@@ -152,6 +152,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     aapsSchedulers!!, pumpSync!!, pumpSyncStorage!!
 ), Pump, MicrobolusPumpInterface, MedLinkPumpDevice, MedtronicPumpPluginInterface {
 
+    private var hasFirstAlert: Boolean = false
+    private var hasSecondAlert: Boolean = false
+    private var lastCalibration: ZonedDateTime? = null
     private val minimumBatteryLevel = 5
 
     // private override var dateUtil: DateUtil? = null
@@ -710,7 +713,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 //            if (calculateBGDeltaAvg(bgDelta) > 6.0) {
 //                minutesDelta++
 //            }
-            EnliteInterval.setBGTimeAndDelta(pumpStatusData.lastBGTimestamp,pumpTimeDelta)
+            EnliteInterval.setBGTimeAndDelta(pumpStatusData.lastBGTimestamp, pumpTimeDelta)
             if (aapsLogger != null) {
                 aapsLogger.info(LTag.CONFIGBUILDER, "Last Connection" + pumpStatusData.lastConnection)
                 aapsLogger.info(LTag.CONFIGBUILDER, "Next Delta $minutesDelta")
@@ -987,7 +990,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         oper: TempBasalMicroBolusPair,
         callback: Function1<PumpEnactResult, *>,
         operationType: ChangeStatusCallback.OperationType
-    ): MedLinkPumpMessage<*> {
+    ): MedLinkPumpMessage<PumpDriverState> {
         val function = ChangeStatusCallback(
             aapsLogger,
             operationType, this
@@ -1250,6 +1253,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     additionalMillis
                 )
             }
+
             else                                          -> {
                 workWithStatusRefresh(
                     StatusRefreshAction.GetData, refreshType,
@@ -2706,7 +2710,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                                           detailedBolusInfo,
                                           andThem, buildBolusStatusMessage(detailedBolusInfo.copy()),
                                           BleBolusCommand(aapsLogger, medLinkService!!.medLinkServiceData),
-                                          buildBolusCommands(),
+                                          buildStartStopCommands() as MutableList<MedLinkPumpMessage<PumpDriverState>>?,
                                           tempBasalMicrobolusOperations != null &&
                                               (tempBasalMicrobolusOperations!!.shouldBeSuspended() ||
                                                   tempBasalMicrobolusOperations!!.operations.stream().findFirst()
@@ -2773,9 +2777,9 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         // LOG.debug("MedtronicPumpPlugin::deliverBolus - End wait period. Start delivery");
     }
 
-    private fun buildBolusCommands(): List<MedLinkPumpMessage<*>> {
+    private fun buildStartStopCommands(): List<MedLinkPumpMessage<PumpDriverState>> {
         return if (currentPumpStatus === PumpStatusType.Suspended) {
-            val commands: MutableList<MedLinkPumpMessage<*>> = ArrayList()
+            val commands: MutableList<MedLinkPumpMessage<PumpDriverState>> = ArrayList()
             val callback: Function1<PumpEnactResult, *> = { o: Any? -> null }
             commands.add(
                 buildReactivateFunction(
@@ -3008,14 +3012,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             }
             val bolusCommand =
                 if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.TBR) MedLinkCommandType.TBRBolus else if (detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB) MedLinkCommandType.SMBBolus else MedLinkCommandType.Bolus
-            var bolusStatusMessage: MedLinkPumpMessage<*>? = null
+            var bolusStatusMessage: MedLinkPumpMessage<String>? = null
             if (detailedBolusInfo.insulin > 0.3) {
                 bolusStatusMessage = buildBolusStatusMessage(detailedBolusInfo.copy())
             }
             val msg = BolusMedLinkMessage(bolusCommand, bolus,
                                           andThen, bolusStatusMessage,
                                           BleBolusCommand(aapsLogger, medLinkService!!.medLinkServiceData),
-                                          buildBolusCommands(),
+                                          buildStartStopCommands(),
                                           tempBasalMicrobolusOperations != null &&
                                               (tempBasalMicrobolusOperations!!.shouldBeSuspended() ||
                                                   tempBasalMicrobolusOperations!!.operations.stream().findFirst()
@@ -3072,7 +3076,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    private fun buildBolusStatusMessage(bolusInfo: DetailedBolusInfo): MedLinkPumpMessage<*> {
+    private fun buildBolusStatusMessage(bolusInfo: DetailedBolusInfo): MedLinkPumpMessage<String> {
         val bolusCallback = BolusProgressCallback(
             medLinkPumpStatus,
             rh,
@@ -3346,7 +3350,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             firstMissedBGTimestamp = 0L
         }
         // val intent = buildIntentSensValues(*sensorDataReadings)
-
+        handleCalibrationData()
         handleNewSensorData(sensorDataReadings)
         // sensorDataReadings.bgValue.forEach { f ->
         //
@@ -3369,6 +3373,62 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         //        } else {
 //            bgFailedToRead = 0;
 //        }
+    }
+
+    public fun calibrate(calibrationInfo: Double) {
+
+        val medLinkCalibrationCallback = MedLinkCalibrationArgCallback(aapsLogger,
+                                                                       this,
+                                                                       medtronicUtil,
+                                                                       rh,
+                                                                       rxBus)
+
+        val bleCommand = BleCalibrateCommand(aapsLogger, medLinkServiceData)
+        val calibrationCallback = MedLinkCalibrationCallback(aapsLogger,
+        this,medtronicUtil,rh,rxBus)
+        val msg = CalibrateMedLinkMessage(
+            calibrationInfo,
+            calibrationCallback,
+            medLinkCalibrationCallback,
+            btSleepTime = 30000,
+            bleCommand,
+            currentPumpStatus === PumpStatusType.Suspended,
+            buildStartStopCommands()
+        )
+        medLinkService!!.medtronicUIComm?.executeCommandCP(msg)
+    }
+
+
+
+    private fun handleCalibrationData() {
+        lastCalibration = pumpStatusData.nextCalibration
+        val firstAlarmMinutes = sp.getString(rh.gs(string.med_link_calibration_first_alarm), "120").toLong()
+        val secondAlarmMinutes = sp.getString(rh.gs(string.med_link_calibration_second_alarm), "120").toLong()
+
+        when {
+            !hasSecondAlert && pumpStatusData.nextCalibration.minus(secondAlarmMinutes, ChronoUnit.MINUTES) >= ZonedDateTime.now() -> {
+                medtronicUtil.sendNotification(
+                    MedtronicNotificationType.SecondCalibrationAlarm, rh, rxBus,
+                    pumpStatusData.nextCalibration.format(DateTimeFormatter.ISO_LOCAL_TIME)
+                )
+                hasSecondAlert = true
+            }
+
+            !hasFirstAlert && pumpStatusData.nextCalibration.minus(firstAlarmMinutes, ChronoUnit.MINUTES) >= ZonedDateTime.now()   -> {
+                medtronicUtil.sendNotification(
+                    MedtronicNotificationType.FirstCalibrationAlarm, rh, rxBus,
+                    pumpStatusData.nextCalibration.format(DateTimeFormatter.ISO_LOCAL_TIME)
+                )
+                hasFirstAlert = true
+            }
+
+            lastCalibration?.isBefore(pumpStatusData.nextCalibration) == true                                                      -> {
+                medtronicUtil.dismissNotification(MedtronicNotificationType.SecondCalibrationAlarm, rxBus)
+                medtronicUtil.dismissNotification(MedtronicNotificationType.FirstCalibrationAlarm, rxBus)
+                hasFirstAlert = false
+                hasSecondAlert = false
+            }
+        }
     }
 
     var lastReservoirLevel = -1.0
@@ -3592,6 +3652,11 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             e.printStackTrace()
         }
         return result
+    }
+
+    fun glucoseUnit(): BgSync.GlucoseUnit {
+        return if (sp.getString(info.nightscout.androidaps.core.R.string.key_units, Constants.MGDL) == Constants.MGDL) BgSync.GlucoseUnit.MGDL
+        else BgSync.GlucoseUnit.MMOL
     }
 
     companion object {

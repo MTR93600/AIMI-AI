@@ -183,6 +183,10 @@ public class MedLinkMedtronicUITaskCp {
             }
             break;
 
+            case Calibrate:{
+                communicationManager.setCommand(pumpMessage);
+            }
+
             default: {
                 aapsLogger.warn(LTag.PUMP, "This commandType is not supported (yet) - {}.", pumpMessage);
                 // invalid = true;

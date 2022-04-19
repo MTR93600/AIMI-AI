@@ -27,6 +27,7 @@ import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.profile.local.events.EventLocalProfileChanged
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.FabricPrivacy
@@ -146,6 +147,14 @@ class LocalProfileFragment : DaggerFragment() {
             DecimalFormat("0.0"),
             save
         )
+
+        var step = 0.01
+        var format = DecimalFormat("0.00")
+
+        if(activePlugin is MedLinkMedtronicPumpPlugin){
+            step = 0.025
+            format = DecimalFormat("0.000")
+        }
         basalView =
             TimeListEdit(
                 context,
@@ -159,8 +168,8 @@ class LocalProfileFragment : DaggerFragment() {
                 null,
                 doubleArrayOf(pumpDescription.basalMinimumRate, pumpDescription.basalMaximumRate),
                 null,
-                0.01,
-                DecimalFormat("0.00"),
+                step,
+                format,
                 save
             )
         if (units == Constants.MGDL) {

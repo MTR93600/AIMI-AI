@@ -62,7 +62,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
         } else MedLinkStandardReturn({ toParse }, null, emptyList())
     }
 
-    fun parseAnswer(
+    private fun parseAnswer(
         ans: Supplier<Stream<String>>,
         bgReadings: BgHistory?
     ): BgHistory? {
