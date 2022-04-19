@@ -396,7 +396,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 }
 
                 R.id.calibration_button  -> {
-                    if (xdripPlugin.isEnabled()) {
+                    if (xdripPlugin.isEnabled() || medLinkPlugin.isEnabled()) {
                         CalibrationDialog().show(childFragmentManager, "CalibrationDialog")
                     } else if (dexcomPlugin.isEnabled()) {
                         try {
@@ -562,7 +562,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             && sp.getBoolean(R.string.key_show_insulin_button, true)).toVisibility()
 
         // **** Calibration & CGM buttons ****
-        val xDripIsBgSource = xdripPlugin.isEnabled()
+        val xDripIsBgSource = xdripPlugin.isEnabled() || medLinkPlugin.isEnabled()
         val dexcomIsSource = dexcomPlugin.isEnabled()
         binding.buttonsLayout.calibrationButton.visibility = (xDripIsBgSource && actualBG != null && sp.getBoolean(R.string.key_show_calibration_button, true)).toVisibility()
         if (dexcomIsSource) {
@@ -580,7 +580,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
             binding.buttonsLayout.cgmButton.setTextColor(rh.gac(context, R.attr.cgmxdripColor))
         }
-        binding.buttonsLayout.cgmButton.visibility = (sp.getBoolean(R.string.key_show_cgm_button, false) && (xDripIsBgSource || dexcomIsSource)).toVisibility()
+        binding.buttonsLayout.cgmButton.visibility = (sp.getBoolean(R.string.key_show_cgm_button, false) && ((xDripIsBgSource && !medLinkPlugin.isEnabled() )|| dexcomIsSource)).toVisibility()
 
         // Automation buttons
         binding.buttonsLayout.userButtonsLayout.removeAllViews()

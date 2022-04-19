@@ -9,7 +9,11 @@ import info.nightscout.androidaps.plugins.pump.medtronic.R
 enum class MedtronicNotificationType(var notificationType: Int,
                                      val resourceId: Int,
                                      val notificationUrgency: Int) {
+    CalibrationSuccess(Notification.CALIBRATION_ALARM, R.string.med_link_calibration_success, Notification.URGENT),  //
 
+    CalibrationFailed(Notification.CALIBRATION_ALARM, R.string.med_link_calibration_failed, Notification.URGENT),  //
+    SecondCalibrationAlarm(Notification.CALIBRATION_ALARM, R.string.med_link_calibrate_alarm, Notification.URGENT),  //
+    FirstCalibrationAlarm(Notification.CALIBRATION_ALARM, R.string.med_link_calibrate_alarm, Notification.NORMAL),  //
     PumpUnreachable(Notification.RILEYLINK_CONNECTION, R.string.medtronic_pump_status_pump_unreachable, Notification.NORMAL),  //
     PumpTypeNotSame(R.string.medtronic_error_pump_type_set_differs_from_detected, Notification.NORMAL),  //
     PumpBasalProfilesNotEnabled(R.string.medtronic_error_pump_basal_profiles_not_enabled, Notification.URGENT),  //

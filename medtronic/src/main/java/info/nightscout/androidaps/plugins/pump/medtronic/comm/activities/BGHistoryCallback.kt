@@ -1,9 +1,12 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
 import dagger.android.HasAndroidInjector
+import info.nightscout.androidaps.Constants
+import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.interfaces.BgSync
 import info.nightscout.androidaps.interfaces.BgSync.BgHistory
 import info.nightscout.androidaps.interfaces.BgSync.BgHistory.BgValue
+import info.nightscout.androidaps.interfaces.GlucoseUnit
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
@@ -79,10 +82,12 @@ class BGHistoryCallback(
                         }
                         //                    aapsLogger.info(LTag.PUMPBTCOMM, f);
                         if (f.trim { it <= ' ' }.startsWith("cl:")) {
+
+
                             calibrations.add(
                                 BgHistory.Calibration(
                                     bgDate.time, bg,
-                                    BgSync.GlucoseUnit.MGDL
+                                    medLinkPumpPlugin.glucoseUnit()
                                 )
                             )
                         } else {

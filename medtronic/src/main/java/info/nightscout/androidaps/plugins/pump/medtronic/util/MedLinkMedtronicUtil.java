@@ -210,6 +210,16 @@ public class MedLinkMedtronicUtil {
     }
 
 
+    public void sendNotification(MedtronicNotificationType notificationType,
+                                 ResourceHelper resourceHelper, RxBus rxBus,
+                                 String nextCalibration) {
+        Notification notification = new Notification( //
+                notificationType.getNotificationType(), //
+                resourceHelper.gs(notificationType.getResourceId(),nextCalibration), //
+                notificationType.getNotificationUrgency());
+        rxBus.send(new EventNewNotification(notification));
+    }
+
     public void sendNotification(MedtronicNotificationType notificationType, ResourceHelper resourceHelper, RxBus rxBus) {
         Notification notification = new Notification( //
                 notificationType.getNotificationType(), //

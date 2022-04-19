@@ -62,7 +62,7 @@ public enum MedLinkCommandType {
     public final String code;
     private final boolean needActivePump;
     public Double insulinAmount = 0d;
-    public int bgValue = 0;
+    public Double bgValue = 0d;
     public Integer resourceId = null;
 
     public String getCommandDescription() {
@@ -91,13 +91,13 @@ public enum MedLinkCommandType {
             buff.append(this.insulinAmount.toString());
             buff.append("\r").append("\n");
             return buff.toString().getBytes(UTF_8);
-        } else if(bgValue!=0){
+        } else if(bgValue!=0d){
             StringBuilder buff = new StringBuilder(this.code);
             buff.append(" ");
-            if (this.bgValue < 100) {
+            if (this.bgValue < 100d) {
                 buff.append("0");
             }
-            buff.append(this.bgValue);
+            buff.append(this.bgValue.intValue());
             buff.append("\r").append("\n");
             return buff.toString().getBytes(UTF_8);
         } else if (this.code != null && !this.code.isEmpty()) {

@@ -63,9 +63,9 @@ public class MedLinkPumpMessage<B> //implements RLMessage
 
     public MedLinkPumpMessage(MedLinkCommandType commandType,
                               @NonNull MedLinkCommandType argument,
-                              Function<Supplier<Stream<String>>,
+                              @NonNull Function<Supplier<Stream<String>>,
                                       MedLinkStandardReturn<B>> baseCallback,
-                              Function<Supplier<Stream<String>>,
+                              @NonNull Function<Supplier<Stream<String>>,
                                       MedLinkStandardReturn<B>> argCallback,
                               long btSleepTime, BleCommand bleCommand) {
         this.argument = argument;

@@ -119,7 +119,7 @@ public class MedLinkRFSpy {
     // This gets the version from the BLE113, not from the CC1110.
     // I.e., this gets the version from the BLE interface, not from the radio.
     public String getVersion() {
-        BLECommOperationResult result = medLinkBle.readCharacteristic_blocking(radioServiceUUID, radioDataUUID);
+        BLECommOperationResult result = medLinkBle.readCharacteristicBlocking(radioServiceUUID, radioDataUUID);
         if (result.resultCode == BLECommOperationResult.RESULT_SUCCESS) {
             String version = ByteUtil.shortHexString(result.value);
             aapsLogger.debug(LTag.PUMPBTCOMM, "BLE Version: " + version);

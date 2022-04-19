@@ -131,6 +131,8 @@ open class Notification {
         const val IDENTIFICATION_NOT_SET = 77
         const val PERMISSION_BT = 78
 
+        const val CALIBRATION_ALARM = 79
+
         const val USER_MESSAGE = 1000
 
         const val IMPORTANCE_HIGH = 2

@@ -16,6 +16,8 @@ import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
+import info.nightscout.androidaps.plugins.source.MedLinkPlugin
 import info.nightscout.androidaps.utils.HtmlHelper
 import info.nightscout.androidaps.utils.XDripBroadcast
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
@@ -30,6 +32,8 @@ class CalibrationDialog : DialogFragmentWithDate() {
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var xDripBroadcast: XDripBroadcast
+    @Inject lateinit var medLinkPlugin: MedLinkPlugin
+    @Inject lateinit var medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin
     @Inject lateinit var uel: UserEntryLogger
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
 
@@ -83,7 +87,11 @@ class CalibrationDialog : DialogFragmentWithDate() {
             activity?.let { activity ->
                 OKDialog.showConfirmation(activity, rh.gs(R.string.overview_calibration), HtmlHelper.fromHtml(Joiner.on("<br/>").join(actions)), {
                     uel.log(Action.CALIBRATION, Sources.CalibrationDialog, ValueWithUnit.fromGlucoseUnit(bg, units.asText))
-                    xDripBroadcast.sendCalibration(bg)
+                    if(medLinkPlugin.isEnabled()){
+                        medLinkMedtronicPumpPlugin.calibrate(bg)
+                    } else {
+                        xDripBroadcast.sendCalibration(bg)
+                    }
                 })
             }
         } else
