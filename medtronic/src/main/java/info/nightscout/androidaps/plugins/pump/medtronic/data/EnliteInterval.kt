@@ -67,15 +67,15 @@ object EnliteInterval {
     private const val MAX_FAILED_TIMES = 3
     var lastFailed = 0L
     fun currentFailed() {
-        if (enliteIntervals[index].interval == 3 && enliteIntervals[index].failedTimes > MAX_FAILED_TIMES && System.currentTimeMillis() - lastFailed > currentIntervals[0] ) {
-            enliteIntervals[index].failedTimes = 0
-            enliteIntervals[index].interval = 0
-        } else
-        if (lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0] &&
-            enliteIntervals[index].interval != 3 && (enliteIntervals[index].lastSuccess == 0L || enliteIntervals[index].failedTimes < MAX_FAILED_TIMES)
+        // if (enliteIntervals[index].interval == 3 && enliteIntervals[index].failedTimes > MAX_FAILED_TIMES && System.currentTimeMillis() - lastFailed > currentIntervals[0] ) {
+        //     enliteIntervals[index].failedTimes = 0
+        //     enliteIntervals[index].interval = 0
+        // } else
+        if (//lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0] &&
+            enliteIntervals[index].interval != 3 //&& (enliteIntervals[index].lastSuccess == 0L )
         ) {
             enliteIntervals[index].interval++
-        } else if (lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0]) {
+        } else if (lastFailed > 0 && System.currentTimeMillis() - lastFailed > currentIntervals[0] + 8*300000) {
             enliteIntervals[index].failedTimes++
 
         }

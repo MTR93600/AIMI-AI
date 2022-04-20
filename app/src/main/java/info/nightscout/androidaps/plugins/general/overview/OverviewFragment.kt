@@ -564,7 +564,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         // **** Calibration & CGM buttons ****
         val xDripIsBgSource = xdripPlugin.isEnabled() || medLinkPlugin.isEnabled()
         val dexcomIsSource = dexcomPlugin.isEnabled()
-        binding.buttonsLayout.calibrationButton.visibility = (xDripIsBgSource && actualBG != null && sp.getBoolean(R.string.key_show_calibration_button, true)).toVisibility()
+        binding.buttonsLayout.calibrationButton.visibility = (medLinkPlugin.isEnabled() ||xDripIsBgSource && actualBG != null && sp.getBoolean(R.string.key_show_calibration_button, true))
+            .toVisibility()
         if (dexcomIsSource) {
             binding.buttonsLayout.cgmButton.setCompoundDrawablesWithIntrinsicBounds(null, rh.gd(R.drawable.ic_byoda), null, null)
             for (drawable in binding.buttonsLayout.cgmButton.compoundDrawables) {
