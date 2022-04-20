@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.SystemClock
+import info.nightscout.androidaps.interfaces.PumpSync
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
@@ -533,7 +534,7 @@ class MedLinkBLE //extends RileyLinkBLE
     }
 
     fun needToBeStarted(serviceUUID: UUID, charaUUID: UUID, command: MedLinkCommandType?) {
-        if (isBolus(command)) {
+        if (isStartStopCommand(command)) {
             if (currentCommand != null && currentCommand!!.medLinkPumpMessage.argument == MedLinkCommandType.StopPump) {
                 if (!currentCommand!!.hasFinished()) {
                     currentCommand!!.clearExecutedCommand()
@@ -599,7 +600,10 @@ class MedLinkBLE //extends RileyLinkBLE
         }
         return priorityExecutionCommandQueue.contains(exec)
     }
-
+    fun isStartStopCommand(commandType: MedLinkCommandType?): Boolean {
+        return isBolus(commandType) ||
+            MedLinkCommandType.Calibrate.isSameCommand(commandType)
+    }
     fun isBolus(commandType: MedLinkCommandType?): Boolean {
         return MedLinkCommandType.Bolus.isSameCommand(commandType) ||
             MedLinkCommandType.SMBBolus.isSameCommand(commandType) ||
@@ -639,9 +643,9 @@ class MedLinkBLE //extends RileyLinkBLE
     }
 
     private fun handleBolusCommand(msg: MedLinkPumpMessage<*>, serviceUUID: UUID, charaUUID: UUID) {
-        if (isBolus(msg.commandType)) {
+        if (isStartStopCommand(msg.commandType)) {
             removeStopCommands()
-            val startStop = (msg as BolusMedLinkMessage).postCommands.stream()
+            val startStop = (msg as StartStopMessage).postCommands.stream()
             startStop.forEach { f: MedLinkPumpMessage<*> ->
                 if (f.commandType == MedLinkCommandType.StartPump) {
                     addWriteCharacteristic(serviceUUID, charaUUID, startCommand!!, CommandPriority.HIGH)
@@ -649,9 +653,11 @@ class MedLinkBLE //extends RileyLinkBLE
                     addWriteCharacteristic(serviceUUID, charaUUID, stopCommand!!, CommandPriority.LOWER)
                 }
             }
-            val bolusStatus = msg.bolusProgressMessage
-            if (bolusStatus != null) {
-                addWriteCharacteristic(serviceUUID, charaUUID, bolusStatus, CommandPriority.NORMAL)
+            if(msg is BolusMedLinkMessage) {
+                val bolusStatus = msg.bolusProgressMessage
+                if (bolusStatus != null) {
+                    addWriteCharacteristic(serviceUUID, charaUUID, bolusStatus, CommandPriority.NORMAL)
+                }
             }
         }
     }
