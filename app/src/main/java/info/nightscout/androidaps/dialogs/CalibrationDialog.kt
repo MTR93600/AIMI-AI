@@ -16,6 +16,8 @@ import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
+import info.nightscout.androidaps.plugins.source.MedLinkPlugin
 import info.nightscout.androidaps.utils.HtmlHelper
 import info.nightscout.androidaps.utils.XDripBroadcast
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
@@ -30,6 +32,8 @@ class CalibrationDialog : DialogFragmentWithDate() {
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var xDripBroadcast: XDripBroadcast
+    @Inject lateinit var medLinkPlugin: MedLinkPlugin
+    @Inject lateinit var medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin
     @Inject lateinit var uel: UserEntryLogger
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
 
@@ -64,6 +68,7 @@ class CalibrationDialog : DialogFragmentWithDate() {
             binding.bg.setParams(savedInstanceState?.getDouble("bg")
                 ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok)
         binding.units.text = if (units == GlucoseUnit.MMOL) rh.gs(R.string.mmol) else rh.gs(R.string.mgdl)
+        binding.bg.editText?.id?.let { binding.bg.labelFor = it }
     }
 
     override fun onDestroyView() {
@@ -82,7 +87,11 @@ class CalibrationDialog : DialogFragmentWithDate() {
             activity?.let { activity ->
                 OKDialog.showConfirmation(activity, rh.gs(R.string.overview_calibration), HtmlHelper.fromHtml(Joiner.on("<br/>").join(actions)), {
                     uel.log(Action.CALIBRATION, Sources.CalibrationDialog, ValueWithUnit.fromGlucoseUnit(bg, units.asText))
+                    if(medLinkPlugin.isEnabled()){
+                        medLinkMedtronicPumpPlugin.calibrate(bg)
+                    } else {
                     xDripBroadcast.sendCalibration(bg)
+                    }
                 })
             }
         } else

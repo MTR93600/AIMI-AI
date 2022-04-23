@@ -109,7 +109,7 @@ public class MedLinkRFSpyReader {
                                 + SystemClock.uptimeMillis());
                         SystemClock.sleep(100);
                         SystemClock.sleep(1);
-                        result = medLinkBle.readCharacteristic_blocking(serviceUUID, radioDataUUID);
+                        result = medLinkBle.readCharacteristicBlocking(serviceUUID, radioDataUUID);
                         SystemClock.sleep(100);
 
                         if (result.resultCode == BLECommOperationResult.RESULT_SUCCESS) {

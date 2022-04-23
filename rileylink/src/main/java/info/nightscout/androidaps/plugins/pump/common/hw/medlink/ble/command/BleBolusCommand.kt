@@ -15,8 +15,7 @@ import java.util.*
  */
 class BleBolusCommand : BleSuspendedCommand {
     constructor(aapsLogger: AAPSLogger?,
-                medlinkServiceData: MedLinkServiceData?) : super(aapsLogger, medlinkServiceData) {
-    }
+                medlinkServiceData: MedLinkServiceData?) : super(aapsLogger, medlinkServiceData)
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?,
                                        lastCommand: String?) {

@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+    <string name="med_link_calibration_success">Pump calibration process has been completed,
+    please check pump status at next cycle</string>
+    <string name="med_link_calibration_failed">Pump calibration Failed! Please check pump
+        status</string>
+
+    <string name="med_link_calibrate_alarm">You should calibrate your sensor at the pump
+        until %1$s</string>
+
+    <string name="med_link_preferences">Preferences of data loaded by MedLink device</string>
+    <string name="key_med_link_calibration_second_alarm">Amount of minutes when the next
+        calibration second alarm will be showed.</string>
+    <string name="med_link_calibration_second_alarm">pref_med_link_second_calibration_alarm</string>
+
+    <string name="key_med_link_calibration_first_alarm">Amount of minutes when the next
+        calibration first alarm will be showed.</string>
+    <string name="med_link_calibration_first_alarm">pref_med_link_first_calibration_alarm</string>
     <string name="medlink_medtronic_cmd_stop_could_not_be_delivered">Pump cannot be stoped when the phone battery, or the device battery is below 5%</string>
     <string name="key_medlink_battery_info" translatable="false">pref_medlink_battery_info</string>
     <string name="pref_medlink_battery_info">Which battery info should be displayed at the main AAPS page</string>
@@ -20,6 +38,7 @@
     <string name="medlink_init_commands_previous_bg_history">Previous BG History Page(T and J)</string>
 <!--    <string name="medlink_init_commands_profile">Profile Data (E and F)</string>-->
     <string name="medlink_init_commands_last_bg_history">Last BG History Page(C and I)</string>
+    <string name="onetothreedigitnumber" translatable="false">^\\d{1,3}</string>
 
     <string name="key_medlink_init_commands" translatable="false">medlink_init_commands</string>
     <string name="medlink_delivered">%1$.2f U / %2$.2f U delivered</string>

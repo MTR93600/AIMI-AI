@@ -641,7 +641,7 @@ open class MedtronicHistoryData @Inject constructor(
                             "pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
 
-                        if (tempBasalProcessDTO.durationAsSeconds == 0) {
+                        if (tempBasalProcessDTO.durationAsSeconds <= 0) {
                             rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
                             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
                         } else {
@@ -682,7 +682,7 @@ open class MedtronicHistoryData @Inject constructor(
                             "pumpId=${tempBasalProcessDTO.pumpId}, rate=${tbrEntry.insulinRate} U, " +
                             "duration=${tempBasalProcessDTO.durationAsSeconds} s, pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
-                        if (tempBasalProcessDTO.durationAsSeconds == 0) {
+                        if (tempBasalProcessDTO.durationAsSeconds <= 0) {
                             rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
                             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
                         } else {
@@ -889,6 +889,10 @@ open class MedtronicHistoryData @Inject constructor(
                 "pumpId=${tempBasalProcess.itemOne.pumpId}, " +
                 "pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
+            if (tempBasalProcess.durationAsSeconds <= 0) {
+                rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
+                aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
+            } else {
             val result = pumpSync.syncTemporaryBasalWithPumpId(
                 tryToGetByLocalTime(tempBasalProcess.itemOne.atechDateTime),
                 0.0,
@@ -901,6 +905,7 @@ open class MedtronicHistoryData @Inject constructor(
 
             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId: Result: $result")
         }
+    }
     }
 
     // suspend/resume

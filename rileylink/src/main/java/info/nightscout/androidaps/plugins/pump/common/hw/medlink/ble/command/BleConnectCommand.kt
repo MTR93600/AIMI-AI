@@ -6,12 +6,20 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLink
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 
-class BleConnectCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
-    BleCommand(aapsLogger, medlinkServiceData) {
+class BleConnectCommand(aapsLogger: AAPSLogger?, medLinkServiceData: MedLinkServiceData?) :
+    BleCommand(aapsLogger, medLinkServiceData) {
 
+    var noResponse = 0
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
+        if((lastCommand+answer).contains("pump no response")){
+            noResponse++
+            if(noResponse>2){
+                bleComm?.pumpConnectionError()
+                noResponse = 0
+            }
+        }
         if (answer.trim { it <= ' ' }.contains("ok+conn")) {
             if (answer.trim { it <= ' ' }.contains("ok+conn or command")) {
                 SystemClock.sleep(500)

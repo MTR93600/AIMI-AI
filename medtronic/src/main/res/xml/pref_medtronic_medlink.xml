@@ -4,6 +4,39 @@
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        android:title="@string/med_link_preferences"
+        app:initialExpandedChildrenCount="40">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_change_cannula"
+            android:summary="@string/medlink_change_cannula_summary"
+            android:title="@string/medlink_change_cannula_action" />
+
+        <EditTextPreference
+            android:defaultValue="120"
+            android:key="@string/med_link_calibration_first_alarm"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/key_med_link_calibration_first_alarm"
+            validate:customRegexp="@string/onetothreedigitnumber"
+            validate:testErrorString="@string/error_mustbe1or3digitnumber"
+            validate:testType="regexp">
+
+        </EditTextPreference>
+
+        <EditTextPreference
+            android:defaultValue="15"
+            android:key="@int/med_link_calibration_second_alarm"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/key_med_link_calibration_second_alarm"
+            validate:customRegexp="@string/onetothreedigitnumber"
+            validate:testErrorString="@string/error_mustbe1or3digitnumber"
+            validate:testType="regexp">
+
+        </EditTextPreference>
+    </PreferenceCategory>
+    <PreferenceCategory
         android:summary="@string/medlink_init_command_summary"
         android:title="@string/medlink_init_commands"
         app:initialExpandedChildrenCount="0">
