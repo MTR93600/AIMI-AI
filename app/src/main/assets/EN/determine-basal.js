@@ -502,18 +502,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
     // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
-    //var sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
-    var sens_currentBG = sens_normalTarget/(Math.log((Math.min(bg,ISFbgMax)/75))+1);
+    var sens_currentBG_scaler = Math.log(Math.min(bg,ISFbgMax)/75)+1;
+    //var sens_currentBG_scaler = Math.min(bg,ISFbgMax)/target_bg;
+    enlog += "sens_currentBG_scaler:" + sens_currentBG_scaler +"\n";
+    var sens_currentBG = sens_normalTarget/sens_currentBG_scaler;
     enlog += "sens_currentBG:" + convert_bg(sens_currentBG, profile) +"\n";
 
     // scale CR without sens_BGscaler
     //var carb_ratio = (COBBoostOK ? profile.carb_ratio / (sens_normalTarget/sens_currentBG) : profile.carb_ratio);
-    var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio / (sens_normalTarget/sens_currentBG),profile.carb_ratio) : profile.carb_ratio) ;
+    var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio/sens_currentBG_scaler,profile.carb_ratio) : profile.carb_ratio) ;
 
     // Allow user preferences to scale the strength of the ISF as BG increases
     // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
     var sens_BGscaler = (eatingnow ? profile.ISFbgscaler : 0); // When eating now is not active do not apply additional scaling
-    sens_BGscaler = 0; // FORCE NO SCALING FOR TESTING
     sens_BGscaler = (100-sens_BGscaler)/100;
     enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
     // if above target use the scaling with profile ISF as the weakest
@@ -966,8 +967,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
-        //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
-        sens_future = sens_normalTarget/(Math.log((sens_future_bg/75))+1);
+        var sens_future_scaler = Math.log(sens_future_bg/75)+1;
+        //var sens_future_scaler = sens_future_bg / target_bg;
+        sens_future = sens_normalTarget/sens_future_scaler;
 
         //sens_future *= sens_BGscaler; // try this again
         //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
