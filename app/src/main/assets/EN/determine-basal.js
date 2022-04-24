@@ -517,8 +517,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_BGscaler = (eatingnow ? profile.ISFbgscaler : 0); // When eating now is not active do not apply additional scaling
     sens_BGscaler = (100-sens_BGscaler)/100;
     enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
-    // if above target use the scaling with profile ISF as the weakest
-    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : sens_currentBG);
+    // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
+    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
     enlog += "sens_currentBG after scaling is:"+ convert_bg(sens_currentBG, profile) +"\n";
 
     // in the COBBoost window allow normal ISF as minimum
@@ -970,10 +970,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var sens_future_scaler = Math.log(sens_future_bg/75)+1;
         //var sens_future_scaler = sens_future_bg / target_bg;
         sens_future = sens_normalTarget/sens_future_scaler;
-
-        //sens_future *= sens_BGscaler; // try this again
-        //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
-        // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
         sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
         sens_future_max = (bg >= ISFbgMax);
     }
