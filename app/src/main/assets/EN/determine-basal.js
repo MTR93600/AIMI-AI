@@ -498,24 +498,28 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // Limit ISF increase for sens_currentBG at 10mmol / 180mgdl
     var ISFbgMax = 180;
-    //var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
+
+    // Threshold for SMB at night
+    var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
+    enlog += "SMBbgOffset:"+SMBbgOffset+"\n";
 
     // Allow user preferences to adjust the scaling of ISF as BG increases
     // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
-    var sens_BGscaler = (eatingnow ? profile.ISFbgscaler : 0); // When eating now is not active do not apply additional scaling
+    var sens_BGscaler = profile.ISFbgscaler; // When eating now is not active do not apply additional scaling
     sens_BGscaler = (100-sens_BGscaler)/100;
     enlog += "sens_BGscaler from profile:" + sens_BGscaler +"\n";
-    // apply scaling adjustment to normal ISF scaling formula
+    // apply scaling adjustment to existing dynamic ISF scaling formula
     sens_BGscaler *= Math.log(Math.min(bg,ISFbgMax)/target_bg)+1;
-    enlog += "sens_BGscaler adjusted based on bg:" + sens_BGscaler +"\n";
-    // var sens_currentBG_scaler = Math.log(Math.min(bg,ISFbgMax)/target_bg)+1;
-    //var sens_currentBG_scaler = Math.min(bg,ISFbgMax)/target_bg;
+    // At night when below SMB bg no additional scaling
+    sens_BGscaler = (!eatingnowtimeOK && bg < SMBbgOffset? 1 : sens_BGscaler);
+    // When eating now is not active during the day do not apply additional scaling
+    sens_BGscaler = (!eatingnow && eatingnowtimeOK ? 1 : sens_BGscaler);
+    enlog += "sens_BGscaler now:" + sens_BGscaler +"\n";
     var sens_currentBG = sens_normalTarget/sens_BGscaler;
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
     // scale CR inline with ISF
-    //var carb_ratio = (COBBoostOK ? profile.carb_ratio / (sens_normalTarget/sens_currentBG) : profile.carb_ratio);
     var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio/sens_BGscaler,profile.carb_ratio) : profile.carb_ratio) ;
 
     // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
@@ -526,15 +530,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_currentBG = round(sens_currentBG,1);
     enlog += "sens_currentBG final result:"+ convert_bg(sens_currentBG, profile) +"\n";
 
-
-    // Threshold for SMB at night
-    var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
-    enlog += "SMBbgOffset:"+SMBbgOffset+"\n";
-
-    // use normal sens when EN not active at night or TT not normalTarget
+    // sens is the current bg when EN active e.g. no TT
     sens = (eatingnow ? sens_currentBG : sens_normalTarget);
-    // at night with SR use the sens_currentBG
-    sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
+    // at night use sens_currentBG without additional scaling
+    sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens);
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
