@@ -501,29 +501,31 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
-    // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
-    var sens_currentBG_scaler = Math.log(Math.min(bg,ISFbgMax)/75)+1;
-    //var sens_currentBG_scaler = Math.min(bg,ISFbgMax)/target_bg;
-    enlog += "sens_currentBG_scaler:" + sens_currentBG_scaler +"\n";
-    var sens_currentBG = sens_normalTarget/sens_currentBG_scaler;
-    enlog += "sens_currentBG:" + convert_bg(sens_currentBG, profile) +"\n";
-
-    // scale CR without sens_BGscaler
-    //var carb_ratio = (COBBoostOK ? profile.carb_ratio / (sens_normalTarget/sens_currentBG) : profile.carb_ratio);
-    var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio/sens_currentBG_scaler,profile.carb_ratio) : profile.carb_ratio) ;
-
-    // Allow user preferences to scale the strength of the ISF as BG increases
+    // Allow user preferences to adjust the scaling of ISF as BG increases
     // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
     var sens_BGscaler = (eatingnow ? profile.ISFbgscaler : 0); // When eating now is not active do not apply additional scaling
     sens_BGscaler = (100-sens_BGscaler)/100;
-    enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
+    enlog += "sens_BGscaler from profile:" + sens_BGscaler +"\n";
+    // apply scaling adjustment to normal ISF scaling formula
+    sens_BGscaler *= Math.log(Math.min(bg,ISFbgMax)/target_bg)+1;
+    enlog += "sens_BGscaler adjusted based on bg:" + sens_BGscaler +"\n";
+    // var sens_currentBG_scaler = Math.log(Math.min(bg,ISFbgMax)/target_bg)+1;
+    //var sens_currentBG_scaler = Math.min(bg,ISFbgMax)/target_bg;
+    var sens_currentBG = sens_normalTarget/sens_BGscaler;
+    enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
+
+    // scale CR inline with ISF
+    //var carb_ratio = (COBBoostOK ? profile.carb_ratio / (sens_normalTarget/sens_currentBG) : profile.carb_ratio);
+    var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio/sens_BGscaler,profile.carb_ratio) : profile.carb_ratio) ;
+
     // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
-    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
-    enlog += "sens_currentBG after scaling is:"+ convert_bg(sens_currentBG, profile) +"\n";
+    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
 
     // in the COBBoost window allow normal ISF as minimum
     sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
     sens_currentBG = round(sens_currentBG,1);
+    enlog += "sens_currentBG final result:"+ convert_bg(sens_currentBG, profile) +"\n";
+
 
     // Threshold for SMB at night
     var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
