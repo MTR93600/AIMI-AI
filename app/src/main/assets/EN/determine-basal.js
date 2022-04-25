@@ -968,11 +968,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
-        var sens_future_scaler = Math.log(sens_future_bg/75)+1;
-        //var sens_future_scaler = sens_future_bg / target_bg;
+        // apply dynamic ISF scaling formula
+        var sens_future_scaler = Math.log(sens_future_bg/target_bg)+1;
         sens_future = sens_normalTarget/sens_future_scaler;
-        sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
-        sens_future_max = (bg >= ISFbgMax);
+        //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
+        //sens_future_max = (bg >= ISFbgMax);
     }
 
     // if BG below threshold then take the max of the sens vars
