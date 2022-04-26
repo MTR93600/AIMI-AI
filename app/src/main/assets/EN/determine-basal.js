@@ -510,7 +510,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_BGscaler = (100-sens_BGscaler)/100;
     enlog += "sens_BGscaler from profile:" + sens_BGscaler +"\n";
     // apply scaling adjustment to existing dynamic ISF scaling formula
-    sens_BGscaler *= Math.log(Math.min(bg,ISFbgMax)/target_bg)+1;
+    sens_BGscaler = sens_BGscaler * (Math.log(Math.min(bg,ISFbgMax)/target_bg)+1);
     // At night when below SMB bg no additional scaling
     sens_BGscaler = (!eatingnowtimeOK && bg < SMBbgOffset? 1 : sens_BGscaler);
     // When eating now is not active during the day do not apply additional scaling
