@@ -1471,16 +1471,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ===================================================
 
-                // ============== DELTA RESTRICTIONS ==============
-                // if the delta difference is below threshold limit max SMB unless prediction is COB
-                if (DeltaPct > 1.0 || sens_predType == "COB" || COBBoostOK) {
+                // ============== DELTA BASED RESTRICTIONS ==============
+                // if the delta is increasing allow larger SMB, COB predictions and COBBoost window are always allowed larger SMB
+                // IOB should be positive to cater for unexpected sudden jumps relating to basal unless COB as above
+                if (DeltaPct > 1.0 && iob_data.iob > maxBolus * 0.75 || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = EatingNowMaxSMB;
                 } else {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
-                    //UAMBoostReason = "; delta slowing: maxBolus";
-                    //insulinReqPct = 0; // will TBR for delta that isn't increasing be sufficient?
                 }
                 // ===================================================
 
