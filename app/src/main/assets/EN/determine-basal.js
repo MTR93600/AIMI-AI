@@ -519,8 +519,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_currentBG = sens_normalTarget/sens_BGscaler;
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
-    // scale CR inline with ISF
-    var carb_ratio = (delta > 0 ? Math.min(profile.carb_ratio/sens_BGscaler,profile.carb_ratio) : profile.carb_ratio) ;
+    // scale CR inline with ISF within COBBoost window
+    var carb_ratio = (delta > 0 && COBBoostOK ? Math.min(profile.carb_ratio/sens_BGscaler,profile.carb_ratio) : profile.carb_ratio) ;
 
     // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
     sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
