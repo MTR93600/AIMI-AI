@@ -165,12 +165,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val landscape = screenHeight < screenWidth
 
         skinProvider.activeSkin().preProcessLandscapeOverviewLayout(dm, binding, landscape, rh.gb(R.bool.isTablet), smallHeight)
-        binding.nsclientLayout.visibility = config.NSCLIENT.toVisibility()
+        binding.nsclientCard.visibility = config.NSCLIENT.toVisibility()
 
         binding.notifications.setHasFixedSize(false)
         binding.notifications.layoutManager = LinearLayoutManager(view.context)
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
-        binding.graphsLayout.bgGraph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphgrid)
+        binding.graphsLayout.bgGraph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphGrid)
         binding.graphsLayout.bgGraph.gridLabelRenderer?.reloadStyles()
         binding.graphsLayout.bgGraph.gridLabelRenderer?.labelVerticalWidth = axisWidth
         binding.graphsLayout.bgGraph.layoutParams?.height = rh.dpToPx(skinProvider.activeSkin().mainGraphHeight)
@@ -178,7 +178,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         carbAnimation = binding.infoLayout.carbsIcon.background as AnimationDrawable?
         carbAnimation?.setEnterFadeDuration(1200)
         carbAnimation?.setExitFadeDuration(1200)
-
 
         binding.graphsLayout.bgGraph.setOnLongClickListener {
             overviewData.rangeToDisplay += 6
@@ -549,16 +548,16 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             binding.buttonsLayout.cgmButton.setCompoundDrawablesWithIntrinsicBounds(null, rh.gd(R.drawable.ic_byoda), null, null)
             for (drawable in binding.buttonsLayout.cgmButton.compoundDrawables) {
                 drawable?.mutate()
-                drawable?.colorFilter = PorterDuffColorFilter(rh.gac(context, R.attr.cgmdexColor), PorterDuff.Mode.SRC_IN)
+                drawable?.colorFilter = PorterDuffColorFilter(rh.gac(context, R.attr.cgmDexColor), PorterDuff.Mode.SRC_IN)
             }
-            binding.buttonsLayout.cgmButton.setTextColor(rh.gac(context, R.attr.cgmdexColor))
+            binding.buttonsLayout.cgmButton.setTextColor(rh.gac(context, R.attr.cgmDexColor))
         } else if (xDripIsBgSource) {
             binding.buttonsLayout.cgmButton.setCompoundDrawablesWithIntrinsicBounds(null, rh.gd(R.drawable.ic_xdrip), null, null)
             for (drawable in binding.buttonsLayout.cgmButton.compoundDrawables) {
                 drawable?.mutate()
-                drawable?.colorFilter = PorterDuffColorFilter(rh.gac(context, R.attr.cgmxdripColor), PorterDuff.Mode.SRC_IN)
+                drawable?.colorFilter = PorterDuffColorFilter(rh.gac(context, R.attr.cgmXdripColor), PorterDuff.Mode.SRC_IN)
             }
-            binding.buttonsLayout.cgmButton.setTextColor(rh.gac(context, R.attr.cgmxdripColor))
+            binding.buttonsLayout.cgmButton.setTextColor(rh.gac(context, R.attr.cgmXdripColor))
         }
         binding.buttonsLayout.cgmButton.visibility = (sp.getBoolean(R.string.key_show_cgm_button, false) && (xDripIsBgSource || dexcomIsSource)).toVisibility()
 
@@ -714,12 +713,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 val graph = GraphView(context)
                 graph.layoutParams =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(skinProvider.activeSkin().secondaryGraphHeight)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphgrid)
+                graph.gridLabelRenderer?.gridColor = rh.gac(context, R.attr.graphGrid)
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
                 graph.gridLabelRenderer?.numVerticalLabels = 3
-                graph.viewport.backgroundColor = rh.gac(context, R.attr.viewPortbackgroundColor)
+                graph.viewport.backgroundColor = rh.gac(context, R.attr.viewPortBackgroundColor)
                 relativeLayout.addView(graph)
 
                 val label = TextView(context)
@@ -808,31 +807,28 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             profileFunction.getProfile()?.let {
                 if (it is ProfileSealed.EPS) {
                     if (it.value.originalPercentage != 100 || it.value.originalTimeshift != 0L || it.value.originalDuration != 0L)
-                        rh.gac(context, R.attr.ribbonWarningColor)
-                    else rh.gac(context, R.attr.ribbonDefaultColor)
+                        R.attr.ribbonWarningColor
+                    else R.attr.ribbonDefaultColor
                 } else if (it is ProfileSealed.PS) {
-                    rh.gac(context, R.attr.ribbonDefaultColor)
+                    R.attr.ribbonDefaultColor
                 } else {
-                    rh.gac(context, R.attr.ribbonDefaultColor)
+                    R.attr.ribbonDefaultColor
                 }
-            } ?: rh.gac(context, R.attr.ribbonCriticalColor)
+            } ?: R.attr.ribbonCriticalColor
 
         val profileTextColor =
             profileFunction.getProfile()?.let {
                 if (it is ProfileSealed.EPS) {
                     if (it.value.originalPercentage != 100 || it.value.originalTimeshift != 0L || it.value.originalDuration != 0L)
-                        rh.gac(context, R.attr.ribbonTextWarningColor)
-                    else rh.gac(context, R.attr.ribbonTextDefaultColor)
+                        R.attr.ribbonTextWarningColor
+                    else R.attr.ribbonTextDefaultColor
                 } else if (it is ProfileSealed.PS) {
-                    rh.gac(context, R.attr.ribbonTextDefaultColor)
+                    R.attr.ribbonTextDefaultColor
                 } else {
-                    rh.gac(context, R.attr.ribbonTextDefaultColor)
+                    R.attr.ribbonTextDefaultColor
                 }
-            } ?: rh.gac(context, R.attr.ribbonTextDefaultColor)
-
-        binding.activeProfile.text = profileFunction.getProfileNameWithRemainingTime()
-        binding.activeProfile.setBackgroundColor(profileBackgroundColor)
-        binding.activeProfile.setTextColor(profileTextColor)
+            } ?: R.attr.ribbonTextDefaultColor
+        setRibbon(binding.activeProfile, profileTextColor, profileBackgroundColor, profileFunction.getProfileNameWithRemainingTime())
     }
 
     private fun updateTemporaryBasal() {
@@ -920,9 +916,12 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         val units = profileFunction.getUnits()
         val tempTarget = overviewData.temporaryTarget
         if (tempTarget != null) {
-            binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarningColor))
-            binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonWarningColor))
-            binding.tempTarget.text = Profile.toTargetRangeString(tempTarget.lowTarget, tempTarget.highTarget, GlucoseUnit.MGDL, units) + " " + dateUtil.untilString(tempTarget.end, rh)
+            setRibbon(
+                binding.tempTarget,
+                R.attr.ribbonTextWarningColor,
+                R.attr.ribbonWarningColor,
+                Profile.toTargetRangeString(tempTarget.lowTarget, tempTarget.highTarget, GlucoseUnit.MGDL, units) + " " + dateUtil.untilString(tempTarget.end, rh)
+            )
         } else {
             // If the target is not the same as set in the profile then oref has overridden it
             profileFunction.getProfile()?.let { profile ->
@@ -930,15 +929,30 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
                 if (targetUsed != 0.0 && abs(profile.getTargetMgdl() - targetUsed) > 0.01) {
                     aapsLogger.debug("Adjusted target. Profile: ${profile.getTargetMgdl()} APS: $targetUsed")
-                    binding.tempTarget.text = Profile.toTargetRangeString(targetUsed, targetUsed, GlucoseUnit.MGDL, units)
-                    binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextWarningColor))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.tempTargetBackgroundColor))
+                    setRibbon(
+                        binding.tempTarget,
+                        R.attr.ribbonTextWarningColor,
+                        R.attr.tempTargetBackgroundColor,
+                        Profile.toTargetRangeString(targetUsed, targetUsed, GlucoseUnit.MGDL, units)
+                    )
                 } else {
-                    binding.tempTarget.setTextColor(rh.gac(context, R.attr.ribbonTextDefaultColor))
-                    binding.tempTarget.setBackgroundColor(rh.gac(context, R.attr.ribbonDefaultColor))
-                    binding.tempTarget.text = Profile.toTargetRangeString(profile.getTargetLowMgdl(), profile.getTargetHighMgdl(), GlucoseUnit.MGDL, units)
+                    setRibbon(
+                        binding.tempTarget,
+                        R.attr.ribbonTextDefaultColor,
+                        R.attr.ribbonDefaultColor,
+                        Profile.toTargetRangeString(profile.getTargetLowMgdl(), profile.getTargetHighMgdl(), GlucoseUnit.MGDL, units)
+                    )
                 }
             }
+        }
+    }
+
+    private fun setRibbon(view: TextView, attrResText: Int, attrResBack: Int, text: String) {
+        with(view) {
+            setText(text)
+            setBackgroundColor(rh.gac(context, attrResBack))
+            setTextColor(rh.gac(context, attrResText))
+            compoundDrawables[0]?.setTint(rh.gac(context, attrResText))
         }
     }
 
