@@ -471,12 +471,12 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*20;
         rT.deliverAt = deliverAt;
         rT.temp = 'absolute';
-        rT.duration = 20;
-        rT.rate = profile.current_basal*5;
+        rT.duration = 30;
+        rT.rate = round_basal(basal*5,profile);
         //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
         //rT.rate = profile.current_basal*10;
-        //return rT;
-        return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+        return rT;
+        //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
         }
 
@@ -623,12 +623,12 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*20;
             rT.deliverAt = deliverAt;
             rT.temp = 'absolute';
-            rT.duration = 20;
-            rT.rate = profile.current_basal*5;
+            rT.duration = 30;
+            rT.rate = round_basal(basal*5,profile);
             //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
             //rT.rate = profile.current_basal*10;
-            //return rT;
-            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+            return rT;
+            //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
             }
     sens = profile.sens / circadian_sensitivity;
@@ -1247,7 +1247,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 29/04/2022 ");
+                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 30/04/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
