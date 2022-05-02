@@ -76,7 +76,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
         while (answers.hasNext() && memAddress == 0) {
             val line = answers.next()
             if (line.contains("history page number")) {
-                val memPatter = Pattern.compile("\\d{3}")
+                val memPatter = Pattern.compile("\\d{2,4}")
                 val memMatcher = memPatter.matcher(line)
                 if (memMatcher.find()) {
                     memAddress = memMatcher.group(0).toInt()

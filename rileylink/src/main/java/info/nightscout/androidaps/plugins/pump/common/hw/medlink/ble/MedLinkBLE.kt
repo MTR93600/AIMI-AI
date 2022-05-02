@@ -600,10 +600,12 @@ class MedLinkBLE //extends RileyLinkBLE
         }
         return priorityExecutionCommandQueue.contains(exec)
     }
+
     fun isStartStopCommand(commandType: MedLinkCommandType?): Boolean {
         return isBolus(commandType) ||
             MedLinkCommandType.Calibrate.isSameCommand(commandType)
     }
+
     fun isBolus(commandType: MedLinkCommandType?): Boolean {
         return MedLinkCommandType.Bolus.isSameCommand(commandType) ||
             MedLinkCommandType.SMBBolus.isSameCommand(commandType) ||
@@ -633,7 +635,7 @@ class MedLinkBLE //extends RileyLinkBLE
                     }
                 }
             }
-            if(msg is BolusMedLinkMessage) {
+            if (msg is BolusMedLinkMessage) {
                 val bolusStatus = msg.bolusProgressMessage
                 if (bolusStatus != null) {
                     addWriteCharacteristic(serviceUUID, charaUUID, bolusStatus, CommandPriority.NORMAL)
@@ -644,16 +646,16 @@ class MedLinkBLE //extends RileyLinkBLE
 
     private fun handleBolusCommand(msg: MedLinkPumpMessage<*>, serviceUUID: UUID, charaUUID: UUID) {
         if (isStartStopCommand(msg.commandType)) {
-                removeStopCommands()
+            removeStopCommands()
             val startStop = (msg as StartStopMessage).postCommands.stream()
-                startStop.forEach { f: MedLinkPumpMessage<*> ->
-                    if (f.commandType == MedLinkCommandType.StartPump) {
-                        addWriteCharacteristic(serviceUUID, charaUUID, startCommand!!, CommandPriority.HIGH)
+            startStop.forEach { f: MedLinkPumpMessage<*> ->
+                if (f.commandType == MedLinkCommandType.StartPump) {
+                    addWriteCharacteristic(serviceUUID, charaUUID, startCommand!!, CommandPriority.HIGH)
                 } else if (f.commandType == MedLinkCommandType.StopPump && msg.shouldBeSuspended) {
-                        addWriteCharacteristic(serviceUUID, charaUUID, stopCommand!!, CommandPriority.LOWER)
-                    }
+                    addWriteCharacteristic(serviceUUID, charaUUID, stopCommand!!, CommandPriority.LOWER)
                 }
-            if(msg is BolusMedLinkMessage) {
+            }
+            if (msg is BolusMedLinkMessage) {
                 val bolusStatus = msg.bolusProgressMessage
                 if (bolusStatus != null) {
                     addWriteCharacteristic(serviceUUID, charaUUID, bolusStatus, CommandPriority.NORMAL)
@@ -1017,6 +1019,8 @@ class MedLinkBLE //extends RileyLinkBLE
             // Not sure if to disconnect or to close first..
             bluetoothConnectionGatt!!.disconnect()
             manualDisconnect = true
+        } else {
+            changeConnectionStatus(ConnectionStatus.CLOSED)
         }
         aapsLogger.info(LTag.PUMPBTCOMM, "Post disconnect")
         setConnected(false)

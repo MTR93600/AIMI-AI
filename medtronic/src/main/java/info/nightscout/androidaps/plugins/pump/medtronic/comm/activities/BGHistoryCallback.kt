@@ -45,7 +45,7 @@ class BGHistoryCallback(
         return MedLinkStandardReturn(ans, state, emptyList())
     }
 
-    fun parseAnswer(ans: Supplier<Stream<String>>): BgHistory {
+    private fun parseAnswer(ans: Supplier<Stream<String>>): BgHistory {
         val answers = ans.get()
         return try {
             val calibrations: MutableList<BgHistory.Calibration> = mutableListOf()
