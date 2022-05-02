@@ -906,6 +906,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         , 'reservoir' : reservoir_data // The expected reservoir volume at which to deliver the microbolus (the reservoir volume from right before the last pumphistory run)
         , 'deliverAt' : deliverAt // The time at which the microbolus should be delivered
         , 'sensitivityRatio' : sensitivityRatio // autosens ratio (fraction of normal basal)
+        ,'variable_sens' : sens
     };
 
     // generate predicted future BGs based on IOB, COB, and current absorption rate
