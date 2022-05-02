@@ -64,6 +64,13 @@
     <string name="enable_pump_unreachable_alert">Alert if pump is unreachable</string>
     <string name="pump_unreachable_threshold">Pump unreachable threshold [min]</string>
     <string name="enable_carbs_req_alert">Alert if carbs are required</string>
+<!--    <string name="openapsaismb">OpenAPS aiSMB</string>-->
+<!--    <string name="key_openapsaismb_settings">OpenAPS aiSMB Settings</string>-->
+<!--    <string name="description_aismb">Small micro boluses based on Artifical Intelligence and Machine Learning.</string>-->
+<!--    <string name="oaps_aismb_shortname">aiSMB</string>-->
+    <string name="openapssmb_maxsmb_summary">The max bolus that can be given by SMB.</string>
+    <string name="key_openapssmb_max_smb">key_openapssmb_max_smb</string>
+    <string name="openapssmb_maxsmb_title">Maximum bolus for SMB [U]</string>
     <string name="open_navigation">Open navigation</string>
     <string name="close_navigation">Close navigation</string>
     <string name="remove_items">Remove items</string>

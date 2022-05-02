@@ -24,6 +24,12 @@
     <string name="key_adjust_sensitivity" translatable="false">dynisf_adjust_sensitivity</string>
     <string name="key_openapsma_max_basal" translatable="false">openapsma_max_basal</string>
     <string name="key_openapsama_use_autosens" translatable="false">openapsama_useautosens</string>
+    <string name="key_openapssmb_max_smb">key_openapssmb_max_smb</string>
+    <string name="openapsaismb">OpenAPS aiSMB</string>
+    <string name="key_openapsaismb_settings">OpenAPS aiSMB Settings</string>
+    <string name="description_aismb">Small micro boluses based on Artifical Intelligence and Machine Learning.</string>
+    <string name="oaps_aismb_shortname">aiSMB</string>
+
 
     <string name="dynisf_adjust_sensitivity">Adjust sensitivity and BG</string>
     <string name="DynISFAdjust_title" formatted="false">DynamicISF Adjustment Factor %</string>
@@ -32,6 +38,8 @@
     <string name="high_temptarget_raises_sensitivity_summary"><![CDATA[Raise sensitivity for temptargets >= 100]]></string>
     <string name="low_temptarget_lowers_sensitivity_title">Low temptarget lowers sensitivity</string>
     <string name="low_temptarget_lowers_sensitivity_summary"><![CDATA[Lower sensitivity for temptargets < 100]]></string>
+    <string name="openapssmb_maxsmb_title">Max SMB</string>
+    <string name="openapssmb_maxsmb_summary">The max U that SMB can deliver.</string>
     <string name="openapssmb">OpenAPS SMB</string>
     <string name="openaps_smb_dynamic_isf">Dynamic ISF</string>
     <string name="smb_interval_summary">How frequently SMBs will be given in min</string>

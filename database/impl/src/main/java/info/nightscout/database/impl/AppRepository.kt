@@ -38,6 +38,8 @@ import kotlin.math.roundToInt
     internal val database: AppDatabase
 ) {
 
+
+
     private val changeSubject = PublishSubject.create<List<DBEntry>>()
 
     fun changeObservable(): Observable<List<DBEntry>> = changeSubject.subscribeOn(Schedulers.io())
@@ -595,6 +597,12 @@ import kotlin.math.roundToInt
     fun getLastCarbsRecord(): Carbs? =
         database.carbsDao.getLastCarbsRecord()
 
+    fun getMostRecentCarbByDate(): Carbs? = database.carbsDao.getMostRecentCarbByDate()
+
+    fun getUserEntryDataWithNotesFromTime(timestamp: Long): Single<List<UserEntry>> =
+        database.userEntryDao.getUserEntryDataWithNotesFromTime(timestamp)
+            .subscribeOn(Schedulers.io())
+
     fun getLastCarbsRecordWrapped(): Single<ValueWrapper<Carbs>> =
         database.carbsDao.getLastCarbsRecordMaybe()
             .subscribeOn(Schedulers.io())
@@ -942,6 +950,7 @@ import kotlin.math.roundToInt
         totalDailyDoses = database.totalDailyDoseDao.getNewEntriesSince(since, until, limit, offset),
         versionChanges = database.versionChangeDao.getNewEntriesSince(since, until, limit, offset),
     )
+
 }
 
 @Suppress("USELESS_CAST")
