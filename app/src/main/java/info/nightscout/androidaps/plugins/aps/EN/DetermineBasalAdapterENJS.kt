@@ -253,8 +253,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("EatingNowTimeEnd", sp.getInt(R.string.key_eatingnow_timeend, 17))
         //this.profile.put("EatingNowinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_insulinreqpct,"65")))
 
-        this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
-        this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
+        // this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
         this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
 
         this.profile.put("ISFBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_isfboost_maxbolus, 0.0))

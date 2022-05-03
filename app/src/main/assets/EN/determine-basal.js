@@ -244,7 +244,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0,0)-ENStartOffset, ENEndTime = new Date().setHours(profile.EatingNowTimeEnd,0,0,0) + ENEndOffset;
 
     // variables for deltas
-    var delta = glucose_status.delta, deltaShortRise = 0, deltaLongRise = 0, DeltaPct = 1, UAMBoost_threshold = 1.2;
+    var delta = glucose_status.delta, deltaShortRise = 0, deltaLongRise = 0, DeltaPct = 1;
+//    var UAMBoost_threshold = 1.2;
     // Calculate percentage change in deltas, long to short and short to now
     if (glucose_status.long_avgdelta !=0) deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
     if (glucose_status.short_avgdelta !=0) deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
@@ -1407,50 +1408,52 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var insulinReqPctDefault = 0.65; // this is the default insulinReqPct and maxBolus is respected outside of eating now
             var insulinReqPct = insulinReqPctDefault; // this is the default insulinReqPct and maxBolus is respected outside of eating now
             var insulinReqOrig = insulinReq;
-            var UAMBoostReason = "";
+            var ENReason = "";
             var insulinReqBoost = 0; // no boost yet
             var EatingNowMaxSMB = maxBolus;
             var maxBolusOrig = maxBolus;
-            var UAMBoosted = false, ISFBoosted = false;
+//            var UAMBoosted = false;
+            var ISFBoosted = false;
             var ENinsulinReqPct = 0.75; // EN insulinReqPct is 75%
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
-                UAMBoostReason = ""; //blank boost reason to prepare for boost info
+                ENReason = ""; //blank boost reason to prepare for boost info
 
                 // EN insulinReqPct is used from the profile
                 insulinReqPct = ENinsulinReqPct;
 
-                // ============== UAMBOOST ============== START ===
-                // if within time window of first bolus max mode
-                // set UAMBoost Bolus size based on TDD
-                var UAMBoost_bolus = basal;
-                // set the scale from the profile
-                var UAMBoost_bolus_scale = profile.UAMBoost_Bolus_Scale;
-                // default is UAMBoost is NOT OK. Sensitive threshold is low normal is high
-                var UAMBoostOK = false;
-                // try 9 delta for safer operation as slightly larger SMB needed on slower insulin
-                if (delta >= 9 && (meal_data.mealCOB==0) ) {
-                    UAMBoostOK = true;
-                }
-
-                // If boost is allowed and there is sufficient short term delta change calculate boosted insulin
-                if (UAMBoostOK && DeltaPct > UAMBoost_threshold) {
-                    // calculate the insulin boost
-                    insulinReqBoost = DeltaPct * UAMBoost_bolus * UAMBoost_bolus_scale;
-                    // set SMB limit for UAMBoost
-                    EatingNowMaxSMB = profile.UAMBoost_maxBolus;
-                    EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
-                    // if the boost amount was less than the original insulinReq we didn't boost so allow ISF Boost
-                    UAMBoosted = (insulinReqBoost > insulinReqOrig);
-                    // Experimental for slower insulin types
-                    insulinReqPct = 1;
-                }
-                // ============== UAMBOOST ============== END ===
+//                // ============== UAMBOOST ============== START ===
+//                // if within time window of first bolus max mode
+//                // set UAMBoost Bolus size based on TDD
+//                var UAMBoost_bolus = basal;
+//                // set the scale from the profile
+//                var UAMBoost_bolus_scale = profile.UAMBoost_Bolus_Scale;
+//                // default is UAMBoost is NOT OK. Sensitive threshold is low normal is high
+//                var UAMBoostOK = false;
+//                // try 9 delta for safer operation as slightly larger SMB needed on slower insulin
+//                if (delta >= 9 && (meal_data.mealCOB==0) ) {
+//                    UAMBoostOK = true;
+//                }
+//
+//                // If boost is allowed and there is sufficient short term delta change calculate boosted insulin
+//                if (UAMBoostOK && DeltaPct > UAMBoost_threshold) {
+//                    // calculate the insulin boost
+//                    insulinReqBoost = DeltaPct * UAMBoost_bolus * UAMBoost_bolus_scale;
+//                    // set SMB limit for UAMBoost
+//                    EatingNowMaxSMB = profile.UAMBoost_maxBolus;
+//                    EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
+//                    // if the boost amount was less than the original insulinReq we didn't boost so allow ISF Boost
+//                    UAMBoosted = (insulinReqBoost > insulinReqOrig);
+//                    // Experimental for slower insulin types
+//                    insulinReqPct = 1;
+//                }
+//                // ============== UAMBOOST ============== END ===
 
                 // ============== ISF BOOST ============== START ===
                 // For BG rises that dont meet the UAMBoost criteria using adjusted target_bg
-                if (!UAMBoosted && eventualBG > target_bg && insulinReq > 0) {
+//                if (!UAMBoosted && eventualBG > target_bg && insulinReq > 0) {
+                if (eventualBG > target_bg && insulinReq > 0) {
                      // set SMB limit for ISFBoost determine if UAM or COB maxBolus will be used
                     EatingNowMaxSMB = (sens_predType == "COB" ? profile.ISFBoost_maxBolus : profile.UAMBoost_maxBolus);
                     EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
@@ -1487,10 +1490,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== TIME RESTRICTIONS ==============
                  // if we just had a loop iteration only allow TBR's for UAMBoost
-                 if (minAgo > 1 && UAMBoosted) {
-                     insulinReqPct = 0;
-                     UAMBoostReason ="; recent loop iteration: no UAMBoost";
-                 }
+//                 if (minAgo > 1 && UAMBoosted) {
+//                     insulinReqPct = 0;
+//                     ENReason ="; recent loop iteration: no UAMBoost";
+//                 }
 
                 if (eatingnowtimeOK) {
                     // increase maxbolus if we are within the hours specified
@@ -1504,7 +1507,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
                 // ============== INSULIN BOOST  ==============
-                UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + DeltaPct + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
+//                ENReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + DeltaPct + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + ENReason;
 
                 // use insulinReqBoost if it is more than insulinReq
                 insulinReq = round(Math.max(insulinReq,insulinReqBoost),2);
@@ -1512,13 +1515,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== IOB RESTRICTION  ==============
                 if (insulinReq > max_iob-iob_data.iob) {
-                    //UAMBoostReason += ", max_iob " + max_iob;
+                    //ENReason += ", max_iob " + max_iob;
                     insulinReq = round(max_iob-iob_data.iob,2);
                 }
 
                 // ============== UAMBoost Reason ==============
                 if (COBBoostOK) {
-                    UAMBoostReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
+                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
                 }
             }
             // END === if we are eating now and BGL prediction is higher than normal target ===
@@ -1563,7 +1566,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 rT.reason += "; setting " + durationReq + "m low temp of " + smbLowTempReq + "U/h";
             }
             rT.reason += ". ";
-            rT.reason += UAMBoostReason;
+            rT.reason += ENReason;
             rT.reason = esc_text(rT.reason) + ". ";
 
             //allow SMBs every 3 minutes by default
