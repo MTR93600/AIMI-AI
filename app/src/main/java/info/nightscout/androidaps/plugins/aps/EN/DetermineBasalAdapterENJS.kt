@@ -292,6 +292,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.mealData.put("slopeFromMaxDeviation", mealData.slopeFromMaxDeviation)
         this.mealData.put("slopeFromMinDeviation", mealData.slopeFromMinDeviation)
         this.mealData.put("lastBolusTime", mealData.lastBolusTime)
+        this.mealData.put("lastCarbTime", mealData.lastCarbTime)
         // get the last bolus time of a manual bolus for EN activation
         val getlastBolusNormal = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.NORMAL).blockingGet()
         val lastBolusNormalTime = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.timestamp else 0L
@@ -303,7 +304,6 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         val getlastCarbs = repository.getLastCarbsRecordWrapped().blockingGet()
         val lastCarbTime = if (getlastCarbs is ValueWrapper.Existing) getlastCarbs.value.timestamp else 0L
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
-        this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         // get the first carb time since EN activation
         val ENStartTime = 3600000 * sp.getInt(R.string.key_eatingnow_timestart, 9) + MidnightTime.calc(now)

@@ -244,20 +244,21 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENStartTime = new Date().setHours(profile.EatingNowTimeStart,0,0,0)-ENStartOffset, ENEndTime = new Date().setHours(profile.EatingNowTimeEnd,0,0,0) + ENEndOffset;
 
     // variables for deltas
-    var UAM_delta = glucose_status.delta, UAM_deltaShortRise = 0, UAM_deltaLongRise = 0, UAMBoost = 1, UAMBoost_threshold = 1.2;
+    var delta = glucose_status.delta, deltaShortRise = 0, deltaLongRise = 0, DeltaPct = 1, UAMBoost_threshold = 1.2;
     // Calculate percentage change in deltas, long to short and short to now
-    if (glucose_status.long_avgdelta !=0) UAM_deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
-    if (glucose_status.short_avgdelta !=0) UAM_deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
-    // set the UAMBoost factor that is the UAM_deltaShortRise combined minimum of zero + 1 to allow multiply
-    UAMBoost = round(1+UAM_deltaShortRise,2);
+    if (glucose_status.long_avgdelta !=0) deltaLongRise = round((glucose_status.short_avgdelta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta),2);
+    if (glucose_status.short_avgdelta !=0) deltaShortRise = round((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta),2);
+    // set the DeltaPct factor that is the deltaShortRise combined minimum of zero + 1 to allow multiply
+    DeltaPct = round(1+deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    //if (nowhrs >= profile.EatingNowTimeStart && nowhrs < profile.EatingNowTimeEnd && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
     if (now >= ENStartTime && now < ENEndTime && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) eatingnowtimeOK = true;
+    var lastNormalCarbAge = round(( new Date(systemTime).getTime() - meal_data.lastNormalCarbTime ) / 60000);
     enlog += "nowhrs: " + nowhrs + ", now: " + now +"\n";
     enlog += "ENStartOffset: " + ENStartOffset + ", ENStartTime: " + ENStartTime +"\n";
     enlog += "ENEndOffset: " + ENEndOffset + ", ENEndTime: " + ENEndTime +"\n";
     enlog += "lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+    enlog += "lastNormalCarbAge: " + lastNormalCarbAge +"\n";
 
     /*
     // set sensitivityRatio to a minimum of 1 when EN active allowing resistance, and allow <1 overnight to allow sensitivity
@@ -405,6 +406,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // ISF based on TDD
     var sens_TDD = round((277700 / (TDD * normalTarget)),1);
+    var sens_TDD_new =  1800 / ( TDD * (Math.log(( normalTarget / 75 ) + 1 ) ) );
     enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
     sens_TDD = sens_TDD / (profile.sens_TDD_scale/100);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
@@ -433,6 +435,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = (!profile.use_sens_TDD && typeof autosens_data !== 'undefined' && autosens_data ? autosens_data.ratio : sensitivityRatio);
         if (sensitivityRatio > 1) {
             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+            //sensitivityRatio = (lastNormalCarbAge > 480 && !eatingnowtimeOK ? 1 : sensitivityRatio); // set SR to 1 if no recent carbs (UAM) and its night time
+            sensitivityRatio = (!profile.use_sens_TDD ? 1 : sensitivityRatio);
             sensitivityRatio = round(sensitivityRatio,2);
             enlog += "Sensitivity ratio >1 is now: "+sensitivityRatio+";\n";
         } else if (sensitivityRatio < 1) {
@@ -497,31 +501,40 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var ISFbgMax = (profile.ISFbgOffset > 0 ? target_bg+profile.ISFbgOffset : target_bg);
     enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
-    // set sens_currentBG using profile sens for the current target_bg allowing a low TT to scale more and apply limit
-    var sens_currentBG = sens_normalTarget/(Math.min(bg,ISFbgMax)/target_bg);
-    enlog += "sens_currentBG:" + convert_bg(sens_currentBG, profile) +"\n";
-
-    // Allow user preferences to scale the strength of the ISF as BG increases
-    // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
-    var sens_BGscaler = (eatingnow ? profile.ISFbgscaler : 0); // When eating now is not active do not apply additional scaling
-    sens_BGscaler = (100-sens_BGscaler)/100;
-    enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
-    // if above target use the scaling with profile ISF as the weakest
-    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG*sens_BGscaler,sens_normalTarget) : sens_currentBG);
-    enlog += "sens_currentBG after scaling is:"+ convert_bg(sens_currentBG, profile) +"\n";
-
-    // in the COBBoost window allow normal ISF as minimum
-    sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
-    sens_currentBG = round(sens_currentBG,1);
-
     // Threshold for SMB at night
     var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
     enlog += "SMBbgOffset:"+SMBbgOffset+"\n";
 
-    // use normal sens when EN not active at night or TT not normalTarget
+    // Allow user preferences to adjust the scaling of ISF as BG increases
+    // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
+    var sens_BGscaler = profile.ISFbgscaler; // When eating now is not active do not apply additional scaling
+    sens_BGscaler = (100-sens_BGscaler)/100;
+    enlog += "sens_BGscaler from profile:" + sens_BGscaler +"\n";
+    // apply scaling adjustment to existing dynamic ISF scaling formula
+    sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/target_bg)+1)/sens_BGscaler;
+    // At night when below SMB bg no additional scaling
+    sens_BGscaler = (!eatingnowtimeOK && bg < SMBbgOffset? 1 : sens_BGscaler);
+    // When eating now is not active during the day do not apply additional scaling
+    sens_BGscaler = (!eatingnow && eatingnowtimeOK ? 1 : sens_BGscaler);
+    enlog += "sens_BGscaler now:" + sens_BGscaler +"\n";
+    var sens_currentBG = sens_normalTarget/sens_BGscaler;
+    enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
+
+    // scale CR inline with ISF within COBBoost window
+    var carb_ratio = (delta > 0 && COBBoostOK ? Math.min(profile.carb_ratio/sens_BGscaler,profile.carb_ratio) : profile.carb_ratio) ;
+
+    // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
+    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
+
+    // in the COBBoost window allow normal ISF as minimum
+    sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
+    sens_currentBG = round(sens_currentBG,1);
+    enlog += "sens_currentBG final result:"+ convert_bg(sens_currentBG, profile) +"\n";
+
+    // sens is the current bg when EN active e.g. no TT
     sens = (eatingnow ? sens_currentBG : sens_normalTarget);
-    // at night with SR use the sens_currentBG
-    sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens); // at night use sens_currentBG without SR
+    // at night use sens_currentBG without additional scaling
+    sens = (!eatingnow && !eatingnowtimeOK ? sens_currentBG : sens);
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
@@ -695,7 +708,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // use autosens-adjusted sens to counteract autosens meal insulin dosing adjustments so that
     // autotuned CR is still in effect even when basals and ISF are being adjusted by TT or autosens
     // this avoids overdosing insulin for large meals when low temp targets are active
-    csf = sens_currentBG / profile.carb_ratio;
+    csf = sens_currentBG / carb_ratio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",csf);
 
     var maxCarbAbsorptionRate = 30; // g/h; maximum rate to assume carbs will absorb if no CI observed
@@ -946,22 +959,21 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // for rises by default sens_future will remain as the current bg ie. sens with eBGweight = 0
     // favour eventualBG less as ISF grows stronger based on the sens_predType using sens_eBGweight
-    // should the delta be 110% more than the short_avg (UAMBoost) increase weighting to eventualBG
+    // should the delta be 110% more than the short_avg (DeltaPct) increase weighting to eventualBG
     // delta condition is replaced with a safety that weights eventualBG if it is lower than current bg
     if (eatingnow) {
         sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 25% and decreases with ISF scaling
         sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && UAMBoost > 1.1 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - UAMBoost 1.1 respects eBGw initial weighting
+        sens_eBGweight = (sens_eBGweight > 0 && DeltaPct > 1.05 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - DeltaPct 1.1 respects eBGw initial weighting
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
-        sens_future = sens_normalTarget / (sens_future_bg / target_bg);
-        //sens_future *= sens_BGscaler; // try this again
-        //sens_future = sens_normalTarget / (sens_future_bg / target_bg);
-        // EXPERIMENTAL RESTRICTION OF SENS_FUTURE
-        sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
-        sens_future_max = (bg >= ISFbgMax);
+        // apply dynamic ISF scaling formula
+        var sens_future_scaler = Math.log(sens_future_bg/target_bg)+1;
+        sens_future = sens_normalTarget/sens_future_scaler;
+        //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
+        //sens_future_max = (bg >= ISFbgMax);
     }
 
     // if BG below threshold then take the max of the sens vars
@@ -1099,7 +1111,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + glucose_status.short_avgdelta + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", eBGweight: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", eBGw: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + (profile.carb_ratio != carb_ratio ? "="+round(carb_ratio, 2) : "") + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
 
     if (lastCOBpredBG > 0) {
         rT.reason += ", " + (ignoreCOB && !COBBoostOK ? "!" : "") + "COBpredBG " + convert_bg(lastCOBpredBG, profile);
@@ -1114,13 +1126,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
-    rT.reason += ", UAM: " + UAMBoost;
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
-    rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
-    rT.reason += ", TDD24H:" + round(tdd24h, 2);
-    rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
-    rT.reason += ", predDelta: COB " + convert_bg(COBpredBGsDelta,profile)+", UAM " + convert_bg(UAMpredBGsDelta,profile);
-    rT.reason += ", fM: " + (firstMeal ? "Y":"N");
+    rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+"/"+convert_bg(sens_TDD_new, profile)+")";
+    //rT.reason += ", TDD24H:" + round(tdd24h, 2);
+    //rT.reason += ", TIR:L" + TIR3Below + "/" + TIR1Below +"="+TIRBelow+ ",H" + TIR3Above+ "/" + TIR1Above+"="+TIRAbove;
+    //rT.reason += ", predDelta: COB " + convert_bg(COBpredBGsDelta,profile)+", UAM " + convert_bg(UAMpredBGsDelta,profile);
+    //rT.reason += ", fM: " + (firstMeal ? "Y":"N");
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;
@@ -1373,7 +1384,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // only allow microboluses with COB or low temp targets, or within DIA hours of a bolus
         if (microBolusAllowed && enableSMB && bg > threshold) {
             // never bolus more than maxSMBBasalMinutes worth of basal
-            var mealInsulinReq = round( meal_data.mealCOB / profile.carb_ratio ,3);
+            var mealInsulinReq = round( meal_data.mealCOB / carb_ratio ,3);
             if (typeof profile.maxSMBBasalMinutes === 'undefined' ) {
                 var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 console.error("profile.maxSMBBasalMinutes undefined: defaulting to 30m");
@@ -1403,7 +1414,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var maxBolusOrig = maxBolus;
             var UAMBoosted = false, ISFBoosted = false;
             var ENinsulinReqPct = 0.75; // EN insulinReqPct is 75%
-            //var ENinsulinReqPct = (profile.EatingNowinsulinReqPct/100); // EN insulinReqPct is used from the profile
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
@@ -1421,14 +1431,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 // default is UAMBoost is NOT OK. Sensitive threshold is low normal is high
                 var UAMBoostOK = false;
                 // try 9 delta for safer operation as slightly larger SMB needed on slower insulin
-                if (UAM_delta >= 9 && (meal_data.mealCOB==0) ) {
+                if (delta >= 9 && (meal_data.mealCOB==0) ) {
                     UAMBoostOK = true;
                 }
 
                 // If boost is allowed and there is sufficient short term delta change calculate boosted insulin
-                if (UAMBoostOK && UAMBoost > UAMBoost_threshold) {
+                if (UAMBoostOK && DeltaPct > UAMBoost_threshold) {
                     // calculate the insulin boost
-                    insulinReqBoost = UAMBoost * UAMBoost_bolus * UAMBoost_bolus_scale;
+                    insulinReqBoost = DeltaPct * UAMBoost_bolus * UAMBoost_bolus_scale;
                     // set SMB limit for UAMBoost
                     EatingNowMaxSMB = profile.UAMBoost_maxBolus;
                     EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
@@ -1462,30 +1472,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ===================================================
 
-                // ============== DELTA RESTRICTIONS ==============
-                // if the delta difference is below threshold limit max SMB unless prediction is COB
-                if (UAMBoost > 1.1 || sens_predType == "COB" || COBBoostOK) {
+                // ============== DELTA BASED RESTRICTIONS ==============
+                // if the delta is increasing allow larger SMB, COB predictions and COBBoost window are always allowed larger SMB
+                // IOB should be positive to cater for unexpected sudden jumps relating to basal unless COB as above
+                if (DeltaPct > 1.0 && iob_data.iob > maxBolus * 0.75 || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     EatingNowMaxSMB = EatingNowMaxSMB;
                 } else {
-                    insulinReqPct = insulinReqPct;
+                    // prevent SMB when below target for UAM rises
+                    insulinReqPct = (bg < target_bg ? 0 : insulinReqPct);
                     EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
-                    //UAMBoostReason = "; delta slowing: maxBolus";
                 }
-
-                /*
-                if (UAM_deltaShortRise < -0.10 && !COBBoostOK) {
-                    // insulinReqPct = insulinReqPctDefault;
-                    // insulinReqPct = 0;
-                    EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
-                    UAMBoostReason = "; delta slowing: maxBolus";
-                    // this may help after sensor errors
-                    insulinReqPct = (UAM_delta == 0 && glucose_status.short_avgdelta == 0 ? 0 : insulinReqPct);
-                } else {
-                    insulinReqPct = insulinReqPct;
-                    EatingNowMaxSMB = EatingNowMaxSMB;
-                }
-                */
                 // ===================================================
 
 
@@ -1508,8 +1505,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
                 // ============== INSULIN BOOST  ==============
-                //UAMBoostReason =  "UAM" + (UAMBoosted ? ">" + round(UAMBoost_threshold,1) : "") + "=" + UAMBoost + (UAMBoosted ? "*" + round(UAMBoost_bolus,2)+ "*" + UAMBoost_bolus_scale :"") + UAMBoostReason;
-                UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + UAMBoost + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
+                UAMBoostReason =  (UAMBoosted ? "UAM > " + round(UAMBoost_threshold,1) + ": " + DeltaPct + "x" + round(UAMBoost_bolus,2)+ "x" + UAMBoost_bolus_scale : "" ) + UAMBoostReason;
 
                 // use insulinReqBoost if it is more than insulinReq
                 insulinReq = round(Math.max(insulinReq,insulinReqBoost),2);
@@ -1540,8 +1536,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             // Nightmode TBR when below SMBbgOffset with no low TT / no COB
             if (!eatingnow && !eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
-            //if (!eatingnowtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0)  {
-                //var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 microBolus = 0;
             }
 
