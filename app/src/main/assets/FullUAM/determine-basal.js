@@ -1248,7 +1248,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 03/05/2022 ");
+                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 04/05/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
