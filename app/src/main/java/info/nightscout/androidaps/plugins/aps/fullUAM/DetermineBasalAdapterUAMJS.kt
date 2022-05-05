@@ -34,6 +34,8 @@ import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
+
+
 //import info.nightscout.androidaps.dana.DanaPump
 
 
@@ -283,6 +285,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         if (tb != null) currentTemp.put("minutesrunning", tb.getPassedDurationToTimeInMinutes(now))
         iobData = iobCobCalculator.convertToJSONArray(iobArray)
         mGlucoseStatus.put("glucose", glucoseStatus.glucose)
+
         mGlucoseStatus.put("noise", glucoseStatus.noise)
         if (sp.getBoolean(R.string.key_always_use_shortavg, false)) {
             mGlucoseStatus.put("delta", glucoseStatus.shortAvgDelta)
