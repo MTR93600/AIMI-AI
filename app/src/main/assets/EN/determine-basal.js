@@ -976,8 +976,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_future_max = (bg >= ISFbgMax);
     }
 
-    // if BG below threshold then take the max of the sens vars
-    sens_future = (bg <= threshold ? Math.max(sens_normalTarget, sens_currentBG, sens_future) : sens_future);
+    // if BG below target then take the max of the sens vars
+    sens_future = (bg < target_bg ? Math.max(sens_profile, sens_normalTarget, sens_currentBG, sens_future) : sens_future);
 
     // at night or when EN disabled use sens unless using eatingnow override
     if (!eatingnow) {
