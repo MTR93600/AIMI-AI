@@ -37,7 +37,7 @@ cache:
   - .gradle/
 
 stages:
-    -  build
+    - build
     - test
     - release
     - deploy  
