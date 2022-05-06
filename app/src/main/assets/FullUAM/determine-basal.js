@@ -370,7 +370,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         AIMI_BasalAv3 -= (AIMI_BasalAv3 * (statTirBelow/100) * 1.618);
         enlog += "###Basal average 7 days : "+AIMI_BasalAv7+"### \n";
         enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
-        AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 2;
+        var AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 2;
         enlog += "###Basal average days : "+AIMI_Basal+"### \n";
 
         var AIMI_UAM = profile.enable_AIMI_UAM;
@@ -1255,7 +1255,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 05/05/2022 ");
+                console.log(" AAPS-Master-3.0.1-autotune-dev-i-AIMI V17 06/05/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1400,6 +1400,17 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile)
     }
     rT.reason += "; ";
+    rT.reason += "aimi_bg : "+aimi_bg;
+    rT.reason += ", aimi_delta : "+aimi_delta;
+    rT.reason += (meal_data.TDDAIMI3 ? (", TDD : "+round(TDD,1)) : "No TDD 3 days");
+    rT.reason += ", CurrentTIR : "+round(CurrentTIRinRange,1)+"%";
+    rT.reason += (currentTIRLow>5 ? (", current TIR low  : "+round(currentTIRLow,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR low : "+round(currentTIRLow,1)+"%"));
+    rT.reason += (CurrentTIRAbove>10 ? (", current TIR above  : "+round(CurrentTIRAbove,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR above : "+round(CurrentTIRAbove,1)+"%"));
+    rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
+    rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
+    rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
+    rT.reason += "; ";
+
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     //var carbsReqBG = naive_eventualBG;
     var carbsReqBG = naive_eventualBG;
@@ -1859,7 +1870,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 durationReq = 30;
             }
             if (iTime < iTimeProfile && meal_data.TDDAIMI3){
-            rT.reason += "iTime: " + iTime + ", MagicNumber: " + MagicNumber + ", TDD " + TDD + ", smbRatio: " + smb_ratio + ",limitIOB: " + limitIOB + ", bgDegree: " + bgDegree;
+            rT.reason += ", MagicNumber: " + MagicNumber + ", TDD " + TDD + ", smbRatio: " + smb_ratio + ",limitIOB: " + limitIOB + ", bgDegree: " + bgDegree;
             }else{
             rT.reason += " insulinReq " + insulinReq + ",smbRatio : " + smb_ratio;
             }
@@ -1873,8 +1884,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             rT.reason += ". ";
             rT.reason += UAMAIMIReason;
             if (now > 0 && now < 7){
-            rT.reason += " ; Basal Av3 : " + AIMI_BasalAv3;
-            rT.reason += " ; Basal Av7 : " + AIMI_BasalAv7;
             rT.reason += " ; Basal proposition : " + AIMI_Basal;
             }
             //allow SMBs every 3 minutes by default
