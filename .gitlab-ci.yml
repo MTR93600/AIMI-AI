@@ -56,10 +56,10 @@ stages:
   
 
 # Run all tests, if any fails, interrupt the pipeline(fail it)
-testDebug:
-  stage: test
-  script:
-    - ./gradlew -Pci --console=plain :app:testDebug
+#testDebug:
+#  stage: test
+#  script:
+#    - ./gradlew -Pci --console=plain :app:testDebug
 
 assembleRelease:
   stage: release
