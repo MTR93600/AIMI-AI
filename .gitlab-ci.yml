@@ -37,10 +37,10 @@ cache:
   - .gradle/
 
 stages:
-    - build
-    - test
+    #- build
+    #- test
     - release
-    - deploy  
+    #- deploy  
 # Basic android and gradle stuff
 # Check linting
 lintDebug:
