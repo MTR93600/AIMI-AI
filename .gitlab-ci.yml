@@ -43,10 +43,10 @@ stages:
     #- deploy  
 # Basic android and gradle stuff
 # Check linting
-lintDebug:
-  stage: build
-  script:
-    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+#lintDebug:
+#  stage: build
+#  script:
+ #   - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
 
 # Make Project
 #assembleDebug:
