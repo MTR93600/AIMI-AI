@@ -263,15 +263,15 @@
                 android:summary="BG rises without COB."
                 app:initialExpandedChildrenCount="0">
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_uamboost_bolus_scale"
-                    android:title="UAMBoost Bolus Scale"
-                    android:dialogMessage="Scale Bolus for UAMBoost for sudden BGL rises.\nThis setting will scale the multiply the initial UAMBoost bolus by this amount.\n0 will not boost"
-                    validate:floatmaxNumber="3.0"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange"/>
+<!--                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference-->
+<!--                    android:defaultValue="0"-->
+<!--                    android:inputType="numberDecimal"-->
+<!--                    android:key="@string/key_eatingnow_uamboost_bolus_scale"-->
+<!--                    android:title="UAMBoost Bolus Scale"-->
+<!--                    android:dialogMessage="Scale Bolus for UAMBoost for sudden BGL rises.\nThis setting will scale the multiply the initial UAMBoost bolus by this amount.\n0 will not boost"-->
+<!--                    validate:floatmaxNumber="3.0"-->
+<!--                    validate:floatminNumber="0"-->
+<!--                    validate:testType="floatNumericRange"/>-->
 
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="0"
