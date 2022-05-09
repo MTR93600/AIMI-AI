@@ -507,16 +507,16 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // Allow user preferences to adjust the scaling of ISF as BG increases
     // Scaling is converted to a percentage, 0 is normal scaling (1), 5 is 5% stronger (0.95) and -5 is 5% weaker (1.05)
-    var sens_BGscaler = profile.ISFbgscaler; // When eating now is not active do not apply additional scaling
-    sens_BGscaler = (100-sens_BGscaler)/100;
-    enlog += "sens_BGscaler from profile:" + sens_BGscaler +"\n";
+    var ISFBGscaler = profile.ISFbgscaler; // When eating now is not active do not apply additional scaling
+    ISFBGscaler = (100-ISFBGscaler)/100;
+    enlog += "ISFBGscaler from profile:" + ISFBGscaler +"\n";
     // apply scaling adjustment to existing dynamic ISF scaling formula
-    sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/target_bg)+1)/sens_BGscaler;
+    var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/target_bg)+1)/ISFBGscaler;
     // At night when below SMB bg no additional scaling
-    sens_BGscaler = (!eatingnowtimeOK && bg < SMBbgOffset? 1 : sens_BGscaler);
+    sens_BGscaler = (!eatingnowtimeOK && bg < SMBbgOffset? Math.min(ISFBGscaler,1) : sens_BGscaler);
     // When eating now is not active during the day do not apply additional scaling
-    sens_BGscaler = (!eatingnow && eatingnowtimeOK ? 1 : sens_BGscaler);
-    enlog += "sens_BGscaler now:" + sens_BGscaler +"\n";
+    sens_BGscaler = (!eatingnow && eatingnowtimeOK ? Math.min(ISFBGscaler,1) : sens_BGscaler);
+    enlog += "sens_BGscaler:" + sens_BGscaler +"\n";
     var sens_currentBG = sens_normalTarget/sens_BGscaler;
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
