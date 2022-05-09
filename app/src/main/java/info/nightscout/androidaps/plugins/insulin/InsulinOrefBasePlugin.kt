@@ -14,6 +14,7 @@ import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import kotlin.math.exp
 import kotlin.math.pow
+import info.nightscout.androidaps.database.AppRepository
 
 /**
  * Created by adrian on 13.08.2017.
@@ -96,9 +97,14 @@ abstract class InsulinOrefBasePlugin(
                 //circadian_sensitivity = 1.2;
                 circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
             }
+            var factordia = (Math.log(bolus.amount) * 1.618)
+            if (factordia < 0){
+                factordia = 1.0
+            }
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            val td = dia * 60 * circadian_sensitivity //getDIA() always >= MIN_DIA
+            //val td = dia * 60 * circadian_sensitivity * factordia //getDIA() always >= MIN_DIA
+            val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
             val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
@@ -113,7 +119,7 @@ abstract class InsulinOrefBasePlugin(
     }
 
     override val insulinConfiguration: InsulinConfiguration
-        get() = InsulinConfiguration(friendlyName, (dia * 1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
+        get() = InsulinConfiguration(friendlyName, (dia *  1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
 
     override val comment
         get(): String {
