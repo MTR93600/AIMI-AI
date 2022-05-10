@@ -969,6 +969,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
+
         // apply dynamic ISF scaling formula
         var sens_future_scaler = Math.log(sens_future_bg/target_bg)+1;
         sens_future = sens_normalTarget/sens_future_scaler;
@@ -992,21 +993,26 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // set sens_future_max to true for reason asterisk
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
+
+    // EXPERIMENTAL DELTA SAFETY FOR MR. B
+    sens_future = (delta >=6 && sens_predType=="COB" && !COBBoostOK ? sens_currentBG : sens_future);
+    sens_future = (delta >4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
+
     sens_future = round(sens_future,1);
     enlog += "* sens_eBGweight:\n";
     enlog += "sens_predType: " + sens_predType+"\n";
     enlog += "sens_eBGweight final result: " + sens_eBGweight +"\n";
 
-    enlog += "*** TESTING FUTURE DELTA ***\n";
-    var insulinPeak5m = 18, COBpredBGsDelta, UAMpredBGsDelta;
-    enlog += "insulinPeak5m: "+insulinPeak5m+"\n";
-    enlog += "COBpredBGs.length: " + COBpredBGs.length+"\n";
-    enlog += "UAMpredBGs.length: " + UAMpredBGs.length+"\n";
-    COBpredBGsDelta = round((COBpredBGs.length >= insulinPeak5m + 2 ? COBpredBGs[insulinPeak5m+2]-COBpredBGs[insulinPeak5m] : 0),1);
-    UAMpredBGsDelta = round((UAMpredBGs.length >= insulinPeak5m + 2 ? UAMpredBGs[insulinPeak5m+2]-UAMpredBGs[insulinPeak5m] : 0),1);
-    enlog += "COBpredBGsDelta: " + COBpredBGsDelta+"\n";
-    enlog += "UAMpredBGsDelta: " + UAMpredBGsDelta+"\n";
-    enlog += "*** TESTING FUTURE DELTA ***\n";
+//    enlog += "*** TESTING FUTURE DELTA ***\n";
+//    var insulinPeak5m = 18, COBpredBGsDelta, UAMpredBGsDelta;
+//    enlog += "insulinPeak5m: "+insulinPeak5m+"\n";
+//    enlog += "COBpredBGs.length: " + COBpredBGs.length+"\n";
+//    enlog += "UAMpredBGs.length: " + UAMpredBGs.length+"\n";
+//    COBpredBGsDelta = round((COBpredBGs.length >= insulinPeak5m + 2 ? COBpredBGs[insulinPeak5m+2]-COBpredBGs[insulinPeak5m] : 0),1);
+//    UAMpredBGsDelta = round((UAMpredBGs.length >= insulinPeak5m + 2 ? UAMpredBGs[insulinPeak5m+2]-UAMpredBGs[insulinPeak5m] : 0),1);
+//    enlog += "COBpredBGsDelta: " + COBpredBGsDelta+"\n";
+//    enlog += "UAMpredBGsDelta: " + UAMpredBGsDelta+"\n";
+//    enlog += "*** TESTING FUTURE DELTA ***\n";
 
     minIOBPredBG = Math.max(39,minIOBPredBG);
     minCOBPredBG = Math.max(39,minCOBPredBG);
