@@ -975,6 +975,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future = sens_normalTarget/sens_future_scaler;
         //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
         //sens_future_max = (bg >= ISFbgMax);
+
+        // EXPERIMENTAL DELTA SAFETY FOR MR. B
+        sens_future = (delta >=6 && sens_predType=="COB" && !COBBoostOK ? sens_currentBG : sens_future);
+        sens_future = (delta >4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
     }
 
     // if BG below target then take the max of the sens vars
@@ -994,9 +998,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
 
-    // EXPERIMENTAL DELTA SAFETY FOR MR. B
-    sens_future = (delta >=6 && sens_predType=="COB" && !COBBoostOK ? sens_currentBG : sens_future);
-    sens_future = (delta >4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
+
 
     sens_future = round(sens_future,1);
     enlog += "* sens_eBGweight:\n";
