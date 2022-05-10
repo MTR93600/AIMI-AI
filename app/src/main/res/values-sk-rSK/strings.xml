@@ -442,6 +442,7 @@
     <string name="enableuam_summary">Detekcia neoznámených jedál</string>
     <string name="insulin_oref_peak">Čas vrcholu IOB krivky</string>
     <string name="insulin_peak_time">Vrchol krivky [min]</string>
+    <string name="insulin_peak">Vrchol</string>
     <string name="free_peak_oref">Voliteľný vrchol - Oref</string>
     <string name="rapid_acting_oref">Rýchlo pôsobiaci - Oref</string>
     <string name="ultrarapid_oref">Ultra rýchly - Oref</string>
@@ -468,7 +469,6 @@
     <string name="shortenergy">En</string>
     <string name="shortprotein">Pr</string>
     <string name="shortfat">Tuk</string>
-    <string name="active"><![CDATA[<Aktívny>]]></string>
     <string name="executingrightnow">Príkaz sa práve vykonáva</string>
     <string name="missed_bg_readings">Chýbajúce hodnoty glykémie</string>
     <string name="raise_notifications_as_android_notifications">Používať systémové notifikácie pre výstrahy a oznámenia</string>
@@ -1009,6 +1009,7 @@
     <string name="show_hide_records">Skryť záznamy uzavretého okruhu</string>
     <string name="widget_description">AndroidAPS widget</string>
     <string name="configure">Konfigurovať priehľadnosť</string>
+    <string name="loop_status">Stav uzavretého okruhu</string>
     <string name="a11y_otp_qr_code">QR kód pre nastavenie jednorázového hesla</string>
     <string name="a11y_open_settings">otvoriť nastavenia</string>
     <string name="a11y_set_carb_timer">nastaviť upozornenie na sacharidy</string>

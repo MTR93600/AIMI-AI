@@ -7,8 +7,7 @@ import android.widget.TableRow
 import android.widget.TextView
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
-import kotlin.math.roundToInt
+import info.nightscout.androidaps.interfaces.ResourceHelper
 
 class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
 
@@ -27,6 +26,7 @@ class TIR(val date: Long, val lowThreshold: Double, val highThreshold: Double) {
     fun inRangePct() = if (count > 0) 100 - belowPct() - abovePct() else 0.0
     fun abovePct() = if (count > 0) above.toDouble() / count * 100.0 else 0.0
     companion object {
+
         fun toTableRowHeader(context: Context, rh: ResourceHelper): TableRow =
             TableRow(context).also { header ->
                 val lp = TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT)

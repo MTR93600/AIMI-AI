@@ -16,7 +16,7 @@ import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.HtmlHelper
 import info.nightscout.androidaps.utils.Translator
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import javax.inject.Inject
 
 @Reusable
@@ -62,6 +62,7 @@ class UserEntryPresentationHelper @Inject constructor(
         Sources.Announcement        -> R.drawable.ic_cp_announcement
         Sources.Actions             -> R.drawable.ic_action
         Sources.Automation          -> R.drawable.ic_automation
+        Sources.Autotune            -> R.drawable.ic_autotune
         Sources.BG                  -> R.drawable.ic_generic_cgm
         Sources.Aidex               -> R.drawable.ic_blooddrop_48
         Sources.Dexcom              -> R.drawable.ic_dexcom_g6
