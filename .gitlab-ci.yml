@@ -64,7 +64,8 @@ stages:
 assembleRelease:
   stage: release
   script:
-  - echo $KEYSTORE_FILE | base64 -d > Key AndroidAPS
+  - echo "KEYSTORE_FILE"  
+  - echo $KEYSTORE_FILE
   - ./gradlew assembleRelease
     -Pandroid.injected.signing.store.file=$(pwd)/Key AndroidAPS
     -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD
