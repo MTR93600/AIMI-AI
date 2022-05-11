@@ -979,8 +979,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //sens_future_max = (bg >= ISFbgMax);
 
         // EXPERIMENTAL DELTA SAFETY FOR MR. B
-        sens_future = (delta >=6 && sens_predType=="COB" && !COBBoostOK ? sens_currentBG : sens_future);
-        sens_future = (delta >4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
+        sens_future = (delta <=6 && sens_predType=="COB" && !COBBoostOK ?  sens_currentBG : sens_future);
+        sens_future = (delta <4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
     }
 
     // if BG below target then take the max of the sens vars
