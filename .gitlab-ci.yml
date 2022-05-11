@@ -69,7 +69,7 @@ assembleRelease:
   - echo "KEYSTORE_FILE"
   - echo "$KEYSTORE_FILE"
   - echo "$KEYSTORE_FILE" | base64 -d > my.keystore
-  - ./gradlew assembleRelease
+  - ./gradlew assembleRelease --stacktrace
     -Pandroid.injected.signing.store.file=$(pwd)/my.keystore
     -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD
     -Pandroid.injected.signing.key.alias=$KEY_ALIAS
