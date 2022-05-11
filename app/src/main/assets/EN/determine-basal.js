@@ -520,8 +520,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_currentBG = sens_normalTarget/sens_BGscaler;
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
-    // scale CR inline with ISF within COBBoost window max out at AS max %
-    var carb_ratio = (delta > 0 && COBBoostOK ? Math.min(profile.carb_ratio / Math.min(profile.autosens_max, sens_BGscaler),profile.carb_ratio) : profile.carb_ratio);
+    // scale CR inline with ISFBGscaler at default unless set lower in prefs within COBBoost window
+    //var carb_ratio = (delta > 0 && COBBoostOK && bg > SMBbgOffset ? Math.min(profile.carb_ratio / Math.min(profile.autosens_max, sens_BGscaler),profile.carb_ratio) : profile.carb_ratio);
+    var carb_ratio = (delta > 0 && COBBoostOK ? Math.min(profile.carb_ratio / Math.min(sens_BGscaler,1),profile.carb_ratio) : profile.carb_ratio);
     var carb_ratio_max = carb_ratio < profile.carb_ratio && sens_BGscaler >= profile.autosens_max;
 
     // if above target allow scaling and profile ISF is the weakest, if below target use profile ISF as the strongest
@@ -976,6 +977,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future = sens_normalTarget/sens_future_scaler;
         //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
         //sens_future_max = (bg >= ISFbgMax);
+
+        // EXPERIMENTAL DELTA SAFETY FOR MR. B
+        sens_future = (delta <=6 && sens_predType=="COB" && !COBBoostOK ?  sens_currentBG : sens_future);
+        sens_future = (delta <4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
     }
 
     // if BG below target then take the max of the sens vars
@@ -994,6 +999,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // set sens_future_max to true for reason asterisk
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
+
+
+
     sens_future = round(sens_future,1);
     enlog += "* sens_eBGweight:\n";
     enlog += "sens_predType: " + sens_predType+"\n";
