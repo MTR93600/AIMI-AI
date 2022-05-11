@@ -26,7 +26,7 @@
 
         <EditTextPreference
             android:defaultValue="15"
-            android:key="@int/med_link_calibration_second_alarm"
+            android:key="@string/med_link_calibration_second_alarm"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/key_med_link_calibration_second_alarm"

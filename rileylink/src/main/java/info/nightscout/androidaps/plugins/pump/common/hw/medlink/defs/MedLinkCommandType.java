@@ -1,15 +1,9 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
-
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * Created by dirceu on 17/09/2020.
@@ -23,7 +17,7 @@ public enum MedLinkCommandType {
     PumpModel("OK+CONN"),
     Connect("OK+CONN"),
     GetState("S"), //
-    StopStartPump("a"),
+    StopStartPump("A"),
     Bolus("X", true),
     BolusAmount("BOLUS", true),
     StartPump("START"),
@@ -36,31 +30,18 @@ public enum MedLinkCommandType {
     ActiveBasalProfile("E"),
     BaseProfile("F"),
     Calibrate("K", true),
+    CalibrateFrequency("U"),
+    CalibrateFrequencyArgument(""),
     CalibrateValue("CAL", true),
     BolusStatus("M"),
     SMBBolus("X", true),
     TBRBolus("X", true),
     PreviousBolusHistory("G",true)
-//    ,
-//    Enter("")//Current Active Profile
-    // screenshots z C, H, E, I
-//    GetVersion(2), //
-//    GetPacket(3), // aka Listen, receive
-//    Send(4), //
-//    SendAndListen(5), //
-//    UpdateRegister(6), //
-//    Reset(7), //
-//    Led(8),
-//    ReadRegister(9),
-//    SetModeRegisters(10),
-//    SetHardwareEncoding("F"),
-//    SetPreamble(12),
-//    ResetRadioConfig(13),
-//    GetStatistics(14),
     ;
 
     public final String code;
-    private final boolean needActivePump;
+    public final boolean needActivePump;
+    public Iterator<String> config;
     public Double insulinAmount = 0d;
     public Double bgValue = 0d;
     public Integer resourceId = null;
@@ -81,7 +62,16 @@ public enum MedLinkCommandType {
         this.needActivePump = needActivePump;
     }
 
+    private byte[] appendEndLine(StringBuilder buff){
+        buff.append("\r").append("\n");
+        return buff.toString().getBytes(UTF_8);
+    }
+
     public byte[] getRaw() {
+        if(this.config != null && this.config.hasNext()){
+            StringBuilder buffer = new StringBuilder(config.next());
+            return appendEndLine(buffer);
+        }else
         if (this.insulinAmount > 0) {
             StringBuilder buff = new StringBuilder(this.code);
             buff.append(" ");
@@ -89,8 +79,8 @@ public enum MedLinkCommandType {
                 buff.append(" ");
             }
             buff.append(this.insulinAmount.toString());
-            buff.append("\r").append("\n");
-            return buff.toString().getBytes(UTF_8);
+
+            return appendEndLine(buff);
         } else if(bgValue!=0d){
             StringBuilder buff = new StringBuilder(this.code);
             buff.append(" ");
@@ -98,23 +88,14 @@ public enum MedLinkCommandType {
                 buff.append("0");
             }
             buff.append(this.bgValue.intValue());
-            buff.append("\r").append("\n");
-            return buff.toString().getBytes(UTF_8);
+            return appendEndLine(buff);
         } else if (this.code != null && !this.code.isEmpty()) {
-            return new StringBuilder(this.code).append("\r").append("\n").toString().getBytes(UTF_8);
+            return appendEndLine(new StringBuilder(this.code));
         } else {
             return new byte[0];
         }
     }
 
-
-    //
-//    public MedLinkCommandType buildBolusCommand(double minValueAmount) {
-//
-//
-//        return BolusAmount(Bolus.code,minValueAmount);
-//
-//    }
     public boolean isSameCommand(byte[] command) {
         return command != null && Arrays.equals(this.getRaw(), command);
     }

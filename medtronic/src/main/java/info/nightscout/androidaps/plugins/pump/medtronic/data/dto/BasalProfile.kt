@@ -36,7 +36,7 @@ open class BasalProfile {
     lateinit var rawData: ByteArray // store as byte array to make transport (via parcel) easier
         private set
 
-    private var listEntries: MutableList<BasalProfileEntry>? = null
+    var listEntries: MutableList<BasalProfileEntry>? = null
 
     constructor(aapsLogger: AAPSLogger) {
         this.aapsLogger = aapsLogger

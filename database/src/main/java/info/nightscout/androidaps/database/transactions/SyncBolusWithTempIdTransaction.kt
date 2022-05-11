@@ -25,6 +25,7 @@ class SyncBolusWithTempIdTransaction(
             current.type = if(current.isSMBorBasal()) current.type else  newType?: current.type
             current.interfaceIDs.pumpId = bolus.interfaceIDs.pumpId
             if (database.bolusDao.updateExistingEntry(current) >0 ) {
+
                 result.updated.add(current)
             }
         } else if(current == null && bolus.interfaceIDs.pumpType == InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO) {

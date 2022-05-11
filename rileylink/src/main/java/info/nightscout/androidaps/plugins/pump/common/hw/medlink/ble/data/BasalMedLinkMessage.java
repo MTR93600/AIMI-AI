@@ -12,7 +12,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCom
 /**
  * Created by Dirceu on 05/02/21.
  */
-public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
+public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<Profile> {
 
 
     public Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile>> profileCallback;
@@ -25,7 +25,7 @@ public class BasalMedLinkMessage<B> extends MedLinkPumpMessage<B> {
                                long btSleepSize,
                                BleCommand bleCommand
                                ) {
-        super(commandType, argument, baseCallBack,btSleepSize, bleCommand);
+        super(commandType, argument, baseCallBack, profileCallback, btSleepSize, bleCommand);
         this.profileCallback = profileCallback;
     }
 

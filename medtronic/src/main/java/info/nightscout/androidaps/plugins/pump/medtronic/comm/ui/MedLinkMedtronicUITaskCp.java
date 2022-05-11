@@ -107,85 +107,22 @@ public class MedLinkMedtronicUITaskCp {
                 returnData = communicationManager.getBolusHistory(pumpMessage);
             }
             break;
-//
-
-//            case GetRemainingInsulin: {
-//                returnData = communicationManager.getRemainingInsulin();
-//            }
-//            break;
-
-//            case : {
-//                returnData = communicationManager.getPumpTime();
-//                medtronicUtil.setPumpTime(null);
-//            }
-//            break;
-
-//            case SetRealTimeClock: {
-//                returnData = communicationManager.setPumpTime();
-//            }
-//            break;
-//
-//            case GetBatteryStatus: {
-//                returnData = communicationManager.getRemainingBattery();
-//            }
-//            break;
-//
-//            case SetTemporaryBasal: {
-//                TempBasalPair tbr = getTBRSettings();
-//                if (tbr != null) {
-//                    returnData = communicationManager.setTBR(tbr);
-//                }
-//            }
-//            break;
-//
-//            case ReadTemporaryBasal: {
-//                returnData = communicationManager.getTemporaryBasal();
-//            }
-//            break;
-
-
-//            case Settings:
-//            case Settings_512: {
-//                returnData = communicationManager.getPumpSettings();
-//            }
-//            break;
             case TBRBolus:
             case SMBBolus:
             case Bolus: {
-                Double amount = ((BolusMedLinkMessage)pumpMessage).getDetailedBolusInfo().insulin;
-                if (amount != null && amount != 0d)
+                double amount = ((BolusMedLinkMessage)pumpMessage).getDetailedBolusInfo().insulin;
+                if (amount != 0d)
                     returnData = communicationManager.setBolus(pumpMessage);
             }
             break;
-
-//            case CancelTBR: {
-//                returnData = communicationManager.cancelTBR();
-//            }
-//            break;
-
-//            case SetBasalProfileSTD:
-//            case SetBasalProfileA: {
-//                BasalProfile profile = (BasalProfile) parameters[0];
-//
-//                returnData = communicationManager.setBasalProfile(profile);
-//            }
-//            break;
-
-//            case GetHistoryData: {
-//                returnData = communicationManager.getPumpHistory((PumpHistoryEntry) parameters[0],
-//                        (LocalDateTime) parameters[1]);
-//            }
-//            break;
+            case CalibrateFrequency:
+            case Calibrate:
             case PreviousBGHistory:
             case StopStartPump:
             case BGHistory: {
                 communicationManager.setCommand(pumpMessage);
             }
             break;
-
-            case Calibrate:{
-                communicationManager.setCommand(pumpMessage);
-            }
 
             default: {
                 aapsLogger.warn(LTag.PUMP, "This commandType is not supported (yet) - {}.", pumpMessage);

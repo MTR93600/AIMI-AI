@@ -12,10 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.plugins.pump.common.PumpPluginAbstract;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusAnswer;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
-import info.nightscout.androidaps.queue.Callback;
 import info.nightscout.shared.logging.AAPSLogger;
 import info.nightscout.shared.logging.LTag;
 
@@ -25,24 +23,19 @@ import info.nightscout.shared.logging.LTag;
 public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<String>>> {
 
     private final AAPSLogger aapsLogger;
-    private final PumpPluginAbstract pumpPlugin;
     private DetailedBolusInfo bolusInfo;
-    //    private final RxBusWrapper rxBus;
-    private Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
-    private Pattern deliveringBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
+    private final Pattern deliveredBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du\\s+\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
+    private final Pattern deliveringBolusPattern = Pattern.compile(":\\s+\\d{1,2}\\.\\du", Pattern.CASE_INSENSITIVE);
 
 
-    public BolusCallback(AAPSLogger aapsLogger, PumpPluginAbstract medLinkMedtronicPumpPlugin) {//RxBusWrapper rxBus) {
+    public BolusCallback(AAPSLogger aapsLogger) {//RxBusWrapper rxBus) {
         super();
         this.aapsLogger = aapsLogger;
-        this.pumpPlugin = medLinkMedtronicPumpPlugin;
-//        this.rxBus = rxBus;
     }
 
-    public BolusCallback(AAPSLogger aapsLogger, PumpPluginAbstract medLinkMedtronicPumpPlugin, DetailedBolusInfo detailedBolusInfo) {
+    public BolusCallback(AAPSLogger aapsLogger, DetailedBolusInfo detailedBolusInfo) {
         super();
         this.aapsLogger = aapsLogger;
-        this.pumpPlugin = medLinkMedtronicPumpPlugin;
         this.bolusInfo = detailedBolusInfo;
     }
 
@@ -77,10 +70,10 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         if (pumpResponse.get() != null && PumpResponses.BolusDelivered.equals(pumpResponse.get().getResponse())) {
             return new MedLinkStandardReturn<>(answers, pumpResponse.get());
         } else if (pumpResponse.get() == null) {
-            return new MedLinkStandardReturn<BolusAnswer>(answers, new BolusAnswer(
+            return new MedLinkStandardReturn<>(answers, new BolusAnswer(
                     PumpResponses.UnknownAnswer, answers.get().collect(Collectors.joining())));
         } else {
-            return new MedLinkStandardReturn<BolusAnswer>(answers, pumpResponse.get(), MedLinkStandardReturn.ParsingError.BolusParsingError);
+            return new MedLinkStandardReturn<>(answers, pumpResponse.get(), MedLinkStandardReturn.ParsingError.BolusParsingError);
         }
     }
 
@@ -90,6 +83,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         Matcher matcher = deliveredBolusPattern.matcher(input);
         if (matcher.find()) {
             String units = matcher.group(0);
+            assert units != null;
             double delivered = Double.parseDouble(units.substring(0, units.length() - 1));
 //                12:09 01-06
             return new BolusAnswer(PumpResponses.DeliveringBolus, delivered, input);
@@ -109,20 +103,23 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
             Matcher unitsMatcher = unitsPattern.matcher(input);
             if (unitsMatcher.find()) {
                 String units = unitsMatcher.group(0);
+                assert units != null;
                 double delivered = Double.parseDouble(units.substring(0, units.length() - 1).trim());
 //                12:09 01-06
                 Pattern deliveredTimePattern = Pattern.compile("\\d{1,2}-\\d{2}-\\d{2}\\s+\\d{1,2}:\\d{1,2}", Pattern.CASE_INSENSITIVE);
                 Matcher deliveredTimeMatcher = deliveredTimePattern.matcher(input);
                 if (deliveredTimeMatcher.find()) {
                     String deliveredTime = deliveredTimeMatcher.group(0);
-                    String[] dateTime = deliveredTime.split(" ");
-                    String[] time = dateTime[0].split(":");
-                    String[] date = dateTime[1].split("-");
+                    assert deliveredTime != null;
+//                    String[] dateTime = deliveredTime.split(" ");
+//                    String[] time = dateTime[0].split(":");
+//                    String[] date = dateTime[1].split("-");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
                     ZonedDateTime bolusDeliveredAt = LocalDateTime.parse(deliveredTime, formatter).atZone(ZoneId.systemDefault());
                     return new BolusAnswer(PumpResponses.BolusDelivered, delivered, bolusDeliveredAt);
                 } else if (bolusInfo != null && unitsMatcher.find()) {
                     units = unitsMatcher.group(1);
+                    assert units != null;
                     double lastBolusAmount = Double.parseDouble(units.substring(0, units.length() - 1).trim());
                     if (lastBolusAmount == bolusInfo.insulin) {
                         return new BolusAnswer(PumpResponses.DeliveringBolus, input);
@@ -133,13 +130,13 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
         return new BolusAnswer(PumpResponses.UnknownAnswer, input);
     }
 
-    private int getYear(String[] date) {
-        ZonedDateTime now = ZonedDateTime.now();
-        if (now.getMonthValue() == 1 && Integer.parseInt(date[1]) == 12) {
-            return now.getYear() - 1;
-        } else {
-            return now.getYear();
-        }
-    }
+//    private int getYear(String[] date) {
+//        ZonedDateTime now = ZonedDateTime.now();
+//        if (now.getMonthValue() == 1 && Integer.parseInt(date[1]) == 12) {
+//            return now.getYear() - 1;
+//        } else {
+//            return now.getYear();
+//        }
+//    }
 
 }

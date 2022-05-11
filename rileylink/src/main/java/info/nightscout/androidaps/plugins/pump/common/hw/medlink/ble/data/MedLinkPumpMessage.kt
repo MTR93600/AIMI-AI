@@ -1,148 +1,124 @@
-package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data;
+package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
-import androidx.annotation.NonNull;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleStopCommand;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
+import java.util.*
+import java.util.function.Function
+import java.util.function.Supplier
+import java.util.stream.Stream
 
 /**
  * Created by Dirceu on 25/09/20.
  */
-public class MedLinkPumpMessage<B> //implements RLMessage
+open class MedLinkPumpMessage<B> //implements RLMessage
 {
 
-    private BleCommand bleCommand;
-    private final MedLinkCommandType commandType;
+    var commands: MutableList<Pair<MedLinkCommandType, Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>> = listOf<Pair<MedLinkCommandType,
+        Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>>().toMutableList()
+    private var bleCommand: BleCommand
 
-    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> argCallback;
+    // // val commandType: MedLinkCommandType
+    // var argCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>? = null
+    //     protected set
+    // var argument: MedLinkCommandType
+    //     protected set
+    @JvmField var baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>? = null
+    var btSleepTime = 0L
 
-    @NotNull protected MedLinkCommandType argument;
-    protected Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback;
-    private long btSleepTime = 0L;
-
-    public MedLinkPumpMessage(MedLinkCommandType commandType, BleCommand bleCommand) {
-        this.commandType = commandType;
-        this.argument = MedLinkCommandType.NoCommand;
-        this.bleCommand = bleCommand;
+    constructor(commandType: MedLinkCommandType, bleCommand: BleCommand) {
+        this.commands = mutableListOf(Pair(commandType, Optional.empty()))
+        this.bleCommand = bleCommand
     }
 
-
-    public MedLinkPumpMessage(MedLinkCommandType commandType,
-                              Function<Supplier<Stream<String>>,
-                                      MedLinkStandardReturn<B>> baseCallback,
-                              Long btSleepTime, BleCommand bleCommand) {
-        this.argument = MedLinkCommandType.NoCommand;
-        this.commandType = commandType;
-        this.baseCallback = baseCallback;
-        this.btSleepTime = btSleepTime;
-        this.bleCommand = bleCommand;
+    constructor(
+        commandType: MedLinkCommandType,
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
+        btSleepTime: Long, bleCommand: BleCommand
+    ) {
+        this.commands = mutableListOf(Pair(commandType, optional(baseCallback)))
+        this.btSleepTime = btSleepTime
+        this.bleCommand = bleCommand
     }
 
-    public MedLinkPumpMessage(MedLinkCommandType commandType,
-                              @NonNull MedLinkCommandType argument,
-                              Function<Supplier<Stream<String>>,
-                                      MedLinkStandardReturn<B>> baseCallback,
-                              Long btSleepTime,
-                              BleCommand bleCommand) {
-        this.argument = argument;
-        this.commandType = commandType;
-        this.baseCallback = baseCallback;
-        this.btSleepTime = btSleepTime;
-        this.bleCommand = bleCommand;
+    constructor(
+        commandType: MedLinkCommandType,
+        argument: MedLinkCommandType,
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
+        btSleepTime: Long,
+        bleCommand: BleCommand
+    ) {
+        this.commands = mutableListOf(
+            Pair(commandType, optional(baseCallback)),
+            Pair(argument, Optional.empty())
+        )
+        this.btSleepTime = btSleepTime
+        this.bleCommand = bleCommand
     }
 
-    public MedLinkPumpMessage(MedLinkCommandType commandType,
-                              @NonNull MedLinkCommandType argument,
-                              @NonNull Function<Supplier<Stream<String>>,
-                                      MedLinkStandardReturn<B>> baseCallback,
-                              @NonNull Function<Supplier<Stream<String>>,
-                                      MedLinkStandardReturn<B>> argCallback,
-                              long btSleepTime, BleCommand bleCommand) {
-        this.argument = argument;
-        this.commandType = commandType;
-        this.baseCallback = baseCallback;
-        this.argCallback = argCallback;
-        this.btSleepTime = btSleepTime;
-        this.bleCommand = bleCommand;
+    constructor(
+        commandType: MedLinkCommandType,
+        argument: MedLinkCommandType,
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
+        argCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
+        btSleepTime: Long, bleCommand: BleCommand
+    ) {
+        this.commands = mutableListOf(
+            Pair(commandType, Optional.of(baseCallback)),
+            Pair(argument, Optional.of(argCallback))
+        )
+        this.btSleepTime = btSleepTime
+        this.bleCommand = bleCommand
     }
 
-    public MedLinkPumpMessage(@NotNull MedLinkCommandType command,
-                              @NotNull MedLinkCommandType argument,
-                              @NotNull BleCommand bleCommand) {
-        this.commandType = command;
-        this.argument = argument;
-        this.bleCommand = bleCommand;
-
+    constructor(
+        commands: MutableList<Pair<MedLinkCommandType,
+            Optional<
+                Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>>,
+        btSleepTime: Long, bleCommand: BleCommand
+    ) {
+        this.commands = commands
+        this.btSleepTime = btSleepTime
+        this.bleCommand = bleCommand
     }
 
+    constructor(
+        commandType: MedLinkCommandType,
+        argument: MedLinkCommandType,
+        bleCommand: BleCommand
+    ) {
+        this.commands = mutableListOf(
+            Pair(commandType, Optional.empty()),
+            Pair(argument, Optional.empty())
+        )
 
-    public MedLinkCommandType getCommandType() {
-        return commandType;
+        this.bleCommand = bleCommand
     }
 
-    @NonNull public MedLinkCommandType getArgument() {
-        return argument;
+    fun commandData(index: Int) = if(commands.size < index) {
+        commands[index].first.raw
+    }else{
+        ByteArray(0)
     }
 
-    public byte[] getCommandData() {
-        return commandType.getRaw();
-    }
+    fun optional(
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
+    ) = if (baseCallback == null) Optional.empty() else Optional.of(baseCallback)
 
-
-    public byte[] getArgumentData() {
-        if (argument != null) {
-            return argument.getRaw();
-        } else {
-            return new byte[0];
-        }
-
-    }
-
-    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> getBaseCallback() {
-        return baseCallback;
-    }
-
-    public void setBaseCallback(Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> baseCallback) {
-        this.baseCallback = baseCallback;
-    }
-
-    public Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>> getArgCallback() {
-        return argCallback;
-    }
-
-    public long getBtSleepTime() {
-        return btSleepTime;
-    }
-
-    public void setBtSleepTime(long btSleepTime) {
-        this.btSleepTime = btSleepTime;
-    }
-
-    @NonNull @Override public String toString() {
+    override fun toString(): String {
         return "MedLinkPumpMessage{" +
-                "commandType=" + commandType +
-                ", argCallback=" + argCallback +
-                ", argument=" + argument +
-                ", baseCallback=" + baseCallback +
-                ", btSleepTime=" + btSleepTime +
-                '}';
+            "commands=" + commands.joinToString()  +
+            ", baseCallback=" + baseCallback +
+            ", btSleepTime=" + btSleepTime +
+            '}'
     }
 
-    public void characteristicChanged(String answer, MedLinkBLE bleComm, String lastCommand) {
-        bleCommand.characteristicChanged(answer, bleComm, lastCommand);
+    fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
+        bleCommand.characteristicChanged(answer, bleComm, lastCommand)
     }
 
-    public void apply(MedLinkBLE bleComm) {
-        bleCommand.applyResponse(bleComm);
+    fun apply(bleComm: MedLinkBLE?) {
+        bleCommand.applyResponse(bleComm)
     }
 }

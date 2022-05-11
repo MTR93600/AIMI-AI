@@ -21,7 +21,7 @@ import info.nightscout.shared.logging.LTag;
 public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<Stream<String>>> {
     private final OperationType type;
     private final AAPSLogger aapsLogger;
-    private final MedLinkMedtronicPumpPlugin medlinkPumpPlugin;
+    private final MedLinkMedtronicPumpPlugin medLinkMedtronicPumpPlugin;
 
 
     public enum OperationType{
@@ -33,7 +33,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
                                 OperationType type, MedLinkMedtronicPumpPlugin plugin){
         this.aapsLogger = aapsLogger;
         this.type = type;
-        this.medlinkPumpPlugin = plugin;
+        this.medLinkMedtronicPumpPlugin = plugin;
     }
 
     @Override public MedLinkStandardReturn<PumpDriverState> apply(Supplier<Stream<String>> a) {
@@ -45,18 +45,21 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<
         Stream<String> filtered = applied.filter(f -> f.contains("pump") && f.contains("state"));
         Optional<PumpDriverState> result = filtered.reduce((first, second) -> second).map(f -> {
             if (f.contains("normal")) {
-                medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
-                medlinkPumpPlugin.storeCancelTempBasal();
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
+                medLinkMedtronicPumpPlugin.storeCancelTempBasal();
+                if(type == OperationType.START){
+
+                }
                 return PumpDriverState.Initialized;
             } else if (f.contains("suspend")) {
-                medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
-                PumpSync.PumpState.TemporaryBasal tempBasalData = medlinkPumpPlugin.getTemporaryBasal();
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
+                PumpSync.PumpState.TemporaryBasal tempBasalData = medLinkMedtronicPumpPlugin.getTemporaryBasal();
                 if( tempBasalData!= null) {
-                    medlinkPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
+                    medLinkMedtronicPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
                             0);
 
                 }else{
-                    medlinkPumpPlugin.createTemporaryBasalData(30, 0);
+                    medLinkMedtronicPumpPlugin.createTemporaryBasalData(30, 0);
                 }
                 return PumpDriverState.Suspended;
 

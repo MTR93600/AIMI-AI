@@ -59,6 +59,9 @@ class MaintenanceFragment : DaggerFragment() {
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var overviewData: OverviewData
 
+    @Inject lateinit var medLinkDatabase: DanaHistoryDatabase
+
+
     private val compositeDisposable = CompositeDisposable()
     private var inMenu = false
     private var queryingProtection = false

@@ -1,13 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
-import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.Constants
-import info.nightscout.androidaps.core.R
 import info.nightscout.androidaps.interfaces.BgSync
 import info.nightscout.androidaps.interfaces.BgSync.BgHistory
 import info.nightscout.androidaps.interfaces.BgSync.BgHistory.BgValue
-import info.nightscout.androidaps.interfaces.GlucoseUnit
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
@@ -20,33 +17,39 @@ import java.util.*
 import java.util.function.Supplier
 import java.util.regex.Pattern
 import java.util.stream.Stream
+import kotlin.streams.toList
 
 /**
  * Created by Dirceu on 24/01/21.
  */
 class BGHistoryCallback(
-    private val injector: HasAndroidInjector,
     private val medLinkPumpPlugin: MedLinkMedtronicPumpPlugin,
-    private val aapsLogger: AAPSLogger, private val handleBG: Boolean
+    private val aapsLogger: AAPSLogger,
+    private val handleBG: Boolean,
+    private val isCalibration: Boolean
 ) : BaseCallback<BgHistory, Supplier<Stream<String>>>() {
 
     var history: BgHistory? = null
 
     private inner class InvalidBGHistoryException constructor(message: String?) : RuntimeException(message)
 
-
-
     override fun apply(ans: Supplier<Stream<String>>): MedLinkStandardReturn<BgHistory> {
         val state = parseAnswer(ans)
-        if (handleBG) {
-            medLinkPumpPlugin.handleNewBgData(state)
+        if (handleBG && !isCalibration) {
+            medLinkPumpPlugin.handleNewBgData(state.first)
         }
-        this.history = state
-        return MedLinkStandardReturn(ans, state, emptyList())
+        this.history = state.first
+        if (isCalibration && state.second) {
+            val list = ans.get().toList().toMutableList()
+            list.add(MedLinkConst.FREQUENCY_CALIBRATION_SUCCESS)
+            return MedLinkStandardReturn({ list.stream() }, state.first, emptyList())
+        }
+        return MedLinkStandardReturn(ans, state.first, emptyList())
     }
 
-    fun parseAnswer(ans: Supplier<Stream<String>>): BgHistory {
+    private fun parseAnswer(ans: Supplier<Stream<String>>): Pair<BgHistory, Boolean> {
         val answers = ans.get()
+        var calibration = true
         return try {
             val calibrations: MutableList<BgHistory.Calibration> = mutableListOf()
             val bgValues: MutableList<BgValue> = mutableListOf()
@@ -82,8 +85,6 @@ class BGHistoryCallback(
                         }
                         //                    aapsLogger.info(LTag.PUMPBTCOMM, f);
                         if (f.trim { it <= ' ' }.startsWith("cl:")) {
-
-
                             calibrations.add(
                                 BgHistory.Calibration(
                                     bgDate.time, bg,
@@ -92,12 +93,14 @@ class BGHistoryCallback(
                             )
                         } else {
                             if (bgDate.toInstant().isAfter(Date().toInstant().minus(Duration.ofDays(3))) && bgDate.toInstant().isBefore(Date().toInstant().plus(Duration.ofMinutes(5)))) {
-                                bgValues.add(BgValue(
-                                    bgDate.time, 0.0, bg,
-                                    0.0,
-                                    BgSync.BgArrow.NONE, BgSync.SourceSensor.MM_ENLITE, null, null,
-                                    null
-                                ))
+                                bgValues.add(
+                                    BgValue(
+                                        bgDate.time, 0.0, bg,
+                                        0.0,
+                                        BgSync.BgArrow.NONE, BgSync.SourceSensor.MM_ENLITE, null, null,
+                                        null
+                                    )
+                                )
                             }
                         }
                     } catch (e: ParseException) {
@@ -105,6 +108,8 @@ class BGHistoryCallback(
 
                     }
 
+                } else if ((f.contains("bg:") || f.contains("cl:")) && (f.length < 25 || f.length > 26)) {
+                    calibration = false
                 }
             }
             bgValues.sortBy { it.timestamp }
@@ -126,15 +131,14 @@ class BGHistoryCallback(
             //     }
             // }
 
-            if (bgValues.isNotEmpty()) {
+            if (bgValues.isNotEmpty() && !isCalibration) {
                 medLinkPumpPlugin.pumpStatusData.lastReadingStatus = MedLinkPumpStatus.BGReadingStatus.SUCCESS
             }
-            BgHistory(bgValues, calibrations)
+            Pair(BgHistory(bgValues, calibrations), calibration)
         } catch (e: InvalidBGHistoryException) {
             aapsLogger.info(LTag.PUMPBTCOMM, "Invalid bg history reading")
-            BgHistory(emptyList<BgValue>(), emptyList<BgHistory.Calibration>())
+            Pair(BgHistory(emptyList<BgValue>(), emptyList<BgHistory.Calibration>()), false)
         }
     }
-
 
 }

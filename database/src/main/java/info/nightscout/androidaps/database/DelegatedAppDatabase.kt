@@ -5,7 +5,7 @@ import info.nightscout.androidaps.database.daos.delegated.*
 import info.nightscout.androidaps.database.entities.OfflineEvent
 import info.nightscout.androidaps.database.interfaces.DBEntry
 
-internal class DelegatedAppDatabase(val changes: MutableList<DBEntry>, val database: AppDatabase) {
+internal class DelegatedAppDatabase(val changes: MutableList<DBEntry>, val database: AppDatabase, val medLinkDatabase: MedLinkDatabase) {
 
     val glucoseValueDao: GlucoseValueDao = DelegatedGlucoseValueDao(changes, database.glucoseValueDao)
     val therapyEventDao: TherapyEventDao = DelegatedTherapyEventDao(changes, database.therapyEventDao)
@@ -28,4 +28,6 @@ internal class DelegatedAppDatabase(val changes: MutableList<DBEntry>, val datab
     val deviceStatusDao: DeviceStatusDao = DelegatedDeviceStatusDao(changes, database.deviceStatusDao)
     val offlineEventDao: OfflineEventDao = DelegatedOfflineEventDao(changes, database.offlineEventDao)
     fun clearAllTables() = database.clearAllTables()
+
+    val medLinkConfigDao: MedLinkDao = DelegatedMedLinkDao(changes, medLinkDatabase.medLinkConfigDao)
 }

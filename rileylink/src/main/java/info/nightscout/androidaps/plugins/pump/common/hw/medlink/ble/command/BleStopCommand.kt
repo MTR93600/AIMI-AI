@@ -27,14 +27,13 @@ class BleStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkService
                 aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
                 super.applyResponse(pumpResponse.toString(),bleComm?.currentCommand, bleComm)
                 pumpResponse = StringBuffer()
-                bleComm?.currentCommand?.commandExecuted()
-                // bleComm?.completedCommand()
+                bleComm?.completedCommand(true)
             }
             answer.contains("pump normal state")   -> {
                 bleComm!!.completedCommand()
             }
             answer.contains("pump bolusing state") -> {
-                SystemClock.sleep(4000)
+                SystemClock.sleep(5000)
                 bleComm?.currentCommand?.clearExecutedCommand()
                 bleComm!!.retryCommand()
             }

@@ -3,20 +3,14 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
 
-class BleCalibrateCommand(aapsLogger: AAPSLogger?, medLinkServiceData: MedLinkServiceData?) : BleSuspendedCommand(aapsLogger, medLinkServiceData) {
+class BleCalibrateFrequencyCommand(aapsLogger: AAPSLogger?, medLinkServiceData: MedLinkServiceData?) : BleCommand(aapsLogger, medLinkServiceData) {
 
     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
-        aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
-        if ((lastCommand+answer).trim { it <= ' ' }.contains("nter calibration value")) {
-            aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
+        if (answer?.contains("-9 to +9") == true) {
             bleComm?.completedCommand()
         } else {
             super.characteristicChanged(answer, bleComm, lastCommand)
         }
-
     }
-
 }

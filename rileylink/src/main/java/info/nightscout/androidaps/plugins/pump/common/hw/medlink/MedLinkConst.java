@@ -16,7 +16,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 public class MedLinkConst {
 
     static final String Prefix = "AAPS.MedLink.";
-
+    public static String FREQUENCY_CALIBRATION_SUCCESS="medlink calibration success";
     public static String DEVICE_MAC_ADDRESS=null;
     public static final List<String> DEVICE_NAME = Collections.unmodifiableList(
             new ArrayList<String>() {{

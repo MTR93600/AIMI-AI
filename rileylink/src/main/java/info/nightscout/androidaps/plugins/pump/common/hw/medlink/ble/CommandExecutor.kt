@@ -1,11 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BasalMedLinkMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import java.util.*
@@ -16,7 +13,17 @@ import java.util.stream.Stream
 /**
  * Created by Dirceu on 01/04/21.
  */
-abstract class CommandExecutor protected constructor(val medLinkPumpMessage: MedLinkPumpMessage<*>, val aapsLogger: AAPSLogger) : Runnable {
+abstract class CommandExecutor protected constructor(
+    val commandList: List<
+        Pair<
+            MedLinkCommandType,
+            Function<
+                Supplier<Stream<String>>,
+                MedLinkStandardReturn<*>
+                >?
+            >
+        >, val aapsLogger: AAPSLogger
+) : Runnable {
 
     private var commandPosition = 0
     private var functionPosition = 0
@@ -24,80 +31,81 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
     var nrRetries = 0
         protected set
 
-    protected constructor(commandType: MedLinkCommandType?, aapsLogger: AAPSLogger, medLinkServiceData: MedLinkServiceData?) : this(
-        MedLinkPumpMessage<Any>(
-            commandType,
-            BleCommand(aapsLogger, medLinkServiceData)
-        ), aapsLogger
-    ) {
+    protected constructor(commandType: MedLinkCommandType, aapsLogger: AAPSLogger) :
+        this(
+            listOf(
+                Pair<
+                    MedLinkCommandType,
+                    Function<
+                        Supplier<Stream<String>>,
+                        MedLinkStandardReturn<*>
+                        >?
+                    >(
+                    commandType, null
+                )
+            ), aapsLogger
+        ) {
+
     }
 
     //
     //    protected CommandExecutor(RemainingBleCommand remainingBleCommand) {
     //        this.remainingBleCommand = remainingBleCommand;
     //    }
-    operator fun contains(com: MedLinkCommandType?): Boolean {
-        return com != null && com.isSameCommand(medLinkPumpMessage.commandType) ||
-            com!!.isSameCommand(medLinkPumpMessage.argument)
+    fun contains(com: MedLinkCommandType?): Boolean {
+        return com != null && commandList.any { it.first.isSameCommand(com) }
     }
 
     fun nextCommand(): MedLinkCommandType {
-        return if (commandPosition == 0) {
-            medLinkPumpMessage.commandType
-        } else if (commandPosition == 1) {
-            medLinkPumpMessage.argument
-        } else MedLinkCommandType.NoCommand
+        return if (commandPosition >= commandList.size) {
+            MedLinkCommandType.NoCommand
+        } else {
+            commandList[commandPosition].first
+        }
     }
 
     fun nextFunction(): Function<Supplier<Stream<String>>, out MedLinkStandardReturn<*>?>? {
-        return if (functionPosition == 0 && medLinkPumpMessage.baseCallback != null) {
-            currentCommand = medLinkPumpMessage.commandType
-            medLinkPumpMessage.baseCallback.compose {
+        return if (commandList[functionPosition].second != null) {
+            currentCommand = commandList[functionPosition].first
+            commandList[functionPosition].second?.compose {
                 aapsLogger.info(
-                        LTag.APS, "applied"
+                    LTag.APS, "applied"
                 )
                 functionPosition += 1
                 it
             }
 
-        } else if (functionPosition == 1 && medLinkPumpMessage.argCallback != null) {
-            currentCommand = medLinkPumpMessage.argument
-            medLinkPumpMessage.argCallback.compose {
-                functionPosition += 1
-                it
-            }
-        } else if (functionPosition == 1 && medLinkPumpMessage is BasalMedLinkMessage){
-            medLinkPumpMessage.profileCallback.compose {
-                functionPosition += 1
-                it
-            }
+            // } else if (functionPosition == 1 && medLinkPumpMessage.argCallback != null) {
+            //     currentCommand = medLinkPumpMessage.argument
+            //     medLinkPumpMessage.argCallback.compose {
+            //         functionPosition += 1
+            //         it
+            //     }
+            // } else if (functionPosition == 1 && medLinkPumpMessage is BasalMedLinkMessage) {
+            //     medLinkPumpMessage.profileCallback.compose {
+            //         functionPosition += 1
+            //         it
+            //     }
         } else null
     }
 
     fun getCurrentCommand(): MedLinkCommandType {
-        return if (commandPosition <= 1) {
-            medLinkPumpMessage.commandType
-        } else if (commandPosition == 2) {
-            medLinkPumpMessage.argument
-        } else {
-            MedLinkCommandType.NoCommand
-        }
+        return if (commandPosition < commandList.size)
+            commandList[commandPosition].first
+        else MedLinkCommandType.NoCommand
     }
 
     open fun hasFinished(): Boolean {
-        aapsLogger.info(LTag.PUMPBTCOMM, medLinkPumpMessage.toString())
+        aapsLogger.info(LTag.PUMPBTCOMM, commandList.joinToString())
         aapsLogger.info(LTag.PUMPBTCOMM, "" + commandPosition)
-        return (commandPosition > 1
-            || MedLinkCommandType.NoCommand.isSameCommand(
-            medLinkPumpMessage.argument
-        ) &&
-            commandPosition > 0)
+        return (commandPosition >= commandList.size
+            )
     }
 
     fun commandExecuted() {
         if (commandPosition == 0) {
             nrRetries++
-        } else if (medLinkPumpMessage.argument != MedLinkCommandType.NoCommand) {
+        } else if (commandList[commandPosition].first != MedLinkCommandType.NoCommand) {
             nrRetries++
         }
         commandPosition += 1
@@ -110,7 +118,7 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
 
     override fun toString(): String {
         return "CommandExecutor{" +
-            "command=" + medLinkPumpMessage +
+            "command=" + commandList.joinToString() +
             ", commandPosition=" + commandPosition +
             ", functionPosition=" + functionPosition +
             ", nrRetries=" + nrRetries +
@@ -118,27 +126,26 @@ abstract class CommandExecutor protected constructor(val medLinkPumpMessage: Med
     }
 
     fun matches(ext: MedLinkPumpMessage<*>): Boolean {
-        return (medLinkPumpMessage.commandType.isSameCommand(ext.commandType)
-            && medLinkPumpMessage.argument.isSameCommand(ext.argument))
+        return (commandList == ext.commands)
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as CommandExecutor
-        return !hasFinished() && !that.hasFinished() && medLinkPumpMessage.commandType == that.medLinkPumpMessage.commandType && medLinkPumpMessage.argument == that.medLinkPumpMessage.argument
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as CommandExecutor
+        return !hasFinished() && !that.hasFinished() && commandList == other.commandList
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(medLinkPumpMessage, aapsLogger, commandPosition, functionPosition, currentCommand, nrRetries)
+        return Objects.hash(commandList, aapsLogger, commandPosition, functionPosition, currentCommand, nrRetries)
     }
 
     protected fun nextCommandData(): ByteArray {
-        return if (commandPosition == 0) {
-            medLinkPumpMessage.commandType.raw
-        } else if (commandPosition == 1) {
-            medLinkPumpMessage.argumentData
-        } else MedLinkCommandType.NoCommand.raw
+        return if (commandPosition < commandList.size) {
+            commandList[commandPosition].first.raw
+        } else {
+            MedLinkCommandType.NoCommand.raw
+        }
     }
 
     val isInitialized: Boolean

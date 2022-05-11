@@ -203,14 +203,14 @@ class LoopPlugin @Inject constructor(
     @Synchronized
     override fun invoke(initiator: String, allowNotification: Boolean, tempBasalFallback: Boolean) {
         try {
-            aapsLogger.debug(LTag.APS, "invoke from $initiator")
+            aapsLogger.info(LTag.APS, "invoke from $initiator")
             val loopEnabled = constraintChecker.isLoopInvocationAllowed()
             if (!loopEnabled.value()) {
                 val message = """
                     ${rh.gs(R.string.loopdisabled)}
                     ${loopEnabled.getReasons(aapsLogger)}
                     """.trimIndent()
-                aapsLogger.debug(LTag.APS, message)
+                aapsLogger.info(LTag.APS, message)
                 rxBus.send(EventLoopSetLastRunGui(message))
                 return
             }
@@ -219,7 +219,7 @@ class LoopPlugin @Inject constructor(
             if (!isEnabled(PluginType.LOOP)) return
             val profile = profileFunction.getProfile()
             if (profile == null || !profileFunction.isProfileValid("Loop")) {
-                aapsLogger.debug(LTag.APS, rh.gs(R.string.noprofileset))
+                aapsLogger.info(LTag.APS, rh.gs(R.string.noprofileset))
                 rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.noprofileset)))
                 return
             }
@@ -239,7 +239,7 @@ class LoopPlugin @Inject constructor(
             }
 
             if (!isEmptyQueue()) {
-                aapsLogger.debug(LTag.APS, rh.gs(R.string.pumpbusy))
+                aapsLogger.info(LTag.APS, rh.gs(R.string.pumpbusy))
                 rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.pumpbusy)))
                 return
             }
@@ -262,7 +262,7 @@ class LoopPlugin @Inject constructor(
             // safety check for multiple SMBs
             val lastBolusTime = repository.getLastBolusRecord()?.timestamp ?: 0L
             if (lastBolusTime != 0L && lastBolusTime + T.mins(3).msecs() > System.currentTimeMillis()) {
-                aapsLogger.debug(LTag.APS, "SMB requested but still in 3 min interval")
+                aapsLogger.info(LTag.APS, "SMB requested but still in 3 min interval")
                 resultAfterConstraints.smb = 0.0
             }
             prevCarbsreq = lastRun?.constraintsProcessed?.carbsReq ?: prevCarbsreq
@@ -286,12 +286,12 @@ class LoopPlugin @Inject constructor(
                 }
 
                 if (isSuspended) {
-                    aapsLogger.debug(LTag.APS, rh.gs(R.string.loopsuspended))
+                    aapsLogger.info(LTag.APS, rh.gs(R.string.loopsuspended))
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.loopsuspended)))
                     return
                 }
                 if (pump.isSuspended() && pump !is MedLinkPumpDevice) {
-                    aapsLogger.debug(LTag.APS, rh.gs(R.string.pumpsuspended))
+                    aapsLogger.info(LTag.APS, rh.gs(R.string.pumpsuspended))
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.pumpsuspended)))
                     return
                 }
@@ -458,7 +458,7 @@ class LoopPlugin @Inject constructor(
                 rxBus.send(EventLoopUpdateGui())
             }
         } finally {
-            aapsLogger.debug(LTag.APS, "invoke end")
+            aapsLogger.info(LTag.APS, "invoke end")
         }
     }
 
@@ -542,25 +542,25 @@ class LoopPlugin @Inject constructor(
         }
 
         if (!pump.isInitialized()) {
-            aapsLogger.debug(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpNotInitialized))
+            aapsLogger.info(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpNotInitialized))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpNotInitialized).enacted(false).success(false))?.run()
             return
         }
         if (pump.isSuspended()&& pump !is MedLinkPumpDevice) {
-            aapsLogger.debug(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpsuspended))
+            aapsLogger.info(LTag.APS, "applyAPSRequest: " + rh.gs(R.string.pumpsuspended))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpsuspended).enacted(false).success(false))?.run()
             return
         }
-        aapsLogger.debug(LTag.APS, "applyAPSRequest: $request")
+        aapsLogger.info(LTag.APS, "applyAPSRequest: $request")
         val now = System.currentTimeMillis()
         val activeTemp = iobCobCalculator.getTempBasalIncludingConvertedExtended(now)
         if (request.rate == 0.0 && request.duration == 0 || abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep) {
             if (activeTemp != null) {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: cancelTempBasal()")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
                 uel.log(Action.CANCEL_TEMP_BASAL, Sources.Loop)
                 commandQueue.cancelTempBasal(false, callback)
             } else {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: Basal set correctly")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Basal set correctly")
                 callback?.result(
                     PumpEnactResult(injector).absolute(request.rate).duration(0)
                         .enacted(false).success(true).comment(R.string.basal_set_correctly)
@@ -569,11 +569,11 @@ class LoopPlugin @Inject constructor(
         } else if (request.usePercent && allowPercentage()) {
             if (request.percent == 100 && request.duration == 0) {
                 if (activeTemp != null) {
-                    aapsLogger.debug(LTag.APS, "applyAPSRequest: cancelTempBasal()")
+                    aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
                     uel.log(Action.CANCEL_TEMP_BASAL, Sources.Loop)
                     commandQueue.cancelTempBasal(false, callback)
                 } else {
-                    aapsLogger.debug(LTag.APS, "applyAPSRequest: Basal set correctly")
+                    aapsLogger.info(LTag.APS, "applyAPSRequest: Basal set correctly")
                     callback?.result(
                         PumpEnactResult(injector).percent(request.percent).duration(0)
                             .enacted(false).success(true).comment(R.string.basal_set_correctly)
@@ -584,14 +584,14 @@ class LoopPlugin @Inject constructor(
                     profile
                 )
             ) {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: Temp basal set correctly")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Temp basal set correctly")
                 callback?.result(
                     PumpEnactResult(injector).percent(request.percent)
                         .enacted(false).success(true).duration(activeTemp.plannedRemainingMinutes)
                         .comment(R.string.let_temp_basal_run)
                 )?.run()
             } else {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: tempBasalPercent()")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: tempBasalPercent()")
                 uel.log(
                     Action.TEMP_BASAL, Sources.Loop,
                     ValueWithUnit.Percent(request.percent),
@@ -638,14 +638,14 @@ class LoopPlugin @Inject constructor(
                 }
             } else
             if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(request.rate - activeTemp.convertedToAbsolute(now, profile)) < pump.pumpDescription.basalStep) {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: Temp basal set correctly")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Temp basal set correctly")
                 callback?.result(
                     PumpEnactResult(injector).absolute(activeTemp.convertedToAbsolute(now, profile))
                         .enacted(false).success(true).duration(activeTemp.plannedRemainingMinutes)
                         .comment(R.string.let_temp_basal_run)
                 )?.run()
             } else {
-                aapsLogger.debug(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()")
                 uel.log(
                     Action.TEMP_BASAL, Sources.Loop,
                     ValueWithUnit.UnitPerHour(request.rate),
@@ -668,7 +668,7 @@ class LoopPlugin @Inject constructor(
         }
 
         if (lastBolusTime != 0L && lastBolusTime + 3 * 60 * 1000 > System.currentTimeMillis()) {
-            aapsLogger.debug(LTag.APS, "SMB requested but still in 3 min interval")
+            aapsLogger.info(LTag.APS, "SMB requested but still in 3 min interval")
             callback?.result(
                 PumpEnactResult(injector)
                     .comment(R.string.smb_frequency_exceeded)
@@ -677,16 +677,16 @@ class LoopPlugin @Inject constructor(
             return
         }
         if (!pump.isInitialized()) {
-            aapsLogger.debug(LTag.APS, "applySMBRequest: " + rh.gs(R.string.pumpNotInitialized))
+            aapsLogger.info(LTag.APS, "applySMBRequest: " + rh.gs(R.string.pumpNotInitialized))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpNotInitialized).enacted(false).success(false))?.run()
             return
         }
         if (pump.isSuspended() && pump !is MedLinkPumpDevice) {
-            aapsLogger.debug(LTag.APS, "applySMBRequest: " + rh.gs(R.string.pumpsuspended))
+            aapsLogger.info(LTag.APS, "applySMBRequest: " + rh.gs(R.string.pumpsuspended))
             callback?.result(PumpEnactResult(injector).comment(R.string.pumpsuspended).enacted(false).success(false))?.run()
             return
         }
-        aapsLogger.debug(LTag.APS, "applySMBRequest: $request")
+        aapsLogger.info(LTag.APS, "applySMBRequest: $request")
 
         // deliver SMB
         val detailedBolusInfo = DetailedBolusInfo()
@@ -695,7 +695,7 @@ class LoopPlugin @Inject constructor(
         detailedBolusInfo.insulin = request.smb
         detailedBolusInfo.bolusType = DetailedBolusInfo.BolusType.SMB
         detailedBolusInfo.deliverAtTheLatest = request.deliverAt
-        aapsLogger.debug(LTag.APS, "applyAPSRequest: bolus()")
+        aapsLogger.info(LTag.APS, "applyAPSRequest: bolus()")
         if (request.smb > 0.0)
             uel.log(Action.SMB, Sources.Loop, ValueWithUnit.Insulin(detailedBolusInfo.insulin))
         commandQueue.bolus(detailedBolusInfo, callback)
@@ -709,8 +709,8 @@ class LoopPlugin @Inject constructor(
         val pump = activePlugin.activePump
         disposable += repository.runTransactionForResult(InsertAndCancelCurrentOfflineEventTransaction(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), reason))
             .subscribe({ result ->
-                           result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
-                           result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted OfflineEvent $it") }
+                           result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated OfflineEvent $it") }
+                           result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted OfflineEvent $it") }
                        }, {
                            aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
                        })
@@ -745,8 +745,8 @@ class LoopPlugin @Inject constructor(
     override fun suspendLoop(durationInMinutes: Int) {
         disposable += repository.runTransactionForResult(InsertAndCancelCurrentOfflineEventTransaction(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), OfflineEvent.Reason.SUSPEND))
             .subscribe({ result ->
-                           result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
-                           result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted OfflineEvent $it") }
+                           result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated OfflineEvent $it") }
+                           result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted OfflineEvent $it") }
                        }, {
                            aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
                        })

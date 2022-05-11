@@ -9,7 +9,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.R
 enum class MedtronicNotificationType(var notificationType: Int,
                                      val resourceId: Int,
                                      val notificationUrgency: Int) {
-    CalibrationSuccess(Notification.CALIBRATION_ALARM, R.string.med_link_calibration_success, Notification.URGENT),  //
+    CalibrationSuccess(Notification.CALIBRATION_ALARM, R.string.med_link_calibration_success, Notification.NORMAL),  //
 
     CalibrationFailed(Notification.CALIBRATION_ALARM, R.string.med_link_calibration_failed, Notification.URGENT),  //
     SecondCalibrationAlarm(Notification.CALIBRATION_ALARM, R.string.med_link_calibrate_alarm, Notification.URGENT),  //

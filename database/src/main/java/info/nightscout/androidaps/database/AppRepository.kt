@@ -18,7 +18,8 @@ import kotlin.math.roundToInt
 
 @OpenForTesting
 @Singleton class AppRepository @Inject internal constructor(
-    internal val database: AppDatabase
+    internal val database: AppDatabase,
+    internal val medLinkDatabase: MedLinkDatabase
 ) {
 
     private val changeSubject = PublishSubject.create<List<DBEntry>>()
@@ -33,7 +34,7 @@ import kotlin.math.roundToInt
         val changes = mutableListOf<DBEntry>()
         return Completable.fromCallable {
             database.runInTransaction {
-                transaction.database = DelegatedAppDatabase(changes, database)
+                transaction.database = DelegatedAppDatabase(changes, database, medLinkDatabase)
                 transaction.run()
             }
         }.subscribeOn(Schedulers.io()).doOnComplete {
@@ -49,7 +50,7 @@ import kotlin.math.roundToInt
         val changes = mutableListOf<DBEntry>()
         return Single.fromCallable {
             database.runInTransaction(Callable<T> {
-                transaction.database = DelegatedAppDatabase(changes, database)
+                transaction.database = DelegatedAppDatabase(changes, database, medLinkDatabase)
                 transaction.run()
             })
         }.subscribeOn(Schedulers.io()).doOnSuccess {
@@ -872,8 +873,20 @@ import kotlin.math.roundToInt
         temporaryTarget = database.temporaryTargetDao.getNewEntriesSince(since, until, limit, offset),
         therapyEvents = database.therapyEventDao.getNewEntriesSince(since, until, limit, offset),
         totalDailyDoses = database.totalDailyDoseDao.getNewEntriesSince(since, until, limit, offset),
-        versionChanges = database.versionChangeDao.getNewEntriesSince(since, until, limit, offset),
+        versionChanges = database.versionChangeDao.getNewEntriesSince(since, until, limit, offset)
     )
+
+    fun getLastConfig(): Single<ValueWrapper<MedLinkConfig>> =
+        medLinkDatabase.medLinkConfigDao.getCurrentConfig()
+            .subscribeOn(Schedulers.io())
+            .toWrappedSingle()
+
+    fun getMostCommonFrequencies(): Single<ValueWrapper<List<Int>>> =
+        medLinkDatabase.medLinkConfigDao.getMostCommonFrequencies().subscribeOn(Schedulers.io())
+            .toWrappedSingle()
+
+
+
 }
 
 @Suppress("USELESS_CAST")

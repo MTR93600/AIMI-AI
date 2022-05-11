@@ -22,6 +22,7 @@ import info.nightscout.androidaps.plugins.general.nsclient.DataSyncSelectorImple
 import info.nightscout.androidaps.plugins.general.nsclient.data.DeviceStatusData
 import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
+import info.nightscout.androidaps.plugins.medlink.MedLinkSyncImplementation
 import info.nightscout.androidaps.plugins.pump.PumpSyncImplementation
 import info.nightscout.androidaps.queue.CommandQueueImplementation
 import info.nightscout.androidaps.utils.DateUtil
@@ -106,6 +107,8 @@ open class AppModule {
         @Binds fun bindPumpSync(pumpSyncImplementation: PumpSyncImplementation): PumpSync
 
         @Binds fun bindBgSync(bgSyncImplementation: BgSyncImplementation): BgSync
+
+        @Binds fun bindMedLinkSync(medLinkSyncImplementation: MedLinkSyncImplementation): MedLinkSync
 
     }
 }
