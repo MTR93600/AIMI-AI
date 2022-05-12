@@ -970,6 +970,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
         sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
         sens_eBGweight = (sens_predType=="COB" && COBBoostOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COBBoost
+
+        // Delta safeties
+        sens_eBGweight = (delta <=6 && sens_predType=="COB" && !COBBoostOK ? 0 : sens_eBGweight);
+        sens_eBGweight = (delta <4 && sens_predType=="UAM" && !COBBoostOK ? 0 : sens_eBGweight);
+
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
 
         // apply dynamic ISF scaling formula
@@ -977,10 +982,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future = sens_normalTarget/sens_future_scaler;
         //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
         //sens_future_max = (bg >= ISFbgMax);
-
-        // EXPERIMENTAL DELTA SAFETY FOR MR. B
-        sens_future = (delta <=6 && sens_predType=="COB" && !COBBoostOK ?  sens_currentBG : sens_future);
-        sens_future = (delta <4 && sens_predType=="UAM" && !COBBoostOK ? sens_currentBG : sens_future);
     }
 
     // if BG below target then take the max of the sens vars
