@@ -520,11 +520,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_target_bg = (COBBoostOK & cTime <=45 ? Math.max(target_bg-9,80) : target_bg);
     var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/sens_target_bg)+1);
 
-    // scale CR inline with default scaling within COBBoost window unless set lower in prefs
-    //var carb_ratio = (delta > 0 && COBBoostOK && ISFBGscaler >=0 ? Math.min(profile.carb_ratio/sens_BGscaler, profile.carb_ratio) : profile.carb_ratio);
-    var carb_ratio = profile.carb_ratio;
-    var carb_ratio_max = carb_ratio < profile.carb_ratio && sens_BGscaler >= profile.autosens_max;
-
     // Convert ISFBGscaler to %
     ISFBGscaler = (100-ISFBGscaler)/100;
     enlog += "ISFBGscaler % is now:" + ISFBGscaler +"\n";
@@ -721,7 +716,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // use autosens-adjusted sens to counteract autosens meal insulin dosing adjustments so that
     // autotuned CR is still in effect even when basals and ISF are being adjusted by TT or autosens
     // this avoids overdosing insulin for large meals when low temp targets are active
-    csf = sens_currentBG / carb_ratio;
+    csf = sens_currentBG / profile.carb_ratio;
     console.error("profile.sens:",profile.sens,"sens:",sens,"CSF:",csf);
 
     var maxCarbAbsorptionRate = 30; // g/h; maximum rate to assume carbs will absorb if no CI observed
@@ -1133,7 +1128,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFscale:" + round(sens_BGscaler*ISFBGscaler,2) + "/" + round(ISFBGscaler,2) + ", eBGw: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + (profile.carb_ratio != carb_ratio ? "="+round(carb_ratio, 2) : "") + (carb_ratio_max ? "*" : "") + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFscale:" + round(sens_BGscaler*ISFBGscaler,2) + "/" + round(ISFBGscaler,2) + ", eBGw: "+round(sens_eBGweight*100)+"% " +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
 
     if (lastCOBpredBG > 0) {
         rT.reason += ", " + (ignoreCOB && !COBBoostOK ? "!" : "") + "COBpredBG " + convert_bg(lastCOBpredBG, profile);
@@ -1406,7 +1401,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // only allow microboluses with COB or low temp targets, or within DIA hours of a bolus
         if (microBolusAllowed && enableSMB && bg > threshold) {
             // never bolus more than maxSMBBasalMinutes worth of basal
-            var mealInsulinReq = round( meal_data.mealCOB / carb_ratio ,3);
+            var mealInsulinReq = round( meal_data.mealCOB / profile.carb_ratio ,3);
             if (typeof profile.maxSMBBasalMinutes === 'undefined' ) {
                 var maxBolus = round( profile.current_basal * 30 / 60 ,1);
                 console.error("profile.maxSMBBasalMinutes undefined: defaulting to 30m");
