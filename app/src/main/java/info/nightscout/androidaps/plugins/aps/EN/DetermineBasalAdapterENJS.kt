@@ -36,7 +36,6 @@ import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
-import info.nightscout.androidaps.utils.stats.TirCalculator
 import kotlin.math.roundToInt
 
 class DetermineBasalAdapterENJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector) {
@@ -64,7 +63,6 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
     private var currentTime: Long = 0
     private var saveCgmSource = false
     private var tddAIMI: TddCalculator? = null
-    private var StatTIR: TirCalculator? = null
 
     var currentTempParam: String? = null
         private set
@@ -324,19 +322,6 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         // Override profile ISF with TDD ISF if selected in prefs
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
-
-        StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
-        val lowMgdl = 72.0
-        val highMgdl = 153.0 // 4.0 - 8.5mmol
-        this.mealData.put("TIR7Above",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR7InRange",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR7Below",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).belowPct())
-        this.mealData.put("TIR3Above",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR3InRange",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR3Below",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).belowPct())
-        this.mealData.put("TIR1Above",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR1InRange",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR1Below",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).belowPct())
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
