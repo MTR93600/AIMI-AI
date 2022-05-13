@@ -517,7 +517,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     // calculate default ISF scaling first
     // within COBBoost window MAX 45 mins set slightly lower target for ISF scaling to handle rises from below target
-    var sens_target_bg = (COBBoostOK && cTime <=45 ? Math.max(target_bg-9,80) : target_bg);
+    var sens_target_bg = (COBBoostOK && cTime <=45 || meal_data.mealCOB > 0 && delta > 4 && DeltaPct > 1.05 ? Math.max(target_bg-9,80) : target_bg);
     var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/sens_target_bg)+1);
 
     // Convert ISFBGscaler to %
