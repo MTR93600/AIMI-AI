@@ -516,7 +516,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "ISFBGscaler is now:" + ISFBGscaler +"\n";
 
     // calculate default ISF scaling first
-    var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/target_bg)+1);
+    // within COBBoost window MAX 45 mins set slightly lower target for ISF scaling to handle rises from below target
+    var sens_target_bg = (COBBoostOK & cTime <=45 ? Math.max(target_bg-9,80) : target_bg);
+    var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/sens_target_bg)+1);
 
     // scale CR inline with default scaling within COBBoost window unless set lower in prefs
     //var carb_ratio = (delta > 0 && COBBoostOK && ISFBGscaler >=0 ? Math.min(profile.carb_ratio/sens_BGscaler, profile.carb_ratio) : profile.carb_ratio);
@@ -535,10 +537,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
     // if above target allow scaling and profile ISF as the weakest, if below target use profile ISF as the strongest
-    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
+    sens_currentBG = (bg > sens_target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
 
     // in the COBBoost window allow normal ISF as minimum
-    sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
+    //sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
     sens_currentBG = round(sens_currentBG,1);
     enlog += "sens_currentBG final result:"+ convert_bg(sens_currentBG, profile) +"\n";
 
