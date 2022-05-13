@@ -64,7 +64,7 @@ stages:
 assembleRelease:
   stage: release
   only:
-    - tests_Dev-AIMIV3_ludo
+    - Dev-AIMIV3
   script:
     - echo "KEYSTORE_FILE"
     - echo "$KEYSTORE_FILE"
