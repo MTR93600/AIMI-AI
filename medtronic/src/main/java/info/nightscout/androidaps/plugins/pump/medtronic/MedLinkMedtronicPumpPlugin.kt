@@ -2257,26 +2257,28 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     ): PumpEnactResult {
         if (temporaryBasal != null) {
             val previousBasal = temporaryBasal
-            if (previousBasal?.desiredPct != null && previousBasal.desiredPct!! < 100 && percent >= 100) {
+            if ((previousBasal?.desiredPct != null && previousBasal.desiredPct!! < 100) && percent >= 100) {
                 startPump(object : Callback() {
                     override fun run() {}
                 })
             }
         }
-        val result: PumpEnactResult
-        tempBasalMicrobolusOperations!!.operations.clear()
-        result = if (percent == 100) {
-            clearTempBasal()
-        } else if (percent < 100) {
+        tempBasalMicrobolusOperations!!.clearOperations()
+        val result: PumpEnactResult = if (percent < 100) {
             scheduleSuspension(
                 percent, durationInMinutes, profile, callback, 0.0,
                 PumpTempBasalType.Percent
             )!!
         } else {
-            scheduleTempBasalBolus(
-                percent, durationInMinutes, profile, callback,
-                0.0, PumpTempBasalType.Percent
-            )
+            val res = clearTempBasal()
+            if(percent > 100) {
+                scheduleTempBasalBolus(
+                    percent, durationInMinutes, profile, callback,
+                    0.0, PumpTempBasalType.Percent
+                )
+            }else{
+                res
+            }
         }
         //        result.success = false;
 //        result.comment = MainApp.gs(R.string.pumperror);
