@@ -634,7 +634,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     // min_bg of 90 -> threshold of 65, 100 -> 70 110 -> 75, and 130 -> 85
-    var threshold = Math.max(min_bg - 0.5*(min_bg-40),72); // minimum 72
+    //var threshold = Math.max(min_bg - 0.5*(min_bg-40),72); // minimum 72
+    var threshold = Math.max(min_bg-0.5*(min_bg-40), profile.normal_target_bg-10, 75); // minimum 75 or current profile target - 10
 
     //console.error(reservoir_data);
 
@@ -1108,7 +1109,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFbg" + (sens_target_bg < target_bg ? "+" : "") + ":" + round(sens_BGscaler*ISFBGscaler,2) + "/" + round(ISFBGscaler,2) + "=" + round(sens_BGscaler,2) + ", eBGw: "+round(sens_eBGweight*100)+"%=" +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFbg" + (sens_target_bg < target_bg ? "+" : "") + ":" + round(sens_BGscaler*ISFBGscaler,2) + "/" + round(ISFBGscaler,2) + "=" + round(sens_BGscaler,2) + ", eBGw: "+round(sens_eBGweight*100)+"%=" +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile) + ", LGS: " + convert_bg(threshold, profile);
 
     if (lastCOBpredBG > 0) {
         rT.reason += ", " + (ignoreCOB && !COBBoostOK ? "!" : "") + "COBpredBG " + convert_bg(lastCOBpredBG, profile);
