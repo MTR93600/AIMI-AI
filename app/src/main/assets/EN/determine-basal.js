@@ -493,9 +493,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ISFBGscaler = (!eatingnow && eatingnowtimeOK ? Math.min(ISFBGscaler,0) : ISFBGscaler);
     enlog += "ISFBGscaler is now:" + ISFBGscaler +"\n";
 
+
+//         if (insulin == 'Free-Peak Oref'){
+//                ins_val = 75; }
+//            else if (insulin == 'Lyumjev-classic' || insulin == 'Lyumjev-U100' || insulin == 'Lyumjev-U200'){
+//                ins_val = 75; }
+//            else if (insulin == 'Ultra-Rapid Oref'){
+//                ins_val = 65;}
+//            else if (insulin == 'Rapid-Acting Oref'){
+//                ins_val = 55; }
+
     // calculate default ISF scaling first
     // within COBBoost window MAX 45 mins set slightly lower target for ISF scaling to handle rises from below target
-    var sens_target_bg = (COBBoostOK && cTime <=45 || meal_data.mealCOB == 0 && delta > 4 && DeltaPct > 1.05 ? Math.max(target_bg-9,80) : target_bg);
+    var sens_target_bg = (COBBoostOK && cTime <=45 || meal_data.mealCOB == 0 && delta > 4 && DeltaPct > 1.05 ? 75 : target_bg);
     // only allow adjusted ISF target when eatingnow time is OK or at night with TBR before SMB activated
     sens_target_bg = (eatingnowtimeOK && bg < ISFbgMax || !eatingnowtimeOK && bg < SMBbgOffset ? sens_target_bg : target_bg);
     var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/sens_target_bg)+1);
@@ -512,7 +522,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "sens_currentBG after scaling:" + convert_bg(sens_currentBG, profile) +"\n";
 
     // if above target allow scaling and profile ISF as the weakest, if below target use profile ISF as the strongest
-    sens_currentBG = (bg > sens_target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
+    sens_currentBG = (bg > target_bg ? Math.min(sens_currentBG,sens_normalTarget) : Math.max(sens_currentBG,sens_normalTarget));
 
     // in the COBBoost window allow normal ISF as minimum
     //sens_currentBG = (COBBoostOK ? Math.min(sens_currentBG,sens_normalTarget) : sens_currentBG);
