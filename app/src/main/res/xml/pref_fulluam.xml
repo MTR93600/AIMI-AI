@@ -44,7 +44,7 @@
             android:inputType="numberDecimal"
             android:key="@string/key_iTime"
             android:title="@string/iTime_title"
-            validate:floatmaxNumber="240"
+            validate:floatmaxNumber="900"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
@@ -58,7 +58,7 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />-->
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2"
             android:dialogMessage="@string/iTime_Bolus_summary"
             android:inputType="numberDecimal"
@@ -66,7 +66,7 @@
             android:title="@string/iTime_Bolus_title"
             validate:floatmaxNumber="5"
             validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2"

@@ -68,7 +68,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var lastBolusNormalTimeValue: Long = 0
     private var AIMI_lastCarbUnit: Long = 0
     private var AIMI_lastCarbTime: Long = 0
-    private val millsToThePast = T.hours(4).msecs()
+    private val millsToThePast = T.hours(23).msecs()
     private val millsToThePastSMB = T.hours(1).msecs()
     private var tddAIMI: TddCalculator? = null
     private var StatTIR: TirCalculator? = null
