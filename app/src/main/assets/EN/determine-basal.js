@@ -493,15 +493,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ISFBGscaler = (!eatingnow && eatingnowtimeOK ? Math.min(ISFBGscaler,0) : ISFBGscaler);
     enlog += "ISFBGscaler is now:" + ISFBGscaler +"\n";
 
-
-//         if (insulin == 'Free-Peak Oref'){
-//                ins_val = 75; }
-//            else if (insulin == 'Lyumjev-classic' || insulin == 'Lyumjev-U100' || insulin == 'Lyumjev-U200'){
-//                ins_val = 75; }
-//            else if (insulin == 'Ultra-Rapid Oref'){
-//                ins_val = 65;}
-//            else if (insulin == 'Rapid-Acting Oref'){
-//                ins_val = 55; }
+    var insulinType = profile.insulinType, ins_val = 75;
+    ins_val = (insulinType.includes("Free-Peak") ? 75 : ins_val);
+    ins_val = (insulinType.includes("Lyumjev") ? 75 : ins_val);
+    ins_val = (insulinType.includes("Ultra-Rapid") ? 65 : ins_val);
+    ins_val = (insulinType.includes("Rapid-Acting") ? 55 : ins_val);
+    enlog += "insulinType is " + innsulinType + ", ins_val is " + ins_val;
 
     // calculate default ISF scaling first
     // within COBBoost window MAX 45 mins set slightly lower target for ISF scaling to handle rises from below target
