@@ -1446,7 +1446,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 if ((DeltaPct > DeltaPctThreshold && iob_data.iob > maxBolus * 0.75) || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     ENMaxSMB = ENMaxSMB;
-                    //if (DeltaPct>DeltaPctThreshold) ENReason += ", DeltaPct > " + round(DeltaPctThreshold*100) + "% ENMaxSMB";
+                    if (DeltaPct > DeltaPctThreshold) ENReason += ", DeltaPct > " + round(DeltaPctThreshold*100) + "% ENMaxSMB";
                 } else {
                     // prevent SMB when below target for UAM rises Hypo Rebound Protection :)
                     insulinReqPct = (bg < target_bg ? 0 : insulinReqPct);
