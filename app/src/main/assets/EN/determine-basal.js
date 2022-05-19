@@ -1124,7 +1124,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFbg:" + round(sens_BGscaler*ISFBGscaler,2) + (ISFBGscaler !=1 ? "/" + round(ISFBGscaler,2) + "=" + round(sens_BGscaler,2) : "") + (sens_target_bg < target_bg ? "+" : "") + ", eBGw: "+round(sens_eBGweight*100)+"%=" +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile) + ", LGS: " + convert_bg(threshold, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + (COBBoostOK ? " " + round(cTime)+"/"+profile.COBBoostWindow+"m" : "") + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", Delta: " + glucose_status.delta + "/" + round(glucose_status.short_avgdelta) + "="+ DeltaPct + ", ISF: " + convert_bg(sens_normalTarget, profile) + "/" + convert_bg(sens, profile) + (bg >= ISFbgMax ? "*" : "") + "=" + convert_bg(sens_future, profile) + (sens_future_max ? "*" : "") + ", ISFbg:" + round(sens_BGscaler*ISFBGscaler,2) + (ISFBGscaler !=1 ? "/" + round(ISFBGscaler,2) + "=" + round(sens_BGscaler,2) : "") + (sens_target_bg < target_bg ? "+" : "") + ", eBGw: "+round(sens_eBGweight*100)+"%=" +  convert_bg(sens_future_bg, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", Target: " + convert_bg(target_bg, profile) + (target_bg !=normalTarget ? "(" +convert_bg(normalTarget, profile)+")" : "") + ", minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile) + ", LGS: " + convert_bg(threshold, profile);
 
     if (lastCOBpredBG > 0) {
         rT.reason += ", " + (ignoreCOB && !COBBoostOK ? "!" : "") + "COBpredBG " + convert_bg(lastCOBpredBG, profile);
@@ -1440,7 +1440,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 // if COBBoostOK allow further increase max of SMB within the window
                 if (COBBoostOK) {
                     ENMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
-                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "") + " ENMaxSMB";
+                    ENReason += ", COBBoost " + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "") + " ENMaxSMB";
                 }
 
                 // ============== MAXBOLUS RESTRICTIONS ==============
