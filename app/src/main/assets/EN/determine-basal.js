@@ -493,12 +493,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ISFBGscaler = (!eatingnow && eatingnowtimeOK ? Math.min(ISFBGscaler,0) : ISFBGscaler);
     enlog += "ISFBGscaler is now:" + ISFBGscaler +"\n";
 
-    var insulinType = profile.insulinType, ins_val = 75;
-    // ins_val = (insulinType.includes("Free-Peak") ? 75 : ins_val);
-    // ins_val = (insulinType.includes("Lyumjev") ? 75 : ins_val);
+    var insulinType = profile.insulinType, ins_val = 75, ins_peak = 75;
+    ins_val = (insulinType.includes("Free-Peak") ? 75 : ins_val);
+    ins_val = (insulinType.includes("Lyumjev") ? 75 : ins_val);
     ins_val = (insulinType.includes("Ultra-Rapid") ? 65 : ins_val);
     ins_val = (insulinType.includes("Rapid-Acting") ? 55 : ins_val);
-    enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val+"\n";
+
+    // insulin peak plus onset
+    ins_peak = (insulinType.includes("Free-Peak") ? ins_peak : ins_peak);
+    ins_peak = (insulinType.includes("Lyumjev") ? 45 + 15 : ins_peak);
+    ins_peak = (insulinType.includes("Ultra-Rapid") ? 55 + 15 : ins_peak);
+    ins_peak = (insulinType.includes("Rapid-Acting") ? 75 + 15 : ins_peak);
+
+    enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+"\n";
 
     // calculate default ISF scaling first
     // within COBBoost window MAX 45 mins set slightly lower target for ISF scaling to handle rises from below target
@@ -860,6 +867,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var insulinPeakTime = 60;
             // add 30m to allow for insulin delivery (SMBs or temps)
             insulinPeakTime = 90;
+            insulinPeakTime = ins_peak; // use insulin peak with onset from insulinType
             var insulinPeak5m = (insulinPeakTime/60)*12;
             //console.error(insulinPeakTime, insulinPeak5m, profile.insulinPeakTime, profile.curve);
 
