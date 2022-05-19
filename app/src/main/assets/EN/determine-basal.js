@@ -499,11 +499,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ins_val = (insulinType.includes("Ultra-Rapid") ? 65 : ins_val);
     ins_val = (insulinType.includes("Rapid-Acting") ? 55 : ins_val);
 
-    // insulin peak plus onset
+    // insulin peak including onset
     ins_peak = (insulinType.includes("Free-Peak") ? ins_peak : ins_peak);
-    ins_peak = (insulinType.includes("Lyumjev") ? 45 + 15 : ins_peak);
-    ins_peak = (insulinType.includes("Ultra-Rapid") ? 55 + 15 : ins_peak);
-    ins_peak = (insulinType.includes("Rapid-Acting") ? 75 + 15 : ins_peak);
+    ins_peak = (insulinType.includes("Lyumjev") ? 45 : ins_peak);
+    ins_peak = (insulinType.includes("Ultra-Rapid") ? 55 : ins_peak);
+    ins_peak = (insulinType.includes("Rapid-Acting") ? 75 : ins_peak);
 
     enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+"\n";
 
