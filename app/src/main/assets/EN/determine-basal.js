@@ -1413,69 +1413,49 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var insulinReqPct = insulinReqPctDefault; // this is the default insulinReqPct and maxBolus is respected outside of eating now
             var insulinReqOrig = insulinReq;
             var ENReason = "";
-            var insulinReqBoost = 0; // no boost yet
-            var EatingNowMaxSMB = maxBolus;
+            var ENMaxSMB = maxBolus; // inherit AAPS maxBolus
             var maxBolusOrig = maxBolus;
-//            var UAMBoosted = false;
-            var ISFBoosted = false;
             var ENinsulinReqPct = 0.75; // EN insulinReqPct is 75%
 
             // START === if we are eating now and BGL prediction is higher than normal target ===
             if (eatingnow && eventualBG > target_bg) {
                 ENReason = ""; //blank boost reason to prepare for boost info
 
-                // EN insulinReqPct is used from the profile
+                // EN insulinReqPct is now used
                 insulinReqPct = ENinsulinReqPct;
 
-                // ============== ISF BOOST ============== START ===
-                // For BG rises that dont meet the UAMBoost criteria using adjusted target_bg
-//                if (!UAMBoosted && eventualBG > target_bg && insulinReq > 0) {
-                if (eventualBG > target_bg && insulinReq > 0) {
-                     // set SMB limit for ISFBoost determine if UAM or COB maxBolus will be used
-                    EatingNowMaxSMB = (sens_predType == "COB" ? profile.ISFBoost_maxBolus : profile.UAMBoost_maxBolus);
-                    EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
-                    // if COBBoostOK allow increase max SMB within the window
-                    if (COBBoostOK) {
-                        EatingNowMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
-                        EatingNowMaxSMB = ( EatingNowMaxSMB > 0 ? EatingNowMaxSMB : maxBolus );
-                    }
-                    ISFBoosted = true;
-                    insulinReqPct = ENinsulinReqPct;
-                    //insulinReqPct = (COBBoostOK ? profile.COBinsulinReqPct/100 : ENinsulinReqPct);
+                // set EN SMB limit for COB or UAM
+                // ISFBooost maxBolus is COB outside of COBBoost Window
+                // UAMBoost maxBolus is for predictions that are UAM with or without COB
+                ENMaxSMB = (sens_predType == "COB" ? profile.ISFBoost_maxBolus : profile.UAMBoost_maxBolus);
+
+                // if COBBoostOK allow further increase max of SMB within the window
+                if (COBBoostOK) {
+                    ENMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
+                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
                 }
-                // ============== ISF BOOST ============== END ===
 
                 // ============== MAXBOLUS RESTRICTIONS ==============
-                // allow EatingNowMaxSMB if Eating Now
-                EatingNowMaxSMB = round(EatingNowMaxSMB,1); // use EN SMB Limit
+                // if ENMaxSMB is more than 0 then use it else AAPS maxBolus
+                ENMaxSMB = ( ENMaxSMB > 0 ? ENMaxSMB : maxBolus );
 
-                // ===================================================
-
-                // ============== DELTA BASED RESTRICTIONS ==============
+                // ============== DELTA & IOB BASED RESTRICTIONS ==============
                 // if the delta is increasing allow larger SMB, COB predictions and COBBoost window are always allowed larger SMB
                 // IOB should be positive to cater for unexpected sudden jumps relating to basal unless COB as above
                 if ((DeltaPct > 1.1 && iob_data.iob > maxBolus * 0.75) || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
-                    EatingNowMaxSMB = EatingNowMaxSMB;
+                    ENMaxSMB = ENMaxSMB;
                 } else {
                     // prevent SMB when below target for UAM rises Hypo Rebound Protection :)
                     insulinReqPct = (bg < target_bg ? 0 : insulinReqPct);
                     ENReason = (insulinReqPct == 0 ? "; HypoSafety" : "");
-                    EatingNowMaxSMB = Math.min(maxBolus,EatingNowMaxSMB); // use the most restrictive
+                    ENMaxSMB = Math.min(maxBolus,ENMaxSMB); // use the most restrictive
                 }
                 // ===================================================
 
-
-                // ============== TIME RESTRICTIONS ==============
-                 // if we just had a loop iteration only allow TBR's for UAMBoost
-//                 if (minAgo > 1 && UAMBoosted) {
-//                     insulinReqPct = 0;
-//                     ENReason ="; recent loop iteration: no UAMBoost";
-//                 }
-
                 if (eatingnowtimeOK) {
                     // increase maxbolus if we are within the hours specified
-                    maxBolus = round(EatingNowMaxSMB,1);
+                    maxBolus = round(ENMaxSMB,1);
                     insulinReqPct = insulinReqPct;
                 } else {
                     // Default insulinReqPct at night
@@ -1484,26 +1464,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     maxBolus = round(maxBolus,1);
                 }
 
-                // ============== INSULIN BOOST  ==============
-                // use insulinReqBoost if it is more than insulinReq
-                insulinReq = round(Math.max(insulinReq,insulinReqBoost),2);
-                insulinReqPct = round(insulinReqPct,2);
-
                 // ============== IOB RESTRICTION  ==============
                 if (insulinReq > max_iob-iob_data.iob) {
-                    //ENReason += ", max_iob " + max_iob;
                     insulinReq = round(max_iob-iob_data.iob,2);
-                }
-
-                // ============== UAMBoost Reason ==============
-                if (COBBoostOK) {
-                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
                 }
             }
             // END === if we are eating now and BGL prediction is higher than normal target ===
             // ============  EATING NOW MODE  ==================== END ===
 
-            // boost insulinReq and maxBolus if required limited to EatingNowMaxSMB
+            // boost insulinReq and maxBolus if required limited to ENMaxSMB
             var roundSMBTo = 1 / profile.bolus_increment;
             var microBolus = Math.floor(Math.min(insulinReq * insulinReqPct ,maxBolus)*roundSMBTo)/roundSMBTo;
 
