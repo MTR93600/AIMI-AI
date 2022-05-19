@@ -1440,7 +1440,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 // if COBBoostOK allow further increase max of SMB within the window
                 if (COBBoostOK) {
                     ENMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
-                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "");
+                    ENReason += ", COBBoost: " + round(cTime)+"/"+profile.COBBoostWindow+"m" + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "") + " ENMaxSMB";
                 }
 
                 // ============== MAXBOLUS RESTRICTIONS ==============
@@ -1454,7 +1454,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 if ((DeltaPct > DeltaPctThreshold && iob_data.iob > maxBolus * 0.75) || sens_predType == "COB" || COBBoostOK) {
                     insulinReqPct = insulinReqPct;
                     ENMaxSMB = ENMaxSMB;
-                    if (DeltaPct > DeltaPctThreshold) ENReason += ", DeltaPct > " + round(DeltaPctThreshold*100) + "% ENMaxSMB";
+                    if (DeltaPct > DeltaPctThreshold && !COBBoostOK) ENReason += ", DeltaPct > " + round(DeltaPctThreshold*100) + "% ENMaxSMB";
                 } else {
                     // prevent SMB when below target for UAM rises Hypo Rebound Protection :)
                     insulinReqPct = (bg < target_bg ? 0 : insulinReqPct);
