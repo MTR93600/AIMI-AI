@@ -8,7 +8,11 @@
       <option name="BLANK_LINES_AROUND_BLOCK_WHEN_BRANCHES" value="1" />
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
     </JetCodeStyleSettings>
+    <editorconfig>
+      <option name="ENABLED" value="false" />
+    </editorconfig>
     <codeStyleSettings language="JAVA">
+      <option name="RIGHT_MARGIN" value="500" />
       <option name="METHOD_ANNOTATION_WRAP" value="0" />
       <option name="FIELD_ANNOTATION_WRAP" value="0" />
     </codeStyleSettings>
