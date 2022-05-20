@@ -1441,7 +1441,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 // if COBBoostOK allow further increase max of SMB within the window
                 if (COBBoostOK) {
                     ENMaxSMB = (firstMeal ? profile.COBBoost_maxBolus_breakfast : profile.COBBoost_maxBolus);
-                    ENReason += ", COBBoost " + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "") + " ENMaxSMB";
+                    ENReason += ", Recent COB " + (profile.temptargetSet && target_bg == normalTarget ? " + TT" : "") + " ENMaxSMB";
                 }
 
                 // ============== MAXBOLUS RESTRICTIONS ==============
