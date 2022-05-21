@@ -981,7 +981,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
 
         // apply dynamic ISF scaling formula
-        var sens_future_scaler = Math.log(sens_future_bg/ins_val)+1; // try ins_val
+        var sens_future_scaler = Math.log(sens_future_bg/sens_target_bg)+1; // try sens_target_bg
         sens_future = sens_normalTarget/sens_future_scaler;
         //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
         //sens_future_max = (bg >= ISFbgMax);
