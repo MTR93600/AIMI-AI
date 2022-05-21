@@ -957,34 +957,35 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // sens_future is calculated using a percentage of eventualBG (sens_eBGweight) with the rest as current bg, to reduce the risk of overdosing.
     var sens_future = sens, sens_future_max = false, sens_future_bg = bg;
     // categorize the eventualBG prediction type for more accurate weighting
+    // By default sens_future will remain as the current bg ie. sens with eBGweight = 0
     var sens_predType = "BGL", sens_eBGweight = 0;
     sens_predType = (lastUAMpredBG > 0 && eventualBG >= lastUAMpredBG ? "UAM" : sens_predType ); // UAM or any prediction > UAM is the default
     sens_predType = (lastCOBpredBG > 0 && eventualBG == lastCOBpredBG ? "COB" : sens_predType ); // if COB prediction is present and aligns use this
     sens_predType = (bg > threshold && minDelta > -2 && minDelta < 2 && sens_predType == "UAM" ? "BGL" : sens_predType); // small delta use current bg
 
-    // for rises by default sens_future will remain as the current bg ie. sens with eBGweight = 0
-    // favour eventualBG less as ISF grows stronger based on the sens_predType using sens_eBGweight
-    // should the delta be 110% more than the short_avg (DeltaPct) increase weighting to eventualBG
-    // delta condition is replaced with a safety that weights eventualBG if it is lower than current bg
     if (ENactive) {
-        sens_eBGweight = (sens_predType=="UAM" ? 0.25 : sens_eBGweight); // eBGw start at 25% and decreases with ISF scaling
-        sens_eBGweight = (sens_predType=="COB" ? 0.75 : sens_eBGweight); // eBGw start at 75% and decreases with ISF scaling
-        sens_eBGweight = (sens_eBGweight > 0 && DeltaPct > 1.05 && bg <= ISFbgMax ? sens_eBGweight : Math.min(Math.max((sens_currentBG/sens_profile)-(1-sens_eBGweight),0),sens_eBGweight)); // start at eBGw, max eBGw, min 0 - DeltaPct 1.05 respects eBGw initial weighting
-        sens_eBGweight = (sens_predType=="BGL" ? 0 : sens_eBGweight); // small delta uses current bg
-        sens_eBGweight = (sens_predType!="BGL" && eventualBG < bg ? 1 : sens_eBGweight); // if eventualBG is lower use this as sens_future_bg
-        sens_eBGweight = (sens_predType=="COB" && COBWindowOK ? 0.75 : sens_eBGweight); // eBGw stays at 75% for COB Window
+        //if (sens_predType == "UAM" && bg <= ISFbgMax) {
+        if (sens_predType == "UAM") {
+            sens_eBGweight = 0.25;
+            sens_eBGweight = (delta > 4 && DeltaPct > 1 ? 0.50 : sens_eBGweight); // rising and accelerating
+        }
+        if (sens_predType == "COB") {
+            sens_eBGweight = 0.50;
+            sens_eBGweight = (delta >=6 ? 0.75 : sens_eBGweight); // rising faster
+        }
+        if (sens_predType == "BGL") {
+            sens_eBGweight = 0.50; // slow delta
+        }
 
-        // Delta safeties
-        sens_eBGweight = (delta <=6 && sens_predType=="COB" && !COBWindowOK ? 0 : sens_eBGweight);
-        sens_eBGweight = (delta <4 && sens_predType=="UAM" && !COBWindowOK ? 0 : sens_eBGweight);
+        // if bg is falling and not slowly increase weighting to eventualBG
+        sens_eBGweight = (delta < 0 && sens_predType!="BGL" ? 1 : sens_eBGweight);
 
+        // calculate the prediction bg based on the weightings for eventualBG
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
 
         // apply dynamic ISF scaling formula
         var sens_future_scaler = Math.log(sens_future_bg/75)+1;
         sens_future = sens_normalTarget/sens_future_scaler;
-        //sens_future = (bg >= ISFbgMax && sens_eBGweight == 0 ? sens_currentBG : sens_future);
-        //sens_future_max = (bg >= ISFbgMax);
     }
 
     // if BG below target then take the max of the sens vars
