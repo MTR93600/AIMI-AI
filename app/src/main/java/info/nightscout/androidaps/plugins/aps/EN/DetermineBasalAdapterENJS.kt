@@ -259,6 +259,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         //this.profile.put("ISFbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgoffset, 0.0),profileFunction.getUnits()))
         this.profile.put("ISFbgscaler", sp.getDouble(R.string.key_eatingnow_isfbgscaler, 0.0))
         this.profile.put("insulinType", activePlugin.activeInsulin.friendlyName)
+        this.profile.put("insulinPeak", activePlugin.activeInsulin.peak)
         // patches ==== END
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
