@@ -84,7 +84,7 @@ abstract class PumpPluginAbstract protected constructor(
         disposable.add(rxBus
                            .toObservable(EventAppExit::class.java)
                            .observeOn(aapsSchedulers.io)
-                           .subscribe({ _ -> context.unbindService(serviceConnection!!) }) { throwable: Throwable? -> fabricPrivacy.logException(throwable!!) }
+                           .subscribe({ context.unbindService(serviceConnection!!) }) { throwable: Throwable? -> fabricPrivacy.logException(throwable!!) }
         )
         onStartCustomActions()
     }
@@ -265,12 +265,12 @@ abstract class PumpPluginAbstract protected constructor(
     override fun shortStatus(veryShort: Boolean): String {
         var ret = ""
 
-        if (pumpStatusData.lastConnection == 0L) {
-            ret += "LastConn: never\n"
+        ret += if (pumpStatusData.lastConnection == 0L) {
+            "LastConn: never\n"
         } else {
-            val agoMsec = System.currentTimeMillis() - pumpStatusData.lastConnection
-            val agoMin = (agoMsec / 60.0 / 1000.0).toInt()
-            ret += "LastConn: $agoMin min ago\n"
+            val agoMSec = System.currentTimeMillis() - pumpStatusData.lastConnection
+            val agoMin = (agoMSec / 60.0 / 1000.0).toInt()
+            "LastConn: $agoMin min ago\n"
         }
 
         if (pumpStatusData.lastBolusTime != null && pumpStatusData.lastBolusTime!!.time != 0L) {

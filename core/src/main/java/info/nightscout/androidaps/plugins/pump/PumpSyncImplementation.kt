@@ -132,6 +132,8 @@ class PumpSyncImplementation @Inject constructor(
     }
 
     override fun addBolusWithTempId(timestamp: Long, amount: Double, temporaryId: Long, type: DetailedBolusInfo.BolusType, pumpType: PumpType, pumpSerial: String): Boolean {
+        aapsLogger.info(LTag.DATABASE,"pre bolus")
+
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
             timestamp = timestamp,
@@ -143,16 +145,22 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
+        aapsLogger.info(LTag.DATABASE,"pre transaction")
+
         repository.runTransactionForResult(InsertBolusWithTempIdTransaction(bolus))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
-                result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted Bolus $it") }
+                result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
+                aapsLogger.info(LTag.DATABASE,result.toString())
+
                 return result.inserted.size > 0
             }
     }
 
     override fun syncBolusWithTempId(timestamp: Long, amount: Double, temporaryId: Long, type: DetailedBolusInfo.BolusType?, pumpId: Long?, pumpType: PumpType, pumpSerial: String): Boolean {
+        aapsLogger.info(LTag.DATABASE,"prebolus")
+
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
             timestamp = timestamp,
@@ -165,18 +173,22 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
+        aapsLogger.info(LTag.DATABASE,"pretransaction $bolus ${bolus.interfaceIDs}")
+
         repository.runTransactionForResult(SyncBolusWithTempIdTransaction(bolus, type?.toDBbBolusType()))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
-                result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated Bolus $it") }
-                result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted Bolus $it") }
+                result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated Bolus $it") }
+                result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
+                aapsLogger.info(LTag.DATABASE,result.toString())
 
                 return result.inserted.size > 0
             }
     }
 
     override fun syncBolusWithPumpId(timestamp: Long, amount: Double, type: DetailedBolusInfo.BolusType?, pumpId: Long, pumpType: PumpType, pumpSerial: String): Boolean {
+        aapsLogger.info(LTag.DATABASE,"prebolus")
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
             timestamp = timestamp,
@@ -188,12 +200,14 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
+        aapsLogger.info(LTag.DATABASE,"pretransaction")
         repository.runTransactionForResult(SyncPumpBolusTransaction(bolus, type?.toDBbBolusType()))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
-                result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted Bolus $it") }
-                result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated Bolus $it") }
+                result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
+                result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated Bolus $it") }
+                aapsLogger.info(LTag.DATABASE,result.toString())
                 return result.inserted.size > 0
             }
     }

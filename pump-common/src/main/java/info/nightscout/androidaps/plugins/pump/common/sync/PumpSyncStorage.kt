@@ -71,7 +71,7 @@ class PumpSyncStorage @Inject constructor(
     }
 
     fun saveStorageBolus() {
-        if (!pumpSyncStorageBolus.isEmpty()) {
+        if (pumpSyncStorageBolus.isNotEmpty()) {
             sp.putString(pumpSyncStorageBolusKey, xstream.toXML(pumpSyncStorageBolus))
             aapsLogger.debug(LTag.PUMP, "Saving Pump Sync Storage: boluses=${pumpSyncStorageBolus.size}")
         } else {
