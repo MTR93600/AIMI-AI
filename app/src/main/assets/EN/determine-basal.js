@@ -1135,7 +1135,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     // extra reason text
 
-    rT.reason += ", <b>EN: " + (ENactive ? "Active" : "Inactive")+"</b>";
+    rT.reason += ", EN: " + (ENactive ? "Active" : "Inactive");
     rT.reason += (!ENmaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
