@@ -1135,12 +1135,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     // extra reason text
 
-    rT.reason += ", <b>EN: " + (ENactive ? "Active" : "Inactive");
+    rT.reason += ", <b>EN: " + (ENactive ? "Active" : "Inactive")+"</b>";
     rT.reason += (!ENmaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!ENactive && !ENtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
-    rT.reason +="</b>";
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+"/"+convert_bg(sens_TDD_new, profile)+")";
     //rT.reason += ", TDD24H:" + round(tdd24h, 2);
