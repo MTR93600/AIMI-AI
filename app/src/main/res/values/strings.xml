@@ -575,6 +575,7 @@
     <string name="key_insulin_oref_peak" translatable="false">insulin_oref_peak</string>
     <string name="insulin_oref_peak">IOB Curve Peak Time</string>
     <string name="insulin_peak_time">Peak Time [min]</string>
+    <string name="insulin_peak">Peak</string>
     <string name="free_peak_oref">Free-Peak Oref</string>
     <string name="rapid_acting_oref">Rapid-Acting Oref</string>
     <string name="ultrarapid_oref">Ultra-Rapid Oref</string>
@@ -605,7 +606,6 @@
     <string name="shortenergy">En</string>
     <string name="shortprotein">Pr</string>
     <string name="shortfat">Fat</string>
-    <string name="active"><![CDATA[<Active>]]></string>
     <string name="executingrightnow">Command is executed right now</string>
     <string name="missed_bg_readings">Missed BG readings</string>
     <string name="key_raise_notifications_as_android_notifications" translatable="false">raise_urgent_alarms_as_android_notification</string>
@@ -1229,6 +1229,7 @@
     <string name="key_eatingnow_smbbgoffset">key_eatingnow_smbbgoffset</string>
     <string name="key_use_ghostcob" translatable="false">key_use_ghostcob</string>
     <string name="key_use_AimiUAM" translatable="false">key_use_AimiUAM</string>
+    <string name="key_use_AimiPower" translatable="false">key_use_AimiPower</string>
     <string name="key_use_AimiUAM_ISF" translatable="false">key_use_AimiUAM_ISF</string>
     <string name="key_use_LuymjevU200" translatable="false">key_use_LuymjevU200</string>
     <string name="key_use_LuymjevU100" translatable="false">key_use_LuymjevU100</string>
@@ -1238,8 +1239,8 @@
     <string name="key_use_AIMI_CAP" translatable="false">key_use_AIMI_CAP</string>
     <string name="key_use_AIMI_PBolus" translatable="false">key_use_AIMI_PBolus</string>
     <string name="key_use_AIMI_BreakFastLight" translatable="false">key_use_AIMI_BreakfastLight</string>
-    <string name="key_AIMI_BreakFastLight_timestart">key_AIMI_BreakFastLight_timestart</string>
     <string name="key_AIMI_BreakFastLight_timeend">key_AIMI_BreakFastLight_timeend</string>
+    <string name="key_AIMI_BreakFastLight_timestart">key_AIMI_BreakFastLight_timestart</string>
     <string name="key_eatingnow_cobinsulinreqpct">key_eatingnow_cobinsulinreqpct</string>
     <string name="key_eatingnow_cobboostminutes" translatable="false">key_eatingnow_cobboostminutes</string>
     <string name="key_eatingnow_cobboost_maxbolus">key_eatingnow_cobboost_maxbolus</string>
@@ -1352,4 +1353,22 @@
     <string name="show_hide_records">Hide loop records</string>
     <string name="widget_description">AndroidAPS widget</string>
     <string name="configure">Configure opacity</string>
+    <string name="loop_status">Loop status</string>
+    <string name="graph_scale">Graph scale</string>
+
+    <string name="a11y_otp_qr_code">QR Code for setup one time password</string>
+    <string name="a11y_open_settings">open settings</string>
+    <string name="a11y_set_carb_timer">set carb timer alarm</string>
+    <string name="device_all">All</string>
+    <string name="device_phone">Phone</string>
+    <string name="device_watch">Watch</string>
+    <string name="a11y_only_on_watch">only on watch</string>
+    <string name="a11y_only_on_phone">only on phone</string>
+    <string name="a11y_drag_and_drop_handle">drag and drop handle</string>
+
+  <!-- Aidex Cgms -->
+    <string name="aidex">GlucoRx Aidex</string>
+    <string name="aidex_short">Aidex</string>
+    <string name="description_source_aidex">Receive BG values from GlucoRx Aidex CGMS.</string>
+
 </resources>

@@ -19,7 +19,7 @@ import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
 
 import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
-import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.androidaps.interfaces.ResourceHelper;
 
 public class MedLinkStatusActivity extends NoSplashAppCompatActivity {
 

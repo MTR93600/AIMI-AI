@@ -24,7 +24,7 @@
 //import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 //import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 //import info.nightscout.androidaps.utils.HardLimits;
-//import info.nightscout.androidaps.utils.resources.ResourceHelper;
+//import info.nightscout.androidaps.interfaces.ResourceHelper;
 //
 ///**
 // * Created by Dirceu on 02/02/21.

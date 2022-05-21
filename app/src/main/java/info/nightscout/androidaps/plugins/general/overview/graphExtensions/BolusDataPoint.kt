@@ -7,7 +7,7 @@ import info.nightscout.androidaps.database.entities.Bolus
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.DefaultValueHelper
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import javax.inject.Inject
 
 class BolusDataPoint @Inject constructor(
@@ -24,6 +24,16 @@ class BolusDataPoint @Inject constructor(
     override val label
         get() = DecimalFormatter.toPumpSupportedBolus(data.amount, activePlugin.activePump, rh)
     override val duration = 0L
+    override val size = 2f
+
+    override val shape
+        get() = if (data.type == Bolus.Type.SMB) PointsWithLabelGraphSeries.Shape.SMB else PointsWithLabelGraphSeries.Shape.BOLUS
+
+    override fun color(context: Context?): Int =
+        if (data.type == Bolus.Type.SMB) rh.gac(context, R.attr.smbColor)
+        else if (data.isValid) rh.gac(context,  R.attr.bolusDataPointColor)
+        else rh.gac(context,  R.attr.alarmColor)
+
     override fun setY(y: Double) {
         yValue = y
     }

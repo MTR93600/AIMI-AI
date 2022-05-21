@@ -11,7 +11,7 @@ import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import kotlin.math.exp
 import kotlin.math.pow
 
@@ -96,9 +96,12 @@ abstract class InsulinOrefBasePlugin(
                 //circadian_sensitivity = 1.2;
                 circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
             }
+            var factordia = (Math.log(bolus.amount) * 1.618)
+
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            val td = dia * 60 * circadian_sensitivity //getDIA() always >= MIN_DIA
+            val td = Math.max(dia * 60 * factordia,(dia/2) * 60) //getDIA() always >= MIN_DIA
+            //val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
             val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
@@ -113,7 +116,7 @@ abstract class InsulinOrefBasePlugin(
     }
 
     override val insulinConfiguration: InsulinConfiguration
-        get() = InsulinConfiguration(friendlyName, (dia * 1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
+        get() = InsulinConfiguration(friendlyName, (dia *  1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
 
     override val comment
         get(): String {
@@ -125,11 +128,11 @@ abstract class InsulinOrefBasePlugin(
             return comment
         }
 
-    abstract val peak: Int
+    override abstract val peak: Int
     abstract fun commentStandardText(): String
 
     companion object {
 
-        const val MIN_DIA = 5.0
+        const val MIN_DIA = 2.5
     }
 }

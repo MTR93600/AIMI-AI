@@ -14,22 +14,23 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
+import  info.nightscout.androidaps.interfaces.ResourceHelper;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
-import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
+
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil;
 import info.nightscout.androidaps.utils.DateUtil;
-import info.nightscout.androidaps.utils.resources.ResourceHelper;
+
 import info.nightscout.shared.sharedPreferences.SP;
 
 /**
  * Created by andy on 5/19/18.
  */
 
-public class MedLinkStatusGeneralFragment extends DaggerFragment implements RefreshableInterface {
+public class MedLinkStatusGeneralFragment extends DaggerFragment {
 
     private static final String PLACEHOLDER = "-";
 
@@ -63,26 +64,11 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment implements Refr
     public void onResume() {
         super.onResume();
 
-        this.connectionStatus = getActivity().findViewById(R.id.rls_t1_connection_status);
-        this.configuredRileyLinkAddress = getActivity().findViewById(R.id.rls_t1_configured_riley_link_address);
-        this.configuredRileyLinkName = getActivity().findViewById(R.id.rls_t1_configured_riley_link_name);
-        this.batteryLevelRow = getActivity().findViewById(R.id.rls_t1_battery_level_row);
-        this.batteryLevel = getActivity().findViewById(R.id.rls_t1_battery_level);
-        this.connectionError = getActivity().findViewById(R.id.rls_t1_connection_error);
-        this.connectedDeviceDetails = getActivity().findViewById(R.id.rls_t1_connected_device_details);
-        this.deviceType = getActivity().findViewById(R.id.rls_t1_device_type);
-        this.configuredDeviceModel = getActivity().findViewById(R.id.rls_t1_configured_device_model);
-        TextView connectedDeviceModel = getActivity().findViewById(R.id.rls_t1_connected_device_model);
-        TextView serialNumber = getActivity().findViewById(R.id.rls_t1_serial_number);
-        TextView pumpFrequency = getActivity().findViewById(R.id.rls_t1_pump_frequency);
-        this.lastUsedFrequency = getActivity().findViewById(R.id.rls_t1_last_used_frequency);
-        this.lastDeviceContact = getActivity().findViewById(R.id.rls_t1_last_device_contact);
-        this.firmwareVersion = getActivity().findViewById(R.id.rls_t1_firmware_version);
 
         refreshData();
     }
 
-    @Override public void refreshData() {
+    private void refreshData() {
         RileyLinkTargetDevice targetDevice = medLinkServiceData.targetDevice;
 
         this.connectionStatus.setText(resourceHelper.gs(medLinkServiceData.medLinkServiceState.getResourceId()));

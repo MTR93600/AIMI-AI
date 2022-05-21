@@ -21,7 +21,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
 import org.json.JSONArray
@@ -34,6 +34,8 @@ import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
+
+
 //import info.nightscout.androidaps.dana.DanaPump
 
 
@@ -66,7 +68,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var lastBolusNormalTimeValue: Long = 0
     private var AIMI_lastCarbUnit: Long = 0
     private var AIMI_lastCarbTime: Long = 0
-    private val millsToThePast = T.hours(4).msecs()
+    private val millsToThePast = T.hours(23).msecs()
     private val millsToThePastSMB = T.hours(1).msecs()
     private var tddAIMI: TddCalculator? = null
     private var StatTIR: TirCalculator? = null
@@ -257,6 +259,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("smb_delivery_ratio_bg_range", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_delivery_ratio_bg_range, "40")))
         this.profile.put("smb_max_range_extension", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_max_range_extension, "1.2")))
         this.profile.put("enable_AIMI_UAM", sp.getBoolean(R.string.key_use_AimiUAM, false))
+        this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
         this.profile.put("enable_AIMI_UAM_U200", sp.getBoolean(R.string.key_use_LuymjevU200, false))
         this.profile.put("enable_AIMI_UAM_U100", sp.getBoolean(R.string.key_use_LuymjevU100, false))
         this.profile.put("enable_AIMI_UAM_Fiasp", sp.getBoolean(R.string.key_use_Fiasp, false))
@@ -282,6 +285,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         if (tb != null) currentTemp.put("minutesrunning", tb.getPassedDurationToTimeInMinutes(now))
         iobData = iobCobCalculator.convertToJSONArray(iobArray)
         mGlucoseStatus.put("glucose", glucoseStatus.glucose)
+
         mGlucoseStatus.put("noise", glucoseStatus.noise)
         if (sp.getBoolean(R.string.key_always_use_shortavg, false)) {
             mGlucoseStatus.put("delta", glucoseStatus.shortAvgDelta)
@@ -341,16 +345,16 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("TDDAIMIBASAL3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.basalAmount)
         this.mealData.put("TDDAIMIBASAL7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7))?.basalAmount)
         this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
-        this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
+        //this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)
         //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
-        this.mealData.put("StatLow7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).belowPct())
-        this.mealData.put("StatInRange7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).inRangePct())
-        this.mealData.put("StatAbove7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 160.0)).abovePct())
-        this.mealData.put("currentTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).belowPct())
-        this.mealData.put("currentTIRRange", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).inRangePct())
-        this.mealData.put("currentTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(80.0, 160.0)).abovePct())
+        this.mealData.put("StatLow7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 180.0)).belowPct())
+        this.mealData.put("StatInRange7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 180.0)).inRangePct())
+        this.mealData.put("StatAbove7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 180.0)).abovePct())
+        this.mealData.put("currentTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(65.0, 180.0)).belowPct())
+        this.mealData.put("currentTIRRange", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(65.0, 180.0)).inRangePct())
+        this.mealData.put("currentTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(65.0, 180.0)).abovePct())
         this.mealData.put("currentTIR_70_140_Above", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(70.0, 140.0)).abovePct())
         //this.mealData.put("TDDPUMP1", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP2", pumpHistory.tddHistory.get(DEFAULT_BUFFER_SIZE))

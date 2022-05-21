@@ -8,18 +8,19 @@ import android.view.Menu
 import android.view.View
 import android.widget.ImageButton
 import androidx.annotation.AttrRes
-import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.PopupMenu
 import com.google.gson.Gson
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.events.EventRefreshOverview
+import info.nightscout.androidaps.events.EventScale
 import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.Loop
-import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,25 +33,28 @@ class OverviewMenus @Inject constructor(
     private val rxBus: RxBus,
     private val buildHelper: BuildHelper,
     private val loop: Loop,
-    private val config: Config
+    private val config: Config,
+    private val fabricPrivacy: FabricPrivacy
 ) {
-    enum class CharType(@StringRes val nameId: Int, @AttrRes val attrId: Int, val primary: Boolean, val secondary: Boolean, @StringRes val shortnameId: Int) {
-        PRE(R.string.overview_show_predictions, R.attr.predictionColor, primary = true, secondary = false, shortnameId = R.string.prediction_shortname),
-        TREAT(R.string.overview_show_treatments, R.attr.predictionColor, primary = true, secondary = false, shortnameId = R.string.treatments_shortname),
-        BAS(R.string.overview_show_basals, R.attr.basal, primary = true, secondary = false,shortnameId = R.string.basal_shortname),
-        ABS(R.string.overview_show_absinsulin, R.attr.iobColor, primary = false, secondary = true,shortnameId = R.string.abs_insulin_shortname),
-        IOB(R.string.overview_show_iob, R.attr.iobColor, primary = false, secondary = true,shortnameId = R.string.iob),
-        COB(R.string.overview_show_cob, R.attr.cobColor, primary = false, secondary = true,shortnameId = R.string.cob),
-        DEV(R.string.overview_show_deviations, R.attr.bgiColor, primary = false, secondary = true,shortnameId = R.string.deviation_shortname),
-        BGI(R.string.overview_show_bgi, R.attr.bgiColor, primary = false, secondary = true,shortnameId = R.string.bgi_shortname),
-        SEN(R.string.overview_show_sensitivity, R.attr.ratioColor, primary = false, secondary = true,shortnameId = R.string.sensitivity_shortname),
-        ACT(R.string.overview_show_activity, R.attr.activityColor, primary = true, secondary = false,shortnameId = R.string.activity_shortname),
-        DEVSLOPE(R.string.overview_show_deviationslope, R.attr.devslopeposColor, primary = false, secondary = true,shortnameId = R.string.devslope_shortname)
+
+    enum class CharType(@StringRes val nameId: Int, @AttrRes val attrId: Int, @AttrRes val attrTextId: Int, val primary: Boolean, val secondary: Boolean, @StringRes val shortnameId: Int) {
+        PRE(R.string.overview_show_predictions, R.attr.predictionColor, R.attr.menuTextColor, primary = true, secondary = false, shortnameId = R.string.prediction_shortname),
+        TREAT(R.string.overview_show_treatments, R.attr.predictionColor, R.attr.menuTextColor, primary = true, secondary = false, shortnameId = R.string.treatments_shortname),
+        BAS(R.string.overview_show_basals, R.attr.basal, R.attr.menuTextColor, primary = true, secondary = false, shortnameId = R.string.basal_shortname),
+        ABS(R.string.overview_show_absinsulin, R.attr.iobColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.abs_insulin_shortname),
+        IOB(R.string.overview_show_iob, R.attr.iobColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.iob),
+        COB(R.string.overview_show_cob, R.attr.cobColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.cob),
+        DEV(R.string.overview_show_deviations, R.attr.bgiColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.deviation_shortname),
+        BGI(R.string.overview_show_bgi, R.attr.bgiColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.bgi_shortname),
+        SEN(R.string.overview_show_sensitivity, R.attr.ratioColor, R.attr.menuTextColorInverse, primary = false, secondary = true, shortnameId = R.string.sensitivity_shortname),
+        ACT(R.string.overview_show_activity, R.attr.activityColor, R.attr.menuTextColor, primary = true, secondary = false, shortnameId = R.string.activity_shortname),
+        DEVSLOPE(R.string.overview_show_deviationslope, R.attr.devSlopePosColor, R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.devslope_shortname)
     }
 
     companion object {
 
         const val MAX_GRAPHS = 5 // including main
+        const val SCALE_ID = 1001
     }
 
     fun enabledTypes(graph: Int): String {
@@ -101,6 +105,13 @@ class OverviewMenus @Inject constructor(
             }
             val popup = PopupMenu(v.context, v)
 
+            popup.menu.addSubMenu(Menu.NONE, SCALE_ID, Menu.NONE, rh.gs(R.string.graph_scale)).also {
+                it.add(Menu.NONE, SCALE_ID + 6, Menu.NONE, "6")
+                it.add(Menu.NONE, SCALE_ID + 12, Menu.NONE, "12")
+                it.add(Menu.NONE, SCALE_ID + 18, Menu.NONE, "18")
+                it.add(Menu.NONE, SCALE_ID + 24, Menu.NONE, "24")
+            }
+
             val used = arrayListOf<Int>()
 
             for (g in 0 until numOfGraphs) {
@@ -122,8 +133,8 @@ class OverviewMenus @Inject constructor(
                     if (insert) {
                         val item = popup.menu.add(Menu.NONE, m.ordinal + 100 * (g + 1), Menu.NONE, rh.gs(m.nameId))
                         val title = item.title
-                        val s = SpannableString(title)
-                        s.setSpan(ForegroundColorSpan(rh.gc(R.color.black)), 0, s.length, 0)
+                        val s = SpannableString(" $title ")
+                        s.setSpan(ForegroundColorSpan(rh.gac(context, m.attrTextId)), 0, s.length, 0)
                         s.setSpan(BackgroundColorSpan(rh.gac(context, m.attrId)), 0, s.length, 0)
                         item.title = s
                         item.isCheckable = true
@@ -139,21 +150,36 @@ class OverviewMenus @Inject constructor(
             }
 
             popup.setOnMenuItemClickListener {
-                // id < 100 graph header - divider 1, 2, 3 .....
-                when {
-                    it.itemId == numOfGraphs -> {
-                        // add new empty
-                        _setting.add(Array(CharType.values().size) { false })
+                try {
+                    // id < 100 graph header - divider 1, 2, 3 .....
+                    when {
+                        it.itemId == SCALE_ID                              -> {
+                            // do nothing, submenu
+                        }
+
+                        it.itemId > SCALE_ID && it.itemId < SCALE_ID + 100 -> {
+                            val hours = it.itemId - SCALE_ID // 6,12,....
+                            rxBus.send(EventScale(hours))
+                        }
+
+                        it.itemId == numOfGraphs                           -> {
+                            // add new empty
+                            _setting.add(Array(CharType.values().size) { false })
+                        }
+
+                        it.itemId < 100                                    -> {
+                            // remove graph
+                            _setting.removeAt(it.itemId)
+                        }
+
+                        else                                               -> {
+                            val graphNumber = it.itemId / 100 - 1
+                            val item = it.itemId % 100
+                            _setting[graphNumber][item] = !it.isChecked
+                        }
                     }
-                    it.itemId < 100          -> {
-                        // remove graph
-                        _setting.removeAt(it.itemId)
-                    }
-                    else                     -> {
-                        val graphNumber = it.itemId / 100 - 1
-                        val item = it.itemId % 100
-                        _setting[graphNumber][item] = !it.isChecked
-                    }
+                } catch (exception: Exception) {
+                    fabricPrivacy.logException(exception)
                 }
                 storeGraphConfig()
                 setupChartMenu(context, chartButton)

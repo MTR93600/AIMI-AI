@@ -26,6 +26,7 @@ import info.nightscout.androidaps.plugins.constraints.storage.StorageConstraintP
 import info.nightscout.androidaps.plugins.constraints.versionChecker.VersionCheckerPlugin
 import info.nightscout.androidaps.plugins.general.actions.ActionsPlugin
 import info.nightscout.androidaps.plugins.general.automation.AutomationPlugin
+import info.nightscout.androidaps.plugins.general.autotune.AutotunePlugin
 import info.nightscout.androidaps.plugins.general.dataBroadcaster.DataBroadcastPlugin
 import info.nightscout.androidaps.plugins.general.food.FoodPlugin
 import info.nightscout.androidaps.plugins.general.maintenance.MaintenancePlugin
@@ -247,6 +248,12 @@ abstract class PluginsModule {
     @Binds
     @AllConfigs
     @IntoMap
+    @IntKey(255)
+    abstract fun bindAutotunePlugin(plugin: AutotunePlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
     @IntKey(265)
     abstract fun bindSafetyPlugin(plugin: SafetyPlugin): PluginBase
 
@@ -377,6 +384,12 @@ abstract class PluginsModule {
     @IntoMap
     @IntKey(460)
     abstract fun bindTomatoPlugin(plugin: TomatoPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(465)
+    abstract fun bindAidexPlugin(plugin: AidexPlugin): PluginBase
 
     @Binds
     @AllConfigs

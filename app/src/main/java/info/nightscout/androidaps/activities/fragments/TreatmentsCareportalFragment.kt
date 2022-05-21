@@ -26,7 +26,7 @@ import info.nightscout.androidaps.plugins.general.nsclient.events.EventNSClientR
 import info.nightscout.androidaps.utils.*
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.buildHelper.BuildHelper
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
@@ -173,8 +173,6 @@ class TreatmentsCareportalFragment : DaggerFragment() {
                 actionHelper.updateSelection(position, therapyEvent, holder.binding.cbRemove.isChecked)
             }
             holder.binding.cbRemove.isChecked = actionHelper.isSelected(position)
-            val nextTimestamp = if (therapyList.size != position + 1) therapyList[position + 1].timestamp else 0L
-            holder.binding.delimiter.visibility = dateUtil.isSameDayGroup(therapyEvent.timestamp, nextTimestamp).toVisibility()
         }
 
         override fun getItemCount() = therapyList.size

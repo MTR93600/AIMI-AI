@@ -401,7 +401,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 SystemClock.sleep(5000)
                 if (this.isInitialized) {
                     val statusRefresh = workWithStatusRefresh(
-                        StatusRefreshAction.GetData, null, 0L
+                        StatusRefreshAction.GetData, null, 30000L
                     )
                     if (doWeHaveAnyStatusNeededRefreshing(statusRefresh)) {
                         if (!commandQueue.statusInQueue()) {

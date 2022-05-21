@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.activities
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -9,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.jjoe64.graphview.GraphView
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
@@ -17,6 +17,7 @@ import info.nightscout.androidaps.databinding.ActivityHistorybrowseBinding
 import info.nightscout.androidaps.events.EventAutosensCalculationFinished
 import info.nightscout.androidaps.events.EventCustomCalculationFinished
 import info.nightscout.androidaps.events.EventRefreshOverview
+import info.nightscout.androidaps.events.EventScale
 import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.extensions.toVisibilityKeepSpace
 import info.nightscout.androidaps.interfaces.ActivePlugin
@@ -130,10 +131,9 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             loadAll("onClickEnd")
         }
         binding.zoom.setOnClickListener {
-            rangeToDisplay += 6
-            rangeToDisplay = if (rangeToDisplay > 24) 6 else rangeToDisplay
-            setTime(overviewData.fromTime)
-            loadAll("rangeChange")
+            var hours = rangeToDisplay + 6
+            hours = if (hours > 24) 6 else hours
+            rxBus.send(EventScale(hours))
         }
         binding.zoom.setOnLongClickListener {
             Calendar.getInstance().also { calendar ->
@@ -148,33 +148,19 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             true
         }
 
-        // create an OnDateSetListener
-        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-            Calendar.getInstance().also { calendar ->
-                calendar.timeInMillis = overviewData.fromTime
-                calendar[Calendar.YEAR] = year
-                calendar[Calendar.MONTH] = monthOfYear
-                calendar[Calendar.DAY_OF_MONTH] = dayOfMonth
-                calendar[Calendar.MILLISECOND] = 0
-                calendar[Calendar.SECOND] = 0
-                calendar[Calendar.MINUTE] = 0
-                calendar[Calendar.HOUR_OF_DAY] = 0
-                setTime(calendar.timeInMillis)
-                binding.date.text = dateUtil.dateAndTimeString(overviewData.fromTime)
-            }
-            loadAll("onClickDate")
-        }
-
         binding.date.setOnClickListener {
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = overviewData.fromTime
-            DatePickerDialog(
-                this, R.style.MaterialPickerTheme,
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            MaterialDatePicker.Builder.datePicker()
+                .setSelection(dateUtil.timeStampToUtcDateMillis(overviewData.fromTime))
+                .setTheme(R.style.DatePicker)
+                .build()
+                .apply {
+                    addOnPositiveButtonClickListener { selection ->
+                        setTime(dateUtil.mergeUtcDateToTimestamp(overviewData.fromTime, selection))
+                        binding.date.text = dateUtil.dateAndTimeString(overviewData.fromTime)
+                        loadAll("onClickDate")
+                    }
+                }
+                .show(supportFragmentManager, "history_date_picker")
         }
 
         val dm = DisplayMetrics()
@@ -184,9 +170,8 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         else
             windowManager.defaultDisplay.getMetrics(dm)
 
-
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
-        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gac(this, R.attr.graphgrid)
+        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gac(this, R.attr.graphGrid)
         binding.bgGraph.gridLabelRenderer?.reloadStyles()
         binding.bgGraph.gridLabelRenderer?.labelVerticalWidth = axisWidth
 
@@ -229,6 +214,14 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             .toObservable(EventUpdateOverviewGraph::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({ updateGUI("EventRefreshOverview") }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventScale::class.java)
+            .observeOn(aapsSchedulers.main)
+            .subscribe({
+                           rangeToDisplay = it.hours
+                           setTime(overviewData.fromTime)
+                           loadAll("rangeChange")
+                       }, fabricPrivacy::logException)
 
         if (overviewData.fromTime == 0L) {
             // set start of current day
@@ -259,12 +252,12 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
                 val graph = GraphView(this)
                 graph.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(100)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = rh.gac(R.attr.graphgrid)
+                graph.gridLabelRenderer?.gridColor = rh.gac(R.attr.graphGrid)
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
                 graph.gridLabelRenderer?.numVerticalLabels = 3
-                graph.viewport.backgroundColor = rh.gac(this, R.attr.viewPortbackgroundColor)
+                graph.viewport.backgroundColor = rh.gac(this, R.attr.viewPortBackgroundColor)
                 relativeLayout.addView(graph)
 
                 val label = TextView(this)

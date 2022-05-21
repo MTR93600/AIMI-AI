@@ -27,6 +27,7 @@ import info.nightscout.androidaps.database.entities.ValueWithUnit
 import info.nightscout.androidaps.database.transactions.InsertAndCancelCurrentOfflineEventTransaction
 import info.nightscout.androidaps.database.transactions.InsertTherapyEventAnnouncementTransaction
 import info.nightscout.androidaps.events.EventAcceptOpenLoopChange
+import info.nightscout.androidaps.events.EventMobileToWear
 import info.nightscout.androidaps.events.EventTempTargetChange
 import info.nightscout.androidaps.extensions.buildDeviceStatus
 import info.nightscout.androidaps.extensions.convertedToAbsolute
@@ -54,11 +55,12 @@ import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.HardLimits
 import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
+import info.nightscout.shared.weardata.EventData
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
@@ -350,7 +352,7 @@ class LoopPlugin @Inject constructor(
                                 //only send to wear if Native notifications are turned off
                                 if (!sp.getBoolean(R.string.key_raise_notifications_as_android_notifications, true)) {
                                     // Send to Wear
-                                    rxBus.send(EventWearInitiateAction("changeRequest"))
+                                    sendToWear()
                                 }
                             }
                         } else {
@@ -488,14 +490,28 @@ class LoopPlugin @Inject constructor(
         rxBus.send(EventNewOpenLoopNotification())
 
         // Send to Wear
-        rxBus.send(EventWearInitiateAction("changeRequest"))
+        sendToWear()
     }
 
     private fun dismissSuggestion() {
         // dismiss notifications
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(Constants.notificationID)
-        rxBus.send(EventWearConfirmAction("cancelChangeRequest"))
+        rxBus.send(EventMobileToWear(EventData.CancelNotification(dateUtil.now())))
+    }
+
+    private fun sendToWear() {
+        lastRun?.let {
+            rxBus.send(
+                EventMobileToWear(
+                    EventData.OpenLoopRequest(
+                        rh.gs(R.string.openloop_newsuggestion),
+                        it.constraintsProcessed.toString(),
+                        EventData.OpenLoopRequestConfirmed(dateUtil.now())
+                    )
+                )
+            )
+        }
     }
 
     override fun acceptChangeRequest() {
@@ -658,6 +674,7 @@ class LoopPlugin @Inject constructor(
 
     private fun applySMBRequest(request: APSResult, callback: Callback?) {
         if (!request.bolusRequested()) {
+            aapsLogger.debug(LTag.APS, "No SMB requested")
             return
         }
         val pump = activePlugin.activePump

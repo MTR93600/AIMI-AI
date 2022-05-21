@@ -44,11 +44,11 @@
             android:inputType="numberDecimal"
             android:key="@string/key_iTime"
             android:title="@string/iTime_title"
-            validate:floatmaxNumber="240"
+            validate:floatmaxNumber="900"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="200"
             android:dialogMessage="@string/iTime_MaxBolus_minutes_summary"
             android:inputType="numberDecimal"
@@ -56,9 +56,9 @@
             android:title="@string/iTime_MaxBolus_minutes_title"
             validate:floatmaxNumber="250"
             validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2"
             android:dialogMessage="@string/iTime_Bolus_summary"
             android:inputType="numberDecimal"
@@ -66,7 +66,7 @@
             android:title="@string/iTime_Bolus_title"
             validate:floatmaxNumber="5"
             validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
+            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2"
@@ -88,6 +88,13 @@
             android:key="@string/key_use_AimiUAM"
             android:title="Use AIMI FULL UAM"
             android:summary="Enable the Full UAM code to define the size of the SMB. Need iTime true with an SMB >= iTime_Starting_Bolus" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiPower"
+            android:title="Use AIMI Power"
+            android:summary="Enable give the full AIMI UAM power during the iTime duration, disable give a 50% power answer during the iTime duration" />
+
 
         <SwitchPreference
             android:defaultValue="false"

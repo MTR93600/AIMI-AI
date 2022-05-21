@@ -1,10 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag

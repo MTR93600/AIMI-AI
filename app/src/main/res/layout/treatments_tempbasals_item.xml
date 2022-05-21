@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.MaterialComponents.CardView"
+    android:id="@+id/tempbasal_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    app:cardBackgroundColor="?attr/colorSurface">
+    android:layout_marginStart="4dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="4dp"
+    app:contentPadding="2dp"
+    android:layout_gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,9 +22,9 @@
             android:id="@+id/date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:background="?android:attr/dividerHorizontal"
             android:gravity="center"
@@ -38,7 +44,8 @@
                 android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="5dp"
-                tools:text="{fa-clock-o}" />
+                android:text="{fa-clock-o}"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/time"
@@ -76,8 +83,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setExtendedButtonColor"
-                tools:ignore="RtlSymmetry"
-                tools:text="E" />
+                tools:ignore="HardcodedText,RtlSymmetry"
+                android:text="E" />
 
             <TextView
                 android:id="@+id/suspend_flag"
@@ -85,8 +92,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setExtendedButtonColor"
-                tools:ignore="RtlSymmetry"
-                tools:text="S" />
+                tools:ignore="HardcodedText,RtlSymmetry"
+                android:text="S" />
 
             <TextView
                 android:id="@+id/emulated_suspend_flag"
@@ -94,8 +101,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setExtendedButtonColor"
-                tools:ignore="RtlSymmetry"
-                tools:text="ES" />
+                tools:ignore="HardcodedText,RtlSymmetry"
+                android:text="ES" />
 
             <TextView
                 android:id="@+id/super_bolus_flag"
@@ -103,8 +110,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setExtendedButtonColor"
-                tools:ignore="RtlSymmetry"
-                tools:text="SB" />
+                tools:ignore="HardcodedText,RtlSymmetry"
+                android:text="SB" />
 
             <TextView
                 android:id="@+id/ph"
@@ -112,7 +119,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setTempButton"
-                tools:text="PH" />
+                android:text="PH"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/ns"
@@ -120,7 +128,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:textColor="?attr/setTempButton"
-                tools:text="NS" />
+                android:text="NS"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -139,8 +148,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/tempbasals_iob_label_string"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -182,16 +191,6 @@
 
         </LinearLayout>
 
-        <View
-            android:id="@+id/delimiter"
-            android:layout_width="fill_parent"
-            android:layout_height="2dip"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginBottom="5dp"
-            android:background="?android:attr/dividerHorizontal" />
-
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

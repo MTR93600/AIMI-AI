@@ -8,7 +8,7 @@ import info.nightscout.androidaps.utils.DecimalFormatter.to0Decimal
 import info.nightscout.androidaps.utils.DecimalFormatter.to1Decimal
 import info.nightscout.androidaps.utils.HardLimits
 import info.nightscout.androidaps.utils.Round
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import org.joda.time.DateTime
 import org.json.JSONObject
 
@@ -148,6 +148,10 @@ interface Profile {
             return (passed / 1000).toInt()
         }
 
+        fun milliSecFromMidnight(date: Long): Long {
+            val passed = DateTime(date).millisOfDay.toLong()
+            return passed
+        }
         /*
          * Units conversion
          */

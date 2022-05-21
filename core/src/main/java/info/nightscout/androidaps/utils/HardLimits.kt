@@ -7,7 +7,7 @@ import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.transactions.InsertTherapyEventAnnouncementTransaction
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -40,9 +40,9 @@ class HardLimits @Inject constructor(
 
         // Very Hard Limits Ranges
         // First value is the Lowest and second value is the Highest a Limit can define
-        val VERY_HARD_LIMIT_MIN_BG = doubleArrayOf(80.0, 180.0)
-        val VERY_HARD_LIMIT_MAX_BG = doubleArrayOf(90.0, 200.0)
-        val VERY_HARD_LIMIT_TARGET_BG = doubleArrayOf(80.0, 200.0)
+        val VERY_HARD_LIMIT_MIN_BG = doubleArrayOf(65.0, 180.0)
+        val VERY_HARD_LIMIT_MAX_BG = doubleArrayOf(80.0, 200.0)
+        val VERY_HARD_LIMIT_TARGET_BG = doubleArrayOf(65.0, 200.0)
 
         // Very Hard Limits Ranges for Temp Targets
         val VERY_HARD_LIMIT_TEMP_MIN_BG = intArrayOf(72, 180)

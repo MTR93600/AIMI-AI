@@ -31,7 +31,7 @@ import info.nightscout.androidaps.plugins.pump.common.bolusInfo.DetailedBolusInf
 import info.nightscout.androidaps.plugins.pump.common.bolusInfo.TemporaryBasalStorage
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.utils.*
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
@@ -138,7 +138,6 @@ class DiaconnG8Plugin @Inject constructor(
     override fun isConnected(): Boolean = diaconnG8Service?.isConnected ?: false
     override fun isConnecting(): Boolean = diaconnG8Service?.isConnecting ?: false
     override fun isHandshakeInProgress(): Boolean = false
-
 
     override fun disconnect(reason: String) {
         aapsLogger.debug(LTag.PUMP, "Diaconn G8 disconnect from: $reason")
@@ -247,7 +246,6 @@ class DiaconnG8Plugin @Inject constructor(
         get() = diaconnG8Pump.systemRemainInsulin
     override val batteryLevel: Int
         get() = diaconnG8Pump.systemRemainBattery
-
 
     @Synchronized
     override fun deliverTreatment(detailedBolusInfo: DetailedBolusInfo): PumpEnactResult {

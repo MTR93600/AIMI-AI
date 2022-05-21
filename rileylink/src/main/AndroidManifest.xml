@@ -35,6 +35,7 @@
             android:label="@string/title_activity_medlink_settings"/>
         <activity
             android:name="info.nightscout.androidaps.plugins.pump.common.hw.rileylink.dialog.RileyLinkStatusActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_rileylink_settings"/>
     </application>
 

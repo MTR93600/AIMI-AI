@@ -363,27 +363,27 @@ class MedLinkBLE //extends RileyLinkBLE
     ) {
 //        this.latestReceivedCommand = System.currentTimeMillis();
         aapsLogger.info(LTag.PUMPBTCOMM, "commands")
-        aapsLogger.info(LTag.PUMPBTCOMM, command!!.commands[0].first.code)
+        aapsLogger.info(LTag.PUMPBTCOMM, command!!.commandType.code)
         //        Esta verificação não é mais necessário já que daqui pra frente a gente não usa mais estes comandos, talvez fazer ela em outro lugar, mas ao adicionar comandos não precisa
 //        if (bluetoothConnectionGatt != null) {
 //            rval.value = command.getCommandData();
 //            aapsLogger.info(LTag.PUMPBTCOMM, bluetoothConnectionGatt.getDevice().toString());
         if (mCurrentOperation != null) {
-            aapsLogger.info(LTag.PUMPBTCOMM, "busy for the command " + command!!.commands[0].first.code)
+            aapsLogger.info(LTag.PUMPBTCOMM, "busy for the command " + command.commandType.code)
             //                rval.resultCode = BLECommOperationResult.RESULT_BUSY;
         } else {
-            if (isBolus(command!!.commands[0].first) ||
-                command!!.commands[0].first.isSameCommand(MedLinkCommandType.StopStartPump) ||
-                command!!.commands[0].first.isSameCommand(MedLinkCommandType.CalibrateFrequencyArgument) ||
+            if (isBolus(command.commandType) ||
+                command.commandType.isSameCommand(MedLinkCommandType.StopStartPump) ||
+                command.commandType.isSameCommand(MedLinkCommandType.CalibrateFrequencyArgument) ||
                 executionCommandQueue.stream().noneMatch { f: CommandExecutor? -> f!!.matches(command) }
             ) {
                 var commandExecutor: CommandExecutor
                 synchronized(commandQueueBusy!!) { commandExecutor = buildCommandExecutor(charaUUID, serviceUUID, command) }
-                aapsLogger.info(LTag.PUMPBTCOMM, "adding command" + command!!.commands[0].first.code)
+                aapsLogger.info(LTag.PUMPBTCOMM, "adding command" + command.commandType.code)
                 if (commandPriority == CommandPriority.HIGH) {
-                    if (command!!.commands[0].first == MedLinkCommandType.Connect && !isConnected) {
+                    if (command.commandType == MedLinkCommandType.Connect && !isConnected) {
                         priorityExecutionCommandQueue.addFirst(commandExecutor)
-                    } else if (command!!.commands[0].first != MedLinkCommandType.Connect && !priorityExecutionCommandQueue.contains(commandExecutor)) {
+                    } else if (command.commandType != MedLinkCommandType.Connect && !priorityExecutionCommandQueue.contains(commandExecutor)) {
                         if (command is CalibrateFrequencyMedLinkMessage) {
                             priorityExecutionCommandQueue.addFirst(commandExecutor)
                         } else {
@@ -429,7 +429,7 @@ class MedLinkBLE //extends RileyLinkBLE
                         //                                    chara.setWriteType(PROPERTY_WRITE); //TODO validate
                         nrRetries++
                         aapsLogger.debug(LTag.PUMPBTCOMM, "running command")
-                        aapsLogger.debug(LTag.PUMPBTCOMM, message.commandType.code)
+                        aapsLogger.debug(LTag.PUMPBTCOMM, message.getCommandType().code)
                         val count = 0
                         //                        while (lastReceived == lastReceivedCharacteristic && count < MAX_TRIES) {
                         if (bluetoothConnectionGatt == null || !bluetoothConnectionGatt!!.writeCharacteristic(chara)) {
@@ -439,7 +439,7 @@ class MedLinkBLE //extends RileyLinkBLE
                             //                                break;
                         } else {
                             needRetry = false
-                            aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", message.commandType.code, chara.uuid))
+                            aapsLogger.info(LTag.PUMPBTCOMM, String.format("writing <%s> to characteristic <%s>", message.getCommandType().code, chara.uuid))
                         }
                         //                            count++;
 //                            SystemClock.sleep(4000);
@@ -1290,7 +1290,7 @@ class MedLinkBLE //extends RileyLinkBLE
         aapsLogger.info(LTag.PUMPBTCOMM, "commands to add")
         val it1: Iterator<CommandsToAdd> = commandsToAdd.iterator()
         while (it1.hasNext()) {
-            buf.append(it1.next().command!!.commands[0].first.code)
+            buf.append(it1.next().command.commandType.code)
             buf.append("\n")
         }
         aapsLogger.info(LTag.PUMPBTCOMM, buf.toString())

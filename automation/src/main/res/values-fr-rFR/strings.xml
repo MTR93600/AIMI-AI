@@ -8,7 +8,7 @@
     <string name="automation_missing_action">Veuillez spécifier au moins une action.</string>
     <string name="alarm_message">Alarme: %1$s</string>
     <string name="alarm_short">Alarme:</string>
-    <string name="message_short">Mess :</string>
+    <string name="message_short">Message :</string>
     <string name="alreadyenabled">Déjà activé</string>
     <string name="alreadydisabled">Déjà désactivé</string>
     <string name="alreadysuspended">Déjà suspendu</string>
@@ -120,4 +120,7 @@
     <string name="confirm_remove_multiple_items">Êtes-vous sûr de vouloir supprimer %1$d entrée(s)</string>
     <string name="sort_label">Trier</string>
     <string name="system_automation">Système d\'automatisation</string>
+    <string name="run_automations">Exécuter les automatisations</string>
+    <string name="add_automation">Ajouter une règle</string>
+    <string name="remove_sort">Supprimer/trier</string>
 </resources>
