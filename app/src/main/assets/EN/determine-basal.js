@@ -493,15 +493,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ISFBGscaler = (!ENactive && ENtimeOK ? Math.min(ISFBGscaler,0) : ISFBGscaler);
     enlog += "ISFBGscaler is now:" + ISFBGscaler +"\n";
 
-    var insulinType = profile.insulinType, ins_val = 75, ins_peak = 75;
-    ins_val = (insulinType.includes("Free-Peak") ? 75 : ins_val);
-    ins_val = (insulinType.includes("Lyumjev") ? 75 : ins_val);
-    ins_val = (insulinType.includes("Ultra-Rapid") ? 65 : ins_val);
-    ins_val = (insulinType.includes("Rapid-Acting") ? 55 : ins_val);
+    var insulinType = profile.insulinType, ins_val = 90, ins_peak = 75;
 
-    // insulin peak including onset
-    ins_peak = Math.max(profile.insulinPeak,30); // min of 30
-    ins_peak = Math.min(profile.insulinPeak,75); // max of 75
+    // insulin peak including onset min 30, max 75
+    ins_peak = (profile.insulinPeak < 30 ? 30 : Math.min(profile.insulinPeak,75));
+
+    // ins_val: Free-Peak^?:55-90, Lyumjev^45:75, Ultra-Rapid^55:65, Rapid-Acting^75:55
+    ins_val = (ins_peak < 60 ? (ins_val-ins_peak)+30 : (ins_val-ins_peak)+40);
 
     enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+"\n";
 
