@@ -510,7 +510,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var sens_target_bg = ins_val;
     // only allow adjusted ISF target when eatingnow time is OK and bg below ISFbgMax, dont use at night
     //sens_target_bg = (ENtimeOK && bg < ISFbgMax ? sens_target_bg : target_bg);
-    sens_target_bg = (ENtimeOK ? sens_target_bg : target_bg);
+    sens_target_bg = (ENactive ? sens_target_bg : target_bg);
     var sens_BGscaler = (Math.log(Math.min(bg,ISFbgMax)/sens_target_bg)+1);
 
     // Convert ISFBGscaler to %
