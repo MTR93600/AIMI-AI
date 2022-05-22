@@ -505,7 +505,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     ins_peak = (insulinType.includes("Ultra-Rapid") ? 55 : ins_peak);
     ins_peak = (insulinType.includes("Rapid-Acting") ? 75 : ins_peak);
 
-    enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+"\n";
+    enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+" ("+profile.insulinPeak+")"+"\n";
 
     // sens_target_bg is used like a target, when the number is lower the ISF scaling is stronger
     // for delta > 4 and 105% change from short_avg or within COB window MAX 45 mins use lower target for ISF scaling
