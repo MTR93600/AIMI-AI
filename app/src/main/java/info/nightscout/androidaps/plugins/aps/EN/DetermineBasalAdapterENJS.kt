@@ -313,18 +313,16 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
 
+        // TDD
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAvg1d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
         this.mealData.put("TDDAvg7d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
         this.mealData.put("TDDLast4h", tddAIMI!!.calculateHoursPrior(4, 0).totalAmount)
         this.mealData.put("TDDLast8h", tddAIMI!!.calculateHoursPrior(8, 0).totalAmount)
         this.mealData.put("TDDLast8hfor4h", tddAIMI!!.calculateHoursPrior(8,4).totalAmount)
-
         // Override profile ISF with TDD ISF if selected in prefs
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
-
-
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
