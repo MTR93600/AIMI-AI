@@ -124,9 +124,9 @@ class TddCalculator @Inject constructor(
         return tdd
     }
 
-    fun calculate24Daily():TotalDailyDose {
-        val  startTime = dateUtil.now() - T.hours(hour = 24).msecs()
-        val endTime = dateUtil.now()
+    fun calculateHoursPrior(hrsPriorStart: Long, hrsPriorEnd: Long):TotalDailyDose {
+        val  startTime = dateUtil.now() - T.hours(hour = hrsPriorStart).msecs()
+        val  endTime = dateUtil.now() - T.hours(hour = hrsPriorEnd).msecs()
         val tdd = TotalDailyDose(timestamp = startTime)
         //val result = TotalDailyDose()
         repository.getBolusesDataFromTimeToTime(startTime, endTime, true).blockingGet()
@@ -171,6 +171,7 @@ class TddCalculator @Inject constructor(
         aapsLogger.debug(LTag.CORE, tdd.toString())
         return tdd
     }
+
     fun averageTDD(tdds: LongSparseArray<TotalDailyDose>): TotalDailyDose {
         val totalTdd = TotalDailyDose(timestamp = dateUtil.now())
         for (i in 0 until tdds.size()) {

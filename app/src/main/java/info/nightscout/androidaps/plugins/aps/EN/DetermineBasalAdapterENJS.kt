@@ -314,15 +314,17 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
 
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
-        this.mealData.put("TDDLAST24H", tddAIMI!!.calculate24Daily().totalAmount)
-        this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
-        this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
-        this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
-        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
-        this.mealData.put("TDDPUMPNOWMS", tddAIMI!!.calculateDaily().totalAmount/(now-MidnightTime.calc(now))*86400000)
+        this.mealData.put("TDDAvg1d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
+        this.mealData.put("TDDAvg7d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
+        this.mealData.put("TDDLast4h", tddAIMI!!.calculateHoursPrior(4, 0).totalAmount)
+        this.mealData.put("TDDLast8h", tddAIMI!!.calculateHoursPrior(8, 0).totalAmount)
+        this.mealData.put("TDDLast8hfor4h", tddAIMI!!.calculateHoursPrior(8,4).totalAmount)
+
         // Override profile ISF with TDD ISF if selected in prefs
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
+
+
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
