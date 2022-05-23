@@ -397,6 +397,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 //    var TDD = (nowhrs >=2 ? (tdd24h+tdd3d+tdd_pump_now_ms)/3 : tdd3d);
 //    enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDDPUMPNOWMS:"+round(tdd_pump_now_ms,3)+" = TDD:"+round(TDD,3)+"\n";
 
+    // TIR
+    var TIR_suggest = "=";
+    if (meal_data.TIRHigh6h > Math.max(meal_data.TIR6h, meal_data.TIRLow6h)) {
+        TIR_suggest = "+";
+    } else if (meal_data.TIRHLow6h > Math.max(meal_data.TIR6h, meal_data.TIRHigh6h)) {
+        TIR_suggest = "-";
+    }
+
+
     // ins_val used as the divisor for ISF scaling
     var insulinType = profile.insulinType, ins_val = 90, ins_peak = 75;
     // insulin peak including onset min 30, max 75
@@ -1158,6 +1167,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (!ENactive && !ENtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
+    rT.reason += ", TIR6h:" + round(meal_data.TIRHigh6h, 2) + "/" + round(meal_data.TIR6h, 2) + "/"+ round(meal_data.TIRLow6h, 2)+" ("+TIR_suggest+")";
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;

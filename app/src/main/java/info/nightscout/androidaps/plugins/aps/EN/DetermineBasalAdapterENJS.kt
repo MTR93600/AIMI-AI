@@ -27,6 +27,7 @@ import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
+import info.nightscout.androidaps.utils.stats.TirCalculator
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -63,6 +64,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
     private var currentTime: Long = 0
     private var saveCgmSource = false
     private var tddAIMI: TddCalculator? = null
+    private var StatTIR: TirCalculator? = null
 
     var currentTempParam: String? = null
         private set
@@ -323,6 +325,12 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         // Override profile ISF with TDD ISF if selected in prefs
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
+
+        // TIR 6 hours prior to current time // 4.0 - 10.0
+        StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
+        this.mealData.put("TIRHigh6h",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,0,72.0, 180.0)).abovePct())
+        this.mealData.put("TIR6h",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,0,72.0, 180.0)).inRangePct())
+        this.mealData.put("TIRLow6h",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,0,72.0, 180.0)).belowPct())
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
