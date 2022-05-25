@@ -46,6 +46,29 @@ class TirCalculator @Inject constructor(
         return result
     }
 
+    fun calculateHoursPrior(hrsPriorStart: Long, hrsPriorEnd: Long, lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR> {
+        if (lowMgdl < 39) throw RuntimeException("Low below 39")
+        if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
+        val startTime = dateUtil.now() - T.hours(hour = hrsPriorStart).msecs()
+        val endTime = dateUtil.now() - T.hours(hour = hrsPriorEnd).msecs()
+        val bgReadings = repository.compatGetBgReadingsDataFromTime(startTime, endTime, true).blockingGet()
+
+        val result = LongSparseArray<TIR>()
+        for (bg in bgReadings) {
+            //val midnight = MidnightTime.calc(bg.date)
+            var tir = result[startTime]
+            if (tir == null) {
+                tir = TIR(startTime, lowMgdl, highMgdl)
+                result.append(startTime, tir)
+            }
+            if (bg.value < 39) tir.error()
+            if (bg.value >= 39 && bg.value < lowMgdl) tir.below()
+            if (bg.value in lowMgdl..highMgdl) tir.inRange()
+            if (bg.value > highMgdl) tir.above()
+        }
+        return result
+    }
+
     fun calculateDaily(lowMgdl: Double, highMgdl: Double): LongSparseArray<TIR> {
         if (lowMgdl < 39) throw RuntimeException("Low below 39")
         if (lowMgdl > highMgdl) throw RuntimeException("Low > High")
