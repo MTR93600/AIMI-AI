@@ -13,7 +13,6 @@ import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.uber.rxdogtag.RxDogTag
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import info.nightscout.androidaps.database.AppRepository
@@ -27,6 +26,7 @@ import info.nightscout.androidaps.di.StaticInjector
 import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.ConfigBuilder
 import info.nightscout.androidaps.interfaces.PluginBase
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.configBuilder.PluginStore
 import info.nightscout.androidaps.plugins.constraints.versionChecker.VersionCheckerUtils
@@ -53,10 +53,12 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import rxdogtag2.RxDogTag
 import java.io.IOException
 import java.net.SocketException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Provider
 
 class MainApp : DaggerApplication() {
 
@@ -81,6 +83,7 @@ class MainApp : DaggerApplication() {
     @Inject lateinit var processLifecycleListener: ProcessLifecycleListener
     @Inject lateinit var profileSwitchPlugin: ThemeSwitcherPlugin
     @Inject lateinit var localAlertUtils: LocalAlertUtils
+    @Inject lateinit var rh: Provider<ResourceHelper>
 
     private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
     private lateinit var refreshWidget: Runnable
@@ -109,26 +112,33 @@ class MainApp : DaggerApplication() {
 
         // trigger here to see the new version on app start after an update
         versionCheckersUtils.triggerCheckVersion()
-        // check if identification is set
-        if (buildHelper.isDev() && sp.getStringOrNull(R.string.key_email_for_crash_report, null).isNullOrBlank())
-            notificationStore.add(Notification(Notification.IDENTIFICATION_NOT_SET, getString(R.string.identification_not_set), Notification.INFO))
 
         // Register all tabs in app here
         pluginStore.plugins = plugins
         configBuilder.initialize()
 
-        disposable += repository.runTransaction(VersionChangeTransaction(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, gitRemote, commitHash)).subscribe()
-        if (sp.getBoolean(R.string.key_ns_logappstartedevent, config.APS))
-            disposable += repository
-                .runTransaction(
-                    InsertIfNewByTimestampTherapyEventTransaction(
-                        timestamp = dateUtil.now(),
-                        type = TherapyEvent.Type.NOTE,
-                        note = getString(info.nightscout.androidaps.core.R.string.androidaps_start) + " - " + Build.MANUFACTURER + " " + Build.MODEL,
-                        glucoseUnit = TherapyEvent.GlucoseUnit.MGDL
-                    )
-                )
-                .subscribe()
+        // delayed actions to make rh context updated for translations
+        handler.postDelayed(
+            {
+                // check if identification is set
+                if (buildHelper.isDev() && sp.getStringOrNull(R.string.key_email_for_crash_report, null).isNullOrBlank())
+                    notificationStore.add(Notification(Notification.IDENTIFICATION_NOT_SET, rh.get().gs(R.string.identification_not_set), Notification.INFO))
+                // log version
+                disposable += repository.runTransaction(VersionChangeTransaction(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, gitRemote, commitHash)).subscribe()
+                // log app start
+                if (sp.getBoolean(R.string.key_ns_logappstartedevent, config.APS))
+                    disposable += repository
+                        .runTransaction(
+                            InsertIfNewByTimestampTherapyEventTransaction(
+                                timestamp = dateUtil.now(),
+                                type = TherapyEvent.Type.NOTE,
+                                note = rh.get().gs(info.nightscout.androidaps.core.R.string.androidaps_start) + " - " + Build.MANUFACTURER + " " + Build.MODEL,
+                                glucoseUnit = TherapyEvent.GlucoseUnit.MGDL
+                            )
+                        )
+                        .subscribe()
+            }, 10000
+        )
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "KeepAlive",
             ExistingPeriodicWorkPolicy.REPLACE,

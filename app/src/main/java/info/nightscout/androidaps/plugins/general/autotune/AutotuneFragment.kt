@@ -312,7 +312,8 @@ class AutotuneFragment : DaggerFragment() {
                 binding.autotuneCompare.visibility = View.VISIBLE
             }
             else                              -> {
-                binding.autotuneRun.visibility = View.VISIBLE
+                if (profile.isValid)
+                    binding.autotuneRun.visibility = View.VISIBLE
                 binding.autotuneCheckInputProfile.visibility = View.VISIBLE
             }
         }
@@ -337,7 +338,8 @@ class AutotuneFragment : DaggerFragment() {
             warning = rh.gs(R.string.profileswitch_ismissing)
                 return warning
         }
-        profileFunction.getProfile()?.let {
+        profileFunction.getProfile()?.let { currentProfile ->
+            profile = ATProfile(profileStore.getSpecificProfile(profileName)?.let { ProfileSealed.Pure(it) } ?:currentProfile, LocalInsulin(""), injector)
             if (!profile.isValid) return rh.gs(R.string.autotune_profile_invalid)
             if (profile.icSize > 1) {
                 warning += nl + rh.gs(R.string.autotune_ic_warning, profile.icSize, profile.ic)
@@ -385,7 +387,7 @@ class AutotuneFragment : DaggerFragment() {
                 if (autotunePlugin.result.isNotBlank()) {
                     var toMgDl = 1.0
                     if (profileFunction.getUnits() == GlucoseUnit.MMOL) toMgDl = Constants.MMOLL_TO_MGDL
-                    var isf_Format = if (profileFunction.getUnits() == GlucoseUnit.MMOL) "%.2f" else "%.1f"
+                    val isfFormat = if (profileFunction.getUnits() == GlucoseUnit.MMOL) "%.2f" else "%.1f"
                     binding.autotuneResults.addView(
                         TableLayout(context).also { layout ->
                             layout.addView(
@@ -402,7 +404,7 @@ class AutotuneFragment : DaggerFragment() {
                                     layout.addView(toTableRowValue(rh.gs(R.string.insulin_peak), autotunePlugin.pumpProfile.localInsulin.peak.toDouble(), tuned.localInsulin.peak.toDouble(), "%.0f"))
                                     layout.addView(toTableRowValue(rh.gs(R.string.dia), Round.roundTo(autotunePlugin.pumpProfile.localInsulin.dia, 0.1), Round.roundTo(tuned.localInsulin.dia, 0.1),"%.1f"))
                                 }
-                                layout.addView(toTableRowValue(rh.gs(R.string.isf_short), Round.roundTo(autotunePlugin.pumpProfile.isf / toMgDl, 0.001), Round.roundTo(tuned.isf / toMgDl, 0.001), isf_Format))
+                                layout.addView(toTableRowValue(rh.gs(R.string.isf_short), Round.roundTo(autotunePlugin.pumpProfile.isf / toMgDl, 0.001), Round.roundTo(tuned.isf / toMgDl, 0.001), isfFormat))
                                 layout.addView(toTableRowValue(rh.gs(R.string.ic_short), Round.roundTo(autotunePlugin.pumpProfile.ic, 0.001), Round.roundTo(tuned.ic, 0.001), "%.2f"))
                                 layout.addView(
                                     TextView(context).apply {
