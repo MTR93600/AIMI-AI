@@ -448,8 +448,7 @@ class IobCobCalculatorPlugin @Inject constructor(
      *  Time range to the past for IOB calculation
      *  @return milliseconds
      */
-    fun range(): Long = ((/*overviewData.rangeToDisplay + */(profileFunction.getProfile()?.dia
-        ?: Constants.defaultDIA)) * 60 * 60 * 1000).toLong()
+    fun range(): Long = ((/*overviewData.rangeToDisplay + */(profileFunction.getProfile()?.dia ?: Constants.defaultDIA)) * 60 * 60 * 1000).toLong()
 
     override fun calculateIobFromBolus(): IobTotal = calculateIobFromBolusToTime(dateUtil.now())
 
