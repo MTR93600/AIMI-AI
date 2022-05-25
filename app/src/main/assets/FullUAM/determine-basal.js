@@ -1285,7 +1285,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-k-AIMI V18 22/05/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-k-AIMI V18 26/05/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
