@@ -415,13 +415,16 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "insulinType is " + insulinType + ", ins_val is " + ins_val + ", ins_peak is " + ins_peak+"\n";
 
     enlog += "* advanced ISF:\n";
+    // Limit ISF increase for sens_currentBG at 10mmol / 180mgdl
+    var ISFbgMax = 180;
+    enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
+
     // ISF at normal target
     var sens_normalTarget = sens, sens_profile = sens; // use profile sens and keep profile sens with any SR
     enlog += "sens_normalTarget:" + convert_bg(sens_normalTarget, profile)+"\n";
 
     // ISF based on TDD
-    var sens_TDD = 1800 / ( TDD * (Math.log(( bg / ins_val ) + 1 ) ) );
-//    var sens_TDD = 1800 / ( TDD * (Math.log(( bg / normalTarget ) + 1 ) ) );
+    var sens_TDD = 1800 / ( TDD * (Math.log(( Math.min(normalTarget,ISFbgMax) / ins_val ) + 1 ) ) );
     enlog += "sens_TDD:" + convert_bg(sens_TDD, profile) +"\n";
     sens_TDD = sens_TDD / (profile.sens_TDD_scale/100);
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
@@ -510,10 +513,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // Apply circadian variance to ISF
     sens_normalTarget *= sens_circadian_now;
     enlog += "sens_normalTarget with circadian variance:" + convert_bg(sens_normalTarget, profile)+"\n";
-
-    // Limit ISF increase for sens_currentBG at 10mmol / 180mgdl
-    var ISFbgMax = 180;
-    enlog += "ISFbgMax:"+convert_bg(ISFbgMax, profile)+"\n";
 
     // Threshold for SMB at night
     var SMBbgOffset = (profile.SMBbgOffset  > 0 ? target_bg+profile.SMBbgOffset : target_bg);
