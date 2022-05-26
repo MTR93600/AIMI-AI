@@ -430,7 +430,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens_TDD = (sens_TDD > sens*3 ? sens : sens_TDD); // fresh install of v3
     enlog += "sens_TDD scaled by "+profile.sens_TDD_scale+"%:" + convert_bg(sens_TDD, profile) +"\n";
     // If Use TDD ISF is enabled in profile also adjust for when a high TT using SR if applicable
-    sens_normalTarget = (profile.use_sens_TDD ? sens_TDD : sens_normalTarget);
+    sens_normalTarget = (profile.use_sens_TDD && ENactive ? sens_TDD : sens_normalTarget);
 
      //NEW SR CODE
     // SensitivityRatio code relocated for sens_TDD
