@@ -450,12 +450,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_normalTarget = round(sens_normalTarget, 1);
         enlog += "sens_normalTarget now "+sens_normalTarget+ "due to temp target; ";
     } else {
-        sensitivityRatio = (ENtimeOK && profile.use_sens_TDD ? SR_TDD : 1);
-        sensitivityRatio = (!profile.use_sens_TDD && typeof autosens_data !== 'undefined' && autosens_data ? autosens_data.ratio : sensitivityRatio);
+        sensitivityRatio = (ENtimeOK && profile.enableSRTDD ? SR_TDD : 1);
+        sensitivityRatio = (!profile.enableSRTDD && typeof autosens_data !== 'undefined' && autosens_data ? autosens_data.ratio : sensitivityRatio);
         if (sensitivityRatio > 1) {
             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
             //sensitivityRatio = (lastNormalCarbAge > 480 && !ENtimeOK ? 1 : sensitivityRatio); // set SR to 1 if no recent carbs (UAM) and its night time
-            sensitivityRatio = (!profile.use_sens_TDD ? 1 : sensitivityRatio);
+            sensitivityRatio = (!profile.enableSRTDD ? 1 : sensitivityRatio);
             sensitivityRatio = round(sensitivityRatio,2);
             enlog += "Sensitivity ratio >1 is now: "+sensitivityRatio+";\n";
         } else if (sensitivityRatio < 1) {
@@ -463,7 +463,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             sensitivityRatio = round(sensitivityRatio,2);
             enlog += "Sensitivity ratio <1 is now: "+sensitivityRatio+";\n";
         }
-        sens_normalTarget = (!profile.use_sens_TDD ? sens_normalTarget / sensitivityRatio : sens_normalTarget); // adjust ISF without sens_TDD
+        //sens_normalTarget = (!profile.use_sens_TDD ? sens_normalTarget / sensitivityRatio : sens_normalTarget); // adjust ISF without sens_TDD
+        sens_normalTarget = sens_normalTarget / sensitivityRatio;
     }
     //enlog +="****** DEBUG ******\n"+"TDD/tdd24h = "+TDD+"/"+tdd24h+"="+TDD/tdd24h+"\n****** DEBUG ******\n";
 

@@ -236,6 +236,12 @@
                     validate:floatminNumber="-20"
                     validate:testType="floatNumericRange" />
 
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:key="key_use_sr_tdd"
+                    android:title="Use TDD based sensitivity"
+                    android:summary="Use TDD as the basis to calculate current SensitivityRatio. Min/Max Autosens values will be respected." />
+
 <!--                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference-->
 <!--                    android:defaultValue="0"-->
 <!--                    android:inputType="numberDecimal"-->
