@@ -1168,8 +1168,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
     rT.reason += ", SR_TDD: " + SR_TDD;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
-    //rT.reason += ", TIRW1:" + round(meal_data.TIRW1H, 2) + "/" + round(meal_data.TIRW1, 2) + "/"+ round(meal_data.TIRW1L, 2);
-    //rT.reason += ", TIRW2:" + round(meal_data.TIRW2H, 2) + "/" + round(meal_data.TIRW2, 2) + "/"+ round(meal_data.TIRW2L, 2);
+    rT.reason += ", TIRW1:" + round(meal_data.TIRW1H, 2) + "/" + round(meal_data.TIRW1, 2) + "/"+ round(meal_data.TIRW1L, 2);
+    rT.reason += ", TIRW2:" + round(meal_data.TIRW2H, 2) + "/" + round(meal_data.TIRW2, 2) + "/"+ round(meal_data.TIRW2L, 2);
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;

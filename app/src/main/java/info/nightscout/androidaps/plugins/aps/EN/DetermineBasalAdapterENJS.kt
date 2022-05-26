@@ -328,14 +328,14 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
 
-        // TIR Window 1 and 2 - 6 hours prior to current time // 4.0 - 10.0
+        // TIR Window 1 and 2 - 2 hours prior to current time // 4.0 - 10.0
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
-        this.mealData.put("TIRW1H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).abovePct())
-        this.mealData.put("TIRW1",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).inRangePct())
-        this.mealData.put("TIRW1L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).belowPct())
-        this.mealData.put("TIRW2H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).abovePct())
-        this.mealData.put("TIRW2",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).inRangePct())
-        this.mealData.put("TIRW2L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).belowPct())
+        this.mealData.put("TIRW1H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(2,1,72.0, 180.0)).abovePct())
+        this.mealData.put("TIRW1",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(2,1,72.0, 180.0)).inRangePct())
+        this.mealData.put("TIRW1L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(2,1,72.0, 180.0)).belowPct())
+        this.mealData.put("TIRW2H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(1,0,72.0, 180.0)).abovePct())
+        this.mealData.put("TIRW2",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(1,0,72.0, 180.0)).inRangePct())
+        this.mealData.put("TIRW2L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(1,0,72.0, 180.0)).belowPct())
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
