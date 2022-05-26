@@ -27,6 +27,7 @@ import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
+import info.nightscout.androidaps.utils.stats.TirCalculator
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -36,7 +37,6 @@ import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
-import info.nightscout.androidaps.utils.stats.TirCalculator
 import kotlin.math.roundToInt
 
 class DetermineBasalAdapterENJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector) {
@@ -244,9 +244,9 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
 
         this.profile.put("enableGhostCOB", sp.getBoolean(R.string.key_use_ghostcob, false))
         //this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
-        this.profile.put("COBBoostWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
-        this.profile.put("COBBoost_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus_breakfast, 0.0))
-        this.profile.put("COBBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
+        this.profile.put("COBWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
+        this.profile.put("COBWin_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus_breakfast, 0.0))
+        this.profile.put("COBWin_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
 
         //this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
         this.profile.put("EatingNowTimeStart", sp.getInt(R.string.key_eatingnow_timestart, 9))
@@ -260,7 +260,8 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("SMBbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_smbbgoffset, 0.0),profileFunction.getUnits()))
         //this.profile.put("ISFbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgoffset, 0.0),profileFunction.getUnits()))
         this.profile.put("ISFbgscaler", sp.getDouble(R.string.key_eatingnow_isfbgscaler, 0.0))
-
+        this.profile.put("insulinType", activePlugin.activeInsulin.friendlyName)
+        this.profile.put("insulinPeak", activePlugin.activeInsulin.insulinConfiguration.peak/60000)
         // patches ==== END
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
@@ -314,29 +315,25 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
         this.profile.put("BasalAt3PM", profile.getBasal(3600000*15+MidnightTime.calc(now)))
 
+        // TDD
         tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
-        this.mealData.put("TDDLAST24H", tddAIMI!!.calculate24Daily().totalAmount)
-        this.mealData.put("TDDAIMI1", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
-        this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3)).totalAmount)
-        this.mealData.put("TDDAIMI7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
-        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
-        this.mealData.put("TDDPUMPNOWMS", tddAIMI!!.calculateDaily().totalAmount/(now-MidnightTime.calc(now))*86400000)
+        this.mealData.put("TDDAvg1d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(1)).totalAmount)
+        this.mealData.put("TDDAvg7d", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7)).totalAmount)
+        this.mealData.put("TDDLast4h", tddAIMI!!.calculateHoursPrior(4, 0).totalAmount)
+        this.mealData.put("TDDLast8h", tddAIMI!!.calculateHoursPrior(8, 0).totalAmount)
+        this.mealData.put("TDDLast8hfor4h", tddAIMI!!.calculateHoursPrior(8,4).totalAmount)
         // Override profile ISF with TDD ISF if selected in prefs
         this.profile.put("use_sens_TDD", sp.getBoolean(R.string.key_use_sens_tdd, false))
         this.profile.put("sens_TDD_scale",SafeParse.stringToDouble(sp.getString(R.string.key_sens_tdd_scale,"100")))
 
+        // TIR Window 1 and 2 - 6 hours prior to current time // 4.0 - 10.0
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
-        val lowMgdl = 72.0
-        val highMgdl = 153.0 // 4.0 - 8.5mmol
-        this.mealData.put("TIR7Above",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR7InRange",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR7Below",StatTIR!!.averageTIR(StatTIR!!.calculate(7,lowMgdl,highMgdl)).belowPct())
-        this.mealData.put("TIR3Above",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR3InRange",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR3Below",StatTIR!!.averageTIR(StatTIR!!.calculate(3,lowMgdl,highMgdl)).belowPct())
-        this.mealData.put("TIR1Above",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).abovePct())
-        this.mealData.put("TIR1InRange",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).inRangePct())
-        this.mealData.put("TIR1Below",StatTIR!!.averageTIR(StatTIR!!.calculateDaily(lowMgdl,highMgdl)).belowPct())
+        this.mealData.put("TIRW1H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).abovePct())
+        this.mealData.put("TIRW1",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).inRangePct())
+        this.mealData.put("TIRW1L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(6,3,72.0, 180.0)).belowPct())
+        this.mealData.put("TIRW2H",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).abovePct())
+        this.mealData.put("TIRW2",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).inRangePct())
+        this.mealData.put("TIRW2L",StatTIR!!.averageTIR(StatTIR!!.calculateHoursPrior(3,0,72.0, 180.0)).belowPct())
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)
