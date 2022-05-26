@@ -434,6 +434,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
      //NEW SR CODE
     // SensitivityRatio code relocated for sens_TDD
+    var SR_TDD = tdd8_exp / tdd7;
     if ( high_temptarget_raises_sensitivity && profile.temptargetSet && target_bg > normalTarget || profile.low_temptarget_lowers_sensitivity && profile.temptargetSet && target_bg < normalTarget ) {
         // w/ target 100, temp target 110 = .89, 120 = 0.8, 140 = 0.67, 160 = .57, and 200 = .44
         // e.g.: Sensitivity ratio set to 0.8 based on temp target of 120; Adjusting basal from 1.65 to 1.35; ISF from 58.9 to 73.6
@@ -449,7 +450,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_normalTarget = round(sens_normalTarget, 1);
         enlog += "sens_normalTarget now "+sens_normalTarget+ "due to temp target; ";
     } else {
-        sensitivityRatio = (ENtimeOK && profile.use_sens_TDD ? tdd8_exp / tdd7  : 1);
+        sensitivityRatio = (ENtimeOK && profile.use_sens_TDD ? SR_TDD : 1);
         sensitivityRatio = (!profile.use_sens_TDD && typeof autosens_data !== 'undefined' && autosens_data ? autosens_data.ratio : sensitivityRatio);
         if (sensitivityRatio > 1) {
             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
@@ -1165,7 +1166,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += (profile.temptargetSet ? " TT="+convert_bg(target_bg, profile) : "");
     rT.reason += (!ENactive && !ENtimeOK && bg < SMBbgOffset && meal_data.mealCOB==0 ? " No SMB < " + convert_bg(SMBbgOffset,profile) : "");
     rT.reason += ", SR: " + (typeof autosens_data !== 'undefined' && autosens_data ? round(autosens_data.ratio,2) + "=": "") + sensitivityRatio;
-    rT.reason += ", SRTDD: " + round(tdd8_exp / tdd7,2);
+    rT.reason += ", SR_TDD: " + SR_TDD;
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
     //rT.reason += ", TIRW1:" + round(meal_data.TIRW1H, 2) + "/" + round(meal_data.TIRW1, 2) + "/"+ round(meal_data.TIRW1L, 2);
     //rT.reason += ", TIRW2:" + round(meal_data.TIRW2H, 2) + "/" + round(meal_data.TIRW2, 2) + "/"+ round(meal_data.TIRW2L, 2);
