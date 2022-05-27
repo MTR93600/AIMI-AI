@@ -1440,8 +1440,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
     rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
     rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-    rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max((Math.log(AIMI_lastBolusSMBUnits) * 1.618*dia),(dia/2)*60) : "";
-    rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max((Math.log(LastManualBolus) * 1.618*dia),(dia/2)*60) : "";
+    rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max((Math.log(AIMI_lastBolusSMBUnits) * 1.618*dia),1*60) : "";
+    rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max((Math.log(LastManualBolus) * 1.618*dia),1*60) : "";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1756,9 +1756,9 @@ console.log("BYPASS OREF1");
 
             //var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
 
-            if (iTime > 15 && iTime < 35 && aimi_delta > 0 && !AIMI_BreakFastLight){//#MT AIMI
+            if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight){//#MT AIMI
                 var microBolus = LastManualBolus / 1.618;
-                microBolus = (microBolus === AIMI_lastBolusSMBUnits ? (microBolus / 1.618) : microBolus);
+                microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
                 UAMAIMIReason += "First SMB after Prebolus("+LastManualBolus+" U) : "+microBolus+" U; ";
 
             }else if (iTime < iTimeProfile && AIMI_UAM_U200 && !AIMI_UAM_Novorapid &&
