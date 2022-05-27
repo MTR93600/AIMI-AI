@@ -336,8 +336,11 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var CurrentTIRinRange = meal_data.currentTIRRange;
         var CurrentTIRAbove = meal_data.currentTIRAbove;
         var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
+        var lastHourTIRLow = meal_data.lastHourTIRLow;
+        var lastHourTIRAbove = meal_data.lastHourTIRAbove;
+
         //var tdd7 = meal_data.TDDAIMI7;
-        var tdd7 = ((basal * 12)*100)/21;
+        var tdd7 = (lastHourTIRLow > 0 ? (round((((basal * 12)*100)/21)*0.85,2)) : (round((((basal*12)*100)/21),2)));
         //var tdd24 = meal_data.TDDLast24;
         var tdd24 = meal_data.TDDLast8 * 1.618;
         var tdd724 = (tdd7 + tdd24)/2;
@@ -345,7 +348,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
          //which is 21% of the current TDD base on an average data
         var tdd_pump_now = meal_data.TDDPUMP;
         var tdd_pump = (tdd_pump_now / (now / 24));
-        var TDD = (tdd724 * 0.4) + (tdd_pump * 0.6);
+        var TDD = lastHourTIRLow > 0 ? ((tdd724 * 0.4) + (tdd_pump * 0.6))*0.85 : (tdd724 * 0.4) + (tdd_pump * 0.6);
         enlog +="tdd24 : "+tdd24+"\n";
         enlog +="tdd7 : "+tdd7+"\n";
         enlog +="tdd724 : "+tdd724+"\n";
@@ -382,7 +385,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var iTime_Start_Bolus = profile.iTime_Start_Bolus;
         var iTimeProfile = profile.iTime;
         var LastManualBolus = meal_data.lastBolusNormalUnits;
-        var insulinPeakTime = 35;
+        var insulinPeakTime = 45;
         /*if (AIMI_UAM_U200 && C1 > C2){
         insulinPeakTime = 15 * 1.618 * circadian_sensitivity;
         //enlog += "AIMI_UAM_U200 && C1>C2 insulinPeakTime : "+insulinPeakTime+"\n";
@@ -403,17 +406,17 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         insulinPeakTime = 40 * 1.618 * circadian_sensitivity;
         }*/
         if (AIMI_UAM_U200){
-            insulinPeakTime = 20 * 1.618 * circadian_sensitivity;
+            insulinPeakTime = 30 * 1.618 * circadian_sensitivity;
             //enlog += "AIMI_UAM_U200 insulinPeakTime : "+insulinPeakTime+"\n";
 
             }else if (AIMI_UAM_U100){
-            insulinPeakTime = 25 * 1.618 * circadian_sensitivity;
+            insulinPeakTime = 35 * 1.618 * circadian_sensitivity;
 
             }else if (AIMI_UAM_Fiasp){
-            insulinPeakTime = 30 * 1.618 * circadian_sensitivity;
+            insulinPeakTime = 45 * 1.618 * circadian_sensitivity;
 
             }else if (AIMI_UAM_Novorapid){
-            insulinPeakTime = 40 * 1.618 * circadian_sensitivity;
+            insulinPeakTime = 55 * 1.618 * circadian_sensitivity;
         }
 
         enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
@@ -511,7 +514,14 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             enlog +="TDD new value because TIR show hypo during the last 7 days and  the curent day too :"+TDD+"\n";
         }
 
-
+    if (glucose_status.delta >= 0){
+        var aimi_bg = (bg + (bg - glucose_status.delta))/2;
+        var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+        }else if (glucose_status.delta < 0){
+        var aimi_bg = (bg + (bg + glucose_status.delta))/2;
+        var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+        }
+        enlog += "aimi_bg : "+aimi_bg+", aimi_delta : "+aimi_delta+"\n";
         //console.log("stat Tir : "+StatLow7);
     /*var variable_sens = (277700 / (TDD * bg));
     variable_sens = round(variable_sens,1);
@@ -533,9 +543,10 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     var sens_TDD = round((MagicNumber / (TDD * normalTarget)),1);
     var sens_avg = (sens_normalTarget+sens_TDD)/2;
     var sens_normalTarget = sens_avg;
-    var sens_currentBG = sens_normalTarget/(bg/normalTarget); // * EXPERIMENT *
+    var sens_currentBG = sens_normalTarget/(aimi_bg/normalTarget); // * EXPERIMENT *
     sens_currentBG = round(sens_currentBG,1);
     sens = sens_currentBG / circadian_sensitivity;
+    sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     enlog +="Current sensitivity is " +sens_currentBG+" based on current bg\n";
     }else{
     var AIMI_UAM = profile.enable_AIMI_UAM;
@@ -548,6 +559,14 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             var iTimeProfile = profile.iTime;
             var LastManualBolus = meal_data.lastBolusNormalUnits;
             var insulinPeakTime = 35;
+            if (glucose_status.delta >= 0){
+                var aimi_bg = (bg + (bg - glucose_status.delta))/2;
+                var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+                }else if (glucose_status.delta < 0){
+                var aimi_bg = (bg + (bg + glucose_status.delta))/2;
+                var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+                }
+                enlog += "aimi_bg : "+aimi_bg+", aimi_delta : "+aimi_delta+"\n";
             /*if (AIMI_UAM_U200 && C1 > C2){
             insulinPeakTime = 15 * 1.618 * circadian_sensitivity;
             //enlog += "AIMI_UAM_U200 && C1>C2 insulinPeakTime : "+insulinPeakTime+"\n";
@@ -1271,7 +1290,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     }else{
     var future_sens = sens;
     }
-    future_sens = round(future_sens,1);
+    future_sens = lastHourTIRLow > 0 ? round(future_sens * 1.618,1) : round(future_sens);
 
 var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TriggerPredSMB_future_sens_45 = round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
@@ -1285,7 +1304,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-l-AIMI V18 26/05/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 27/05/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
