@@ -1459,8 +1459,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
     rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
     rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-    rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max((Math.log(AIMI_lastBolusSMBUnits) * 1.618*dia),1*60) : "";
-    rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max((Math.log(LastManualBolus) * 1.618*dia),1*60) : "";
+    rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max((Math.log(AIMI_lastBolusSMBUnits) * 1.618*dia*60),1*60) : "";
+    rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max((Math.log(LastManualBolus) * 1.618*dia*60),1*60) : "";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
