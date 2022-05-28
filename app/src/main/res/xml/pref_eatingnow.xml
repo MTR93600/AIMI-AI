@@ -226,43 +226,41 @@
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange" />
 
+            </PreferenceCategory>
+
+            <PreferenceCategory
+                android:title="ISF"
+                android:summary="ISF related settings."
+                app:initialExpandedChildrenCount="0">
+
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="0"
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_isfbgscaler"
                     android:title="ISF BG Scaler"
-                    android:dialogMessage="As BG increases ISF will become stronger.\nThe level of scaling can be adjusted.\n0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling."
+                    android:dialogMessage="As BG increases ISF will become stronger.\nThe level of scaling can be adjusted.\n0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.\nRecommended setting is 0."
                     validate:floatmaxNumber="20"
                     validate:floatminNumber="-20"
                     validate:testType="floatNumericRange" />
 
+                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                    android:defaultValue="100"
+                    android:inputType="number"
+                    android:title="Max ISF %"
+                    android:key="@string/key_eatingnow_maxisfpct"
+                    android:dialogMessage="As BG increases ISF will become stronger. Profile ISF will be used with this as a percentage.\n100 will limit ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
+                    validate:maxNumber="200"
+                    validate:minNumber="100"
+                    validate:testType="numericRange" />
+
                 <SwitchPreference
                     android:defaultValue="false"
                     android:key="key_use_sr_tdd"
-                    android:title="Use TDD based sensitivity"
-                    android:summary="Use TDD as the basis to calculate current SensitivityRatio. Min/Max Autosens values will be respected." />
-
-<!--                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference-->
-<!--                    android:defaultValue="0"-->
-<!--                    android:inputType="numberDecimal"-->
-<!--                    android:key="@string/key_eatingnow_isfbgoffset"-->
-<!--                    android:title="ISF BG Offset"-->
-<!--                    android:dialogMessage="As BG increases ISF will become stronger.\nISF will no longer increase when above target by this offset."-->
-<!--                    validate:floatmaxNumber="270.0"-->
-<!--                    validate:floatminNumber="0.0"-->
-<!--                    validate:testType="floatNumericRange" />-->
-
-<!--                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference-->
-<!--                    android:defaultValue="1"-->
-<!--                    android:inputType="numberDecimal"-->
-<!--                    android:key="@string/key_eatingnow_isf_max_scale"-->
-<!--                    android:title="Max ISF Limit"-->
-<!--                    android:dialogMessage="As BG increases ISF will become stronger.\nThis will Limit the ISF.\n1 is profile ISF, 1.5 would be a 150% smaller ISF, similar to a profile switch."-->
-<!--                    validate:floatmaxNumber="2"-->
-<!--                    validate:floatminNumber="1"-->
-<!--                    validate:testType="floatNumericRange"/>-->
+                    android:title="Use TDD based SensitivityRatio"
+                    android:summary="Use recent TDD averages to calculate current SensitivityRatio. Only basal rate will be adjusted ISF and CR will remain unchanged. Min/Max Autosens values will be respected."/>
 
             </PreferenceCategory>
+
 
         <PreferenceCategory
                 android:title="UAM"
