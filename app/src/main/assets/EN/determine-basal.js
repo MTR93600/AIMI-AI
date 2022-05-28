@@ -398,13 +398,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 //    enlog +="TDD24H:"+round(tdd24h,3)+", TDD7D:"+round(tdd7d,3)+", TDDPUMPNOWMS:"+round(tdd_pump_now_ms,3)+" = TDD:"+round(TDD,3)+"\n";
 
     // TIR
-//    var TIR_suggest = "=";
-//    if (meal_data.TIRHigh6h > Math.max(meal_data.TIR6h, meal_data.TIRLow6h)) {
-//        TIR_suggest = "+";
-//    } else if (meal_data.TIRHLow6h > Math.max(meal_data.TIR6h, meal_data.TIRHigh6h)) {
-//        TIR_suggest = "-";
-//    }
-
+    var TIR_suggest = "";
+    if (meal_data.TIRW2 < meal_data.TIRW1H && Math.max(meal_data.TIRW1L, meal_data.TIRW2L) == 0 { // if the 2nd hour TIR window is less in range and there are no lows
+        TIR_suggest = "+";
+    }
 
     // ins_val used as the divisor for ISF scaling
     var insulinType = profile.insulinType, ins_val = 90, ins_peak = 75;
@@ -1169,7 +1166,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", SR_TDD: " + round(SR_TDD,2);
     rT.reason += ", TDD:" + round(TDD, 2) + " " + (profile.sens_TDD_scale !=100 ? profile.sens_TDD_scale + "% " : "") + "("+convert_bg(sens_TDD, profile)+")";
     rT.reason += ", TIRW1:" + round(meal_data.TIRW1H, 2) + "/" + round(meal_data.TIRW1, 2) + "/"+ round(meal_data.TIRW1L, 2);
-    rT.reason += ", TIRW2:" + round(meal_data.TIRW2H, 2) + "/" + round(meal_data.TIRW2, 2) + "/"+ round(meal_data.TIRW2L, 2);
+    rT.reason += ", TIRW2:" + round(meal_data.TIRW2H, 2) + "/" + round(meal_data.TIRW2, 2) + "/"+ round(meal_data.TIRW2L, 2)+(TIR_suggest ? "=" + TIR_suggest : "");
     rT.reason += "; ";
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     var carbsReqBG = naive_eventualBG;
