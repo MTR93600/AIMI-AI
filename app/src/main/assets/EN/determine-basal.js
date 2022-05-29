@@ -562,8 +562,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = (ENactive ? sens_currentBG : sens_normalTarget);
     // at night use sens_currentBG without additional scaling
     sens = (!ENactive && !ENtimeOK ? sens_currentBG : sens);
-    // apply MaxISF limit to ISF
-    sens = Math.max(sens,MaxISF);
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
