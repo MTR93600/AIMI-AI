@@ -246,9 +246,9 @@
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="100"
                     android:inputType="number"
-                    android:title="Max ISF %"
+                    android:title="Max TDD ISF %"
                     android:key="@string/key_eatingnow_maxisfpct"
-                    android:dialogMessage="As BG increases ISF will become stronger. Profile ISF will be used with this as a percentage.\n100 will limit ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
+                    android:dialogMessage="Profile ISF will be used with this as a percentage.\n100 will limit TDD based ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
                     validate:maxNumber="200"
                     validate:minNumber="100"
                     validate:testType="numericRange" />
