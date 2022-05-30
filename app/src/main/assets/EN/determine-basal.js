@@ -569,8 +569,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.error("CR:",eRatio);
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var EBG = (0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg;
-    console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" ; ");
-    console.log ("HypoPredBG = "+HypoPredBG+"; ");
+    //console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" ; ");
+    //console.log ("HypoPredBG = "+HypoPredBG+"; ");
     var hypo_target = round(Math.min(200, min_bg + (EBG - min_bg)/3 ),0);
 
     /*
