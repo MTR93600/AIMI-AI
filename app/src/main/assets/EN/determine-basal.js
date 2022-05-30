@@ -564,6 +564,44 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = (!ENactive && !ENtimeOK ? sens_currentBG : sens);
     enlog += "sens final result:"+sens+"="+convert_bg(sens, profile)+"\n";
 
+    // HypoPredBG - TS
+    var eRatio = round(sens / 13.2);
+    console.error("CR:",eRatio);
+    var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
+    var EBG = (0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg;
+    console.log("Experimental test, EBG : "+EBG+" REBG : "+REBG+" ; ");
+    console.log ("HypoPredBG = "+HypoPredBG+"; ");
+    var hypo_target = round(Math.min(200, min_bg + (EBG - min_bg)/3 ),0);
+
+    /*
+    if (!profile.temptargetSet && HypoPredBG <= 125 && profile.sensitivity_raises_target ) {
+
+        if (hypo_target <= target_bg) {
+            hypo_target = target_bg + 10;
+            console.log("target_bg from "+target_bg+" to "+hypo_target+" because HypoPredBG is lesser than 125 : "+HypoPredBG+"; ");
+        } else if (target_bg === hypo_target) {
+           console.log("target_bg unchanged: "+hypo_target+"; ");
+        }
+
+        target_bg = hypo_target;
+        halfBasalTarget = 160;
+        var c = halfBasalTarget - normalTarget;
+        sensitivityRatio = c/(c+target_bg-normalTarget);
+        // limit sensitivityRatio to profile.autosens_max (1.2x by default)
+        sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+        sensitivityRatio = round(sensitivityRatio,2);
+        console.log("Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+"; ");
+        basal = profile.current_basal * sensitivityRatio;
+        basal = round_basal(basal, profile);
+        if (basal !== profile_current_basal) {
+            console.log("Adjusting basal from "+profile_current_basal+" to "+basal+"; ");
+        } else {
+            console.log("Basal unchanged: "+basal+"; ");
+        }
+   }
+   */
+
+
     // compare currenttemp to iob_data.lastTemp and cancel temp if they don't match
     var lastTempAge;
     if (typeof iob_data.lastTemp !== 'undefined' ) {
@@ -1159,7 +1197,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile);
     }
     // extra reason text
-
+    rT.reason += (HypoPredBG <=125 && hypo_target <= target_bg ? ", HypoPredBG " + convert_bg(HypoPredBG, profile) + ", HypoTargetBG " + convert_bg(hypo_target+10, profile) : "");
     rT.reason += ", EN: " + (ENactive ? "Active" : "Inactive");
     rT.reason += (!ENmaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
