@@ -243,10 +243,26 @@
                     validate:floatminNumber="-20"
                     validate:testType="floatNumericRange" />
 
+                <SwitchPreference
+                    android:defaultValue="false"
+                    android:key="key_use_sens_tdd"
+                    android:title="Use TDD for ISF"
+                    android:summary="Use TDD as the basis for calulating the current ISF. This will override the profile ISF." />
+
+                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                    android:defaultValue="100"
+                    android:inputType="numberDecimal"
+                    android:key="@string/key_sens_tdd_scale"
+                    android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 75 will use 75% of the calculated TDD ISF."
+                    android:title="TDD ISF Scaling"
+                    validate:floatmaxNumber="100"
+                    validate:floatminNumber="50"
+                    validate:testType="floatNumericRange"/>
+
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                     android:defaultValue="100"
                     android:inputType="number"
-                    android:title="Max TDD ISF %"
+                    android:title="Max TDD ISF"
                     android:key="@string/key_eatingnow_maxisfpct"
                     android:dialogMessage="Profile ISF will be used with this as a percentage.\n100 will limit TDD based ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
                     validate:maxNumber="200"
@@ -257,7 +273,7 @@
                     android:defaultValue="false"
                     android:key="key_use_sr_tdd"
                     android:title="Use TDD based SensitivityRatio"
-                    android:summary="Use recent TDD averages to calculate current SensitivityRatio. Only basal rate will be adjusted ISF and CR will remain unchanged. Min/Max Autosens values will be respected."/>
+                    android:summary="Use recent TDD averages to calculate current SensitivityRatio. Only basal rate will be adjusted ISF and CR will remain unchanged. This can be used without TDD ISF. Min/Max Autosens values will be respected."/>
 
             </PreferenceCategory>
 
@@ -366,22 +382,6 @@
                 android:key="key_use_3pm_basal"
                 android:title="Use 3PM Basal ISF Variance"
                 android:summary="Use 3PM Basal as the basis for ISF changes. The basal at 3PM is taken as the basis for baseline ISF.\nBasal variation from this point is used to scale the ISF, stronger basal will make ISF weaker.\nOnly use when the profile uses a single ISF for 24 hours and the basal profile is fully populated." />
-
-            <SwitchPreference
-                android:defaultValue="false"
-                android:key="key_use_sens_tdd"
-                android:title="Use TDD for ISF"
-                android:summary="Use the last 24H TDD for ISF. This will override the profile ISF and can be used with 3PM basal ISF variance." />
-
-            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                android:defaultValue="100"
-                android:inputType="numberDecimal"
-                android:key="@string/key_sens_tdd_scale"
-                android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 50 will make TDD ISF 50% weaker."
-                android:title="TDD ISF Scaling"
-                validate:floatmaxNumber="100"
-                validate:floatminNumber="50"
-                validate:testType="floatNumericRange"/>
 
         </PreferenceCategory>
 
