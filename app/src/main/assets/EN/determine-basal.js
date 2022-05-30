@@ -1197,7 +1197,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile);
     }
     // extra reason text
-    rT.reason += (HypoPredBG <=125 && hypo_target <= target_bg ? ", HypoPredBG " + convert_bg(HypoPredBG, profile) + ", HypoTargetBG " + convert_bg(hypo_target+10, profile) : "");
+    rT.reason += (HypoPredBG <=125 && hypo_target <= target_bg ? ", HypoPredBG " + convert_bg(HypoPredBG, profile) + ", HypoTargetBG " + convert_bg(hypo_target, profile) : "");
     rT.reason += ", EN: " + (ENactive ? "Active" : "Inactive");
     rT.reason += (!ENmaxIOBOK ? " IOB" : "");
     rT.reason += (meal_data.mealCOB > 0  ? " COB" : "");
