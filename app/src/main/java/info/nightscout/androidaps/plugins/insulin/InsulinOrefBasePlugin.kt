@@ -100,7 +100,7 @@ abstract class InsulinOrefBasePlugin(
             val factordia = (ln(bolus.amount) * 1.618)
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            val td = (dia * 60.0 * factordia * circadian_sensitivity).coerceAtLeast(2.5 * 60.0) //getDIA() always >= MIN_DIA
+            val td = (dia * 60.0 * factordia * circadian_sensitivity).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
             //val td = dia * 60.0 * circadian_sensitivity
             val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
