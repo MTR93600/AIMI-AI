@@ -1149,9 +1149,13 @@
     <string name="key_eatingnow_smbbgoffset">key_eatingnow_smbbgoffset</string>
     <string name="key_use_ghostcob" translatable="false">key_use_ghostcob</string>
     <string name="key_eatingnow_cobboostminutes" translatable="false">key_eatingnow_cobboostminutes</string>
+    <string name="key_eatingnow_enwindowminutes" translatable="false">key_eatingnow_enwindowminutes</string>
     <string name="key_eatingnow_cobboost_maxbolus_breakfast">key_eatingnow_cobboost_maxbolus_breakfast</string>
+    <string name="key_eatingnow_breakfastpct">key_eatingnow_breakfastpct</string>
+    <string name="key_eatingnow_uam_maxbolus_breakfast">key_eatingnow_uam_maxbolus_breakfast</string>
     <string name="key_eatingnow_cobboost_maxbolus">key_eatingnow_cobboost_maxbolus</string>
     <string name="key_eatingnow_uamboost_maxbolus">key_eatingnow_uamboost_maxbolus</string>
+    <string name="key_eatingnow_uam_maxbolus">key_eatingnow_uam_maxbolus</string>
     <string name="key_eatingnow_isfboost_maxbolus">key_eatingnow_isfboost_maxbolus</string>
     <string name="key_eatingnow_isfbgscaler">key_eatingnow_isfbgscaler</string>
     <string name="key_use_sr_tdd">key_use_sr_tdd</string>

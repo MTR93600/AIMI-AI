@@ -187,6 +187,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
                                                      advancedFiltering: Boolean,
                                                      isSaveCgmSource: Boolean
     ) {
+        val now = System.currentTimeMillis()
         val pump = activePlugin.activePump
         val pumpBolusStep = pump.pumpDescription.bolusStep
         this.profile.put("max_iob", maxIob)
@@ -198,7 +199,9 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("max_bg", maxBg.roundToInt())
         this.profile.put("target_bg", targetBg.roundToInt())
         this.profile.put("carb_ratio", profile.getIc())
+        this.profile.put("carb_ratio_midnight", profile.getIc(MidnightTime.calc(now)))
         this.profile.put("sens", profile.getIsfMgdl())
+        this.profile.put("sens_midnight", profile.getIsfMgdl(MidnightTime.calc(now)))
         this.profile.put("max_daily_safety_multiplier", sp.getInt(R.string.key_openapsama_max_daily_safety_multiplier, 3))
         this.profile.put("current_basal_safety_multiplier", sp.getDouble(R.string.key_openapsama_current_basal_safety_multiplier, 4.0))
 
@@ -240,25 +243,27 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_autosens_max, "1.2")))
 //**********************************************************************************************************************************************
         // patches ==== START
-        this.profile.put("normal_target_bg", profile.getTargetMgdl().roundToInt())
-
-        this.profile.put("enableGhostCOB", sp.getBoolean(R.string.key_use_ghostcob, false))
-        //this.profile.put("COBinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_cobinsulinreqpct,"65")))
-        this.profile.put("COBWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
-        this.profile.put("COBWin_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus_breakfast, 0.0))
-        this.profile.put("COBWin_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
-
-        //this.profile.put("EatingNowIOBMax", sp.getInt(R.string.key_eatingnow_iobmax, 30))
         this.profile.put("EatingNowTimeStart", sp.getInt(R.string.key_eatingnow_timestart, 9))
         this.profile.put("EatingNowTimeEnd", sp.getInt(R.string.key_eatingnow_timeend, 17))
-        //this.profile.put("EatingNowinsulinReqPct",SafeParse.stringToDouble(sp.getString(R.string.key_eatingnow_insulinreqpct,"65")))
+        this.profile.put("normal_target_bg", profile.getTargetMgdl().roundToInt())
+        this.profile.put("enableGhostCOB", sp.getBoolean(R.string.key_use_ghostcob, false))
+        this.profile.put("COBWindow", sp.getInt(R.string.key_eatingnow_cobboostminutes, 0))
 
-        // this.profile.put("UAMBoost_Bolus_Scale", sp.getDouble(R.string.key_eatingnow_uamboost_bolus_scale, 0.0))
-        this.profile.put("UAMBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
+        // Within the EN Window ********************************************************************************
+        this.profile.put("ENWindow", sp.getInt(R.string.key_eatingnow_enwindowminutes, 0))
+        // Breakfast / first meal
+        this.profile.put("BreakfastPct", sp.getInt(R.string.key_eatingnow_breakfastpct, 100))
+        this.profile.put("Win_COB_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus_breakfast, 0.0))
+        this.profile.put("Win_UAM_maxBolus_breakfast", sp.getDouble(R.string.key_eatingnow_uam_maxbolus_breakfast, 0.0))
+        // other meals
+        this.profile.put("Win_COB_maxBolus", sp.getDouble(R.string.key_eatingnow_cobboost_maxbolus, 0.0))
+        this.profile.put("Win_UAM_maxBolus", sp.getDouble(R.string.key_eatingnow_uamboost_maxbolus, 0.0))
 
-        this.profile.put("ISFBoost_maxBolus", sp.getDouble(R.string.key_eatingnow_isfboost_maxbolus, 0.0))
+        // Outside of the EN Window ********************************************************************************
+        this.profile.put("COB_maxBolus", sp.getDouble(R.string.key_eatingnow_isfboost_maxbolus, 0.0))
+        this.profile.put("UAM_maxBolus", sp.getDouble(R.string.key_eatingnow_uam_maxbolus, 0.0))
+
         this.profile.put("SMBbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_smbbgoffset, 0.0),profileFunction.getUnits()))
-        //this.profile.put("ISFbgOffset", Profile.toMgdl(sp.getDouble(R.string.key_eatingnow_isfbgoffset, 0.0),profileFunction.getUnits()))
         this.profile.put("ISFbgscaler", sp.getDouble(R.string.key_eatingnow_isfbgscaler, 0.0))
         this.profile.put("MaxISFpct", sp.getInt(R.string.key_eatingnow_maxisfpct, 100))
         this.profile.put("enableSRTDD", sp.getBoolean(R.string.key_use_sr_tdd, false))
@@ -270,7 +275,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
             this.profile.put("out_units", "mmol/L")
         }
-        val now = System.currentTimeMillis()
+        // val now = System.currentTimeMillis()
         val tb = iobCobCalculator.getTempBasalIncludingConvertedExtended(now)
         currentTemp.put("temp", "absolute")
         currentTemp.put("duration", tb?.plannedRemainingMinutes ?: 0)
@@ -313,6 +318,11 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         val getCarbsSinceENStart = repository.getCarbsDataFromTime(ENStartTime,true).blockingGet()
         val firstCarbTime = getCarbsSinceENStart.lastOrNull()?.timestamp
         this.mealData.put("firstCarbTime",firstCarbTime)
+
+        // get the first bolus time since EN activation
+        val getBolusSinceENStart = repository.getFirstBolusFromTimeOfType(ENStartTime,true, Bolus.Type.NORMAL ).blockingGet()
+        val firstNormalBolusTime = getBolusSinceENStart.lastOrNull()?.timestamp
+        this.mealData.put("firstNormalBolusTime",firstNormalBolusTime)
 
         // 3PM is used as a low basal point at which the rest of the day leverages for ISF variance when using one ISF in the profile
         this.profile.put("enableBasalAt3PM", sp.getBoolean(R.string.key_use_3pm_basal, false))
