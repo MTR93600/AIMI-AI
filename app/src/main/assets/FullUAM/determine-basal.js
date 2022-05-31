@@ -1912,13 +1912,13 @@ console.log("BYPASS OREF1");
             durationReq = round(30*worstCaseInsulinReq / basal);
             var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
 
-            if (TriggerPredSMB_future_sens_45 < 80 && AIMI_UAM_Fiasp){
+            if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp){
             microBolus = 0;
             UAMAIMIReason += ", No SMB beacuase Fiasp and Pred < 80, ";
             }else if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Novorapid){
             microBolus = 0;
             UAMAIMIReason += ", No SMB beacuase Novorapid and Pred < 90, ";
-            }else if (TriggerPredSMB_future_sens_45 < 80)  {
+            }else if (TriggerPredSMB_future_sens_45 < 90)  {
                 microBolus = 0;
                 UAMAIMIReason += ", No SMB because Luymjev and Pred < 80, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
