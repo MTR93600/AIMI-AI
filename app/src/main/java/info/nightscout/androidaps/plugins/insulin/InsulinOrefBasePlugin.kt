@@ -97,11 +97,11 @@ abstract class InsulinOrefBasePlugin(
                 //circadian_sensitivity = 1.2;
                 circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
             }
-            //var factordia = (ln(bolus.amount) * 1.618)
+            val factordia = (ln(bolus.amount) * 1.618)
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            //val td = (dia * 60.0 * factordia).coerceAtLeast(1.0 * 60.0) //getDIA() always >= MIN_DIA
-            val td = dia * 60.0 * circadian_sensitivity
+            val td = (dia * 60.0 * factordia * circadian_sensitivity).coerceAtLeast(1.0 * 60.0) //getDIA() always >= MIN_DIA
+            //val td = dia * 60.0 * circadian_sensitivity
             val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
@@ -133,6 +133,6 @@ abstract class InsulinOrefBasePlugin(
 
     companion object {
 
-        const val MIN_DIA = 5.0
+        const val MIN_DIA = 1.0
     }
 }
