@@ -358,6 +358,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("currentTIR_70_140_Above", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(70.0, 140.0)).abovePct())
         this.mealData.put("lastHourTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateHour(80.0, 180.0)).belowPct())
         this.mealData.put("lastHourTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateHour(80.0, 180.0)).abovePct())
+        this.mealData.put("last2HourTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculate2Hour(80.0, 180.0)).abovePct())
         //this.mealData.put("TDDPUMP1", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP2", pumpHistory.tddHistory.get(DEFAULT_BUFFER_SIZE))
 
