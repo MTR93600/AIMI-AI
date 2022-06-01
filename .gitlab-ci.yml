@@ -1,0 +1,80 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Android.gitlab-ci.yml
+
+# Read more about this script on this blog post https://about.gitlab.com/2018/10/24/setting-up-gitlab-ci-for-android-projects/, by Jason Lenny
+# If you are interested in using Android with FastLane for publishing take a look at the Android-Fastlane template.
+# test auto build AIMI
+image: jangrewe/gitlab-ci-android:latest
+
+variables:
+
+  # ANDROID_COMPILE_SDK is the version of Android you're compiling with.
+  # It should match compileSdkVersion.
+  ANDROID_COMPILE_SDK: "29"
+
+  # ANDROID_BUILD_TOOLS is the version of the Android build tools you are using.
+  # It should match buildToolsVersion.
+  ANDROID_BUILD_TOOLS: "29.0.3"
+
+  # It's what version of the command line tools we're going to download from the official site.
+  # Official Site-> https://developer.android.com/studio/index.html
+  # There, look down below at the cli tools only, sdk tools package is of format:
+  #        commandlinetools-os_type-ANDROID_SDK_TOOLS_latest.zip
+  # when the script was last modified for latest compileSdkVersion, it was which is written down below
+  ANDROID_SDK_TOOLS: "6514223"
+
+# Packages installation before running script
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x ./gradlew
+
+cache:
+  key: ${CI_PROJECT_ID}
+  paths:
+    - .gradle/
+
+stages:
+  #- build
+  #- test
+  - release
+  #- deploy
+  # Basic android and gradle stuff
+  # Check linting
+  #lintDebug:
+  #  stage: build
+  #  script:
+  #   - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+
+  # Make Project
+  #assembleDebug:
+  #  stage: build
+  #  script:
+  #    - ./gradlew assembleDebug
+
+
+# Run all tests, if any fails, interrupt the pipeline(fail it)
+#testDebug:
+#  stage: test
+#  script:
+#    - ./gradlew -Pci --console=plain :app:testDebug
+
+assembleRelease:
+  stage: release
+  only:
+    - Dev-AIMIV3
+  script:
+    - echo "KEYSTORE_FILE"
+    - echo "$KEYSTORE_FILE"
+    - echo "$KEYSTORE_FILE" | base64 -d > my.keystore
+    - ./gradlew assembleRelease
+      -Pandroid.injected.signing.store.file=$(pwd)/my.keystore
+      -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD
+      -Pandroid.injected.signing.key.alias=$KEY_ALIAS
+      -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+  artifacts:
+    paths:
+      - app/build/outputs/apk/release
+      - CHANGELOG

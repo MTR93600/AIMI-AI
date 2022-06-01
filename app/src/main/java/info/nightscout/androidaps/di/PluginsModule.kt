@@ -11,6 +11,7 @@ import info.nightscout.androidaps.danars.DanaRSPlugin
 import info.nightscout.androidaps.diaconn.DiaconnG8Plugin
 import info.nightscout.androidaps.interfaces.PluginBase
 import info.nightscout.androidaps.plugin.general.openhumans.OpenHumansUploader
+import info.nightscout.androidaps.plugins.aps.fullUAM.FullUAMPlugin
 import info.nightscout.androidaps.plugins.aps.loop.LoopPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
@@ -211,6 +212,9 @@ abstract class PluginsModule {
     @Binds
     @APS
     @IntoMap
+    @IntKey(230)
+    abstract fun bindFullUAMPlugin(plugin: FullUAMPlugin): PluginBase
+    
     @IntKey(222)
     abstract fun bindOpenAPSSMBAutoISFPlugin(plugin: OpenAPSSMBDynamicISFPlugin): PluginBase
 

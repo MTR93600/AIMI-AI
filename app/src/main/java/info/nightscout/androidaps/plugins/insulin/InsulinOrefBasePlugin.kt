@@ -13,6 +13,7 @@ import info.nightscout.androidaps.plugins.general.overview.notifications.Notific
 import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.interfaces.ResourceHelper
 import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
@@ -72,10 +73,45 @@ abstract class InsulinOrefBasePlugin(
         val result = Iob()
         val peak = peak
         if (bolus.amount != 0.0) {
+            val now = System.currentTimeMillis() / (1000*60*60)
+
+            var circadian_sensitivity = 1.0
+            when (now) {
+                in 0..1   -> {
+                    //circadian_sensitivity = 1.4;
+                    circadian_sensitivity = (0.09130*Math.pow(now.toDouble(),3.0))-(0.33261*Math.pow(now.toDouble(),2.0))+1.4
+                }
+                in 2..2   -> {
+                    //circadian_sensitivity = 0.8;
+                    circadian_sensitivity = (0.0869*Math.pow(now.toDouble(),3.0))-(0.05217*Math.pow(now.toDouble(),2.0))-(0.23478*now)+0.8
+                }
+                in 3..7   -> {
+                    //circadian_sensitivity = 0.8;
+                    circadian_sensitivity = (0.0007*Math.pow(now.toDouble(),3.0))-(0.000730*Math.pow(now.toDouble(),2.0))-(0.0007826*now)+0.6
+                }
+                in 8..10  -> {
+                    //circadian_sensitivity = 0.6;
+                    circadian_sensitivity = (0.001244*Math.pow(now.toDouble(),3.0))-(0.007619*Math.pow(now.toDouble(),2.0))-(0.007826*now)+0.4
+                }
+                in 11..14 -> {
+                    //circadian_sensitivity = 0.8;
+                    circadian_sensitivity = (0.00078*Math.pow(now.toDouble(),3.0))-(0.00272*Math.pow(now.toDouble(),2.0))-(0.07619*now)+0.8
+                }
+                in 15..22 -> {
+                    circadian_sensitivity = 1.0
+                }
+                in 22..24 -> {
+                    //circadian_sensitivity = 1.2;
+                    circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
+                }
+            }
+            val factordia = (ln(bolus.amount) * 1.618)
+
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
-            val td = dia * 60 //getDIA() always >= MIN_DIA
-            val tp = peak.toDouble()
+            val td = (dia * 60.0 * factordia * circadian_sensitivity).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
+            //val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
+            val tp = circadian_sensitivity * peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
                 val tau = tp * (1 - tp / td) / (1 - 2 * tp / td)
@@ -89,7 +125,7 @@ abstract class InsulinOrefBasePlugin(
     }
 
     override val insulinConfiguration: InsulinConfiguration
-        get() = InsulinConfiguration(friendlyName, (dia * 1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
+        get() = InsulinConfiguration(friendlyName, (dia *  1000.0 * 3600.0).toLong(), T.mins(peak.toLong()).msecs())
 
     override val comment
         get(): String {
@@ -106,6 +142,6 @@ abstract class InsulinOrefBasePlugin(
 
     companion object {
 
-        const val MIN_DIA = 5.0
+        const val MIN_DIA = 2.5
     }
 }

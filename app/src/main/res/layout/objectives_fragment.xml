@@ -13,7 +13,8 @@
         android:paddingStart="16dp"
         android:paddingTop="16dp"
         android:paddingEnd="16dp"
-        android:visibility="gone">
+        android:visibility="visible">
+
 
         <CheckBox
             android:id="@+id/fake"
@@ -21,17 +22,14 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_weight="1"
-            android:text="Enable fake time and progress"
-            tools:ignore="HardcodedText" />
+            android:text="Enable fake time and progress" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/reset"
             style="@style/OkCancelButton.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset"
-            tools:ignore="HardcodedText" />
-
+            android:text="Reset" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -41,5 +39,4 @@
         android:layout_weight="1"
         android:clipToPadding="false"
         android:paddingBottom="16dp" />
-
 </LinearLayout>

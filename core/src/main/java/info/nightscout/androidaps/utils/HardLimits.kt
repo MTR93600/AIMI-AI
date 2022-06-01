@@ -40,9 +40,9 @@ class HardLimits @Inject constructor(
 
         // Very Hard Limits Ranges
         // First value is the Lowest and second value is the Highest a Limit can define
-        val VERY_HARD_LIMIT_MIN_BG = doubleArrayOf(80.0, 180.0)
-        val VERY_HARD_LIMIT_MAX_BG = doubleArrayOf(90.0, 200.0)
-        val VERY_HARD_LIMIT_TARGET_BG = doubleArrayOf(80.0, 200.0)
+        val VERY_HARD_LIMIT_MIN_BG = doubleArrayOf(65.0, 180.0)
+        val VERY_HARD_LIMIT_MAX_BG = doubleArrayOf(80.0, 200.0)
+        val VERY_HARD_LIMIT_TARGET_BG = doubleArrayOf(65.0, 200.0)
 
         // Very Hard Limits Ranges for Temp Targets
         val VERY_HARD_LIMIT_TEMP_MIN_BG = intArrayOf(72, 180)
@@ -56,6 +56,7 @@ class HardLimits @Inject constructor(
         const val MAX_ISF = 1000.0 // mgdl
         val MAX_IOB_AMA = doubleArrayOf(3.0, 5.0, 7.0, 12.0, 25.0)
         val MAX_IOB_SMB = doubleArrayOf(7.0, 13.0, 22.0, 30.0, 70.0)
+        val MAX_IOB_FULLUAM = doubleArrayOf(3.0, 13.0, 22.0, 30.0, 40.0)
         val MAX_BASAL = doubleArrayOf(2.0, 5.0, 10.0, 12.0, 25.0)
 
         //LGS Hard limits
@@ -76,6 +77,7 @@ class HardLimits @Inject constructor(
     fun maxBolus(): Double = MAX_BOLUS[loadAge()]
     fun maxIobAMA(): Double = MAX_IOB_AMA[loadAge()]
     fun maxIobSMB(): Double = MAX_IOB_SMB[loadAge()]
+    fun maxIobFullUAM(): Double = MAX_IOB_FULLUAM[loadAge()]
     fun maxBasal(): Double = MAX_BASAL[loadAge()]
     fun minDia(): Double = MIN_DIA[loadAge()]
     fun maxDia(): Double = MAX_DIA[loadAge()]

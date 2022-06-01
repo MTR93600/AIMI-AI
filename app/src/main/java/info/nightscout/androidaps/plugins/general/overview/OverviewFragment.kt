@@ -43,6 +43,7 @@ import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.extensions.valueToUnitsString
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.UserEntryLogger
+import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalResultUAM
 import info.nightscout.androidaps.plugins.aps.loop.events.EventNewOpenLoopNotification
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -674,7 +675,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
             // Show variable sensitivity
             val request = loop.lastRun?.request
-            if (request is DetermineBasalResultSMB) {
+            if (request is DetermineBasalResultUAM ) {
                 val isfMgdl = profileFunction.getProfile()?.getIsfMgdl()
                 val variableSens = request.variableSens
                 if (variableSens != isfMgdl && variableSens != null && isfMgdl != null) {
