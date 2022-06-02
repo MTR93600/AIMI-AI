@@ -1062,7 +1062,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
 
         // if bg is falling and not slowly increase weighting to eventualBG
-        sens_eBGweight = (delta < 0 && sens_predType!="BGL" ? 1 : sens_eBGweight);
+        sens_eBGweight = (delta < 0 && eventualBG < target_bg ? 1 : sens_eBGweight);
 
         // calculate the prediction bg based on the weightings for eventualBG
         sens_future_bg = (Math.max(eventualBG,40) * sens_eBGweight) + (bg * (1-sens_eBGweight));
