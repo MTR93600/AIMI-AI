@@ -339,7 +339,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var lastHourTIRLow = meal_data.lastHourTIRLow;
         var lastHourTIRAbove = meal_data.lastHourTIRAbove;
         var last2HourTIRAbove = meal_data.last2HourTIRAbove;
-        var basal_tir = (lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ? (basal*1,30) : basal;
+        var basal_tir = (lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ? (profile.current_basal*2) : basal;
 
         //var tdd7 = meal_data.TDDAIMI7;
         var tdd7 = (lastHourTIRLow > 0 ? (round((((basal * 12)*100)/21)*0.85,2)) : (round((((basal*12)*100)/21),2)));
@@ -1306,7 +1306,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 01/06/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 02/06/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1464,7 +1464,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
     rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
     rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
-    rT.reason += " ; Dev-AIMI-V19-01/06/22 "
+    rT.reason += " ; Dev-AIMI-V19-02/06/22 "
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
