@@ -266,8 +266,8 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_uamboost_maxbolus"
                     android:title="UAM maxBolus"
-                    android:dialogMessage="UAM maxBolus for all BGL rises without COB within the EN Window.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="5"
+                    android:dialogMessage="UAM maxBolus for all BGL rises without COB within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    validate:floatmaxNumber="120"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>
 
@@ -276,8 +276,8 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_cobboost_maxbolus"
                     android:title="COB maxBolus"
-                    android:dialogMessage="COB maxBolus for BGL rises within the EN Window.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="5"
+                    android:dialogMessage="COB maxBolus for BGL rises within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    validate:floatmaxNumber="120"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>
 
