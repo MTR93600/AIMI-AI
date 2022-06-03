@@ -195,6 +195,7 @@ class DetermineBasalAdapterENJS internal constructor(private val scriptReader: S
         this.profile.put("type", "current")
         this.profile.put("max_daily_basal", profile.getMaxDailyBasal())
         this.profile.put("max_basal", maxBasal)
+        this.profile.put("safety_maxbolus", sp.getDouble(R.string.key_treatmentssafety_maxbolus, 3.0))
         this.profile.put("min_bg", minBg.roundToInt())
         this.profile.put("max_bg", maxBg.roundToInt())
         this.profile.put("target_bg", targetBg.roundToInt())

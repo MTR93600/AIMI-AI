@@ -1537,6 +1537,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
                 // ============== MAXBOLUS RESTRICTIONS ==============
                 // if ENMaxSMB is more than 0 then use it else AAPS maxBolus
+                ENMaxSMB = ( ENMaxSMB > profile.safety_maxbolus ? profile.current_basal * ENMaxSMB / 60 : ENMaxSMB);
                 ENMaxSMB = ( ENMaxSMB > 0 ? ENMaxSMB : maxBolus );
 
                 // ============== DELTA & IOB BASED RESTRICTIONS ==============
