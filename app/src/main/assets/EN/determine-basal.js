@@ -1072,9 +1072,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sens_future = sens_normalTarget/sens_future_scaler;
     }
 
-    // if BG below target then take the max of the sens vars
-    sens_future = (bg < target_bg ? Math.max(sens_profile, sens_normalTarget, sens_currentBG, sens_future) : sens_future);
-
     // at night or when EN disabled use sens unless using eatingnow override
     if (!ENactive) {
         // Current bg at night
@@ -1090,6 +1087,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // set sens_future_max to true for reason asterisk
         sens_future_max = (sens_future == sens_normalTarget/profile.autosens_max);
     }
+
+    // if BG below target then take the max of the sens vars
+    sens_future = (bg < target_bg ? Math.max(sens_profile, sens_normalTarget, sens_currentBG, sens_future) : sens_future);
 
     sens_future = round(sens_future,1);
     enlog += "* sens_eBGweight:\n";
