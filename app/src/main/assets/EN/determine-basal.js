@@ -554,8 +554,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // sens_target_bg is used like a target, when the number is lower the ISF scaling is stronger
     // for delta > 4 and 105% change from short_avg or within COB window MAX 45 mins use lower target for ISF scaling
     // for all times when EN time is OK use 20% higher target for less ISF scaling
-//    var sens_target_bg = (ENWindowOK && cTime <=45 || delta > 4 && DeltaPct > 1.05 ? ins_val : ins_val * 1.2);
-    var sens_target_bg = ins_val;
+    // var sens_target_bg = c;
+    var sens_target_bg = (ENWindowOK ? ins_val : ins_val * 1.2);
     // only allow adjusted ISF target when eatingnow time is OK and bg below ISFbgMax, dont use at night
     //sens_target_bg = (ENtimeOK && bg < ISFbgMax ? sens_target_bg : target_bg);
     sens_target_bg = (ENactive ? sens_target_bg : target_bg);
