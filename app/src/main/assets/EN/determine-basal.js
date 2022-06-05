@@ -1089,7 +1089,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     // if BG below target then take the max of the sens vars
-    sens_future = (bg < target_bg ? Math.max(sens_profile, sens_normalTarget, sens_currentBG, sens_future) : sens_future);
+    sens_future = (bg < target_bg && !ENWindowOK ? Math.max(sens_profile, sens_normalTarget, sens_currentBG, sens_future) : sens_future);
 
     sens_future = round(sens_future,1);
     enlog += "* sens_eBGweight:\n";
