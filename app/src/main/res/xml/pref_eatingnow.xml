@@ -4,7 +4,12 @@
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="@string/EN"
+        android:title="Eating Now Preferences"
+        app:initialExpandedChildrenCount="0">
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="AAPS Settings"
         app:initialExpandedChildrenCount="0">
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
@@ -113,13 +118,11 @@
             validate:minNumber="15"
             validate:testType="numericRange" />
 
-
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_use_uam"
             android:summary="@string/enableuam_summary"
             android:title="@string/enableuam" />
-
 
         <SwitchPreference
             android:defaultValue="true"
@@ -139,7 +142,7 @@
             android:key="@string/key_high_temptarget_raises_sensitivity"
             android:summary="@string/high_temptarget_raises_sensitivity_summary"
             android:title="High temptarget raises sensitivity" />
-<!--            android:title="@string/high_temptarget_raises_sensitivity_title" />-->
+        <!--            android:title="@string/high_temptarget_raises_sensitivity_title" />-->
 
 
         <!-- TODO AS-FIX -->
@@ -149,7 +152,7 @@
             android:key="@string/key_low_temptarget_lowers_sensitivity"
             android:summary="@string/low_temptarget_lowers_sensitivity_summary"
             android:title="Low temptarget lowers sensitivity" />
-<!--            android:title="@string/low_temptarget_lowers_sensitivity_title" />-->
+        <!--            android:title="@string/low_temptarget_lowers_sensitivity_title" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="1"
@@ -166,201 +169,242 @@
             validate:minNumber="1"
             validate:testType="numericRange" />
 
-        <androidx.preference.PreferenceScreen
-            android:key="eating_now_options"
-            android:title="Eating Now Options">
+        <Preference android:summary="@string/openapsama_link_to_preferncejson_doc_txt">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/openapsama_link_to_preferncejson_doc" />
+        </Preference>
 
-            <PreferenceCategory
-                android:title="General"
-                app:initialExpandedChildrenCount="0">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_always_use_shortavg"
+            android:summary="@string/always_use_shortavg_summary"
+            android:title="@string/always_use_shortavg" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="9"
-                    android:dialogMessage="Enter Eating Now start time in 24h e.g. 9AM is 9"
-                    android:inputType="number"
-                    android:key="@string/key_eatingnow_timestart"
-                    android:title="Start Time"
-                    validate:maxNumber="23"
-                    validate:minNumber="0"
-                    validate:testType="numericRange" />
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="3"
+            android:dialogMessage="@string/openapsama_max_daily_safety_multiplier_summary"
+            android:digits="0123456789.,"
+            android:inputType="number"
+            android:key="@string/key_openapsama_max_daily_safety_multiplier"
+            android:maxLines="20"
+            android:selectAllOnFocus="true"
+            android:title="@string/openapsama_max_daily_safety_multiplier"
+            validate:maxNumber="10"
+            validate:minNumber="1"
+            validate:testType="numericRange" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="17"
-                    android:dialogMessage="Enter Eating Now end time in 24h e.g. 17 is 5PM. Finish time of the next day is fully supported."
-                    android:inputType="number"
-                    android:key="@string/key_eatingnow_timeend"
-                    android:title="End Time"
-                    validate:maxNumber="23"
-                    validate:minNumber="0"
-                    validate:testType="numericRange" />
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="4"
+            android:dialogMessage="@string/openapsama_current_basal_safety_multiplier_summary"
+            android:digits="0123456789.,"
+            android:inputType="number"
+            android:key="@string/key_openapsama_current_basal_safety_multiplier"
+            android:maxLines="20"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/openapsama_current_basal_safety_multiplier"
+            validate:floatmaxNumber="10"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:title="Overnight SMB Restriction"
-                    android:key="@string/key_eatingnow_smbbgoffset"
-                    android:dialogMessage="There will be no SMB when below this BG offset at night unless COB or a TT lower or equal to normalTarget\ne.g. if normalTarget is 5.5 (99) and this setting is 1.5 (27) there will be no SMB below 7.0 (126)"
-                    validate:floatmaxNumber="270.0"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange" />
+    </PreferenceCategory>
 
-                <SwitchPreference
-                    android:defaultValue="false"
-                    android:key="key_use_ghostcob"
-                    android:title="Use GhostCOB"
-                    android:summary="Ignore COB after EN window and rely on UAM predictions.\nWhen disabled COB predictions will be as normal." />
+    <PreferenceCategory
+        android:title="Eating Now General"
+        android:summary="General settings for Eating Now"
+        app:initialExpandedChildrenCount="0">
 
-            </PreferenceCategory>
+        <Preference android:summary="Eating Now operates within the Start and End time specified.\nThe Eating Now Window becomes active when there is a manual bolus or carb entry after the Start Time setting.\nWhen the Eating Now Window expires this is considered to be the period when not eating and different SMB sizes may be configured.">
+        </Preference>
 
-            <PreferenceCategory
-                android:title="Within EN Window"
-                android:summary="Settings for SMB within the EN Window."
-                app:initialExpandedChildrenCount="0">
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="9"
+                android:dialogMessage="Enter Eating Now start time in 24h e.g. 9AM is 9"
+                android:inputType="number"
+                android:key="@string/key_eatingnow_timestart"
+                android:title="Start Time"
+                validate:maxNumber="23"
+                validate:minNumber="0"
+                validate:testType="numericRange" />
 
-                <Preference android:summary="The Eating Now Window becomes active when there is a manual bolus or carb entry after the Start Time setting.\n\nThe first manual bolus or carb entry is considered breakfast, or the first meal of the day.\nThe time of the first meal of the day may vary. ISF and CR scaling can be applied to a single ISF/CR profile entry allowing flexibility without profile shifts.\n\nA larger COB and UAM maxBolus may also be defined within the EN Window for breakfast and subsequent meals.">
-                </Preference>
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="17"
+                android:dialogMessage="Enter Eating Now end time in 24h e.g. 17 is 5PM. Finish time of the next day is fully supported."
+                android:inputType="number"
+                android:key="@string/key_eatingnow_timeend"
+                android:title="End Time"
+                validate:maxNumber="23"
+                validate:minNumber="0"
+                validate:testType="numericRange" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:digits="0123456789"
-                    android:inputType="number"
-                    android:key="@string/key_eatingnow_enwindowminutes"
-                    android:title="Eating Now Window"
-                    android:dialogMessage="Window in minutes for increased maxBolus with COB or UAM.\n0 will disable and allow AAPS maxBolus limit."
-                    validate:maxNumber="120"
-                    validate:minNumber="0"
-                    validate:testType="numericRange" />
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:title="Overnight SMB Restriction"
+                android:key="@string/key_eatingnow_smbbgoffset"
+                android:dialogMessage="There will be no SMB when below this BG offset at night unless COB or a TT lower or equal to normalTarget\ne.g. if normalTarget is 5.5 (99) and this setting is 1.5 (27) there will be no SMB below 7.0 (126)"
+                validate:floatmaxNumber="270.0"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange" />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="100"
-                    android:inputType="number"
-                    android:title="Breakfast ISF/CR Percentage"
-                    android:key="@string/key_eatingnow_breakfastpct"
-                    android:dialogMessage="ONLY TO BE USED WHEN A SINGLE ISF AND CR ENTRY IS WITHIN THE PROFILE.\nThe breakfast ISF/CR will use the profile and scale as a percentage.\n100 will be no change.\n150 will make the breakfast ISF and CR 150% stronger than profile.\nThis setting will be active for 2 hours after the first bolus or carb entry."
-                    validate:maxNumber="200"
-                    validate:minNumber="100"
-                    validate:testType="numericRange" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_ghostcob"
+                android:title="Use GhostCOB"
+                android:summary="Ignore COB after EN window and rely on UAM predictions.\nWhen disabled COB predictions will be as normal." />
 
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_cobboost_maxbolus_breakfast"
-                    android:title="Breakfast COB maxBolus"
-                    android:dialogMessage="Breakfast COB maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange"/>
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_uam_maxbolus_breakfast"
-                    android:title="Breakfast UAM maxBolus"
-                    android:dialogMessage="Breakfast UAM maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange"/>
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_uamboost_maxbolus"
-                    android:title="UAM maxBolus"
-                    android:dialogMessage="UAM maxBolus for all BGL rises without COB within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange"/>
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_cobboost_maxbolus"
-                    android:title="COB maxBolus"
-                    android:dialogMessage="COB maxBolus for BGL rises within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
-                    validate:testType="floatNumericRange"/>
-
-            </PreferenceCategory>
-
-            <PreferenceCategory
-                android:title="Outside EN Window"
-                android:summary="Settings for SMB outside of the EN Window."
-                app:initialExpandedChildrenCount="0">
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_uam_maxbolus"
-                    android:title="UAM maxBolus"
-                    android:dialogMessage="UAM maxBolus for all BGL rises without COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="-1"
-                    validate:testType="floatNumericRange"/>
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_isfboost_maxbolus"
-                    android:title="COB maxBolus"
-                    android:dialogMessage="COB maxBolus for all BGL rises with COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
-                    validate:floatmaxNumber="120"
-                    validate:floatminNumber="-1"
-                    validate:testType="floatNumericRange"/>
-
-            </PreferenceCategory>
-
-            <PreferenceCategory
-                android:title="ISF"
-                android:summary="ISF related settings."
-                app:initialExpandedChildrenCount="0">
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="0"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_eatingnow_isfbgscaler"
-                    android:title="ISF BG Scaler"
-                    android:dialogMessage="As BG increases ISF will become stronger.\nThe level of scaling can be adjusted.\n0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.\nRecommended setting is 0."
-                    validate:floatmaxNumber="20"
-                    validate:floatminNumber="-20"
-                    validate:testType="floatNumericRange" />
-
-                <SwitchPreference
-                    android:defaultValue="false"
-                    android:key="key_use_sens_tdd"
-                    android:title="Use TDD for ISF"
-                    android:summary="Use TDD as the basis for calulating the current ISF. This will override the profile ISF." />
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="100"
-                    android:inputType="numberDecimal"
-                    android:key="@string/key_sens_tdd_scale"
-                    android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 75 will use 75% of the calculated TDD ISF."
-                    android:title="TDD ISF Scaling"
-                    validate:floatmaxNumber="100"
-                    validate:floatminNumber="50"
-                    validate:testType="floatNumericRange"/>
-
-                <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                    android:defaultValue="100"
-                    android:inputType="number"
-                    android:title="Max TDD ISF"
-                    android:key="@string/key_eatingnow_maxisfpct"
-                    android:dialogMessage="Profile ISF will be used with this as a percentage.\n100 will limit TDD based ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
-                    validate:maxNumber="200"
-                    validate:minNumber="100"
-                    validate:testType="numericRange" />
-
-                <SwitchPreference
-                    android:defaultValue="false"
-                    android:key="key_use_sr_tdd"
-                    android:title="Use TDD based SensitivityRatio"
-                    android:summary="Use recent TDD averages to calculate current SensitivityRatio. Only basal rate will be adjusted ISF and CR will remain unchanged. This can be used without TDD ISF. Min/Max Autosens values will be respected."/>
-
-            </PreferenceCategory>
+        </PreferenceCategory>
 
         <PreferenceCategory
-            android:title="EXPERIMENTAL"
+            android:title="Eating Now Window Active"
+            android:summary="Settings for within the Eating Now Window."
+            app:initialExpandedChildrenCount="0">
+
+            <Preference android:summary="The Eating Now Window becomes active when there is a manual bolus or carb entry after the Start Time setting.\n\nThe first manual bolus or carb entry is considered breakfast, or the first meal of the day.\nThe time of the first meal of the day may vary. ISF and CR scaling can be applied to a single ISF/CR profile entry allowing flexibility without profile shifts.\n\nA larger COB and UAM maxBolus may also be defined within the EN Window for breakfast and subsequent meals.">
+            </Preference>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:digits="0123456789"
+                android:inputType="number"
+                android:key="@string/key_eatingnow_enwindowminutes"
+                android:title="Eating Now Window"
+                android:dialogMessage="Window in minutes for increased maxBolus with COB or UAM.\n0 will disable and allow AAPS maxBolus limit."
+                validate:maxNumber="120"
+                validate:minNumber="0"
+                validate:testType="numericRange" />
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="100"
+                android:inputType="number"
+                android:title="Breakfast ISF/CR Percentage"
+                android:key="@string/key_eatingnow_breakfastpct"
+                android:dialogMessage="ONLY TO BE USED WHEN A SINGLE ISF AND CR ENTRY IS WITHIN THE PROFILE.\nThe breakfast ISF/CR will use the profile and scale as a percentage.\n100 will be no change.\n150 will make the breakfast ISF and CR 150% stronger than profile.\nThis setting will be active for 2 hours after the first bolus or carb entry."
+                validate:maxNumber="200"
+                validate:minNumber="100"
+                validate:testType="numericRange" />
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_cobboost_maxbolus_breakfast"
+                android:title="Breakfast COB maxBolus"
+                android:dialogMessage="Breakfast COB maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_uam_maxbolus_breakfast"
+                android:title="Breakfast UAM maxBolus"
+                android:dialogMessage="Breakfast UAM maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_uamboost_maxbolus"
+                android:title="UAM maxBolus"
+                android:dialogMessage="UAM maxBolus for all BGL rises without COB within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_cobboost_maxbolus"
+                android:title="COB maxBolus"
+                android:dialogMessage="COB maxBolus for BGL rises within the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange"/>
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="Eating Now Window Inactive"
+            android:summary="Settings for outside of the Eating Now Window."
+            app:initialExpandedChildrenCount="0">
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_uam_maxbolus"
+                android:title="UAM maxBolus"
+                android:dialogMessage="UAM maxBolus for all BGL rises without COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="-1"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_isfboost_maxbolus"
+                android:title="COB maxBolus"
+                android:dialogMessage="COB maxBolus for all BGL rises with COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
+                validate:floatmaxNumber="120"
+                validate:floatminNumber="-1"
+                validate:testType="floatNumericRange"/>
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="Easting Now ISF"
+            android:summary="ISF related settings."
+            app:initialExpandedChildrenCount="0">
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="0"
+                android:inputType="numberDecimal"
+                android:key="@string/key_eatingnow_isfbgscaler"
+                android:title="ISF BG Scaler"
+                android:dialogMessage="As BG increases ISF will become stronger.\nThe level of scaling can be adjusted.\n0 = normal scaling, 5 is 5% stronger, -5 is 5% weaker ISF scaling.\nRecommended setting is 0."
+                validate:floatmaxNumber="20"
+                validate:floatminNumber="-20"
+                validate:testType="floatNumericRange" />
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_sens_tdd"
+                android:title="Use TDD for ISF"
+                android:summary="Use TDD as the basis for calulating the current ISF. This will override the profile ISF." />
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="100"
+                android:inputType="numberDecimal"
+                android:key="@string/key_sens_tdd_scale"
+                android:dialogMessage="This will use a percentage of the calculated TDD ISF. If TDD ISF is too strong it can be reduced e.g. 75 will use 75% of the calculated TDD ISF."
+                android:title="TDD ISF Scaling"
+                validate:floatmaxNumber="100"
+                validate:floatminNumber="50"
+                validate:testType="floatNumericRange"/>
+
+            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+                android:defaultValue="100"
+                android:inputType="number"
+                android:title="Max TDD ISF"
+                android:key="@string/key_eatingnow_maxisfpct"
+                android:dialogMessage="Profile ISF will be used with this as a percentage.\n100 will limit TDD based ISF to profile ISF.\n150 will allow an ISF that is 150% stronger than profile."
+                validate:maxNumber="200"
+                validate:minNumber="100"
+                validate:testType="numericRange" />
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="key_use_sr_tdd"
+                android:title="Use TDD based SensitivityRatio"
+                android:summary="Use recent TDD averages to calculate current SensitivityRatio. Only basal rate will be adjusted ISF and CR will remain unchanged. This can be used without TDD ISF. Min/Max Autosens values will be respected."/>
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="Eating Now EXPERIMENTAL"
             android:summary="New features that are being tested. DO NOT USE."
             app:initialExpandedChildrenCount="0">
 
@@ -371,54 +415,5 @@
                 android:summary="Use 3PM Basal as the basis for ISF changes. The basal at 3PM is taken as the basis for baseline ISF.\nBasal variation from this point is used to scale the ISF, stronger basal will make ISF weaker.\nOnly use when the profile uses a single ISF for 24 hours and the basal profile is fully populated." />
 
         </PreferenceCategory>
-
-        </androidx.preference.PreferenceScreen>
-
-        <androidx.preference.PreferenceScreen
-            android:key="absorption_smb_advanced"
-            android:title="@string/advancedsettings_title">
-
-            <Preference android:summary="@string/openapsama_link_to_preferncejson_doc_txt">
-                <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="@string/openapsama_link_to_preferncejson_doc" />
-            </Preference>
-
-            <SwitchPreference
-                android:defaultValue="false"
-                android:key="@string/key_always_use_shortavg"
-                android:summary="@string/always_use_shortavg_summary"
-                android:title="@string/always_use_shortavg" />
-
-            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                android:defaultValue="3"
-                android:dialogMessage="@string/openapsama_max_daily_safety_multiplier_summary"
-                android:digits="0123456789.,"
-                android:inputType="number"
-                android:key="@string/key_openapsama_max_daily_safety_multiplier"
-                android:maxLines="20"
-                android:selectAllOnFocus="true"
-                android:title="@string/openapsama_max_daily_safety_multiplier"
-                validate:maxNumber="10"
-                validate:minNumber="1"
-                validate:testType="numericRange" />
-
-            <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-                android:defaultValue="4"
-                android:dialogMessage="@string/openapsama_current_basal_safety_multiplier_summary"
-                android:digits="0123456789.,"
-                android:inputType="number"
-                android:key="@string/key_openapsama_current_basal_safety_multiplier"
-                android:maxLines="20"
-                android:selectAllOnFocus="true"
-                android:singleLine="true"
-                android:title="@string/openapsama_current_basal_safety_multiplier"
-                validate:floatmaxNumber="10"
-                validate:floatminNumber="1"
-                validate:testType="floatNumericRange" />
-
-        </androidx.preference.PreferenceScreen>
-
-    </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>
