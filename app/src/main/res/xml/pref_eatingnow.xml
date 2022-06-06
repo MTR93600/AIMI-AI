@@ -246,8 +246,8 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_cobboost_maxbolus_breakfast"
                     android:title="Breakfast COB maxBolus"
-                    android:dialogMessage="Breakfast maxBolus with COB for BGL rises within the EN Window.\nThis will impact the first carb entry after EN start time.\n0 will use existing maxBolus limit"
-                    validate:floatmaxNumber="8"
+                    android:dialogMessage="Breakfast COB maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    validate:floatmaxNumber="120"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>
 
@@ -256,8 +256,8 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_uam_maxbolus_breakfast"
                     android:title="Breakfast UAM maxBolus"
-                    android:dialogMessage="Breakfast UAM maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled."
-                    validate:floatmaxNumber="8"
+                    android:dialogMessage="Breakfast UAM maxBolus for BGL rises within the EN Window.\nThis will use ISF/CR percentage scaling if enabled.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    validate:floatmaxNumber="120"
                     validate:floatminNumber="0"
                     validate:testType="floatNumericRange"/>
 
