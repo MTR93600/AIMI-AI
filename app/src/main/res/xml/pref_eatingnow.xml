@@ -293,9 +293,9 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_uam_maxbolus"
                     android:title="UAM maxBolus"
-                    android:dialogMessage="UAM maxBolus for all BGL rises without COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    android:dialogMessage="UAM maxBolus for all BGL rises without COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
                     validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
+                    validate:floatminNumber="-1"
                     validate:testType="floatNumericRange"/>
 
                 <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
@@ -303,9 +303,9 @@
                     android:inputType="numberDecimal"
                     android:key="@string/key_eatingnow_isfboost_maxbolus"
                     android:title="COB maxBolus"
-                    android:dialogMessage="COB maxBolus for all BGL rises with COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit"
+                    android:dialogMessage="COB maxBolus for all BGL rises with COB outside of the EN Window.\nIf this value is larger than maxBolus it will be considered to be minutes of basal.\n0 will use existing maxBolus limit and -1 will only disable SMB and use TBR only."
                     validate:floatmaxNumber="120"
-                    validate:floatminNumber="0"
+                    validate:floatminNumber="-1"
                     validate:testType="floatNumericRange"/>
 
             </PreferenceCategory>
