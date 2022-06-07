@@ -252,35 +252,36 @@
                 android:defaultValue="false"
                 android:key="key_use_ghostcob"
                 android:title="Use GhostCOB"
-                android:summary="Ignore COB after EN window and rely on UAM predictions.\nWhen disabled COB predictions will be as normal." />
+                android:summary="Ignore COB after EN Window and rely on UAM predictions.\nWhen disabled COB predictions will be as normal." />
 
         </PreferenceCategory>
 
         <PreferenceCategory
             android:title="Eating Now Window Active"
-            android:summary="Settings for within the Eating Now Window."
+            android:summary="Settings for within the EN Window."
             app:initialExpandedChildrenCount="0">
 
-            <Preference android:summary="The Eating Now Window becomes active when there is a manual bolus or carb entry after the Start Time setting.\n\nThe first manual bolus or carb entry is considered breakfast, or the first meal of the day.\nThe time of the first meal of the day may vary. ISF and CR scaling can be applied to a single ISF/CR profile entry allowing flexibility without profile shifts.\n\nA larger COB and UAM maxBolus may also be defined within the EN Window for breakfast and subsequent meals.">
-            </Preference>
+            <Preference android:summary="The EN Window becomes active when there is a manual bolus or carb entry after the Start Time setting."></Preference>
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="0"
                 android:digits="0123456789"
                 android:inputType="number"
                 android:key="@string/key_eatingnow_enwindowminutes"
-                android:title="Eating Now Window"
+                android:title="EN Window Duration"
                 android:dialogMessage="Window in minutes for increased maxBolus with COB or UAM.\n0 will disable and allow AAPS maxBolus limit."
                 validate:maxNumber="120"
                 validate:minNumber="0"
                 validate:testType="numericRange" />
+
+            <Preference android:summary="The first manual bolus or carb entry is considered breakfast, or the first meal of the day.\nThe time of the first meal of the day may vary. ISF and CR scaling can be applied to a single ISF/CR profile entry allowing flexibility without profile shifts."></Preference>
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="100"
                 android:inputType="number"
                 android:title="Breakfast ISF/CR Percentage"
                 android:key="@string/key_eatingnow_breakfastpct"
-                android:dialogMessage="ONLY TO BE USED WHEN A SINGLE ISF AND CR ENTRY IS WITHIN THE PROFILE.\nThe breakfast ISF/CR will use the profile and scale as a percentage.\n100 will be no change.\n150 will make the breakfast ISF and CR 150% stronger than profile.\nThis setting will be active for 2 hours after the first bolus or carb entry."
+                android:dialogMessage="* ONLY TO BE USED WHEN A SINGLE ISF AND CR ENTRY IS WITHIN THE PROFILE *\nThe breakfast ISF/CR will use the profile and scale as a percentage.\n100 will be no change.\n150 will make the breakfast ISF and CR 150% stronger than profile.\nThis setting will be active for the duration of the EN Window."
                 validate:maxNumber="200"
                 validate:minNumber="100"
                 validate:testType="numericRange" />
@@ -304,6 +305,8 @@
                 validate:floatmaxNumber="120"
                 validate:floatminNumber="0"
                 validate:testType="floatNumericRange"/>
+
+            <Preference android:summary="A larger COB and UAM maxBolus may also be defined within the EN Window for subsequent meals."></Preference>
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="0"
@@ -329,8 +332,10 @@
 
         <PreferenceCategory
             android:title="Eating Now Window Inactive"
-            android:summary="Settings for outside of the Eating Now Window."
+            android:summary="Settings for outside of the EN Window."
             app:initialExpandedChildrenCount="0">
+
+            <Preference android:summary="When the EN Window ends COB and UAM maxBolus may also be defined."></Preference>
 
             <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
                 android:defaultValue="0"
