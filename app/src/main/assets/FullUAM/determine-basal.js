@@ -1451,19 +1451,33 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile)
     }
     var dia = profile.dia;
+    if (!profile.enable_AIMI_Ipen){
     rT.reason += "; ";
-    rT.reason += "aimi_bg : "+aimi_bg;
-    rT.reason += ", aimi_delta : "+aimi_delta;
-    rT.reason += (meal_data.TDDAIMI3 ? (", TDD : "+round(TDD,1)) : "No TDD 3 days");
-    rT.reason += ", CurrentTIR : "+round(CurrentTIRinRange,1)+"%";
-    rT.reason += (currentTIRLow>5 ? (", current TIR low  : "+round(currentTIRLow,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR low : "+round(currentTIRLow,1)+"%"));
-    rT.reason += (CurrentTIRAbove>10 ? (", current TIR above  : "+round(CurrentTIRAbove,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR above : "+round(CurrentTIRAbove,1)+"%"));
-    rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
-    rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
-    rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-    rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
-    rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
-    rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
+        rT.reason += "aimi_bg : "+aimi_bg;
+        rT.reason += ", aimi_delta : "+aimi_delta;
+        rT.reason += (meal_data.TDDAIMI3 ? (", TDD : "+round(TDD,1)) : "No TDD 3 days");
+        rT.reason += ", CurrentTIR : "+round(CurrentTIRinRange,1)+"%";
+        rT.reason += (currentTIRLow>5 ? (", current TIR low  : "+round(currentTIRLow,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR low : "+round(currentTIRLow,1)+"%"));
+        rT.reason += (CurrentTIRAbove>10 ? (", current TIR above  : "+round(CurrentTIRAbove,1)+"% may be you can try this basal value : " +round(AIMI_Basal,2)) : (", current TIR above : "+round(CurrentTIRAbove,1)+"%"));
+        rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
+        rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
+        rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
+        rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
+        rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
+        rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
+
+
+    }else{
+    rT.reason += "; ";
+    rT.reason += ", ### AIMI_Ipen : you entry this quantity of carbs = "+meal_data.mealCOB;
+    var basalIpen = profile.key_use_AIMI_SlowInsulin / 24;
+    var basalIpenB30 = round(((basalIpen * 5) / 60)*30,2);
+    var insulinPen = round( (meal_data.mealCOB / eRatio) + basalIpenB30 ,3);
+    insulinPen = (lastHourTIRAbove > 10 && last2HourTIRAbove > 0) ? (insulinPen * (1+lastHourTIRAbove)) : insulinPen;
+    rT.reason += meal_data.TDDAIMI3 ? " the recommanded Bolus will be : "+insulinPen+" ###" : " You need three days of data to get a bolus indication, think to entry every bolus in aaps  ###";
+    }
+
+
     rT.reason += " ; Dev-AIMI-V19-02/06/22 "
     rT.reason += "; ";
 

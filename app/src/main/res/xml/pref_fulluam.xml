@@ -111,6 +111,23 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_Ipen"
+            android:summary="To specify you are using an insulin pen"
+            android:title="Insulin Pen" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="10"
+            android:dependency="@string/key_use_Ipen"
+            android:dialogMessage="Quantity Slow Insulin on 24 hours, to determine the basal profile with a pen insulin"
+            android:inputType="numberDecimal"
+            android:key="@string/key_use_AIMI_SlowInsulin"
+            android:title="Quantity Slow Insulin on 24 hours"
+            validate:floatmaxNumber="50"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_LuymjevU100"
             android:summary="Dependency AIMI_UAM Mode, specify Luymjev U100"
