@@ -1471,10 +1471,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     rT.reason += "; ";
     rT.reason += ", ### AIMI_Ipen : you entry this quantity of carbs = "+meal_data.mealCOB;
     var basalIpen = profile.key_use_AIMI_SlowInsulin / 24;
-    var basalIpenB30 = round(((basalIpen * 5) / 60)*30,2);
-    var insulinPen = round( (meal_data.mealCOB / eRatio) + basalIpenB30 ,3);
+    var basalIpenB30 = round(((basalIpen * 5) / 60)*30,1);
+    var insulinPen = meal_data.mealCOB > 0 ? round( (meal_data.mealCOB / eRatio) + basalIpenB30) : 0;
     insulinPen = (lastHourTIRAbove > 10 && last2HourTIRAbove > 0) ? (insulinPen * (1+lastHourTIRAbove)) : insulinPen;
     rT.reason += meal_data.TDDAIMI3 ? " the recommanded Bolus will be : "+insulinPen+" ###" : " You need three days of data to get a bolus indication, think to entry every bolus in aaps  ###";
+    rT.reason += meal_data.TDDAIMI3 ? ", you can send in one shot "+insulinPen+" U or send 80% 10 minutes before to eat ("+round(insulinPen*0.8)+" U) and 30% just after the meal("+round(insulinPen*0.3)+" U)" : " You need three days of data to get a bolus indication, think to entry every bolus in aaps  ###";
     }
 
 
