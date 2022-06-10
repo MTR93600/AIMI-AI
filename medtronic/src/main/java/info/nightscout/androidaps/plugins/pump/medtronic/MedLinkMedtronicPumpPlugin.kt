@@ -3442,13 +3442,15 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     var previousSensorUpTime: Int = -1
 
     fun sensorReInit() {
-        EnliteInterval.clear()
-        pumpSync.insertTherapyEventIfNewWithTimestamp(
-            pumpStatusData.lastBGTimestamp,
-            DetailedBolusInfo.EventType.SENSOR_CHANGE,
-            pumpSerial = medLinkServiceData.pumpID,
-            pumpType = pumpType
-        )
+        if(sp.getBoolean(R.bool.key_medlink_handle_sensor_change_event, false)) {
+            EnliteInterval.clear()
+            pumpSync.insertTherapyEventIfNewWithTimestamp(
+                pumpStatusData.lastBGTimestamp,
+                DetailedBolusInfo.EventType.SENSOR_CHANGE,
+                pumpSerial = medLinkServiceData.pumpID,
+                pumpType = pumpType
+            )
+        }
     }
 
     fun handleNewSensorData(sens: BgSync.BgHistory) {

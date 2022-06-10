@@ -41,6 +41,20 @@
         android:title="@string/medlink_init_commands"
         app:initialExpandedChildrenCount="0">
 
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_handle_cannula_change_event"
+            android:title="@string/medlink_handle_cannula_change_event" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_handle_sensor_change_event"
+            android:title="@string/medlink_handle_sensor_change_event" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_init_commands_last_bg_history"
+            android:title="@string/medlink_init_commands_last_bg_history" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@bool/key_medlink_init_commands_last_bg_history"
