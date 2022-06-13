@@ -250,14 +250,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     DeltaPct = round(1+deltaShortRise,2);
 
     // eating now time can be delayed if there is no first bolus or carbs
-    if (now >= ENStartTime && now < ENEndTime && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastBolusNormalTime >= ENStartTime)) ENtimeOK = true;
+    if (now >= ENStartTime && now < ENEndTime && (meal_data.lastNormalCarbTime >= ENStartTime || meal_data.lastENBolusTime >= ENStartTime)) ENtimeOK = true;
     var lastNormalCarbAge = round(( new Date(systemTime).getTime() - meal_data.lastNormalCarbTime ) / 60000);
 
 
     enlog += "nowhrs: " + nowhrs + ", now: " + now +"\n";
     enlog += "ENStartOffset: " + ENStartOffset + ", ENStartTime: " + ENStartTime +"\n";
     enlog += "ENEndOffset: " + ENEndOffset + ", ENEndTime: " + ENEndTime +"\n";
-    enlog += "lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastBolusNormalTime: " + meal_data.lastBolusNormalTime +"\n";
+    enlog += "lastNormalCarbTime: " + meal_data.lastNormalCarbTime + ", lastENBolusTime: " + meal_data.lastENBolusTime +"\n";
     enlog += "lastNormalCarbAge: " + lastNormalCarbAge +"\n";
 
     /*
@@ -368,8 +368,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var ENTime = (( new Date(systemTime).getTime() - ENStartTime) / 60000); // elapsed time since EN Start
     var c1Time = (typeof meal_data.firstCarbTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.firstCarbTime) / 60000) : 9999); // first carb entry after EN start
     var cTime = (( new Date(systemTime).getTime() - meal_data.lastCarbTime) / 60000); // last carb entry after EN start
-    var b1Time = (typeof meal_data.firstNormalBolusTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.firstNormalBolusTime) / 60000) : 9999); // first normal bolus after EN start
-    var bTime = (typeof meal_data.lastBolusNormalTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime) / 60000) : 9999); // last normal bolus after EN start
+    var b1Time = (typeof meal_data.firstENBolusTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.firstENBolusTime) / 60000) : 9999); // first normal bolus after EN start
+    var bTime = (typeof meal_data.lastENBolusTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.lastENBolusTime) / 60000) : 9999); // last normal bolus after EN start
     // ENWindowOK is when there is a recent COB entry or manual bolus
     var ENWindowOK = (ENactive && profile.ENWindow > 0 && Math.min(c1Time, cTime ,bTime, b1Time) < profile.ENWindow || (profile.temptargetSet && target_bg == normalTarget));
     var ENWindowRunTime = Math.min(c1Time, cTime, bTime, b1Time);

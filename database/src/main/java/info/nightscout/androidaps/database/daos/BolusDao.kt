@@ -48,7 +48,8 @@ internal interface BolusDao : TraceableDao<Bolus> {
     @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND timestamp >= :timestamp AND referenceId IS NULL ORDER BY id DESC")
     fun getBolusesFromTime(timestamp: Long): Single<List<Bolus>>
 
-    @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND type == :only AND timestamp >= :timestamp AND referenceId IS NULL ORDER BY id DESC")
+    // EN: Get the first bolus since EN Start
+    @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND type == :only AND timestamp >= :timestamp AND pumpID IS NOT NULL AND referenceId IS NULL ORDER BY id DESC")
     fun getBolusesFromTimeOfType(only: Bolus.Type, timestamp: Long): Single<List<Bolus>>
 
     @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND timestamp >= :start AND timestamp <= :end AND referenceId IS NULL ORDER BY id DESC")
