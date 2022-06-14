@@ -371,7 +371,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b1Time = (typeof meal_data.firstENBolusTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.firstENBolusTime) / 60000) : 9999); // first normal bolus after EN start
     var bTime = (typeof meal_data.lastENBolusTime !== 'undefined' ? (( new Date(systemTime).getTime() - meal_data.lastENBolusTime) / 60000) : 9999); // last normal bolus after EN start
     // ENWindowOK is when there is a recent COB entry or manual bolus
-    var ENWindowOK = (ENactive && profile.ENWindow > 0 && Math.min(c1Time, cTime ,bTime, b1Time) < profile.ENWindow || (profile.temptargetSet && target_bg == normalTarget));
+    var ENWindowOK = (ENactive && profile.ENWindow > 0 && Math.min(c1Time, cTime ,bTime, b1Time) < profile.ENWindow || (profile.temptargetSet && target_bg <= normalTarget));
     var ENWindowRunTime = Math.min(c1Time, cTime, bTime, b1Time);
 
     // breakfast/first meal related vars
