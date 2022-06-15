@@ -53,10 +53,10 @@ open class ENPlugin @Inject constructor(
     .pluginName(R.string.EN)
     .shortName(R.string.EN_shortname)
     .preferencesId(R.xml.pref_eatingnow)
-    .description(R.string.description_EN)
-    .setDefault(),
+    .description(R.string.description_EN),
     aapsLogger, rh, injector
 ), APS, Constraints {
+
 
     // last values
     override var lastAPSRun: Long = 0
