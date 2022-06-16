@@ -1127,7 +1127,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             var predDev = ci * ( 1 - Math.min(1,IOBpredBGs.length/(60/5)) );
             IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev;
             // calculate predBGs with long zero temp without deviations
-            var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
+            var ZTpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev : ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
             // for COBpredBGs, predicted carb impact drops linearly from current carb impact down to zero
             // eventually accounting for all carbs (if they can be absorbed over DIA)
             var predCI = Math.max(0, Math.max(0,ci) * ( 1 - COBpredBGs.length/Math.max(cid*2,1) ) );
@@ -1306,7 +1306,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 02/06/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 16/06/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1479,7 +1479,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; Dev-AIMI-V19-02/06/22 "
+    rT.reason += " ; Dev-AIMI-V19-16/06/22 "
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
