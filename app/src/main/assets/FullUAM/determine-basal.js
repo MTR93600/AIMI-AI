@@ -549,6 +549,8 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     sens_currentBG = round(sens_currentBG,1);
     sens = sens_currentBG / circadian_sensitivity;
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
+    sens = C1 < C2 && !iTimeActivation ? profile.sens / circadian_sensitivity : sens;
+
     enlog +="Current sensitivity is " +sens_currentBG+" based on current bg\n";
     }else{
     var AIMI_UAM = profile.enable_AIMI_UAM;
@@ -742,6 +744,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
      }
      sensitivityRatio = round(sensitivityRatio,2);
      enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+     sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
      basal = profile.current_basal * sensitivityRatio;
      basal = round_basal(basal, profile);
      if (basal !== profile_current_basal) {
@@ -789,6 +792,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
         sensitivityRatio = round(sensitivityRatio,2);
         enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+        sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
         basal = profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
@@ -1306,7 +1310,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 16/06/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 18/06/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1479,7 +1483,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; Dev-AIMI-V19-16/06/22 "
+    rT.reason += " ; Dev-AIMI-V19-18/06/22 "
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1801,7 +1805,7 @@ console.log("BYPASS OREF1");
 
             }else if (iTime < iTimeProfile && AIMI_UAM_U200 && !AIMI_UAM_Novorapid && !AIMI_UAM_Fiasp
             && !AIMI_UAM_U100 && AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_BL_EndTime
-            && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2 && aimi_delta > 2 && glucose_status.long_avgdelta > 0
+            && ! profile.temptargetSet && aimi_delta > 2 && glucose_status.long_avgdelta > 0
             && iob_data.iob <= (smb_ratio*limitIOB/2)){
 
                        insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens)*smb_ratio,2);
@@ -1815,7 +1819,7 @@ console.log("BYPASS OREF1");
 
             }else if (iTime < iTimeProfile && !AIMI_UAM_U200 && !AIMI_UAM_Fiasp && !AIMI_UAM_Novorapid
             && AIMI_UAM_U100 && AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_BL_EndTime
-            && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2 && aimi_delta > 2 && glucose_status.long_avgdelta > 0
+            && ! profile.temptargetSet && aimi_delta > 2 && glucose_status.long_avgdelta > 0
             && iob_data.iob <= (smb_ratio*limitIOB/2)){
 
                         insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * smb_ratio,2);
@@ -1826,8 +1830,8 @@ console.log("BYPASS OREF1");
                         console.log("***FullUAM*** U100 - Breakfast Light - InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), smb_ratio("+smb_ratio+"), TriggerPredSMB_future_sens_45("+TriggerPredSMB_future_sens_45+")\n");
 
             }else if (iTime < iTimeProfile && AIMI_UAM_U200 && !AIMI_UAM_Novorapid && !AIMI_UAM_Fiasp && !AIMI_UAM_U100
-            && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2
-            && aimi_delta > 2 && glucose_status.long_avgdelta > 0  && iob_data.iob <= (bgDegree*limitIOB)){
+            && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet && aimi_delta > 2
+            && glucose_status.long_avgdelta > 0  && iob_data.iob <= (bgDegree*limitIOB)){
 
                       insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
                       //insulinReq = (insulinReq > (max_iob - iob_data.iob) ? max_iob - iob_data.iob : insulinReq);
@@ -1836,7 +1840,7 @@ console.log("BYPASS OREF1");
                       console.log("***FullUAM*** U200 - InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), TriggerPredSMB_future_sens_45("+TriggerPredSMB_future_sens_45+"), bgDegree("+bgDegree+") \n");
 
             }else if(iTime < iTimeProfile && !AIMI_UAM_U200 && !AIMI_UAM_Fiasp && !AIMI_UAM_Novorapid
-            && AIMI_UAM_U100 && AIMI_UAM && !AIMI_BreakFastLight && !profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2
+            && AIMI_UAM_U100 && AIMI_UAM && !AIMI_BreakFastLight && !profile.temptargetSet
             && aimi_delta > 2 && glucose_status.long_avgdelta > 0  && iob_data.iob <= (bgDegree*2*limitIOB)){
 
                     insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
@@ -1847,7 +1851,7 @@ console.log("BYPASS OREF1");
 
             }else if (iTime < iTimeProfile && !AIMI_UAM_U200 && AIMI_UAM_Fiasp && !AIMI_UAM_Novorapid
             && !AIMI_UAM_U100 && AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_BL_EndTime
-            && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2 && aimi_delta > 2 && glucose_status.long_avgdelta > 0
+            && ! profile.temptargetSet && aimi_delta > 2 && glucose_status.long_avgdelta > 0
             && iob_data.iob <= (smb_ratio*limitIOB/2)){
 
                       insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * smb_ratio,2);
@@ -1858,8 +1862,8 @@ console.log("BYPASS OREF1");
                       console.log("***UAM*** Fiasp - Breakfast Light - InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), smb_ratio("+smb_ratio+"), TriggerPredSMB_future_sens_45("+TriggerPredSMB_future_sens_45+")\n");
 
             }else if (iTime < iTimeProfile && !AIMI_UAM_U200 && !AIMI_UAM_Novorapid && AIMI_UAM_Fiasp
-            && !AIMI_UAM_U100 && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2
-            && aimi_delta > 2 && glucose_status.long_avgdelta > 0  && iob_data.iob <= (bgDegree*limitIOB)){
+            && !AIMI_UAM_U100 && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet && aimi_delta > 2
+            && glucose_status.long_avgdelta > 0  && iob_data.iob <= (bgDegree*limitIOB)){
 
                        insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
                                    //maxBolusTT = round(((smb_max_range * profile.current_basal * profile.maxUAMSMBBasalMinutes * 1.618)+(glucose_status.delta * 1.618) / 60) *(insulinReq/1.618) ,1);
@@ -1870,7 +1874,7 @@ console.log("BYPASS OREF1");
 
             }else if (iTime < iTimeProfile && !AIMI_UAM_U200 && !AIMI_UAM_Fiasp && AIMI_UAM_Novorapid
             && !AIMI_UAM_U100 && AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_BL_EndTime
-            && ! profile.temptargetSet && TriggerPredSMB_future_sens_45 > C2 && aimi_delta > 2 && glucose_status.long_avgdelta > 0
+            && ! profile.temptargetSet && aimi_delta > 2 && glucose_status.long_avgdelta > 0
             && iob_data.iob <= (smb_ratio*limitIOB/2)){
 
                        insulinReq = round((((glucose_status.delta * GN) + (bg*0.52) ) / future_sens) * smb_ratio,2);
@@ -1882,7 +1886,7 @@ console.log("BYPASS OREF1");
 
              }else if (iTime < iTimeProfile && !AIMI_UAM_U200 && AIMI_UAM_Novorapid && !AIMI_UAM_Fiasp
              && !AIMI_UAM_U100 && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet
-             && TriggerPredSMB_future_sens_45 > C2 && aimi_delta > 2 && glucose_status.long_avgdelta > 0
+             && aimi_delta > 2 && glucose_status.long_avgdelta > 0
              && iob_data.iob <= (bgDegree*limitIOB)){
 
                         insulinReq = round((((glucose_status.delta * GN) + (bg*0.52) ) / future_sens) * bgDegree,2);
