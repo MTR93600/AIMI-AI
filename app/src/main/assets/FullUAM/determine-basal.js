@@ -1996,6 +1996,8 @@ console.log("BYPASS OREF1");
             SMBInterval = 15;
             }else if (AIMI_UAM && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP){
             SMBInterval = 10;
+            }else if (!iTimeActivation && HyperPredBG < 100){
+            SMBInterval = 9;
             }
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
