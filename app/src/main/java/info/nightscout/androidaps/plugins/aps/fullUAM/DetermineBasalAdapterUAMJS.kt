@@ -346,7 +346,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.totalAmount)
         this.mealData.put("TDDAIMIBASAL3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.basalAmount)
         this.mealData.put("TDDAIMIBASAL7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7))?.basalAmount)
-        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
+        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily(-8,0).totalAmount)
         //this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
         this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)
         //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
