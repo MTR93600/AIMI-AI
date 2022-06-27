@@ -207,6 +207,11 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("max_daily_safety_multiplier", sp.getInt(R.string.key_openapsama_max_daily_safety_multiplier, 3))
         this.profile.put("current_basal_safety_multiplier", sp.getDouble(R.string.key_openapsama_current_basal_safety_multiplier, 4.0))
 
+        val insulin = activePlugin.activeInsulin
+        val insulinType = insulin.friendlyName
+        val insulinPeak = insulin.peak
+        this.profile.put("insulinType", insulinType)
+        this.profile.put("insulinPeak", insulinPeak)
         //mProfile.put("high_temptarget_raises_sensitivity", SP.getBoolean(R.string.key_high_temptarget_raises_sensitivity, UAMDefaults.high_temptarget_raises_sensitivity));
 //**********************************************************************************************************************************************
         //this.profile.put("high_temptarget_raises_sensitivity", false)

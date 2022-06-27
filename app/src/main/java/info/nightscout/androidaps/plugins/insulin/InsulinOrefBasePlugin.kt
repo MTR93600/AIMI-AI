@@ -114,7 +114,7 @@ abstract class InsulinOrefBasePlugin(
 
             val td = (dia * 60.0 * factordia).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
             //val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
-            val tp = factordia * peak.toDouble()
+            val tp = peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
             if (t < td) {
                 val tau = tp * (1 - tp / td) / (1 - 2 * tp / td)
