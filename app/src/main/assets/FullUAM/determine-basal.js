@@ -548,9 +548,9 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     var sens_normalTarget = sens_avg;
     var sens_currentBG = sens_normalTarget/(aimi_bg/normalTarget); // * EXPERIMENT *
     sens_currentBG = round(sens_currentBG,1);
-    sens = sens_currentBG / circadian_sensitivity;
+    sens = sens_currentBG * circadian_sensitivity;
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
-    sens = C1 < C2 && !iTimeActivation ? profile.sens / circadian_sensitivity : sens;
+    sens = C1 < C2 && !iTimeActivation ? profile.sens * circadian_sensitivity : sens;
 
     enlog +="Current sensitivity is " +sens_currentBG+" based on current bg\n";
     }else{
@@ -682,7 +682,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
             }
-    sens = profile.sens / circadian_sensitivity;
+    sens = profile.sens * circadian_sensitivity;
     enlog +="######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }
 
@@ -1467,8 +1467,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-        rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
-        rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
+        rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60,(dia/2*60)) : "";
+        rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60,(dia/2*60)) : "";
         rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
 
 
