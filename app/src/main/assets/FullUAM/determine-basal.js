@@ -801,10 +801,11 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         } else {
             enlog +="Basal unchanged: "+basal+";\n";
         }
-    } else if (!profile.temptargetSet && HyperPredBG >= 220 && profile.resistance_lowers_target) {
+    } else if (!profile.temptargetSet && HyperPredBG >= 180 && profile.resistance_lowers_target) {
 
         var hyper_target = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
         hyper_target *= Math.min(circadian_sensitivity,1);
+        hyper_target = Math.max(hyper_target,80);
         if (target_bg === hyper_target) {
             enlog +="target_bg unchanged: "+hyper_target+";\n";
         } else {
