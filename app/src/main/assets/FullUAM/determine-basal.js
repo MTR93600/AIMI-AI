@@ -759,12 +759,12 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         hypo_target *= Math.max(1,circadian_sensitivity);
         hypo_target = Math.min(144,hypo_target);
        if (EBG <= 120 && HypoPredBG < 90) {
-            hypo_target = 130 * circadian_sensitivity;
+            hypo_target = 130 * Math.max(1,circadian_sensitivity);
             hypo_target = Math.min(144,hypo_target);
 
             enlog +="target_bg from "+target_bg+" to "+hypo_target+" because EBG is lesser than 100 and HypoPredBG < 80 : "+EBG+"; \n";
         }else if (EBG60 <= 90 && EBG60 >0 ) {
-            hypo_target = 100 * circadian_sensitivity;
+            hypo_target = 100 *Math.max(1,circadian_sensitivity);
             hypo_target = Math.min(110,hypo_target);
             enlog +="target_bg from "+target_bg+" to "+hypo_target+" because EBG60 is lesser than 90: "+EBG60+";\n ";
         }else if (target_bg === hypo_target) {
@@ -1312,7 +1312,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-l-AIMI V19 27/06/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-n-AIMI V20 29/06/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1485,7 +1485,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVn-AIMI-V19-27/06/22 ";
+    rT.reason += " ; DEVn-AIMI-V20-29/06/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
