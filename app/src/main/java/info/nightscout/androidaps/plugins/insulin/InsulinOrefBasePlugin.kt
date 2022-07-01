@@ -75,8 +75,8 @@ abstract class InsulinOrefBasePlugin(
         assert(peak != 0)
         val result = Iob()
         if (bolus.amount != 0.0) {
-            //val now = System.currentTimeMillis() / (1000*60*60)
-            //val circadian_sensitivity = (0.00000379*Math.pow(now.toDouble(),5.0))-(0.00016422*Math.pow(now.toDouble(),4.0))+(0.00128081*Math.pow(now.toDouble(),3.0))+(0.02533782*Math.pow(now.toDouble(),2.0))-(0.33275556*now)+1.38581503
+            val now = System.currentTimeMillis() / (1000*60*60)
+            val circadian_sensitivity = (0.00000379*Math.pow(now.toDouble(),5.0))-(0.00016422*Math.pow(now.toDouble(),4.0))+(0.00128081*Math.pow(now.toDouble(),3.0))+(0.02533782*Math.pow(now.toDouble(),2.0))-(0.33275556*now)+1.38581503
             //val circadian_sensitivity
            /*when (now) {
                 in 0..1   -> {
@@ -112,7 +112,8 @@ abstract class InsulinOrefBasePlugin(
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
 
-            val td = (dia * 60.0 * factordia).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
+            var td = (dia * 60.0 * factordia).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
+            td *= circadian_sensitivity
             //val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
             val tp = peak.toDouble()
             // force the IOB to 0 if over DIA hours have passed
