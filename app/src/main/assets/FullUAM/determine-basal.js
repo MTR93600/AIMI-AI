@@ -297,14 +297,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
     var enlog = "";
     var now = new Date().getHours();
-        if (now < 1){
-            now = 1;}
-        else {
-            console.error("Time now is "+now+"; ");
-        }
-    //var circadian_sensitivity = 1;
-    var circadian_sensitivity = (0.00000379*Math.pow(now,5))-(0.00016422*Math.pow(now,4))+(0.00128081*Math.pow(now,3))+(0.02533782*Math.pow(now,2))-(0.33275556*now)+1.38581503;
-    /*if (now >= 0 && now < 2){
+    var date_now = new Date();
+        var nowminutes = date_now.getHours() + date_now.getMinutes() / 60 + date_now.getSeconds() / 60 / 60;
+        enlog += "nowminutes = " +nowminutes+" ; \n";
+            if (now < 1){
+                now = 1;}
+            else {
+                console.error("Time now is "+now+"; ");
+            }
+        //var circadian_sensitivity = 1;
+        var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
+        /*if (now >= 0 && now < 2){
         //circadian_sensitivity = 1.4;
         now = Math.max(now,0.5);
         circadian_sensitivity = (0.09130*Math.pow(now,3))-(0.33261*Math.pow(now,2))+1.4;
@@ -1533,9 +1536,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         //rT.reason += "minGuardBG "+minGuardBG+"<"+threshold+": SMB disabled; ";
         enableSMB = false;
     }
-    if ( maxDelta > 0.25 * bg && iTime > 90 && AIMI_UAM || maxDelta > 0.25 * bg && AIMI_BreakFastLight && AIMI_UAM || maxDelta > 0.25 * bg && !AIMI_UAM ){
-        console.error("maxDelta",convert_bg(maxDelta, profile),"> 25% of BG",convert_bg(bg, profile),"- disabling SMB");
-        rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 25% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
+    if ( maxDelta > 0.20 * bg && iTime > 90 && AIMI_UAM && !AIMI_BreakFastLight || maxDelta > 0.20 * bg && AIMI_BreakFastLight && AIMI_UAM || maxDelta > 0.20 * bg && !AIMI_UAM ){
+        console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
+        rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
     }
     /*if (variable_sens >= 139) {
