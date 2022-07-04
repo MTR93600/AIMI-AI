@@ -329,7 +329,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //circadian_sensitivity = 1.2;
         circadian_sensitivity = (0.000125*Math.pow(now,3))-(0.0015*Math.pow(now,2))-(0.0045*now)+1.2;
     }*/
-basal /= circadian_sensitivity;
+basal *= circadian_sensitivity;
 enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
         var statTirBelow = meal_data.StatLow7;
@@ -353,6 +353,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var tdd_pump_now = meal_data.TDDPUMP;
         var tdd_pump = (tdd_pump_now / (now / 24));
         var TDD = lastHourTIRLow > 0 ? ((tdd724 * 0.4) + (tdd_pump * 0.6))*0.85 : (tdd724 * 0.4) + (tdd_pump * 0.6);
+        TDD = Math.min(TDD,meal_data.TDD24);
         enlog +="tdd24 : "+tdd24+"\n";
         enlog +="tdd7 : "+tdd7+"\n";
         enlog +="tdd724 : "+tdd724+"\n";
@@ -361,10 +362,12 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var smbTDD = 0;
         if (tdd_pump < (0.3 * tdd724)) {
             TDD = (tdd724 * 0.8) + (tdd_pump * 0.2);
+            TDD = Math.min(TDD,meal_data.TDD24);
             smbTDD = 1;
             enlog +="tdd_pump is lesser than 30% tdd724\n";
             } else if (tdd_pump < (0.5 * tdd724)){
                 TDD = (tdd724 * 0.5) + (tdd_pump * 0.5);
+                TDD = Math.min(TDD,TDD24);
                 smbTDD = 1;
                 enlog +="TDD weighted to pump due to low insulin usage. TDD = "+TDD+";\n";
             }else{
@@ -498,7 +501,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta < 6){
+        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6){
                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
@@ -693,7 +696,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             return rT;
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta < 6){
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6){
                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
                   rT.deliverAt = deliverAt;
                   rT.temp = 'absolute';
@@ -719,12 +722,15 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var TriggerPredSMB = round( bg - (iob_data.iob * sens) ) + round( 240 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
-    if (glucose_status.delta >= 0){
+    if (glucose_status.delta >= 0 && bg > 180){
     var aimi_bg = (bg + (bg - glucose_status.delta))/2;
     var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
-    }else if (glucose_status.delta < 0){
+    }else if (glucose_status.delta < 0 && bg > 180){
     var aimi_bg = (bg + (bg + glucose_status.delta))/2;
     var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+    }else{
+    var aimi_bg = bg;
+    var aimi_delta = glucose_status.delta;
     }
     enlog += "aimi_bg : "+aimi_bg+", aimi_delta : "+aimi_delta+"\n";
 
