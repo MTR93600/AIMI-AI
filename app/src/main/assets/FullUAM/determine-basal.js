@@ -498,7 +498,18 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }
+        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta < 6){
+                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
+                 rT.deliverAt = deliverAt;
+                 rT.temp = 'absolute';
+                 rT.duration = 30;
+                 rT.rate = round_basal(basal*5,profile);
+                 //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
+                 //rT.rate = profile.current_basal*10;
+                 return rT;
+                 //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+
+         }
 
 
 
@@ -682,7 +693,18 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             return rT;
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-            }
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta < 6){
+                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
+                  rT.deliverAt = deliverAt;
+                  rT.temp = 'absolute';
+                  rT.duration = 30;
+                  rT.rate = round_basal(basal*5,profile);
+                  //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
+                  //rT.rate = profile.current_basal*10;
+                  return rT;
+                  //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+
+          }
     sens = profile.sens * circadian_sensitivity;
     enlog +="######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }
