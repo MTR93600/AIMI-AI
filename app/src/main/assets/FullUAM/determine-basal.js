@@ -330,6 +330,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         circadian_sensitivity = (0.000125*Math.pow(now,3))-(0.0015*Math.pow(now,2))-(0.0045*now)+1.2;
     }*/
 basal *= circadian_sensitivity;
+basal = Math.max(profile.current_basal/2,basal);
 enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
         var statTirBelow = meal_data.StatLow7;
