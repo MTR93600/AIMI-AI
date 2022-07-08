@@ -565,8 +565,9 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     var sens_currentBG = sens_normalTarget/(aimi_bg/normalTarget); // * EXPERIMENT *
     sens_currentBG = round(sens_currentBG,1);
     sens = sens_currentBG * circadian_sensitivity;
+    sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
-    sens = C1 < C2 && !iTimeActivation ? profile.sens * circadian_sensitivity : sens;
+    sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
 
     enlog +="Current sensitivity is " +sens_currentBG+" based on current bg\n";
     }else{
@@ -709,7 +710,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                   //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
           }
-    sens = profile.sens * circadian_sensitivity;
+    sens = Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
     enlog +="######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }
 
