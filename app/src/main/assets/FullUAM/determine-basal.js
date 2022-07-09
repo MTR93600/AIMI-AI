@@ -768,7 +768,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
      //sensitivityRatio = REBX;
      // limit sensitivityRatio to profile.autosens_max (1.2x by default)
      sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
-     //sensitivityRatio = Math.min(sensitivityTDD, profile.autosens_max);
+     sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
      }else{
      sensitivityRatio = c/(c+target_bg-normalTarget);
      sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
@@ -815,7 +815,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
          //sensitivityRatio = REBX;
          // limit sensitivityRatio to profile.autosens_max (1.2x by default)
          sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
-         //sensitivityRatio = Math.min(sensitivityTDD, profile.autosens_max);
+         sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
          }else{
          sensitivityRatio = c/(c+target_bg-normalTarget);
          sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
@@ -854,8 +854,8 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
              enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
              //sensitivityRatio = REBX;
              // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-             //sensitivityRatio = Math.min(sensitivityTDD, profile.autosens_max);
-             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
+             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+             sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio)
              }else{
              sensitivityRatio = c/(c+target_bg-normalTarget);
              sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
@@ -1343,7 +1343,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-n-AIMI V20 01/07/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-n-AIMI V20 09/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1516,7 +1516,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVn-AIMI-V20-01/07/22 ";
+    rT.reason += " ; DEVn-AIMI-V20-09/07/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
