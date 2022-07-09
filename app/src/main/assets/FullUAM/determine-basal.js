@@ -763,7 +763,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
      var c = halfBasalTarget - normalTarget;
      if (meal_data.TDDAIMI3){
      sensitivityRatio = c/(c+target_bg-normalTarget);
-     var sensitivityTDD = (TDD / tdd724);
+     var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
      enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
      //sensitivityRatio = REBX;
      // limit sensitivityRatio to profile.autosens_max (1.2x by default)
@@ -810,7 +810,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         if (meal_data.TDDAIMI3){
          sensitivityRatio = c/(c+target_bg-normalTarget);
-         var sensitivityTDD = (TDD / tdd724);
+         var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
          enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
          //sensitivityRatio = REBX;
          // limit sensitivityRatio to profile.autosens_max (1.2x by default)
@@ -850,7 +850,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         if (meal_data.TDDAIMI3){
              sensitivityRatio = c/(c+target_bg-normalTarget);
-             var sensitivityTDD = (TDD / tdd724);
+             var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
              enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
              //sensitivityRatio = REBX;
              // limit sensitivityRatio to profile.autosens_max (1.2x by default)
