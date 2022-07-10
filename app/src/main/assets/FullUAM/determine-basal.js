@@ -354,7 +354,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var tdd_pump_now = meal_data.TDDPUMP;
         var tdd_pump = (tdd_pump_now / (now / 24));
         var TDD = lastHourTIRLow > 0 ? ((tdd724 * 0.4) + (tdd_pump * 0.6))*0.85 : (tdd724 * 0.4) + (tdd_pump * 0.6);
-        TDD = Math.min(TDD,meal_data.TDD24);
+        TDD = Math.min(TDD,meal_data.aimiTDD24);
         enlog +="tdd24 : "+tdd24+"\n";
         enlog +="tdd7 : "+tdd7+"\n";
         enlog +="tdd724 : "+tdd724+"\n";
@@ -363,12 +363,12 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var smbTDD = 0;
         if (tdd_pump < (0.3 * tdd724)) {
             TDD = (tdd724 * 0.8) + (tdd_pump * 0.2);
-            TDD = Math.min(TDD,meal_data.TDD24);
+            TDD = Math.min(TDD,meal_data.aimiTDD24);
             smbTDD = 1;
             enlog +="tdd_pump is lesser than 30% tdd724\n";
             } else if (tdd_pump < (0.5 * tdd724)){
                 TDD = (tdd724 * 0.5) + (tdd_pump * 0.5);
-                TDD = Math.min(TDD,TDD24);
+                TDD = Math.min(TDD,meal_data.aimiTDD24);
                 smbTDD = 1;
                 enlog +="TDD weighted to pump due to low insulin usage. TDD = "+TDD+";\n";
             }else{
@@ -1343,7 +1343,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-n-AIMI V20 09/07/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 10/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1516,7 +1516,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVn-AIMI-V20-09/07/22 ";
+    rT.reason += " ; DEVo-AIMI-V20-10/07/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
