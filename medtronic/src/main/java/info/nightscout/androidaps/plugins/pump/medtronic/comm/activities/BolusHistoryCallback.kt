@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
-import com.google.gson.JsonObject
 import info.nightscout.androidaps.utils.JsonHelper.safeGetString
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
@@ -40,34 +39,34 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
                 val commandHistory = processBolusHistory(answers)
                 val bolus: Stream<JSONObject>? = null
                 if (medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_handle_cannula_change_event, false)) {
-                    medLinkPumpPlugin.handleNewCareportalEvent(Supplier { commandHistory.get().filter { f: JSONObject -> !isBolus(f) } })
+                medLinkPumpPlugin.handleNewCareportalEvent(Supplier {commandHistory.get().filter { f: JSONObject -> !isBolus(f) }})
                 }
-                val resultStream = Supplier { commandHistory.get().filter { f: JSONObject -> isBolus(f) } }
+                val resultStream = Supplier { commandHistory.get().filter { f: JSONObject ->  isBolus(f) } }
                 if (resultStream.get().count() < 3) {
                     medLinkPumpPlugin.readBolusHistory(true)
                 }
                 medLinkPumpPlugin.handleNewTreatmentData(resultStream.get())
-                MedLinkStandardReturn(ans, resultStream.get(), emptyList())
+                MedLinkStandardReturn(ans, resultStream.get())
             } catch (e: ParseException) {
                 e.printStackTrace()
                 MedLinkStandardReturn(
-                    ans, Stream.empty(),
-                    MedLinkStandardReturn.ParsingError.BolusParsingError
+                        ans, Stream.empty(),
+                        MedLinkStandardReturn.ParsingError.BolusParsingError
                 )
             }
         } else {
             return MedLinkStandardReturn(
-                ans, Stream.empty(),
-                MedLinkStandardReturn.ParsingError.BolusParsingError
+                    ans, Stream.empty(),
+                    MedLinkStandardReturn.ParsingError.BolusParsingError
             )
         }
     }
 
     private fun isBolus(json: JSONObject): Boolean {
         return safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ==
-            DetailedBolusInfo.EventType.CORRECTION_BOLUS.name
+                DetailedBolusInfo.EventType.BOLUS_WIZARD.name || safeGetString(json, "eventType", "") ==
+                DetailedBolusInfo.EventType.MEAL_BOLUS.name || safeGetString(json, "eventType", "") ==
+                DetailedBolusInfo.EventType.CORRECTION_BOLUS.name
     }
 
     @Throws(ParseException::class)
@@ -77,25 +76,23 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
         var verifyNext = false
         while (answers.hasNext()) {
             var data = processData(answers)
-            if (verifyNext && data.isPresent
-                && cannulaChange.isPresent
-            ) {
-                if (data.get().get("eventType") != DetailedBolusInfo.EventType.INSULIN_CHANGE) {
-                    resultList.add(cannulaChange.get())
-                    cannulaChange = Optional.empty()
-                }
+            if(verifyNext && data.isPresent
+                    && cannulaChange.isPresent){
+                        if(data.get().get("eventType") != DetailedBolusInfo.EventType.INSULIN_CHANGE) {
+                            resultList.add(cannulaChange.get())
+                            cannulaChange = Optional.empty()
+                        }
                 verifyNext = false
             }
             if (!verifyNext && data.isPresent
-                && data.get().get("eventType") == DetailedBolusInfo.EventType.CANNULA_CHANGE
-                && !medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)
-            ) {
+                    && data.get().get("eventType") == DetailedBolusInfo.EventType.CANNULA_CHANGE
+                    && !medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_change_cannula, true)) {
                 cannulaChange = data
                 data = Optional.empty()
                 verifyNext = true
             }
-            if (data.isPresent)
-                resultList.add(data.get())
+            if(data.isPresent)
+            resultList.add(data.get())
         }
         return Supplier { resultList.stream() }
     }
@@ -131,8 +128,8 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
             val date = parsetTime(answer, matcher)
             json.put("mills", date)
             json.put(
-                "eventType",
-                DetailedBolusInfo.EventType.CANNULA_CHANGE
+                    "eventType",
+                    DetailedBolusInfo.EventType.CANNULA_CHANGE
             )
             json.put("enteredBy", "PUMP")
             aapsLogger.debug("USER ENTRY: CAREPORTAL \${careportalEvent.eventType} json: \${careportalEvent.json}")

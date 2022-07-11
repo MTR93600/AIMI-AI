@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
 import info.nightscout.androidaps.interfaces.BgSync
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCalibrateCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
@@ -9,33 +8,41 @@ import java.util.function.Supplier
 import java.util.stream.Stream
 
 class CalibrateMedLinkMessage(
-    private val calibrationInfo: Double,
     baseCallback: java.util.function.Function<Supplier<Stream<String>>, MedLinkStandardReturn<BgSync.BgHistory>>,
     argCallback: java.util.function.Function<Supplier<Stream<String>>, MedLinkStandardReturn<BgSync.BgHistory>>,
     btSleepTime: Long,
     bleCommand: BleCalibrateCommand,
     shouldBeSuspended: Boolean,
-    startStopCommand:List<MedLinkPumpMessage<PumpDriverState>>
-) : StartStopMessage<BgSync.BgHistory>(
+    calibrationArgument: String
+) : StartStopMessage<BgSync.BgHistory,String>(
     MedLinkCommandType.Calibrate,
-    Companion.calibrationArgument,
+    MedLinkCommandType.CalibrateValue,
     baseCallback,
     argCallback,
     btSleepTime,
     bleCommand,
-    startStopCommand,
-    shouldBeSuspended
+    shouldBeSuspended,
+    calibrationArgument
 ) {
 
-    private val calibrationArgument = MedLinkCommandType.CalibrateValue
-
-    override fun getArgumentData(): ByteArray? {
-        calibrationArgument.bgValue = calibrationInfo
-        return calibrationArgument.raw
-    }
-
     companion object {
-        val calibrationArgument = MedLinkCommandType.CalibrateValue
+
+        operator fun invoke(calibrationInfo: Double,
+                            baseCallback: java.util.function.Function<Supplier<Stream<String>>, MedLinkStandardReturn<BgSync.BgHistory>>,
+                            argCallback: java.util.function.Function<Supplier<Stream<String>>, MedLinkStandardReturn<BgSync.BgHistory>>,
+                            btSleepTime: Long,
+                            bleCommand: BleCalibrateCommand,
+                            shouldBeSuspended: Boolean): CalibrateMedLinkMessage{
+            calibrationArgument.bgValue = calibrationInfo
+            val argument = if(calibrationInfo<100){
+                " 0${calibrationInfo.toInt()}"
+            } else{
+                " ${calibrationInfo.toInt()}"
+            }
+            return CalibrateMedLinkMessage(baseCallback, argCallback, btSleepTime, bleCommand,
+                                           shouldBeSuspended, argument)
+        }
+        private val calibrationArgument = MedLinkCommandType.CalibrateValue
     }
 }
 

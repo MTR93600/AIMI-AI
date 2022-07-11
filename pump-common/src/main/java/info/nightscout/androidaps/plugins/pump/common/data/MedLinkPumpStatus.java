@@ -8,6 +8,7 @@ import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue;
 import info.nightscout.androidaps.data.InMemoryGlucoseValue;
 import info.nightscout.androidaps.interfaces.BgSync;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryTBR;
 
@@ -27,6 +28,7 @@ public abstract class MedLinkPumpStatus extends  MedLinkPartialBolus{
     public double currentBasal;
     public int tempBasalRemainMin;
     public PumpDbEntryTBR runningTBR;
+
 
     @Override public String toString() {
         return "MedLinkPumpStatus{" +

@@ -20,9 +20,9 @@ import java.util.stream.Stream
  * Created by Dirceu on 01/02/21.
  */
 class ProfileCallback(private val injector: HasAndroidInjector, private val aapsLogger: AAPSLogger, private val ctx: Context, private val medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin) :
-    Function<Supplier<Stream<String?>?>?, MedLinkStandardReturn<Profile?>> {
+    Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile?>> {
 
-    override fun apply(answer: Supplier<Stream<String?>?>?): MedLinkStandardReturn<Profile?> {
+    override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<Profile?> {
         val parser = MedLinkProfileParser(
             injector, aapsLogger,
             medLinkMedtronicPumpPlugin

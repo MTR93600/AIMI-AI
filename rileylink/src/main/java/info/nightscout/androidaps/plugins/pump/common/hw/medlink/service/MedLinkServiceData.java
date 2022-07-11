@@ -31,7 +31,7 @@ public class MedLinkServiceData {
 
     boolean tuneUpDone = false;
     public MedLinkError medLinkError;
-    public info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState medLinkServiceState = info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState.NotStarted;
+    public MedLinkServiceState medLinkServiceState = MedLinkServiceState.NotStarted;
     public RileyLinkFirmwareVersion firmwareVersion;
     public RileyLinkTargetFrequency rileyLinkTargetFrequency;
 

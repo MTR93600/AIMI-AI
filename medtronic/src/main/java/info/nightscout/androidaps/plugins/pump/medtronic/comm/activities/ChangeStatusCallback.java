@@ -18,45 +18,50 @@ import info.nightscout.shared.logging.LTag;
 /**
  * Created by Dirceu on 19/01/21.
  */
-public class ChangeStatusCallback extends BaseCallback<PumpDriverState,Supplier<Stream<String>>> {
+public class ChangeStatusCallback extends BaseCallback<PumpDriverState, Supplier<Stream<String>>> {
     private final OperationType type;
     private final AAPSLogger aapsLogger;
-    private final MedLinkMedtronicPumpPlugin medlinkPumpPlugin;
+    private final MedLinkMedtronicPumpPlugin medLinkMedtronicPumpPlugin;
 
 
-    public enum OperationType{
+    public enum OperationType {
         START,
         STOP
     }
 
     public ChangeStatusCallback(AAPSLogger aapsLogger,
-                                OperationType type, MedLinkMedtronicPumpPlugin plugin){
+                                OperationType type, MedLinkMedtronicPumpPlugin plugin) {
         this.aapsLogger = aapsLogger;
         this.type = type;
-        this.medlinkPumpPlugin = plugin;
+        this.medLinkMedtronicPumpPlugin = plugin;
     }
 
     @Override public MedLinkStandardReturn<PumpDriverState> apply(Supplier<Stream<String>> a) {
         aapsLogger.info(LTag.PUMPBTCOMM, "StartStop Function");
         Stream<String> applied = a.get();
-        for (Object val: a.get().toArray()) {
-            aapsLogger.info(LTag.PUMPBTCOMM,val.toString());
+        for (Object val : a.get().toArray()) {
+            aapsLogger.info(LTag.PUMPBTCOMM, val.toString());
         }
-        Stream<String> filtered = applied.filter(f -> f.contains("pump") && f.contains("state"));
+        Stream<String> filtered =
+                applied.filter(f -> !f.contains("switching") && f.contains("pump") && f.contains(
+                        "state"));
         Optional<PumpDriverState> result = filtered.reduce((first, second) -> second).map(f -> {
             if (f.contains("normal")) {
-                medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
-                medlinkPumpPlugin.storeCancelTempBasal();
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
+                medLinkMedtronicPumpPlugin.storeCancelTempBasal();
+                if (type == OperationType.START) {
+
+                }
                 return PumpDriverState.Initialized;
             } else if (f.contains("suspend")) {
-                medlinkPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
-                PumpSync.PumpState.TemporaryBasal tempBasalData = medlinkPumpPlugin.getTemporaryBasal();
-                if( tempBasalData!= null) {
-                    medlinkPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
+                PumpSync.PumpState.TemporaryBasal tempBasalData = medLinkMedtronicPumpPlugin.getTemporaryBasal();
+                if (tempBasalData != null && PumpStateExtensionKt.getDurationInMinutes(tempBasalData) > 0) {
+                    medLinkMedtronicPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),
                             0);
 
-                }else{
-                    medlinkPumpPlugin.createTemporaryBasalData(30, 0);
+                } else {
+                    medLinkMedtronicPumpPlugin.createTemporaryBasalData(30, 0);
                 }
                 return PumpDriverState.Suspended;
 

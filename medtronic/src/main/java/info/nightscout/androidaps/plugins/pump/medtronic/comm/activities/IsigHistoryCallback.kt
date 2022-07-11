@@ -44,7 +44,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
     private val injector: HasAndroidInjector,
     private val medLinkPumpPlugin: MedLinkMedtronicPumpPlugin,
     private val aapsLogger: AAPSLogger, private val handleBG: Boolean, private val bgHistoryCallback: BGHistoryCallback
-) : BaseCallback<BgHistory?, Supplier<Stream<String>>>() {
+) : BaseCallback<BgHistory, Supplier<Stream<String>>>() {
 
     override fun apply(ans: Supplier<Stream<String>>): MedLinkStandardReturn<BgHistory?> {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig")
@@ -58,8 +58,8 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
 //            medLinkPumpPlugin.handleNewBgData(readings);
 //        }
         return if (readings != null && readings.bgValue.isNotEmpty()) {
-            MedLinkStandardReturn({ toParse }, readings, emptyList())
-        } else MedLinkStandardReturn({ toParse }, null, emptyList())
+            MedLinkStandardReturn({ toParse }, readings, mutableListOf())
+        } else MedLinkStandardReturn({ toParse }, null, mutableListOf())
     }
 
     private fun parseAnswer(
@@ -70,16 +70,16 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
         val answers = ans.get().iterator()
         val answer = ans.get().collect(Collectors.joining())
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        var memAddress = 0
+        var memAddress = -1
         //        answers.iterator();
         val isigs: MutableList<Double?> = ArrayList()
-        while (answers.hasNext() && memAddress == 0) {
+        while (answers.hasNext() && memAddress < 0) {
             val line = answers.next()
             if (line.contains("history page number")) {
-                val memPatter = Pattern.compile("\\d{2,4}")
+                val memPatter = Pattern.compile("\\d{2,3}")
                 val memMatcher = memPatter.matcher(line)
                 if (memMatcher.find()) {
-                    memAddress = memMatcher.group(0).toInt()
+                    memAddress = memMatcher.group(0)?.toInt() ?: -1
                 }
             }
         }
@@ -107,6 +107,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + line.trim { it <= ' ' }.length)
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + matcher.find())
                 aapsLogger.info(LTag.PUMPBTCOMM, "Invalid isig $line")
+                // medLinkPumpPlugin.calibrateMedLinkFrequency()
                 break
             }
         }

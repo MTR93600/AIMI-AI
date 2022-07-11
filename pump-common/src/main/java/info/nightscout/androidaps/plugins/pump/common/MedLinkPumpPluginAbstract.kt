@@ -1,24 +1,25 @@
 package info.nightscout.androidaps.plugins.pump.common
 
 import android.content.Context
-import info.nightscout.androidaps.interfaces.PluginDescription
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.utils.resources.ResourceHelper
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.androidaps.interfaces.CommandQueue
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.shared.sharedPreferences.SP
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.data.PumpEnactResult
+import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.CommandQueue
+import info.nightscout.androidaps.interfaces.PluginDescription
+import info.nightscout.androidaps.interfaces.PumpSync
+import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+import info.nightscout.androidaps.utils.DateUtil
+import info.nightscout.androidaps.utils.FabricPrivacy
+import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.utils.rx.AapsSchedulers
+import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
+import info.nightscout.shared.sharedPreferences.SP
 
 /**
  * Created by Dirceu on 06/04/21.
@@ -93,4 +94,8 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     )
 
     abstract fun storeCancelTempBasal()
+    abstract fun setPumpDeviceState(state:PumpDeviceState)
+    abstract fun postInit()
+    abstract fun setMedtronicPumpModel(model:String)
+
 }

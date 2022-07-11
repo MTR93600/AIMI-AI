@@ -4,54 +4,50 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Binder
 import android.os.IBinder
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService
-import javax.inject.Inject
-import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
-import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIPostprocessor
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
+import dagger.android.AndroidInjection
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBluetoothStateReceiver
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBroadcastReceiver
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
+import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
+import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
+import info.nightscout.androidaps.plugins.pump.medtronic.R
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIComm
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType
-import dagger.android.AndroidInjection
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBroadcastReceiver
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBluetoothStateReceiver
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice
+import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIPostprocessor
+import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicConst
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
-import info.nightscout.androidaps.plugins.pump.medtronic.R
+import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
-import java.lang.Exception
+import info.nightscout.shared.logging.LTag
+import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * RileyLinkMedtronicService is intended to stay running when the gui-app is closed.
  */
 @Singleton
-class MedLinkMedtronicService : MedLinkService() {
+class MedLinkMedtronicService: MedLinkService() {
 
     @JvmField @Inject
     var medtronicPumpPlugin: MedLinkMedtronicPumpPlugin? = null
 
     @JvmField @Inject
     var medtronicUtil: MedLinkMedtronicUtil? = null
-
     @JvmField @Inject
-    var medtronicUIPostprocessor: MedLinkMedtronicUIPostprocessor? = null
-
+    var  medtronicUIPostprocessor: MedLinkMedtronicUIPostprocessor? = null
     @JvmField @Inject
     var medtronicPumpStatus: MedLinkMedtronicPumpStatus? = null
-
     @JvmField @Inject
     var medlinkBLE: MedLinkBLE? = null
-
     @JvmField @Inject
     var medtronicCommunicationManager: MedLinkMedtronicCommunicationManager? = null
+
     var medtronicUIComm: MedLinkMedtronicUIComm? = null
         private set
     private val mBinder: IBinder = LocalBinder()
@@ -106,13 +102,10 @@ class MedLinkMedtronicService : MedLinkService() {
 
         // getMedLinkRFSpy.startReader();
         // init rileyLinkCommunicationManager
-        medtronicUIComm = MedLinkMedtronicUIComm(injector, aapsLogger, medtronicUtil, medtronicUIPostprocessor, medtronicCommunicationManager)
+        medtronicUIComm = medtronicUtil?.let { medtronicUIPostprocessor?.let { it1 -> medtronicCommunicationManager?.let { it2 -> MedLinkMedtronicUIComm(injector, aapsLogger, it, it1, it2) } } }
         aapsLogger.debug(LTag.PUMPCOMM, "MedLinkMedtronicService newly constructed")
     }
 
-    fun resetRileyLinkConfiguration() {
-        getMedLinkRFSpy.resetRileyLinkConfiguration()
-    }
 
     override fun getDeviceCommunicationManager(): MedLinkCommunicationManager {
         return medtronicCommunicationManager!!
