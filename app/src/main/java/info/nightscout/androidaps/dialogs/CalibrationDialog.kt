@@ -21,7 +21,7 @@ import info.nightscout.androidaps.plugins.source.MedLinkPlugin
 import info.nightscout.androidaps.utils.HtmlHelper
 import info.nightscout.androidaps.utils.XDripBroadcast
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.utils.resources.ResourceHelper
 import java.text.DecimalFormat
 import java.util.*
 import javax.inject.Inject
@@ -68,7 +68,7 @@ class CalibrationDialog : DialogFragmentWithDate() {
             binding.bg.setParams(savedInstanceState?.getDouble("bg")
                 ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok)
         binding.units.text = if (units == GlucoseUnit.MMOL) rh.gs(R.string.mmol) else rh.gs(R.string.mgdl)
-        binding.bgLabel.labelFor = binding.bg.editTextId
+        binding.bg.editText?.id?.let { binding.bg.labelFor = it }
     }
 
     override fun onDestroyView() {
@@ -90,7 +90,7 @@ class CalibrationDialog : DialogFragmentWithDate() {
                     if(medLinkPlugin.isEnabled()){
                         medLinkMedtronicPumpPlugin.calibrate(bg)
                     } else {
-                        xDripBroadcast.sendCalibration(bg)
+                    xDripBroadcast.sendCalibration(bg)
                     }
                 })
             }

@@ -172,18 +172,18 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 //            medLinkService.getMedLinkBLE().enableNotifications();
 //            medLinkService.getMedLinkRFSpy().startReader(); // call startReader from outside?
             String[] actions = action.split("\n");
-            medLinkService.getMedLinkRFSpy().initializeRileyLink();
-            String bleVersion = medLinkService.getMedLinkRFSpy().getBLEVersionCached();
+//            medLinkService.getMedLinkRFSpy().initializeRileyLink();
+//            String bleVersion = medLinkService.getMedLinkRFSpy().getBLEVersionCached();
 
             RileyLinkFirmwareVersion rlVersion = medLinkServiceData.firmwareVersion;
 
 //            if (isLoggingEnabled())
-            aapsLogger.debug(LTag.PUMPCOMM, "RfSpy version (BLE113): " + bleVersion);
+//            aapsLogger.debug(LTag.PUMPCOMM, "RfSpy version (BLE113): " + bleVersion);
             if (message.getIntExtra("BatteryLevel",0) != 0) {
                 medLinkService.getMedLinkServiceData().versionBLE113 = message.getStringExtra("FirmwareVersion");
                 medLinkServiceData.batteryLevel = message.getIntExtra("BatteryLevel",0);
             }else {
-                medLinkServiceData.versionBLE113 = bleVersion;
+                medLinkServiceData.versionBLE113 = "";
             }
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
             this.medLinkServiceData.versionCC110 = rlVersion.name();

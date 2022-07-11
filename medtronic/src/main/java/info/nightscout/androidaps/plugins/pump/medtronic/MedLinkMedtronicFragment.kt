@@ -210,12 +210,12 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             PumpDeviceState.PumpUnreachable,
             PumpDeviceState.ErrorWhenCommunicating,
             PumpDeviceState.TimeoutWhenCommunicating,
-            PumpDeviceState.InvalidConfiguration -> binding.medtronicPumpStatus.text = " " + rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
+            PumpDeviceState.InvalidConfiguration -> binding.medtronicPumpStatus.text =  rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
 
             PumpDeviceState.Active -> {
-                val cmd = medLinkMedtronicUtil.getCurrentCommand()
+                val cmd = medLinkMedtronicUtil.currentCommand
                 if (cmd == null)
-                    binding.medtronicPumpStatus.text = " " + rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
+                    binding.medtronicPumpStatus.text = rh.gs(medtronicPumpStatus.pumpDeviceState.resourceId)
                 else {
                     aapsLogger.debug(LTag.PUMP, "Command: " + cmd)
                     val cmdResourceId = cmd.resourceId
@@ -225,7 +225,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
                         }
                             ?: rh.gs(R.string.medtronic_cmd_desc_get_settings)
                     } else {
-                        binding.medtronicPumpStatus.text = " " + (cmdResourceId?.let { rh.gs(it) }
+                        binding.medtronicPumpStatus.text = " " + (cmdResourceId?.let { if(it>0){ rh.gs(it) }}
                             ?: cmd.getCommandDescription())
                     }
                 }

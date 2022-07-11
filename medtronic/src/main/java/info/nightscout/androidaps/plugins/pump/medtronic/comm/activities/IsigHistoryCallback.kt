@@ -44,7 +44,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
     private val injector: HasAndroidInjector,
     private val medLinkPumpPlugin: MedLinkMedtronicPumpPlugin,
     private val aapsLogger: AAPSLogger, private val handleBG: Boolean, private val bgHistoryCallback: BGHistoryCallback
-) : BaseCallback<BgHistory?, Supplier<Stream<String>>>() {
+) : BaseCallback<BgHistory, Supplier<Stream<String>>>() {
 
     override fun apply(ans: Supplier<Stream<String>>): MedLinkStandardReturn<BgHistory?> {
         aapsLogger.info(LTag.PUMPBTCOMM, "isig")
@@ -58,8 +58,8 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
 //            medLinkPumpPlugin.handleNewBgData(readings);
 //        }
         return if (readings != null && readings.bgValue.isNotEmpty()) {
-            MedLinkStandardReturn({ toParse }, readings, emptyList())
-        } else MedLinkStandardReturn({ toParse }, null, emptyList())
+            MedLinkStandardReturn({ toParse }, readings, mutableListOf())
+        } else MedLinkStandardReturn({ toParse }, null, mutableListOf())
     }
 
     private fun parseAnswer(
@@ -107,7 +107,7 @@ class IsigHistoryCallback     //        BGHistoryCallback.BGHistoryAccumulator h
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + line.trim { it <= ' ' }.length)
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + matcher.find())
                 aapsLogger.info(LTag.PUMPBTCOMM, "Invalid isig $line")
-                medLinkPumpPlugin.calibrateMedLinkFrequency()
+                // medLinkPumpPlugin.calibrateMedLinkFrequency()
                 break
             }
         }

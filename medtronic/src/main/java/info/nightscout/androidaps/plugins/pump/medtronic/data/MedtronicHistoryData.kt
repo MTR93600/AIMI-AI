@@ -28,7 +28,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.PumpBolusType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.LocalDateTime
@@ -406,8 +406,7 @@ open class MedtronicHistoryData @Inject constructor(
         if (lastPrimeRecord != null) {
             uploadCareportalEventIfFoundInHistory(lastPrimeRecord,
                 MedtronicConst.Statistics.LastPrime,
-                DetailedBolusInfo.EventType.CANNULA_CHANGE
-            )
+                DetailedBolusInfo.EventType.CANNULA_CHANGE)
         }
     }
 
@@ -641,6 +640,7 @@ open class MedtronicHistoryData @Inject constructor(
                             "pumpId=${tempBasalProcessDTO.pumpId}, pumpType=${medtronicPumpStatus.pumpType}, " +
                             "pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
+
                         if (tempBasalProcessDTO.durationAsSeconds <= 0) {
                             rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
                             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
@@ -798,6 +798,7 @@ open class MedtronicHistoryData @Inject constructor(
         return processList
     }
 
+
     fun isTBRActive(dbEntry: PumpDbEntryTBR): Boolean {
         return isTBRActive(
             startTimestamp = dbEntry.date,
@@ -892,20 +893,19 @@ open class MedtronicHistoryData @Inject constructor(
                 rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
                 aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
             } else {
-                val result = pumpSync.syncTemporaryBasalWithPumpId(
-                    tryToGetByLocalTime(tempBasalProcess.itemOne.atechDateTime),
-                    0.0,
-                    tempBasalProcess.durationAsSeconds * 1000L,
-                    true,
-                    PumpSync.TemporaryBasalType.PUMP_SUSPEND,
-                    tempBasalProcess.itemOne.pumpId,
-                    medtronicPumpStatus.pumpType,
-                    medtronicPumpStatus.serialNumber
-                )
+            val result = pumpSync.syncTemporaryBasalWithPumpId(
+                tryToGetByLocalTime(tempBasalProcess.itemOne.atechDateTime),
+                0.0,
+                tempBasalProcess.durationAsSeconds * 1000L,
+                true,
+                PumpSync.TemporaryBasalType.PUMP_SUSPEND,
+                tempBasalProcess.itemOne.pumpId,
+                medtronicPumpStatus.pumpType,
+                medtronicPumpStatus.serialNumber)
 
-                aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId: Result: $result")
-            }
+            aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId: Result: $result")
         }
+    }
     }
 
     // suspend/resume

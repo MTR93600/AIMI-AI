@@ -23,7 +23,7 @@ class MedLinkCalibrationCallback(
     private val rxBus: RxBus
 ) : BaseCallback<BgSync.BgHistory, Supplier<Stream<String>>>() {
 
-    override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<BgSync.BgHistory> {
+    override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<BgSync.BgHistory?> {
         aapsLogger.info(LTag.PUMPBTCOMM, "calibration")
         val readings: BgSync.BgHistory? = parseAnswer(answer)
         return MedLinkStandardReturn(answer,readings)

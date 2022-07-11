@@ -1,19 +1,22 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
 import android.os.SystemClock
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 
-class BleStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
-    BleStartStopCommand(aapsLogger, medlinkServiceData) {
+class BleStopCommand(aapsLogger: AAPSLogger,
+                     medLinkServiceData: MedLinkServiceData,
+                     medLinkPumpPluginAbstract: MedLinkPumpPluginAbstract) :
+    BleStartStopCommand(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
     private var checkingStatus: Boolean = false
 
-    override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
-        aapsLogger.info(LTag.PUMPBTCOMM, answer!!)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand!!)
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+        aapsLogger.info(LTag.PUMPBTCOMM, answer)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
         val answers = pumpResponse.toString()
         // if (answers.contains("check pump status")) {
         //     checkingStatus = true
@@ -23,17 +26,18 @@ class BleStopCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkService
             answer.contains("pump suspend state")  -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, "status command")
                 aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
-                super.applyResponse(pumpResponse.toString(),bleComm?.currentCommand, bleComm)
+                pumpResponse.append(answer)
+                super.applyResponse(pumpResponse.toString(), bleComm.currentCommand, bleComm)
                 pumpResponse = StringBuffer()
-                bleComm?.completedCommand(true)
+                bleComm.completedCommand(true)
             }
             answer.contains("pump normal state")   -> {
-                bleComm!!.completedCommand()
+                bleComm.completedCommand()
             }
             answer.contains("pump bolusing state") -> {
                 SystemClock.sleep(5000)
-                bleComm?.currentCommand?.clearExecutedCommand()
-                bleComm!!.retryCommand()
+                bleComm.currentCommand?.clearExecutedCommand()
+                bleComm.retryCommand()
             }
             else                                   -> {
                 super.characteristicChanged(answer, bleComm, lastCommand)

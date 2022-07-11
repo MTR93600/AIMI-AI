@@ -9,7 +9,6 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicFragment
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedLinkMedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.MedtronicCommunicationManager
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIComm
-import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUITask
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUITaskCp
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUIComm
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedtronicUITask
@@ -27,10 +26,10 @@ abstract class MedtronicModule {
 
     @ContributesAndroidInjector
     abstract fun contributesMedLinkMedtronicCommunicationManager(): MedLinkMedtronicCommunicationManager
-    @ContributesAndroidInjector
-    abstract fun medLinkMedtronicUITaskProvider(): MedLinkMedtronicUITask
-    @ContributesAndroidInjector
-    abstract fun medLinkMedtronicUITaskCpProvider(): MedLinkMedtronicUITaskCp
+    // @ContributesAndroidInjector
+    // abstract fun medLinkMedtronicUITaskProvider(): MedLinkMedtronicUITask
+    // @ContributesAndroidInjector
+    // abstract fun medLinkMedtronicUITaskCpProvider(): MedLinkMedtronicUITaskCp<Any,Any>
 
     @ContributesAndroidInjector
     abstract fun medLinkMedtronicUICommProvider(): MedLinkMedtronicUIComm

@@ -16,12 +16,10 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.interfaces.ResourceHelper;
 import info.nightscout.shared.logging.AAPSLogger;
@@ -43,7 +41,6 @@ public abstract class MedLinkService extends DaggerService {
     @Inject protected MedLinkServiceData medLinkServiceData;
     @Inject protected ActivePlugin activePlugin;
     @Inject protected MedLinkBLE medLinkBLE; // android-bluetooth management
-    @Inject protected MedLinkRFSpy getMedLinkRFSpy; // interface for RL xxx Mhz radio.
 
     protected BluetoothAdapter bluetoothAdapter;
     protected MedLinkBroadcastReceiver mBroadcastReceiver;
@@ -249,9 +246,6 @@ public abstract class MedLinkService extends DaggerService {
 
 
     public void changeMedLinkEncoding(MedLinkEncodingType encodingType) {
-        if (getMedLinkRFSpy != null) {
-            getMedLinkRFSpy.setRileyLinkEncoding(encodingType);
-        }
     }
 
     public MedLinkError getError() {
@@ -263,9 +257,6 @@ public abstract class MedLinkService extends DaggerService {
 
     public abstract boolean verifyConfiguration();
 
-    public  MedLinkRFSpy getMedLinkRFSpy(){
-        return this.getMedLinkRFSpy;
-    }
 
     public MedLinkServiceData getMedLinkServiceData(){
         return this.medLinkServiceData;

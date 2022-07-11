@@ -1,9 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
@@ -12,12 +11,27 @@ import java.util.stream.Stream
 /**
  * Created by Dirceu on 25/09/20.
  */
-open class MedLinkPumpMessage<B> //implements RLMessage
+open class MedLinkPumpMessage<B, C> //implements RLMessage
 {
 
-    var commands: MutableList<Pair<MedLinkCommandType, Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>> = listOf<Pair<MedLinkCommandType,
-        Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>>().toMutableList()
-    private var bleCommand: BleCommand
+
+
+    fun firstFunction(): Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>> {
+        return commands[0].parseFunction
+    }
+
+    fun firstCommand(): MedLinkCommandType {
+        return commands[0].command
+    }
+
+    fun contains(commandType: MedLinkCommandType): Boolean {
+        return commands.any { it.command == commandType }
+    }
+
+    var commands: MutableList<CommandStructure<B, BleCommand>> = listOf<CommandStructure<
+        B, BleCommand>>().toMutableList()
+    var supplementalCommands: MutableList<CommandStructure<C, BleCommand>> =
+        listOf<CommandStructure<C, BleCommand>>().toMutableList()
 
     // // val commandType: MedLinkCommandType
     // var argCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>? = null
@@ -28,33 +42,41 @@ open class MedLinkPumpMessage<B> //implements RLMessage
     var btSleepTime = 0L
 
     constructor(commandType: MedLinkCommandType, bleCommand: BleCommand) {
-        this.commands = mutableListOf(Pair(commandType, Optional.empty()))
-        this.bleCommand = bleCommand
+        this.commands = mutableListOf(CommandStructure(commandType, Optional.empty(), Optional.of(bleCommand), commandType.getRaw()))
+
     }
+
+    // constructor(
+    //     commandType: MedLinkCommandType,
+    //     baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
+    //     btSleepTime: Long
+    // ) {
+    //     this.commands = mutableListOf(Triple(commandType, optional(baseCallback),Optional.of(bleCommand)))
+    //     this.btSleepTime = btSleepTime
+    // }
 
     constructor(
         commandType: MedLinkCommandType,
-        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
-        btSleepTime: Long, bleCommand: BleCommand
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
+        btSleepTime: Long,
+        bleCommand: BleCommand
     ) {
-        this.commands = mutableListOf(Pair(commandType, optional(baseCallback)))
+        this.commands = mutableListOf(CommandStructure(commandType, optional(baseCallback), Optional.of(bleCommand), commandType.getRaw()))
         this.btSleepTime = btSleepTime
-        this.bleCommand = bleCommand
     }
 
     constructor(
         commandType: MedLinkCommandType,
         argument: MedLinkCommandType,
-        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
+        baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         btSleepTime: Long,
         bleCommand: BleCommand
-    ) {
-        this.commands = mutableListOf(
-            Pair(commandType, optional(baseCallback)),
-            Pair(argument, Optional.empty())
-        )
-        this.btSleepTime = btSleepTime
-        this.bleCommand = bleCommand
+    ): this(commandType, baseCallback, btSleepTime, bleCommand) {
+        if (argument != MedLinkCommandType.NoCommand) {
+            commands.add(
+                CommandStructure(argument, Optional.empty(), Optional.of(bleCommand), argument.getRaw())
+            )
+        }
     }
 
     constructor(
@@ -63,24 +85,20 @@ open class MedLinkPumpMessage<B> //implements RLMessage
         baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         argCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         btSleepTime: Long, bleCommand: BleCommand
-    ) {
-        this.commands = mutableListOf(
-            Pair(commandType, Optional.of(baseCallback)),
-            Pair(argument, Optional.of(argCallback))
+    ):this(commandType, baseCallback, btSleepTime, bleCommand) {
+        this.commands.add(
+            CommandStructure(argument, Optional.of(argCallback), Optional.of(bleCommand), argument.getRaw())
         )
-        this.btSleepTime = btSleepTime
-        this.bleCommand = bleCommand
+
     }
 
     constructor(
-        commands: MutableList<Pair<MedLinkCommandType,
-            Optional<
-                Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>>>,
-        btSleepTime: Long, bleCommand: BleCommand
+        commands: MutableList<CommandStructure<
+            B, BleCommand>>,
+        btSleepTime: Long
     ) {
         this.commands = commands
         this.btSleepTime = btSleepTime
-        this.bleCommand = bleCommand
     }
 
     constructor(
@@ -89,16 +107,15 @@ open class MedLinkPumpMessage<B> //implements RLMessage
         bleCommand: BleCommand
     ) {
         this.commands = mutableListOf(
-            Pair(commandType, Optional.empty()),
-            Pair(argument, Optional.empty())
+            CommandStructure(commandType, Optional.empty(), Optional.of(bleCommand), commandType.getRaw()),
+            CommandStructure(argument, Optional.empty(), Optional.of(bleCommand), argument.getRaw())
         )
 
-        this.bleCommand = bleCommand
     }
 
-    fun commandData(index: Int) = if(commands.size < index) {
-        commands[index].first.raw
-    }else{
+    open fun commandData(index: Int) = if (commands.size < index) {
+        commands[index].command.getRaw()
+    } else {
         ByteArray(0)
     }
 
@@ -108,17 +125,24 @@ open class MedLinkPumpMessage<B> //implements RLMessage
 
     override fun toString(): String {
         return "MedLinkPumpMessage{" +
-            "commands=" + commands.joinToString()  +
+            "commands=" + commands.joinToString() +
             ", baseCallback=" + baseCallback +
             ", btSleepTime=" + btSleepTime +
             '}'
     }
 
-    fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
-        bleCommand.characteristicChanged(answer, bleComm, lastCommand)
+    fun nextMessageCommands(): MutableList<CommandStructure<
+        Optional<
+            Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>>>, Optional<BleCommand>>>{
+        return mutableListOf<CommandStructure<
+            Optional<
+                Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>>>, Optional<BleCommand>>>()
     }
-
-    fun apply(bleComm: MedLinkBLE?) {
-        bleCommand.applyResponse(bleComm)
-    }
+    // fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
+    //     bleCommand.characteristicChanged(answer, bleComm, lastCommand)
+    // }
+    //
+    // fun apply(bleComm: MedLinkBLE?) {
+    //     bleCommand.applyResponse(bleComm)
+    // }
 }

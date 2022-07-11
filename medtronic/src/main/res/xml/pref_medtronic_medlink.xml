@@ -26,7 +26,7 @@
 
         <EditTextPreference
             android:defaultValue="15"
-            android:key="@string/med_link_calibration_second_alarm"
+            android:key="@int/med_link_calibration_second_alarm"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/key_med_link_calibration_second_alarm"
@@ -41,6 +41,20 @@
         android:title="@string/medlink_init_commands"
         app:initialExpandedChildrenCount="0">
 
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_handle_cannula_change_event"
+            android:title="@string/medlink_handle_cannula_change_event" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_handle_sensor_change_event"
+            android:title="@string/medlink_handle_sensor_change_event" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_init_commands_last_bg_history"
+            android:title="@string/medlink_init_commands_last_bg_history" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@bool/key_medlink_init_commands_last_bg_history"
@@ -53,9 +67,14 @@
             android:defaultValue="true"
             android:key="@bool/key_medlink_init_commands_last_bolus_history"
             android:title="@string/medlink_init_commands_last_bolus_history" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@bool/key_medlink_change_cannula"
+            android:summary="@string/medlink_change_cannula_summary"
+            android:title="@string/medlink_change_cannula_action" />
 
     </PreferenceCategory>
-    <PreferenceCategory
+        <PreferenceCategory
         android:title="@string/medlink_medtronic_name"
         app:initialExpandedChildrenCount="40">
 
@@ -84,24 +103,24 @@
             android:key="@string/key_medlink_battery_info"
             android:title="@string/pref_medlink_battery_info" />
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/info"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginTop="8dp"-->
-        <!--            android:gravity="center"-->
-        <!--            android:text="@string/medlink_init_command_summary"-->
-        <!--            android:textAppearance="?textAppearanceBody2"-->
-        <!--            android:textColor="?colorPrimary" />-->
+            <!--        <TextView-->
+            <!--            android:id="@+id/info"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:layout_marginTop="8dp"-->
+            <!--            android:gravity="center"-->
+            <!--            android:text="@string/medlink_init_command_summary"-->
+            <!--            android:textAppearance="?textAppearanceBody2"-->
+            <!--            android:textColor="?colorPrimary" />-->
 
 
-        <!--            android:entries="@array/medlinkInitCommandsArray"-->
-        <!--            android:entryValues="@array/medlinkInitCommandsValues"-->
-        <!--            android:summary="@string/medlink_init_command_summary"-->
-        <!--            android:key="@string/key_medlink_init_command"-->
-        <!--            android:title="@string/medlink_init_commands"-->
-        <!--            android:dialogTitle="@string/medlink_init_commands" />-->
-        <!--        </PreferenceCategory>-->
+            <!--            android:entries="@array/medlinkInitCommandsArray"-->
+            <!--            android:entryValues="@array/medlinkInitCommandsValues"-->
+            <!--            android:summary="@string/medlink_init_command_summary"-->
+            <!--            android:key="@string/key_medlink_init_command"-->
+            <!--            android:title="@string/medlink_init_commands"-->
+            <!--            android:dialogTitle="@string/medlink_init_commands" />-->
+<!--        </PreferenceCategory>-->
 
         <SwitchPreference
             android:defaultValue="false"

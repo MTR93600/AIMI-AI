@@ -67,7 +67,7 @@ public class MedLinkProfileParser {
         }
         buffer.append("}");
         JSONObject json = new JSONObject(buffer.toString());
-
+        aapsLogger.info(LTag.PUMPBTCOMM, json.toString());
         //        Bolus wizard settings:
 //23:37:48.398 Max. bolus: 15.0u
 //23:37:48.398 Easy bolus step: 0.1u
@@ -164,8 +164,9 @@ public class MedLinkProfileParser {
                 }
                 ratioText = profileData.next();
             }
+            buffer.append("]");
         }
-        return buffer.append("]");
+        return buffer;
     }
 
     private StringBuffer parseBasal(List<BasalProfileEntry> basalProfile, StringBuffer buffer) {
@@ -191,15 +192,44 @@ public class MedLinkProfileParser {
             String carbRatio = profileText.next();
             if (carbRatio.contains("carb ratios")) {
                 String ratioText = profileText.next();
-                String toAppend = "";
-                buffer.append("[");
+                String toAppend = "[";
+//                buffer.append(toAppend);
                 while (!ratioText.contains("insulin sensitivities")) {
+
+                    if (ratioText.contains("u\\ex")) {
+                        Pattern pattern = Pattern.compile("\\d+\\.\\d+");
+                        Matcher carbMatcher = pattern.matcher(ratioText);
+                        if (carbMatcher.find()) {
+                            carbMatcher(carbMatcher, buffer, ratioText,toAppend);
+                        }
+                    } else {
                         Pattern pattern = Pattern.compile("\\d{2}");
                         Matcher carbMatcher = pattern.matcher(ratioText);
                         if (carbMatcher.find()) {
+                            carbMatcher(carbMatcher, buffer, ratioText,toAppend);
+                        }
+                    }
+                    toAppend = ",";
+                    ratioText = getNextValidLine(profileText);
+                }
+                buffer.append("]");
+            } else {
+                aapsLogger.info(LTag.PUMPBTCOMM, "profile doesn't have carb ratios");
+            }
+        }
+        return buffer;
+    }
+
+    private void carbMatcher(Matcher carbMatcher, StringBuffer buffer, String ratioText, String toAppend) {
         String carbs = carbMatcher.group(0);
         aapsLogger.info(LTag.PUMPBTCOMM, ratioText + " " + carbs);
-                        Integer ratio = Integer.valueOf(carbs);
+        Integer ratio = 0;
+        if(carbs.contains("\\.")){
+            Double rat = Double.valueOf(carbs);
+            ratio = Math.toIntExact(Math.round(rat * 10));
+        }else {
+            ratio = Integer.valueOf(carbs);
+        }
         Matcher matcher = hourPattern.matcher(ratioText);
         if (matcher.find()) {
             String hour = matcher.group(0);
@@ -209,15 +239,7 @@ public class MedLinkProfileParser {
         } else {
             aapsLogger.info(LTag.PUMPBTCOMM, "carbratio matcher doesn't found hour");
         }
-                    }
-                    ratioText = getNextValidLine(profileText);
-                }
-                buffer.append("]");
-            } else {
-                aapsLogger.info(LTag.PUMPBTCOMM, "profile doesn't have carb ratios");
-            }
-        }
-        return buffer;
+
     }
 
     private String getNextValidLine(Iterator<String> profileText) {

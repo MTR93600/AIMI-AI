@@ -8,8 +8,8 @@ import java.util.function.Supplier
 import java.util.stream.Stream
 
 class BolusStatusMedLinkMessage<B>(
-                                   baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>?,
-                                   btSleepTime: Long, bleCommand: BleCommand) : MedLinkPumpMessage<B>(
+                                   baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
+                                   btSleepTime: Long, bleCommand: BleCommand) : MedLinkPumpMessage<B, Any>(
     MedLinkCommandType.BolusStatus, MedLinkCommandType.NoCommand, baseCallback, btSleepTime, bleCommand) {
 
 }

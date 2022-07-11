@@ -11,7 +11,7 @@
 // class BleHistCommand(aapsLogger: AAPSLogger?, medlinkServiceData: MedLinkServiceData?) :
 //     BlePartialCommand(aapsLogger, medlinkServiceData) {
 //
-//     override fun characteristicChanged(answer: String?, bleComm: MedLinkBLE?, lastCommand: String?) {
+//     override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
 //         if (answer!!.contains("time to powerdown")) {
 //             aapsLogger.info(LTag.PUMPBTCOMM, "success calibrated")
 //             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())

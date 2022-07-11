@@ -16,7 +16,7 @@ public class ConnectionCallback extends BaseStringAggregatorCallback {
 
     @Override public MedLinkStandardReturn<String> apply(Supplier<Stream<String>> answers) {
 
-        if (answers.get().anyMatch(f -> f.toLowerCase().contains("confirmed pump wake-up"))) {
+        if (answers.get().anyMatch(f -> f.toLowerCase().contains("confirmed pump wakeup"))) {
             Optional<String> filtered = answers.get().filter(f -> f.toLowerCase().contains("medtronic")).findFirst();
             if (filtered.isPresent()) {
                 return new MedLinkStandardReturn<>(answers, filtered.get());

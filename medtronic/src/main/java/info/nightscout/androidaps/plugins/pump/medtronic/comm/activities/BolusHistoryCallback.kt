@@ -38,13 +38,15 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
             return try {
                 val commandHistory = processBolusHistory(answers)
                 val bolus: Stream<JSONObject>? = null
+                if (medLinkPumpPlugin.sp.getBoolean(R.bool.key_medlink_handle_cannula_change_event, false)) {
                 medLinkPumpPlugin.handleNewCareportalEvent(Supplier {commandHistory.get().filter { f: JSONObject -> !isBolus(f) }})
+                }
                 val resultStream = Supplier { commandHistory.get().filter { f: JSONObject ->  isBolus(f) } }
                 if (resultStream.get().count() < 3) {
                     medLinkPumpPlugin.readBolusHistory(true)
                 }
                 medLinkPumpPlugin.handleNewTreatmentData(resultStream.get())
-                MedLinkStandardReturn(ans, resultStream.get(), emptyList())
+                MedLinkStandardReturn(ans, resultStream.get())
             } catch (e: ParseException) {
                 e.printStackTrace()
                 MedLinkStandardReturn(

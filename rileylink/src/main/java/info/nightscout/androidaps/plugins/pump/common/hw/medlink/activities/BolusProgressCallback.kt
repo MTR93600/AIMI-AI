@@ -26,12 +26,12 @@ data class BolusProgressCallback(
     val pumpStatus: MedLinkPumpStatus,
     val resourceHelper: ResourceHelper,
     val rxBus: RxBus,
-    private val commandExecutor: CommandExecutor?,
     val aapsLogger: AAPSLogger,
     val medLinkPumpPlugin: MedLinkPumpDevice,
     val detailedBolusInfo: DetailedBolusInfo
 ) : BaseStringAggregatorCallback() {
 
+    var commandExecutor: CommandExecutor<String>? = null
     var resend = true;
     fun resend(): Boolean {
         return resend;
@@ -77,7 +77,8 @@ data class BolusProgressCallback(
                 // rxBus.send(bolusEvent)
                 rxBus.send(EventDismissBolusProgressIfRunning(null, pumpStatus.lastBolusTime?.time))
                 resend = false
-            } else commandExecutor?.clearExecutedCommand()
+            }
+            //else commandExecutor?.clearExecutedCommand()
         }
         return super.apply(answer)
     }
