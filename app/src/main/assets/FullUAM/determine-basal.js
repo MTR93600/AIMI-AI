@@ -1570,7 +1570,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         //rT.reason += "minGuardBG "+minGuardBG+"<"+threshold+": SMB disabled; ";
         enableSMB = false;
     }
-    if ( maxDelta > 0.20 * bg && iTime > 90 && AIMI_UAM && !AIMI_BreakFastLight && aimi_delta < 20 || maxDelta > 0.20 * bg && AIMI_BreakFastLight && AIMI_UAM || maxDelta > 0.20 * bg && !AIMI_UAM ){
+    var boosteat = glucose_status.delta + glucose_status.short_avgdelta + glucose_status.long_avgdelta;
+    if ( maxDelta > 0.20 * bg && iTime > 90 && AIMI_UAM && !AIMI_BreakFastLight && aimi_delta > 20 && boosteat > 40 || maxDelta > 0.20 * bg && AIMI_BreakFastLight && AIMI_UAM || maxDelta > 0.20 *
+     bg && !AIMI_UAM ){
         console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
