@@ -1991,6 +1991,9 @@ console.log("BYPASS OREF1");
                     microBolus = 0;
                     UAMAIMIReason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, ";
                     }
+            }else if(bg - min_bg < 20 && glucose_status.delta < 4){
+            microBolus = 0;
+            UAMAIMIReason += ", No SMB : Delta Slowing ";
             }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
