@@ -1347,7 +1347,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 15/07/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 17/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1520,7 +1520,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVo-AIMI-V20-15/07/22 ";
+    rT.reason += " ; DEVo-AIMI-V20-17/07/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1815,6 +1815,10 @@ console.log("BYPASS OREF1");
             //var insulinReqPCT = profile.UAM_InsulinReq/100;
             //var InsulinTDD = (TDD * 0.6) / 24;
             var maxBolusTT = maxBolus;
+            if (iTime < iTimeProfile){
+            maxBolusTT = AIMI_UAM_CAP;
+            maxBolus = AIMI_UAM_CAP;
+            }
             var roundSMBTo = 1 / profile.bolus_increment;
 
             //var mealM = meal_data.AIMI_lastCarbUnit / 3;
@@ -1829,6 +1833,10 @@ console.log("BYPASS OREF1");
             limitIOB *= bgDegree;
             var UAMAIMIReason = "";
             var AIMI_UAM_CAP = profile.key_use_AIMI_CAP;
+            if (iTime < iTimeProfile){
+            maxBolusTT = AIMI_UAM_CAP;
+            maxBolus = AIMI_UAM_CAP;
+            }
             var smb_ratio = determine_varSMBratio(profile, bg, target_bg);
             if (AIMI_Power === true){
             var GN = 3.1416;
