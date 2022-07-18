@@ -394,25 +394,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var iTimeProfile = profile.iTime;
         var LastManualBolus = meal_data.lastBolusNormalUnits;
         var insulinPeakTime = 45;
-        /*if (AIMI_UAM_U200 && C1 > C2){
-        insulinPeakTime = 15 * 1.618 * circadian_sensitivity;
-        //enlog += "AIMI_UAM_U200 && C1>C2 insulinPeakTime : "+insulinPeakTime+"\n";
-        }else if (AIMI_UAM_U200){
-        insulinPeakTime = 20 * 1.618 * circadian_sensitivity;
-        //enlog += "AIMI_UAM_U200 insulinPeakTime : "+insulinPeakTime+"\n";
-        }else if (AIMI_UAM_U100 && C1 > C2){
-        insulinPeakTime = 20 * 1.618 * circadian_sensitivity;
-        }else if (AIMI_UAM_U100){
-        insulinPeakTime = 25 * 1.618 * circadian_sensitivity;
-        }else if (AIMI_UAM_Fiasp && C1 > C2){
-        insulinPeakTime = 25 * 1.618 * circadian_sensitivity;
-        }else if (AIMI_UAM_Fiasp){
-        insulinPeakTime = 30 * 1.618 * circadian_sensitivity;
-        }else if (AIMI_UAM_Novorapid && C1 > C2){
-        insulinPeakTime = 35 * 1.618 * circadian_sensitivity;
-        }else if (AIMI_UAM_Novorapid){
-        insulinPeakTime = 40 * 1.618 * circadian_sensitivity;
-        }*/
+
         if (AIMI_UAM_U200){
             insulinPeakTime = 30 * 1.618 * circadian_sensitivity;
             //enlog += "AIMI_UAM_U200 insulinPeakTime : "+insulinPeakTime+"\n";
