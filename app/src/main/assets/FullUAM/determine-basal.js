@@ -1330,7 +1330,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 18/07/2022 ");
+                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 19/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1503,7 +1503,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVo-AIMI-V20-18/07/22 ";
+    rT.reason += " ; DEVo-AIMI-V20-19/07/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1931,13 +1931,13 @@ console.log("BYPASS OREF1");
                         microBolus = iTime > 120 && AIMI_lastBolusSMBUnits < 0.8 * AIMI_UAM_CAP ? microBolus / 1.618 : microBolus;
                         console.log("***UAM*** Novorapid - InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+") \n");
 
-             }/*else if (C1 > C2 && glucose_status.delta > 2 && bg > 180 && meal_data.lastBolusSMBUnits < (0.7 * AIMI_UAM_CAP) ){
+             }else if (iTime < iTimeProfile && glucose_status.delta > 2 && bg > 170 && TimeSMB > 25){
 
-                var microBolus =  profile.iTime_Bolus;
+                var microBolus =  (bg - min_bg)/sens;
                 microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-                console.log("****iTime_bolus value was sending****\n");
+                console.log("**** BG is stuck > 170 and no smb since 25 minutes, sending  : "+microBolus+"U****\n");
 
-             }*/else{
+             }else{
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 
@@ -1970,13 +1970,13 @@ console.log("BYPASS OREF1");
             durationReq = round(30*worstCaseInsulinReq / basal);
             var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
 
-            if (HyperPredBG < 90 && AIMI_UAM_Fiasp){
+            if (HyperPredBG < 80 && AIMI_UAM_Fiasp){
             microBolus = 0;
             UAMAIMIReason += ", No SMB beacuase Fiasp and Pred < 80, ";
-            }else if (HyperPredBG < 90 && AIMI_UAM_Novorapid){
+            }else if (HyperPredBG < 80 && AIMI_UAM_Novorapid){
             microBolus = 0;
-            UAMAIMIReason += ", No SMB beacuase Novorapid and Pred < 90, ";
-            }else if (HyperPredBG < 90)  {
+            UAMAIMIReason += ", No SMB beacuase Novorapid and Pred < 80, ";
+            }else if (HyperPredBG < 80)  {
                 microBolus = 0;
                 UAMAIMIReason += ", No SMB because Luymjev and Pred < 80, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
