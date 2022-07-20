@@ -486,7 +486,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160){
+        }/*else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160){
                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
@@ -496,7 +496,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                  b30SMB = true;
 
 
-         }
+         }*/
 
 
 
@@ -1830,11 +1830,11 @@ console.log("BYPASS OREF1");
 
             //var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
 
-            if (b30SMB === true && HypoPredBG > 90 && TimeSMB > 20){
+           /* if (b30SMB === true && HypoPredBG > 90 && TimeSMB > 20){
             var  microBolus = round(((profile.current_basal*5/60)*30)*smbRatio,2);
             UAMAIMIReason += ", run b30SMB && HypoPredBG > 90, ";
 
-            }else if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight){//#MT AIMI
+            }else*/ if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight){//#MT AIMI
                 var microBolus = LastManualBolus / 1.618;
                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
                 UAMAIMIReason += "First SMB after Prebolus("+LastManualBolus+" U) : "+microBolus+" U; ";
@@ -2050,6 +2050,10 @@ console.log("BYPASS OREF1");
                 if (microBolus > 0) {
                     rT.units = microBolus;
                     rT.reason += "Microbolusing " + microBolus + "U. ";
+                }else if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160 && HypoPredBG > 90 && TimeSMB > 20){
+                microBolus = round(((profile.current_basal*5/60)*30)*smbRatio,2);
+                UAMAIMIReason += ", run b30SMB && HypoPredBG > 90, ";
+                rT.reason += "Microbolusing " + microBolus + "U. ";
                 }
             } else {
                 rT.reason += "Waiting " + nextBolusMins + "m " + nextBolusSeconds + "s to microbolus again. ";
@@ -2070,6 +2074,15 @@ console.log("BYPASS OREF1");
         if (rate > maxSafeBasal) {
             rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
             rate = round_basal(maxSafeBasal, profile);
+        }else if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160 && HypoPredBG > 90){
+            //rT.duration = 30;
+           // rate = round_basal(basal*5,profile);
+            //rT.reason += "adj. req. rate: "+rate+", ";
+            //rate = round_basal(rate, profile);
+            rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
+            rate = round_basal(maxSafeBasal, profile);
+            UAMAIMIReason += ", run b30 && HypoPredBG > 90, ";
+
         }
 
         insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
