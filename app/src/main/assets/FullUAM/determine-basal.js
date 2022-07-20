@@ -2047,12 +2047,12 @@ console.log("BYPASS OREF1");
             //console.error(naive_eventualBG, insulinReq, worstCaseInsulinReq, durationReq);
             console.error("naive_eventualBG",naive_eventualBG+",",durationReq+"m "+smbLowTempReq+"U/h temp needed; last bolus",lastBolusAge+"m ago; maxBolus: "+maxBolus);
             if (lastBolusAge > SMBInterval) {
-                if (microBolus > 0) {
-                    rT.units = microBolus;
-                    rT.reason += "Microbolusing " + microBolus + "U. ";
-                }else if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160 && HypoPredBG > 90 && TimeSMB > 20){
+                 if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160 && HypoPredBG > 90 && TimeSMB > 20){
                 microBolus = round(((profile.current_basal*5/60)*30)*smbRatio,2);
                 UAMAIMIReason += ", run b30SMB && HypoPredBG > 90, ";
+                rT.reason += "Microbolusing " + microBolus + "U. ";
+                }else if(microBolus > 0) {
+                rT.units = microBolus;
                 rT.reason += "Microbolusing " + microBolus + "U. ";
                 }
             } else {
@@ -2071,10 +2071,7 @@ console.log("BYPASS OREF1");
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
-        if (rate > maxSafeBasal) {
-            rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
-            rate = round_basal(maxSafeBasal, profile);
-        }else if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 70 && bg < 160 && HypoPredBG > 90){
+        if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 80 && bg < 200 && HypoPredBG > 90){
             //rT.duration = 30;
            // rate = round_basal(basal*5,profile);
             //rT.reason += "adj. req. rate: "+rate+", ";
@@ -2083,7 +2080,10 @@ console.log("BYPASS OREF1");
             rate = round_basal(maxSafeBasal, profile);
             UAMAIMIReason += ", run b30 && HypoPredBG > 90, ";
 
-        }
+        }else if (rate > maxSafeBasal) {
+         rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
+         rate = round_basal(maxSafeBasal, profile);
+         }
 
         insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         if (insulinScheduled >= insulinReq * 2) { // if current temp would deliver >2x more than the required insulin, lower the rate
