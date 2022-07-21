@@ -34,6 +34,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.WakeAndTuneTask
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryTBR
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncEntriesCreator
+import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil
 import info.nightscout.androidaps.plugins.pump.common.utils.ProfileUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry
@@ -90,7 +91,7 @@ class MedtronicPumpPlugin @Inject constructor(
     dateUtil: DateUtil,
     aapsSchedulers: AapsSchedulers,
     pumpSync: PumpSync,
-    pumpSyncStorage: info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+    pumpSyncStorage: PumpSyncStorage
 ) : PumpPluginAbstract(
     PluginDescription() //
         .mainType(PluginType.PUMP) //
@@ -194,7 +195,11 @@ class MedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    override fun onStartCustomActions() {
+    override fun hasService(): Boolean {
+        return true
+    }
+
+    override fun onStartScheduledPumpActions() {
 
         // check status every minute (if any status needs refresh we send readStatus command)
         Thread {
@@ -673,7 +678,7 @@ class MedtronicPumpPlugin @Inject constructor(
     }
 
     // if enforceNew===true current temp basal is canceled and new TBR set (duration is prolonged),
-// if false and the same rate is requested enacted=false and success=true is returned and TBR is not changed
+    // if false and the same rate is requested enacted=false and success=true is returned and TBR is not changed
     @Synchronized
     override fun setTempBasalAbsolute(absoluteRate: Double, durationInMinutes: Int, profile: Profile, enforceNew: Boolean, tbrType: TemporaryBasalType): PumpEnactResult {
         setRefreshButtonEnabled(false)
@@ -743,7 +748,7 @@ class MedtronicPumpPlugin @Inject constructor(
             PumpEnactResult(injector).success(false).enacted(false) //
                 .comment(R.string.medtronic_cmd_tbr_could_not_be_delivered)
         } else {
-            medtronicPumpStatus.tempBasalStart = Date()
+            medtronicPumpStatus.tempBasalStart = System.currentTimeMillis()
             medtronicPumpStatus.tempBasalAmount = absoluteRate
             medtronicPumpStatus.tempBasalLength = durationInMinutes
 
