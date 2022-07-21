@@ -2023,7 +2023,7 @@ console.log("BYPASS OREF1");
                 rT.reason += "; setting " + durationReq + "m low temp of " + smbLowTempReq + "U/h";
             }
             rT.reason += ". ";
-            rT.reason += UAMAIMIReason;
+
             if (now > 0 && now < 7){
             rT.reason += " ; Basal proposition : " + AIMI_Basal;
             }
@@ -2084,7 +2084,7 @@ console.log("BYPASS OREF1");
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
          rate = round_basal(maxSafeBasal, profile);
          }
-
+        rT.reason += UAMAIMIReason;
         insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         if (insulinScheduled >= insulinReq * 2) { // if current temp would deliver >2x more than the required insulin, lower the rate
             rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " > 2 * insulinReq. Setting temp basal of " + rate + "U/hr. ";
