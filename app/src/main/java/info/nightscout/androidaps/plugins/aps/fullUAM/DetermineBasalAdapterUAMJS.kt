@@ -207,6 +207,11 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("max_daily_safety_multiplier", sp.getInt(R.string.key_openapsama_max_daily_safety_multiplier, 3))
         this.profile.put("current_basal_safety_multiplier", sp.getDouble(R.string.key_openapsama_current_basal_safety_multiplier, 4.0))
 
+        val insulin = activePlugin.activeInsulin
+        val insulinType = insulin.friendlyName
+        val insulinPeak = insulin.peak
+        this.profile.put("insulinType", insulinType)
+        this.profile.put("insulinPeak", insulinPeak)
         //mProfile.put("high_temptarget_raises_sensitivity", SP.getBoolean(R.string.key_high_temptarget_raises_sensitivity, UAMDefaults.high_temptarget_raises_sensitivity));
 //**********************************************************************************************************************************************
         //this.profile.put("high_temptarget_raises_sensitivity", false)
@@ -261,6 +266,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("enable_AIMI_UAM", sp.getBoolean(R.string.key_use_AimiUAM, false))
         this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
         this.profile.put("enable_AIMI_UAM_U200", sp.getBoolean(R.string.key_use_LuymjevU200, false))
+        this.profile.put("enable_AIMI_Ipen", sp.getBoolean(R.string.key_use_Ipen, false))
         this.profile.put("enable_AIMI_UAM_U100", sp.getBoolean(R.string.key_use_LuymjevU100, false))
         this.profile.put("enable_AIMI_UAM_Fiasp", sp.getBoolean(R.string.key_use_Fiasp, false))
         this.profile.put("enable_AIMI_UAM_Novorapid", sp.getBoolean(R.string.key_use_Novorapid, false))
@@ -269,6 +275,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("key_AIMI_BreakFastLight_timestart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timestart, "6")))
         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")))
+        this.profile.put("key_use_AIMI_SlowInsulin", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_SlowInsulin, "10")))
         this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
 
 
@@ -344,9 +351,11 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("TDDAIMI3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.totalAmount)
         this.mealData.put("TDDAIMIBASAL3", tddAIMI!!.averageTDD(tddAIMI!!.calculate(3))?.basalAmount)
         this.mealData.put("TDDAIMIBASAL7", tddAIMI!!.averageTDD(tddAIMI!!.calculate(7))?.basalAmount)
-        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily().totalAmount)
+        this.mealData.put("TDDPUMP", tddAIMI!!.calculateDaily(-8,0)?.totalAmount)
+        this.mealData.put("aimiTDD24", tddAIMI!!.calculateDaily(-24,0)?.totalAmount)
+        //this.mealData.put("TDD24", tddCalculator.calculateDaily(-24, 0).totalAmount)
         //this.mealData.put("TDDLast24", tddAIMI!!.calculate24Daily().totalAmount)
-        this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily().totalAmount)
+        this.mealData.put("TDDLast8", tddAIMI!!.calculate8Daily()?.totalAmount)
         //this.mealData.put("TDDPUMP", danaPump.dailyTotalUnits)
         StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         this.mealData.put("StatLow7", StatTIR!!.averageTIR(StatTIR!!.calculate(7, 65.0, 180.0)).belowPct())
@@ -356,6 +365,9 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("currentTIRRange", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(65.0, 180.0)).inRangePct())
         this.mealData.put("currentTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(65.0, 180.0)).abovePct())
         this.mealData.put("currentTIR_70_140_Above", StatTIR!!.averageTIR(StatTIR!!.calculateDaily(70.0, 140.0)).abovePct())
+        this.mealData.put("lastHourTIRLow", StatTIR!!.averageTIR(StatTIR!!.calculateHour(80.0, 180.0)).belowPct())
+        this.mealData.put("lastHourTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculateHour(80.0, 180.0)).abovePct())
+        this.mealData.put("last2HourTIRAbove", StatTIR!!.averageTIR(StatTIR!!.calculate2Hour(80.0, 180.0)).abovePct())
         //this.mealData.put("TDDPUMP1", danaPump.dailyTotalUnits)
         //this.mealData.put("TDDPUMP2", pumpHistory.tddHistory.get(DEFAULT_BUFFER_SIZE))
 

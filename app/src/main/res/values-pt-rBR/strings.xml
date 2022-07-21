@@ -29,7 +29,6 @@
     <string name="description_overview">Exibe o estado atual do seu loop e botões para ações mais comuns</string>
     <string name="description_persistent_notification">Mostra uma notificação em curso com um breve resumo do que o seu loop está a fazer</string>
     <string name="description_profile_local">Defina um perfil que está disponível offline.</string>
-    <string name="description_pump_mdi">Integração para as pessoas que fazem múltiplas injeções diárias para a sua terapia de diabetes</string>
     <string name="description_pump_virtual">Integração para as bombas que não têm qualquer driver ainda (Open Loop)</string>
     <string name="description_sensitivity_aaps">A sensibilidade é calculada da mesma forma que Oref0, mas você pode especificar um período de tempo no passado. A absorção mínima de carboidratos é calculada a partir do tempo de absorção máxima especificado nas preferências.</string>
     <string name="description_sensitivity_oref1">A sensibilidade é calculada a partir de dados de 8h ou 24h no passado (usando o que é mais sensível). Carboidratos (se não absorvidos) são cortados após o tempo especificado nas preferências. O plugin também calcula o UAM.</string>
@@ -249,7 +248,6 @@
     <string name="basalvaluebelowminimum">Valor da basal abaixo do mínimo. Perfil não definido!</string>
     <string name="sms_actualbg">BG:</string>
     <string name="sms_lastbg">Último BG:</string>
-    <string name="mdi">MDI</string>
     <string name="MM640g">MM640g</string>
     <string name="ongoingnotificaction">Notificação em curso</string>
     <string name="old_data">DADOS ANTIGOS</string>
@@ -415,8 +413,6 @@
     <string name="ns_localbroadcasts_title">Ativar partilha local.</string>
     <string name="openapssmb">SMB OpenAPS</string>
     <string name="openaps_smb_dynamic_isf">FSI Dinâmico</string>
-    <string name="DynISFAdjust_title">Fator de Ajuste FSI dinâmico %%</string>
-    <string name="DynISFAdjust_summary">Fator de ajuste para FSI dinâmico. Defina mais de 100%% para doses de correção mais agressivas e menos de 100%% para correções menos agressivas.</string>
     <string name="enableuam">Ativar UAM</string>
     <string name="enablesmb">Ativar SMB</string>
     <string name="enablesmb_summary">Use Super Micro Boluses em vez de basal temp para uma ação mais rápida</string>
@@ -572,9 +568,7 @@
     <string name="secondcarbsincrement">Segundo incremento hidratos</string>
     <string name="thirdcarbsincrement">Terceiro incremento hidratos</string>
     <string name="cgm">CGM</string>
-    <string name="ns_wifionly">Utilize apenas uma conexão WiFi</string>
     <string name="ns_wifi_ssids">WiFi SSID</string>
-    <string name="ns_chargingonly">Apenas quando estiver a carregar</string>
     <string name="connectionsettings_title">Definições de ligação</string>
     <string name="ns_wifi_allowedssids">SSIDs permitidos (separada por ponto e vírgula)</string>
     <string name="ns_allowroaming">Permitir ligação em roaming</string>
@@ -869,14 +863,12 @@
     <string name="wear_action_tempt_max_bg_error">Glicemia maxima fora da meta!</string>
     <string name="wear_action_tempt_manual_range_message">Alvo temporário:\nMin: %1$s\nMax: %2$s\nDuração: %3$s</string>
     <string name="wear_action_tempt_manual_message">Alvo temporário:\nTarget: %1$s\nDuration: %2$s</string>
-    <string name="wear_action_tempt_preset_message">Alvo temporário:\Reason: %1$s\nTarget: %2$s\nDuration: %3$s</string>
     <string name="quick_wizard_message">Assistente rápido: %1$s\nInsulin: %2$.2fU\nCarbs: %3$dg</string>
     <string name="wizard_result">Calculadora:\nInsulin: %1$.2fU\nCarbs: %2$dg</string>
     <string name="overview_editquickwizard_show_on_device">Mostrar entrada no dispositivo:</string>
     <string name="quick_wizard_not_available">O assistente rápido selecionado não está mais disponível, atualize seu atalho</string>
     <string name="wizard_no_actual_bg">Nenhuma glicemia recente para base de cálculo!</string>
     <string name="wizard_no_cob">CA desconhecido! Leitura de Glicemia faltando ou reinício recente do app?</string>
-    <string name="wizard_explain_calc">Calc (IC: %2$.1f, FSI: %2$.1f) de:\"</string>
     <string name="wizard_explain_cob">CA: %1$.0fg %2$.2fU</string>
     <string name="wizard_explain_trend">Tendência 15min: %1$.2fU</string>
     <string name="show_invalidated_records">Exibir registros invalidados / removidos</string>

@@ -9,7 +9,7 @@
 // import info.nightscout.androidaps.plugins.general.overview.graphExtensions.DataPointWithLabelInterface
 // import info.nightscout.androidaps.utils.DateUtil
 // import info.nightscout.androidaps.utils.DefaultValueHelper
-// import info.nightscout.androidaps.utils.resources.ResourceHelper
+// import info.nightscout.androidaps.interfaces.ResourceHelper
 // import info.nightscout.shared.logging.AAPSLogger
 // import info.nightscout.shared.logging.LTag
 // import javax.inject.Inject

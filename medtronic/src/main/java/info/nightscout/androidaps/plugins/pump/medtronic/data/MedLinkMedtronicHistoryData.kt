@@ -22,7 +22,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronic
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
@@ -1147,7 +1147,7 @@ class MedLinkMedtronicHistoryData @Inject constructor(
 
         // aapsLogger.debug(LTag.PUMP, "InList: " + inList.size());
         val outList: MutableList<PumpHistoryEntry> = ArrayList<PumpHistoryEntry>()
-        if (inList != null && inList.size > 0) {
+        if (inList != null && inList.isNotEmpty()) {
             for (pumpHistoryEntry in inList) {
                 if (!isEmpty(*entryTypes)) {
                     for (pumpHistoryEntryType in entryTypes) {

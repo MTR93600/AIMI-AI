@@ -151,7 +151,7 @@ class LocalProfileFragment : DaggerFragment() {
         var step = 0.01
         var format = DecimalFormat("0.00")
 
-        if(activePlugin is MedLinkMedtronicPumpPlugin){
+        if(activePlugin.activePump is MedLinkMedtronicPumpPlugin){
             step = 0.025
             format = DecimalFormat("0.000")
         }
@@ -403,6 +403,7 @@ class LocalProfileFragment : DaggerFragment() {
     }
 
     private fun updateProtectedUi() {
+        _binding ?: return
         val isLocked = protectionCheck.isLocked(ProtectionCheck.Protection.PREFERENCES)
         binding.mainLayout.visibility = isLocked.not().toVisibility()
         binding.unlock.visibility = isLocked.toVisibility()

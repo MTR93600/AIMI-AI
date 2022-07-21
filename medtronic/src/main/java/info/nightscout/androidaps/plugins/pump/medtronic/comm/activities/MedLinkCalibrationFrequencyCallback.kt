@@ -14,9 +14,9 @@ import java.util.stream.Stream
 
 class MedLinkCalibrationFrequencyCallback(private val aapsLogger: AAPSLogger,
 private val medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin
-) : BaseCallback<InMemoryMedLinkConfig, Supplier<Stream<String>>>() {
+) : BaseCallback<InMemoryMedLinkConfig?, Supplier<Stream<String>>>() {
 
-    override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<InMemoryMedLinkConfig> {
+    override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<InMemoryMedLinkConfig?> {
         aapsLogger.info(LTag.PUMPBTCOMM, "frequency calibration")
         val readings: InMemoryMedLinkConfig? = parseAnswer(answer)
         return MedLinkStandardReturn(answer,readings)

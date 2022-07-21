@@ -62,7 +62,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var medLinkMedtronicUtil: MedLinkMedtronicUtil
     @Inject lateinit var medtronicPumpStatus: MedLinkMedtronicPumpStatus
-    @Inject lateinit var medinkServiceData: MedLinkServiceData
+    @Inject lateinit var medLinkServiceData: MedLinkServiceData
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     
     private var disposable: CompositeDisposable = CompositeDisposable()
@@ -185,20 +185,20 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = medinkServiceData.medLinkServiceState.resourceId
+        val resourceId = medLinkServiceData.medLinkServiceState.resourceId
         val medLinkError = medLinkMedtronicPumpPlugin.medLinkService?.error
         binding.medtronicRlStatus.text =
             when {
-                medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isConnecting                    -> "{fa-bluetooth-b spin}   " + rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && medLinkError == null -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && medLinkError != null -> "{fa-bluetooth-b}   " + rh.gs(medLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                  -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isConnecting                      -> "{fa-bluetooth-b spin}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && medLinkError == null   -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && medLinkError != null   -> "{fa-bluetooth-b}   " + rh.gs(medLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                     -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
             }
         binding.medtronicRlStatus.setTextColor(if (medLinkError != null) Color.RED else Color.WHITE)
 
         binding.medtronicErrors.text =
-            medinkServiceData.medLinkError?.let {
+            medLinkServiceData.medLinkError?.let {
                 rh.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 
@@ -368,7 +368,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         //DeviceBattery
-        val deviceBatteryRemaining = medinkServiceData.batteryLevel
+        val deviceBatteryRemaining = medLinkServiceData.batteryLevel
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 

@@ -375,7 +375,7 @@ public class OmnipodErosPumpPlugin extends PumpPluginBase implements Pump, Riley
     }
 
     public boolean isRileyLinkReady() {
-        return rileyLinkServiceData.rileyLinkServiceState.isReady();
+        return rileyLinkServiceData.getRileyLinkServiceState().isReady();
     }
 
     private void handleCancelledTbr() {
@@ -705,7 +705,7 @@ public class OmnipodErosPumpPlugin extends PumpPluginBase implements Pump, Riley
         }
 
         if (tbrCurrent != null && !enforceNew) {
-            if (Round.isSame(tbrCurrent.getRate(), absoluteRate)) {
+            if (Round.INSTANCE.isSame(tbrCurrent.getRate(), absoluteRate)) {
                 aapsLogger.info(LTag.PUMP, "setTempBasalAbsolute - No enforceNew and same rate. Exiting.");
                 return new PumpEnactResult(getInjector()).success(true).enacted(false);
             }
@@ -1014,7 +1014,7 @@ public class OmnipodErosPumpPlugin extends PumpPluginBase implements Pump, Riley
                 // - RileyLink has been connecting for over RILEY_LINK_CONNECT_TIMEOUT
                 return (podStateManager.getLastFailedCommunication() != null && podStateManager.getLastSuccessfulCommunication().isBefore(podStateManager.getLastFailedCommunication())) ||
                         podStateManager.isSuspended() ||
-                        rileyLinkServiceData.rileyLinkServiceState.isError() ||
+                        rileyLinkServiceData.getRileyLinkServiceState().isError() ||
                         // The below clause is a hack for working around the RL service state forever staying in connecting state on startup if the RL is switched off / unreachable
                         (rileyLinkServiceData.getRileyLinkServiceState().isConnecting() && rileyLinkServiceData.getLastServiceStateChange() + RILEY_LINK_CONNECT_TIMEOUT_MILLIS < currentTimeMillis);
             }

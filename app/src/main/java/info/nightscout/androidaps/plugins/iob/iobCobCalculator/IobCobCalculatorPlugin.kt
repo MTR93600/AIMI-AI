@@ -30,6 +30,7 @@ import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.androidaps.workflow.CalculationWorkflow
 import info.nightscout.androidaps.events.Event
+import info.nightscout.androidaps.utils.MidnightTime
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
@@ -127,10 +128,20 @@ class IobCobCalculatorPlugin @Inject constructor(
     }
 
     private fun resetDataAndRunCalculation(reason: String, event: Event?) {
-        calculationWorkflow.stopCalculation(CalculationWorkflow.MAIN_CALCULATION,reason)
+        calculationWorkflow.stopCalculation(CalculationWorkflow.MAIN_CALCULATION, reason)
         clearCache()
         ads.reset()
-        calculationWorkflow.runCalculation(CalculationWorkflow.MAIN_CALCULATION,this, overviewData, reason, System.currentTimeMillis(), bgDataReload = false, limitDataToOldestAvailable = true, cause = event, runLoop = true)
+        calculationWorkflow.runCalculation(
+            CalculationWorkflow.MAIN_CALCULATION,
+            this,
+            overviewData,
+            reason,
+            System.currentTimeMillis(),
+            bgDataReload = false,
+            limitDataToOldestAvailable = true,
+            cause = event,
+            runLoop = true
+        )
     }
 
     override fun clearCache() {
@@ -363,18 +374,21 @@ class IobCobCalculatorPlugin @Inject constructor(
             scheduledHistoryPost?.cancel(false)
             // prepare task for execution in 1 sec
             scheduledEvent = event
-            scheduledHistoryPost = historyWorker.schedule({
-                                                              synchronized(this) {
-                                                                  aapsLogger.debug(LTag.AUTOSENS, "Running newHistoryData")
-                                                                  newHistoryData(
-                                                                      event.oldDataTimestamp,
-                                                                      event.reloadBgData,
-                                                                      if (event.newestGlucoseValue != null) EventNewBG(event.newestGlucoseValue) else event
-                                                                  )
-                                                                  scheduledEvent = null
-                                                                  scheduledHistoryPost = null
-                                                              }
-                                                          }, 1L, TimeUnit.SECONDS)
+            scheduledHistoryPost = historyWorker.schedule(
+                {
+                    synchronized(this) {
+                        aapsLogger.debug(LTag.AUTOSENS, "Running newHistoryData")
+                        repository.clearCachedData(MidnightTime.calc(event.oldDataTimestamp))
+                        newHistoryData(
+                            event.oldDataTimestamp,
+                            event.reloadBgData,
+                            if (event.newestGlucoseValue != null) EventNewBG(event.newestGlucoseValue) else event
+                        )
+                        scheduledEvent = null
+                        scheduledHistoryPost = null
+                    }
+                }, 1L, TimeUnit.SECONDS
+            )
         } else {
             // asked reload is newer -> adjust params only
             scheduledEvent?.let {
@@ -391,7 +405,7 @@ class IobCobCalculatorPlugin @Inject constructor(
     // When historical data is changed (coming from NS etc) finished calculations after this date must be invalidated
     private fun newHistoryData(oldDataTimestamp: Long, bgDataReload: Boolean, event: Event) {
         //log.debug("Locking onNewHistoryData");
-        calculationWorkflow.stopCalculation(CalculationWorkflow.MAIN_CALCULATION,"onEventNewHistoryData")
+        calculationWorkflow.stopCalculation(CalculationWorkflow.MAIN_CALCULATION, "onEventNewHistoryData")
         synchronized(dataLock) {
 
             // clear up 5 min back for proper COB calculation
@@ -415,7 +429,7 @@ class IobCobCalculatorPlugin @Inject constructor(
             }
             ads.newHistoryData(time, aapsLogger, dateUtil)
         }
-        calculationWorkflow.runCalculation(CalculationWorkflow.MAIN_CALCULATION,this, overviewData, event.javaClass.simpleName, System.currentTimeMillis(), bgDataReload, true, event, runLoop = true)
+        calculationWorkflow.runCalculation(CalculationWorkflow.MAIN_CALCULATION, this, overviewData, event.javaClass.simpleName, System.currentTimeMillis(), bgDataReload, true, event, runLoop = true)
         //log.debug("Releasing onNewHistoryData");
     }
 
@@ -448,8 +462,7 @@ class IobCobCalculatorPlugin @Inject constructor(
      *  Time range to the past for IOB calculation
      *  @return milliseconds
      */
-    fun range(): Long = ((/*overviewData.rangeToDisplay + */(profileFunction.getProfile()?.dia
-        ?: Constants.defaultDIA)) * 60 * 60 * 1000).toLong()
+    fun range(): Long = ((/*overviewData.rangeToDisplay + */(profileFunction.getProfile()?.dia ?: Constants.defaultDIA)) * 60 * 60 * 1000).toLong()
 
     override fun calculateIobFromBolus(): IobTotal = calculateIobFromBolusToTime(dateUtil.now())
 
@@ -467,6 +480,7 @@ class IobCobCalculatorPlugin @Inject constructor(
         val profile = profileFunction.getProfile() ?: return total
         val dia = profile.dia
         val divisor = sp.getDouble(R.string.key_openapsama_bolussnooze_dia_divisor, 2.0)
+        assert(divisor > 0)
 
         val boluses = repository.getBolusesDataFromTime(toTime - range(), true).blockingGet()
 

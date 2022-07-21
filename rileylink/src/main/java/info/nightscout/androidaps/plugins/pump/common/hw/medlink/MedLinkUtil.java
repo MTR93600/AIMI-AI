@@ -18,8 +18,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryI
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.encoding.Encoding4b6b;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkTargetFrequency;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceResult;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.data.ServiceTransport;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
 
 /**
@@ -27,7 +25,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks
  * copied from RileyLinkUtil
  */
 @Singleton
-public class MedLinkUtil implements ConnectorUtil {
+public class MedLinkUtil  {
 
     private List<MLHistoryItem> historyMedLink = new ArrayList<>();
     private ServiceTask currentTask;
@@ -42,11 +40,11 @@ public class MedLinkUtil implements ConnectorUtil {
     public MedLinkUtil() {
     }
 
-    @Override public CommunicatorEncodingType getEncoding() {
+    public CommunicatorEncodingType getEncoding() {
         return encoding;
     }
 
-    @Override public void setEncoding(CommunicatorEncodingType encoding) {
+    public void setEncoding(CommunicatorEncodingType encoding) {
         this.setEncoding(encoding);
     }
 
@@ -54,13 +52,13 @@ public class MedLinkUtil implements ConnectorUtil {
         LocalBroadcastManager.getInstance(context).sendBroadcast(message);
     }
 
-    @Override public void sendBroadcastMessage(String message, Context context) {
+    public void sendBroadcastMessage(String message, Context context) {
         Intent intent = new Intent(message);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     // FIXME remove ?
-    @Override public void setCurrentTask(ServiceTask task) {
+    public void setCurrentTask(ServiceTask task) {
         if (currentTask == null) {
             currentTask = task;
         } else {
@@ -68,30 +66,30 @@ public class MedLinkUtil implements ConnectorUtil {
         }
     }
 
-    @Override public void finishCurrentTask(ServiceTask task) {
-        if (task != currentTask) {
-            //LOG.error("finishCurrentTask: task does not match");
-        }
-        // hack to force deep copy of transport contents
-        ServiceTransport transport = task.getServiceTransport().clone();
+//    @Override public void finishCurrentTask(ServiceTask task) {
+//        if (task != currentTask) {
+//            //LOG.error("finishCurrentTask: task does not match");
+//        }
+//        // hack to force deep copy of transport contents
+//        ServiceTransport transport = task.getServiceTransport().clone();
+//
+//        if (transport.hasServiceResult()) {
+//            sendServiceTransportResponse(transport, transport.getServiceResult());
+//        }
+//        currentTask = null;
+//    }
 
-        if (transport.hasServiceResult()) {
-            sendServiceTransportResponse(transport, transport.getServiceResult());
-        }
-        currentTask = null;
-    }
+//    private static void sendServiceTransportResponse(ServiceTransport transport, ServiceResult serviceResult) {
+//        // get the key (hashcode) of the client who requested this
+//        Integer clientHashcode = transport.getSenderHashcode();
+//        // make a new bundle to send as the message data
+//        transport.setServiceResult(serviceResult);
+//        // FIXME
+//        // transport.setTransportType(RT2Const.IPC.MSG_ServiceResult);
+//        // rileyLinkIPCConnection.sendTransport(transport, clientHashcode);
+//    }
 
-    private static void sendServiceTransportResponse(ServiceTransport transport, ServiceResult serviceResult) {
-        // get the key (hashcode) of the client who requested this
-        Integer clientHashcode = transport.getSenderHashcode();
-        // make a new bundle to send as the message data
-        transport.setServiceResult(serviceResult);
-        // FIXME
-        // transport.setTransportType(RT2Const.IPC.MSG_ServiceResult);
-        // rileyLinkIPCConnection.sendTransport(transport, clientHashcode);
-    }
-
-    @Override public List<MLHistoryItem> getRileyLinkHistory() {
+    public List<MLHistoryItem> getRileyLinkHistory() {
         return historyMedLink;
     }
 
@@ -99,11 +97,11 @@ public class MedLinkUtil implements ConnectorUtil {
         return historyMedLink;
     }
 
-    @Override public Encoding4b6b getEncoding4b6b() {
+    public Encoding4b6b getEncoding4b6b() {
         return encoding4b6b;
     }
 
-    @Override public void setRileyLinkTargetFrequency(RileyLinkTargetFrequency rileyLinkTargetFrequency_) {
+    public void setRileyLinkTargetFrequency(RileyLinkTargetFrequency rileyLinkTargetFrequency_) {
         this.rileyLinkTargetFrequency = rileyLinkTargetFrequency_;
     }
 }

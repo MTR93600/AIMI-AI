@@ -162,6 +162,10 @@ class DataHandlerWear @Inject constructor(
                 sp.putInt(R.string.key_bolus_wizard_percentage, it.bolusPercentage)
                 sp.putInt(R.string.key_treatments_safety_max_carbs, it.maxCarbs)
                 sp.putDouble(R.string.key_treatments_safety_max_bolus, it.maxBolus)
+                sp.putDouble(R.string.key_insulin_button_increment_1, it.insulinButtonIncrement1)
+                sp.putDouble(R.string.key_insulin_button_increment_2, it.insulinButtonIncrement2)
+                sp.putInt(R.string.key_carbs_button_increment_1, it.carbsButtonIncrement1)
+                sp.putInt(R.string.key_carbs_button_increment_2, it.carbsButtonIncrement2)
             }
         disposable += rxBus
             .toObservable(EventData.QuickWizard::class.java)
@@ -200,6 +204,7 @@ class DataHandlerWear @Inject constructor(
                 .setContentIntent(cancelPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVibrate(vibratePattern)
+                .setOnlyAlertOnce(true)
                 .addAction(R.drawable.ic_cancel, context.getString(R.string.cancel_bolus), cancelPendingIntent)
         val notificationManager = NotificationManagerCompat.from(context)
         notificationManager.notify(DataLayerListenerServiceWear.BOLUS_PROGRESS_NOTIF_ID, notificationBuilder.build())
@@ -214,18 +219,20 @@ class DataHandlerWear @Inject constructor(
             longArrayOf(0, 50, 1000),
             DataLayerListenerServiceWear.AAPS_NOTIFY_CHANNEL_ID_BOLUS_PROGRESS,
             context.getString(R.string.bolus_progress_channel_name),
-            context.getString(R.string.bolus_progress_channel_description)
+            context.getString(R.string.bolus_progress_channel_description),
+            NotificationManager.IMPORTANCE_HIGH
         )
         createNotificationChannel(
-            longArrayOf(0, 1, 1000),
+            longArrayOf(0),
             DataLayerListenerServiceWear.AAPS_NOTIFY_CHANNEL_ID_BOLUS_PROGRESS_SILENT,
             context.getString(R.string.bolus_progress_silent_channel_name),
-            context.getString(R.string.bolus_progress_silent_channel_description)
+            context.getString(R.string.bolus_progress_silent_channel_description),
+            NotificationManager.IMPORTANCE_LOW
         )
     }
 
-    @TargetApi(value = 26) private fun createNotificationChannel(vibratePattern: LongArray, channelID: String, name: CharSequence, description: String) {
-        val channel = NotificationChannel(channelID, name, NotificationManager.IMPORTANCE_HIGH)
+    @TargetApi(value = 26) private fun createNotificationChannel(vibratePattern: LongArray, channelID: String, name: CharSequence, description: String, importance: Int) {
+        val channel = NotificationChannel(channelID, name, importance)
         channel.description = description
         channel.enableVibration(true)
         channel.vibrationPattern = vibratePattern

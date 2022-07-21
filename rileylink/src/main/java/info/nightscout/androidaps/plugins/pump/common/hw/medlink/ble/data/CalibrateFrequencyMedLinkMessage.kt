@@ -15,8 +15,8 @@ class CalibrateFrequencyMedLinkMessage(
     baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<InMemoryMedLinkConfig>>,
     btSleepTime: Long,
     bleCommand: BleCalibrateFrequencyCommand,
-    val calibrateVerificationMessage: MedLinkPumpMessage<Stream<JSONObject>>
-) : MedLinkPumpMessage<InMemoryMedLinkConfig>(
+    val calibrateVerificationMessage: MedLinkPumpMessage<Stream<JSONObject>,Any>
+) : MedLinkPumpMessage<InMemoryMedLinkConfig,Any>(
     MedLinkCommandType.CalibrateFrequency,
     calibrationArgument,
     baseCallback,
@@ -24,10 +24,10 @@ class CalibrateFrequencyMedLinkMessage(
     bleCommand
 ) {
 
-    override fun getArgumentData(): ByteArray? {
-        calibrationArgument.config = config.iterator();
-        return calibrationArgument.raw
-    }
+    // override fun getArgumentData(): ByteArray? {
+    //     calibrationArgument.config = config.iterator();
+    //     return calibrationArgument.raw
+    // }
 
     companion object {
         val calibrationArgument = MedLinkCommandType.CalibrateFrequencyArgument

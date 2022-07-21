@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
-import info.nightscout.androidaps.plugins.pump.common.dialog.RefreshableInterface;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.RLHistoryItem;
@@ -30,7 +29,7 @@ import info.nightscout.androidaps.interfaces.ResourceHelper;
  * Created by andy on 5/19/18.
  */
 
-public class MedLinkStatusHistoryFragment extends DaggerFragment implements RefreshableInterface {
+public class MedLinkStatusHistoryFragment extends DaggerFragment {
 
     @Inject RileyLinkUtil rileyLinkUtil;
     @Inject ResourceHelper resourceHelper;
@@ -47,7 +46,7 @@ public class MedLinkStatusHistoryFragment extends DaggerFragment implements Refr
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.rileylink_status_history, container, false);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.rileylink_history_list);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.history_list);
 
         recyclerView.setHasFixedSize(true);
         llm = new LinearLayoutManager(rootView.getContext());
@@ -68,7 +67,7 @@ public class MedLinkStatusHistoryFragment extends DaggerFragment implements Refr
     }
 
 
-    @Override
+//    @Override
     public void refreshData() {
         if (rileyLinkUtil.getRileyLinkHistory() != null) {
             recyclerViewAdapter.addItemsAndClean(rileyLinkUtil.getRileyLinkHistory());
@@ -165,9 +164,9 @@ public class MedLinkStatusHistoryFragment extends DaggerFragment implements Refr
             HistoryViewHolder(View itemView) {
                 super(itemView);
 
-                timeView = (TextView) itemView.findViewById(R.id.rileylink_history_time);
-                typeView = (TextView) itemView.findViewById(R.id.rileylink_history_source);
-                valueView = (TextView) itemView.findViewById(R.id.rileylink_history_description);
+                timeView = (TextView) itemView.findViewById(R.id.history_time);
+                typeView = (TextView) itemView.findViewById(R.id.history_source);
+                valueView = (TextView) itemView.findViewById(R.id.history_description);
             }
         }
     }

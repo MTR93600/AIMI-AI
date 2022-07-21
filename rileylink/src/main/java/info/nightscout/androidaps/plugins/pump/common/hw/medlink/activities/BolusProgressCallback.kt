@@ -16,7 +16,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExec
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
 
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import org.json.JSONObject
 import java.util.function.Supplier
 import java.util.stream.Stream

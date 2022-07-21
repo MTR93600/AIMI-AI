@@ -27,7 +27,7 @@
 // import javax.inject.Inject
 // import info.nightscout.shared.sharedPreferences.SP
 // import info.nightscout.androidaps.plugins.bus.RxBus
-// import info.nightscout.androidaps.utils.resources.ResourceHelper
+// import info.nightscout.androidaps.interfaces.ResourceHelper
 // import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck
 // import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 // import info.nightscout.androidaps.interfaces.ActivePlugin

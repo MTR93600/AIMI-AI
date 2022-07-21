@@ -123,6 +123,7 @@
     <string name="sensitivity_cannula">Le changement de canule réinitialisera le ratio Autosens à 100%.</string>
     <string name="sensitivity_time">Certaines des options du plugin ont des plages de temps configurables qui peuvent être définies par l\'utilisateur.</string>
     <string name="sensitivity_hint1">https://androidaps.readthedocs.io/en/latest/EN/Configuration/Sensitivity-detection-and-COB.html</string>
+    <string name="sensitivity_hint2">https://androidaps.readthedocs.io/fr/latest/Usage/Open-APS-features.html?highlight=Autosens#autosens</string>
     <string name="wrongcarbs_label">Entrées de glucides erronées</string>
     <string name="wrongcarbs_whattodo">Que devez-vous faire si vous avez renseigné une valeur erronée de glucides ?</string>
     <string name="wrongcarbs_treatmentstab">Supprimez l\'entrée incorrecte dans les Traitements et entrez la nouvelle valeur correcte de glucides.</string>
@@ -136,7 +137,6 @@
     <string name="wronginsulin_prime">Faites un bolus du montant de votre insuline calculée « manquante » soit par seringue / stylo ou en utilisant un amorçage.</string>
     <string name="wronginsulin_donothing">Ne faites rien et laissez AndroidAPS corriger tout taux élevé de glycémie qui en résulte.</string>
     <string name="iob_label">Insuline Active (IA)</string>
-    <string name="iob_which">Sélectionnez toutes les bonnes réponses.</string>
     <string name="iob_value">La valeur de l\'IA est impactée par les débits de basal temporaires émis.</string>
     <string name="iob_hightemp">Une basale temp haute ne sera pas donnée quand votre glycémie est en dessous de la cible.</string>
     <string name="iob_negiob">Une IA négative pendant une période significative en l\'absence d\'exercice indique que votre profil est trop fort et qu\'il faut moins d\'insuline dans vos paramètres.</string>

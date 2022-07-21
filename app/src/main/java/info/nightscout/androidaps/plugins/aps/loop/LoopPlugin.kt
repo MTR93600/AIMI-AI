@@ -45,8 +45,6 @@ import info.nightscout.androidaps.plugins.configBuilder.RunningConfiguration
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
-import info.nightscout.androidaps.plugins.general.wear.events.EventWearConfirmAction
-import info.nightscout.androidaps.plugins.general.wear.events.EventWearInitiateAction
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.queue.Callback
@@ -378,21 +376,21 @@ class LoopPlugin @Inject constructor(
                                 override fun run() {
                                     // Callback is only called if a bolus was actually requested
                                     if (result.enacted || result.success) {
-                                        lastRun!!.smbSetByPump = result
-                                        lastRun!!.lastSMBRequest = lastRun!!.lastAPSRun
-                                        lastRun!!.lastSMBEnact = dateUtil.now()
+                                        lastRun.smbSetByPump = result
+                                        lastRun.lastSMBRequest = lastRun.lastAPSRun
+                                        lastRun.lastSMBEnact = dateUtil.now()
                                     } else {
-                                        lastRun!!.tbrSetByPump = result
-                                        lastRun!!.lastTBRRequest = lastRun!!.lastAPSRun
+                                        lastRun.tbrSetByPump = result
+                                        lastRun.lastTBRRequest = lastRun.lastAPSRun
                                     }
                                 }
                             })
                             applyTBRRequest(resultAfterConstraints, profile, object : Callback() {
                                 override fun run() {
                                     if (result.enacted || result.success) {
-                                        lastRun!!.tbrSetByPump = result
-                                        lastRun!!.lastTBRRequest = lastRun!!.lastAPSRun
-                                        lastRun!!.lastTBREnact = dateUtil.now()
+                                        lastRun.tbrSetByPump = result
+                                        lastRun.lastTBRRequest = lastRun.lastAPSRun
+                                        lastRun.lastTBREnact = dateUtil.now()
                                         rxBus.send(EventLoopUpdateGui())
                                     } else {
                                         Thread {

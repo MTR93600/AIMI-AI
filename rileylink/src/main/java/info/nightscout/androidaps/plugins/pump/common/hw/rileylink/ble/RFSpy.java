@@ -311,7 +311,7 @@ public class RFSpy {
         aapsLogger.error(LTag.PUMPBTCOMM, "RileyLinkTargetFrequency: " + frequency);
 
         switch (frequency) {
-            case Medtronic_WorldWide:
+            case MedtronicWorldWide:
                 setRXFilterMode(RXFilterMode.Wide);
                 updateRegister(CC111XRegister.mdmcfg1, 0x62);
                 updateRegister(CC111XRegister.mdmcfg0, 0x1A);
@@ -319,7 +319,7 @@ public class RFSpy {
                 setMedtronicEncoding();
                 break;
 
-            case Medtronic_US:
+            case MedtronicUS:
                 setRXFilterMode(RXFilterMode.Narrow);
                 updateRegister(CC111XRegister.mdmcfg1, 0x61);
                 updateRegister(CC111XRegister.mdmcfg0, 0x7E);
@@ -402,7 +402,7 @@ public class RFSpy {
 
     private void setRXFilterMode(RXFilterMode mode) {
         byte drate_e = (byte) 0x9; // exponent of symbol rate (16kbps)
-        byte chanbw = mode.value;
+        byte chanbw = mode.getValue();
 
         updateRegister(CC111XRegister.mdmcfg4, (byte) (chanbw | drate_e));
     }

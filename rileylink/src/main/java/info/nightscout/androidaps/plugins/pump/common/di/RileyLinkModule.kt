@@ -47,13 +47,7 @@ abstract class RileyLinkModule {
 
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService
 
-    @ContributesAndroidInjector abstract fun medLinkBLEProvider(): MedLinkBLE
-    @ContributesAndroidInjector abstract fun medLinkService(): MedLinkService
-    @ContributesAndroidInjector abstract fun medLinkBleScanActivity(): MedLinkBLEConfigActivity
-    @ContributesAndroidInjector abstract fun initializeMedPumpManagerTaskProvider(): info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask
-    @ContributesAndroidInjector abstract fun contributesMedLinkStatusGeneral(): MedLinkStatusGeneralFragment
-    @ContributesAndroidInjector abstract fun contributesMedLinkStatusHistoryFragment(): MedLinkStatusHistoryFragment
-    @ContributesAndroidInjector abstract fun contributesMedLinkStatusActivity(): MedLinkStatusActivity
+
 
 
 }

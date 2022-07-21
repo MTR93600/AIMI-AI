@@ -2,13 +2,11 @@ package info.nightscout.androidaps.plugins.pump.medtronic.comm
 
 import android.content.Context
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.plugins.bus.RxBus
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus
 import info.nightscout.androidaps.plugins.pump.common.data.PumpStatus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkCommunicationManager
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseStringAggregatorCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.ConnectionCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkRFSpy
@@ -34,7 +32,6 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicCo
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import org.joda.time.LocalDateTime
@@ -53,7 +50,6 @@ import javax.inject.Singleton
 class MedLinkMedtronicCommunicationManager @Inject constructor(
     injector: HasAndroidInjector,
     rfSpy: MedLinkRFSpy,
-    private val rxBus: RxBus,
     aapsLogger: AAPSLogger,
     medLinkServiceData: MedLinkServiceData
 ) :

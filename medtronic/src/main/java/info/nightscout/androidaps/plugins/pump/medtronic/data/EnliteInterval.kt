@@ -55,7 +55,7 @@ object EnliteInterval {
     }
 
     private var index = 0
-    private fun nextInterval(): Long {
+    fun nextInterval(): Long {
         if (index == 8) {
             index = 0
         } else {

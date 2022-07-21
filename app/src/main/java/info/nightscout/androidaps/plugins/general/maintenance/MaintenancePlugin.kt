@@ -13,7 +13,7 @@ import info.nightscout.androidaps.interfaces.PluginDescription
 import info.nightscout.androidaps.interfaces.PluginType
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSSettingsStatus
-import info.nightscout.androidaps.utils.buildHelper.BuildHelper
+import info.nightscout.androidaps.interfaces.BuildHelper
 import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import java.io.*
@@ -148,7 +148,7 @@ class MaintenancePlugin @Inject constructor(
      * @return
      */
     private fun constructName(): String {
-        return "AndroidAPS_LOG_" + Date().time + loggerUtils.suffix
+        return "AndroidAPS_LOG_" + System.currentTimeMillis() + loggerUtils.suffix
     }
 
     private fun zip(zipFile: File?, files: List<File>) {

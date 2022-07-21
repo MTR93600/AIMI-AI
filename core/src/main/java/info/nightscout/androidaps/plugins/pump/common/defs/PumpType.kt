@@ -58,8 +58,10 @@ enum class PumpType {
         baseBasalSpecialSteps = DoseStepSize.ComboBasal,
         pumpCapability = PumpCapability.ComboCapabilities,
         source = Sources.Combo,
-        supportBatteryLevel = false),
-    ACCU_CHEK_SPIRIT(description = "Accu-Chek Spirit",
+        supportBatteryLevel = false
+    ),
+    ACCU_CHEK_SPIRIT(
+        description = "Accu-Chek Spirit",
         manufacturer = ManufacturerType.Roche,
         model = "Spirit",
         bolusSize = 0.1,
@@ -209,8 +211,10 @@ enum class PumpType {
         isPatchPump = true,
         useHardwareLink = true,
         supportBatteryLevel = false,
-        source = Sources.OmnipodEros),
-    OMNIPOD_DASH(description = "Omnipod Dash",
+        source = Sources.OmnipodEros
+    ),
+    OMNIPOD_DASH(
+        description = "Omnipod Dash",
         manufacturer = ManufacturerType.Insulet,
         model = "Dash",
         bolusSize = 0.05,
@@ -226,8 +230,10 @@ enum class PumpType {
         isPatchPump = true,
         pumpCapability = PumpCapability.OmnipodCapabilities,
         hasCustomUnreachableAlertCheck = false,
-        supportBatteryLevel = false),
-    MEDTRONIC_512_712(description = "Medtronic 512/712",
+        supportBatteryLevel = false
+    ),
+    MEDTRONIC_512_712(
+        description = "Medtronic 512/712",
         manufacturer = ManufacturerType.Medtronic,
         model = "512/712",
         bolusSize = 0.1,
@@ -323,6 +329,7 @@ enum class PumpType {
     MDI(
         description = "MDI",
         manufacturer = ManufacturerType.AndroidAPS,
+        bolusSize = 0.5,
         model = "MDI",
         tbrSettings = DoseSettings(1.0, 15, 24 * 60, 0.0, 500.0),
         extendedBolusSettings = DoseSettings(0.1, 15, 12 * 60, 0.1),
@@ -338,6 +345,13 @@ enum class PumpType {
         extendedBolusSettings = DoseSettings(0.1, 15, 12 * 60, 0.1),
         pumpCapability = PumpCapability.MDI,
         source = Sources.MDI
+    ),
+
+    // Not real, cached value
+    CACHE(
+        description = "CACHE",
+        model = "CACHE",
+        parent = USER
     ),
 
     //Diaconn Pump
@@ -483,7 +497,7 @@ enum class PumpType {
                 InterfaceIDs.PumpType.USER                        -> USER
                 InterfaceIDs.PumpType.DIACONN_G8                  -> DIACONN_G8
                 InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO       -> MEDLINK_MEDTRONIC_554_754_VEO
-
+                InterfaceIDs.PumpType.CACHE                       -> TODO()
             }
     }
 
@@ -514,7 +528,8 @@ enum class PumpType {
                 isPatchPump: Boolean = false,
                 supportBatteryLevel: Boolean = true,
                 useHardwareLink: Boolean = false,
-                source: Sources = Sources.VirtualPump) {
+        source: Sources = Sources.VirtualPump
+    ) {
         this.description = description
         this.manufacturer = manufacturer
         this.model = model
@@ -613,6 +628,7 @@ enum class PumpType {
             MDI                       -> InterfaceIDs.PumpType.MDI
             USER                      -> InterfaceIDs.PumpType.USER
             DIACONN_G8                -> InterfaceIDs.PumpType.DIACONN_G8
+            CACHE                     -> InterfaceIDs.PumpType.CACHE
             MEDLINK_MEDTRONIC_523_723_REVEL -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
             MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO
         }

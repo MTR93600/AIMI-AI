@@ -12,6 +12,8 @@ import info.nightscout.androidaps.database.entities.*
 import info.nightscout.androidaps.database.interfaces.end
 import info.nightscout.androidaps.database.transactions.CancelCurrentTemporaryTargetIfAnyTransaction
 import info.nightscout.androidaps.database.transactions.InsertAndCancelCurrentTemporaryTargetTransaction
+import info.nightscout.androidaps.dialogs.CarbsDialog
+import info.nightscout.androidaps.dialogs.InsulinDialog
 import info.nightscout.androidaps.events.EventMobileToWear
 import info.nightscout.androidaps.extensions.convertedToAbsolute
 import info.nightscout.androidaps.extensions.toStringShort
@@ -27,6 +29,7 @@ import info.nightscout.androidaps.plugins.general.overview.graphExtensions.Gluco
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.receivers.ReceiverStatusStore
+import info.nightscout.androidaps.services.AlarmSoundServiceHelper
 import info.nightscout.androidaps.utils.*
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.androidaps.utils.wizard.BolusWizard
@@ -73,7 +76,8 @@ class DataHandlerMobile @Inject constructor(
     private val uel: UserEntryLogger,
     private val activePlugin: ActivePlugin,
     private val commandQueue: CommandQueue,
-    private val fabricPrivacy: FabricPrivacy
+    private val fabricPrivacy: FabricPrivacy,
+    private val alarmSoundServiceHelper: AlarmSoundServiceHelper
 ) {
 
     private val disposable = CompositeDisposable()
@@ -260,6 +264,13 @@ class DataHandlerMobile @Inject constructor(
                            }
                            lastBolusWizard = null
                        }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventData.SnoozeAlert::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({
+                           aapsLogger.debug(LTag.WEAR, "SnoozeAlert received $it from ${it.sourceNodeId}")
+                           alarmSoundServiceHelper.stopService(context, "Muted from wear")
+                       }, fabricPrivacy::logException)
     }
 
     private fun handleTddStatus() {
@@ -322,12 +333,6 @@ class DataHandlerMobile @Inject constructor(
             sendError(rh.gs(R.string.wizard_carbs_constraint))
             return
         }
-        val useBG = sp.getBoolean(R.string.key_wearwizard_bg, true)
-        val useTT = sp.getBoolean(R.string.key_wearwizard_tt, false)
-        val useBolusIOB = sp.getBoolean(R.string.key_wearwizard_bolusiob, true)
-        val useBasalIOB = sp.getBoolean(R.string.key_wearwizard_basaliob, true)
-        val useCOB = sp.getBoolean(R.string.key_wearwizard_cob, true)
-        val useTrend = sp.getBoolean(R.string.key_wearwizard_trend, false)
         val percentage = command.percentage
         val profile = profileFunction.getProfile()
         val profileName = profileFunction.getProfileName()
@@ -349,9 +354,22 @@ class DataHandlerMobile @Inject constructor(
         val tempTarget = if (dbRecord is ValueWrapper.Existing) dbRecord.value else null
 
         val bolusWizard = BolusWizard(injector).doCalc(
-            profile, profileName, tempTarget,
-            carbsAfterConstraints, cobInfo.displayCob!!, bgReading.valueToUnits(profileFunction.getUnits()),
-            0.0, percentage, useBG, useCOB, useBolusIOB, useBasalIOB, false, useTT, useTrend, false
+            profile = profile,
+            profileName = profileName,
+            tempTarget = tempTarget,
+            carbs = carbsAfterConstraints,
+            cob = cobInfo.displayCob!!,
+            bg = bgReading.valueToUnits(profileFunction.getUnits()),
+            correction = 0.0,
+            percentageCorrection = percentage,
+            useBg = sp.getBoolean(R.string.key_wearwizard_bg, true),
+            useCob = sp.getBoolean(R.string.key_wearwizard_cob, true),
+            includeBolusIOB = sp.getBoolean(R.string.key_wearwizard_iob, true),
+            includeBasalIOB = sp.getBoolean(R.string.key_wearwizard_iob, true),
+            useSuperBolus = false,
+            useTT = sp.getBoolean(R.string.key_wearwizard_tt, false),
+            useTrend = sp.getBoolean(R.string.key_wearwizard_trend, false),
+            useAlarm = false
         )
         val insulinAfterConstraints = bolusWizard.insulinAfterConstraints
         val minStep = pump.pumpDescription.pumpType.determineCorrectBolusStepSize(insulinAfterConstraints)
@@ -456,7 +474,7 @@ class DataHandlerMobile @Inject constructor(
     }
 
     private fun handleECarbsPreCheck(command: EventData.ActionECarbsPreCheck) {
-        val startTimeStamp = System.currentTimeMillis() + T.hours(command.carbsTimeShift.toLong()).msecs()
+        val startTimeStamp = System.currentTimeMillis() + T.mins(command.carbsTimeShift.toLong()).msecs()
         val carbsAfterConstraints = constraintChecker.applyCarbsConstraints(Constraint(command.carbs)).value()
         var message = rh.gs(R.string.carbs) + ": " + carbsAfterConstraints + "g" +
             "\n" + rh.gs(R.string.time) + ": " + dateUtil.timeString(startTimeStamp) +
@@ -678,7 +696,11 @@ class DataHandlerMobile @Inject constructor(
                     unitsMgdl = profileFunction.getUnits() == GlucoseUnit.MGDL,
                     bolusPercentage = sp.getInt(R.string.key_boluswizard_percentage, 100),
                     maxCarbs = sp.getInt(R.string.key_treatmentssafety_maxcarbs, 48),
-                    maxBolus = sp.getDouble(R.string.key_treatmentssafety_maxbolus, 3.0)
+                    maxBolus = sp.getDouble(R.string.key_treatmentssafety_maxbolus, 3.0),
+                    insulinButtonIncrement1 = sp.getDouble(R.string.key_insulin_button_increment_1, InsulinDialog.PLUS1_DEFAULT),
+                    insulinButtonIncrement2 = sp.getDouble(R.string.key_insulin_button_increment_2, InsulinDialog.PLUS2_DEFAULT),
+                    carbsButtonIncrement1 = sp.getInt(R.string.key_carbs_button_increment_1, CarbsDialog.FAV1_DEFAULT),
+                    carbsButtonIncrement2 = sp.getInt(R.string.key_carbs_button_increment_2, CarbsDialog.FAV2_DEFAULT)
                 )
             )
         )
@@ -833,7 +855,7 @@ class DataHandlerMobile @Inject constructor(
             iobSum = DecimalFormatter.to2Decimal(bolusIob.iob + basalIob.basaliob)
             iobDetail = "(${DecimalFormatter.to2Decimal(bolusIob.iob)}|${DecimalFormatter.to2Decimal(basalIob.basaliob)})"
             cobString = iobCobCalculator.getCobInfo(false, "WatcherUpdaterService").generateCOBString()
-            currentBasal = iobCobCalculator.getTempBasalIncludingConvertedExtended(System.currentTimeMillis())?.toStringShort() ?: DecimalFormatter.to2Decimal(profile.getBasal()) + "U/h"
+            currentBasal = iobCobCalculator.getTempBasalIncludingConvertedExtended(System.currentTimeMillis())?.toStringShort() ?: rh.gs(R.string.pump_basebasalrate, profile.getBasal())
 
             //bgi
             val bgi = -(bolusIob.activity + basalIob.activity) * 5 * Profile.fromMgdlToUnits(profile.getIsfMgdl(), profileFunction.getUnits())
@@ -1167,6 +1189,6 @@ class DataHandlerMobile @Inject constructor(
     }
 
     @Synchronized private fun sendError(errorMessage: String) {
-        rxBus.send(EventData.ConfirmAction(rh.gs(R.string.error), errorMessage, returnCommand = EventData.Error(dateUtil.now()))) // ignore return path
+        rxBus.send(EventMobileToWear(EventData.ConfirmAction(rh.gs(R.string.error), errorMessage, returnCommand = EventData.Error(dateUtil.now())))) // ignore return path
     }
 }

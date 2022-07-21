@@ -42,9 +42,9 @@ class BGHistoryCallback(
         if (isCalibration && state.second) {
             val list = ans.get().toList().toMutableList()
             list.add(MedLinkConst.FREQUENCY_CALIBRATION_SUCCESS)
-            return MedLinkStandardReturn({ list.stream() }, state.first, emptyList())
+            return MedLinkStandardReturn({ list.stream() }, state.first)
         }
-        return MedLinkStandardReturn(ans, state.first, emptyList())
+        return MedLinkStandardReturn(ans, state.first)
     }
 
     private fun parseAnswer(ans: Supplier<Stream<String>>): Pair<BgHistory, Boolean> {

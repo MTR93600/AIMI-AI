@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.plugins.general.overview
 
-import android.graphics.Color
 import android.widget.TextView
 import androidx.annotation.StringRes
 import info.nightscout.androidaps.R
@@ -67,7 +66,7 @@ class StatusLightHandler @Inject constructor(
                 }
                 handleLevel(
                     medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
-                    pump.getRileyLinkService().medLinkServiceData.batteryLevel.toDouble()
+                    pump.service.medLinkServiceData.batteryLevel.toDouble()
                     // pump.pumpStatusData.deviceBatteryRemaining.toDouble()
                     , "%"
                 )
@@ -162,7 +161,7 @@ class StatusLightHandler @Inject constructor(
         if (level > OmnipodConstants.MAX_RESERVOIR_READING) {
             @Suppress("SetTextI18n")
             view?.text = " 50+$units"
-            view?.setTextColor(Color.WHITE)
+            view?.setTextColor(rh.gac(view.context, R.attr.defaultTextColor))
         } else {
             handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units)
         }

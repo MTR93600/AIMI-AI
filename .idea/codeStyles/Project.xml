@@ -7,6 +7,7 @@
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="6" />
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="6" />
       <option name="BLANK_LINES_AROUND_BLOCK_WHEN_BRANCHES" value="1" />
+      <option name="ALLOW_TRAILING_COMMA" value="true" />
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
     </JetCodeStyleSettings>
     <XML>

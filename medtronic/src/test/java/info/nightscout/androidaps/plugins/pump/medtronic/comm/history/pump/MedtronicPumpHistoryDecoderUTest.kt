@@ -1,23 +1,15 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump
 
-import dagger.android.HasAndroidInjector
+//import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.TestBase
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.RawHistoryPage
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.utils.rx.TestAapsSchedulers
-import info.nightscout.shared.sharedPreferences.SP
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Answers
-import org.mockito.Mock
 
 /**
  * Created by andy on 11/1/18.
@@ -25,22 +17,23 @@ import org.mockito.Mock
 @Suppress("SpellCheckingInspection")
 class MedtronicPumpHistoryDecoderUTest : TestBase() {
 
-    @Mock lateinit var injector: HasAndroidInjector
-    @Mock lateinit var rh: ResourceHelper
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS) lateinit var activePlugin: ActivePlugin
-    @Mock lateinit var rileyLinkUtil: RileyLinkUtil
-    @Mock lateinit var sp: SP
+    //@Mock lateinit var injector: HasAndroidInjector
+    //@Mock lateinit var rh: ResourceHelper
+//    @Mock(answer = Answers.RETURNS_DEEP_STUBS) lateinit var activePlugin: ActivePlugin
+    //@Mock lateinit var rileyLinkUtil: RileyLinkUtil
+    //@Mock lateinit var sp: SP
 
-    private var medtronicPumpStatus: MedtronicPumpStatus? = null
-    private var medtronicUtil: MedtronicUtil? = null
-    private var decoder: MedtronicPumpHistoryDecoder? = null
-    var rxBusWrapper = RxBus(TestAapsSchedulers(), aapsLogger)
+    private lateinit var medtronicPumpStatus: MedtronicPumpStatus
+
+    //private var medtronicUtil: MedtronicUtil? = null
+    //private var decoder: MedtronicPumpHistoryDecoder? = null
+
     @Before fun setup() {
         medtronicPumpStatus =
-            MedtronicPumpStatus(rh, sp, rxBusWrapper, rileyLinkUtil)
+            MedtronicPumpStatus(rh, sp, rxBus, rileyLinkUtil)
         medtronicUtil =
-            MedtronicUtil(aapsLogger, rxBusWrapper, rileyLinkUtil, medtronicPumpStatus!!)
-        decoder = MedtronicPumpHistoryDecoder(aapsLogger, medtronicUtil!!, ByteUtil())
+            MedtronicUtil(aapsLogger, rxBus, rileyLinkUtil, medtronicPumpStatus)
+        decoder = MedtronicPumpHistoryDecoder(aapsLogger, medtronicUtil, ByteUtil())
     }
 
     /*
@@ -193,12 +186,11 @@ class MedtronicPumpHistoryDecoderUTest : TestBase() {
     ): List<PumpHistoryEntry> {
         val historyPageData = ByteUtil.createByteArrayFromString(historyPageString)
         aapsLogger.debug("History Page Length:" + historyPageData.size)
-        medtronicUtil!!.medtronicPumpModel = medtronicDeviceType
-        medtronicUtil!!.isModelSet = true
+        medtronicUtil.medtronicPumpModel = medtronicDeviceType
+        medtronicUtil.isModelSet = true
         val historyPage = RawHistoryPage(aapsLogger)
         historyPage.appendData(historyPageData)
-        val pumpHistoryEntries: List<PumpHistoryEntry> =
-            decoder!!.processPageAndCreateRecords(historyPage)
+        val pumpHistoryEntries: List<PumpHistoryEntry> = decoder.processPageAndCreateRecords(historyPage)
         displayHistoryRecords(pumpHistoryEntries)
         return pumpHistoryEntries
     }
