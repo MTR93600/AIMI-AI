@@ -9,7 +9,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.SystemClock
 import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpRunningState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback
@@ -77,7 +77,7 @@ class MedLinkBLE //extends RileyLinkBLE
     private val handler: Handler
     private var lastGattConnection = 1L
     private var connectionStatusChange: Long = 0
-    private var lastPumpStatus: PumpStatusType? = null
+    private var lastPumpStatus: PumpRunningState? = null
     private var manualDisconnect = false
 
     // private val toBeRemoved: CommandExecutor<Any,out BleCommand>? = null
@@ -577,7 +577,7 @@ class MedLinkBLE //extends RileyLinkBLE
             //     addWriteCharacteristic<B, C>(serviceUUID, charaUUID, commands, CommandPriority.HIGH)
             // }
         }
-        if (lastPumpStatus === PumpStatusType.Suspended && lowPriorityExecutionCommandQueue.isEmpty() && executionCommandQueue.any { it.contains(MedLinkCommandType.StartPump) }) {
+        if (lastPumpStatus === PumpRunningState.Suspended && lowPriorityExecutionCommandQueue.isEmpty() && executionCommandQueue.any { it.contains(MedLinkCommandType.StartPump) }) {
             // val commands: MutableList<Quadruple<Optional<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>, Optional<BleCommand>>> = mutableListOf(
             //     Quadruple(
             //         MedLinkCommandType.StopStartPump, Optional.empty<Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>>(), Optional.of(
@@ -1445,9 +1445,9 @@ class MedLinkBLE //extends RileyLinkBLE
 
 //                        }
                     } else if ((lastCharacteristic + answer).contains("pump status: suspend") || (lastCharacteristic + answer).contains("pump suspend state")) {
-                        lastPumpStatus = PumpStatusType.Suspended
+                        lastPumpStatus = PumpRunningState.Suspended
                     } else if ((lastCharacteristic + answer).contains("pump status: normal") || (lastCharacteristic + answer).contains("pump normal state")) {
-                        lastPumpStatus = PumpStatusType.Running
+                        lastPumpStatus = PumpRunningState.Running
                     }
                     //                if (answer.contains("bolus"))
 //                    aapsLogger.info(LTag.PUMPBTCOMM, answer);

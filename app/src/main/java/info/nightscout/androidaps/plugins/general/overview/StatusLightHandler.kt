@@ -66,7 +66,7 @@ class StatusLightHandler @Inject constructor(
                 }
                 handleLevel(
                     medlink_battery_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0,
-                    pump.service.medLinkServiceData.batteryLevel.toDouble()
+                    pump.pumpStatusData.batteryLevel.toDouble()
                     // pump.pumpStatusData.deviceBatteryRemaining.toDouble()
                     , "%"
                 )

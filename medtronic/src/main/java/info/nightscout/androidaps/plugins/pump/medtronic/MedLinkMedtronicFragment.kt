@@ -20,7 +20,7 @@ import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpRunningState
 import info.nightscout.androidaps.plugins.pump.common.events.EventMedLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
@@ -235,7 +235,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
 
-        var id  = if(medtronicPumpStatus.pumpStatusType == PumpStatusType.Running){
+        var id  = if(medtronicPumpStatus.pumpRunningState == PumpRunningState.Running){
             R.string.medtronic_pump_state_RUNNING;
         } else {
             R.string.medtronic_pump_state_SUSPENDED;
@@ -368,7 +368,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         //DeviceBattery
-        val deviceBatteryRemaining = medLinkServiceData.batteryLevel
+        val deviceBatteryRemaining = medtronicPumpStatus.batteryLevel
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 

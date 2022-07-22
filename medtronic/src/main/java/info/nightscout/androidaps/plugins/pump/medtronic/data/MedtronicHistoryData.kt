@@ -29,6 +29,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpSta
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
 import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 import info.nightscout.shared.sharedPreferences.SP
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.LocalDateTime
@@ -47,17 +48,17 @@ import javax.inject.Singleton
 //
 @Singleton
 open class MedtronicHistoryData @Inject constructor(
-    open val injector: HasAndroidInjector,
-    open val aapsLogger: AAPSLogger,
-    open val sp: SP,
-    open val rh: ResourceHelper,
-    open val rxBus: RxBus,
-    open val activePlugin: ActivePlugin,
-    open val medtronicUtil: MedtronicUtil,
-    open val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
-    open val medtronicPumpStatus: MedtronicPumpStatus,
-    open val pumpSync: PumpSync,
-    open val pumpSyncStorage: info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+    val injector: HasAndroidInjector,
+    val aapsLogger: AAPSLogger,
+    val sp: SP,
+    val rh: ResourceHelper,
+    val rxBus: RxBus,
+    val activePlugin: ActivePlugin,
+    val medtronicUtil: MedtronicUtil,
+    val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
+    val medtronicPumpStatus: MedtronicPumpStatus,
+    val pumpSync: PumpSync,
+    val pumpSyncStorage: PumpSyncStorage
 ) {
 
     var allHistory: MutableList<PumpHistoryEntry> = mutableListOf()

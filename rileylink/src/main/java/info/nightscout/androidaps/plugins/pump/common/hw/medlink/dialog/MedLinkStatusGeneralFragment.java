@@ -80,8 +80,8 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment {
 
             if (sp.getBoolean(resourceHelper.gs(R.string.key_riley_link_show_battery_level), false)) {
                 batteryLevelRow.setVisibility(View.VISIBLE);
-                Integer batteryLevel = medLinkServiceData.batteryLevel;
-                this.batteryLevel.setText(batteryLevel == null ? PLACEHOLDER : resourceHelper.gs(R.string.rileylink_battery_level_value, batteryLevel));
+                Integer batteryLevel = activePlugin.getActivePump().getBatteryLevel();
+                this.batteryLevel.setText( resourceHelper.gs(R.string.rileylink_battery_level_value, batteryLevel));
             } else {
                 batteryLevelRow.setVisibility(View.GONE);
             }

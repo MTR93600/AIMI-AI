@@ -18,6 +18,7 @@ import dagger.android.DaggerBroadcastReceiver;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.interfaces.Pump;
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask;
 import info.nightscout.shared.logging.AAPSLogger;
 import info.nightscout.shared.logging.LTag;
@@ -184,7 +185,11 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 //            aapsLogger.debug(LTag.PUMPCOMM, "RfSpy version (BLE113): " + bleVersion);
             if (message.getIntExtra("BatteryLevel",0) != 0) {
                 MedLinkService medLinkService = getServiceInstance();
-
+                if (medLinkService.activePlugin.getActivePump() instanceof MedLinkPumpPluginAbstract){
+                    MedLinkPumpPluginAbstract pump =
+                            (MedLinkPumpPluginAbstract) medLinkService.activePlugin.getActivePump();
+                    pump.setBatteryLevel(message.getIntExtra("BatteryLevel",0));
+            }
                 medLinkService.getMedLinkServiceData().versionBLE113 = message.getStringExtra("FirmwareVersion");
                 medLinkServiceData.batteryLevel = message.getIntExtra("BatteryLevel",0);
             }else {

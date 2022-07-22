@@ -1,66 +1,18 @@
 package info.nightscout.androidaps.plugins.pump.medtronic;
 
 
-import android.content.Context;
-
-import androidx.annotation.Nullable;
-
-import org.joda.time.DateTimeUtils;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
-import org.joda.time.chrono.ISOChronology;
-import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 //import org.powermock.api.mockito.PowerMockito;
 //import org.powermock.core.classloader.annotations.PrepareForTest;
 //import org.powermock.modules.junit4.PowerMockRunner;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import dagger.android.AndroidInjector;
-import dagger.android.HasAndroidInjector;
 //import info.nightscout.androidaps.data.Profile;
-import info.nightscout.androidaps.data.PumpEnactResult;
-import info.nightscout.androidaps.interfaces.ActivePlugin;
 //import info.nightscout.androidaps.interfaces.CommandQueueProvider;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.androidaps.plugins.bus.RxBus;
-import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPumpStatus;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
-import info.nightscout.androidaps.plugins.pump.medtronic.comm.ui.MedLinkMedtronicUIComm;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.MedLinkMedtronicHistoryData;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicroBolusPair;
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalMicrobolusOperations;
-import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType;
-import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus;
-import info.nightscout.androidaps.plugins.pump.medtronic.service.MedLinkMedtronicService;
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil;
-import info.nightscout.androidaps.receivers.ReceiverStatusStore;
-import info.nightscout.androidaps.utils.DateUtil;
-import info.nightscout.androidaps.interfaces.ResourceHelper;
-import info.nightscout.shared.sharedPreferences.SP;
-import kotlin.jvm.functions.Function1;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+        import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+        import static org.mockito.Mockito.verify;
 
 //@PowerMockIgnore({ "org.powermock.*", "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*" })
 //@RunWith(PowerMockRunner.class)

@@ -25,7 +25,8 @@ import info.nightscout.shared.sharedPreferences.SP
  * Created by Dirceu on 06/04/21.
  */
 abstract class MedLinkPumpPluginAbstract protected constructor(
-    pluginDescription: PluginDescription?, pumpType: PumpType?, injector: HasAndroidInjector?, resourceHelper: ResourceHelper?, aapsLogger: AAPSLogger?, commandQueue: CommandQueue?, rxBus: RxBus?,
+    pluginDescription: PluginDescription, pumpType: PumpType?,
+    injector: HasAndroidInjector, resourceHelper: ResourceHelper?, aapsLogger: AAPSLogger?, commandQueue: CommandQueue?, rxBus: RxBus?,
     activePlugin: ActivePlugin?,
     sp: SP?, context: Context?,
     fabricPrivacy: FabricPrivacy?,
@@ -98,5 +99,5 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     abstract fun setPumpDeviceState(state:PumpDeviceState)
     abstract fun postInit()
     abstract fun setMedtronicPumpModel(model:String)
-
+    abstract fun setBatteryLevel(batteryLevel:Int)
 }

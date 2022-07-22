@@ -148,7 +148,7 @@ class PumpSyncImplementation @Inject constructor(
         aapsLogger.info(LTag.DATABASE,"pre transaction")
 
         repository.runTransactionForResult(InsertBolusWithTempIdTransaction(bolus))
-            .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
+            .doOnError { aapsLogger.info(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
                 result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
@@ -176,7 +176,7 @@ class PumpSyncImplementation @Inject constructor(
         aapsLogger.info(LTag.DATABASE,"pretransaction $bolus ${bolus.interfaceIDs}")
 
         repository.runTransactionForResult(SyncBolusWithTempIdTransaction(bolus, type?.toDBbBolusType()))
-            .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
+            .doOnError { aapsLogger.info(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
                 result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated Bolus $it") }
