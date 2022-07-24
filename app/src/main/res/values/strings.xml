@@ -1192,6 +1192,7 @@
     <string name="iTime_Bolus_title">iTime_Bolus</string>
     <string name="iTime_Bolus_summary">Automated Bolus at 28 minutes if delta > 2 if iTime Start with a manual bolus and 15 minutes if delta > 2 and iTime start with more than 30 carbs</string>
     <string name="key_iTime_Starting_Bolus" translatable="false">iTime_Starting_Bolus</string>
+    <string name="key_iTime_B30_upperBG" translatable="false">iTime_b30_upperBG</string>
     <string name="iTime_Starting_Bolus_title">iTime_Starting_Bolus</string>
     <string name="iTime_Starting_Bolus_summary">Value of the manual Bolus who will start iTime, like > iTime_Starting_Bolus</string>
     <string name="key_openapsama_smb_delivery_ratio" translatable="false">openapsama_smb_delivery_ratio</string>

@@ -474,7 +474,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         }
         enlog += "C1 = "+C1+" and C2 = "+C2+"\n";
 
-
+        var b30upperLimit = profile.b30_upperBG;
         if (iTimeActivation === true && iTime < 20 && glucose_status.delta < 10){
         rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
         rT.deliverAt = deliverAt;
@@ -486,7 +486,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 75 && bg < 150){
+        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 75 && bg < b30upperLimit){
                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
