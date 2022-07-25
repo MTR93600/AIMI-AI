@@ -473,9 +473,9 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
         }
         enlog += "C1 = "+C1+" and C2 = "+C2+"\n";
-
+        var UAMAIMIReason = "";
         var b30upperLimit = profile.b30_upperBG;
-        if (iTimeActivation === true && iTime < 20 && glucose_status.delta < 10){
+        if (iTimeActivation === true && iTime < 20){
         rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
         rT.deliverAt = deliverAt;
         rT.temp = 'absolute';
@@ -486,7 +486,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 75 && bg < b30upperLimit){
+        }/*else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 75 && bg < b30upperLimit){
                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
@@ -496,8 +496,11 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
 
 
-         }
-
+         }*/else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 &&  glucose_status.delta <= 6  && bg > 70 && bg < b30upperLimit){
+          basal *= 5;
+          enableSMB = false;
+          UAMAIMIReason += "SMB are disable to force the basale";
+          }
 
 
         if (iTime < profile.iTime && CurrentTIRinRange <= 96 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >=4 && bg < 170 || smbTDD === 1 && bg < 170 ){iTimeProfile *=0.7; }
@@ -670,7 +673,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
             }
             enlog += "C1 = "+C1+" and C2 = "+C2+"\n";
-
+            var b30upperLimit = profile.b30_upperBG;
             if (iTimeActivation === true && iTime < 20){
             rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*20;
             rT.deliverAt = deliverAt;
@@ -682,7 +685,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             return rT;
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6){
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0  && glucose_status.delta < 6 && bg < b30upperLimit){
                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
                   rT.deliverAt = deliverAt;
                   rT.temp = 'absolute';
@@ -1323,8 +1326,8 @@ var TriggerPredSMB_future_sens_45 = round( bg - (iob_data.iob * future_sens) ) +
 var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
 
-var UAMAIMIReason = "";
-UAMAIMIReason += ", TrigPredAIMI : "+TrigPredAIMI+", ";
+
+UAMAIMIReason += ", TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45+", TriggerPredSMB_future_sens_35 :"+TriggerPredSMB_future_sens_35+", ";
 if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_BL_EndTime){
 
     var future_sens = sens;
@@ -1332,7 +1335,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.0.0.2-dev-o-AIMI V20 24/07/2022 ");
+                console.log(" AAPS-3.1.0.2-dev-a-AIMI V20 25/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1505,7 +1508,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVo-AIMI-V20-24/07/22 ";
+    rT.reason += " ; DEVa-AIMI-V20-25/07/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
