@@ -500,7 +500,8 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
          }*/else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 &&  glucose_status.delta <= 6  && bg > 70 && bg < b30upperLimit){
           basal *= 5;
           aimismb = false;
-          rT.reason += "SMB are disable to force the basale";
+          //rT.reason += "SMB are disable to force the basale";
+          console.log(" ; SMB are disable to force the basale : "+basal+" ; ");
 
           }
 
@@ -1496,6 +1497,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += AIMI_lastBolusSMBUnits > 0 ? ", DiaSMB : "+Math.max(Math.log(AIMI_lastBolusSMBUnits)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
         rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
         rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
+        rT.reason += " ; aimismb : "+aimismb+" ; ";
+        rT.reason += (aimismb === false) ?  "SMB are disable to force the basal : "+basal+" ; " : "";
 
 
     }else{
