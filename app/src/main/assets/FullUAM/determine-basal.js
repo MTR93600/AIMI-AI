@@ -344,7 +344,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var last2HourTIRAbove = meal_data.last2HourTIRAbove;
         var basal_tir = (lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ? (profile.current_basal*2) : basal;
 
-        var tdd7 = meal_data.TDDAIMI7;
+        var tddvar tdd7 = meal_data.TDDAIMI7;
         //var tdd7 = (lastHourTIRLow > 0 ? (round((((basal * 12)*100)/21)*0.85,2)) : (round((((basal*12)*100)/21),2)));
         tdd7 = (lastHourTIRLow > 0 && bg < 130 ? tdd7*0.85 : tdd7);
         //var tdd24 = meal_data.TDDLast24;
@@ -493,7 +493,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         return rT;
         //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg > 75 && bg < b30upperLimit){
+        }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg > 80 && bg < b30upperLimit){
                  rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
@@ -700,7 +700,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             return rT;
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0  && glucose_status.delta < 6 && bg < b30upperLimit){
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 80 && bg < b30upperLimit){
                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*20;
                   rT.deliverAt = deliverAt;
                   rT.temp = 'absolute';
@@ -711,7 +711,14 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                   return rT;
                   //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-          }
+          }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180 ){
+                          rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
+                          rT.deliverAt = deliverAt;
+                          rT.temp = 'absolute';
+                          rT.duration = 30;
+                          rT.rate = round_basal(basal*5,profile);
+                          return rT;
+        }
     sens = Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
     enlog +="######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }
