@@ -394,9 +394,10 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var iTime_Start_Bolus = profile.iTime_Start_Bolus;
         var iTimeProfile = profile.iTime;
         var LastManualBolus = meal_data.lastBolusNormalUnits;
-        var insulinPeakTime = 45;
+        var insulinPeakTime = profile.key_insulin_oref_peak;
+        insulinPeakTime *= circadian_sensitivity;
 
-        if (AIMI_UAM_U200){
+       /* if (AIMI_UAM_U200){
             insulinPeakTime = 30 * circadian_sensitivity;
             //enlog += "AIMI_UAM_U200 insulinPeakTime : "+insulinPeakTime+"\n";
 
@@ -408,7 +409,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
             }else if (AIMI_UAM_Novorapid){
             insulinPeakTime = 55 * circadian_sensitivity;
-        }
+        }*/
 
         enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
         //var iTime = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
@@ -498,14 +499,14 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                  rT.deliverAt = deliverAt;
                  rT.temp = 'absolute';
                  rT.duration = 30;
-                 rT.rate = round_basal(basal*5,profile);
+                 rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                  return rT;
          }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180 ){
                            rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                            rT.deliverAt = deliverAt;
                            rT.temp = 'absolute';
                            rT.duration = 30;
-                           rT.rate = round_basal(basal*5,profile);
+                           rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                            return rT;
          }/*else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 &&  glucose_status.delta <= 6  && bg > 70 && bg < b30upperLimit){
           basal *= 5;
@@ -694,7 +695,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
             rT.deliverAt = deliverAt;
             rT.temp = 'absolute';
             rT.duration = 30;
-            rT.rate = round_basal(basal*5,profile);
+            rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
             //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
             //rT.rate = profile.current_basal*10;
             return rT;
@@ -705,7 +706,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                   rT.deliverAt = deliverAt;
                   rT.temp = 'absolute';
                   rT.duration = 30;
-                  rT.rate = round_basal(basal*5,profile);
+                  rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                   //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
                   //rT.rate = profile.current_basal*10;
                   return rT;
@@ -716,7 +717,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                           rT.deliverAt = deliverAt;
                           rT.temp = 'absolute';
                           rT.duration = 30;
-                          rT.rate = round_basal(basal*5,profile);
+                          rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                           return rT;
         }
     sens = Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
