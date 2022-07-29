@@ -76,5 +76,5 @@ assembleRelease:
       -Pandroid.injected.signing.key.password=$KEY_PASSWORD
   artifacts:
     paths:
-      - app/
+      - app/APK
       - CHANGELOG
