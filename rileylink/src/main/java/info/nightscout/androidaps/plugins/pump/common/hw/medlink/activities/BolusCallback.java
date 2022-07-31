@@ -56,7 +56,7 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
             });
         } else {
             pumpResponse.set(new BolusAnswer(PumpResponses.UnknownAnswer,
-                    answers.get().collect(Collectors.joining())));
+                    answers.get().collect(Collectors.joining()), bolusInfo.carbs));
         }
         return createPumpResponse(answers, pumpResponse);
     }
@@ -71,7 +71,8 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
             return new MedLinkStandardReturn<>(answers, pumpResponse.get());
         } else if (pumpResponse.get() == null) {
             return new MedLinkStandardReturn<>(answers, new BolusAnswer(
-                    PumpResponses.UnknownAnswer, answers.get().collect(Collectors.joining())));
+                    PumpResponses.UnknownAnswer, answers.get().collect(Collectors.joining()),
+                    bolusInfo.carbs));
         } else {
             return new MedLinkStandardReturn<>(answers, pumpResponse.get(), MedLinkStandardReturn.ParsingError.BolusParsingError);
         }
@@ -86,11 +87,11 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
             assert units != null;
             double delivered = Double.parseDouble(units.substring(0, units.length() - 1));
 //                12:09 01-06
-            return new BolusAnswer(PumpResponses.DeliveringBolus, delivered, input);
+            return new BolusAnswer(PumpResponses.DeliveringBolus, delivered, input, bolusInfo.carbs);
 
 
         }
-        return new BolusAnswer(PumpResponses.UnknownAnswer, input);
+        return new BolusAnswer(PumpResponses.UnknownAnswer, input, bolusInfo.carbs);
     }
 
 
@@ -116,18 +117,18 @@ public class BolusCallback extends BaseCallback<BolusAnswer, Supplier<Stream<Str
 //                    String[] date = dateTime[1].split("-");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
                     ZonedDateTime bolusDeliveredAt = LocalDateTime.parse(deliveredTime, formatter).atZone(ZoneId.systemDefault());
-                    return new BolusAnswer(PumpResponses.BolusDelivered, delivered, bolusDeliveredAt);
+                    return new BolusAnswer(PumpResponses.BolusDelivered, delivered, bolusDeliveredAt, bolusInfo.carbs);
                 } else if (bolusInfo != null && unitsMatcher.find()) {
                     units = unitsMatcher.group(1);
                     assert units != null;
                     double lastBolusAmount = Double.parseDouble(units.substring(0, units.length() - 1).trim());
                     if (lastBolusAmount == bolusInfo.insulin) {
-                        return new BolusAnswer(PumpResponses.DeliveringBolus, input);
+                        return new BolusAnswer(PumpResponses.DeliveringBolus, input, bolusInfo.carbs);
                     }
                 }
             }
         }
-        return new BolusAnswer(PumpResponses.UnknownAnswer, input);
+        return new BolusAnswer(PumpResponses.UnknownAnswer, input, bolusInfo.carbs);
     }
 
 //    private int getYear(String[] date) {

@@ -18,6 +18,8 @@ import dagger.android.DaggerBroadcastReceiver;
 import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.interfaces.Pump;
+import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializeMedLinkPumpManagerTask;
 import info.nightscout.shared.logging.AAPSLogger;
 import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
@@ -27,7 +29,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkSer
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkConst;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RileyLinkFirmwareVersion;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.DiscoverGattServicesTask;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTaskExecutor;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask;
@@ -79,8 +80,12 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
     protected MedLinkService getServiceInstance() {
         Pump pump = activePlugin.getActivePump();
-        MedLinkPumpDevice pumpDevice = (MedLinkPumpDevice) pump;
-        return pumpDevice.getRileyLinkService();
+        if(pump instanceof MedLinkPumpDevice) {
+            MedLinkPumpDevice pumpDevice = (MedLinkPumpDevice) pump;
+            return pumpDevice.getRileyLinkService();
+        } else {
+            return null;
+        }
     }
 
 
@@ -88,7 +93,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 
         if (action.equals(MedLinkConst.Intents.BluetoothConnected)) {
             aapsLogger.info(LTag.PUMPBTCOMM, "Bluetooth - Connected");
-            serviceTaskExecutor.startTask(new DiscoverGattServicesTask(injector));
+            serviceTaskExecutor.startTask(new DiscoverGattServicesTask(injector, true));
 
             return true;
 
@@ -117,7 +122,6 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             return false;
         }
     }
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -150,7 +154,6 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
     }
 
     protected boolean processMedLinkBroadcasts(Intent message, Context context) {
-        MedLinkService medLinkService = getServiceInstance();
         String action = message.getAction();
         aapsLogger.debug("processMedLinkBroadcasts " + action);
         if (action.equals(MedLinkConst.Intents.MedLinkDisconnected)) {
@@ -172,14 +175,21 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
 //            medLinkService.getMedLinkBLE().enableNotifications();
 //            medLinkService.getMedLinkRFSpy().startReader(); // call startReader from outside?
             String[] actions = action.split("\n");
-//            medLinkService.getMedLinkRFSpy().initializeRileyLink();
+            getServiceInstance().getRfSpy().initializeMedLink();
 //            String bleVersion = medLinkService.getMedLinkRFSpy().getBLEVersionCached();
+
 
             RileyLinkFirmwareVersion rlVersion = medLinkServiceData.firmwareVersion;
 
 //            if (isLoggingEnabled())
 //            aapsLogger.debug(LTag.PUMPCOMM, "RfSpy version (BLE113): " + bleVersion);
             if (message.getIntExtra("BatteryLevel",0) != 0) {
+                MedLinkService medLinkService = getServiceInstance();
+                if (medLinkService.activePlugin.getActivePump() instanceof MedLinkPumpPluginAbstract){
+                    MedLinkPumpPluginAbstract pump =
+                            (MedLinkPumpPluginAbstract) medLinkService.activePlugin.getActivePump();
+                    pump.setBatteryLevel(message.getIntExtra("BatteryLevel",0));
+            }
                 medLinkService.getMedLinkServiceData().versionBLE113 = message.getStringExtra("FirmwareVersion");
                 medLinkServiceData.batteryLevel = message.getIntExtra("BatteryLevel",0);
             }else {
@@ -188,7 +198,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
             this.medLinkServiceData.versionCC110 = rlVersion.name();
 
-            ServiceTask task = new InitializePumpManagerTask(injector, context);
+            ServiceTask task = new InitializeMedLinkPumpManagerTask(injector, context);
             serviceTaskExecutor.startTask(task);
             aapsLogger.info(LTag.PUMPCOMM, "Announcing MedLink open For business");
 
@@ -203,12 +213,17 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
                 aapsLogger.error("MedLink BLE Address saved in app");
                 // showBusy("Configuring Service", 50);
 //                medlink.findRileyLink(medLinkBLEAddress);
-                medLinkService.reconfigureCommunicator(medLinkBLEAddress);
+                MedLinkService medLinkService = getServiceInstance();
+                if(medLinkService!=null) {
+                    medLinkService.reconfigureCommunicator(medLinkBLEAddress);
+                }
 //                MainApp.getServiceClientConnection().setThisRileylink(medLinkBLEAddress);
             }
 
             return true;
         } else if (action.equals(RileyLinkConst.Intents.RileyLinkDisconnect)) {
+            MedLinkService medLinkService = getServiceInstance();
+
             medLinkService.disconnectRileyLink();
 
             return true;

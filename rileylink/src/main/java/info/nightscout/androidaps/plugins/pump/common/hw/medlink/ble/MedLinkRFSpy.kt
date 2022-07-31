@@ -18,7 +18,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.Rile
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.operations.BLECommOperationResult
 import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
 import info.nightscout.androidaps.plugins.pump.common.utils.ThreadUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
@@ -36,8 +36,8 @@ import javax.inject.Singleton
 @Singleton
 class MedLinkRFSpy @Inject constructor(private val injector: HasAndroidInjector, private val medLinkBle: MedLinkBLE) {
 
-    @JvmField @Inject
-    var aapsLogger: AAPSLogger? = null
+     @Inject
+    lateinit var aapsLogger: AAPSLogger
 
     @JvmField @Inject
     var resourceHelper: ResourceHelper? = null
@@ -62,38 +62,29 @@ class MedLinkRFSpy @Inject constructor(private val injector: HasAndroidInjector,
         : String? = null
     private var currentFrequencyMHz: Double? = null
     @Inject fun onInit() {
-        aapsLogger!!.debug("RileyLinkServiceData:$medLinkServiceData")
+        aapsLogger.debug("RileyLinkServiceData:$medLinkServiceData")
         reader = MedLinkRFSpyReader(aapsLogger, medLinkBle)
     }
 
     // Call this after the RL services are discovered.
     // Starts an async task to read when data is available
     fun startReader() {
-//        aapsLogger.debug("RFSpy start reader");
-//        medLinkBle.registerRadioResponseCountNotification(this::newDataIsAvailable);
+       aapsLogger.debug("RFSpy start reader");
+       medLinkBle.registerRadioResponseCountNotification(this::newDataIsAvailable);
 
-//        aapsLogger.debug("RFSpy radio registered");
-//        reader.start();
+       aapsLogger.debug("RFSpy radio registered");
+       // reader?.start();
     }
 
     // Here should go generic RL initialisation + protocol adjustments depending on
     // firmware version
-    fun initializeRileyLink() {
-//        if(bleVersion==null) {
-//            bleVersion = getVersion();
-//        }
-        if (medLinkServiceData!!.firmwareVersion == null) {
-            medLinkServiceData!!.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x
-        }
 
-        //getFirmwareVersion();
-    }
 
     // Call this from the "response count" notification handler.
     private fun newDataIsAvailable() {
         // pass the message to the reader (which should be internal to RFSpy)
         aapsLogger!!.debug("Nes Data is available")
-        reader!!.newDataIsAvailable()
+        // reader!!.newDataIsAvailable()
     }
 
     // This gets the version from the BLE113, not from the CC1110.
@@ -268,7 +259,7 @@ class MedLinkRFSpy @Inject constructor(private val injector: HasAndroidInjector,
         // we update registers only on first run, or if region changed
         aapsLogger!!.error(LTag.PUMPBTCOMM, "RileyLinkTargetFrequency: $frequency")
         when (frequency) {
-            RileyLinkTargetFrequency.Medtronic_WorldWide -> {
+            RileyLinkTargetFrequency.MedtronicWorldWide -> {
 
                 // updateRegister(CC111X_MDMCFG4, (byte) 0x59);
                 setRXFilterMode(RXFilterMode.Wide)
@@ -280,7 +271,7 @@ class MedLinkRFSpy @Inject constructor(private val injector: HasAndroidInjector,
                 setMedtronicEncoding()
             }
 
-            RileyLinkTargetFrequency.Medtronic_US        -> {
+            RileyLinkTargetFrequency.MedtronicUS        -> {
 
                 // updateRegister(CC111X_MDMCFG4, (byte) 0x99);
                 setRXFilterMode(RXFilterMode.Narrow)
@@ -347,7 +338,11 @@ class MedLinkRFSpy @Inject constructor(private val injector: HasAndroidInjector,
         reader!!.stop()
     }
 
-    fun initializeMedLink() {}
+    fun initializeMedLink() {
+        if (medLinkServiceData!!.firmwareVersion == null) {
+            medLinkServiceData!!.firmwareVersion = RileyLinkFirmwareVersion.Version_4_x
+        }
+    }
 
     companion object {
 

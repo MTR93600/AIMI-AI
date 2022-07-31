@@ -5,7 +5,7 @@ import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPartialBolus
 import info.nightscout.androidaps.data.EnliteInMemoryGlucoseValue
 import info.nightscout.androidaps.interfaces.BgSync
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpRunningState
 import java.lang.Exception
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
@@ -275,9 +275,9 @@ class MedLinkStatusParser {
                 if (currentLine.contains("pump status")) {
                     val status = currentLine.split(":".toRegex()).toTypedArray()[1]
                     if (status.contains("normal")) {
-                        pumpStatus.pumpStatusType = PumpStatusType.Running
+                        pumpStatus.pumpRunningState = PumpRunningState.Running
                     } else if (status.contains("suspend")) {
-                        pumpStatus.pumpStatusType = PumpStatusType.Suspended
+                        pumpStatus.pumpRunningState = PumpRunningState.Suspended
                     }
                     break
                 } else if (currentLine.contains("eomeom") || currentLine.contains("ready")) {

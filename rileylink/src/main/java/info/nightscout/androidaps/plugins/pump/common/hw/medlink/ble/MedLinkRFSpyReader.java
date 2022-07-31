@@ -92,53 +92,53 @@ public class MedLinkRFSpyReader {
         isRunning = true;
 
         aapsLogger.debug(LTag.PUMPBTCOMM, "RFSpyReader starting");
-        readerTask = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                UUID serviceUUID = UUID.fromString(GattAttributes.SERVICE_UUID);
-                UUID radioDataUUID = UUID.fromString(GattAttributes.GATT_UUID);
-                BLECommOperationResult result;
-                while (isRunning) {
-                    try {
-                        acquireCount++;
-                        aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData before acquired (count=" + acquireCount + ") at t="
-                                + SystemClock.uptimeMillis());
-                        waitForRadioData.acquire();
-                        aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData acquired (count=" + acquireCount + ") at t="
-                                + SystemClock.uptimeMillis());
-                        SystemClock.sleep(100);
-                        SystemClock.sleep(1);
-                        result = medLinkBle.readCharacteristicBlocking(serviceUUID, radioDataUUID);
-                        SystemClock.sleep(100);
-
-                        if (result.resultCode == BLECommOperationResult.RESULT_SUCCESS) {
-                            if (stopAtNull) {
-                                // only data up to the first null is valid
-                                for (int i = 0; i < result.value.length; i++) {
-                                    if (result.value[i] == 0) {
-                                        result.value = ByteUtil.substring(result.value, 0, i);
-                                        break;
-                                    }
-                                }
-                            }
-                            mDataQueue.add(result.value);
-                        } else if (result.resultCode == BLECommOperationResult.RESULT_INTERRUPTED) {
-                            aapsLogger.error(LTag.PUMPBTCOMM, "Read operation was interrupted");
-                        } else if (result.resultCode == BLECommOperationResult.RESULT_TIMEOUT) {
-                            aapsLogger.error(LTag.PUMPBTCOMM, "Read operation on Radio Data timed out");
-                        } else if (result.resultCode == BLECommOperationResult.RESULT_BUSY) {
-                            aapsLogger.error(LTag.PUMPBTCOMM, "FAIL: RileyLinkBLE reports operation already in progress");
-                        } else if (result.resultCode == BLECommOperationResult.RESULT_NONE) {
-                            aapsLogger.error(LTag.PUMPBTCOMM, "FAIL: got invalid result code: " + result.resultCode);
-                        }
-                    } catch (InterruptedException e) {
-                        aapsLogger.error(LTag.PUMPBTCOMM, "Interrupted while waiting for data");
-                    }
-                }
-                return null;
-            }
-        }.execute();
+//        readerTask = new AsyncTask<Void, Void, Void>() {
+//
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                UUID serviceUUID = UUID.fromString(GattAttributes.SERVICE_UUID);
+//                UUID radioDataUUID = UUID.fromString(GattAttributes.GATT_UUID);
+//                BLECommOperationResult result;
+//                while (isRunning) {
+//                    try {
+//                        acquireCount++;
+//                        aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData before acquired (count=" + acquireCount + ") at t="
+//                                + SystemClock.uptimeMillis());
+//                        waitForRadioData.acquire();
+//                        aapsLogger.debug(LTag.PUMPBTCOMM, ThreadUtil.sig() + "waitForRadioData acquired (count=" + acquireCount + ") at t="
+//                                + SystemClock.uptimeMillis());
+//                        SystemClock.sleep(100);
+//                        SystemClock.sleep(1);
+//                        result = medLinkBle.readCharacteristicBlocking(serviceUUID, radioDataUUID);
+//                        SystemClock.sleep(100);
+//
+//                        if (result.resultCode == BLECommOperationResult.RESULT_SUCCESS) {
+//                            if (stopAtNull) {
+//                                // only data up to the first null is valid
+//                                for (int i = 0; i < result.value.length; i++) {
+//                                    if (result.value[i] == 0) {
+//                                        result.value = ByteUtil.substring(result.value, 0, i);
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                            mDataQueue.add(result.value);
+//                        } else if (result.resultCode == BLECommOperationResult.RESULT_INTERRUPTED) {
+//                            aapsLogger.error(LTag.PUMPBTCOMM, "Read operation was interrupted");
+//                        } else if (result.resultCode == BLECommOperationResult.RESULT_TIMEOUT) {
+//                            aapsLogger.error(LTag.PUMPBTCOMM, "Read operation on Radio Data timed out");
+//                        } else if (result.resultCode == BLECommOperationResult.RESULT_BUSY) {
+//                            aapsLogger.error(LTag.PUMPBTCOMM, "FAIL: RileyLinkBLE reports operation already in progress");
+//                        } else if (result.resultCode == BLECommOperationResult.RESULT_NONE) {
+//                            aapsLogger.error(LTag.PUMPBTCOMM, "FAIL: got invalid result code: " + result.resultCode);
+//                        }
+//                    } catch (InterruptedException e) {
+//                        aapsLogger.error(LTag.PUMPBTCOMM, "Interrupted while waiting for data");
+//                    }
+//                }
+//                return null;
+//            }
+//        }.execute();
     }
 
     public void stop() {

@@ -28,7 +28,8 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.PumpBolusType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 import info.nightscout.shared.sharedPreferences.SP
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.LocalDateTime
@@ -47,17 +48,17 @@ import javax.inject.Singleton
 //
 @Singleton
 open class MedtronicHistoryData @Inject constructor(
-    open val injector: HasAndroidInjector,
-    open val aapsLogger: AAPSLogger,
-    open val sp: SP,
-    open val rh: ResourceHelper,
-    open val rxBus: RxBus,
-    open val activePlugin: ActivePlugin,
-    open val medtronicUtil: MedtronicUtil,
-    open val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
-    open val medtronicPumpStatus: MedtronicPumpStatus,
-    open val pumpSync: PumpSync,
-    open val pumpSyncStorage: info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+    val injector: HasAndroidInjector,
+    val aapsLogger: AAPSLogger,
+    val sp: SP,
+    val rh: ResourceHelper,
+    val rxBus: RxBus,
+    val activePlugin: ActivePlugin,
+    val medtronicUtil: MedtronicUtil,
+    val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
+    val medtronicPumpStatus: MedtronicPumpStatus,
+    val pumpSync: PumpSync,
+    val pumpSyncStorage: PumpSyncStorage
 ) {
 
     var allHistory: MutableList<PumpHistoryEntry> = mutableListOf()
@@ -164,7 +165,7 @@ open class MedtronicHistoryData @Inject constructor(
     }
 
     private fun extendBolusRecords(bolusEstimates: MutableList<PumpHistoryEntry>, newHistory2: MutableList<PumpHistoryEntry>) {
-        val boluses: MutableList<PumpHistoryEntry> = getFilteredItems(newHistory2, PumpHistoryEntryType.Bolus)
+        val boluses: MutableList<PumpHistoryEntry> = getFilteredItems(newHistory2, setOf(PumpHistoryEntryType.Bolus))
         for (bolusEstimate in bolusEstimates) {
             for (bolus in boluses) {
                 if (bolusEstimate.atechDateTime == bolus.atechDateTime) {
@@ -357,7 +358,7 @@ open class MedtronicHistoryData @Inject constructor(
         aapsLogger.debug(LTag.PUMP, String.format(Locale.ENGLISH, "ProcessHistoryData: TBRs Processed [count=%d, items=%s]", tbrs.size, gson.toJson(tbrs)))
         if (tbrs.isNotEmpty()) {
             try {
-                processTBREntries(tbrs)
+                processTBREntries(tbrs, rewindRecords)
             } catch (ex: Exception) {
                 aapsLogger.error(LTag.PUMP, "ProcessHistoryData: Error processing TBR entries: " + ex.message, ex)
                 throw ex
@@ -397,7 +398,7 @@ open class MedtronicHistoryData @Inject constructor(
                 continue
             }
             if (primeRecord.atechDateTime > maxAllowedTimeInPast) {
-                if (lastPrimeRecordTime != 0L && lastPrimeRecordTime < primeRecord.atechDateTime) {
+                if (lastPrimeRecordTime < primeRecord.atechDateTime) {
                     lastPrimeRecordTime = primeRecord.atechDateTime
                     lastPrimeRecord = primeRecord
                 }
@@ -581,7 +582,7 @@ open class MedtronicHistoryData @Inject constructor(
         }
     }
 
-    private fun processTBREntries(entryList: MutableList<PumpHistoryEntry>) {
+    private fun processTBREntries(entryList: MutableList<PumpHistoryEntry>, rewindList: MutableList<PumpHistoryEntry>) {
         entryList.reverse()
         val tbr = entryList[0].getDecodedDataEntry("Object") as TempBasalPair
 //        var readOldItem = false
@@ -605,7 +606,7 @@ open class MedtronicHistoryData @Inject constructor(
 
         val tbrRecords = pumpSyncStorage.getTBRs()
 
-        val processList: MutableList<TempBasalProcessDTO> = createTBRProcessList(entryList)
+        val processList: MutableList<TempBasalProcessDTO> = createTBRProcessList(entryList, rewindList)
 
         if (processList.isNotEmpty()) {
             for (tempBasalProcessDTO in processList) {
@@ -729,7 +730,8 @@ open class MedtronicHistoryData @Inject constructor(
         } // collection
     }
 
-    fun createTBRProcessList(entryList: MutableList<PumpHistoryEntry>) : MutableList<TempBasalProcessDTO> {
+
+    fun createTBRProcessList(entryList: MutableList<PumpHistoryEntry>, rewindList: MutableList<PumpHistoryEntry>) : MutableList<TempBasalProcessDTO> {
 
         aapsLogger.debug(LTag.PUMP, "${ProcessHistoryRecord.TBR.description}  List (before filter): ${gson.toJson(entryList)}")
 
@@ -792,6 +794,23 @@ open class MedtronicHistoryData @Inject constructor(
         if (removalList.isNotEmpty()) {
             for (tempBasalProcessDTO in removalList) {
                 processList.remove(tempBasalProcessDTO)
+            }
+        }
+
+        // see if rewind items, need to fix any of current tempBasalProcessDTO items (bug 1724)
+        if (rewindList.isNotEmpty()) {
+            for (rewindEntry in rewindList) {
+                for (tempBasalProcessDTO in processList) {
+                    if (tempBasalProcessDTO.itemTwo==null) {
+                        val endTime: Long = DateTimeUtil.getATDWithAddedMinutes(tempBasalProcessDTO.itemOne.atechDateTime, tempBasalProcessDTO.itemOneTbr!!.durationMinutes)
+
+                        if ((rewindEntry.atechDateTime > tempBasalProcessDTO.itemOne.atechDateTime) &&
+                            (rewindEntry.atechDateTime < endTime)) {
+                            tempBasalProcessDTO.itemTwo = rewindEntry
+                            continue
+                        }
+                    }
+                }
             }
         }
 
@@ -1035,10 +1054,10 @@ open class MedtronicHistoryData @Inject constructor(
             return outList
         }
         showLogs("NoDeliveryRewindPrimeRecords: Records to evaluate: ", gson.toJson(tempData))
-        var items: MutableList<PumpHistoryEntry> = getFilteredItems(tempData, PumpHistoryEntryType.Prime)
+        var items: MutableList<PumpHistoryEntry> = getFilteredItems(tempData, setOf(PumpHistoryEntryType.Prime))
         val itemTwo = items[0]
 
-        items = getFilteredItems(tempData, PumpHistoryEntryType.NoDeliveryAlarm)
+        items = getFilteredItems(tempData, setOf(PumpHistoryEntryType.NoDeliveryAlarm))
         if (items.size > 0) {
             val tbrProcess = TempBasalProcessDTO(
                 itemOne = items[items.size - 1],
@@ -1053,7 +1072,7 @@ open class MedtronicHistoryData @Inject constructor(
             return outList
         }
 
-        items = getFilteredItems(tempData, PumpHistoryEntryType.Rewind)
+        items = getFilteredItems(tempData, setOf(PumpHistoryEntryType.Rewind))
         if (items.size > 0) {
             val tbrProcess = TempBasalProcessDTO(
                 itemOne = items[0],
@@ -1072,7 +1091,7 @@ open class MedtronicHistoryData @Inject constructor(
     }
 
     private fun getOneMoreEntryFromHistory(entryType: PumpHistoryEntryType): PumpHistoryEntry? {
-        val filteredItems: List<PumpHistoryEntry?> = getFilteredItems(allHistory, entryType)
+        val filteredItems: List<PumpHistoryEntry?> = getFilteredItems(allHistory, setOf(entryType))
         return if (filteredItems.isEmpty()) null else filteredItems[0]
     }
 
@@ -1174,7 +1193,7 @@ open class MedtronicHistoryData @Inject constructor(
         return getFilteredItems(newHistory, entryTypes)
     }
 
-    private fun getFilteredItems(entryType: PumpHistoryEntryType): MutableList<PumpHistoryEntry> {
+    fun getFilteredItems(entryType: PumpHistoryEntryType): MutableList<PumpHistoryEntry> {
         return getFilteredItems(newHistory, setOf(entryType))
     }
 
@@ -1186,10 +1205,6 @@ open class MedtronicHistoryData @Inject constructor(
             aapsLogger.debug(LTag.PUMP, "Items: $filteredItems")
             filteredItems.isNotEmpty()
         }
-    }
-
-    private fun getFilteredItems(inList: MutableList<PumpHistoryEntry>?, entryType: PumpHistoryEntryType): MutableList<PumpHistoryEntry> {
-        return getFilteredItems(inList, setOf(entryType))
     }
 
     private fun getFilteredItems(inList: MutableList<PumpHistoryEntry>?, entryTypes: Set<PumpHistoryEntryType>?): MutableList<PumpHistoryEntry> {

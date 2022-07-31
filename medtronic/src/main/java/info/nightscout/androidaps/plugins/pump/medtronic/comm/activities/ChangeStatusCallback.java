@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import info.nightscout.androidaps.extensions.PumpStateExtensionKt;
 import info.nightscout.androidaps.interfaces.PumpSync;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDriverState;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType;
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpRunningState;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BaseCallback;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn;
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin;
@@ -47,14 +47,14 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState, Supplier
                         "state"));
         Optional<PumpDriverState> result = filtered.reduce((first, second) -> second).map(f -> {
             if (f.contains("normal")) {
-                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Running);
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpRunningState(PumpRunningState.Running);
                 medLinkMedtronicPumpPlugin.storeCancelTempBasal();
                 if (type == OperationType.START) {
 
                 }
                 return PumpDriverState.Initialized;
             } else if (f.contains("suspend")) {
-                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpStatusType(PumpStatusType.Suspended);
+                medLinkMedtronicPumpPlugin.getPumpStatusData().setPumpRunningState(PumpRunningState.Suspended);
                 PumpSync.PumpState.TemporaryBasal tempBasalData = medLinkMedtronicPumpPlugin.getTemporaryBasal();
                 if (tempBasalData != null && PumpStateExtensionKt.getDurationInMinutes(tempBasalData) > 0) {
                     medLinkMedtronicPumpPlugin.createTemporaryBasalData(PumpStateExtensionKt.getDurationInMinutes(tempBasalData),

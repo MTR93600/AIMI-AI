@@ -15,11 +15,12 @@ import info.nightscout.androidaps.events.EventPumpStatusChanged
 import info.nightscout.androidaps.events.EventTempBasalChange
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.CommandQueue
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpStatusType
+import info.nightscout.androidaps.plugins.pump.common.defs.PumpRunningState
 import info.nightscout.androidaps.plugins.pump.common.events.EventMedLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType
 import info.nightscout.androidaps.plugins.pump.medtronic.events.EventMedtronicPumpConfigurationChanged
@@ -42,10 +43,9 @@ import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.utils.WarnColors
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
 class MedLinkMedtronicFragment : DaggerFragment() {
@@ -62,7 +62,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var medLinkMedtronicUtil: MedLinkMedtronicUtil
     @Inject lateinit var medtronicPumpStatus: MedLinkMedtronicPumpStatus
-    @Inject lateinit var medinkServiceData: MedLinkServiceData
+    @Inject lateinit var medLinkServiceData: MedLinkServiceData
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     
     private var disposable: CompositeDisposable = CompositeDisposable()
@@ -185,20 +185,20 @@ class MedLinkMedtronicFragment : DaggerFragment() {
 
     @Synchronized
     private fun setDeviceStatus() {
-        val resourceId = medinkServiceData.medLinkServiceState.resourceId
+        val resourceId = medLinkServiceData.medLinkServiceState.resourceId
         val medLinkError = medLinkMedtronicPumpPlugin.medLinkService?.error
         binding.medtronicRlStatus.text =
             when {
-                medinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isConnecting                    -> "{fa-bluetooth-b spin}   " + rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && medLinkError == null -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
-                medinkServiceData.medLinkServiceState.isError && medLinkError != null -> "{fa-bluetooth-b}   " + rh.gs(medLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
-                else                                                                  -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isConnecting                      -> "{fa-bluetooth-b spin}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && medLinkError == null   -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
+                medLinkServiceData.medLinkServiceState.isError && medLinkError != null   -> "{fa-bluetooth-b}   " + rh.gs(medLinkError.getResourceId(RileyLinkTargetDevice.MedtronicPump))
+                else                                                                     -> "{fa-bluetooth-b}   " + rh.gs(resourceId)
             }
         binding.medtronicRlStatus.setTextColor(if (medLinkError != null) Color.RED else Color.WHITE)
 
         binding.medtronicErrors.text =
-            medinkServiceData.medLinkError?.let {
+            medLinkServiceData.medLinkError?.let {
                 rh.gs(it.getResourceId(RileyLinkTargetDevice.MedtronicPump))
             } ?: "-"
 
@@ -235,7 +235,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
 
-        var id  = if(medtronicPumpStatus.pumpStatusType == PumpStatusType.Running){
+        var id  = if(medtronicPumpStatus.pumpRunningState == PumpRunningState.Running){
             R.string.medtronic_pump_state_RUNNING;
         } else {
             R.string.medtronic_pump_state_SUSPENDED;
@@ -368,7 +368,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         //DeviceBattery
-        val deviceBatteryRemaining = medinkServiceData.batteryLevel
+        val deviceBatteryRemaining = medtronicPumpStatus.batteryLevel
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 

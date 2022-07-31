@@ -10,6 +10,7 @@ import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice
 import info.nightscout.androidaps.queue.Callback
 import info.nightscout.androidaps.utils.DateUtil
 import javax.inject.Inject
@@ -28,7 +29,7 @@ class CommandSetProfile constructor(
     @Inject lateinit var config: Config
 
     override fun execute() {
-        if (commandQueue.isThisProfileSet(profile) && repository.getEffectiveProfileSwitchActiveAt(dateUtil.now()).blockingGet() is ValueWrapper.Existing) {
+        if (commandQueue.isThisProfileSet(profile) && (activePlugin.activePump is MedLinkPumpDevice || repository.getEffectiveProfileSwitchActiveAt(dateUtil.now()).blockingGet() is ValueWrapper.Existing)) {
             aapsLogger.debug(LTag.PUMPQUEUE, "Correct profile already set. profile: $profile")
             callback?.result(PumpEnactResult(injector).success(true).enacted(false))?.run()
             return
