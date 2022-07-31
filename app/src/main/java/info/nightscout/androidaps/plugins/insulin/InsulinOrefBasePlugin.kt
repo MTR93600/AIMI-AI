@@ -107,12 +107,13 @@ abstract class InsulinOrefBasePlugin(
                     val circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
                 }
             }*/
-            val factordia = (ln(bolus.amount) * 1.618)
+            //val factordia = (ln(bolus.amount) * 1.618)
 
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
 
-            var td = (dia * 60.0 * factordia).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
+            //var td = (dia * 60.0 * factordia).coerceAtLeast(dia/2 * 60.0) //getDIA() always >= MIN_DIA
+            var td = dia * 30.0
             td *= circadian_sensitivity
             //val td = dia * 60 * factordia //getDIA() always >= MIN_DIA
             val tp = peak.toDouble()

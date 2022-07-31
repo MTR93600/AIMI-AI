@@ -196,7 +196,7 @@ class CommandQueueImplementation @Inject constructor(
         thread?.let { thread ->
             while (thread.state != Thread.State.TERMINATED && thread.waitingForDisconnect) {
                 aapsLogger.debug(LTag.PUMPQUEUE, "Waiting for previous thread finish")
-                SystemClock.sleep(500)
+                SystemClock.sleep(3000)
             }
         }
     }
