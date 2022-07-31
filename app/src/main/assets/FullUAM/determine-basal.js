@@ -328,6 +328,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var AIMI_BG_ACC = glucose_status.delta / glucose_status.short_avgdelta;
     enlog += "AIMI_BG_ACC : "+AIMI_BG_ACC+"\n";
     var AIMI_ACC = false;
+    var now = new Date().getHours();
 
     if (AIMI_BG_ACC < 1 && glucose_status.delta >= 20){
     AIMI_ACC = true;
@@ -394,10 +395,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                        rT.duration = 30;
                        rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                        return rT;
+    }
 
 
 
-    var now = new Date().getHours();
+
     var date_now = new Date();
         var nowminutes = date_now.getHours() + date_now.getMinutes() / 60 + date_now.getSeconds() / 60 / 60;
         enlog += "nowminutes = " +nowminutes+" ; \n";
