@@ -476,6 +476,8 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         enlog += "C1 = "+C1+" and C2 = "+C2+"\n";
         var UAMAIMIReason = "";
         var aimismb = true;
+        var b30activity = iob_data.iob - iob_data.basaliob;
+        console.log(" ; b30activity : "+b30activity+" ; ");
         var b30upperLimit = profile.b30_upperBG;
         if (glucose_status.delta <= 6 && bg < b30upperLimit){
         aimismb = false;
@@ -501,7 +503,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                  rT.duration = 30;
                  rT.rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
                  return rT;
-         }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180 ){
+         }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180  && b30activity < iob_data.iob/3){
                            rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                            rT.deliverAt = deliverAt;
                            rT.temp = 'absolute';
@@ -712,7 +714,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
                   return rT;
                   //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-          }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180 ){
+          }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg > 180 && b30activity < iob_data.iob/3){
                           rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                           rT.deliverAt = deliverAt;
                           rT.temp = 'absolute';
