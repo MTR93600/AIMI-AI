@@ -316,7 +316,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
     var LastManualBolus = meal_data.lastBolusNormalUnits;
-    var insulinPeakTime = profile.insulinPeak;
+    var insulinPeakTime = 60;
+    // add 30m to allow for insulin delivery (SMBs or temps)
+    insulinPeakTime = 90;
     insulinPeakTime *= circadian_sensitivity;
     enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
 
@@ -1137,7 +1139,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.1.0.2-dev-a-AIMI V21 31/07/2022 ");
+                console.log(" AAPS-3.1.0.2-dev-a-AIMI V21 02/08/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1311,7 +1313,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVa-AIMI-V21-31/07/22 ";
+    rT.reason += " ; DEVa-AIMI-V21-02/08/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
