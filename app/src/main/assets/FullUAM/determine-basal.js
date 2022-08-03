@@ -510,13 +510,15 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
-    sens = glucose_status.delta < 0 ? profile.sens : sens;
+    //sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
+    sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
+    enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
+    enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTime < 100 && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-iTime-TIRLow : "+sens+ " \n" : " \n";
+    }else{
+    sens = iTime < 100 && glucose_status.delta > 0 ? profile.sens / 2 : Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
+    enlog += iTime < 100 && glucose_status.delta > 0 ? "ISF from profile divide by 2 because iTime < 100 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
+   }
 
-    enlog +="Current sensitivity is " +sens_currentBG+" based on current bg\n";
-    }
-
-    sens = Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
-    enlog +="######--TDD and TIR don't have data, the ISF come from the profile--######\n";
 
 
 
@@ -1761,14 +1763,31 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             var smbTarget = target_bg;
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
+       if (iTimeActivation === true){
+            if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp && iTime > 100){
+                        microBolus = 0;
+                        rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
+            }else if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Novorapid && iTime > 100){
+                        microBolus = 0;
+                        rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
+            }else if (TriggerPredSMB_future_sens_45 < 90 && iTime > 100){
+                            microBolus = 0;
+                            rT.reason += ", No SMB because Luymjev and Pred < 80, ";
+            }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
+                                if(TimeSMB < 15){
+                                microBolus = 0;
+                                rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
+                                }
+            }
 
+       }else{
             if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp){
-            microBolus = 0;
-            rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
+                microBolus = 0;
+                rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
             }else if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Novorapid){
-            microBolus = 0;
-            rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
-            }else if (TriggerPredSMB_future_sens_45 < 90)  {
+                microBolus = 0;
+                rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
+            }else if (TriggerPredSMB_future_sens_45 < 90){
                 microBolus = 0;
                 rT.reason += ", No SMB because Luymjev and Pred < 80, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
@@ -1776,10 +1795,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                     microBolus = 0;
                     rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
                     }
-            }/*else if(bg - min_bg < 20 && glucose_status.delta < 4){
-            microBolus = 0;
-            UAMAIMIReason += ", No SMB : Delta Slowing ";
-            }*/
+            }
+        }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
                 durationReq = 0;
