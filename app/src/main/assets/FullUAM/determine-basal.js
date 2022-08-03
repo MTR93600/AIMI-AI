@@ -372,7 +372,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-    if (iTimeActivation === true && iTime < 20){
+    /*if (iTimeActivation === true && iTime < 20){
     rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
     //rT.deliverAt = deliverAt;
     rT.temp = 'absolute';
@@ -404,7 +404,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
            rT.rate = rate;
            rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate)+ " Force Basal AIMI";
            //return rT;
-    }
+    }*/
 
 
 
@@ -1870,6 +1870,23 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         }
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
+
+
+        if (iTimeActivation === true && iTime < 20){
+            rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
+            //rT.deliverAt = deliverAt;
+
+            rate = round_basal(basal*10,profile);
+
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
+                     rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
+                     rate = round_basal(basal*10,profile);
+
+             }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg >= 170  && b30activity < iob_data.iob/3){
+                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
+                   rate = round_basal(basal*10,profile);
+
+            }
 
         /*if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 80 && bg < 200 && HypoPredBG > 90){
             //rT.duration = 30;
