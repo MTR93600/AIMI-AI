@@ -372,7 +372,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-    /*if (iTimeActivation === true && iTime < 20){
+    if (iTimeActivation === true && iTime < 20){
     rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
     //rT.deliverAt = deliverAt;
     rT.temp = 'absolute';
@@ -385,7 +385,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
     return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-    }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
+    }/*else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
              rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
              //rT.deliverAt = deliverAt;
              rT.temp = 'absolute';
