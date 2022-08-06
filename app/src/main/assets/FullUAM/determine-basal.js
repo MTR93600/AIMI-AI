@@ -1879,25 +1879,20 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             rate = round_basal(basal*10,profile);
 
             }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
-                     rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
-                     rate = round_basal(basal*10,profile);
-
+                     if(bg < 100 && glucose_status.delta < 3 && iTime > 200){
+                        rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*glucose_status.delta/60)*30;
+                        rate = round_basal(basal*glucose_status.delta,profile);
+                     }else{
+                        rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
+                        rate = round_basal(basal*10,profile);
+                    }
              }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg >= 170  && b30activity < iob_data.iob/3){
                    rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
                    rate = round_basal(basal*10,profile);
 
             }
 
-        /*if(iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta < 6 && bg > 80 && bg < 200 && HypoPredBG > 90){
-            //rT.duration = 30;
-           // rate = round_basal(basal*5,profile);
-            //rT.reason += "adj. req. rate: "+rate+", ";
-            //rate = round_basal(rate, profile);
-            rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
-            rate = round_basal(maxSafeBasal, profile);
-            UAMAIMIReason += ", run b30 && HypoPredBG > 90, ";
-
-        }else */if (rate > maxSafeBasal) {
+        if (rate > maxSafeBasal) {
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
          rate = round_basal(maxSafeBasal, profile);
          }
