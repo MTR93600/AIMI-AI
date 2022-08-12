@@ -506,7 +506,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     var sens_normalTarget = sens_avg;
     var sens_currentBG = sens_normalTarget/(aimi_bg/normalTarget); // * EXPERIMENT *
     sens_currentBG = round(sens_currentBG,1);
-    sens = sens_currentBG * circadian_sensitivity;
+    //sens = sens_currentBG * circadian_sensitivity;
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
@@ -1141,7 +1141,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.1.0.3-dev-a-AIMI V21 09/08/2022 ");
+                console.log(" AAPS-3.1.0.3-dev-a-AIMI V21 12/08/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1315,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     }
 
 
-    rT.reason += " ; DEVa-AIMI-V21-09/08/22 ";
+    rT.reason += " ; DEVa-AIMI-V21-12/08/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
