@@ -135,6 +135,7 @@ function determine_varSMBratio(profile, bg, target_bg)
 var determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime, isSaveCgmSource) {
     var rT = {}; //short for requestedTemp
     var b30upperLimit = profile.b30_upperBG;
+    var b30upperdelta = profile.b30_upperdelta;
     var deliverAt = new Date();
     if (currentTime) {
         deliverAt = new Date(currentTime);
@@ -373,7 +374,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30activity = iob_data.iob - iob_data.basaliob;
     console.log(" ; b30activity : "+b30activity+" ; ");
 
-    if (glucose_status.delta <= 6 && bg < b30upperLimit){
+    if (glucose_status.delta <= b30upperdelta && bg < b30upperLimit){
     aimismb = false;
     }else if (bg < 100){
     aimismb = false;
@@ -1792,8 +1793,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
             rate = round_basal(basal*10,profile);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
-                     if(bg < 100 && glucose_status.delta <= 3 && iTime > 180){
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= b30upperdelta && bg >= 80 && bg < b30upperLimit){
+                     if(bg < 100 && glucose_status.delta <= 4 && iTime > 180){
                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*glucose_status.delta/60)*30;
                         durationReq = 20;
                         rT.duration = durationReq;

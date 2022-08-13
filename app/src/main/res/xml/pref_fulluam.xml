@@ -40,11 +40,21 @@
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="150"
-            android:dialogMessage="If BG is greater of this value, B30 (basal 500% during 30 minutes) will not running"
+            android:dialogMessage="If BG is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
             android:inputType="numberDecimal"
             android:key="@string/key_iTime_B30_upperBG"
             android:title="B30 Upper BG to stop B30"
             validate:floatmaxNumber="200"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dialogMessage="If delta is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperdelta"
+            android:title="B30 Upper delta to stop B30"
+            validate:floatmaxNumber="15"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
