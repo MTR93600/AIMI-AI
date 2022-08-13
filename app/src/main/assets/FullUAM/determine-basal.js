@@ -295,6 +295,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     /* ************************
        ** TS AutoTDD code    **
        ************************ */
+    var TDD = profile.TDD;
+    var insulinDivisor = profile.insulinDivisor;
+    var variable_sens = profile.variable_sens;
+    var lastHourTIRLow = profile.lastHourTIRLow;
+    var lastHourTIRAbove = profile.lastHourTIRAbove;
+    var last2HourTIRAbove = profile.last2HourTIRAbove;
+    var aimisensitivity = profile.aimisensitivity;
     var enlog = "";
     if (glucose_status.delta >= 0 && bg > 180){
     var aimi_bg = (bg + (bg - glucose_status.delta))/2;
@@ -372,42 +379,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-   /* if (iTimeActivation === true && iTime < 20){
-    rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
-    //rT.deliverAt = deliverAt;
-    rT.temp = 'absolute';
-    rT.duration = 30;
-    rate = round_basal(basal*5,profile);
-    rT.rate = rate;
-    //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
-    //rT.rate = profile.current_basal*10;
-    //return rT;
-    rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
-    return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-
-    }*//*else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
-             rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
-             //rT.deliverAt = deliverAt;
-             rT.temp = 'absolute';
-             rT.duration = 30;
-             rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
-             rT.rate = rate;
-             rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
-             //return rT;
-             return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg >= 170  && b30activity < iob_data.iob/3){
-           rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
-           //rT.deliverAt = deliverAt;
-           rT.temp = 'absolute';
-           rT.duration = 30;
-           rate = circadian_sensitivity > 1 ? round_basal(basal*5/circadian_sensitivity,profile) : round_basal(basal*5,profile);
-           rT.rate = rate;
-           rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate)+ " Force Basal AIMI";
-           //return rT;
-    }*/
-
-
-
 
     var date_now = new Date();
         var nowminutes = date_now.getHours() + date_now.getMinutes() / 60 + date_now.getSeconds() / 60 / 60;
@@ -420,9 +391,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         //var circadian_sensitivity = 1;
         var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
         enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
-basal /= circadian_sensitivity;
-basal = Math.max(profile.current_basal * 0.65,basal);
-enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
+        basal /= circadian_sensitivity;
+        basal = Math.max(profile.current_basal * 0.65,basal);
+        enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
         var statTirBelow = meal_data.StatLow7;
         var statinrange = meal_data.StatInRange7;
@@ -430,43 +401,16 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var CurrentTIRinRange = meal_data.currentTIRRange;
         var CurrentTIRAbove = meal_data.currentTIRAbove;
         var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
-        var lastHourTIRLow = meal_data.lastHourTIRLow;
-        var lastHourTIRAbove = meal_data.lastHourTIRAbove;
-        var last2HourTIRAbove = meal_data.last2HourTIRAbove;
+        //var lastHourTIRLow = meal_data.lastHourTIRLow;
+        //var lastHourTIRAbove = meal_data.lastHourTIRAbove;
+        //var last2HourTIRAbove = meal_data.last2HourTIRAbove;
         var basal_tir = (lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ? (profile.current_basal*2) : basal;
 
-        var tdd7 = meal_data.TDDAIMI7;
-        //var tdd7 = (lastHourTIRLow > 0 ? (round((((basal * 12)*100)/21)*0.85,2)) : (round((((basal*12)*100)/21),2)));
-        tdd7 = (lastHourTIRLow > 0 && bg < 130 ? tdd7*0.85 : tdd7);
-        //var tdd24 = meal_data.TDDLast24;
-        var tdd24 = meal_data.TDDLast8 * 1.618;
-        var tdd724 = (tdd7 + tdd24)/2;
-        // Experimental base on 50% basal use during a normal day,
-         //which is 21% of the current TDD base on an average data
-        var tdd_pump_now = meal_data.TDDPUMP;
-        var tdd_pump = (tdd_pump_now / (now / 24));
-        var TDD = lastHourTIRLow > 0 ? ((tdd724 * 0.4) + (tdd_pump * 0.6))*0.85 : (tdd724 * 0.4) + (tdd_pump * 0.6);
-        TDD = Math.min(TDD,meal_data.aimiTDD24);
-        enlog +="tdd24 : "+tdd24+"\n";
-        enlog +="tdd7 : "+tdd7+"\n";
-        enlog +="tdd724 : "+tdd724+"\n";
-        enlog +="TDD  : "+TDD+"\n";
-        enlog +="Pump extrapolated TDD = "+tdd_pump+";\n";
-        var smbTDD = 0;
-        if (tdd_pump < (0.3 * tdd724)) {
-            TDD = (tdd724 * 0.8) + (tdd_pump * 0.2);
-            TDD = Math.min(TDD,meal_data.aimiTDD24);
-            smbTDD = 1;
-            enlog +="tdd_pump is lesser than 30% tdd724\n";
-            } else if (tdd_pump < (0.5 * tdd724)){
-                TDD = (tdd724 * 0.5) + (tdd_pump * 0.5);
-                TDD = Math.min(TDD,meal_data.aimiTDD24);
-                smbTDD = 1;
-                enlog +="TDD weighted to pump due to low insulin usage. TDD = "+TDD+";\n";
-            }else{
 
-                enlog +="TDD roling 24h and TDD average 7 (projection) ="+tdd724+", TDD Pump ="+tdd_pump+" and TDD = "+TDD+";\n";
-            }
+        enlog +="TDD  : "+TDD+"\n";
+
+        var smbTDD = 0;
+
         var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24);
         var AIMI_BasalAv7 = (meal_data.TDDAIMIBASAL7/24);
         AIMI_BasalAv7 -= (AIMI_BasalAv7 * (statTirBelow/100) * 1.618);
@@ -476,21 +420,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         var AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 1.618;
         enlog += "###Basal average days : "+AIMI_Basal+"### \n";
 
-        if (iTime < profile.iTime && CurrentTIRinRange <= 96 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >=4 && bg < 170 || smbTDD === 1 && bg < 170 ){iTimeProfile *=0.7; }
 
-
-
-        if (CurrentTIR_70_140_Above > 20 && currentTIRLow < 5 && CurrentTIRinRange < 95 && smbTDD === 0 || smbTDD === 0 && iTime < iTimeProfile && tdd_pump >= tdd724*0.3 && CurrentTIR_70_140_Above > 20 ){
-            TDD*=1.2;
-            //console.log("TDD new value because TIR during the current Day show an average BG greater than 140 with a proportion greater than 20% or TDD_pump > 0.3*TTD7 && iTime < iTimeProfile  <  :"+TDD);
-            enlog +="TDD new value because TIR during the current Day show an average BG greater than 140 with a proportion greater than 20% or TDD_pump > 0.3*TTD7 && iTime < iTimeProfile  <  :"+TDD+"\n";
-        }else if (iTime < profile.iTime && CurrentTIRinRange <= 96 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >=4 && statinrange <= 95 && statTirBelow >= 4 && bg < 170 || smbTDD === 1 && bg < 170 ){
-
-        iTimeProfile *=0.7;
-        }else if (statinrange <= 96 && statTirBelow >= 4 && CurrentTIR_70_140_Above <= 20 && currentTIRLow >= 4){
-            TDD*=0.7;
-            enlog +="TDD new value because TIR show hypo during the last 7 days and  the curent day too :"+TDD+"\n";
-        }
 
     if (meal_data.TDDAIMI3){
     var TDDaverage3 = meal_data.TDDAIMI3;
@@ -499,20 +429,13 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     }
     var MagicNumber = profile.sens*TDDaverage3*profile.min_bg;
     enlog += "TDDaverage3("+TDDaverage3+") and MagicNumber("+MagicNumber+")\n";
-    var sens_normalTarget = sens; // use profile for now * EXPERIMENT *
-    //var sens_TDD = round((277700 / (TDD * normalTarget)),1);
-    var sens_TDD = round((MagicNumber / (TDD * normalTarget)),1);
-    var sens_avg = (sens_normalTarget+sens_TDD)/2;
-    var sens_normalTarget = sens_avg;
-    var sens_currentBG = sens_normalTarget/(aimi_bg/normalTarget); // * EXPERIMENT *
-    sens_currentBG = round(sens_currentBG,1);
-    //sens = sens_currentBG * circadian_sensitivity;
+    sens = variable_sens;
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
     //sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
     sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
-    enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
+    //enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
     enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTime < 100 && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-iTime-TIRLow : "+sens+ " \n" : " \n";
     }else{
     sens = iTime < 100 && glucose_status.delta > 0 ? profile.sens / 2 : Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
@@ -556,7 +479,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
      var c = halfBasalTarget - normalTarget;
      if (meal_data.TDDAIMI3){
      sensitivityRatio = c/(c+target_bg-normalTarget);
-     var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
+     var sensitivityTDD = Math.max(0.5,aimisensitivity);
      enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
      //sensitivityRatio = REBX;
      // limit sensitivityRatio to profile.autosens_max (1.2x by default)
@@ -603,7 +526,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         if (meal_data.TDDAIMI3){
          sensitivityRatio = c/(c+target_bg-normalTarget);
-         var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
+         var sensitivityTDD = Math.max(0.5,aimisensitivity);
          enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
          //sensitivityRatio = REBX;
          // limit sensitivityRatio to profile.autosens_max (1.2x by default)
@@ -643,7 +566,7 @@ enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
         //sensitivityRatio = c/(c+target_bg-normalTarget);
         if (meal_data.TDDAIMI3){
              sensitivityRatio = c/(c+target_bg-normalTarget);
-             var sensitivityTDD = Math.max(0.5,(TDD / tdd724));
+             var sensitivityTDD = Math.max(0.5,aimisensitivity);
              enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
              //sensitivityRatio = REBX;
              // limit sensitivityRatio to profile.autosens_max (1.2x by default)
@@ -1882,22 +1805,30 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 
         if (iTimeActivation === true && iTime < 20){
-            rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*5/60)*30;
+            rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
             //rT.deliverAt = deliverAt;
+            durationReq = 20;
+            rT.duration = durationReq;
 
-            rate = round_basal(basal*15,profile);
+            rate = round_basal(basal*10,profile);
 
             }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 6 && bg >= 80 && bg < b30upperLimit){
                      if(bg < 100 && glucose_status.delta <= 3 && iTime > 180){
                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*glucose_status.delta/60)*30;
+                        durationReq = 20;
+                        rT.duration = durationReq;
                         rate = round_basal(basal*glucose_status.delta,profile);
                      }else{
-                        rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
-                        rate = round_basal(basal*10,profile);
+                        rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
+                        durationReq = 20;
+                        rT.duration = durationReq;
+                        rate = round_basal(basal*6,profile);
                     }
              }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg >= 170  && b30activity < iob_data.iob/3){
-                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*5/60)*30;
-                   rate = round_basal(basal*10,profile);
+                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
+                   durationReq = 20;
+                   rT.duration = durationReq;
+                   rate = round_basal(basal*6,profile);
 
             }
 

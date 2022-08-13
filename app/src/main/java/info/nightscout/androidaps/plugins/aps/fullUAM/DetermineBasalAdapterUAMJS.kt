@@ -42,6 +42,8 @@ import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
+import info.nightscout.androidaps.utils.Round
+import kotlin.math.ln
 
 
 
@@ -354,8 +356,40 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastNormalCarbTime", lastCarbTime)
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
         this.mealData.put("lastCarbUnits", lastCarbUnits)*/
+        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).abovePct()
+        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).belowPct()
+        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1))?.totalAmount
+        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7))?.totalAmount
+        val tddLast24H = tddCalculator.calculateDaily(-24, 0).totalAmount
+        val tddLast4H = tddCalculator.calculateDaily(-4, 0).totalAmount
+        val tddLast8to4H = tddCalculator.calculateDaily(-8, -4).totalAmount
+
+        val tddWeightedFromLast8H = ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
+        var tdd =
+            if (tdd1D != null && tdd7D != null && lastHourTIRLow > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            else if (tdd1D != null && tdd7D != null && lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            else if (tdd1D != null && tdd7D != null) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+            else tddWeightedFromLast8H
 
 
+        val aimisensitivity = tddLast24H / tdd7D!!
+
+        val insulinDivisor = when {
+            insulin.peak > 65 -> 55 // lyumjev peak: 45
+            insulin.peak > 50 -> 65 // ultra rapid peak: 55
+            else              -> 75 // rapid peak: 75
+        }
+        var variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+        variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
+
+        this.profile.put("variable_sens", variableSensitivity)
+        this.profile.put("lastHourTIRLow", lastHourTIRLow)
+        this.profile.put("TDD", tdd)
+        this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
+        this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
+        this.profile.put("aimisensitivity", aimisensitivity)
+        this.profile.put("insulinDivisor", insulinDivisor)
 
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3))?.totalAmount)
