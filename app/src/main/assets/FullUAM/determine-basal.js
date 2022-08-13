@@ -396,11 +396,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
         var statTirBelow = meal_data.StatLow7;
-        var statinrange = meal_data.StatInRange7;
+        //var statinrange = meal_data.StatInRange7;
         var currentTIRLow = meal_data.currentTIRLow;
         var CurrentTIRinRange = meal_data.currentTIRRange;
         var CurrentTIRAbove = meal_data.currentTIRAbove;
-        var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
+        //var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
         //var lastHourTIRLow = meal_data.lastHourTIRLow;
         //var lastHourTIRAbove = meal_data.lastHourTIRAbove;
         //var last2HourTIRAbove = meal_data.last2HourTIRAbove;
