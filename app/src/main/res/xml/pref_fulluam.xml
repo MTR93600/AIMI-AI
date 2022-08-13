@@ -27,16 +27,6 @@
             validate:floatmaxNumber="25.0"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="100"
-            android:enabled="true"
-            android:dialogMessage="@string/UAM_InsulinReq_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_UAM_InsulinReq"
-            android:title="@string/UAM_InsulinReq_title"
-            validate:floatmaxNumber="150"
-            validate:floatminNumber="50"
-            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="180"
@@ -47,16 +37,6 @@
             validate:floatmaxNumber="1500"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-
-        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="200"
-            android:dialogMessage="@string/iTime_MaxBolus_minutes_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_MaxBolus_minutes"
-            android:title="@string/iTime_MaxBolus_minutes_title"
-            validate:floatmaxNumber="250"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="150"
@@ -108,23 +88,6 @@
             android:key="@string/key_use_LuymjevU200"
             android:summary="Dependency AIMI_UAM Mode, specify Luymjev U200"
             android:title="AIMI UAM with Luymjev U200" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_Ipen"
-            android:summary="To specify you are using an insulin pen"
-            android:title="Insulin Pen" />
-
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="10"
-            android:dependency="@string/key_use_Ipen"
-            android:dialogMessage="Quantity Slow Insulin on 24 hours, to determine the basal profile with a pen insulin"
-            android:inputType="numberDecimal"
-            android:key="@string/key_use_AIMI_SlowInsulin"
-            android:title="Quantity Slow Insulin on 24 hours"
-            validate:floatmaxNumber="50"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
 
         <SwitchPreference
             android:defaultValue="false"

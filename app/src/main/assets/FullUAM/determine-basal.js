@@ -400,11 +400,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var currentTIRLow = meal_data.currentTIRLow;
         var CurrentTIRinRange = meal_data.currentTIRRange;
         var CurrentTIRAbove = meal_data.currentTIRAbove;
-        //var CurrentTIR_70_140_Above = meal_data.currentTIR_70_140_Above;
-        //var lastHourTIRLow = meal_data.lastHourTIRLow;
-        //var lastHourTIRAbove = meal_data.lastHourTIRAbove;
-        //var last2HourTIRAbove = meal_data.last2HourTIRAbove;
-        var basal_tir = (lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ? (profile.current_basal*2) : basal;
 
 
         enlog +="TDD  : "+TDD+"\n";
@@ -1209,7 +1204,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile)
     }
     var dia = profile.dia;
-    if (!profile.enable_AIMI_Ipen){
+
     rT.reason += "; ";
         rT.reason += "aimi_bg : "+aimi_bg;
         rT.reason += ", aimi_delta : "+aimi_delta;
@@ -1221,22 +1216,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
         rT.reason += ", Dia : "+dia*30*circadian_sensitivity+" ; ";
-        //rT.reason += LastManualBolus > 0 && iTime < iTimeProfile ? ", DiaManualBolus : "+Math.max(Math.log(LastManualBolus)*1.618*dia*60*circadian_sensitivity,(dia/2*60)) : "";
-        rT.reason += (last2HourTIRAbove > 0 && lastHourTIRAbove > 0) ? (", basal_tir : "+basal_tir) : "";
         rT.reason += " aimismb : "+aimismb+" ; ";
-        //rT.reason += (aimismb === false) ?  "SMB are disable to force the basal : "+basal+" ; " :  "";
-
-
-    }else{
-    rT.reason += ", ### AIMI_Ipen : you entry this quantity of carbs = "+meal_data.mealCOB;
-    var basalIpen = profile.key_use_AIMI_SlowInsulin / 24;
-    var basalIpenB30 = round(((basalIpen * 5) / 60)*30,1);
-    var insulinPen = meal_data.mealCOB > 0 ? round( (meal_data.mealCOB / eRatio) + basalIpenB30) : 0;
-    insulinPen = (lastHourTIRAbove > 10 && last2HourTIRAbove > 0) ? (insulinPen * (1+(lastHourTIRAbove/100))) : insulinPen;
-    rT.reason += meal_data.TDDAIMI3 ? " the recommanded Bolus will be : "+insulinPen+" ###" : " You need three days of data to get a bolus indication, think to entry every bolus in aaps  ###";
-    rT.reason += meal_data.TDDAIMI3 ? ", you can send in one shot "+insulinPen+" U or send 80% 10 minutes before to eat ("+round(insulinPen*0.8)+" U) and 30% just after the meal("+round(insulinPen*0.3)+" U)" : " You need three days of data to get a bolus indication, think to entry every bolus in aaps  ###";
-    }
-
 
     rT.reason += " ; DEVa-AIMI-V21-12/08/22 ";
     rT.reason += "; ";
