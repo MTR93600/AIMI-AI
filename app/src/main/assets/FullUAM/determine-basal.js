@@ -296,7 +296,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ** TS AutoTDD code    **
        ************************ */
     var TDD = profile.TDD;
-    var insulinDivisor = profile.insulinDivisor;
+    //var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;
     var lastHourTIRAbove = profile.lastHourTIRAbove;
