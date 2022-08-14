@@ -329,7 +329,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusSMBTime", lastBolusSMBTime)
 
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(80.0, 180.0)).abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0)).belowPct()
         val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1))?.totalAmount
         val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7))?.totalAmount

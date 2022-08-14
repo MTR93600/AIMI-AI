@@ -1793,7 +1793,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
             rate = round_basal(basal*10,profile);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= b30upperdelta && bg >= 80 && bg < b30upperLimit){
+            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= b30upperdelta && bg >= 80 && bg < b30upperLimit && lastHourTIRLow === 0){
                      if(bg < 100 && glucose_status.delta <= 4 && iTime > 180){
                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*glucose_status.delta/60)*30;
                         durationReq = 20;
