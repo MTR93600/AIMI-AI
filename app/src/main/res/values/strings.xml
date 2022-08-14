@@ -1223,6 +1223,7 @@
     <string name="key_eatingnow_smbbgoffset">key_eatingnow_smbbgoffset</string>
     <string name="key_use_ghostcob" translatable="false">key_use_ghostcob</string>
     <string name="key_use_AimiUAM" translatable="false">key_use_AimiUAM</string>
+    <string name="key_use_disable_b30_BFL" translatable="false">key_use_disable_b30_BFL</string>
     <string name="key_use_AimiPower" translatable="false">key_use_AimiPower</string>
     <string name="key_use_AimiUAM_ISF" translatable="false">key_use_AimiUAM_ISF</string>
     <string name="key_use_LuymjevU200" translatable="false">key_use_LuymjevU200</string>

@@ -1060,7 +1060,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.1.0.3-dev-a-AIMI V22 13/08/2022 ");
+                console.log(" AAPS-3.1.0.3-dev-a-AIMI V22 14/08/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
@@ -1219,7 +1219,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+dia*30*circadian_sensitivity+" ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += " ; DEVa-AIMI-V22-13/08/22 ";
+    rT.reason += " ; DEVa-AIMI-V22-14/08/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1783,7 +1783,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         }
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
-
+        var b30Ko = false;
+        if (AIMI_BreakFastLight && profile.key_use_disable_b30_BFL){b30Ko = true;}
 
         if (iTimeActivation === true && iTime < 20){
             rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
@@ -1799,7 +1800,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         durationReq = 20;
                         rT.duration = durationReq;
                         rate = round_basal(basal*glucose_status.delta,profile);
-                     }else{
+                     }else if (b30Ko === false){
                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
                         durationReq = 20;
                         rT.duration = durationReq;

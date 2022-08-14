@@ -134,6 +134,13 @@
             android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
             android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AIMI_BreakFastLight"
+            android:key="@string/key_use_disable_b30_BFL"
+            android:summary="Disable B30 if Breakfast Light is enable. In this case you will not get 500% basal after the first 20 minutes"
+            android:title="AIMI UAM BreakFast Light/Night B30 disable" />
+
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="6"
             android:dependency="@string/key_use_AimiUAM"
