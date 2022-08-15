@@ -413,8 +413,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         AIMI_BasalAv3 -= (AIMI_BasalAv3 * (statTirBelow/100) * 1.618);
         enlog += "###Basal average 7 days : "+AIMI_BasalAv7+"### \n";
         enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
-        var AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 1.618;
+        var AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 2;
         enlog += "###Basal average days : "+AIMI_Basal+"### \n";
+        enlog += "AIMI basal proposal for the day : "+AIMI_Basal+", AIMI basal proposal for the night : "+AIMI_Basal*0.65+" \n";
 
 
 
