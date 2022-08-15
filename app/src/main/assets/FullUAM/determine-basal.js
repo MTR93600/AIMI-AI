@@ -1638,7 +1638,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         microBolus = iTime > 180 ? Math.min((TriggerPredSMB_future_sens_45 - min_bg)/sens,microBolus) : microBolus;
                         console.log("***UAM*** Novorapid - InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+") \n");
 
-             }else if (iTime < iTimeProfile && glucose_status.delta > 2 && bg > 170 && TimeSMB > 25 && aimismb === true){
+             }else if (iTime < iTimeProfile && glucose_status.delta > 2 && bg > 170 && TimeSMB > 25 && aimismb === true && !profile.temptargetSet){
 
                 insulinReq =  round((bg - min_bg)/future_sens,2);
                 var microBolus = Math.min(AIMI_UAM_CAP,(insulinReq)*Hypo_ratio);
