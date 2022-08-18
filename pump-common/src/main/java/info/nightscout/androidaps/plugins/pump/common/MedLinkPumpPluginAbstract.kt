@@ -8,6 +8,7 @@ import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.CommandQueue
 import info.nightscout.androidaps.interfaces.PluginDescription
 import info.nightscout.androidaps.interfaces.PumpSync
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState
@@ -15,7 +16,6 @@ import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
@@ -25,7 +25,8 @@ import info.nightscout.shared.sharedPreferences.SP
  * Created by Dirceu on 06/04/21.
  */
 abstract class MedLinkPumpPluginAbstract protected constructor(
-    pluginDescription: PluginDescription?, pumpType: PumpType?, injector: HasAndroidInjector?, resourceHelper: ResourceHelper?, aapsLogger: AAPSLogger?, commandQueue: CommandQueue?, rxBus: RxBus?,
+    pluginDescription: PluginDescription, pumpType: PumpType?,
+    injector: HasAndroidInjector, resourceHelper: ResourceHelper?, aapsLogger: AAPSLogger?, commandQueue: CommandQueue?, rxBus: RxBus?,
     activePlugin: ActivePlugin?,
     sp: SP?, context: Context?,
     fabricPrivacy: FabricPrivacy?,
@@ -73,7 +74,8 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
                 // no bolus required, carb only treatment
                 pumpSyncStorage.addBolusWithTempId(detailedBolusInfo, true, this)
                 val bolusingEvent = EventOverviewBolusProgress
-                bolusingEvent.t = EventOverviewBolusProgress.Treatment(detailedBolusInfo.insulin, detailedBolusInfo.carbs.toInt(), detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB)
+                bolusingEvent.t = EventOverviewBolusProgress.Treatment(detailedBolusInfo.insulin, detailedBolusInfo.carbs.toInt(), detailedBolusInfo.bolusType == DetailedBolusInfo.BolusType.SMB,
+                                                                       detailedBolusInfo.id)
                 bolusingEvent.percent = 100
                 rxBus.send(bolusingEvent)
 
@@ -97,5 +99,5 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     abstract fun setPumpDeviceState(state:PumpDeviceState)
     abstract fun postInit()
     abstract fun setMedtronicPumpModel(model:String)
-
+    abstract fun setBatteryLevel(batteryLevel:Int)
 }

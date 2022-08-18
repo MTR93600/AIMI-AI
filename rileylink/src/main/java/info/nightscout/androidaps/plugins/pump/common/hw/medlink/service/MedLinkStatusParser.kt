@@ -24,8 +24,8 @@ import java.util.regex.Pattern
 class MedLinkStatusParser {
 
     fun partialMatch(pumpStatus: MedLinkPumpStatus): Boolean {
-        return pumpStatus.lastBGTimestamp != 0L || pumpStatus.lastBolusTime != null || pumpStatus.batteryVoltage != 0.0 || pumpStatus.reservoirLevel !== 0.0 || pumpStatus.currentBasal !== 0.0 ||
-                pumpStatus.dailyTotalUnits != null
+        return pumpStatus.lastBGTimestamp != 0L || pumpStatus.lastBolusTime != null || pumpStatus.batteryVoltage != 0.0 || pumpStatus.reservoirRemainingUnits != 0.0 || pumpStatus.currentBasal != 0.0 ||
+            pumpStatus.dailyTotalUnits != null
     }
 
     fun fullMatch(pumpStatus: MedLinkPumpStatus): Boolean {
@@ -34,13 +34,15 @@ class MedLinkStatusParser {
 
     companion object {
 
+        private var previousAge: Int = 0
+        private var previousReservoirRemaining: Double = 0.0
         private val dateTimeFullPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{4}\\s\\d{2}:\\d{2}")
         private val dateTimePartialPattern = Pattern.compile("\\d{2}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}")
         private val timePartialPattern = Pattern.compile("\\d{1,2}:\\d{2}")
         private var bgUpdated = false
 
         @JvmStatic
-        fun parseStatus(pumpAnswer: Array<String>?, pumpStatus: MedLinkPumpStatus, injector: HasAndroidInjector): MedLinkPumpStatus {
+        fun parseStatus(pumpAnswer: Array<String>, pumpStatus: MedLinkPumpStatus, injector: HasAndroidInjector): MedLinkPumpStatus {
 
 //        13‑12‑2020 18:36  54%
 //        String ans = "1623436309132\n" +
@@ -74,7 +76,7 @@ class MedLinkStatusParser {
 //        pumpAnswer = ans.split("\n");
             return try {
                 val messageIterator =
-                        Arrays.stream(pumpAnswer).map { f: String -> f.toLowerCase() }.iterator()
+                    Arrays.stream(pumpAnswer).map { f: String -> f.lowercase() }.iterator()
                 var message: String? = null
                 while (messageIterator.hasNext()) {
                     message = messageIterator.next().trim { it <= ' ' }
@@ -186,9 +188,9 @@ class MedLinkStatusParser {
         }
 
         private fun parseNextCalibration(
-                messageIterator: Iterator<String>,
-                pumpStatus: MedLinkPumpStatus,
-                injector: HasAndroidInjector
+            messageIterator: Iterator<String>,
+            pumpStatus: MedLinkPumpStatus,
+            injector: HasAndroidInjector,
         ): MedLinkPumpStatus {
             if (messageIterator.hasNext()) {
                 val currentLine = messageIterator.next()
@@ -211,8 +213,8 @@ class MedLinkStatusParser {
         }
 
         private fun parseCalibrationFactor(
-                messageIterator: Iterator<String>,
-                pumpStatus: MedLinkPumpStatus
+            messageIterator: Iterator<String>,
+            pumpStatus: MedLinkPumpStatus,
         ): MedLinkPumpStatus {
             if (messageIterator.hasNext()) {
                 val currentLine = messageIterator.next()
@@ -225,15 +227,15 @@ class MedLinkStatusParser {
                     }
                     if (bgUpdated) {
                         pumpStatus.sensorDataReading = BgSync.BgHistory.BgValue(
-                                timestamp = pumpStatus.bgReading.timestamp,
-                                value = pumpStatus.bgReading.value,
-                                noise = 0.0,
-                                arrow = BgSync.BgArrow.NONE,
-                                isig = pumpStatus.isig,
-                                calibrationFactor = pumpStatus.calibrationFactor,
-                                sensorUptime = pumpStatus.sensorAge,
-                                sourceSensor = BgSync.SourceSensor.MM_ENLITE,
-                                raw = 0.0
+                            timestamp = pumpStatus.bgReading.timestamp,
+                            value = pumpStatus.bgReading.value,
+                            noise = 0.0,
+                            arrow = BgSync.BgArrow.NONE,
+                            isig = pumpStatus.isig,
+                            calibrationFactor = pumpStatus.calibrationFactor,
+                            sensorUptime = pumpStatus.sensorAge,
+                            sourceSensor = BgSync.SourceSensor.MM_ENLITE,
+                            raw = 0.0
                         )
                         bgUpdated = false
                     }
@@ -243,8 +245,8 @@ class MedLinkStatusParser {
         }
 
         private fun parseISIG(
-                messageIterator: Iterator<String>,
-                pumpStatus: MedLinkPumpStatus
+            messageIterator: Iterator<String>,
+            pumpStatus: MedLinkPumpStatus,
         ): MedLinkPumpStatus {
             var currentLine = ""
             while (messageIterator.hasNext()) {
@@ -266,8 +268,8 @@ class MedLinkStatusParser {
         }
 
         private fun parsePumpState(
-                pumpStatus: MedLinkPumpStatus,
-                messageIterator: Iterator<String>
+            pumpStatus: MedLinkPumpStatus,
+            messageIterator: Iterator<String>,
         ): MedLinkPumpStatus {
 //        18:36:50.448 Pump status: NORMAL
             while (messageIterator.hasNext()) {
@@ -295,7 +297,11 @@ class MedLinkStatusParser {
                     val pattern = Pattern.compile("\\d+")
                     val matcher = pattern.matcher(currentLine)
                     if (matcher.find()) {
-                        pumpStatus.sensorAge = Integer.valueOf(matcher.group())
+                        val currentAge = Integer.valueOf(matcher.group())
+                        if (pumpStatus.sensorAge != null) {
+                            previousAge = pumpStatus.sensorAge
+                        }
+                        pumpStatus.sensorAge = currentAge
                     }
                 }
             }
@@ -378,7 +384,13 @@ class MedLinkStatusParser {
                     val matcher = reservoirPattern.matcher(currentLine)
                     if (matcher.find()) {
                         val reservoirRemaining = matcher.group()
-                        pumpStatus.reservoirLevel = reservoirRemaining.substring(0, reservoirRemaining.length - 1).toDouble()
+                        val reservoirRemainingDouble = reservoirRemaining.substring(0, reservoirRemaining.length - 1).toDouble()
+                        previousReservoirRemaining = pumpStatus.reservoirRemainingUnits
+                        if (reservoirRemainingDouble != 0.0 && pumpStatus.sensorAge != 0) {
+                            pumpStatus.reservoirRemainingUnits = reservoirRemainingDouble
+                        } else {
+                            pumpStatus.sensorAge = previousAge
+                        }
                     }
                 }
             }
@@ -400,7 +412,11 @@ class MedLinkStatusParser {
                     val matcher = lastBolusPattern.matcher(currentLine)
                     if (matcher.find()) {
                         val batteryVoltage = matcher.group()
-                        pumpStatus.batteryVoltage = java.lang.Double.valueOf(batteryVoltage.substring(0, batteryVoltage.length - 1))
+                        val batteryVoltageValue = java.lang.Double.valueOf(batteryVoltage.substring(0, batteryVoltage.length - 1))
+                        pumpStatus.isBatteryChanged = batteryVoltageValue > 0.01 + pumpStatus.batteryVoltage!! && pumpStatus.lastBatteryChanged >= System
+                            .currentTimeMillis() -
+                            1800000L
+                        pumpStatus.batteryVoltage = batteryVoltageValue
                     }
                 }
             }
@@ -439,10 +455,10 @@ class MedLinkStatusParser {
                     if (bgDate != null) {
                         bgUpdated = true
                         pumpStatus.bgReading = EnliteInMemoryGlucoseValue(
-                                timestamp = bgDate.time,
-                                value = bg,
-                                lastTimestamp = pumpStatus.lastBGTimestamp,
-                                lastValue = pumpStatus.latestBG
+                            timestamp = bgDate.time,
+                            value = bg,
+                            lastTimestamp = pumpStatus.lastBGTimestamp,
+                            lastValue = pumpStatus.latestBG
                         )
                         pumpStatus.lastBGTimestamp = bgDate.time
                     }

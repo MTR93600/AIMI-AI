@@ -5,8 +5,8 @@ import androidx.room.Query
 import info.nightscout.androidaps.database.TABLE_BOLUSES
 import info.nightscout.androidaps.database.embedments.InterfaceIDs
 import info.nightscout.androidaps.database.entities.Bolus
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 
 @Suppress("FunctionName")
 @Dao
@@ -33,8 +33,8 @@ internal interface BolusDao : TraceableDao<Bolus> {
     @Query("SELECT * FROM $TABLE_BOLUSES WHERE temporaryId = :temporaryId AND pumpType = :pumpType AND pumpSerial = :pumpSerial AND referenceId IS NULL")
     fun findByPumpTempIds(temporaryId: Long, pumpType: InterfaceIDs.PumpType, pumpSerial: String): Bolus?
 
-    @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND type <> :exclude AND referenceId IS NULL ORDER BY timestamp DESC LIMIT 1")
-    fun getLastBolusRecord(exclude: Bolus.Type = Bolus.Type.PRIMING): Bolus?
+    @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND type <> :exclude and type <>:tbr AND referenceId IS NULL ORDER BY timestamp DESC LIMIT 1")
+    fun getLastBolusRecord(exclude: Bolus.Type = Bolus.Type.PRIMING,tbr: Bolus.Type = Bolus.Type.TBR): Bolus?
 
     @Query("SELECT * FROM $TABLE_BOLUSES WHERE isValid = 1 AND type <> :exclude AND referenceId IS NULL ORDER BY timestamp DESC LIMIT 1")
     fun getLastBolusRecordMaybe(exclude: Bolus.Type = Bolus.Type.PRIMING): Maybe<Bolus>

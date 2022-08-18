@@ -43,7 +43,6 @@ import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.extensions.valueToUnitsString
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.UserEntryLogger
-import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalResultUAM
 import info.nightscout.androidaps.plugins.aps.loop.events.EventNewOpenLoopNotification
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.androidaps.plugins.bus.RxBus
@@ -88,14 +87,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
-import info.nightscout.androidaps.data.IobTotal
-import info.nightscout.androidaps.data.MealData
-import info.nightscout.androidaps.database.entities.Bolus
-import info.nightscout.androidaps.utils.*
-import info.nightscout.androidaps.utils.stats.TirCalculator
-import info.nightscout.androidaps.utils.T
-
-
 
 class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickListener {
 
@@ -139,7 +130,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
 
 
     private val disposable = CompositeDisposable()
-    public val millsToThePast = T.hours(4).msecs()
     private var smallWidth = false
     private var smallHeight = false
     private lateinit var dm: DisplayMetrics
@@ -151,10 +141,8 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     private val secondaryGraphsLabel = ArrayList<TextView>()
 
     private var carbAnimation: AnimationDrawable? = null
-    private var insulinAnimation: AnimationDrawable? = null
 
     private var _binding: OverviewFragmentBinding? = null
-    private var lastBolusNormalTime: Long = 0
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -196,10 +184,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
         carbAnimation = binding.infoLayout.carbsIcon.background as AnimationDrawable?
         carbAnimation?.setEnterFadeDuration(1200)
         carbAnimation?.setExitFadeDuration(1200)
-        // insulinAnimation = binding.infoLayout.overviewInsulinIcon.background as AnimationDrawable?
-        // insulinAnimation?.setEnterFadeDuration(1200)
-        // insulinAnimation?.setExitFadeDuration(1200)
-
 
         binding.graphsLayout.bgGraph.setOnLongClickListener {
             overviewData.rangeToDisplay += 6
@@ -470,7 +454,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
             }
         }
     }
-    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
 
     override fun onLongClick(v: View): Boolean {
         when (v.id) {
@@ -706,7 +689,7 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
                 }
                 // Show variable sensitivity
                 val request = loop.lastRun?.request
-                if (request is DetermineBasalResultUAM) {
+                if (request is DetermineBasalResultSMB) {
                     val isfMgdl = profile?.getIsfMgdl()
                     val variableSens = request.variableSens
                     if (variableSens != isfMgdl && variableSens != null && isfMgdl != null) {
@@ -941,7 +924,6 @@ class OverviewFragment : DaggerFragment(), View.OnClickListener, OnLongClickList
     }
 
     fun updateIobCob() {
-        //TODO validate statusLightsLayout
         val iobText = overviewData.iobText(iobCobCalculator)
         val iobDialogText = overviewData.iobDialogText(iobCobCalculator)
         val displayText = overviewData.cobInfo(iobCobCalculator).displayText(rh, dateUtil, buildHelper.isEngineeringMode())

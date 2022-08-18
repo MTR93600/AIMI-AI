@@ -5,7 +5,7 @@ import info.nightscout.androidaps.database.embedments.InterfaceIDs
 import info.nightscout.androidaps.database.entities.UserEntry.Sources
 import info.nightscout.androidaps.plugins.common.ManufacturerType
 import info.nightscout.androidaps.utils.Round
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import kotlin.math.min
 
 @Suppress("unused")
@@ -57,7 +57,8 @@ enum class PumpType {
         baseBasalStep = 0.01,
         baseBasalSpecialSteps = DoseStepSize.ComboBasal,
         pumpCapability = PumpCapability.ComboCapabilities,
-        source = Sources.Combo
+        source = Sources.Combo,
+        supportBatteryLevel = false
     ),
     ACCU_CHEK_SPIRIT(
         description = "Accu-Chek Spirit",
@@ -207,6 +208,9 @@ enum class PumpType {
         baseBasalSpecialSteps = null,
         pumpCapability = PumpCapability.OmnipodCapabilities,
         hasCustomUnreachableAlertCheck = true,
+        isPatchPump = true,
+        useHardwareLink = true,
+        supportBatteryLevel = false,
         source = Sources.OmnipodEros
     ),
     OMNIPOD_DASH(
@@ -223,8 +227,10 @@ enum class PumpType {
         baseBasalMaxValue = null,
         baseBasalStep = 0.05,
         baseBasalSpecialSteps = null,
+        isPatchPump = true,
         pumpCapability = PumpCapability.OmnipodCapabilities,
-        hasCustomUnreachableAlertCheck = false
+        hasCustomUnreachableAlertCheck = false,
+        supportBatteryLevel = false
     ),
     MEDTRONIC_512_712(
         description = "Medtronic 512/712",
@@ -323,6 +329,7 @@ enum class PumpType {
     MDI(
         description = "MDI",
         manufacturer = ManufacturerType.AndroidAPS,
+        bolusSize = 0.5,
         model = "MDI",
         tbrSettings = DoseSettings(1.0, 15, 24 * 60, 0.0, 500.0),
         extendedBolusSettings = DoseSettings(0.1, 15, 12 * 60, 0.1),
@@ -340,6 +347,13 @@ enum class PumpType {
         source = Sources.MDI
     ),
 
+    // Not real, cached value
+    CACHE(
+        description = "CACHE",
+        model = "CACHE",
+        parent = USER
+    ),
+
     //Diaconn Pump
     DIACONN_G8(
         description = "Diaconn G8",
@@ -355,8 +369,9 @@ enum class PumpType {
         baseBasalMaxValue = 3.0,
         baseBasalStep = 0.01,
         baseBasalSpecialSteps = null,
-        pumpCapability = PumpCapability.DanaWithHistoryCapabilities,
-        source = Sources.DiaconnG8
+        pumpCapability = PumpCapability.DiaconnCapabilities,
+        source = Sources.DiaconnG8,
+        useHardwareLink = true
     ),
 
     MEDLINK_MEDTRONIC_523_723_REVEL(
@@ -434,6 +449,12 @@ enum class PumpType {
         private set
     var hasCustomUnreachableAlertCheck = false
         private set
+    var isPatchPump = false
+        private set
+    var supportBatteryLevel = true
+        private set
+    var useHardwareLink = false
+        private set
     private var parent: PumpType? = null
     val source: Sources
 
@@ -476,7 +497,7 @@ enum class PumpType {
                 InterfaceIDs.PumpType.USER                        -> USER
                 InterfaceIDs.PumpType.DIACONN_G8                  -> DIACONN_G8
                 InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO       -> MEDLINK_MEDTRONIC_554_754_VEO
-
+                InterfaceIDs.PumpType.CACHE                       -> TODO()
             }
     }
 
@@ -504,6 +525,9 @@ enum class PumpType {
         baseBasalSpecialSteps: DoseStepSize? = null,
         pumpCapability: PumpCapability,
         hasCustomUnreachableAlertCheck: Boolean = false,
+        isPatchPump: Boolean = false,
+        supportBatteryLevel: Boolean = true,
+        useHardwareLink: Boolean = false,
         source: Sources = Sources.VirtualPump
     ) {
         this.description = description
@@ -521,6 +545,9 @@ enum class PumpType {
         this.baseBasalSpecialSteps = baseBasalSpecialSteps
         this.pumpCapability = pumpCapability
         this.hasCustomUnreachableAlertCheck = hasCustomUnreachableAlertCheck
+        this.isPatchPump = isPatchPump
+        this.supportBatteryLevel = supportBatteryLevel
+        this.useHardwareLink = useHardwareLink
         this.source = source
     }
 
@@ -601,6 +628,7 @@ enum class PumpType {
             MDI                       -> InterfaceIDs.PumpType.MDI
             USER                      -> InterfaceIDs.PumpType.USER
             DIACONN_G8                -> InterfaceIDs.PumpType.DIACONN_G8
+            CACHE                     -> InterfaceIDs.PumpType.CACHE
             MEDLINK_MEDTRONIC_523_723_REVEL -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
             MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO
         }

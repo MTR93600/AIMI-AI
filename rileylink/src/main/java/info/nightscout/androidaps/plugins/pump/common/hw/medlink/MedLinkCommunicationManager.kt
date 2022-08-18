@@ -237,7 +237,7 @@ abstract class MedLinkCommunicationManager(val injector: HasAndroidInjector, rfs
 //        } else {
 //            aapsLogger.error(LTag.PUMPCOMM, "No pump response during scan.");
         //Hardcoded frequency because medlink doesn't support frequency change
-        return RileyLinkTargetFrequency.Medtronic_US.scanFrequencies[1]
+        return RileyLinkTargetFrequency.MedtronicUS.scanFrequencies[1]
         //        }
     }
 

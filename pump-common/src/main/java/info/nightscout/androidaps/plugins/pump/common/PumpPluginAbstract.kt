@@ -243,7 +243,7 @@ abstract class PumpPluginAbstract protected constructor(
         val status = JSONObject()
         val extended = JSONObject()
         try {
-            battery.put("percent", pumpStatusData.batteryLevel)
+            battery.put("percent", pumpStatusData.batteryRemaining)
             status.put("status", pumpStatusData.pumpRunningState.status)
             extended.put("Version", version)
             try {
@@ -266,7 +266,7 @@ abstract class PumpPluginAbstract protected constructor(
             pump.put("battery", battery)
             pump.put("status", status)
             pump.put("extended", extended)
-            pump.put("reservoir", pumpStatusData.reservoirLevel)
+            pump.put("reservoir", pumpStatusData.reservoirRemainingUnits)
             pump.put("clock", dateUtil.toISOString(dateUtil.now()))
         } catch (e: JSONException) {
             aapsLogger.error("Unhandled exception", e)
@@ -306,18 +306,18 @@ abstract class PumpPluginAbstract protected constructor(
             
             """.trimIndent()
         ret += """
-            Reserv: ${to0Decimal(pumpStatusData.reservoirLevel)}U
+            Reserv: ${to0Decimal(pumpStatusData.reservoirRemainingUnits)}U
             
             """.trimIndent()
         ret += """
-            Batt: ${pumpStatusData.batteryLevel}
+            Batt: ${pumpStatusData.batteryRemaining}
             
             """.trimIndent()
         pumpSync.expectedPumpState().temporaryBasal?.let { ret += "Temp: ${it.toStringFull(dateUtil)}\n" }
         pumpSync.expectedPumpState().extendedBolus?.let { ret += "Extended: ${it.toStringFull(dateUtil)}\n" }
         ret += "IOB: ${pumpStatusData.iob}U\n"
-        ret += "Reserv: ${to0Decimal(pumpStatusData.reservoirLevel)}U\n"
-        ret += "Batt: ${pumpStatusData.batteryLevel}\n"
+        ret += "Reserv: ${to0Decimal(pumpStatusData.reservoirRemainingUnits)}U\n"
+        ret += "Batt: ${pumpStatusData.batteryRemaining}\n"
         return ret
     }
 

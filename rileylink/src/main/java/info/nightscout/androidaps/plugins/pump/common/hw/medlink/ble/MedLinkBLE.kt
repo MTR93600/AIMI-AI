@@ -16,7 +16,6 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.Bolu
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleConnectCommand
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.BolusMedLinkMessage
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.CommandStructure
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.GattAttributes
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data.MedLinkPumpMessage
@@ -37,7 +36,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.function.Function
-import java.util.function.Predicate
 import java.util.function.Supplier
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -114,10 +112,13 @@ class MedLinkBLE //extends RileyLinkBLE
 
     fun <B> reExecuteCommand(currentCommand: CommandExecutor<B>) {
         if (!hasCommandsToExecute()) {
+            val list = currentCommand.commandList.map { it.commandPriority =
+                CommandPriority.HIGH
+            it}.toMutableList()
             addWriteCharacteristic<B, Any>(
                 UUID.fromString(GattAttributes.SERVICE_UUID),
                 UUID.fromString(GattAttributes.GATT_UUID),
-                currentCommand.commandList, CommandPriority.HIGH
+            list
             )
         } else {
             currentCommand.clearExecutedCommand()
@@ -154,9 +155,6 @@ class MedLinkBLE //extends RileyLinkBLE
         isCommandConfirmed = commandConfirmed
     }
 
-    enum class CommandPriority {
-        LOWER, NORMAL, HIGH
-    }
 
     private enum class ConnectionStatus {
         CLOSED, CLOSING, CONNECTED, CONNECTING,  //        DISCONNECTED,
@@ -369,19 +367,13 @@ class MedLinkBLE //extends RileyLinkBLE
 
     private fun <B, C> addWriteCharacteristic(
         serviceUUID: UUID, charaUUID: UUID,
-        command: MutableList<CommandStructure<B, BleCommand>>,
-        commandPriority: CommandPriority,
+        command: MutableList<CommandStructure<B, BleCommand>>
     ) {
 //        this.latestReceivedCommand = System.currentTimeMillis();
         aapsLogger.info(LTag.PUMPBTCOMM, "commands")
         command[0].command.code?.let { aapsLogger.info(LTag.PUMPBTCOMM, it) }
-        //        Esta verificação não é mais necessário já que daqui pra frente a gente não usa mais estes comandos, talvez fazer ela em outro lugar, mas ao adicionar comandos não precisa
-//        if (bluetoothConnectionGatt != null) {
-//            rval.value = command.getCommandData();
-//            aapsLogger.info(LTag.PUMPBTCOMM, bluetoothConnectionGatt.getDevice().toString());
         if (mCurrentOperation != null) {
             aapsLogger.info(LTag.PUMPBTCOMM, "busy for the command " + command[0].command.code)
-            //                rval.resultCode = BLECommOperationResult.RESULT_BUSY;
         } else {
 
             if (isBolus(command[0].command) ||
@@ -392,7 +384,7 @@ class MedLinkBLE //extends RileyLinkBLE
                 var commandExecutor: CommandExecutor<B>
                 synchronized(commandQueueBusy!!) { commandExecutor = buildCommandExecutor(charaUUID, serviceUUID, command) }
                 aapsLogger.info(LTag.PUMPBTCOMM, "adding command" + command[0].command.code)
-                if (commandPriority == CommandPriority.HIGH) {
+                if (command[0].commandPriority == CommandPriority.HIGH) {
                     if (command[0].command == MedLinkCommandType.Connect && !isConnected) {
                         priorityExecutionCommandQueue.addFirst(commandExecutor)
                     } else if (command[0].command != MedLinkCommandType.Connect && !priorityExecutionCommandQueue.contains(commandExecutor)) {
@@ -402,7 +394,7 @@ class MedLinkBLE //extends RileyLinkBLE
                             priorityExecutionCommandQueue.add(commandExecutor)
                         }
                     }
-                } else if (commandPriority == CommandPriority.NORMAL && (!executionCommandQueue.contains(commandExecutor) || commandExecutor is ContinuousCommandExecutor<*>)) {
+                } else if (command[0].commandPriority == CommandPriority.NORMAL && (!executionCommandQueue.contains(commandExecutor) || commandExecutor is ContinuousCommandExecutor<*>)) {
                     executionCommandQueue.add(commandExecutor)
                 } else if (!lowPriorityExecutionCommandQueue.contains(commandExecutor)) {
                     lowPriorityExecutionCommandQueue.add(commandExecutor)
@@ -436,6 +428,9 @@ class MedLinkBLE //extends RileyLinkBLE
         return if (MedLinkCommandType.BolusStatus.isSameCommand(commands[0].command) && commands[0].commandHandler.isPresent && commands[0].parseFunction.get() is BolusProgressCallback) {
             object : ContinuousCommandExecutor<B>(commands, aapsLogger) {
                 override fun run() {
+                    if(this.nextCommand() == MedLinkCommandType.NoCommand){
+                        return
+                    }
                     isCommandConfirmed = false
                     val lastReceived = lastReceivedCharacteristic
                     lastExecutedCommand = System.currentTimeMillis()
@@ -629,11 +624,12 @@ class MedLinkBLE //extends RileyLinkBLE
 
     private fun <B, C> addCommands(serviceUUID: UUID, charaUUID: UUID, msg: MedLinkPumpMessage<B, C>) {
         synchronized(commandsToAdd) {
-            val command = CommandsToAdd(serviceUUID, charaUUID, msg)
+            // val command = CommandsToAdd(serviceUUID, charaUUID, msg)
             //            addCommand(command);
-            addWriteCharacteristic<B, C>(serviceUUID, charaUUID, msg.commands, CommandPriority.NORMAL)
+
+            addWriteCharacteristic<B, C>(serviceUUID, charaUUID, msg.commands)
             if (msg.supplementalCommands.isNotEmpty()) {
-                addWriteCharacteristic<C, C>(serviceUUID, charaUUID, msg.supplementalCommands, CommandPriority.NORMAL)
+                addWriteCharacteristic<C, C>(serviceUUID, charaUUID, msg.supplementalCommands)
             }
             handleBolusCommand(msg, serviceUUID, charaUUID)
             handleCalibrateCommand(msg, serviceUUID, charaUUID)
@@ -652,12 +648,12 @@ class MedLinkBLE //extends RileyLinkBLE
     private fun <B, C> handleCalibrateCommand(msg: MedLinkPumpMessage<B, C>, serviceUUID: UUID, charaUUID: UUID) {
         if (msg.contains(MedLinkCommandType.Calibrate)) {
             removeStopCommands()
-            if (msg is BolusMedLinkMessage) {
-                val bolusStatus = msg.bolusProgressMessage
-                if (bolusStatus != null) {
-                    addWriteCharacteristic<String, Any>(serviceUUID, charaUUID, bolusStatus.commands, CommandPriority.NORMAL)
-                }
-            }
+            // if (msg is BolusMedLinkMessage) {
+            //     val bolusStatus = msg.bolusProgressMessage
+            //     if (bolusStatus != null) {
+            //         addWriteCharacteristic<String, Any>(serviceUUID, charaUUID, bolusStatus.commands, CommandPriority.NORMAL)
+            //     }
+            // }
         }
     }
 
@@ -734,9 +730,9 @@ class MedLinkBLE //extends RileyLinkBLE
                 CommandStructure(
                     MedLinkCommandType.Connect, Optional.empty<Function<Supplier<Stream<String>>, MedLinkStandardReturn<Any>>>(), Optional
                         .of(BleConnectCommand(aapsLogger, medLinkServiceData!!, null))
-                )
-            ),
-            CommandPriority.HIGH
+                    ,
+                    commandPriority = CommandPriority.HIGH)
+            )
         )
     }
 
@@ -770,7 +766,7 @@ class MedLinkBLE //extends RileyLinkBLE
         } else if (connectionStatus == ConnectionStatus.EXECUTING || connectionStatus == ConnectionStatus.CONNECTED ||
             connectionStatus == ConnectionStatus.CONNECTING &&
             hasCommandsToExecute() && priorityExecutionCommandQueue.peekFirst() != null &&
-            priorityExecutionCommandQueue?.peekFirst()?.nextCommand() == MedLinkCommandType.Notification
+            priorityExecutionCommandQueue.peekFirst()?.nextCommand() == MedLinkCommandType.Notification
         ) {
             aapsLogger.info(LTag.PUMPBTCOMM, "nextcommand")
             nextCommand()
@@ -1025,6 +1021,7 @@ class MedLinkBLE //extends RileyLinkBLE
     fun disconnect() {
         changeConnectionStatus(ConnectionStatus.DISCONNECTING)
         servicesDiscovered = false
+        pumpResponse = StringBuffer()
         aapsLogger.warn(LTag.PUMPBTCOMM, "Closing GATT connection")
         // Close old connection
         if (bluetoothConnectionGatt != null) {
@@ -1164,7 +1161,7 @@ class MedLinkBLE //extends RileyLinkBLE
     }
 
     private val nextCommand: CommandExecutor<*>?
-        private get() {
+        get() {
             if (!hasCommandsToExecute()) {
                 return null
             } else if (!priorityExecutionCommandQueue.isEmpty()) {
@@ -1222,7 +1219,7 @@ class MedLinkBLE //extends RileyLinkBLE
 //        }
     }
 
-    fun needToAddConnectCommand(): Boolean {
+    private fun needToAddConnectCommand(): Boolean {
         aapsLogger.info(LTag.PUMPBTCOMM, "" + commandsToAdd.size)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + executionCommandQueue.size)
         return (lastConnection == 0L && !hasCommandsToExecute() //                connectionStatus != ConnectionStatus.DISCOVERING &&
@@ -1311,7 +1308,7 @@ class MedLinkBLE //extends RileyLinkBLE
         val buf = StringBuilder("Print buffer")
         buf.append("\n")
         val it: MutableIterator<CommandExecutor<*>?> = allCommands.map { f: CommandExecutor<*> -> return@map f }.filter(
-            Predicate { obj: CommandExecutor<*>? -> Objects.nonNull(obj) }).iterator()
+            { obj: CommandExecutor<*>? -> Objects.nonNull(obj) }).iterator()
         while (it.hasNext()) {
             buf.append(it.next().toString())
             buf.append("\n")
@@ -1319,7 +1316,7 @@ class MedLinkBLE //extends RileyLinkBLE
         aapsLogger.info(LTag.PUMPBTCOMM, "commands to add")
         val it1: Iterator<CommandsToAdd> = commandsToAdd.iterator()
         while (it1.hasNext()) {
-            buf.append(it1.next().command!!.commands[0].command.code)
+            buf.append(it1.next().command.commands[0].command.code)
             buf.append("\n")
         }
         aapsLogger.info(LTag.PUMPBTCOMM, buf.toString())
@@ -1374,6 +1371,14 @@ class MedLinkBLE //extends RileyLinkBLE
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
                 val answer = String(characteristic.value).lowercase()
+                if(lastCharacteristic == answer && answer.isNotEmpty()){
+                    aapsLogger.info(LTag.PUMPBTCOMM,"closing")
+                    aapsLogger.info(LTag.PUMPBTCOMM,answer)
+
+                    close(true)
+                    return
+                }
+
                 lastReceivedCharacteristic = System.currentTimeMillis()
                 removeNotificationCommand()
                 aapsLogger.info(LTag.PUMPBTCOMM, answer)
@@ -1453,7 +1458,7 @@ class MedLinkBLE //extends RileyLinkBLE
 //                    aapsLogger.info(LTag.PUMPBTCOMM, answer);
 //                    aapsLogger.info(LTag.PUMPBTCOMM, "" + answer.contains("\n"));
                     lastCharacteristic = answer
-                    radioResponseCountNotified?.run()
+                    radioResponseCountNotified.run()
                 }
             }
 
@@ -1618,28 +1623,7 @@ class MedLinkBLE //extends RileyLinkBLE
                             notifyingCharacteristics.remove(parentCharacteristic)
                         }
                     }
-                    val lastCommand = lastExecutedCommand
-                    val lastConf = lastConfirmedCommand
-                    val currentTime = System.currentTimeMillis()
-                    //                    bleHandler.post(
-//                    new Thread() {
-//                        @Override public void run() {
-//                            aapsLogger.info(LTag.PUMPBTCOMM, "retrying");
-//                            long currentSleep = System.currentTimeMillis() - currentTime;
-//                            aapsLogger.info(LTag.PUMPBTCOMM, "currentSleep "+currentSleep);
-//                            if (currentSleep < 6000L) {
-//                                SystemClock.sleep(6000L - currentSleep);
-//                            }
-//                            if (nrTries <= MAX_TRIES && lastExecutedCommand == lastCommand && lastConf == lastConfirmedCommand) {
-//                                nrTries++;
-//                                nextCommand();
-//                            } else if (nrTries >= MAX_TRIES) {
-//                                close();
-//                            }
-//                        }
-//                    }.start();
-//                });
-//                    trd.start();
+
                     aapsLogger.info(LTag.PUMPBTCOMM, "descriptor written " + descriptor.uuid)
                     //                    SystemClock.sleep(6000);
                     aapsLogger.info(LTag.PUMPBTCOMM, "descriptor written " + descriptor.uuid)
@@ -1703,7 +1687,7 @@ class MedLinkBLE //extends RileyLinkBLE
                             medLinkFound + " " + gatt.device.name + " " +
                             gatt.device.address
                     )
-                    if (medLinkFound && batteryLevel != null && firmwareVersion != null) {
+                    if (medLinkFound) {
                         mIsConnected = true
                         val message = Intent()
                         message.action = MedLinkConst.Intents.MedLinkReady

@@ -20,3 +20,6 @@ app/.classpath
 app/.settings/org.eclipse.buildship.core.prefs
 wear/.classpath
 wear/.settings/org.eclipse.buildship.core.prefs
+app/nsclient/*
+app/nsclient2/*
+app/pumpcontrol/*

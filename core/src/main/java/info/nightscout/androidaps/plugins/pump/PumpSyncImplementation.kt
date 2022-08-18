@@ -22,6 +22,7 @@ import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.*
 import javax.inject.Inject
 
 class PumpSyncImplementation @Inject constructor(
@@ -84,6 +85,12 @@ class PumpSyncImplementation @Inject constructor(
         return false
     }
 
+    fun lastGlucoseValue(): Optional<GlucoseValue> {
+        val glucoseValue = repository.getLastGlucoseValueWrapped().blockingGet()
+        return if(glucoseValue is ValueWrapper.Existing){
+            Optional.of(glucoseValue.value)
+        } else Optional.empty<GlucoseValue>()
+    }
     override fun expectedPumpState(): PumpSync.PumpState {
         val bolus = repository.getLastBolusRecordWrapped().blockingGet()
         val temporaryBasal = repository.getTemporaryBasalActiveAt(dateUtil.now()).blockingGet()

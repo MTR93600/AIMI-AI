@@ -7,6 +7,7 @@ import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.PumpSync
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil
@@ -16,22 +17,13 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpH
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BolusWizardDTO
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalProcessDTO
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
-import info.nightscout.androidaps.plugins.pump.medtronic.util.MedLinkMedtronicUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
 import org.apache.commons.lang3.StringUtils
-import org.joda.time.LocalDateTime
-import org.joda.time.Minutes
-import org.json.JSONException
-import org.json.JSONObject
-import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,17 +39,17 @@ import javax.inject.Singleton
 // All things marked with "TODO: Fix db code" needs to be updated in new 2.5 database code
 @Singleton
 class MedLinkMedtronicHistoryData @Inject constructor(
-    override val injector: HasAndroidInjector,
-    override val aapsLogger: AAPSLogger,
-    override val sp: SP,
-    override val rh: ResourceHelper,
-    override val rxBus: RxBus,
-    override val activePlugin: ActivePlugin,
-    override val medtronicUtil: MedtronicUtil,
-    override val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
-    override val medtronicPumpStatus: MedtronicPumpStatus,
-    override val pumpSync: PumpSync,
-    override val pumpSyncStorage: info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+    injector: HasAndroidInjector,
+    aapsLogger: AAPSLogger,
+    sp: SP,
+    rh: ResourceHelper,
+    rxBus: RxBus,
+    activePlugin: ActivePlugin,
+    medtronicUtil: MedtronicUtil,
+    medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
+    medtronicPumpStatus: MedtronicPumpStatus,
+    pumpSync: PumpSync,
+    pumpSyncStorage: info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
 ): MedtronicHistoryData(injector, aapsLogger, sp, rh, rxBus, activePlugin, medtronicUtil, medtronicPumpHistoryDecoder, medtronicPumpStatus, pumpSync, pumpSyncStorage) {
 
     private var newHistory: MutableList<PumpHistoryEntry> = ArrayList<PumpHistoryEntry>()
@@ -1147,7 +1139,7 @@ class MedLinkMedtronicHistoryData @Inject constructor(
 
         // aapsLogger.debug(LTag.PUMP, "InList: " + inList.size());
         val outList: MutableList<PumpHistoryEntry> = ArrayList<PumpHistoryEntry>()
-        if (inList != null && inList.size > 0) {
+        if (inList != null && inList.isNotEmpty()) {
             for (pumpHistoryEntry in inList) {
                 if (!isEmpty(*entryTypes)) {
                     for (pumpHistoryEntryType in entryTypes) {

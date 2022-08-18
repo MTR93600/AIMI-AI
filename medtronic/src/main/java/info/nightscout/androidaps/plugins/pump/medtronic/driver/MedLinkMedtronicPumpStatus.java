@@ -22,7 +22,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.BasalProfileStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BatteryType;
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType;
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst;
-import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.androidaps.interfaces.ResourceHelper;
 import info.nightscout.shared.sharedPreferences.SP;
 
 
@@ -80,9 +80,9 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     public void initSettings() {
 
         this.setActiveProfileName("STD");
-        this.setReservoirLevel(75d);
+        this.setReservoirRemainingUnits(75d);
         this.setReservoirFullUnits(300);
-        this.setBatteryLevel(75);
+        this.setBatteryRemaining(75);
 
         if (this.medtronicPumpMap == null)
             createMedtronicPumpMap();

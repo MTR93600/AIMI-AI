@@ -5,7 +5,7 @@ import org.joda.time.LocalDateTime;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
-import info.nightscout.androidaps.utils.resources.ResourceHelper;
+import info.nightscout.androidaps.interfaces.ResourceHelper;
 
 /**
  * Created by Dirceu on 25/09/20
@@ -13,7 +13,7 @@ import info.nightscout.androidaps.utils.resources.ResourceHelper;
  */
 public class MLHistoryItemMedtronic extends MLHistoryItem {
 
-    private MedLinkCommandType medtronicCommandType;
+    private final MedLinkCommandType medtronicCommandType;
 
     public MLHistoryItemMedtronic(MedLinkCommandType medtronicCommandType) {
         super(new LocalDateTime(), MLHistoryItemSource.MedtronicCommand, RileyLinkTargetDevice.MedtronicPump);
@@ -37,7 +37,4 @@ public class MLHistoryItemMedtronic extends MLHistoryItem {
                 return "Unknown Description";
         }
     }
-
-
-
 }

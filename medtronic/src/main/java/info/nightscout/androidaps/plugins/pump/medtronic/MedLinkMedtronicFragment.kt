@@ -326,19 +326,19 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             ?: ""
 
         // battery
-        if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
-            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryLevel / 25}} "
+        if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == 0.0) {
+            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} "
             // } else if (medtronicPumpStatus.batteryType == BatteryType.LiPo) {
             //     medtronic_pumpstate_battery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + String.format(" %.2f V", medtronicPumpStatus.batteryVoltage)
         } else {
-            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryLevel / 25}} ${String.format("%.2f V", medtronicPumpStatus.batteryVoltage)}"
+            binding.medtronicPumpstateBattery.text = "{fa-battery-${medtronicPumpStatus.batteryRemaining / 25}} ${String.format("%.2f V", medtronicPumpStatus.batteryVoltage)}"
         }
-        warnColors.setColorInverse(binding.medtronicPumpstateBattery, medtronicPumpStatus.batteryLevel.toDouble(), 25.0, 10.0)
+        warnColors.setColorInverse(binding.medtronicPumpstateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
 
         // reservoir
-        val reservoirValue = if(medtronicPumpStatus.reservoirLevel<10) R.string.lowreservoirvalue else R.string.reservoirvalue
-        binding.medtronicReservoir.text = rh.gs(reservoirValue, medtronicPumpStatus.reservoirLevel, medtronicPumpStatus.reservoirFullUnits)
-        warnColors.setColorInverse(binding.medtronicReservoir, medtronicPumpStatus.reservoirLevel, 50.0, 20.0)
+        val reservoirValue = if(medtronicPumpStatus.reservoirRemainingUnits<10) R.string.lowreservoirvalue else R.string.reservoirvalue
+        binding.medtronicReservoir.text = rh.gs(reservoirValue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)
+        warnColors.setColorInverse(binding.medtronicReservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0)
 
         medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration()
         binding.medtronicErrors.text = medtronicPumpStatus.errorInfo
@@ -368,7 +368,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         //DeviceBattery
-        val deviceBatteryRemaining = medtronicPumpStatus.batteryLevel
+        val deviceBatteryRemaining = medtronicPumpStatus.batteryRemaining
         val deviceBatteryVoltage = medtronicPumpStatus.deviceBatteryVoltage
         aapsLogger.info(LTag.EVENTS, "device battery$deviceBatteryRemaining $deviceBatteryVoltage")
 

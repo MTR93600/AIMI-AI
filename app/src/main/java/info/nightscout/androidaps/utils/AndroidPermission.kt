@@ -2,7 +2,6 @@ package info.nightscout.androidaps.utils
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.bluetooth.BluetoothAdapter
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -24,7 +23,7 @@ import info.nightscout.androidaps.plugins.general.overview.notifications.Notific
 import info.nightscout.androidaps.plugins.general.overview.notifications.NotificationWithAction
 import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin
 import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -95,13 +94,14 @@ class AndroidPermission @Inject constructor(
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Synchronized
     fun notifyForBtConnectPermission(activity: FragmentActivity) {
-        if (Build.VERSION.SDK_INT >= /*Build.VERSION_CODES.S*/31) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             //  Manifest.permission.BLUETOOTH_CONNECT
-            if (permissionNotGranted(activity, "android.permission.BLUETOOTH_CONNECT") || permissionNotGranted(activity, "android.permission.BLUETOOTH_SCAN")) {
+            if (permissionNotGranted(activity, Manifest.permission.BLUETOOTH_CONNECT) || permissionNotGranted(activity, Manifest.permission.BLUETOOTH_SCAN)) {
                 val notification = NotificationWithAction(injector, Notification.PERMISSION_BT, rh.gs(R.string.needconnectpermission), Notification.URGENT)
-                notification.action(R.string.request) { askForPermission(activity, arrayOf("android.permission.BLUETOOTH_SCAN", "android.permission.BLUETOOTH_CONNECT")) }
+                notification.action(R.string.request) { askForPermission(activity, arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)) }
                 rxBus.send(EventNewNotification(notification))
             } else {
                 activity.startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
@@ -113,7 +113,7 @@ class AndroidPermission @Inject constructor(
     @Synchronized
     fun notifyForBatteryOptimizationPermission(activity: FragmentActivity) {
         if (permissionNotGranted(activity, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)) {
-            val notification = NotificationWithAction(injector, Notification.PERMISSION_BATTERY, String.format(rh.gs(R.string.needwhitelisting), rh.gs(R.string.app_name)), Notification.URGENT)
+            val notification = NotificationWithAction(injector, Notification.PERMISSION_BATTERY, rh.gs(R.string.needwhitelisting, rh.gs(R.string.app_name)), Notification.URGENT)
             notification.action(R.string.request) { askForPermission(activity, arrayOf(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)) }
             rxBus.send(EventNewNotification(notification))
         } else rxBus.send(EventDismissNotification(Notification.PERMISSION_BATTERY))

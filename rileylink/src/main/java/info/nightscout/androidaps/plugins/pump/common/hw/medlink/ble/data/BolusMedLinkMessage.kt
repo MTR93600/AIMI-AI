@@ -15,7 +15,7 @@ class BolusMedLinkMessage(
     command: MedLinkCommandType,
     bolusArgument: MedLinkCommandType,
     bolusCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<String>>,
-    val bolusProgressMessage: MedLinkPumpMessage<String, Any>?,
+    bolusProgressMessage: MedLinkPumpMessage<String, Any>?,
     btSleepTime: Long,
     bleBolusCommand: BleBolusCommand,
     shouldBeSuspended: Boolean,

@@ -5,6 +5,7 @@ import info.nightscout.androidaps.plugins.pump.common.data.MedLinkPartialBolus
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.BolusProgressCallback
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser
 import info.nightscout.shared.logging.AAPSLogger
@@ -34,7 +35,7 @@ class BleBolusStatusCommand(
                 val onHoldCommand = bleComm.onHoldCommandQueue.first
                 val firstCommand = onHoldCommand.commandList.first()
                 aapsLogger.info(LTag.PUMPBTCOMM,"onholdcheck")
-                if(bleComm.isBolus(firstCommand.command) && firstCommand.parseFunction.isPresent &&
+                if(firstCommand.command.isSameCommand(MedLinkCommandType.BolusStatus) && firstCommand.parseFunction.isPresent &&
                     firstCommand.parseFunction.get() is BolusProgressCallback){
                     aapsLogger.info(LTag.PUMPBTCOMM,"bolusOnHold")
                     val callback: BolusProgressCallback= firstCommand.parseFunction.get() as BolusProgressCallback

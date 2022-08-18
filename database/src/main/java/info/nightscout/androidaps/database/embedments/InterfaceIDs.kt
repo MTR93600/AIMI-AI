@@ -43,6 +43,7 @@ data class InterfaceIDs(
         MDI,
         DIACONN_G8,
         USER,
+        CACHE,
         MEDLINK_MEDTRONIC_554_754_VEO;
 
         companion object {

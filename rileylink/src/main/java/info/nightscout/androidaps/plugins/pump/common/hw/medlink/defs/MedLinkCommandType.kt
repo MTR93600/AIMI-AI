@@ -20,8 +20,8 @@ enum class MedLinkCommandType @JvmOverloads constructor(command: String, needAct
     StopStartPump("A"),
     Bolus("X", true),
     BolusAmount("BOLUS", true),
-    StartPump("START"),
-    StopPump("STOP"),
+    StartPump("START",true),
+    StopPump("STOP",true),
     IsigHistory("I"),
     PreviousIsigHistory("J"),
     BGHistory("C"),
@@ -36,7 +36,7 @@ enum class MedLinkCommandType @JvmOverloads constructor(command: String, needAct
     BolusStatus("M"),
     SMBBolus("X", true),
     TBRBolus("X", true),
-    PreviousBolusHistory("G", true);
+    PreviousBolusHistory("G", false);
 
     @JvmField val code: String?
     val needActivePump: Boolean

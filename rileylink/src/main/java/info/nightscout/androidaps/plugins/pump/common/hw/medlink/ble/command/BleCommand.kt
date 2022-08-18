@@ -2,16 +2,15 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command
 
 import android.os.Handler
 import android.os.SystemClock
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.ContinuousCommandExecutor
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandExecutor
-import java.lang.Exception
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.ContinuousCommandExecutor
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.MedLinkBLE
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
@@ -196,7 +195,7 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
     }
 
     protected fun applyResponse(pumpResp: String, currentCommand: CommandExecutor<*>?, bleComm: MedLinkBLE) {
-        val command = currentCommand!!.getCurrentCommand().getRaw()
+        val command = currentCommand!!.getCurrentCommand()
         aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.toString())
         val function: Function<Supplier<Stream<String>>, out MedLinkStandardReturn<*>?>? = currentCommand.nextFunction()
         bleComm.post {
@@ -205,20 +204,20 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
                 val sup = Supplier { Arrays.stream(pumpResp.split("\n".toRegex()).toTypedArray()) } //.filter(f -> f != "\n");
                 if (function != null) {
                     val lastResult: MedLinkStandardReturn<Stream<String>>? = null
-                    if (Arrays.equals(command, MedLinkCommandType.IsigHistory.getRaw())) {
+                    if (command == MedLinkCommandType.IsigHistory) {
                         aapsLogger.info(LTag.PUMPBTCOMM, "posting isig")
                         val result = function.apply(sup)
                         if (result == null) {
                             bleComm.retryCommand()
                         }
-                    } else if (!Arrays.equals(command, MedLinkCommandType.Connect.getRaw())) {
+                    } else if (command != MedLinkCommandType.Connect) {
                         function.apply(sup)
                     }
-                    aapsLogger.info(LTag.PUMPBTCOMM, String(command))
+                    aapsLogger.info(LTag.PUMPBTCOMM, String(command.getRaw()))
                 } else {
                     aapsLogger.info(LTag.PUMPBTCOMM, "function not called")
                     aapsLogger.info(LTag.PUMPBTCOMM, "" + function)
-                    aapsLogger.info(LTag.PUMPBTCOMM, String(command))
+                    aapsLogger.info(LTag.PUMPBTCOMM, String(command.getRaw()))
                 }
                 //            else if (!this.resultActivity.isEmpty()) {
 //                MedLinkBLE.Resp resp = this.resultActivity.get(0);

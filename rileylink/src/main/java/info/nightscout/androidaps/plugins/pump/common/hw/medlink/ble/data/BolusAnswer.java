@@ -1,8 +1,8 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
+import info.nightscout.androidaps.data.DetailedBolusInfo;
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.PumpResponses;
 
 /**
@@ -12,27 +12,22 @@ public class BolusAnswer {
     private final PumpResponses response;
     private double carbs;
     private double bolusAmount;
-    private ZonedDateTime bolusDeliveryTime;
     private double delivered;
     private  String answer;
+    private DetailedBolusInfo info;
 
     public BolusAnswer(PumpResponses response, double bolusAmount,
-                       ZonedDateTime bolusDeliveryTime, double carbs) {
+                        DetailedBolusInfo info) {
         this.response = response;
         this.bolusAmount = bolusAmount;
-        this.bolusDeliveryTime = bolusDeliveryTime;
-        this.carbs = carbs;
+        this.info = info;
     }
 
-    public BolusAnswer(PumpResponses response, double bolusAmount, ZonedDateTime bolusDeliveryTime) {
-        this.response = response;
-        this.bolusAmount = bolusAmount;
-        this.bolusDeliveryTime = bolusDeliveryTime;
-    }
-    public BolusAnswer(PumpResponses response, String answer, double carbs) {
+
+    public BolusAnswer(PumpResponses response, String answer, DetailedBolusInfo info) {
         this.response = response;
         this.answer = answer;
-        this.carbs = carbs;
+        this.info = info;
     }
 
     public BolusAnswer(PumpResponses response, double delivered, String answer, double carbs) {
@@ -50,20 +45,14 @@ public class BolusAnswer {
         return answer;
     }
 
-    public double getBolusAmount() {
-        return bolusAmount;
-    }
 
-    public ZonedDateTime getBolusDeliveryTime() {
-        return bolusDeliveryTime;
+    public DetailedBolusInfo getDetailedBolusInfo() {
+        return info;
     }
 
     public double getDelivered() {
         return delivered;
     }
 
-    public double getCarbs() {
-        return carbs;
-    }
 
 }

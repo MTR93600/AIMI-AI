@@ -14,7 +14,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificat
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicUIResponseType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import org.joda.time.DateTimeZone
 import org.joda.time.Duration
 import java.util.*
@@ -77,7 +77,7 @@ class MedtronicUIPostprocessor @Inject constructor(
             }
 
             MedtronicCommandType.GetRemainingInsulin -> {
-                medtronicPumpStatus.reservoirLevel = uiTask.result as Double
+                medtronicPumpStatus.reservoirRemainingUnits = uiTask.result as Double
             }
 
             MedtronicCommandType.CancelTBR           -> {
@@ -101,7 +101,7 @@ class MedtronicUIPostprocessor @Inject constructor(
             MedtronicCommandType.GetBatteryStatus    -> {
                 val batteryStatusDTO = uiTask.result as BatteryStatusDTO?
                 if (batteryStatusDTO != null) {
-                    medtronicPumpStatus.batteryLevel = batteryStatusDTO.getCalculatedPercent(medtronicPumpStatus.batteryType)
+                    medtronicPumpStatus.batteryRemaining = batteryStatusDTO.getCalculatedPercent(medtronicPumpStatus.batteryType)
                     if (batteryStatusDTO.voltage != null) {
                         medtronicPumpStatus.batteryVoltage = batteryStatusDTO.voltage
                     }

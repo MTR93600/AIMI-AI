@@ -2,13 +2,12 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.data;
 
 import org.joda.time.LocalDateTime;
 
+import info.nightscout.androidaps.interfaces.ResourceHelper;
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpDeviceState;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkServiceState;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
-import info.nightscout.androidaps.utils.resources.ResourceHelper;
 
 
 
@@ -112,7 +111,7 @@ public class MLHistoryItem implements HistoryItem {
         MedtronicPump("Medtronic"), //
         MedtronicCommand("Medtronic");
 
-        private String desc;
+        private final String desc;
 
 
         MLHistoryItemSource(String desc) {

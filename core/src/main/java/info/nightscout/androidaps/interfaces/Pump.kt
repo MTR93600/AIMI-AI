@@ -108,7 +108,7 @@ interface Pump {
     /**
      * Reservoir level at time of last connection [Units of insulin]
      */
-    val reservoirLevel: Double
+    val reservoirLevel  : Double
 
     /**
      * Battery level at time of last connection [%]
@@ -276,4 +276,9 @@ interface Pump {
      * if true APS set 100% basal before full hour to avoid pump beeping
      */
     fun setNeutralTempAtFullHour(): Boolean = false
+
+    /**
+     * Pumps with a hardware link can set via config "Battery Change Logging"
+     */
+    fun isBatteryChangeLoggingEnabled(): Boolean = false
 }
