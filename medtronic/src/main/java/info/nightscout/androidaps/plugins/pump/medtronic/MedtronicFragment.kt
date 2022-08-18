@@ -326,16 +326,16 @@ class MedtronicFragment : DaggerFragment() {
 
         // battery
         if (medtronicPumpStatus.batteryType == BatteryType.None || medtronicPumpStatus.batteryVoltage == null) {
-            binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryLevel / 25 + "}  "
+            binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  "
         } else {
-            binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryLevel / 25 + "}  " + medtronicPumpStatus.batteryLevel + "%" + String.format("  (%.2f V)", medtronicPumpStatus
+            binding.pumpStateBattery.text = "{fa-battery-" + medtronicPumpStatus.batteryRemaining / 25 + "}  " + medtronicPumpStatus.batteryRemaining + "%" + String.format("  (%.2f V)", medtronicPumpStatus
                 .batteryVoltage)
         }
-        warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryLevel.toDouble(), 25.0, 10.0)
+        warnColors.setColorInverse(binding.pumpStateBattery, medtronicPumpStatus.batteryRemaining.toDouble(), 25.0, 10.0)
 
         // reservoir
-        binding.reservoir.text = rh.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirLevel, medtronicPumpStatus.reservoirFullUnits)
-        warnColors.setColorInverse(binding.reservoir, medtronicPumpStatus.reservoirLevel, 50.0, 20.0)
+        binding.reservoir.text = rh.gs(R.string.reservoirvalue, medtronicPumpStatus.reservoirRemainingUnits, medtronicPumpStatus.reservoirFullUnits)
+        warnColors.setColorInverse(binding.reservoir, medtronicPumpStatus.reservoirRemainingUnits, 50.0, 20.0)
 
         medtronicPumpPlugin.rileyLinkService?.verifyConfiguration()
         binding.errors.text = medtronicPumpStatus.errorInfo

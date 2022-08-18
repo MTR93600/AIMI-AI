@@ -17,7 +17,7 @@ import javax.inject.Inject
  *
  * This class is intended to be run by the Service, for the Service. Not intended for clients to run.
  */
-class InitializePumpManagerTask(injector: HasAndroidInjector, private val context: Context) : ServiceTask(injector) {
+class InitializeMedLinkPumpManagerTask(injector: HasAndroidInjector, private val context: Context) : ServiceTask(injector) {
 
     @Inject
     lateinit var aapsLogger: AAPSLogger

@@ -81,7 +81,7 @@ class PumpSyncStorage @Inject constructor(
     }
 
     fun saveStorageTBR() {
-        if (!pumpSyncStorageTBR.isEmpty()) {
+        if (pumpSyncStorageTBR.isNotEmpty()) {
             sp.putString(pumpSyncStorageTBRKey, xstream.toXML(pumpSyncStorageTBR))
             aapsLogger.debug(LTag.PUMP, "Saving Pump Sync Storage: tbr=${pumpSyncStorageTBR.size}")
         } else {

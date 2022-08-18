@@ -35,8 +35,9 @@ class BGHistoryCallback(
 
     override fun apply(ans: Supplier<Stream<String>>): MedLinkStandardReturn<BgHistory> {
         val state = parseAnswer(ans)
+        aapsLogger.info(LTag.PUMPBTCOMM,"applying history")
         if (handleBG && !isCalibration) {
-            medLinkPumpPlugin.handleNewBgData(state.first)
+            medLinkPumpPlugin.handleNewSensorData(state.first)
         }
         this.history = state.first
         if (isCalibration && state.second) {

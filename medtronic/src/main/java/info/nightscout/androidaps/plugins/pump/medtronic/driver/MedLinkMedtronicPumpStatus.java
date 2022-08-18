@@ -80,9 +80,9 @@ public class MedLinkMedtronicPumpStatus extends info.nightscout.androidaps.plugi
     public void initSettings() {
 
         this.setActiveProfileName("STD");
-        this.setReservoirLevel(75d);
+        this.setReservoirRemainingUnits(75d);
         this.setReservoirFullUnits(300);
-        this.setBatteryLevel(75);
+        this.setBatteryRemaining(75);
 
         if (this.medtronicPumpMap == null)
             createMedtronicPumpMap();

@@ -21,12 +21,12 @@ abstract class PumpStatus(var pumpType: PumpType) {
 
     // other pump settings
     var activeProfileName = "0"
-    var reservoirLevel = 0.0
+    var reservoirRemainingUnits = 0.0
 
     var reservoirFullUnits = 0
-    var batteryLevel = 0 // percent, so 0-100
+    var batteryRemaining = 0 // percent, so 0-100
 
-    var batteryVoltage: Double? = null
+    var batteryVoltage: Double = 0.0
 
     // iob
     var iob: String? = null

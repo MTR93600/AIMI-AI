@@ -19,7 +19,7 @@ import dagger.android.HasAndroidInjector;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
 import info.nightscout.androidaps.interfaces.Pump;
 import info.nightscout.androidaps.plugins.pump.common.MedLinkPumpPluginAbstract;
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask;
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializeMedLinkPumpManagerTask;
 import info.nightscout.shared.logging.AAPSLogger;
 import info.nightscout.shared.logging.LTag;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.MedLinkConst;
@@ -198,7 +198,7 @@ public class MedLinkBroadcastReceiver extends DaggerBroadcastReceiver {
             aapsLogger.debug(LTag.PUMPCOMM, "RfSpy Radio version (CC110): " + rlVersion.name());
             this.medLinkServiceData.versionCC110 = rlVersion.name();
 
-            ServiceTask task = new InitializePumpManagerTask(injector, context);
+            ServiceTask task = new InitializeMedLinkPumpManagerTask(injector, context);
             serviceTaskExecutor.startTask(task);
             aapsLogger.info(LTag.PUMPCOMM, "Announcing MedLink open For business");
 

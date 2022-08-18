@@ -13,7 +13,7 @@ import info.nightscout.androidaps.interfaces.ResourceHelper;
  */
 public class MLHistoryItemMedtronic extends MLHistoryItem {
 
-    private MedLinkCommandType medtronicCommandType;
+    private final MedLinkCommandType medtronicCommandType;
 
     public MLHistoryItemMedtronic(MedLinkCommandType medtronicCommandType) {
         super(new LocalDateTime(), MLHistoryItemSource.MedtronicCommand, RileyLinkTargetDevice.MedtronicPump);
@@ -37,7 +37,4 @@ public class MLHistoryItemMedtronic extends MLHistoryItem {
                 return "Unknown Description";
         }
     }
-
-
-
 }

@@ -13,7 +13,7 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkS
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.dialog.MedLinkStatusHistoryFragment
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkService
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.WakeAndTuneTask
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializePumpManagerTask
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.tasks.InitializeMedLinkPumpManagerTask
 
 @Module
 @Suppress("unused")
@@ -23,7 +23,7 @@ abstract class MedLinkModule {
     @ContributesAndroidInjector abstract fun medLinkBLEProvider(): MedLinkBLE
     @ContributesAndroidInjector abstract fun medLinkRFSpyProvider(): MedLinkRFSpy
     @ContributesAndroidInjector abstract fun wakeAndTuneTask(): WakeAndTuneTask
-    @ContributesAndroidInjector abstract fun initializePumpManagerTask(): InitializePumpManagerTask
+    @ContributesAndroidInjector abstract fun initializePumpManagerTask(): InitializeMedLinkPumpManagerTask
     @ContributesAndroidInjector abstract fun radioPacket(): RadioPacket
     @ContributesAndroidInjector abstract fun sendAndListen(): SendAndListen
 

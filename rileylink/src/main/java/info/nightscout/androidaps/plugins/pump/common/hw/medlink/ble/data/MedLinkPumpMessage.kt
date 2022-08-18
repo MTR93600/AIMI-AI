@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandPriority
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
 import java.util.*
@@ -59,7 +60,8 @@ open class MedLinkPumpMessage<B, C> //implements RLMessage
         commandType: MedLinkCommandType,
         baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         btSleepTime: Long,
-        bleCommand: BleCommand
+        bleCommand: BleCommand,
+        commandPriority: CommandPriority
     ) {
         this.commands = mutableListOf(CommandStructure(commandType, optional(baseCallback), Optional.of(bleCommand), commandType.getRaw()))
         this.btSleepTime = btSleepTime
@@ -70,8 +72,9 @@ open class MedLinkPumpMessage<B, C> //implements RLMessage
         argument: MedLinkCommandType,
         baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         btSleepTime: Long,
-        bleCommand: BleCommand
-    ): this(commandType, baseCallback, btSleepTime, bleCommand) {
+        bleCommand: BleCommand,
+        commandPriority: CommandPriority
+    ): this(commandType, baseCallback, btSleepTime, bleCommand,commandPriority) {
         if (argument != MedLinkCommandType.NoCommand) {
             commands.add(
                 CommandStructure(argument, Optional.empty(), Optional.of(bleCommand), argument.getRaw())
@@ -85,7 +88,8 @@ open class MedLinkPumpMessage<B, C> //implements RLMessage
         baseCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         argCallback: Function<Supplier<Stream<String>>, MedLinkStandardReturn<B>>,
         btSleepTime: Long, bleCommand: BleCommand
-    ):this(commandType, baseCallback, btSleepTime, bleCommand) {
+    ):this(commandType, baseCallback, btSleepTime, bleCommand,
+           CommandPriority.NORMAL) {
         this.commands.add(
             CommandStructure(argument, Optional.of(argCallback), Optional.of(bleCommand), argument.getRaw())
         )

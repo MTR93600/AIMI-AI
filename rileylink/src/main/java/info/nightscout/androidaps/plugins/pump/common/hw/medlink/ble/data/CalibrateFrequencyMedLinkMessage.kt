@@ -1,7 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
 import info.nightscout.androidaps.data.InMemoryMedLinkConfig
-import info.nightscout.androidaps.interfaces.BgSync
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCalibrateFrequencyCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType

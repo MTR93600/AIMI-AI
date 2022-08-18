@@ -511,10 +511,10 @@ class MedtronicPumpPlugin @Inject constructor(
         get() = medtronicPumpStatus.basalProfileForHour
 
     override val reservoirLevel: Double
-        get() = medtronicPumpStatus.reservoirLevel
+        get() = medtronicPumpStatus.reservoirRemainingUnits
 
     override val batteryLevel: Int
-        get() = medtronicPumpStatus.batteryLevel
+        get() = medtronicPumpStatus.batteryRemaining
 
     override fun triggerUIChange() {
         rxBus.send(EventMedtronicPumpValuesChanged())
@@ -575,12 +575,12 @@ class MedtronicPumpPlugin @Inject constructor(
     override fun deliverBolus(detailedBolusInfo: DetailedBolusInfo): PumpEnactResult {
         aapsLogger.info(LTag.PUMP, "MedtronicPumpPlugin::deliverBolus - " + BolusDeliveryType.DeliveryPrepared)
         setRefreshButtonEnabled(false)
-        if (detailedBolusInfo.insulin > medtronicPumpStatus.reservoirLevel) {
+        if (detailedBolusInfo.insulin > medtronicPumpStatus.reservoirRemainingUnits) {
             return PumpEnactResult(injector) //
                 .success(false) //
                 .enacted(false) //
                 .comment(rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
-                               medtronicPumpStatus.reservoirLevel,
+                               medtronicPumpStatus.reservoirRemainingUnits,
                                detailedBolusInfo.insulin))
         }
         bolusDeliveryType = BolusDeliveryType.DeliveryPrepared
@@ -632,7 +632,7 @@ class MedtronicPumpPlugin @Inject constructor(
                 pumpSyncStorage.addBolusWithTempId(detailedBolusInfo, true, this)
 
                 // we subtract insulin, exact amount will be visible with next remainingInsulin update.
-                medtronicPumpStatus.reservoirLevel = medtronicPumpStatus.reservoirLevel - detailedBolusInfo.insulin
+                medtronicPumpStatus.reservoirRemainingUnits = medtronicPumpStatus.reservoirRemainingUnits - detailedBolusInfo.insulin
                 incrementStatistics(if (detailedBolusInfo.bolusType === DetailedBolusInfo.BolusType.SMB) MedtronicConst.Statistics.SMBBoluses else MedtronicConst.Statistics.StandardBoluses)
 
                 // calculate time for bolus and set driver to busy for that time
@@ -960,7 +960,7 @@ class MedtronicPumpPlugin @Inject constructor(
     private fun scheduleNextRefresh(refreshType: MedtronicStatusRefreshType, additionalTimeInMinutes: Int = 0) {
         when (refreshType) {
             MedtronicStatusRefreshType.RemainingInsulin                                                                                                                     -> {
-                val remaining = medtronicPumpStatus.reservoirLevel
+                val remaining = medtronicPumpStatus.reservoirRemainingUnits
                 val min: Int = if (remaining > 50) 4 * 60 else if (remaining > 20) 60 else 15
                 synchronized(statusRefreshMap) { statusRefreshMap[refreshType] = getTimeInFutureFromMinutes(min) }
             }

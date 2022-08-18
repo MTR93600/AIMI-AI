@@ -44,7 +44,7 @@ class StatusCallback(
         medLinkPumpPlugin.alreadyRun()
         medLinkPumpPlugin.setPumpTime(pumpStatus.lastDataTime)
         aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.currentBasal)
-        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirLevel)
+        aapsLogger.info(LTag.PUMPBTCOMM, "statusmessage currentbasal " + pumpStatus.reservoirRemainingUnits)
         aapsLogger.info(LTag.PUMPBTCOMM, "status " + medLinkPumpStatus.getCurrentBasal())
         medLinkPumpStatus.setLastCommunicationToNow()
         aapsLogger.info(LTag.PUMPBTCOMM, "bgreading " + pumpStatus.bgReading)
