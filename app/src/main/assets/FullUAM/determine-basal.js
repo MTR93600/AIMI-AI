@@ -296,6 +296,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     /* ************************
        ** TS AutoTDD code    **
        ************************ */
+       console.error("---------------------------------------------------------");
+       console.error( " AIMI version 22 Beta a");
+       console.error("---------------------------------------------------------");
     var TDD = profile.TDD;
     //var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
@@ -328,7 +331,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
     insulinPeakTime *= circadian_sensitivity;
-    enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
+    //enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
 
     var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
     var AIMI_Power = profile.enable_AIMI_Power;
@@ -337,6 +340,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
     var AIMI_BG_ACC = glucose_status.delta / glucose_status.short_avgdelta;
     enlog += "AIMI_BG_ACC : "+AIMI_BG_ACC+"\n";
+    var b30Ko = false;
+    if (AIMI_BreakFastLight && profile.key_use_disable_b30_BFL){b30Ko = true;}
     var AIMI_ACC = false;
     var now = new Date().getHours();
 
@@ -500,7 +505,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
     var Hypo_ratio = 1;
 
-     if (currentTIRLow > 10 || AIMI_BreakFastLight ){
+     if (currentTIRLow > 10 || AIMI_BreakFastLight || iTime < 180 && glucose_status.delta < 1.618*b30upperdelta ){
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
@@ -1097,10 +1102,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     console.log("*****Future_sens is not use with light breakfast");
 
 }
-        console.log("------------------------------");
+                console.log("------------------------------");
                 console.log(" AAPS-3.1.0.3-dev-a-AIMI V22 17/08/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
+                console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta," aimismb : ",aimismb," b30Ko : ",b30Ko," iTime : ",iTime," TDD : ",TDD," sensitivityRatio : ",sensitivityRatio)
                 console.log(enlog);
                 }
                 /*console.log("Pump extrapolated TDD = "+tdd_pump);
@@ -1808,8 +1814,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         }
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
-        var b30Ko = false;
-        if (AIMI_BreakFastLight && profile.key_use_disable_b30_BFL){b30Ko = true;}
+
 
         if (iTimeActivation === true && iTime < 20){
             rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
