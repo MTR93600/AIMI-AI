@@ -419,7 +419,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                         }
                     }
                     if (System.currentTimeMillis() - pumpStatusData.lastConnection > 590000) {
-                        readPumpHistory(false)
+                        readPumpData(false)
                     }
                     clearBusyQueue()
                 }
@@ -665,7 +665,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
     }
 
-    private fun readPumpHistory(scheduled: Boolean, interval: Long = 300000L) {
+    private fun readPumpData(scheduled: Boolean, interval: Long = 300000L) {
         //        if (isLoggingEnabled())
         //            LOG.error(getLogPrefix() + "readPumpHistory WIP.");
         scheduleNextReadState(scheduled, interval)
@@ -893,7 +893,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 when (key) {
                     MedLinkMedtronicStatusRefreshType.PumpHistory -> {
                         aapsLogger.info(LTag.PUMPBTCOMM, "refreshing")
-                        readPumpHistory(true)
+                        readPumpData(true)
                     }
 
                     MedLinkMedtronicStatusRefreshType.PumpTime    -> {
@@ -910,7 +910,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
         if (statusRefreshMap.isEmpty() || System.currentTimeMillis() - lastTryToConnect >= 600000) {
             lastTryToConnect = System.currentTimeMillis()
-            readPumpHistory(false)
+            readPumpData(false)
             scheduleNextRefresh()
             aapsLogger.info(LTag.PUMPBTCOMM, "posthistory")
             //            scheduleNextRefresh(PumpHistory);
@@ -1073,7 +1073,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     override fun getPumpStatus(status: String) {
         when {
             status.lowercase(Locale.getDefault()) == "clicked refresh" -> {
-                readPumpHistory(false, 0L)
+                readPumpData(false, 0L)
             }
 
             firstRun                                                   -> {
@@ -1107,7 +1107,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             aapsLogger.info(LTag.PUMP, "nullmedlinkservice$medLinkService")
         }
         setRefreshButtonEnabled(false)
-        readPumpHistory(false, 0L)
+        readPumpData(false, 0L)
     }
 
     @SuppressLint("ResourceType") override fun postInit() {
@@ -1223,6 +1223,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     private fun previousBGHistory() {
         if ((activePlugin.activeBgSource as PluginBase).javaClass.canonicalName?.contains("MedLinkPlugin") == true) {
+            lastPreviousHistory = System.currentTimeMillis()
             medLinkService!!.medtronicUIComm?.executeCommandCP(previousBGHistory(false))
         }
     }
@@ -3321,8 +3322,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 }
                 lastProcessedBolusTimestamp = bInfo.timestamp - mod
                 pumpSyncStorage.pumpSync.syncBolusWithTempId(
-                    bInfo.timestamp - mod, bInfo.insulin,
-                    generateTempId(bInfo.timestamp - mod),
+                    lastProcessedBolusTimestamp, bInfo.insulin,
+                    generateTempId(lastProcessedBolusTimestamp),
                     bInfo.bolusType, bInfo.bolusPumpId,
                     this.pumpType, serialNumber()
                 )
@@ -3480,10 +3481,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             pumpSync.expectedPumpState()
             if (isInitialized() && sens.bgValue.size > 1 &&
                 sens.bgValue.map { it.timestamp }.min() > firstMissedBGTimestamp &&
-                System.currentTimeMillis() - lastPreviousHistory > 1800000
+                System.currentTimeMillis() - lastPreviousHistory > 1800000 ||
+                System.currentTimeMillis() - lastPreviousHistory > 6000000
             ) {
                 previousBGHistory()
-                lastPreviousHistory = System.currentTimeMillis()
             }
             missedBGs = 0
             firstMissedBGTimestamp = 0L
