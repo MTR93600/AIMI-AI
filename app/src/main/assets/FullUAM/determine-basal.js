@@ -330,6 +330,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
     var LastManualBolus = meal_data.lastBolusNormalUnits;
+    var now = new Date().getHours();
     var date_now = new Date();
     var nowminutes = date_now.getHours() + date_now.getMinutes() / 60 + date_now.getSeconds() / 60 / 60;
     nowminutes = round(nowminutes,2);
@@ -362,7 +363,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30Ko = false;
     if (AIMI_BreakFastLight && profile.key_use_disable_b30_BFL){b30Ko = true;}
     var AIMI_ACC = false;
-    var now = new Date().getHours();
+
 
     if (AIMI_BG_ACC < 1 && glucose_status.delta >= 20){
     AIMI_ACC = true;
