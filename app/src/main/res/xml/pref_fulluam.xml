@@ -27,16 +27,6 @@
             validate:floatmaxNumber="25.0"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
-        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="100"
-            android:enabled="true"
-            android:dialogMessage="@string/UAM_InsulinReq_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_UAM_InsulinReq"
-            android:title="@string/UAM_InsulinReq_title"
-            validate:floatmaxNumber="150"
-            validate:floatminNumber="50"
-            validate:testType="floatNumericRange" />-->
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="180"
@@ -48,23 +38,23 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
-        <!--<info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="200"
-            android:dialogMessage="@string/iTime_MaxBolus_minutes_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_MaxBolus_minutes"
-            android:title="@string/iTime_MaxBolus_minutes_title"
-            validate:floatmaxNumber="250"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />-->
-
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="150"
-            android:dialogMessage="If BG is greater of this value, B30 (basal 500% during 30 minutes) will not running"
+            android:dialogMessage="If BG is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
             android:inputType="numberDecimal"
             android:key="@string/key_iTime_B30_upperBG"
             android:title="B30 Upper BG to stop B30"
             validate:floatmaxNumber="200"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dialogMessage="If delta is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperdelta"
+            android:title="B30 Upper delta to stop B30"
+            validate:floatmaxNumber="15"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
@@ -111,23 +101,6 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="@string/key_use_Ipen"
-            android:summary="To specify you are using an insulin pen"
-            android:title="Insulin Pen" />
-
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="10"
-            android:dependency="@string/key_use_Ipen"
-            android:dialogMessage="Quantity Slow Insulin on 24 hours, to determine the basal profile with a pen insulin"
-            android:inputType="numberDecimal"
-            android:key="@string/key_use_AIMI_SlowInsulin"
-            android:title="Quantity Slow Insulin on 24 hours"
-            validate:floatmaxNumber="50"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <SwitchPreference
-            android:defaultValue="false"
             android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_LuymjevU100"
             android:summary="Dependency AIMI_UAM Mode, specify Luymjev U100"
@@ -160,6 +133,13 @@
             android:key="@string/key_use_AIMI_BreakFastLight"
             android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
             android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AIMI_BreakFastLight"
+            android:key="@string/key_use_disable_b30_BFL"
+            android:summary="Disable B30 if Breakfast Light is enable. In this case you will not get 500% basal after the first 20 minutes"
+            android:title="AIMI UAM BreakFast Light/Night B30 disable" />
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="6"
