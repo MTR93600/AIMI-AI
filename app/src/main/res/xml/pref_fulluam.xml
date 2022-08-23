@@ -60,10 +60,10 @@
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="20"
-            android:dialogMessage="b30 duration is the duration in minutes of the first basal action after the manual bolus (> iTime_Starting_Bolus)
+            android:dialogMessage="b30 duration is the duration in minutes of the first basal action after the manual bolus (> iTime_Starting_Bolus)"
             android:inputType="numberDecimal"
             android:key="@string/key_iTime_B30_duration"
-            android:title="first B30 duration after a bolus "
+            android:title="first B30 duration after a bolus"
             validate:floatmaxNumber="100"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
