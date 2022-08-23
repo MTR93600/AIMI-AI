@@ -404,11 +404,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-    if (iTimeActivation === true && iTime < 20){
+    if (iTimeActivation === true && iTime < profile.b30_duration){
     rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
     //rT.deliverAt = deliverAt;
     rT.temp = 'absolute';
-    rT.duration = 30;
+    rT.duration = profile.b30_duration;
     rate = round_basal(basal*10,profile);
     rT.rate = rate;
     //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
@@ -1279,7 +1279,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVa-AIMI-V22-18/08/22 ";
+    rT.reason += "\nDEVa-AIMI-V22-23/08/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1833,10 +1833,10 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
 
-        if (iTimeActivation === true && iTime < 20){
+        if (iTimeActivation === true && iTime < profile.b30_duration){
             rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
             //rT.deliverAt = deliverAt;
-            durationReq = 20;
+            durationReq = profile.b30_duration;
             rT.duration = durationReq;
 
             rate = round_basal(basal*10,profile);
