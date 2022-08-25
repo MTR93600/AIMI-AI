@@ -1853,6 +1853,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         durationReq = 20;
                         rT.duration = durationReq;
                         rate = round_basal(basal*6,profile);
+                    }else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit){
+                    rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
+                    durationReq = profile.b30_duration;
+                    rT.duration = durationReq;
+                    rate = round_basal(basal*8,profile);
                     }
              }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && glucose_status.short_avgdelta < 2 && bg >= 170  && b30activity < iob_data.iob/3 && TriggerPredSMB_future_sens_45 > 39){
                    rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
