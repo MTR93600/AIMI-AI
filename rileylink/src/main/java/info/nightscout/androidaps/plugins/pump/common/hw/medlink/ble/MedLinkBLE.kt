@@ -86,8 +86,7 @@ class MedLinkBLE //extends RileyLinkBLE
     private var gattConnected = false
     private var medLinkDevice: BluetoothDevice? = null
     fun partialCommand(): Boolean {
-        return lastConfirmedCommand > lastConnection &&
-            lastReceivedCharacteristic > lastConfirmedCommand
+        return lastConfirmedCommand in (lastConnection + 1) until lastReceivedCharacteristic
     }
 
     fun removeFirstCommand(force: Boolean) {
