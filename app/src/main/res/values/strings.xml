@@ -1195,6 +1195,7 @@
     <string name="key_iTime_Starting_Bolus" translatable="false">iTime_Starting_Bolus</string>
     <string name="key_iTime_B30_upperBG" translatable="false">iTime_b30_upperBG</string>
     <string name="key_iTime_B30_upperdelta" translatable="false">iTime_b30_upperdelta</string>
+    <string name="key_iTime_B30_duration" translatable="false">iTime_b30_duration</string>
     <string name="iTime_Starting_Bolus_title">iTime_Starting_Bolus</string>
     <string name="iTime_Starting_Bolus_summary">Value of the manual Bolus who will start iTime, like > iTime_Starting_Bolus</string>
     <string name="key_openapsama_smb_delivery_ratio" translatable="false">openapsama_smb_delivery_ratio</string>
