@@ -15,8 +15,8 @@ import java.util.stream.Stream
  * Created by Dirceu on 01/04/21.
  */
 abstract class CommandExecutor<B> protected constructor(
-    val commandList: MutableList<CommandStructure<B,BleCommand>>,
-val aapsLogger: AAPSLogger
+    val commandList: MutableList<CommandStructure<B, BleCommand>>,
+    val aapsLogger: AAPSLogger,
 ) : Runnable {
 
     var isConfirmed: Boolean = false
@@ -24,18 +24,18 @@ val aapsLogger: AAPSLogger
     private var functionPosition = 0
     private var currentCommand: MedLinkCommandType? = null
     var nrRetries = 0
-    protected set
+        protected set
 
-        protected constructor (commandType: MedLinkCommandType, aapsLogger: AAPSLogger) :
-    this(
-        mutableListOf(
-            CommandStructure(
-                commandType, Optional.empty(),
-                Optional.empty(),
-                CommandPriority.HIGH
-            )
-        ), aapsLogger
-    )
+    protected constructor (commandType: MedLinkCommandType, aapsLogger: AAPSLogger) :
+        this(
+            mutableListOf(
+                CommandStructure(
+                    commandType, Optional.empty(),
+                    Optional.empty(),
+                    CommandPriority.HIGH
+                )
+            ), aapsLogger
+        )
 
     //
     //    protected CommandExecutor(RemainingBleCommand remainingBleCommand) {
@@ -55,10 +55,22 @@ val aapsLogger: AAPSLogger
 
     fun nextRaw(): ByteArray {
         synchronized(commandPosition) {
-            return if (commandPosition >= commandList.size) {
-                MedLinkCommandType.NoCommand.getRaw()
-            } else {
-                commandList[commandPosition.toInt()].commandArgument
+            return try {
+                if (commandPosition.toInt() >= commandList.size) {
+                    MedLinkCommandType.NoCommand.getRaw()
+                } else {
+                    commandList[commandPosition.toInt()].commandArgument
+                }
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                aapsLogger.info(LTag.PUMPBTCOMM, "exception at getting next raw $commandPosition")
+                val it = commandList.iterator()
+                val buf = StringBuffer()
+                while (it.hasNext()) {
+                    buf.append(it.next().toString())
+                    buf.append("\n")
+                }
+                aapsLogger.info(LTag.PUMPBTCOMM, commandList.joinToString { buf.toString() })
+                return MedLinkCommandType.NoCommand.getRaw()
             }
         }
     }
@@ -104,10 +116,11 @@ val aapsLogger: AAPSLogger
     fun commandExecuted() {
         if (commandPosition.toInt() == 0) {
             nrRetries++
-        } else if (commandList[commandPosition.toInt()].command != MedLinkCommandType.NoCommand) {
+        } else if (commandPosition < commandList.size && commandList[commandPosition.toInt()].command != MedLinkCommandType.NoCommand) {
             nrRetries++
         }
         commandPosition = Integer(commandPosition.toInt() + 1)
+
     }
 
     open fun clearExecutedCommand() {
@@ -136,7 +149,7 @@ val aapsLogger: AAPSLogger
                     MedLinkStandardReturn<*>
                     >?
                     >>
-            >
+            >,
     ): Boolean {
         return (commandList == this.commandList)
     }
@@ -175,9 +188,13 @@ val aapsLogger: AAPSLogger
     }
 
     val isInitialized: Boolean
-    get() = commandPosition > 0 || functionPosition > 0
+        get() = commandPosition > 0 || functionPosition > 0
 
     override fun run() {
         isConfirmed = false
+    }
+
+    fun commandFailed() {
+
     }
 }

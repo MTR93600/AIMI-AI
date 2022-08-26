@@ -14,16 +14,14 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import info.nightscout.androidaps.interfaces.ActivePlugin;
-import  info.nightscout.androidaps.interfaces.ResourceHelper;
-import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
-
+import info.nightscout.androidaps.interfaces.ResourceHelper;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkError;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkPumpDevice;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkServiceData;
+import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.R;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLinkTargetDevice;
 import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil;
 import info.nightscout.androidaps.utils.DateUtil;
-
 import info.nightscout.shared.sharedPreferences.SP;
 
 /**

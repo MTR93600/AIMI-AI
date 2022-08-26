@@ -1,34 +1,31 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs
 
-import kotlin.jvm.JvmOverloads
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
-import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
 import java.util.*
 
 /**
  * Created by dirceu on 17/09/2020.
  */
-enum class MedLinkCommandType @JvmOverloads constructor(command: String, needActivePump: Boolean = false) {
+enum class MedLinkCommandType constructor(command: String, val needActivePump: Boolean = false, val listCommand: Boolean = false) {
 
     NoCommand(""),
-    ReadCharacteristic("\"ReadCharacteristic\""),
-    Notification("SetNotificationBlocking"),
-    PumpModel("OK+CONN"),
-    Connect("OK+CONN"),
-    GetState("S"),  //
+    ReadCharacteristic("\"ReadCharacteristic\"", listCommand = true),
+    Notification("SetNotificationBlocking", listCommand = true),
+    PumpModel("OK+CONN", listCommand = true),
+    Connect("OK+CONN", listCommand = true),
+    GetState("S", listCommand = true),  //
     StopStartPump("A"),
     Bolus("X", true),
     BolusAmount("BOLUS", true),
     StartPump("START",true),
     StopPump("STOP",true),
-    IsigHistory("I"),
-    PreviousIsigHistory("J"),
-    BGHistory("C"),
-    PreviousBGHistory("T"),
+    IsigHistory("I", listCommand = true),
+    PreviousIsigHistory("J", listCommand = true),
+    BGHistory("C", listCommand = true),
+    PreviousBGHistory("T", listCommand = true),
     BolusHistory("H"),
-    ActiveBasalProfile("E"),
-    BaseProfile("F"),
+    ActiveBasalProfile("E", listCommand = true),
+    BaseProfile("F", listCommand = true),
     Calibrate("K", true),
     CalibrateFrequency("U"),
     CalibrateFrequencyArgument(""),
@@ -36,10 +33,9 @@ enum class MedLinkCommandType @JvmOverloads constructor(command: String, needAct
     BolusStatus("M"),
     SMBBolus("X", true),
     TBRBolus("X", true),
-    PreviousBolusHistory("G", false);
+    PreviousBolusHistory("G", listCommand = true);
 
     @JvmField val code: String?
-    val needActivePump: Boolean
     var config: Iterator<String>? = null
     var insulinAmount = 0.0
     var bgValue = 0.0
@@ -65,11 +61,11 @@ enum class MedLinkCommandType @JvmOverloads constructor(command: String, needAct
         }
     }
 
-    fun isSameCommand(command: ByteArray?): Boolean {
+    private fun isSameCommand(command: ByteArray?): Boolean {
         return command != null && Arrays.equals(getRaw(), command)
     }
 
-    fun isSameCommand(command: String?): Boolean {
+    private fun isSameCommand(command: String?): Boolean {
         return command != null && command == this.code
     }
 
@@ -83,7 +79,6 @@ enum class MedLinkCommandType @JvmOverloads constructor(command: String, needAct
     //    }
     init {
         this.code = command
-        this.needActivePump = needActivePump
     }
 
     override fun toString(): String {

@@ -10,20 +10,17 @@ import info.nightscout.shared.logging.LTag
 class BleConnectCommand(
     aapsLogger: AAPSLogger,
     medLinkServiceData: MedLinkServiceData,
-    medLinkPumpPluginAbstract: MedLinkPumpPluginAbstract?
+    medLinkPumpPluginAbstract: MedLinkPumpPluginAbstract?,
 ) :
     BleCommandReader(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
-    var noResponse = 0
     override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
         aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
-        if ((lastCommand + answer).contains("pump no response")) {
-            noResponse++
-            if (noResponse > 2) {
-                bleComm.pumpConnectionError()
-                noResponse = 0
-            }
+        if ("$lastCommand$answer".contains("pump no response")) {
+            bleComm.pumpConnectionError()
+        } else if ("$lastCommand$answer".contains("ready")) {
+            bleComm.clearNoResponse()
         }
         if (answer.trim { it <= ' ' }.contains("ok+conn")) {
             if (answer.trim { it <= ' ' }.contains("ok+conn or command")) {

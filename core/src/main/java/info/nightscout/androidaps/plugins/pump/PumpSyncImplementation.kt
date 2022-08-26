@@ -7,6 +7,7 @@ import info.nightscout.androidaps.database.ValueWrapper
 import info.nightscout.androidaps.database.embedments.InterfaceIDs
 import info.nightscout.androidaps.database.entities.*
 import info.nightscout.androidaps.database.transactions.*
+import info.nightscout.androidaps.extensions.getHoursFromStart
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.interfaces.PumpSync
 import info.nightscout.shared.logging.AAPSLogger
@@ -33,7 +34,7 @@ class PumpSyncImplementation @Inject constructor(
     private val rh: ResourceHelper,
     private val profileFunction: ProfileFunction,
     private val repository: AppRepository,
-    private val uel: UserEntryLogger
+    private val uel: UserEntryLogger,
 ) : PumpSync {
 
     private val disposable = CompositeDisposable()
@@ -81,16 +82,20 @@ class PumpSyncImplementation @Inject constructor(
 
         if (showNotification && (type.description != storedType || serialNumber != storedSerial) && timestamp >= storedTimestamp)
             rxBus.send(EventNewNotification(Notification(Notification.WRONG_PUMP_DATA, rh.gs(R.string.wrong_pump_data), Notification.URGENT)))
-        aapsLogger.error(LTag.PUMP, "Ignoring pump history record  Allowed: ${dateUtil.dateAndTimeAndSecondsString(storedTimestamp)} $storedType $storedSerial Received: $timestamp ${dateUtil.dateAndTimeAndSecondsString(timestamp)} ${type.description} $serialNumber")
+        aapsLogger.error(LTag.PUMP,
+                         "Ignoring pump history record  Allowed: ${dateUtil.dateAndTimeAndSecondsString(storedTimestamp)} $storedType $storedSerial Received: $timestamp ${
+                             dateUtil.dateAndTimeAndSecondsString(timestamp)
+                         } ${type.description} $serialNumber")
         return false
     }
 
-    fun lastGlucoseValue(): Optional<GlucoseValue> {
+    override fun lastGlucoseValue(): Optional<GlucoseValue> {
         val glucoseValue = repository.getLastGlucoseValueWrapped().blockingGet()
-        return if(glucoseValue is ValueWrapper.Existing){
+        return if (glucoseValue is ValueWrapper.Existing) {
             Optional.of(glucoseValue.value)
         } else Optional.empty<GlucoseValue>()
     }
+
     override fun expectedPumpState(): PumpSync.PumpState {
         val bolus = repository.getLastBolusRecordWrapped().blockingGet()
         val temporaryBasal = repository.getTemporaryBasalActiveAt(dateUtil.now()).blockingGet()
@@ -107,7 +112,7 @@ class PumpSyncImplementation @Inject constructor(
                     type = PumpSync.TemporaryBasalType.fromDbType(temporaryBasal.value.type),
                     id = temporaryBasal.value.id,
                     pumpId = temporaryBasal.value.interfaceIDs.pumpId,
-                    pumpType = temporaryBasal.value.interfaceIDs.pumpType?.let { PumpType.fromDbPumpType(it)} ?: PumpType.USER,
+                    pumpType = temporaryBasal.value.interfaceIDs.pumpType?.let { PumpType.fromDbPumpType(it) } ?: PumpType.USER,
                     pumpSerial = temporaryBasal.value.interfaceIDs.pumpSerial ?: "",
                     desiredRate = temporaryBasal.value.desiredRate,
                     desiredPct = temporaryBasal.value.desiredPct
@@ -120,7 +125,7 @@ class PumpSyncImplementation @Inject constructor(
                     duration = extendedBolus.value.duration,
                     amount = extendedBolus.value.amount,
                     rate = extendedBolus.value.rate,
-                    pumpType = extendedBolus.value.interfaceIDs.pumpType?.let { PumpType.fromDbPumpType(it)} ?: PumpType.USER,
+                    pumpType = extendedBolus.value.interfaceIDs.pumpType?.let { PumpType.fromDbPumpType(it) } ?: PumpType.USER,
                     pumpSerial = extendedBolus.value.interfaceIDs.pumpSerial ?: ""
                 )
             else null,
@@ -139,7 +144,7 @@ class PumpSyncImplementation @Inject constructor(
     }
 
     override fun addBolusWithTempId(timestamp: Long, amount: Double, temporaryId: Long, type: DetailedBolusInfo.BolusType, pumpType: PumpType, pumpSerial: String): Boolean {
-        aapsLogger.info(LTag.DATABASE,"pre bolus")
+        aapsLogger.info(LTag.DATABASE, "pre bolus")
 
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
@@ -152,27 +157,36 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
-        aapsLogger.info(LTag.DATABASE,"pre transaction")
+        aapsLogger.info(LTag.DATABASE, "pre transaction")
 
         repository.runTransactionForResult(InsertBolusWithTempIdTransaction(bolus))
             .doOnError { aapsLogger.info(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
                 result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
-                aapsLogger.info(LTag.DATABASE,result.toString())
+                aapsLogger.info(LTag.DATABASE, result.toString())
 
                 return result.inserted.size > 0
             }
     }
 
+    override fun lastTherapyEvent(type: DetailedBolusInfo.EventType): Optional<Double> {
+        val event = repository.getLastTherapyRecordUpToNow(type.toDBbEventType()).blockingGet()
+        return if (event is ValueWrapper.Existing) {
+            Optional.of(event.value.getHoursFromStart())
+        } else {
+            Optional.empty()
+        }
+    }
+
     override fun syncBolusWithTempId(timestamp: Long, amount: Double, temporaryId: Long, type: DetailedBolusInfo.BolusType?, pumpId: Long?, pumpType: PumpType, pumpSerial: String): Boolean {
-        aapsLogger.info(LTag.DATABASE,"prebolus")
+        aapsLogger.info(LTag.DATABASE, "prebolus")
 
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
             timestamp = timestamp,
             amount = amount,
-            type = type?.toDBbBolusType()?: Bolus.Type.NORMAL, // not used for update
+            type = type?.toDBbBolusType() ?: Bolus.Type.NORMAL, // not used for update
             interfaceIDs_backing = InterfaceIDs(
                 temporaryId = temporaryId,
                 pumpId = pumpId,
@@ -180,7 +194,7 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
-        aapsLogger.info(LTag.DATABASE,"pretransaction $bolus ${bolus.interfaceIDs}")
+        aapsLogger.info(LTag.DATABASE, "pretransaction $bolus ${bolus.interfaceIDs}")
 
         repository.runTransactionForResult(SyncBolusWithTempIdTransaction(bolus, type?.toDBbBolusType()))
             .doOnError { aapsLogger.info(LTag.DATABASE, "Error while saving Bolus", it) }
@@ -188,14 +202,14 @@ class PumpSyncImplementation @Inject constructor(
             .also { result ->
                 result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated Bolus $it") }
                 result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
-                aapsLogger.info(LTag.DATABASE,result.toString())
+                aapsLogger.info(LTag.DATABASE, result.toString())
 
                 return result.inserted.size > 0
             }
     }
 
     override fun syncBolusWithPumpId(timestamp: Long, amount: Double, type: DetailedBolusInfo.BolusType?, pumpId: Long, pumpType: PumpType, pumpSerial: String): Boolean {
-        aapsLogger.info(LTag.DATABASE,"prebolus")
+        aapsLogger.info(LTag.DATABASE, "prebolus")
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = Bolus(
             timestamp = timestamp,
@@ -207,14 +221,14 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
-        aapsLogger.info(LTag.DATABASE,"pretransaction")
+        aapsLogger.info(LTag.DATABASE, "pretransaction")
         repository.runTransactionForResult(SyncPumpBolusTransaction(bolus, type?.toDBbBolusType()))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()
             .also { result ->
                 result.inserted.forEach { aapsLogger.info(LTag.DATABASE, "Inserted Bolus $it") }
                 result.updated.forEach { aapsLogger.info(LTag.DATABASE, "Updated Bolus $it") }
-                aapsLogger.info(LTag.DATABASE,result.toString())
+                aapsLogger.info(LTag.DATABASE, result.toString())
                 return result.inserted.size > 0
             }
     }
@@ -277,7 +291,16 @@ class PumpSyncImplementation @Inject constructor(
      *   TEMPORARY BASALS
      */
 
-    override fun syncTemporaryBasalWithPumpId(timestamp: Long, rate: Double, duration: Long, isAbsolute: Boolean, type: PumpSync.TemporaryBasalType?, pumpId: Long, pumpType: PumpType, pumpSerial: String): Boolean {
+    override fun syncTemporaryBasalWithPumpId(
+        timestamp: Long,
+        rate: Double,
+        duration: Long,
+        isAbsolute: Boolean,
+        type: PumpSync.TemporaryBasalType?,
+        pumpId: Long,
+        pumpType: PumpType,
+        pumpSerial: String,
+    ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val temporaryBasal = TemporaryBasal(
             timestamp = timestamp,
@@ -314,7 +337,16 @@ class PumpSyncImplementation @Inject constructor(
             }
     }
 
-    override fun addTemporaryBasalWithTempId(timestamp: Long, rate: Double, duration: Long, isAbsolute: Boolean, tempId: Long, type: PumpSync.TemporaryBasalType, pumpType: PumpType, pumpSerial: String): Boolean {
+    override fun addTemporaryBasalWithTempId(
+        timestamp: Long,
+        rate: Double,
+        duration: Long,
+        isAbsolute: Boolean,
+        tempId: Long,
+        type: PumpSync.TemporaryBasalType,
+        pumpType: PumpType,
+        pumpSerial: String,
+    ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val temporaryBasal = TemporaryBasal(
             timestamp = timestamp,
@@ -337,7 +369,17 @@ class PumpSyncImplementation @Inject constructor(
             }
     }
 
-    override fun syncTemporaryBasalWithTempId(timestamp: Long, rate: Double, duration: Long, isAbsolute: Boolean, temporaryId: Long, type: PumpSync.TemporaryBasalType?, pumpId: Long?, pumpType: PumpType, pumpSerial: String): Boolean {
+    override fun syncTemporaryBasalWithTempId(
+        timestamp: Long,
+        rate: Double,
+        duration: Long,
+        isAbsolute: Boolean,
+        temporaryId: Long,
+        type: PumpSync.TemporaryBasalType?,
+        pumpId: Long?,
+        pumpType: PumpType,
+        pumpSerial: String,
+    ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = TemporaryBasal(
             timestamp = timestamp,

@@ -46,6 +46,7 @@ import info.nightscout.androidaps.utils.alertDialogs.OKDialog
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.*
 import javax.inject.Inject
 
 class MedLinkMedtronicFragment : DaggerFragment() {
@@ -187,6 +188,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
     private fun setDeviceStatus() {
         val resourceId = medLinkServiceData.medLinkServiceState.resourceId
         val medLinkError = medLinkMedtronicPumpPlugin.medLinkService?.error
+
         binding.medtronicRlStatus.text =
             when {
                 medLinkServiceData.medLinkServiceState == MedLinkServiceState.NotStarted -> rh.gs(resourceId)
@@ -305,13 +307,12 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             val agoMsc = System.currentTimeMillis() - medtronicPumpStatus.lastBolusTime!!.time
             val bolusMinAgo = agoMsc.toDouble() / 60.0 / 1000.0
             val unit = rh.gs(R.string.insulin_unit_shortname)
-            val ago: String
-            if (agoMsc < 60 * 1000) {
-                ago = rh.gs(R.string.medtronic_pump_connected_now)
+            val ago = if (agoMsc < 60 * 1000) {
+                rh.gs(R.string.medtronic_pump_connected_now)
             } else if (bolusMinAgo < 60) {
-                ago = dateUtil.minAgo(rh, medtronicPumpStatus.lastBolusTime!!.time)
+                dateUtil.minAgo(rh, medtronicPumpStatus.lastBolusTime!!.time)
             } else {
-                ago = dateUtil.hourAgo(medtronicPumpStatus.lastBolusTime!!.time, rh)
+                dateUtil.hourAgo(medtronicPumpStatus.lastBolusTime!!.time, rh)
             }
             binding.medtronicLastbolus.text = rh.gs(R.string.mdt_last_bolus, bolus, unit, ago)
         } else {
@@ -319,7 +320,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         // base basal rate
-        binding.medtronicBasabasalrate.text = ("(${medtronicPumpStatus.activeProfileName.toUpperCase()})  "
+        binding.medtronicBasabasalrate.text = ("(${medtronicPumpStatus.activeProfileName.uppercase(Locale.getDefault())})  "
             + rh.gs(R.string.pump_basebasalrate, medLinkMedtronicPumpPlugin.baseBasalRate))
 
         binding.medtronicTempbasal.text = medtronicPumpStatus.tempBasalAmount.toString()
@@ -347,8 +348,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         val pump = activePlugin.activePump
         if (pump is MedLinkMedtronicPumpPlugin ) {
             if (pump.temporaryBasal != null) {
-                ("${pump.tempBasalMicrobolusOperations!!.operations.peek().toStringView()}" +
-                    "\n${pump.nextScheduledCommand()}").also { binding.medtronicNextCommand.text = it }
+                ("${pump.tempBasalMicrobolusOperations.operations.peek()?.toStringView()} \n${pump.nextScheduledCommand()}").also { binding.medtronicNextCommand.text = it }
             } else {
                 binding.medtronicNextCommand.text = pump.nextScheduledCommand()
             }
@@ -381,13 +381,12 @@ class MedLinkMedtronicFragment : DaggerFragment() {
             val agoMsc = medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli() - System.currentTimeMillis()
             val calibrationMinAgo = agoMsc.toDouble() / 60.0 / 1000.0
 
-            val ago: String
-            if (agoMsc < 60 * 1000) {
-                ago = rh.gs(R.string.medtronic_pump_connected_now)
+            val ago = if (agoMsc < 60 * 1000) {
+                rh.gs(R.string.medtronic_pump_connected_now)
             } else if (calibrationMinAgo < 60) {
-                ago = dateUtil.minAfter(rh, medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli()).toString()
+                dateUtil.minAfter(rh, medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli()).toString()
             } else {
-                ago = dateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), rh).toString()
+                dateUtil.hourAfter(medtronicPumpStatus.nextCalibration.toInstant().toEpochMilli(), rh).toString()
             }
             binding.medtronicNextcalibration.text = rh.gs(R.string.mdt_next_calibration, ago, medtronicPumpStatus.nextCalibration.toLocalTime())
             warnColors.setColorInverse(binding.medtronicNextcalibration, calibrationMinAgo, 60.0, 30.0)
