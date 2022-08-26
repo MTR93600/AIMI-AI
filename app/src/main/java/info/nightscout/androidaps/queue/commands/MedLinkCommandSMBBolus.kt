@@ -30,10 +30,9 @@ class MedLinkCommandSMBBolus(
             callback?.result(r)?.run()
             aapsLogger.debug(LTag.PUMPQUEUE, "Result success: ${r.success} enacted: ${r.enacted}")
         } else if (detailedBolusInfo.deliverAtTheLatest != 0L && detailedBolusInfo.deliverAtTheLatest + T.mins(1).msecs() > System.currentTimeMillis()) {
-            val func = { r: PumpEnactResult ->
-                callback?.result(r)?.run()
-                aapsLogger.debug(LTag.PUMPQUEUE, "Result success: ${r.success} enacted: ${r.enacted}")
-                Unit
+            val func = { it: PumpEnactResult ->
+                callback?.result(it)?.run()
+                aapsLogger.debug(LTag.PUMPQUEUE, "Result success: ${it.success} enacted: ${it.enacted}")
             }
             val pump = activePlugin.activePump
             if (pump is MedLinkPumpDevice) {

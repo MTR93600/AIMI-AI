@@ -30,7 +30,7 @@ interface BgSync {
      */
     data class BgHistory(var bgValue: List<BgValue>, val bgCalibration: List<Calibration>, val serialNumber: String? = null) {
 
-        data class BgValue @JvmOverloads constructor(
+        data class BgValue  constructor(
             val timestamp: Long,
             val raw: Double,
             val value: Double,

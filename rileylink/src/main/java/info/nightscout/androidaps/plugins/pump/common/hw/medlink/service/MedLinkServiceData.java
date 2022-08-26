@@ -87,6 +87,7 @@ public class MedLinkServiceData {
                     targetDevice));
             rxBus.send(new EventMedLinkDeviceStatusChange(targetDevice, newState, errorCode));
 
+
             return null;
 
         } else {

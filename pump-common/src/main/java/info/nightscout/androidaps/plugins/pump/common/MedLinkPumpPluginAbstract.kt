@@ -100,4 +100,5 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     abstract fun postInit()
     abstract fun setMedtronicPumpModel(model:String)
     abstract fun setBatteryLevel(batteryLevel:Int)
+    abstract fun getBatteryType(): String
 }

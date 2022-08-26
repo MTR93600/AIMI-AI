@@ -80,6 +80,7 @@
         <item>@string/medtronic_pump_battery_lithium</item>
         <item>@string/medtronic_pump_battery_nizn</item>
         <item>@string/medtronic_pump_battery_nimh</item>
+        <item>@string/medtronic_pump_battery_lipo</item>
     </string-array>
 
     <string-array name="medLinkMedtronicBatteryTypeValues">
@@ -88,6 +89,7 @@
         <item>@string/key_medtronic_pump_battery_lithium</item>
         <item>@string/key_medtronic_pump_battery_nizn</item>
         <item>@string/key_medtronic_pump_battery_nimh</item>
+        <item>@string/key_medtronic_pump_battery_lipo</item>
     </string-array>
 
 

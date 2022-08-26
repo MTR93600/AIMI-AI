@@ -1,8 +1,11 @@
 package info.nightscout.androidaps.interfaces
 
 import info.nightscout.androidaps.data.DetailedBolusInfo
+import info.nightscout.androidaps.database.entities.GlucoseValue
 import info.nightscout.androidaps.database.entities.TemporaryBasal
+import info.nightscout.androidaps.database.entities.TherapyEvent
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import java.util.*
 
 /**
  * This interface allows pump drivers to push data changes (creation and update of treatments, temporary basals and extended boluses) back to AAPS-core.
@@ -487,4 +490,7 @@ interface PumpSync {
 
     fun createOrUpdateTotalDailyDose(timestamp: Long, bolusAmount: Double, basalAmount: Double, totalAmount: Double, pumpId: Long?, pumpType: PumpType, pumpSerial: String): Boolean
 
+    fun lastTherapyEvent(type: DetailedBolusInfo.EventType): Optional<Double>
+
+    fun lastGlucoseValue(): Optional<GlucoseValue>
 }

@@ -35,6 +35,7 @@ class BleBolusStatusCommand(
                 val onHoldCommand = bleComm.onHoldCommandQueue.first
                 val firstCommand = onHoldCommand.commandList.first()
                 aapsLogger.info(LTag.PUMPBTCOMM,"onholdcheck")
+                aapsLogger.info(LTag.PUMPBTCOMM,firstCommand.toString())
                 if(firstCommand.command.isSameCommand(MedLinkCommandType.BolusStatus) && firstCommand.parseFunction.isPresent &&
                     firstCommand.parseFunction.get() is BolusProgressCallback){
                     aapsLogger.info(LTag.PUMPBTCOMM,"bolusOnHold")
@@ -43,6 +44,9 @@ class BleBolusStatusCommand(
                         aapsLogger.info(LTag.PUMPBTCOMM,"remove old bolus")
                         bleComm.onHoldCommandQueue.removeFirst()
                         bleComm.needToCheckOnHold = bleComm.onHoldCommandQueue.isNotEmpty()
+                    } else {
+                        aapsLogger.info(LTag.PUMPBTCOMM,"reprocess command")
+                        bleComm.reprocessOnHold()
                     }
                 }
             }
@@ -52,6 +56,7 @@ class BleBolusStatusCommand(
                 status.bolusDeliveredAmount < status.lastBolusAmount!!
             ) {
                 bleComm.clearExecutedCommand()
+                bleComm.postponeCurrentCommand()
             } else {
                 applyResponse(pumpResponse.toString(), bleComm.currentCommand, bleComm)
                 bleComm.completedCommand()
