@@ -163,9 +163,6 @@ android {
 
 allprojects {
     repositories {
-        flatDir {
-            dirs 'libs'
-        }
     }
 }
 

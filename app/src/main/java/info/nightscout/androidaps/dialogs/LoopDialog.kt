@@ -80,8 +80,8 @@ class LoopDialog : DaggerDialogFragment() {
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
         )
     }
 
@@ -91,8 +91,8 @@ class LoopDialog : DaggerDialogFragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         // load data from bundle
         (savedInstanceState ?: arguments)?.let { bundle ->
@@ -219,7 +219,7 @@ class LoopDialog : DaggerDialogFragment() {
 
                     apsMode == "open" -> {
                         binding.overviewCloseloop.visibility =
-                                closedLoopAllowed2.toVisibility()          //show CloseLoop button only if Objective 6 is completed (closedLoopAllowed always false in open loop mode)
+                            closedLoopAllowed2.toVisibility()          //show CloseLoop button only if Objective 6 is completed (closedLoopAllowed always false in open loop mode)
                         binding.overviewLgsloop.visibility = lgsEnabled.value().toVisibility()
                         binding.overviewOpenloop.visibility = View.GONE
                     }
@@ -309,12 +309,12 @@ class LoopDialog : DaggerDialogFragment() {
                     }
                 })
                 disposable += repository.runTransactionForResult(InsertAndCancelCurrentOfflineEventTransaction(dateUtil.now(), T.days(365).msecs(), OfflineEvent.Reason.DISABLE_LOOP))
-                        .subscribe({ result ->
-                            result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
-                            result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted OfflineEvent $it") }
-                        }, {
-                            aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
-                        })
+                    .subscribe({ result ->
+                                   result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
+                                   result.inserted.forEach { aapsLogger.debug(LTag.DATABASE, "Inserted OfflineEvent $it") }
+                               }, {
+                                   aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
+                               })
                 return true
             }
 
@@ -325,22 +325,22 @@ class LoopDialog : DaggerDialogFragment() {
                 configBuilder.storeSettings("EnablingLoop")
                 rxBus.send(EventRefreshOverview("suspend_menu"))
                 disposable += repository.runTransactionForResult(CancelCurrentOfflineEventIfAnyTransaction(dateUtil.now()))
-                        .subscribe({ result ->
-                            result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
-                        }, {
-                            aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
-                        })
+                    .subscribe({ result ->
+                                   result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
+                               }, {
+                                   aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
+                               })
                 return true
             }
 
             R.id.overview_resume, R.id.overview_reconnect -> {
                 uel.log(if (v.id == R.id.overview_resume) Action.RESUME else Action.RECONNECT, Sources.LoopDialog)
                 disposable += repository.runTransactionForResult(CancelCurrentOfflineEventIfAnyTransaction(dateUtil.now()))
-                        .subscribe({ result ->
-                            result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
-                        }, {
-                            aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
-                        })
+                    .subscribe({ result ->
+                                   result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
+                               }, {
+                                   aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
+                               })
                 rxBus.send(EventRefreshOverview("suspend_menu"))
                 commandQueue.cancelTempBasal(true, object : Callback() {
                     override fun run() {

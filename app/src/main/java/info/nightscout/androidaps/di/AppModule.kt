@@ -111,7 +111,6 @@ open class AppModule {
         @Binds fun bindBgSync(bgSyncImplementation: BgSyncImplementation): BgSync
 
         @Binds fun bindMedLinkSync(medLinkSyncImplementation: MedLinkSyncImplementation): MedLinkSync
-
     }
 }
 

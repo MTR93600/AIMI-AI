@@ -623,9 +623,9 @@ class LoopPlugin @Inject constructor(
                     ) < pump.pumpDescription.basalStep
                 )  {
                     aapsLogger.info(LTag.APS, "applyAPSRequest: Cancelling tempbasal")
-                        aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
-                        commandQueue.cancelTempBasal(false, callback)
-                      } else {
+                    aapsLogger.info(LTag.APS, "applyAPSRequest: cancelTempBasal()")
+                    commandQueue.cancelTempBasal(false, callback)
+                } else {
                     aapsLogger.info(LTag.APS, "applyAPSRequest: Basal set correctly")
                     callback?.result(
                         PumpEnactResult(injector).absolute(request.rate).duration(0)
@@ -651,22 +651,22 @@ class LoopPlugin @Inject constructor(
                     )
                 }
             } else
-            if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(request.rate - activeTemp.convertedToAbsolute(now, profile)) < pump.pumpDescription.basalStep) {
+                if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(request.rate - activeTemp.convertedToAbsolute(now, profile)) < pump.pumpDescription.basalStep) {
                 aapsLogger.info(LTag.APS, "applyAPSRequest: Temp basal set correctly")
-                callback?.result(
-                    PumpEnactResult(injector).absolute(activeTemp.convertedToAbsolute(now, profile))
-                        .enacted(false).success(true).duration(activeTemp.plannedRemainingMinutes)
-                        .comment(R.string.let_temp_basal_run)
-                )?.run()
-            } else {
+                    callback?.result(
+                        PumpEnactResult(injector).absolute(activeTemp.convertedToAbsolute(now, profile))
+                            .enacted(false).success(true).duration(activeTemp.plannedRemainingMinutes)
+                            .comment(R.string.let_temp_basal_run)
+                    )?.run()
+                } else {
                 aapsLogger.info(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()")
-                uel.log(
-                    Action.TEMP_BASAL, Sources.Loop,
-                    ValueWithUnit.UnitPerHour(request.rate),
-                    ValueWithUnit.Minute(request.duration)
-                )
-                commandQueue.tempBasalAbsolute(request.rate, request.duration, false, profile, PumpSync.TemporaryBasalType.NORMAL, callback)
-            }
+                    uel.log(
+                        Action.TEMP_BASAL, Sources.Loop,
+                        ValueWithUnit.UnitPerHour(request.rate),
+                        ValueWithUnit.Minute(request.duration)
+                    )
+                    commandQueue.tempBasalAbsolute(request.rate, request.duration, false, profile, PumpSync.TemporaryBasalType.NORMAL, callback)
+                }
         }
     }
 

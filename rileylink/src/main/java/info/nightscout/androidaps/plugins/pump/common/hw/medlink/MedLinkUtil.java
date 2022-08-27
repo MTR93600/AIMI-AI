@@ -11,8 +11,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.plugins.pump.common.hw.connector.ConnectorUtil;
-import info.nightscout.androidaps.plugins.pump.common.hw.connector.data.HistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;

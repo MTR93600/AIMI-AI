@@ -60,13 +60,13 @@ class CalibrationDialog : DialogFragmentWithDate() {
 
         val units = profileFunction.getUnits()
         val bg = Profile.fromMgdlToUnits(glucoseStatusProvider.glucoseStatusData?.glucose
-            ?: 0.0, units)
+                                             ?: 0.0, units)
         if (units == GlucoseUnit.MMOL)
             binding.bg.setParams(savedInstanceState?.getDouble("bg")
-                ?: bg, 2.0, 30.0, 0.1, DecimalFormat("0.0"), false, binding.okcancel.ok)
+                                     ?: bg, 2.0, 30.0, 0.1, DecimalFormat("0.0"), false, binding.okcancel.ok)
         else
             binding.bg.setParams(savedInstanceState?.getDouble("bg")
-                ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok)
+                                     ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok)
         binding.units.text = if (units == GlucoseUnit.MMOL) rh.gs(R.string.mmol) else rh.gs(R.string.mgdl)
         binding.bgLabel.labelFor = binding.bg.editTextId
     }
@@ -90,7 +90,7 @@ class CalibrationDialog : DialogFragmentWithDate() {
                     if(medLinkPlugin.isEnabled()){
                         medLinkMedtronicPumpPlugin.calibrate(bg)
                     } else {
-                    xDripBroadcast.sendCalibration(bg)
+                        xDripBroadcast.sendCalibration(bg)
                     }
                 })
             }

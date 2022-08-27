@@ -255,6 +255,28 @@
     <string name="location_not_found_title">Location Is Not Enabled</string>
     <string name="location_not_found_message">For Bluetooth discovery to work on newer devices, location must be enabled. AAPS does not track your location and it can be disabled after pairing is successful.</string>
 
+    <!--    DateUtil-->
+    <string name="minafter">After %1$d mins</string>
+    <string name="hoursafter">After %1$.1f hours</string>
+
+    <string name="minago">%1$d m ago</string>
+    <string name="hoursago">%1$.1f h ago</string>
+    <string name="shorthour">h</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="unit_second">second</string>
+    <string name="unit_minute">minute</string>
+    <string name="unit_hour">hour</string>
+    <string name="unit_day">day</string>
+    <string name="unit_week">week</string>
+    <string name="unit_seconds">seconds</string>
+    <string name="unit_minutes">minutes</string>
+    <string name="unit_hours">hours</string>
+    <string name="unit_days">days</string>
+    <string name="unit_weeks">weeks</string>
+    <string name="shortminute">m</string>
+    <string name="shortday">d</string>
+
     <!--    Protection-->
     <string name="wrongpassword">Wrong password</string>
     <string name="wrongpin">Wrong PIN</string>

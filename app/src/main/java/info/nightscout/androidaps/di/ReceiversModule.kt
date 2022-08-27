@@ -23,7 +23,4 @@ abstract class ReceiversModule {
     @ContributesAndroidInjector abstract fun contributesTimeDateOrTZChangeReceiver(): TimeDateOrTZChangeReceiver
     @ContributesAndroidInjector abstract fun contributesCarbSuggestionReceiver(): CarbSuggestionReceiver
     @ContributesAndroidInjector abstract fun contributesRileyLinkBroadcastReceiver(): RileyLinkBroadcastReceiver
-    @ContributesAndroidInjector abstract fun contributesMedLinkBroadcastReceiver(): MedLinkBroadcastReceiver
-    @ContributesAndroidInjector abstract fun contributesMedLinkBluetoothStateReceiver(): MedLinkBluetoothStateReceiver
-
 }

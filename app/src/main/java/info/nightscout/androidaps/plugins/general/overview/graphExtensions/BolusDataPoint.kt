@@ -35,7 +35,7 @@ class BolusDataPoint(
         else PointsWithLabelGraphSeries.Shape.BOLUS
 
     override fun color(context: Context?) =
-            when {
+        when {
                 data.type == Bolus.Type.SMB -> rh.gac(context, R.attr.smbColor)
                 data.type == Bolus.Type.TBR -> rh.gac(context, R.attr.bolusDataPointColor)
                 data.isValid                -> rh.gac(context,  R.attr.bolusDataPointColor)

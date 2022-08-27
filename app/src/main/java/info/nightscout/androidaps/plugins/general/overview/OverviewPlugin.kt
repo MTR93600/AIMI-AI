@@ -32,29 +32,29 @@ import javax.inject.Singleton
 
 @Singleton
 class OverviewPlugin @Inject constructor(
-        injector: HasAndroidInjector,
-        private val notificationStore: NotificationStore,
-        private val fabricPrivacy: FabricPrivacy,
-        private val rxBus: RxBus,
-        private val sp: SP,
-        aapsLogger: AAPSLogger,
-        private val aapsSchedulers: AapsSchedulers,
-        rh: ResourceHelper,
-        private val config: Config,
-        private val overviewData: OverviewData,
-        private val overviewMenus: OverviewMenus
+    injector: HasAndroidInjector,
+    private val notificationStore: NotificationStore,
+    private val fabricPrivacy: FabricPrivacy,
+    private val rxBus: RxBus,
+    private val sp: SP,
+    aapsLogger: AAPSLogger,
+    private val aapsSchedulers: AapsSchedulers,
+    rh: ResourceHelper,
+    private val config: Config,
+    private val overviewData: OverviewData,
+    private val overviewMenus: OverviewMenus
 ) : PluginBase(
-        PluginDescription()
-                .mainType(PluginType.GENERAL)
-                .fragmentClass(OverviewFragment::class.qualifiedName)
-                .alwaysVisible(true)
-                .alwaysEnabled(true)
-                .pluginIcon(R.drawable.ic_home)
-                .pluginName(R.string.overview)
-                .shortName(R.string.overview_shortname)
-                .preferencesId(R.xml.pref_overview)
-                .description(R.string.description_overview),
-        aapsLogger, rh, injector
+    PluginDescription()
+        .mainType(PluginType.GENERAL)
+        .fragmentClass(OverviewFragment::class.qualifiedName)
+        .alwaysVisible(true)
+        .alwaysEnabled(true)
+        .pluginIcon(R.drawable.ic_home)
+        .pluginName(R.string.overview)
+        .shortName(R.string.overview_shortname)
+        .preferencesId(R.xml.pref_overview)
+        .description(R.string.description_overview),
+    aapsLogger, rh, injector
 ), Overview {
 
     private var disposable: CompositeDisposable = CompositeDisposable()
@@ -70,19 +70,19 @@ class OverviewPlugin @Inject constructor(
 
         notificationStore.createNotificationChannel()
         disposable += rxBus
-                .toObservable(EventNewNotification::class.java)
-                .observeOn(aapsSchedulers.io)
-                .subscribe({ n ->
-                    if (notificationStore.add(n.notification))
-                        overviewBus.send(EventUpdateOverviewNotification("EventNewNotification"))
-                }, fabricPrivacy::logException)
+            .toObservable(EventNewNotification::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({ n ->
+                           if (notificationStore.add(n.notification))
+                               overviewBus.send(EventUpdateOverviewNotification("EventNewNotification"))
+                       }, fabricPrivacy::logException)
         disposable += rxBus
-                .toObservable(EventDismissNotification::class.java)
-                .observeOn(aapsSchedulers.io)
-                .subscribe({ n ->
-                    if (notificationStore.remove(n.id))
-                        overviewBus.send(EventUpdateOverviewNotification("EventDismissNotification"))
-                }, fabricPrivacy::logException)
+            .toObservable(EventDismissNotification::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({ n ->
+                           if (notificationStore.remove(n.id))
+                               overviewBus.send(EventUpdateOverviewNotification("EventDismissNotification"))
+                       }, fabricPrivacy::logException)
         disposable += rxBus
                 .toObservable(EventIobCalculationProgress::class.java)
                 .observeOn(aapsSchedulers.io)
@@ -119,59 +119,59 @@ class OverviewPlugin @Inject constructor(
     }
 
     override fun configuration(): JSONObject =
-            JSONObject()
-                    .putString(R.string.key_units, sp, rh)
-                    .putString(R.string.key_quickwizard, sp, rh)
-                    .putInt(R.string.key_eatingsoon_duration, sp, rh)
-                    .putDouble(R.string.key_eatingsoon_target, sp, rh)
-                    .putInt(R.string.key_activity_duration, sp, rh)
-                    .putDouble(R.string.key_activity_target, sp, rh)
-                    .putInt(R.string.key_hypo_duration, sp, rh)
-                    .putDouble(R.string.key_hypo_target, sp, rh)
-                    .putDouble(R.string.key_low_mark, sp, rh)
-                    .putDouble(R.string.key_high_mark, sp, rh)
-                    .putDouble(R.string.key_statuslights_cage_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_cage_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_iage_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_iage_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_sage_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_sage_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_sbat_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_sbat_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_bage_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_bage_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_res_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_res_critical, sp, rh)
-                    .putDouble(R.string.key_statuslights_bat_warning, sp, rh)
-                    .putDouble(R.string.key_statuslights_bat_critical, sp, rh)
-                    .putInt(R.string.key_boluswizard_percentage, sp, rh)
+        JSONObject()
+            .putString(R.string.key_units, sp, rh)
+            .putString(R.string.key_quickwizard, sp, rh)
+            .putInt(R.string.key_eatingsoon_duration, sp, rh)
+            .putDouble(R.string.key_eatingsoon_target, sp, rh)
+            .putInt(R.string.key_activity_duration, sp, rh)
+            .putDouble(R.string.key_activity_target, sp, rh)
+            .putInt(R.string.key_hypo_duration, sp, rh)
+            .putDouble(R.string.key_hypo_target, sp, rh)
+            .putDouble(R.string.key_low_mark, sp, rh)
+            .putDouble(R.string.key_high_mark, sp, rh)
+            .putDouble(R.string.key_statuslights_cage_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_cage_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_iage_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_iage_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_sage_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_sage_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_sbat_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_sbat_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_bage_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_bage_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_res_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_res_critical, sp, rh)
+            .putDouble(R.string.key_statuslights_bat_warning, sp, rh)
+            .putDouble(R.string.key_statuslights_bat_critical, sp, rh)
+            .putInt(R.string.key_boluswizard_percentage, sp, rh)
 
     override fun applyConfiguration(configuration: JSONObject) {
         configuration
-                .storeString(R.string.key_units, sp, rh)
-                .storeString(R.string.key_quickwizard, sp, rh)
-                .storeInt(R.string.key_eatingsoon_duration, sp, rh)
-                .storeDouble(R.string.key_eatingsoon_target, sp, rh)
-                .storeInt(R.string.key_activity_duration, sp, rh)
-                .storeDouble(R.string.key_activity_target, sp, rh)
-                .storeInt(R.string.key_hypo_duration, sp, rh)
-                .storeDouble(R.string.key_hypo_target, sp, rh)
-                .storeDouble(R.string.key_low_mark, sp, rh)
-                .storeDouble(R.string.key_high_mark, sp, rh)
-                .storeDouble(R.string.key_statuslights_cage_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_cage_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_iage_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_iage_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_sage_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_sage_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_sbat_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_sbat_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_bage_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_bage_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_res_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_res_critical, sp, rh)
-                .storeDouble(R.string.key_statuslights_bat_warning, sp, rh)
-                .storeDouble(R.string.key_statuslights_bat_critical, sp, rh)
-                .storeInt(R.string.key_boluswizard_percentage, sp, rh)
+            .storeString(R.string.key_units, sp, rh)
+            .storeString(R.string.key_quickwizard, sp, rh)
+            .storeInt(R.string.key_eatingsoon_duration, sp, rh)
+            .storeDouble(R.string.key_eatingsoon_target, sp, rh)
+            .storeInt(R.string.key_activity_duration, sp, rh)
+            .storeDouble(R.string.key_activity_target, sp, rh)
+            .storeInt(R.string.key_hypo_duration, sp, rh)
+            .storeDouble(R.string.key_hypo_target, sp, rh)
+            .storeDouble(R.string.key_low_mark, sp, rh)
+            .storeDouble(R.string.key_high_mark, sp, rh)
+            .storeDouble(R.string.key_statuslights_cage_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_cage_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_iage_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_iage_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_sage_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_sage_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_sbat_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_sbat_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_bage_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_bage_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_res_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_res_critical, sp, rh)
+            .storeDouble(R.string.key_statuslights_bat_warning, sp, rh)
+            .storeDouble(R.string.key_statuslights_bat_critical, sp, rh)
+            .storeInt(R.string.key_boluswizard_percentage, sp, rh)
     }
 }
