@@ -346,7 +346,7 @@
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
                 android:title="@string/openapsama_current_basal_safety_multiplier"
-                validate:floatmaxNumber="10"
+                validate:floatmaxNumber="20"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
 
