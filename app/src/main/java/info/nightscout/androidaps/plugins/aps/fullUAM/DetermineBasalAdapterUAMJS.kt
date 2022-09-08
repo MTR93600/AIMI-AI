@@ -14,21 +14,16 @@ import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.GlucoseUnit
 import info.nightscout.androidaps.interfaces.IobCobCalculator
 import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.interfaces.*
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.shared.logging.LTag
 import info.nightscout.androidaps.plugins.aps.logger.LoggerCallback
-import info.nightscout.androidaps.plugins.aps.loop.APSResult
 import info.nightscout.androidaps.plugins.aps.loop.ScriptReader
 import info.nightscout.androidaps.interfaces.DetermineBasalAdapterInterface
-import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalResultUAM
-import info.nightscout.androidaps.plugins.aps.fullUAM.UAMDefaults
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.shared.SafeParse
-import info.nightscout.androidaps.utils.T
 import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
@@ -44,6 +39,7 @@ import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
 import info.nightscout.androidaps.utils.Round
 import kotlin.math.ln
+import info.nightscout.androidaps.utils.T
 
 
 
@@ -77,6 +73,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var smbAlwaysAllowed = false
     private var currentTime: Long = 0
     private var saveCgmSource = false
+    private val millsToThePast = T.hours(2).msecs()
+    private var lastBolusNormalTimecount: Long = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -321,6 +319,12 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
 
+        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
+        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid ) lastBolusNormalTimeValue = bolus.amount.toLong() }
+
+
+        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid  ) lastBolusNormalTimecount += 1 }
+        this.mealData.put("countBolus", lastBolusNormalTimecount)
 
 
 
@@ -338,6 +342,11 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         val tddLast24H = tddCalculator.calculateDaily(-24, 0).totalAmount
         val tddLast4H = tddCalculator.calculateDaily(-4, 0).totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4).totalAmount
+        val tddLast24to23H = tddCalculator.calculateDaily(-24, -23).totalAmount
+        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47).totalAmount
+        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71).totalAmount
+        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95).totalAmount
+        val tddlastHaverage = (tddLast24to23H+tddLast48to47H+tddLast72to71H+tddLast96to95H)/4
 
         val tddWeightedFromLast8H = ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
         var tdd =
@@ -364,6 +373,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
         this.profile.put("aimisensitivity", aimisensitivity)
         this.profile.put("insulinDivisor", insulinDivisor)
+        this.profile.put("tddlastHaverage", tddlastHaverage)
 
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3))?.totalAmount)
@@ -396,6 +406,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         return NativeJSON.parse(rhino, scope, jsonArray.toString()) { _: Context?, _: Scriptable?, _: Scriptable?, objects: Array<Any?> -> objects[1] }
     }
 
+    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
 
     @Throws(IOException::class) private fun readFile(filename: String): String {
         val bytes = scriptReader.readFile(filename)
