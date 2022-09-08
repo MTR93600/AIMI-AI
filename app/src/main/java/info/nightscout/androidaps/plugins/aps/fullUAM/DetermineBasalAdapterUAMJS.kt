@@ -39,6 +39,7 @@ import javax.inject.Inject
 import info.nightscout.androidaps.utils.stats.TirCalculator
 import info.nightscout.androidaps.utils.Round
 import kotlin.math.ln
+import info.nightscout.androidaps.utils.T
 
 
 
@@ -72,6 +73,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var smbAlwaysAllowed = false
     private var currentTime: Long = 0
     private var saveCgmSource = false
+    private val millsToThePast = T.hours(2).msecs()
+    private var lastBolusNormalTimecount: Long = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -316,6 +319,12 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
 
+        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.timestamp > lastBolusNormalTime ) lastBolusNormalTime = bolus.timestamp }
+        //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid ) lastBolusNormalTimeValue = bolus.amount.toLong() }
+
+
+        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid  ) lastBolusNormalTimecount += 1 }
+        this.mealData.put("countBolus", lastBolusNormalTimecount)
 
 
 
@@ -397,6 +406,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         return NativeJSON.parse(rhino, scope, jsonArray.toString()) { _: Context?, _: Scriptable?, _: Scriptable?, objects: Array<Any?> -> objects[1] }
     }
 
+    private fun bolusMealLinks(now: Long) = repository.getBolusesDataFromTime(now - millsToThePast, false).blockingGet()
 
     @Throws(IOException::class) private fun readFile(filename: String): String {
         val bytes = scriptReader.readFile(filename)

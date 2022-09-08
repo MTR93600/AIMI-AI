@@ -409,12 +409,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-    if (iTimeActivation === true && iTime < profile.b30_duration){
-    rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
+    if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1){
+    rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
     //rT.deliverAt = deliverAt;
     rT.temp = 'absolute';
     rT.duration = profile.b30_duration;
-    rate = round_basal(basal*16,profile);
+    rate = round_basal(basal*10,profile);
     rT.rate = rate;
     //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
     //rT.rate = profile.current_basal*10;
@@ -1284,7 +1284,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVa-AIMI-V22a-01/09/22 ";
+    rT.reason += "\nDEVa-AIMI-V22a-08/09/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1847,8 +1847,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
 
-        if (iTimeActivation === true && iTime < profile.b30_duration){
-            rT.reason += ". force basal because iTime is running and lesser than 20 minutes : "+(profile.current_basal*10/60)*30;
+        if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1){
+            rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
             //rT.deliverAt = deliverAt;
             durationReq = profile.b30_duration;
             rT.duration = durationReq;
