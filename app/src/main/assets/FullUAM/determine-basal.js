@@ -312,7 +312,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var AIMI_UAM = profile.enable_AIMI_UAM;
     var enlog = "";
 
-
     if (glucose_status.delta >= 0 && bg > b30upperLimit ){
     var aimi_bg = (bg + (bg - glucose_status.delta))/2;
     var aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;

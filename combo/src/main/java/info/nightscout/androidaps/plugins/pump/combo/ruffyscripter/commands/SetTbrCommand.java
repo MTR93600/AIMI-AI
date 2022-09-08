@@ -37,7 +37,7 @@ public class SetTbrCommand extends BaseCommand {
         if (percentage % 10 != 0) {
             violations.add("TBR percentage must be set in 10% steps");
         }
-        if (percentage < 0 || percentage > 1000) {
+        if (percentage < 0 || percentage > 500) {
             violations.add("TBR percentage must be within 0-1000%");
         }
 
