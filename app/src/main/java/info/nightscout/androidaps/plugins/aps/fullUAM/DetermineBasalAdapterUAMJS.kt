@@ -323,7 +323,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         //bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid ) lastBolusNormalTimeValue = bolus.amount.toLong() }
 
 
-        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid  ) lastBolusNormalTimecount += 1 }
+        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus,"2"))) lastBolusNormalTimecount += 1 }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
 
 
@@ -359,8 +359,8 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         val aimisensitivity = tddLast24H / tdd7D!!
 
         val insulinDivisor = when {
-            insulin.peak > 65 -> 55 // lyumjev peak: 45
-            insulin.peak > 50 -> 65 // ultra rapid peak: 55
+            insulin.peak >= 35 -> 55 // lyumjev peak: 45
+            insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
         }
         var variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
