@@ -1108,8 +1108,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }else{
     var future_sens = sens;
     }
-    future_sens = iTime < iTimeProfile && lastHourTIRLow > 0 ? round(future_sens * 1.618,1) : round(future_sens);
-    future_sens = iTime < iTimeProfile && glucose_status.delta < 0 && bg < 130 ? profile.sens : future_sens;
+    future_sens = iTime < iTimeProfile && lastHourTIRLow > 0 ? round(future_sens * 1.618,1) :
+    round(future_sens);
+    future_sens = iTime < iTimeProfile && glucose_status.delta < 0 && bg < 130 ? profile.sens : round(future_sens);
 var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
 var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
@@ -1747,13 +1748,13 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
        if (iTimeActivation === true){
-            if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp && iTime > 100){
+            if (eventualBG < 90 && AIMI_UAM_Fiasp && iTime > 100){
                         microBolus = 0;
                         rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
-            }else if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Novorapid && iTime > 100){
+            }else if (eventualBG < 90 && AIMI_UAM_Novorapid && iTime > 100){
                         microBolus = 0;
                         rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
-            }else if (TriggerPredSMB_future_sens_45 < 90 && iTime > 100){
+            }else if (eventualBG < 90 && iTime > 100){
                             microBolus = 0;
                             rT.reason += ", No SMB because Luymjev and Pred < 80, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
@@ -1764,13 +1765,13 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             }
 
        }else{
-            if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Fiasp){
+            if (eventualBG < 90 && AIMI_UAM_Fiasp){
                 microBolus = 0;
                 rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
-            }else if (TriggerPredSMB_future_sens_45 < 90 && AIMI_UAM_Novorapid){
+            }else if (eventualBG < 90 && AIMI_UAM_Novorapid){
                 microBolus = 0;
                 rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
-            }else if (TriggerPredSMB_future_sens_45 < 90){
+            }else if (eventualBG < 90){
                 microBolus = 0;
                 rT.reason += ", No SMB because Luymjev and Pred < 80, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){

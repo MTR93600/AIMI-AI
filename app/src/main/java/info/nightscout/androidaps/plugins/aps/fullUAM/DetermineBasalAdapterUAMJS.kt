@@ -73,7 +73,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var smbAlwaysAllowed = false
     private var currentTime: Long = 0
     private var saveCgmSource = false
-    private val millsToThePast = T.hours(2).msecs()
+    private val millsToThePast = T.hours(1).msecs()
     private var lastBolusNormalTimecount: Long = 0
 
     override var currentTempParam: String? = null
