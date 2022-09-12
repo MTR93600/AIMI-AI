@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.*
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.OpenapsamaFragmentBinding
@@ -24,7 +26,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import javax.inject.Inject
 
-class FullUAMFragment : DaggerFragment() {
+class FullUAMFragment : DaggerFragment(), MenuProvider {
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 
@@ -38,7 +40,8 @@ class FullUAMFragment : DaggerFragment() {
     @Inject lateinit var jsonFormatter: JSONFormatter
     private lateinit var refreshDialog: Runnable
 
-    private val ID_MENU_RUN = 1
+    @Suppress("PrivatePropertyName")
+    private val ID_MENU_RUN = 503
 
     private var _binding: OpenapsamaFragmentBinding? = null
 
@@ -49,7 +52,7 @@ class FullUAMFragment : DaggerFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         OpenapsamaFragmentBinding.inflate(inflater, container, false).also {
             _binding = it
-            setHasOptionsMenu(true)
+            requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,21 +61,18 @@ class FullUAMFragment : DaggerFragment() {
         with(binding.swipeRefresh) {
             setColorSchemeColors(rh.gac(context, R.attr.colorPrimaryDark), rh.gac(context, R.attr.colorPrimary), rh.gac(context, R.attr.colorSecondary))
             setOnRefreshListener {
-                binding.lastrun.text = rh.gs(info.nightscout.androidaps.R.string.executing)
-                Thread { activePlugin.activeAPS.invoke("OpenAPSSMB swiperefresh", false) }.start()
+                binding.lastrun.text = rh.gs(R.string.executing)
+                Thread { activePlugin.activeAPS.invoke("OpenAPSSMB swipe refresh", false) }.start()
             }
         }
     }
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (isResumed) {
-            menu.removeItem(ID_MENU_RUN)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+
             menu.add(Menu.FIRST, ID_MENU_RUN, 0, rh.gs(R.string.openapsma_run)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             menu.setGroupDividerEnabled(true)
-        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+    override fun onMenuItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             ID_MENU_RUN -> {
                 binding.lastrun.text = rh.gs(R.string.executing)
