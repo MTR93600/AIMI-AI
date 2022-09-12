@@ -11,9 +11,19 @@
             android:exported="false"
             android:theme="@style/AppTheme" />
 
+        <service
+            android:name=".service.MedLinkMedtronicService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity android:name=".dialog.MedLinkMedtronicHistoryActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
     </application>
+
 
 </manifest>
