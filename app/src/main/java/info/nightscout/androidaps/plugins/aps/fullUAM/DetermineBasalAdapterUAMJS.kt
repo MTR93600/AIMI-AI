@@ -75,6 +75,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
     private var saveCgmSource = false
     private val millsToThePast = T.hours(1).msecs()
     private var lastBolusNormalTimecount: Long = 0
+    private var lastBolusSMBcount: Long = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -324,7 +325,9 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 
 
         bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus,"2"))) lastBolusNormalTimecount += 1 }
+        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1 }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
+        this.mealData.put("countSMB", lastBolusSMBcount)
 
 
 
