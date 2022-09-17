@@ -410,7 +410,7 @@ class DanaRSPlugin @Inject constructor(
             aapsLogger.error("setTempBasalPercent: Invalid input")
             return result
         }
-        if (percentAfterConstraint > pumpDescription.maxTempPercent) percentAfterConstraint = pumpDescription.maxTempPercent
+        //if (percentAfterConstraint > pumpDescription.maxTempPercent) percentAfterConstraint = pumpDescription.maxTempPercent
         if (danaPump.isTempBasalInProgress && danaPump.tempBasalPercent == percentAfterConstraint && danaPump.tempBasalRemainingMin > 4 && !enforceNew) {
             result.enacted = false
             result.success = true
