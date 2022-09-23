@@ -25,6 +25,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.aps.loop.LoopVariantPreference
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
@@ -114,14 +115,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             rhino.evaluateString(scope, "require = function() {return round_basal;};", "JavaScript", 0, null)
 
             //generate functions "determine_basal" and "setTempBasal"
-            //rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
-
-            val aimiVariant = sp.getString(R.string.key_aimi_variant, AIMIDefaults.variant)
-            if (aimiVariant == AIMIDefaults.variant)
-                rhino.evaluateString(scope, readFile("AIMI/determine-basal.js"), "JavaScript", 0, null)
-            else
-                rhino.evaluateString(scope, readFile("AIMI/$aimiVariant/determine-basal.js"), "JavaScript", 0, null)
-
+            rhino.evaluateString(scope, readFile(LoopVariantPreference.getVariantFileName(sp, AIMIDefaults.folderName)), "JavaScript", 0, null)
             rhino.evaluateString(scope, readFile("AIMI/basal-set-temp.js"), "setTempBasal.js", 0, null)
             val determineBasalObj = scope["determine_basal", scope]
             val setTempBasalFunctionsObj = scope["tempBasalFunctions", scope]

@@ -136,7 +136,7 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
 
             binding.profile.text = jsonFormatter.format(determineBasalAdapterUAMJS.profileParam)
             binding.mealdata.text = jsonFormatter.format(determineBasalAdapterUAMJS.mealDataParam)
-            binding.scriptdebugdata.text = determineBasalAdapterUAMJS.scriptDebug.replace("\\s+".toRegex(), " ")
+            binding.scriptdebugdata.text = determineBasalAdapterUAMJS.scriptDebug
             fullUAMPlugin.lastAPSResult?.inputConstraints?.let {
                 binding.constraints.text = it.getReasons(aapsLogger)
             }

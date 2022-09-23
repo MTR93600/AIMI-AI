@@ -7,21 +7,18 @@
         android:title="AIMI Variant Preferences"
         app:initialExpandedChildrenCount="0">
 
-        <info.nightscout.androidaps.plugins.aps.fullUAM.AIMIVariantPreference
-            android:title="@string/aimi_variant_title"
-            android:key="@string/key_aimi_variant"
+        <info.nightscout.androidaps.plugins.aps.loop.LoopVariantPreference
+            android:title="@string/variant_title"
             android:defaultValue="default"
             android:selectable="true"
+            app:pluginFolder="AIMI"
             />
 
     </PreferenceCategory>
 
-
-
     <PreferenceCategory
         android:key="@string/key_fulluam_settings"
-        android:title="@string/fulluam"
-        app:initialExpandedChildrenCount="0">
+        android:title="@string/fulluam">
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="1"
