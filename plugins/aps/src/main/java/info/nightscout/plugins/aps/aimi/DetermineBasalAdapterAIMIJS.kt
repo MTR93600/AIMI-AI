@@ -46,7 +46,7 @@ import info.nightscout.shared.utils.DateUtil
 import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
-
+import info.nightscout.plugins.aps.loop.LoopVariantPreference
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -120,27 +120,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             rhino.evaluateString(scope, "require = function() {return round_basal;};", "JavaScript", 0, null)
 
             //generate functions "determine_basal" and "setTempBasal"
-            //rhino.evaluateString(scope, readFile(LoopVariantPreference.getVariantFileName(sp, AIMIDefaults.folderName)), "JavaScript", 0, null)
-            if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_b30mssvaimi, false) && sp.getBoolean(R.string.key_use_mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false))
-                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_mssv, false) && sp.getBoolean(R.string.key_use_b30mssvaimi, false))
-                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false) && sp.getBoolean(R.string.key_use_b30mssvaimi, false))
-                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false) && sp.getBoolean(R.string.key_use_b30mssvaimi, false))
-                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_b30mssv, false))
-                rhino.evaluateString(scope, readFile("AIMI/b30mssv/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_mssv, false))
-                rhino.evaluateString(scope, readFile("AIMI/mssv/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_pammssv, false))
-                rhino.evaluateString(scope, readFile("AIMI/pammssv/determine-basal.js"), "JavaScript", 0, null)
-            else if (sp.getBoolean(R.string.key_use_b30mssvaimi, false))
-                rhino.evaluateString(scope, readFile("AIMI/b30mssvaimi/determine-basal.js"), "JavaScript", 0, null)
-            else
-                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
-
-
+            rhino.evaluateString(scope, readFile(LoopVariantPreference.getVariantFileName(sp, AIMIDefaults.folderName)), "JavaScript", 0, null)
             rhino.evaluateString(scope, readFile("OpenAPSSMB/basal-set-temp.js"), "setTempBasal.js", 0, null)
             val determineBasalObj = scope["determine_basal", scope]
             val setTempBasalFunctionsObj = scope["tempBasalFunctions", scope]

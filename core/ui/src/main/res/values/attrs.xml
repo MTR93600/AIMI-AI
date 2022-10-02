@@ -221,4 +221,8 @@
     <attr name="crossTargetColor" format="reference|color" />
     <!---Custom button -->
     <attr name="customBtnStyle" format="reference"/>
+
+    <declare-styleable name="LoopVariantPreference">
+        <attr name="pluginFolder" format="string" />
+    </declare-styleable>
 </resources>
