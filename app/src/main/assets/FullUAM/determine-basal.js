@@ -1132,7 +1132,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-a-AIMI V22 18/08/2022 ");
+                console.log(" AAPS-3.1.0.3-dev-a-AIMI V22a 29/09/2022 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
