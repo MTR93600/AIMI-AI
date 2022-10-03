@@ -1371,6 +1371,8 @@
     <string name="a11y_only_on_phone">only on phone</string>
     <string name="a11y_drag_and_drop_handle">drag and drop handle</string>
     <string name="search">Search</string>
+    <string name="key_aimi_variant" translatable="false">AIMI_variant</string>
+    <string name="aimi_variant_title">AIMI Variant</string>
 
     <!-- Aidex Cgms -->
     <string name="aidex">GlucoRx Aidex</string>

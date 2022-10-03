@@ -119,7 +119,14 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
             rhino.evaluateString(scope, "require = function() {return round_basal;};", "JavaScript", 0, null)
 
             //generate functions "determine_basal" and "setTempBasal"
-            rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
+            //rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
+
+            val aimiVariant = sp.getString(R.string.key_aimi_variant, UAMDefaults.variant)
+            if (aimiVariant == UAMDefaults.variant)
+                rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
+            else
+                rhino.evaluateString(scope, readFile("FullUAM/$aimiVariant/determine-basal.js"), "JavaScript", 0, null)
+
             rhino.evaluateString(scope, readFile("FullUAM/basal-set-temp.js"), "setTempBasal.js", 0, null)
             val determineBasalObj = scope["determine_basal", scope]
             val setTempBasalFunctionsObj = scope["tempBasalFunctions", scope]

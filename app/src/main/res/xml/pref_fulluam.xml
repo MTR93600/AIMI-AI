@@ -4,6 +4,21 @@
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        android:title="AIMI Variant Preferences"
+        app:initialExpandedChildrenCount="0">
+
+        <info.nightscout.androidaps.plugins.aps.fullUAM.AIMIVariantPreference
+            android:title="@string/aimi_variant_title"
+            android:key="@string/key_aimi_variant"
+            android:defaultValue="default"
+            android:selectable="true"
+            />
+
+    </PreferenceCategory>
+
+
+
+    <PreferenceCategory
         android:key="@string/key_fulluam_settings"
         android:title="@string/fulluam"
         app:initialExpandedChildrenCount="0">
