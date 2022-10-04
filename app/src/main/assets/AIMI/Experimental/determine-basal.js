@@ -298,7 +298,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI version 22 Beta a");
+       console.error( " AIMI-Variant version 22 Beta b");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1132,7 +1132,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-a-AIMI V22a 29/09/2022 Experimental ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 04/10/2022 Experimental ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
