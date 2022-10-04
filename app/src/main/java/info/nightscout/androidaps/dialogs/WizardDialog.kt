@@ -92,11 +92,13 @@ class WizardDialog : DaggerDialogFragment() {
     }
 
     private val timeTextWatcher = object : TextWatcher {
-        override fun afterTextChanged(s: Editable) {}
+        override fun afterTextChanged(s: Editable) {
+            binding.alarm.isChecked = binding.carbTimeInput.value > 0
+        }
+
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             calculateInsulin()
-            binding.alarm.isChecked = binding.carbTimeInput.value > 0
         }
     }
 
@@ -335,7 +337,7 @@ class WizardDialog : DaggerDialogFragment() {
         val tempTarget = repository.getTemporaryTargetActiveAt(dateUtil.now()).blockingGet()
 
         if (profile == null || profileStore == null) {
-            ToastUtils.showToastInUiThread(ctx, rh.gs(R.string.noprofile))
+            ToastUtils.errorToast(ctx, R.string.noprofile)
             dismiss()
             return
         }
@@ -367,7 +369,7 @@ class WizardDialog : DaggerDialogFragment() {
             // Set BG if not old
             binding.bgInput.value = iobCobCalculator.ads.actualBg()?.valueToUnits(units) ?: 0.0
 
-            binding.ttCheckbox.isEnabled =  tempTarget is ValueWrapper.Existing
+            binding.ttCheckbox.isEnabled = tempTarget is ValueWrapper.Existing
             binding.ttCheckboxIcon.visibility = binding.ttCheckbox.isEnabled.toVisibility()
             binding.iobInsulin.text = rh.gs(R.string.formatinsulinunits, -bolusIob.iob - basalIob.basaliob)
 
@@ -409,7 +411,7 @@ class WizardDialog : DaggerDialogFragment() {
         val carbsAfterConstraint = constraintChecker.applyCarbsConstraints(Constraint(carbs)).value()
         if (abs(carbs - carbsAfterConstraint) > 0.01) {
             binding.carbsInput.value = 0.0
-            ToastUtils.showToastInUiThread(ctx, rh.gs(R.string.carbsconstraintapplied))
+            ToastUtils.warnToast(ctx, R.string.carbsconstraintapplied)
             return
         }
 
@@ -511,7 +513,7 @@ class WizardDialog : DaggerDialogFragment() {
                 val cancelFail = {
                     queryingProtection = false
                     aapsLogger.debug(LTag.APS, "Dialog canceled on resume protection: ${this.javaClass.name}")
-                    ToastUtils.showToastInUiThread(ctx, R.string.dialog_canceled)
+                    ToastUtils.warnToast(ctx, R.string.dialog_canceled)
                     dismiss()
                 }
                 protectionCheck.queryProtection(activity, BOLUS, { queryingProtection = false }, cancelFail, cancelFail)
