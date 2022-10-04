@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.aps.fullUAM
+package info.nightscout.androidaps.plugins.aps.AIMI
 
 import android.content.Context
 import androidx.preference.PreferenceFragmentCompat
@@ -24,13 +24,14 @@ import info.nightscout.androidaps.utils.HardLimits
 import info.nightscout.androidaps.utils.Profiler
 import info.nightscout.androidaps.utils.Round
 import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @OpenForTesting
 @Singleton
-class FullUAMPlugin @Inject constructor(
+class AIMIPlugin @Inject constructor(
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
     private val rxBus: RxBus,
@@ -49,7 +50,7 @@ class FullUAMPlugin @Inject constructor(
 )  : PluginBase(
     PluginDescription()
     .mainType(PluginType.APS)
-    .fragmentClass(FullUAMFragment::class.java.name)
+    .fragmentClass(AIMIFragment::class.java.name)
     .pluginIcon(R.drawable.ic_generic_icon)
     .pluginName(R.string.fulluam)
     .shortName(R.string.fulluam_shortname)
@@ -60,7 +61,7 @@ class FullUAMPlugin @Inject constructor(
 
     // last values
     override var lastAPSRun: Long = 0
-    override var lastAPSResult: DetermineBasalResultUAM? = null
+    override var lastAPSResult: DetermineBasalResultSMB? = null
     override var lastDetermineBasalAdapter: DetermineBasalAdapterInterface? = null
     override var lastAutosensResult = AutosensResult()
 
@@ -164,7 +165,7 @@ class FullUAMPlugin @Inject constructor(
         } else {
             lastAutosensResult.sensResult = "autosens disabled"
         }
-        val iobArray = iobCobCalculator.calculateIobArrayForSMB(lastAutosensResult, UAMDefaults.exercise_mode, UAMDefaults.half_basal_exercise_target, isTempTarget)
+        val iobArray = iobCobCalculator.calculateIobArrayForSMB(lastAutosensResult, AIMIDefaults.exercise_mode, AIMIDefaults.half_basal_exercise_target, isTempTarget)
         profiler.log(LTag.APS, "calculateIobArrayInDia()", startPart)
         startPart = System.currentTimeMillis()
         val smbAllowed = Constraint(!tempBasalFallback).also {
@@ -212,7 +213,7 @@ class FullUAMPlugin @Inject constructor(
                 determineBasalResultUAM.json?.put("timestamp", dateUtil.toISOString(now))
                 determineBasalResultUAM.inputConstraints = inputConstraints
                 lastDetermineBasalAdapter = determineBasalAdapterUAMJS
-                lastAPSResult = determineBasalResultUAM as DetermineBasalResultUAM
+                lastAPSResult = determineBasalResultUAM as DetermineBasalResultSMB
                 lastAPSRun = now
             }
         }
@@ -223,7 +224,7 @@ class FullUAMPlugin @Inject constructor(
         value.set(aapsLogger, false)
         return value
     }
-    fun provideDetermineBasalAdapter(): DetermineBasalAdapterInterface = DetermineBasalAdapterUAMJS(ScriptReader(context), injector)
+    fun provideDetermineBasalAdapter(): DetermineBasalAdapterInterface = DetermineBasalAdapterAIMIJS(ScriptReader(context), injector)
 }
 
 

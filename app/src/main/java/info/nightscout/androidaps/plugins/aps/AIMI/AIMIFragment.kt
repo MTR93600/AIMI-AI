@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.aps.fullUAM
+package info.nightscout.androidaps.plugins.aps.AIMI
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -26,7 +26,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import javax.inject.Inject
 
-class FullUAMFragment : DaggerFragment(), MenuProvider {
+class AIMIFragment : DaggerFragment(), MenuProvider {
 
     private var disposable: CompositeDisposable = CompositeDisposable()
 

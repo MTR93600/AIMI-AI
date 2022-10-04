@@ -17,9 +17,9 @@ class AIMIVariantPreference(context: Context, attrs: AttributeSet?)
         (context.applicationContext as HasAndroidInjector).androidInjector().inject(this)
 
         val entries = Vector<CharSequence>()
-        entries.add(UAMDefaults.variant)
+        entries.add(AIMIDefaults.variant)
 
-        val list = context.assets.list("fullUAM/")
+        val list = context.assets.list("AIMI/")
         list?.forEach {
             if (!it.endsWith(".js"))
                 entries.add(it)
@@ -27,6 +27,6 @@ class AIMIVariantPreference(context: Context, attrs: AttributeSet?)
 
         entryValues = entries.toTypedArray()
         setEntries(entries.toTypedArray())
-        setDefaultValue(sp.getString(R.string.key_aimi_variant, UAMDefaults.variant))
+        setDefaultValue(sp.getString(R.string.key_aimi_variant, AIMIDefaults.variant))
     }
 }

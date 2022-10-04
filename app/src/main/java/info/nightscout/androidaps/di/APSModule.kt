@@ -2,8 +2,7 @@ package info.nightscout.androidaps.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalAdapterUAMJS
-import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalResultUAM
+import info.nightscout.androidaps.plugins.aps.AIMI.DetermineBasalAdapterAIMIJS
 import info.nightscout.androidaps.plugins.aps.logger.LoggerCallback
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.DetermineBasalAdapterAMAJS
 import info.nightscout.androidaps.plugins.aps.openAPSAMA.DetermineBasalResultAMA
@@ -18,9 +17,8 @@ abstract class APSModule {
     @ContributesAndroidInjector abstract fun loggerCallbackInjector(): LoggerCallback
     @ContributesAndroidInjector abstract fun determineBasalResultSMBInjector(): DetermineBasalResultSMB
     @ContributesAndroidInjector abstract fun determineBasalResultAMAInjector(): DetermineBasalResultAMA
-    @ContributesAndroidInjector abstract fun determineBasalResultUAMInjector(): DetermineBasalResultUAM
     @ContributesAndroidInjector abstract fun determineBasalAdapterAMAJSInjector(): DetermineBasalAdapterAMAJS
     @ContributesAndroidInjector abstract fun determineBasalAdapterSMBJSInjector(): DetermineBasalAdapterSMBJS
-    @ContributesAndroidInjector abstract fun determineBasalAdapterUAMJSInjector(): DetermineBasalAdapterUAMJS
+    @ContributesAndroidInjector abstract fun determineBasalAdapterUAMJSInjector(): DetermineBasalAdapterAIMIJS
     @ContributesAndroidInjector abstract fun determineBasalAdapterSMBAutoISFJSInjector(): DetermineBasalAdapterSMBDynamicISFJS
 }

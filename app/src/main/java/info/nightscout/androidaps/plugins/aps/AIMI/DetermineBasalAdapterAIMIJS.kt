@@ -1,4 +1,4 @@
-package info.nightscout.androidaps.plugins.aps.fullUAM
+package info.nightscout.androidaps.plugins.aps.AIMI
 
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.R
@@ -25,6 +25,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatus
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.shared.SafeParse
 import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.androidaps.utils.stats.TddCalculator
 import org.json.JSONArray
@@ -41,13 +42,7 @@ import info.nightscout.androidaps.utils.Round
 import kotlin.math.ln
 import info.nightscout.androidaps.utils.T
 
-
-
-
-
-
-
-class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapterInterface {
+class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapterInterface {
 
     @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var constraintChecker: ConstraintChecker
@@ -87,7 +82,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 
 
     @Suppress("SpellCheckingInspection")
-    override operator fun invoke(): DetermineBasalResultUAM? {
+    override operator fun invoke(): DetermineBasalResultSMB? {
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
         aapsLogger.debug(LTag.APS, "Glucose status: " + mGlucoseStatus.toString().also { glucoseStatusParam = it })
         aapsLogger.debug(LTag.APS, "IOB data:       " + iobData.toString().also { iobDataParam = it })
@@ -100,7 +95,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         aapsLogger.debug(LTag.APS, "SMBAlwaysAllowed:  $smbAlwaysAllowed")
         aapsLogger.debug(LTag.APS, "CurrentTime: $currentTime")
         aapsLogger.debug(LTag.APS, "isSaveCgmSource: $saveCgmSource")
-        var determineBasalResultUAM: DetermineBasalResultUAM? = null
+        var determineBasalResultUAM: DetermineBasalResultSMB? = null
         val rhino = Context.enter()
         val scope: Scriptable = rhino.initStandardObjects()
         // Turn off optimization to make Rhino Android compatible
@@ -121,13 +116,13 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
             //generate functions "determine_basal" and "setTempBasal"
             //rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
 
-            val aimiVariant = sp.getString(R.string.key_aimi_variant, UAMDefaults.variant)
-            if (aimiVariant == UAMDefaults.variant)
-                rhino.evaluateString(scope, readFile("FullUAM/determine-basal.js"), "JavaScript", 0, null)
+            val aimiVariant = sp.getString(R.string.key_aimi_variant, AIMIDefaults.variant)
+            if (aimiVariant == AIMIDefaults.variant)
+                rhino.evaluateString(scope, readFile("AIMI/determine-basal.js"), "JavaScript", 0, null)
             else
-                rhino.evaluateString(scope, readFile("FullUAM/$aimiVariant/determine-basal.js"), "JavaScript", 0, null)
+                rhino.evaluateString(scope, readFile("AIMI/$aimiVariant/determine-basal.js"), "JavaScript", 0, null)
 
-            rhino.evaluateString(scope, readFile("FullUAM/basal-set-temp.js"), "setTempBasal.js", 0, null)
+            rhino.evaluateString(scope, readFile("AIMI/basal-set-temp.js"), "setTempBasal.js", 0, null)
             val determineBasalObj = scope["determine_basal", scope]
             val setTempBasalFunctionsObj = scope["tempBasalFunctions", scope]
 
@@ -156,7 +151,7 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
                 aapsLogger.debug(LTag.APS, "Result: $result")
                 try {
                     val resultJson = JSONObject(result)
-                    determineBasalResultUAM = DetermineBasalResultUAM(injector, resultJson)
+                    determineBasalResultUAM = DetermineBasalResultSMB(injector, resultJson)
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -227,16 +222,16 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
 //**********************************************************************************************************************************************
         //this.profile.put("high_temptarget_raises_sensitivity", false)
         //mProfile.put("low_temptarget_lowers_sensitivity", SP.getBoolean(R.string.key_low_temptarget_lowers_sensitivity, UAMDefaults.low_temptarget_lowers_sensitivity));
-        this.profile.put("high_temptarget_raises_sensitivity",sp.getBoolean(rh.gs(R.string.key_high_temptarget_raises_sensitivity),UAMDefaults.high_temptarget_raises_sensitivity))
-        this.profile.put("low_temptarget_lowers_sensitivity",sp.getBoolean(rh.gs(R.string.key_low_temptarget_lowers_sensitivity),UAMDefaults.low_temptarget_lowers_sensitivity))
+        this.profile.put("high_temptarget_raises_sensitivity",sp.getBoolean(rh.gs(R.string.key_high_temptarget_raises_sensitivity), AIMIDefaults.high_temptarget_raises_sensitivity))
+        this.profile.put("low_temptarget_lowers_sensitivity",sp.getBoolean(rh.gs(R.string.key_low_temptarget_lowers_sensitivity), AIMIDefaults.low_temptarget_lowers_sensitivity))
         //this.profile.put("low_temptarget_lowers_sensitivity", false)
 //**********************************************************************************************************************************************
-        this.profile.put("sensitivity_raises_target", sp.getBoolean(R.string.key_sensitivity_raises_target, UAMDefaults.sensitivity_raises_target))
-        this.profile.put("resistance_lowers_target", sp.getBoolean(R.string.key_resistance_lowers_target, UAMDefaults.resistance_lowers_target))
-        this.profile.put("adv_target_adjustments", UAMDefaults.adv_target_adjustments)
-        this.profile.put("exercise_mode", UAMDefaults.exercise_mode)
-        this.profile.put("half_basal_exercise_target", UAMDefaults.half_basal_exercise_target)
-        this.profile.put("maxCOB", UAMDefaults.maxCOB)
+        this.profile.put("sensitivity_raises_target", sp.getBoolean(R.string.key_sensitivity_raises_target, AIMIDefaults.sensitivity_raises_target))
+        this.profile.put("resistance_lowers_target", sp.getBoolean(R.string.key_resistance_lowers_target, AIMIDefaults.resistance_lowers_target))
+        this.profile.put("adv_target_adjustments", AIMIDefaults.adv_target_adjustments)
+        this.profile.put("exercise_mode", AIMIDefaults.exercise_mode)
+        this.profile.put("half_basal_exercise_target", AIMIDefaults.half_basal_exercise_target)
+        this.profile.put("maxCOB", AIMIDefaults.maxCOB)
         this.profile.put("skip_neutral_temps", pump.setNeutralTempAtFullHour())
         // min_5m_carbimpact is not used within SMB determinebasal
         //if (mealData.usedMinCarbsImpact > 0) {
@@ -244,22 +239,22 @@ class DetermineBasalAdapterUAMJS internal constructor(private val scriptReader: 
         //} else {
         //    mProfile.put("min_5m_carbimpact", SP.getDouble(R.string.key_openapsama_min_5m_carbimpact, UAMDefaults.min_5m_carbimpact));
         //}
-        this.profile.put("remainingCarbsCap", UAMDefaults.remainingCarbsCap)
+        this.profile.put("remainingCarbsCap", AIMIDefaults.remainingCarbsCap)
         this.profile.put("enableUAM", uamAllowed)
 
-        this.profile.put("A52_risk_enable", UAMDefaults.A52_risk_enable)
+        this.profile.put("A52_risk_enable", AIMIDefaults.A52_risk_enable)
         val smbEnabled = sp.getBoolean(R.string.key_use_smb, false)
-        this.profile.put("SMBInterval", sp.getInt(R.string.key_smbinterval, UAMDefaults.SMBInterval))
+        this.profile.put("SMBInterval", sp.getInt(R.string.key_smbinterval, AIMIDefaults.SMBInterval))
         this.profile.put("enableSMB_with_COB", smbEnabled && sp.getBoolean(R.string.key_enableSMB_with_COB, false))
         this.profile.put("enableSMB_with_temptarget", smbEnabled && sp.getBoolean(R.string.key_enableSMB_with_temptarget, false))
         this.profile.put("allowSMB_with_high_temptarget", smbEnabled && sp.getBoolean(R.string.key_allowSMB_with_high_temptarget, false))
         this.profile.put("enableSMB_always", smbEnabled && sp.getBoolean(R.string.key_enableSMB_always, false) && advancedFiltering)
         this.profile.put("enableSMB_after_carbs", smbEnabled && sp.getBoolean(R.string.key_enableSMB_after_carbs, false) && advancedFiltering)
-        this.profile.put("maxSMBBasalMinutes", sp.getInt(R.string.key_smbmaxminutes, UAMDefaults.maxSMBBasalMinutes))
-        this.profile.put("maxUAMSMBBasalMinutes", sp.getInt(R.string.key_uamsmbmaxminutes, UAMDefaults.maxUAMSMBBasalMinutes))
+        this.profile.put("maxSMBBasalMinutes", sp.getInt(R.string.key_smbmaxminutes, AIMIDefaults.maxSMBBasalMinutes))
+        this.profile.put("maxUAMSMBBasalMinutes", sp.getInt(R.string.key_uamsmbmaxminutes, AIMIDefaults.maxUAMSMBBasalMinutes))
         //set the min SMB amount to be the amount set by the pump.
         this.profile.put("bolus_increment", pumpBolusStep)
-        this.profile.put("carbsReqThreshold", sp.getInt(R.string.key_carbsReqThreshold, UAMDefaults.carbsReqThreshold))
+        this.profile.put("carbsReqThreshold", sp.getInt(R.string.key_carbsReqThreshold, AIMIDefaults.carbsReqThreshold))
         this.profile.put("current_basal", basalRate)
         this.profile.put("temptargetSet", tempTargetSet)
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_autosens_max, "1.2")))
