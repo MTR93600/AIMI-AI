@@ -62,7 +62,7 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
             setColorSchemeColors(rh.gac(context, R.attr.colorPrimaryDark), rh.gac(context, R.attr.colorPrimary), rh.gac(context, R.attr.colorSecondary))
             setOnRefreshListener {
                 binding.lastrun.text = rh.gs(R.string.executing)
-                Thread { activePlugin.activeAPS.invoke("OpenAPSSMB swipe refresh", false) }.start()
+                Thread { activePlugin.activeAPS.invoke("AIMI swipe refresh", false) }.start()
             }
         }
     }
@@ -76,7 +76,7 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
         when (item.itemId) {
             ID_MENU_RUN -> {
                 binding.lastrun.text = rh.gs(R.string.executing)
-                Thread { activePlugin.activeAPS.invoke("OpenAPSSMB menu", false) }.start()
+                Thread { activePlugin.activeAPS.invoke("AIMI menu", false) }.start()
                 true
             }
 
@@ -117,16 +117,16 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
     @Synchronized
     fun updateGUI() {
         if (_binding == null) return
-        val fullUAMPlugin = activePlugin.activeAPS
-        fullUAMPlugin.lastAPSResult?.let { lastAPSResult ->
+        val AIMIPlugin = activePlugin.activeAPS
+        AIMIPlugin.lastAPSResult?.let { lastAPSResult ->
             binding.result.text = jsonFormatter.format(lastAPSResult.json)
             binding.request.text = lastAPSResult.toSpanned()
         }
-        fullUAMPlugin.lastDetermineBasalAdapter?.let { determineBasalAdapterUAMJS ->
-            binding.glucosestatus.text = jsonFormatter.format(determineBasalAdapterUAMJS.glucoseStatusParam)
-            binding.currenttemp.text = jsonFormatter.format(determineBasalAdapterUAMJS.currentTempParam)
+        AIMIPlugin.lastDetermineBasalAdapter?.let { determineBasalAdapterAIMIJS ->
+            binding.glucosestatus.text = jsonFormatter.format(determineBasalAdapterAIMIJS.glucoseStatusParam)
+            binding.currenttemp.text = jsonFormatter.format(determineBasalAdapterAIMIJS.currentTempParam)
             try {
-                val iobArray = JSONArray(determineBasalAdapterUAMJS.iobDataParam)
+                val iobArray = JSONArray(determineBasalAdapterAIMIJS.iobDataParam)
                 binding.iobdata.text = TextUtils.concat(rh.gs(R.string.array_of_elements, iobArray.length()) + "\n", jsonFormatter.format(iobArray.getString(0)))
             } catch (e: JSONException) {
                 aapsLogger.error(LTag.APS, "Unhandled exception", e)
@@ -134,17 +134,17 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
                 binding.iobdata.text = "JSONException see log for details"
             }
 
-            binding.profile.text = jsonFormatter.format(determineBasalAdapterUAMJS.profileParam)
-            binding.mealdata.text = jsonFormatter.format(determineBasalAdapterUAMJS.mealDataParam)
-            binding.scriptdebugdata.text = determineBasalAdapterUAMJS.scriptDebug
-            fullUAMPlugin.lastAPSResult?.inputConstraints?.let {
+            binding.profile.text = jsonFormatter.format(determineBasalAdapterAIMIJS.profileParam)
+            binding.mealdata.text = jsonFormatter.format(determineBasalAdapterAIMIJS.mealDataParam)
+            binding.scriptdebugdata.text = determineBasalAdapterAIMIJS.scriptDebug
+            AIMIPlugin.lastAPSResult?.inputConstraints?.let {
                 binding.constraints.text = it.getReasons(aapsLogger)
             }
         }
-        if (fullUAMPlugin.lastAPSRun != 0L) {
-            binding.lastrun.text = dateUtil.dateAndTimeString(fullUAMPlugin.lastAPSRun)
+        if (AIMIPlugin.lastAPSRun != 0L) {
+            binding.lastrun.text = dateUtil.dateAndTimeString(AIMIPlugin.lastAPSRun)
         }
-        fullUAMPlugin.lastAutosensResult.let {
+        AIMIPlugin.lastAutosensResult.let {
             binding.autosensdata.text = jsonFormatter.format(it.json())
         }
         binding.swipeRefresh.isRefreshing = false

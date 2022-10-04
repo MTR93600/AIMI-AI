@@ -184,8 +184,8 @@ class AIMIPlugin @Inject constructor(
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()
 
-        provideDetermineBasalAdapter().also { determineBasalAdapterUAMJS ->
-            determineBasalAdapterUAMJS.setData(
+        provideDetermineBasalAdapter().also { determineBasalAdapterAIMIJS ->
+            determineBasalAdapterAIMIJS.setData(
                 profile, maxIob, maxBasal, minBg, maxBg, targetBg,
                 activePlugin.activePump.baseBasalRate,
                 iobArray,
@@ -198,9 +198,9 @@ class AIMIPlugin @Inject constructor(
                 advancedFiltering.value(),
                 activePlugin.activeBgSource.javaClass.simpleName == "DexcomPlugin")
             val now = System.currentTimeMillis()
-            val determineBasalResultUAM = determineBasalAdapterUAMJS.invoke()
+            val determineBasalResultSMB = determineBasalAdapterAIMIJS.invoke()
             profiler.log(LTag.APS, "SMB calculation", start)
-            if (determineBasalResultUAM == null) {
+            if (determineBasalResultSMB == null) {
                 aapsLogger.error(LTag.APS, "SMB calculation returned null")
                 lastDetermineBasalAdapter = null
                 lastAPSResult = null
@@ -208,12 +208,13 @@ class AIMIPlugin @Inject constructor(
             } else {
                 // TODO still needed with oref1?
                 // Fix bug determine basal
-                if (determineBasalResultUAM.rate == 0.0 && determineBasalResultUAM.duration == 0 && iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now()) == null) determineBasalResultUAM.tempBasalRequested = false
-                determineBasalResultUAM.iob = iobArray[0]
-                determineBasalResultUAM.json?.put("timestamp", dateUtil.toISOString(now))
-                determineBasalResultUAM.inputConstraints = inputConstraints
-                lastDetermineBasalAdapter = determineBasalAdapterUAMJS
-                lastAPSResult = determineBasalResultUAM as DetermineBasalResultSMB
+                if (determineBasalResultSMB.rate == 0.0 && determineBasalResultSMB.duration == 0 && iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now()) == null)
+                    determineBasalResultSMB.tempBasalRequested = false
+                determineBasalResultSMB.iob = iobArray[0]
+                determineBasalResultSMB.json?.put("timestamp", dateUtil.toISOString(now))
+                determineBasalResultSMB.inputConstraints = inputConstraints
+                lastDetermineBasalAdapter = determineBasalAdapterAIMIJS
+                lastAPSResult = determineBasalResultSMB as DetermineBasalResultSMB
                 lastAPSRun = now
             }
         }
