@@ -327,10 +327,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "\nautoAIMIsmb : "+autoAIMIsmb+", ";
 
     //var AIMI_COB = profile.key_use_AIMI_COB;
-    var AIMI_UAM_U200 = profile.enable_AIMI_UAM_U200;
+    /*var AIMI_UAM_U200 = profile.enable_AIMI_UAM_U200;
     var AIMI_UAM_U100 = profile.enable_AIMI_UAM_U100;
     var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
-    var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;
+    var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;*/
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
     var LastManualBolus = meal_data.lastBolusNormalUnits;
@@ -1697,15 +1697,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
        if (iTimeActivation === true){
-            if (TrigPredAIMI < 100 && AIMI_UAM_Fiasp && iTime > 100){
+            if (TrigPredAIMI < 100 && iTime > 100){
                         microBolus = 0;
-                        rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
-            }else if (TrigPredAIMI < 100 && AIMI_UAM_Novorapid && iTime > 100){
-                        microBolus = 0;
-                        rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
-            }else if (TrigPredAIMI < 100 && iTime > 100){
-                            microBolus = 0;
-                            rT.reason += ", No SMB because Luymjev and Pred < 80, ";
+                        rT.reason += ", No SMB because TrigPredAIMI < 100, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                                 if(TimeSMB < 20){
                                 microBolus = 0;
@@ -1714,15 +1708,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             }
 
        }else{
-            if (TrigPredAIMI < 100 && AIMI_UAM_Fiasp){
+            if (TrigPredAIMI < 100){
                 microBolus = 0;
-                rT.reason += ", No SMB beacause Fiasp and Pred < 80, ";
-            }else if (TrigPredAIMI < 100 && AIMI_UAM_Novorapid){
-                microBolus = 0;
-                rT.reason += ", No SMB beacause Novorapid and Pred < 90, ";
-            }else if (TrigPredAIMI < 100){
-                microBolus = 0;
-                rT.reason += ", No SMB because Luymjev and Pred < 80, ";
+                rT.reason += ", No SMB beacause TrigPredAIMI < 100, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                     if(TimeSMB < 20){
                     microBolus = 0;
