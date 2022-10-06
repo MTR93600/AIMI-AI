@@ -96,7 +96,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         aapsLogger.debug(LTag.APS, "SMBAlwaysAllowed:  $smbAlwaysAllowed")
         aapsLogger.debug(LTag.APS, "CurrentTime: $currentTime")
         aapsLogger.debug(LTag.APS, "isSaveCgmSource: $saveCgmSource")
-        var determineBasalResultUAM: DetermineBasalResultSMB? = null
+        var determineBasalResultSMB: DetermineBasalResultSMB? = null
         val rhino = Context.enter()
         val scope: Scriptable = rhino.initStandardObjects()
         // Turn off optimization to make Rhino Android compatible
@@ -145,7 +145,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 aapsLogger.debug(LTag.APS, "Result: $result")
                 try {
                     val resultJson = JSONObject(result)
-                    determineBasalResultUAM = DetermineBasalResultSMB(injector, resultJson)
+                    determineBasalResultSMB = DetermineBasalResultSMB(injector, resultJson)
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -170,7 +170,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         currentTempParam = currentTemp.toString()
         profileParam = profile.toString()
         mealDataParam = mealData.toString()
-        return determineBasalResultUAM
+        return determineBasalResultSMB
     }
 
     @Suppress("SpellCheckingInspection")
