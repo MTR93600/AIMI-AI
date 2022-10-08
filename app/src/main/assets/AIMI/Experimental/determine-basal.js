@@ -1132,7 +1132,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 06/10/2022 Experimental ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 08/10/2022 Experimental ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1149,24 +1149,24 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 console.log("Current sensitivity is " +variable_sens+" based on current bg");*/
                 console.log("eRatio : "+eRatio);
                 console.log("-------------");
-                console.log(", TriggerPredSMB : "+TriggerPredSMB);
-                console.log(", TriggerPredSMB_future_sens_60 : "+TriggerPredSMB_future_sens_60);
-                console.log(", TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45);
-                console.log(", TriggerPredSMB_future_sens_35 : "+TriggerPredSMB_future_sens_35);
-                console.log(", TrigPredAIMI : "+TrigPredAIMI);
-                console.log(", EBG : "+EBG+" ; REBG : "+REBG);
-                console.log(", EBG60 : "+EBG60+" ; REBG60 : "+REBG60);
-                console.log(", HypoPredBG : "+HypoPredBG+" ; HyperPredBG : "+HyperPredBG);
+                console.log("- TriggerPredSMB : "+TriggerPredSMB);
+                console.log("- TriggerPredSMB_future_sens_60 : "+TriggerPredSMB_future_sens_60);
+                console.log("- TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45);
+                console.log("- TriggerPredSMB_future_sens_35 : "+TriggerPredSMB_future_sens_35);
+                console.log("- TrigPredAIMI : "+TrigPredAIMI);
+                console.log("- EBG : "+EBG+" ; REBG : "+REBG);
+                console.log("- EBG60 : "+EBG60+" ; REBG60 : "+REBG60);
+                console.log("- HypoPredBG : "+HypoPredBG+" ; HyperPredBG : "+HyperPredBG);
                 console.log("-------------");
-                console.log(", target_bg : "+target_bg);
-                console.log(", Sensitivity ratio set to "+sensitivityRatio+" based on temp target of"+target_bg);
-                console.log(", Adjusting basal from "+profile_current_basal+" to "+basal);
-                console.log(", Future state sensitivity is " +future_sens+" based on eventual bg");
+                console.log("- target_bg : "+target_bg);
+                console.log("- Sensitivity ratio set to "+sensitivityRatio+" based on temp target of"+target_bg);
+                console.log("- Adjusting basal from "+profile_current_basal+" to "+basal);
+                console.log("- Future state sensitivity is " +future_sens+" based on eventual bg");
                 console.log("-------------");
                 if ( meal_data.TDDAIMI3 ){
                     if (iTime < iTimeProfile){
-                    console.log("iTime : "+iTime);
-                    console.log("iTimeProfile : "+iTimeProfile);
+                    console.log("- iTime : "+iTime);
+                    console.log("- iTimeProfile : "+iTimeProfile);
                     //console.log("smbTDD : "+smbTDD);
                     console.log("-------------");
                     }
@@ -1298,7 +1298,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVa-AIMI-V22a-variant-06/10/22 ";
+    rT.reason += "\nDEVa-AIMI-V22a-variant-08/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1697,9 +1697,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
        if (iTimeActivation === true){
-            if (TrigPredAIMI < 100 && iTime > 100){
+            if (UAMpredBG < 100 && iTime > 100){
                         microBolus = 0;
-                        rT.reason += ", No SMB because TrigPredAIMI < 100, ";
+                        rT.reason += ", No SMB because UAMpreBG < 100, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                                 if(TimeSMB < 20){
                                 microBolus = 0;
@@ -1708,9 +1708,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             }
 
        }else{
-            if (TrigPredAIMI < 100){
+            if (UAMpredBG < 100){
                 microBolus = 0;
-                rT.reason += ", No SMB beacause TrigPredAIMI < 100, ";
+                rT.reason += ", No SMB beacause UAMpredBG < 100, ";
             }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                     if(TimeSMB < 20){
                     microBolus = 0;

@@ -2,13 +2,20 @@ package info.nightscout.androidaps.plugins.aps.AIMI
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.text.TextUtils
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import dagger.android.support.DaggerFragment
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.databinding.OpenapsamaFragmentBinding
+import info.nightscout.androidaps.databinding.OpenapsFragmentBinding
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.shared.logging.LTag
@@ -43,14 +50,15 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
     @Suppress("PrivatePropertyName")
     private val ID_MENU_RUN = 503
 
-    private var _binding: OpenapsamaFragmentBinding? = null
+    private var _binding: OpenapsFragmentBinding? = null
+    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        OpenapsamaFragmentBinding.inflate(inflater, container, false).also {
+        OpenapsFragmentBinding.inflate(inflater, container, false).also {
             _binding = it
             requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         }.root
@@ -58,12 +66,10 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(binding.swipeRefresh) {
-            setColorSchemeColors(rh.gac(context, R.attr.colorPrimaryDark), rh.gac(context, R.attr.colorPrimary), rh.gac(context, R.attr.colorSecondary))
-            setOnRefreshListener {
-                binding.lastrun.text = rh.gs(R.string.executing)
-                Thread { activePlugin.activeAPS.invoke("AIMI swipe refresh", false) }.start()
-            }
+        binding.swipeRefresh.setColorSchemeColors(rh.gac(context, R.attr.colorPrimaryDark), rh.gac(context, R.attr.colorPrimary), rh.gac(context, R.attr.colorSecondary))
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.lastrun.text = rh.gs(R.string.executing)
+            handler.post { activePlugin.activeAPS.invoke("AIMI swipe refresh", false) }
         }
     }
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
