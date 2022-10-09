@@ -72,6 +72,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val millsToThePast = T.hours(1).msecs()
     private var lastBolusNormalTimecount: Long = 0
     private var lastBolusSMBcount: Long = 0
+    private var lastSMBmscount: Long = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -324,8 +325,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1 }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
-
-
+        bolusMealLinks(now)?.forEach { bolus -> if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1 }
+        this.mealData.put("countSMBms", lastSMBmscount)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
