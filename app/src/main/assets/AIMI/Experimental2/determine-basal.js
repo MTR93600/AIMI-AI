@@ -1132,7 +1132,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 09/10/2022 Experimental2 ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 10/10/2022 Experimental2 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1298,7 +1298,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVb-AIMI-V22b-Experimental2-09/10/22 ";
+    rT.reason += "\nDEVb-AIMI-V22b-Experimental2-10/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1701,23 +1701,23 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             if (UAMpredBG < 100 && iTime > 100){
                         microBolus = 0;
                         rT.reason += ", No SMB because UAMpreBG < 100, ";
-            }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
+            }/*else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                                 if(TimeSMB < 20){
                                 microBolus = 0;
                                 rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
                                 }
-            }
+            */}
 
        }else{
             if (UAMpredBG < 100){
                 microBolus = 0;
                 rT.reason += ", No SMB beacause UAMpredBG < 100, ";
-            }else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
+            }/*else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
                     if(TimeSMB < 20){
                     microBolus = 0;
                     rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
                     }
-            }
+            }*/
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
