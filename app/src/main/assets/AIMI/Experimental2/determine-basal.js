@@ -1706,7 +1706,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                                 microBolus = 0;
                                 rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
                                 }
-            */}
+            }*/
 
        }else{
             if (UAMpredBG < 100){
