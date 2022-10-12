@@ -41,7 +41,7 @@ class BolusHistoryCallback(private val aapsLogger: AAPSLogger, private val medLi
                 }
                 val resultStream = Supplier { commandHistory.get().filter { f: JSONObject -> isBolus(f) } }
 
-                medLinkPumpPlugin.handleNewTreatmentData(resultStream.get())
+                medLinkPumpPlugin.handleNewTreatmentData(resultStream.get(), true)
                 MedLinkStandardReturn(ans, resultStream.get())
             } catch (e: ParseException) {
                 e.printStackTrace()

@@ -15,7 +15,7 @@ import java.util.stream.Stream
  */
 interface MedLinkPumpDevice : CommunicatorPumpDevice {
 
-    fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>)
+    fun handleNewTreatmentData(bolusInfo: Stream<JSONObject>, history: Boolean = false)
     fun getPumpInfo(): RileyLinkPumpInfo?
     fun getRileyLinkService(): MedLinkService?
 
