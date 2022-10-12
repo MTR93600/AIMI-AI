@@ -69,8 +69,9 @@ public class MedLinkStatusGeneralFragment extends DaggerFragment {
     private void refreshData() {
         RileyLinkTargetDevice targetDevice = medLinkServiceData.targetDevice;
 
-        this.connectionStatus.setText(resourceHelper.gs(medLinkServiceData.medLinkServiceState.getResourceId()));
-
+        if(medLinkServiceData.medLinkServiceState != null && resourceHelper.gs(medLinkServiceData.medLinkServiceState.getResourceId()) != null) {
+            this.connectionStatus.setText(resourceHelper.gs(medLinkServiceData.medLinkServiceState.getResourceId()));
+        }
         // BS FIXME rileyLinkServiceData is injected so I suppose it cannot be null?
         if (medLinkServiceData != null) {
             this.configuredRileyLinkAddress.setText(Optional.ofNullable(medLinkServiceData.rileylinkAddress).orElse(PLACEHOLDER));
