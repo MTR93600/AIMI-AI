@@ -397,9 +397,9 @@ class MedLinkBLE //extends RileyLinkBLE
                             priorityExecutionCommandQueue.add(commandExecutor)
                         }
                     }
-                } else if (command[0].commandPriority == CommandPriority.NORMAL && (!executionCommandQueue.contains(commandExecutor) || commandExecutor is ContinuousCommandExecutor<*>)) {
+                } else if (command[0].commandPriority == CommandPriority.NORMAL && (executionCommandQueue.none { it.firstCommand() == commandExecutor.firstCommand() })) {
                     executionCommandQueue.add(commandExecutor)
-                } else if (!lowPriorityExecutionCommandQueue.contains(commandExecutor)) {
+                } else if (lowPriorityExecutionCommandQueue.none { it.firstCommand() == commandExecutor.firstCommand() }) {
                     lowPriorityExecutionCommandQueue.add(commandExecutor)
                 }
             }
@@ -797,7 +797,7 @@ class MedLinkBLE //extends RileyLinkBLE
                 if (sleep < sleepSize) {
                     SystemClock.sleep(sleepSize - sleep)
                 }
-                aapsLogger.info(LTag.PUMPBTCOMM,"connecting gatt")
+                aapsLogger.info(LTag.PUMPBTCOMM, "connecting gatt")
                 connectGatt()
                 //                if(currentCommand)
                 if (bluetoothConnectionGatt == null) {
@@ -1043,7 +1043,7 @@ class MedLinkBLE //extends RileyLinkBLE
 
     @JvmOverloads
     fun close(force: Boolean = false) {
-        aapsLogger.info(LTag.PUMPBTCOMM,"closing")
+        aapsLogger.info(LTag.PUMPBTCOMM, "closing")
         if (currentCommand != null && currentCommand!!.hasFinished() && currentCommand!!.nextFunction() != null) {
             currentCommand!!.nextBleCommand().map { it.applyResponse(this) }
             removeFirstCommand(true)
@@ -1060,7 +1060,7 @@ class MedLinkBLE //extends RileyLinkBLE
                     currentCommand!!.getCurrentCommand()
                 )
             ) {
-                aapsLogger.info(LTag.PUMPBTCOMM,"connecting gatt")
+                aapsLogger.info(LTag.PUMPBTCOMM, "connecting gatt")
                 connectGatt()
                 return
             }

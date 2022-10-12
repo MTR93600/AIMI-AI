@@ -343,7 +343,6 @@
     <string name="basalvaluebelowminimum">Basal value below minimum. Profile not set!</string>
     <string name="sms_actualbg">BG:</string>
     <string name="sms_lastbg">Last BG:</string>
-    <string name="medlink">MedtronicMedlink</string>
     <string name="MM640g">MM640g</string>
     <string name="medlink">MedtronicMedlink</string>
     <string name="ongoingnotificaction">Ongoing Notification</string>
