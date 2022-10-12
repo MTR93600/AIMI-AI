@@ -108,6 +108,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_AimiIgnoreCOB"
+            android:title="Ignore COB"
+            android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_AimiUAM"
             android:title="Use AIMI FULL UAM"
             android:summary="Enable the Full UAM code to define the size of the SMB. Need iTime true with an SMB >= iTime_Starting_Bolus" />

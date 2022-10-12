@@ -374,6 +374,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("aimisensitivity", aimisensitivity)
         this.profile.put("insulinDivisor", insulinDivisor)
         this.profile.put("tddlastHaverage", tddlastHaverage)
+        this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3))?.totalAmount)
