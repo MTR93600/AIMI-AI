@@ -114,6 +114,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_AimiIOBpredBG"
+            android:title="BFIOB"
+            android:summary="Using the IOBpredBG instead of UAMpredBG during the breakfast" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_AimiUAM"
             android:title="Use AIMI FULL UAM"
             android:summary="Enable the Full UAM code to define the size of the SMB. Need iTime true with an SMB >= iTime_Starting_Bolus" />

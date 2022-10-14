@@ -1179,6 +1179,7 @@
     <string name="fulluam_maxiob_summary">This value is called Max IOB in AIMI context\nAIMI will not add more insulin if current IOB is greater than this value</string>
 
     <string name="key_use_AimiIgnoreCOB" translatable="false">key_use_AimiIgnoreCOB</string>
+    <string name="key_use_AimiIOBpredBG" translatable="false">key_use_AimiIOBpredBG</string>
     <string name="iTime">iTime</string>
     <string name="iTimeSettings">iTime</string>
     <string name="key_iTime" translatable="false">iTime</string>
