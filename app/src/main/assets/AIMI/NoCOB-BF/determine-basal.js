@@ -504,8 +504,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
-    //sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
-    sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
+    sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
+    //sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
     //enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
     enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTime < 100 && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-iTime-TIRLow : "+sens+ " \n" : " \n";
     }else{
@@ -1149,7 +1149,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 14/10/2022 Variant NoCob-BF ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 16/10/2022 Variant NoCob-BF ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1315,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVb-AIMI-V22b-Variant NoCob-BF-14/10/22 ";
+    rT.reason += "\nDEVb-AIMI-V22b-Variant NoCob-BF-16/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
