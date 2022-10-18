@@ -312,6 +312,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var AIMI_UAM = profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
     var countSMBms = meal_data.countSMBms;
+    var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
+    var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
+    var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
+
     var lastbolusAge = round(( new Date(systemTime).getTime() - meal_data.lastBolusNormalTime ) / 60000,1);
     var enlog = "";
     var aimi_bg = bg;
@@ -442,9 +446,22 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
       rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
       return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-     }
+     }else if (iTimeActivation === true && countSMB === 3 && HypoPredBG > 100 && !AIMI_BreakFastLight && aimi_delta > 0){
+           rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+            rT.temp = 'absolute';
+            rT.duration = 10;
+            rate = round_basal(basal*10,profile);
+            rT.rate = rate;
+            rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
+    }
 
+    if (meal_data.countBolus ===1 && now >=5 && now <= 11 && AIMI_IOBpredBGbf){
+    var BFIOB = true;
+    }else{
+    var BFIOB = false;
+    }
 
 
 
@@ -487,8 +504,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
-    //sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
-    sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
+    sens = glucose_status.delta < 0 && iTime > 100 ? profile.sens : sens;
+    //sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
     //enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
     enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTime < 100 && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-iTime-TIRLow : "+sens+ " \n" : " \n";
     }else{
@@ -846,12 +863,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (meal_data.carbs) {
         // if carbs * assumedCarbAbsorptionRate > remainingCATimeMin, raise it
         // so <= 90g is assumed to take 3h, and 120g=4h
-        remainingCATimeMin = Math.max(remainingCATimeMin, meal_data.mealCOB/assumedCarbAbsorptionRate);
+        remainingCATimeMin = Math.max(remainingCATimeMin, AIMI_COB/assumedCarbAbsorptionRate);
         var lastCarbAge = round(( new Date(systemTime).getTime() - meal_data.lastCarbTime ) / 60000);
         console.error(meal_data.lastCarbTime, lastCarbAge);
 
 
-        var fractionCOBAbsorbed = ( meal_data.carbs - meal_data.mealCOB ) / meal_data.carbs;
+        var fractionCOBAbsorbed = ( meal_data.carbs - AIMI_COB ) / meal_data.carbs;
         remainingCATime = remainingCATimeMin + 1.5 * lastCarbAge/60;
         remainingCATime = round(remainingCATime,1);
         //console.error(fractionCOBAbsorbed, remainingCATimeAdjustment, remainingCATime)
@@ -868,7 +885,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (profile.remainingCarbsCap) { remainingCarbsCap = Math.min(90,profile.remainingCarbsCap); }
     if (profile.remainingCarbsFraction) { remainingCarbsFraction = Math.min(1,profile.remainingCarbsFraction); }
     var remainingCarbsIgnore = 1 - remainingCarbsFraction;
-    var remainingCarbs = Math.max(0, meal_data.mealCOB - totalCA - meal_data.carbs*remainingCarbsIgnore);
+    var remainingCarbs = Math.max(0, AIMI_COB - totalCA - meal_data.carbs*remainingCarbsIgnore);
     remainingCarbs = Math.min(remainingCarbsCap,remainingCarbs);
     // assume remainingCarbs will absorb in a /\ shaped bilinear curve
     // peaking at remainingCATime / 2 and ending at remainingCATime hours
@@ -889,13 +906,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //5m data points = g * (1U/10g) * (40mg/dL/1U) / (mg/dL/5m)
     // duration (in 5m data points) = COB (g) * CSF (mg/dL/g) / ci (mg/dL/5m)
     // limit cid to remainingCATime hours: the reset goes to remainingCI
-    if (ci === 0) {
+    if (ci === 0 || AIMI_IgnoreCOB) {
         // avoid divide by zero
         cid = 0;
     } else {
-        cid = Math.min(remainingCATime*60/5/2,Math.max(0, meal_data.mealCOB * csf / ci ));
+        cid = Math.min(remainingCATime*60/5/2,Math.max(0, AIMI_COB * csf / ci ));
     }
-    var acid = Math.max(0, meal_data.mealCOB * csf / aci );
+    var acid = Math.max(0, AIMI_COB * csf / aci );
     // duration (hours) = duration (5m) * 5 / 60 * 2 (to account for linear decay)
     console.error("Carb Impact:",ci,"mg/dL per 5m; CI Duration:",round(cid*5/60*2,1),"hours; remaining CI (~2h peak):",round(remainingCIpeak,1),"mg/dL per 5m");
     //console.error("Accel. Carb Impact:",aci,"mg/dL per 5m; ACI Duration:",round(acid*5/60*2,1),"hours");
@@ -971,7 +988,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
             //UAMpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI : UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
-            UAMpredBG = iTime > 100 && bg < 170 ? IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
+            UAMpredBG = iTime > 100 && bg < 160 || BFIOB ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
             //console.error(predBGI, predCI, predUCI);
             // truncate all BG predictions at 4 hours
 
@@ -1019,7 +1036,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     } catch (e) {
         console.error("Problem with iobArray.  Optional feature Advanced Meal Assist disabled");
     }
-    if (meal_data.mealCOB) {
+    if (AIMI_COB) {
         console.error("predCIs (mg/dL/5m):",predCIs.join(" "));
         console.error("remainingCIs:      ",remainingCIs.join(" "));
     }
@@ -1043,7 +1060,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     rT.predBGs.ZT = ZTpredBGs;
     lastZTpredBG=round(ZTpredBGs[ZTpredBGs.length-1]);
-    if (meal_data.mealCOB > 0) {
+    if (AIMI_COB > 0) {
         aCOBpredBGs.forEach(function(p, i, theArray) {
             theArray[i] = round(Math.min(401,Math.max(39,p)));
         });
@@ -1052,7 +1069,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             else { aCOBpredBGs.pop(); }
         }
     }
-    if (meal_data.mealCOB > 0 && ( ci > 0 || remainingCIpeak > 0 )) {
+    if (AIMI_COB > 0 && ( ci > 0 || remainingCIpeak > 0 )) {
         COBpredBGs.forEach(function(p, i, theArray) {
             theArray[i] = round(Math.min(401,Math.max(39,p)));
         });
@@ -1132,7 +1149,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 10/10/2022 Experimental2 ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 18/10/2022 Variant Pam ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1181,7 +1198,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     minUAMPredBG = Math.max(39,minUAMPredBG);
     minPredBG = round(minIOBPredBG);
 
-    var fractionCarbsLeft = meal_data.mealCOB/meal_data.carbs;
+    var fractionCarbsLeft = AIMI_COB/meal_data.carbs;
     // if we have COB and UAM is enabled, average both
     if ( minUAMPredBG < 999 && minCOBPredBG < 999 ) {
         // weight COBpredBG vs. UAMpredBG based on how many carbs remain as COB
@@ -1298,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVb-AIMI-V22b-Experimental2-10/10/22 ";
+    rT.reason += "\nDEVb-AIMI-V22b-Variant VariantPam-18/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1311,7 +1328,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     // calculate how long until COB (or IOB) predBGs drop below min_bg
     var minutesAboveMinBG = 240;
     var minutesAboveThreshold = 240;
-    if (meal_data.mealCOB > 0 && ( ci > 0 || remainingCIpeak > 0 )) {
+    if (AIMI_COB > 0 && ( ci > 0 || remainingCIpeak > 0 )) {
         for (i=0; i<COBpredBGs.length; i++) {
             //console.error(COBpredBGs[i], min_bg);
             if ( COBpredBGs[i] < min_bg ) {
@@ -1370,7 +1387,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
     // BG undershoot, minus effect of zero temps until hitting min_bg, converted to grams, minus COB
     var zeroTempEffect = profile.current_basal*sens*zeroTempDuration/60;
     // don't count the last 25% of COB against carbsReq
-    var COBforCarbsReq = Math.max(0, meal_data.mealCOB - 0.25*meal_data.carbs);
+    var COBforCarbsReq = Math.max(0, AIMI_COB - 0.25*meal_data.carbs);
     var carbsReq = (bgUndershoot - zeroTempEffect) / csf - COBforCarbsReq;
     zeroTempEffect = round(zeroTempEffect);
     carbsReq = round(carbsReq);
@@ -1554,7 +1571,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         // only allow microboluses with COB or low temp targets, or within DIA hours of a bolus
         if (microBolusAllowed && enableSMB && aimi_bg > threshold) { //#MT AIMI
             // never bolus more than maxSMBBasalMinutes worth of basal
-            var mealInsulinReq = round( meal_data.mealCOB / eRatio ,3);
+            var mealInsulinReq = round( AIMI_COB / eRatio ,3);
             var smb_max_range = profile.smb_max_range_extension;
                         //if (smb_max_range > 1) {
                         //    console.error("SMB max range extended from default by factor", smb_max_range)
@@ -1564,7 +1581,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                             console.error("profile.maxSMBBasalMinutes undefined: defaulting to 30m");
                         // if IOB covers more than COB, limit maxBolus to 30m of basal
                         } else if ( iob_data.iob > mealInsulinReq && iob_data.iob > 0 ) {
-                            console.error("IOB",iob_data.iob,"> COB",meal_data.mealCOB+"; mealInsulinReq =",mealInsulinReq);
+                            console.error("IOB",iob_data.iob,"> COB",AIMI_COB+"; mealInsulinReq =",mealInsulinReq);
                             if (profile.maxUAMSMBBasalMinutes) {
                                 console.error("profile.maxUAMSMBBasalMinutes:",profile.maxUAMSMBBasalMinutes,"profile.current_basal:",profile.current_basal);
                                 maxBolus = round(smb_max_range * profile.current_basal * profile.maxUAMSMBBasalMinutes / 60 ,1);
@@ -1702,7 +1719,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         microBolus = 0;
                         rT.reason += ", No SMB because UAMpreBG < 100, ";
             }/*else if(meal_data.lastBolusSMBUnits === AIMI_UAM_CAP){
-                                if(TimeSMB < 20){
+                                if(TimeSMB < 20 && ){
                                 microBolus = 0;
                                 rT.reason += ", No SMB because last one was "+meal_data.lastBolusSMBUnits+"U, the absorption need 15 minutes minimum before the next smb";
                                 }
@@ -1759,14 +1776,20 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 // allow SMBIntervals between 1 and 10 minutes
                 SMBInterval = Math.min(10,Math.max(1,profile.SMBInterval));
             }
+
+
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 20;
             }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
             SMBInterval = 10;
             }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
             SMBInterval = 20
+            }else if (AIMI_UAM && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+            SMBInterval = 20;
             }else if (iTimeActivation && HypoPredBG < 100){
             SMBInterval =15;
+            }else if (iTimeActivation && countSMB === 3){
+            SMBInterval =10;
             }
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
