@@ -1149,7 +1149,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 18/10/2022 Variant Pam ");
+                console.log(" AAPS-3.1.0.3-dev-b-AIMI V22b 19/10/2022 Variant Pam ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1315,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVb-AIMI-V22b-Variant VariantPam-18/10/22 ";
+    rT.reason += "\nDEVb-AIMI-V22b-Variant VariantPam-19/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1784,12 +1784,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             SMBInterval = 10;
             }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
             SMBInterval = 20
-            }else if (AIMI_UAM && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
             SMBInterval = 20;
+            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP || iTimeActivation && countSMB > 2){
+            SMBInterval = 10;
             }else if (iTimeActivation && HypoPredBG < 100){
             SMBInterval =15;
-            }else if (iTimeActivation && countSMB === 3){
-            SMBInterval =10;
             }
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
