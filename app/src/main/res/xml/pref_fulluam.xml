@@ -114,6 +114,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_AimiBreak"
+            android:title="Break SMB 10 minutes"
+            android:summary="If smb = 0,6 * max_smb_size or if you received 2 smb in the same hour, the interval change for 10 minutes" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_AimiIOBpredBG"
             android:title="BFIOB"
             android:summary="Using the IOBpredBG instead of UAMpredBG during the breakfast" />
