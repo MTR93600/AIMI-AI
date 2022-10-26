@@ -352,9 +352,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         val tddWeightedFromLast8H = ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
         var tdd =
-            if (tdd1D != null && tdd7D != null && lastHourTIRLow > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-            else if (tdd1D != null && tdd7D != null && lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-            else if (tdd1D != null && tdd7D != null) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+            if (tdd1D != null && tdd7D != null && lastHourTIRLow > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove > 0 && last2HourTIRAbove > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
             else tddWeightedFromLast8H
 
 
