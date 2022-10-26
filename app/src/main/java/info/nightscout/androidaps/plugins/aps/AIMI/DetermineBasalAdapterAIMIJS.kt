@@ -358,7 +358,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             else tddWeightedFromLast8H
 
 
-        val aimisensitivity = tddLast24H / tdd7D!!
+        val aimisensitivity = if (tdd7D!= null && tdd7D != 0.0) tddLast24H / tdd7D else 1
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
