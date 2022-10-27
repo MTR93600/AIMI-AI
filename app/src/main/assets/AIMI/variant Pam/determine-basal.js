@@ -455,7 +455,16 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
             return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-    }
+    }else if (iTimeActivation === true && profile.enable_AIMI_protein && glucose_status.delta > 0 && iTime >= profile.b30_protein_start && iTime < (profile.b30_protein_start+profile.b30_protein_duration) && !AIMI_BreakFastLight){
+             rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(basal*(profile.b30_protein_percent / 100)/60)*10;
+             rT.temp = 'absolute';
+             rT.duration = profile.b30_protein_duration;
+             rate = round_basal(basal*(profile.b30_protein_percent / 100),profile);
+             rT.rate = rate;
+             rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+             return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
+
+     }
 
     if (meal_data.countBolus ===1 && now >=5 && now <= 11 && AIMI_IOBpredBGbf){
     var BFIOB = true;
@@ -988,7 +997,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
             //UAMpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI : UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
-            UAMpredBG = iTime > 100 && bg < 160 || BFIOB ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
+            UAMpredBG = iTime > 100 && bg <= 170 || BFIOB ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
             //console.error(predBGI, predCI, predUCI);
             // truncate all BG predictions at 4 hours
 
