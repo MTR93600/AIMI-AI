@@ -69,15 +69,15 @@ android {
             dimension "standard"
             versionName version + "-pumpcontrol"
         }
-        nsclient {
-            applicationId "info.nightscout.nsclient"
+        aapsclient {
+            applicationId "info.nightscout.aapsclient"
             dimension "standard"
-            versionName version + "-nsclient"
+            versionName version + "-aapsclient"
         }
-        nsclient2 {
-            applicationId "info.nightscout.nsclient2"
+        aapsclient2 {
+            applicationId "info.nightscout.aapsclient2"
             dimension "standard"
-            versionName version + "-nsclient"
+            versionName version + "-aapsclient"
         }
     }
     namespace 'info.nightscout.androidaps'

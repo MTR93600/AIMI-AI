@@ -18,3 +18,5 @@ include ':diaconn'
 
 include ':openhumans'
 include ':shared'
+include ':iconify'
+include ':graphview'
