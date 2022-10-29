@@ -1158,7 +1158,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 27/10/2022 Variant Pam ");
+                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 29/10/2022 Variant Pam ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1324,7 +1324,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVc-AIMI-V22b-Variant VariantPam-27/10/22 ";
+    rT.reason += "\nDEVc-AIMI-V22b-Variant VariantPam-29/10/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1672,7 +1672,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 
 
-            }else if (iTime < iTimeProfile && AIMI_UAM && !AIMI_BreakFastLight && ! profile.temptargetSet && aimi_delta > 0 && aimismb === true && glucose_status.long_avgdelta > 0){
+            }else if (iTime < iTimeProfile && AIMI_UAM && bg < 170 && !AIMI_BreakFastLight && ! profile.temptargetSet && aimi_delta > 0 && aimismb === true && glucose_status.long_avgdelta > 0){
 
                       insulinReq = autoAIMIsmb > 0 ? autoAIMIsmb : round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
                       insulinReq = countSMB > 2 ? round((((aimi_delta * GN) + (min_bg*0.52) ) / future_sens) * smb_ratio,2) : insulinReq;
@@ -1683,7 +1683,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                       //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                       console.log("InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+")\n");
 
-            }else if (iTime < iTimeProfile && glucose_status.delta > 2 && bg > 170 && TimeSMB > 25 && aimismb === true && !profile.temptargetSet){
+            }else if (iTime < iTimeProfile && glucose_status.delta > 2 && bg >= 170 && TimeSMB > 25 && aimismb === true && !profile.temptargetSet){
 
                 insulinReq =  autoAIMIsmb > 0 ? autoAIMIsmb : round((bg - min_bg)/future_sens,2);
                 var microBolus = iTime > 120 ? Math.min(AIMI_UAM_CAP,round(((eventualBG - min_bg)/sens) * Hypo_ratio,2)) : Math.min(AIMI_UAM_CAP,(insulinReq * 2 * Hypo_ratio));
