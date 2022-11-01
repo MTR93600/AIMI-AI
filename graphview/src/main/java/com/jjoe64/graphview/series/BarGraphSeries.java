@@ -39,6 +39,7 @@ import java.util.TreeSet;
  *
  * @author jjoe64
  */
+@SuppressWarnings("unchecked")
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     /**
      * paint to do drawing on canvas

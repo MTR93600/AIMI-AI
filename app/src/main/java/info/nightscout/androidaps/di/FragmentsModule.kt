@@ -10,13 +10,12 @@ import info.nightscout.androidaps.activities.fragments.TreatmentsProfileSwitchFr
 import info.nightscout.androidaps.activities.fragments.TreatmentsTempTargetFragment
 import info.nightscout.androidaps.activities.fragments.TreatmentsTemporaryBasalsFragment
 import info.nightscout.androidaps.activities.fragments.TreatmentsUserEntryFragment
-import info.nightscout.androidaps.dialogs.CalibrationDialog
-import info.nightscout.androidaps.dialogs.CarbsDialog
 import info.nightscout.androidaps.dialogs.CareDialog
 import info.nightscout.androidaps.dialogs.ExtendedBolusDialog
 import info.nightscout.androidaps.dialogs.FillDialog
 import info.nightscout.androidaps.dialogs.InsulinDialog
 import info.nightscout.androidaps.dialogs.LoopDialog
+import info.nightscout.androidaps.dialogs.NtpProgressDialog
 import info.nightscout.androidaps.dialogs.ProfileSwitchDialog
 import info.nightscout.androidaps.dialogs.TempBasalDialog
 import info.nightscout.androidaps.dialogs.TempTargetDialog
@@ -42,7 +41,6 @@ import info.nightscout.androidaps.plugins.general.maintenance.MaintenanceFragmen
 import info.nightscout.androidaps.plugins.general.nsclient.NSClientFragment
 import info.nightscout.androidaps.plugins.general.overview.OverviewFragment
 import info.nightscout.androidaps.plugins.general.overview.dialogs.EditQuickWizardDialog
-import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorFragment
 import info.nightscout.androidaps.plugins.general.tidepool.TidepoolFragment
 import info.nightscout.androidaps.plugins.general.wear.WearFragment
 import info.nightscout.androidaps.plugins.insulin.InsulinFragment
@@ -77,7 +75,6 @@ abstract class FragmentsModule {
     @ContributesAndroidInjector abstract fun contributesLoopFragment(): LoopFragment
     @ContributesAndroidInjector abstract fun contributesMaintenanceFragment(): MaintenanceFragment
     @ContributesAndroidInjector abstract fun contributesNSClientFragment(): NSClientFragment
-    @ContributesAndroidInjector abstract fun contributesSmsCommunicatorFragment(): SmsCommunicatorFragment
     @ContributesAndroidInjector abstract fun contributesWearFragment(): WearFragment
 
     @ContributesAndroidInjector abstract fun contributesTidepoolFragment(): TidepoolFragment
@@ -91,8 +88,6 @@ abstract class FragmentsModule {
 
     @ContributesAndroidInjector abstract fun contributesVirtualPumpFragment(): VirtualPumpFragment
 
-    @ContributesAndroidInjector abstract fun contributesCalibrationDialog(): CalibrationDialog
-    @ContributesAndroidInjector abstract fun contributesCarbsDialog(): CarbsDialog
     @ContributesAndroidInjector abstract fun contributesCareDialog(): CareDialog
     @ContributesAndroidInjector abstract fun contributesEditActionDialog(): EditActionDialog
     @ContributesAndroidInjector abstract fun contributesEditEventDialog(): EditEventDialog
@@ -114,6 +109,6 @@ abstract class FragmentsModule {
     @ContributesAndroidInjector abstract fun contributesTreatmentDialog(): TreatmentDialog
     @ContributesAndroidInjector abstract fun contributesWizardDialog(): WizardDialog
     @ContributesAndroidInjector abstract fun contributesWizardInfoDialog(): WizardInfoDialog
-
+    @ContributesAndroidInjector abstract fun contributesNtpProgressDialog(): NtpProgressDialog
     @ContributesAndroidInjector abstract fun contributesPasswordCheck(): PasswordCheck
 }

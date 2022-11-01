@@ -51,6 +51,7 @@ import java.util.List;
  *
  * @author jjoe64
  */
+@SuppressWarnings("ALL")
 public class Viewport {
     /**
      * listener for the scale gesture
@@ -162,6 +163,7 @@ public class Viewport {
         }
 
         @Override
+        @SuppressWarnings({"deprecation"})
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (!mIsScrollable || mScalingActive) return false;
 
@@ -429,6 +431,7 @@ public class Viewport {
      *
      * @param graphView graphview
      */
+    @SuppressWarnings({"deprecation"})
     Viewport(GraphView graphView) {
         mScroller = new OverScroller(graphView.getContext());
         mEdgeEffectTop = new EdgeEffectCompat(graphView.getContext());
@@ -515,6 +518,7 @@ public class Viewport {
      * by iterating all series and all datapoints and
      * stores it into #mCompleteRange
      */
+    @SuppressWarnings({"deprecation"})
     public void calcCompleteRange() {
         List<Series> series = mGraphView.getSeries();
         mCompleteRange.set(0, 0, 0, 0);
@@ -572,6 +576,7 @@ public class Viewport {
             // lowest
             double d = Double.MAX_VALUE;
             for (Series s : series) {
+                @SuppressWarnings({"unchecked"})
                 Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
                 while (values.hasNext()) {
                     double v = values.next().getY();
@@ -586,6 +591,7 @@ public class Viewport {
             // highest
             d = Double.MIN_VALUE;
             for (Series s : series) {
+                @SuppressWarnings({"unchecked"})
                 Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
                 while (values.hasNext()) {
                     double v = values.next().getY();
@@ -697,6 +703,7 @@ public class Viewport {
     /**
      * release the glowing effects
      */
+    @SuppressWarnings({"deprecation"})
     private void releaseEdgeEffects() {
         mEdgeEffectLeftActive
                 = mEdgeEffectRightActive
@@ -736,6 +743,7 @@ public class Viewport {
     /**
      * not used currently
      */
+    @SuppressWarnings({"deprecation"})
     public void computeScroll() {
         if (true) return;
 
@@ -811,6 +819,7 @@ public class Viewport {
      *
      * @see EdgeEffectCompat
      */
+    @SuppressWarnings({"deprecation"})
     private void drawEdgeEffectsUnclipped(Canvas canvas) {
         // The methods below rotate and translate the canvas as needed before drawing the glow,
         // since EdgeEffectCompat always draws a top-glow at 0,0.

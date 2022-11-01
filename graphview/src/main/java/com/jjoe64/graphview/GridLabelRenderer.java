@@ -290,6 +290,7 @@ public class GridLabelRenderer {
      * from reading the values of the current
      * theme.
      */
+    @SuppressWarnings({"deprecation"})
     public void resetStyles() {
         // get matching styles from theme
         TypedValue typedValue = new TypedValue();
