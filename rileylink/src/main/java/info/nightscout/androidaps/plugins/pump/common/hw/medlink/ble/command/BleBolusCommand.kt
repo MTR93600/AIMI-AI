@@ -16,14 +16,14 @@ class BleBolusCommand : BleActivePumpCommand {
     ) : super(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract)
 
     override fun characteristicChanged(answer: String, bleComm: MedLinkBLE,
-                                       lastCommand: String) {
+                                       lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         if (answer.trim { it <= ' ' }.contains("set bolus")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             bleComm.completedCommand()
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 }

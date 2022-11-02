@@ -13,9 +13,9 @@ open class BleActivePumpCommand(aapsLogger: AAPSLogger,
                                 medLinkPumpPluginAbstract: MedLinkPumpPluginAbstract) :
     BleCommandReader(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         if (answer.contains("pump suspend state")) {
             bleComm.needToBeStarted<Any,Any>(UUID.fromString(GattAttributes.SERVICE_UUID),
                                      UUID.fromString(GattAttributes.GATT_UUID), bleComm.currentCommand?.getCurrentCommand()
@@ -23,7 +23,7 @@ open class BleActivePumpCommand(aapsLogger: AAPSLogger,
             bleComm.clearExecutedCommand();
             bleComm.nextCommand()
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 }

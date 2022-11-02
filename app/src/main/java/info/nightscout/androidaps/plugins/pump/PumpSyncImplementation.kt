@@ -6,20 +6,37 @@ import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.ValueWrapper
 import info.nightscout.androidaps.database.embedments.InterfaceIDs
 import info.nightscout.androidaps.database.entities.*
-import info.nightscout.androidaps.database.transactions.*
+import info.nightscout.androidaps.database.transactions.InsertBolusWithTempIdTransaction
+import info.nightscout.androidaps.database.transactions.InsertIfNewByTimestampCarbsTransaction
+import info.nightscout.androidaps.database.transactions.InsertIfNewByTimestampTherapyEventTransaction
+import info.nightscout.androidaps.database.transactions.InsertTemporaryBasalWithTempIdTransaction
+import info.nightscout.androidaps.database.transactions.InsertTherapyEventAnnouncementTransaction
+import info.nightscout.androidaps.database.transactions.InvalidateTemporaryBasalTransaction
+import info.nightscout.androidaps.database.transactions.InvalidateTemporaryBasalTransactionWithPumpId
+import info.nightscout.androidaps.database.transactions.InvalidateTemporaryBasalWithTempIdTransaction
+import info.nightscout.androidaps.database.transactions.SyncBolusWithTempIdTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpBolusTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpCancelExtendedBolusIfAnyTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpCancelTemporaryBasalIfAnyTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpExtendedBolusTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpTemporaryBasalTransaction
+import info.nightscout.androidaps.database.transactions.SyncPumpTotalDailyDoseTransaction
+import info.nightscout.androidaps.database.transactions.SyncTemporaryBasalWithTempIdTransaction
 import info.nightscout.androidaps.extensions.getHoursFromStart
+import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
+import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.shared.logging.AAPSLogger
+import info.nightscout.shared.logging.LTag
 import info.nightscout.shared.sharedPreferences.SP
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -35,6 +52,7 @@ class PumpSyncImplementation @Inject constructor(
     private val profileFunction: ProfileFunction,
     private val repository: AppRepository,
     private val uel: UserEntryLogger,
+    private val activePlugin: ActivePlugin
 ) : PumpSync {
 
     private val disposable = CompositeDisposable()
@@ -52,6 +70,15 @@ class PumpSyncImplementation @Inject constructor(
         sp.remove(R.string.key_active_pump_serial_number)
         sp.remove(R.string.key_active_pump_change_timestamp)
     }
+
+    // override fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean {
+    //     val storedType = sp.getString(R.string.key_active_pump_type, "")
+    //     val storedSerial = sp.getString(R.string.key_active_pump_serial_number, "")
+    //     if (activePlugin.activePump is VirtualPumpPlugin) return true
+    //     if (type.description == storedType && serialNumber == storedSerial) return true
+    //     aapsLogger.debug(LTag.PUMP, "verifyPumpIdentification failed for $type $serialNumber")
+    //     return false
+    // }
 
     /**
      * Check if data is coming from currently active pump to prevent overlapping pump histories
@@ -75,17 +102,19 @@ class PumpSyncImplementation @Inject constructor(
             return timestamp > dateUtil.now() - T.mins(1).msecs() // allow first record to be 1 min old
         }
 
-        if (type.description == storedType && serialNumber == storedSerial && (timestamp >= storedTimestamp || type.description == PumpType.MEDLINK_MEDTRONIC_554_754_VEO.description)) {
+        if (activePlugin.activePump is VirtualPumpPlugin || (type.description == storedType && serialNumber == storedSerial && (timestamp >= storedTimestamp || type.description == PumpType.MEDLINK_MEDTRONIC_554_754_VEO.description))) {
             // data match
             return true
         }
 
         if (showNotification && (type.description != storedType || serialNumber != storedSerial) && timestamp >= storedTimestamp)
             rxBus.send(EventNewNotification(Notification(Notification.WRONG_PUMP_DATA, rh.gs(R.string.wrong_pump_data), Notification.URGENT)))
-        aapsLogger.error(LTag.PUMP,
-                         "Ignoring pump history record  Allowed: ${dateUtil.dateAndTimeAndSecondsString(storedTimestamp)} $storedType $storedSerial Received: $timestamp ${
-                             dateUtil.dateAndTimeAndSecondsString(timestamp)
-                         } ${type.description} $serialNumber")
+        aapsLogger.error(
+            LTag.PUMP,
+            "Ignoring pump history record  Allowed: ${dateUtil.dateAndTimeAndSecondsString(storedTimestamp)} $storedType $storedSerial Received: $timestamp ${
+                dateUtil.dateAndTimeAndSecondsString(timestamp)
+            } ${type.description} $serialNumber"
+        )
         return false
     }
 
@@ -242,7 +271,8 @@ class PumpSyncImplementation @Inject constructor(
             interfaceIDs_backing = InterfaceIDs(
                 pumpId = pumpId,
                 pumpType = pumpType.toDbPumpType(),
-                pumpSerial = pumpSerial)
+                pumpSerial = pumpSerial
+            )
         )
         repository.runTransactionForResult(InsertIfNewByTimestampCarbsTransaction(carbs))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Carbs", it) }
@@ -267,7 +297,8 @@ class PumpSyncImplementation @Inject constructor(
             interfaceIDs_backing = InterfaceIDs(
                 pumpId = pumpId,
                 pumpType = pumpType.toDbPumpType(),
-                pumpSerial = pumpSerial)
+                pumpSerial = pumpSerial
+            )
         )
         uel.log(UserEntry.Action.CAREPORTAL, pumpType.source, note, ValueWithUnit.Timestamp(timestamp), ValueWithUnit.TherapyEventType(type.toDBbEventType()))
         repository.runTransactionForResult(InsertIfNewByTimestampTherapyEventTransaction(therapyEvent))
@@ -299,7 +330,7 @@ class PumpSyncImplementation @Inject constructor(
         type: PumpSync.TemporaryBasalType?,
         pumpId: Long,
         pumpType: PumpType,
-        pumpSerial: String,
+        pumpSerial: String
     ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val temporaryBasal = TemporaryBasal(
@@ -345,7 +376,7 @@ class PumpSyncImplementation @Inject constructor(
         tempId: Long,
         type: PumpSync.TemporaryBasalType,
         pumpType: PumpType,
-        pumpSerial: String,
+        pumpSerial: String
     ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val temporaryBasal = TemporaryBasal(
@@ -378,7 +409,7 @@ class PumpSyncImplementation @Inject constructor(
         type: PumpSync.TemporaryBasalType?,
         pumpId: Long?,
         pumpType: PumpType,
-        pumpSerial: String,
+        pumpSerial: String
     ): Boolean {
         if (!confirmActivePump(timestamp, pumpType, pumpSerial)) return false
         val bolus = TemporaryBasal(
@@ -416,8 +447,12 @@ class PumpSyncImplementation @Inject constructor(
     }
 
     override fun invalidateTemporaryBasalWithPumpId(pumpId: Long, pumpType: PumpType, pumpSerial: String): Boolean {
-        repository.runTransactionForResult(InvalidateTemporaryBasalTransactionWithPumpId(pumpId, pumpType.toDbPumpType(),
-                                                                                         pumpSerial))
+        repository.runTransactionForResult(
+            InvalidateTemporaryBasalTransactionWithPumpId(
+                pumpId, pumpType.toDbPumpType(),
+                pumpSerial
+            )
+        )
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while invalidating TemporaryBasal", it) }
             .blockingGet()
             .also { result ->

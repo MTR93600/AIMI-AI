@@ -8,9 +8,9 @@ import info.nightscout.shared.logging.LTag
 
 class BleCalCommand(aapsLogger: AAPSLogger, medlinkServiceData: MedLinkServiceData) : BleCommand(aapsLogger, medlinkServiceData) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         when {
             answer.contains("calibration confirmed from pump")     -> {
                 aapsLogger.info(LTag.PUMPBTCOMM, "success calibrated")
@@ -26,7 +26,7 @@ class BleCalCommand(aapsLogger: AAPSLogger, medlinkServiceData: MedLinkServiceDa
                 bleComm.retryCommand()
             }
             else                                                   -> {
-                super.characteristicChanged(answer, bleComm, lastCommand)
+                super.characteristicChanged(answer, bleComm, lastCharacteristic)
             }
         }
     }

@@ -51,6 +51,7 @@ class MedLinkBLE //extends RileyLinkBLE
     private val context: Context, val resourceHelper: ResourceHelper, private val aapsLogger: AAPSLogger, private val sp: SP,
 ) {
 
+    private var bug133: Int=0
     var needToCheckOnHold: Boolean = false
     private var calibrateCommand: CommandExecutor<*>? = null
     private var bluetoothGattCallback: BluetoothGattCallback? = null
@@ -699,8 +700,11 @@ class MedLinkBLE //extends RileyLinkBLE
             } else {
                 sp.remove(RileyLinkConst.Prefs.RileyLinkName)
             }
-            medLinkServiceData!!.rileylinkName = deviceName
-            medLinkServiceData!!.rileylinkAddress = bluetoothConnectionGatt!!.device.address
+            if (this.medLinkServiceData != null) {
+                this.medLinkServiceData?.rileylinkName = deviceName
+                this.medLinkServiceData?.rileylinkAddress =
+                    bluetoothConnectionGatt!!.device.address
+            }
         }
     }
 
@@ -1528,7 +1532,11 @@ class MedLinkBLE //extends RileyLinkBLE
                 if (status == 133) {
                     aapsLogger.error(LTag.PUMPBTCOMM, "Got the status 133 bug, closing gatt")
                     commandQueueBusy = false
-                    SystemClock.sleep(1000)
+                    SystemClock.sleep(180000)
+                    bug133+=1
+                    if(bug133>3){
+                        medLinkUtil!!.sendBroadcastMessage(MedLinkConst.Intents.MedLinkConnectionError, context)
+                    }
                     aapsLogger.info(LTag.PUMPBTCOMM, "Got the status 133 bug, closing gatt")
                     close(true)
                     SystemClock.sleep(500)
@@ -1537,6 +1545,7 @@ class MedLinkBLE //extends RileyLinkBLE
                 if (gattDebugEnabled) {
                     val stateMessage: String
                     stateMessage = if (newState == BluetoothProfile.STATE_CONNECTED) {
+                        bug133=0
                         "CONNECTED"
                     } else if (newState == BluetoothProfile.STATE_CONNECTING) {
                         "CONNECTING"

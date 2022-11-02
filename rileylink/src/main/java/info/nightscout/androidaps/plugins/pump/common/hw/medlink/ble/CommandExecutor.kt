@@ -20,7 +20,7 @@ abstract class CommandExecutor<B> protected constructor(
 ) : Runnable {
 
     var isConfirmed: Boolean = false
-    private var commandPosition = Integer(0)
+    private var commandPosition = 0
     private var functionPosition = 0
     private var currentCommand: MedLinkCommandType? = null
     var nrRetries = 0
@@ -49,17 +49,17 @@ abstract class CommandExecutor<B> protected constructor(
         return if (commandPosition >= commandList.size) {
             MedLinkCommandType.NoCommand
         } else {
-            commandList[commandPosition.toInt()].command
+            commandList[commandPosition].command
         }
     }
 
     fun nextRaw(): ByteArray {
         synchronized(commandPosition) {
             return try {
-                if (commandPosition.toInt() >= commandList.size) {
+                if (commandPosition >= commandList.size) {
                     MedLinkCommandType.NoCommand.getRaw()
                 } else {
-                    commandList[commandPosition.toInt()].commandArgument
+                    commandList[commandPosition].commandArgument
                 }
             } catch (e: ArrayIndexOutOfBoundsException) {
                 aapsLogger.info(LTag.PUMPBTCOMM, "exception at getting next raw $commandPosition")
@@ -102,7 +102,7 @@ abstract class CommandExecutor<B> protected constructor(
 
     fun getCurrentCommand(): MedLinkCommandType {
         return if (commandPosition < commandList.size)
-            commandList[commandPosition.toInt()].command
+            commandList[commandPosition].command
         else MedLinkCommandType.NoCommand
     }
 
@@ -114,17 +114,17 @@ abstract class CommandExecutor<B> protected constructor(
     }
 
     fun commandExecuted() {
-        if (commandPosition.toInt() == 0) {
+        if (commandPosition == 0) {
             nrRetries++
-        } else if (commandPosition < commandList.size && commandList[commandPosition.toInt()].command != MedLinkCommandType.NoCommand) {
+        } else if (commandPosition < commandList.size && commandList[commandPosition].command != MedLinkCommandType.NoCommand) {
             nrRetries++
         }
-        commandPosition = Integer(commandPosition.toInt() + 1)
+        commandPosition += 1
 
     }
 
     open fun clearExecutedCommand() {
-        commandPosition = Integer(0)
+        commandPosition = 0
         functionPosition = 0
         isConfirmed = false
     }
@@ -167,7 +167,7 @@ abstract class CommandExecutor<B> protected constructor(
 
     protected fun nextCommandData(): ByteArray {
         return if (commandPosition < commandList.size) {
-            commandList[commandPosition.toInt()].commandArgument
+            commandList[commandPosition].commandArgument
         } else {
             MedLinkCommandType.NoCommand.getRaw()
         }

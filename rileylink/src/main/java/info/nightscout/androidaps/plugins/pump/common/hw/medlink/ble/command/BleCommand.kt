@@ -24,17 +24,17 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
 
     private val handler: Handler? = null
     protected var pumpResponse = StringBuffer()
-    open fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    open fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         if (answer.trim { it <= ' ' }.isEmpty()) {
             pumpResponse = StringBuffer()
             return
         }
         val currentCommand = bleComm.currentCommand
-        if (pumpResponse.length == 0) {
+        if (pumpResponse.isEmpty()) {
             pumpResponse.append(System.currentTimeMillis()).append("\n")
-        } else if ((lastCommand + answer).contains("command confirmed")) {
+        } else if ((lastCharacteristic + answer).contains("command confirmed")) {
             currentCommand?.isConfirmed = true
             pumpResponse.append("\n")
             bleComm.setConfirmedCommand(true)
@@ -44,7 +44,7 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
         pumpResponse.append(answer)
         if (answer.startsWith("invalid command")) {
             bleComm.setConfirmedCommand(false)
-            if (currentCommand != null && currentCommand.getCurrentCommand() != null) {
+            if (currentCommand != null && currentCommand.getCurrentCommand() != MedLinkCommandType.NoCommand) {
                 aapsLogger.info(LTag.PUMPBTCOMM, currentCommand.getCurrentCommand().code!!)
                 if (currentCommand.isInitialized) {
                     currentCommand.clearExecutedCommand()
@@ -55,22 +55,22 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
 //                }
             }
         }
-        if (answer.trim { it <= ' ' }.contains("%") && lastCommand.trim { it <= ' ' }.contains("med-link battery")) {
+        if (answer.trim { it <= ' ' }.contains("%") && lastCharacteristic.trim { it <= ' ' }.contains("med-link battery")) {
             val batteryPattern = Pattern.compile("\\d+")
-            val batteryMatcher = batteryPattern.matcher(lastCommand + answer)
+            val batteryMatcher = batteryPattern.matcher(lastCharacteristic + answer)
             if (batteryMatcher.find()) {
                 bleComm.setBatteryLevel(Integer.valueOf(batteryMatcher.group()))
             }
             return
         }
-        if (lastCommand.trim { it <= ' ' }.contains("firmware")) {
-            val firmware = (lastCommand + answer).split(" ".toRegex()).toTypedArray()
+        if (lastCharacteristic.trim { it <= ' ' }.contains("firmware")) {
+            val firmware = (lastCharacteristic + answer).split(" ".toRegex()).toTypedArray()
             if (firmware.size == 3) {
                 bleComm.setFirmwareVersion(firmware[2])
             }
             return
         }
-        if ((lastCommand + answer).trim { it <= ' ' }.contains("time to powerdown") //                && !answer.trim().contains("c command confirmed")
+        if ((lastCharacteristic + answer).trim { it <= ' ' }.contains("time to powerdown") //                && !answer.trim().contains("c command confirmed")
         ) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             aapsLogger.info(LTag.PUMPBTCOMM, "" + currentCommand)
@@ -134,9 +134,9 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
         if (answer.contains("medtronic")) {
             bleComm.setPumpModel(answer)
         }
-        if (!lastCommand.contains("ready") && !lastCommand.contains("eomeomeom") &&
-            (lastCommand + answer).contains("ready") ||
-            !lastCommand.contains("eomeomeom") && answer.contains("eomeomeom")
+        if (!lastCharacteristic.contains("ready") && !lastCharacteristic.contains("eomeomeom") &&
+            (lastCharacteristic + answer).contains("ready") ||
+            !lastCharacteristic.contains("eomeomeom") && answer.contains("eomeomeom")
         ) {
 //                    release();
             bleComm.setConnected(true)
@@ -145,7 +145,7 @@ open class BleCommand(protected val aapsLogger: AAPSLogger, protected val medLin
             medLinkServiceData.setMedLinkServiceState(MedLinkServiceState.PumpConnectorReady)
             //            medLinkServiceData
 //            medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus);
-            if (currentCommand != null && currentCommand.nextFunction() != null && !(answer + lastCommand).contains(
+            if (currentCommand != null && currentCommand.nextFunction() != null && !(answer + lastCharacteristic).contains(
                     "invalid"
                 ) && currentCommand.isConfirmed
             ) {

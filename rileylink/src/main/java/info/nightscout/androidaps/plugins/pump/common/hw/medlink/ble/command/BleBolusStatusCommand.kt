@@ -20,7 +20,7 @@ class BleBolusStatusCommand(
 
     private var status: MedLinkPartialBolus = MedLinkPartialBolus(PumpType.MEDLINK_MEDTRONIC_554_754_VEO)
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
         if (answer.contains("time to powerdown 5")) {
             bleComm.nextCommand();
@@ -62,8 +62,8 @@ class BleBolusStatusCommand(
                 bleComm.completedCommand()
             }
             pumpResponse = StringBuffer()
-        } else if (!(lastCommand+answer).contains("time to powerdown") || answer.contains("confirmed")) {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+        } else if (!(lastCharacteristic+answer).contains("time to powerdown") || answer.contains("confirmed")) {
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 }

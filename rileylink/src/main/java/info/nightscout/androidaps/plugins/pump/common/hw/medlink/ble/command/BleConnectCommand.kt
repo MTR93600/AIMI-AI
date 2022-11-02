@@ -14,12 +14,12 @@ class BleConnectCommand(
 ) :
     BleCommandReader(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
-        if ("$lastCommand$answer".contains("pump no response")) {
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
+        if ("$lastCharacteristic$answer".contains("pump no response")) {
             bleComm.pumpConnectionError()
-        } else if ("$lastCommand$answer".contains("ready")) {
+        } else if ("$lastCharacteristic$answer".contains("ready")) {
             bleComm.clearNoResponse()
         }
         if (answer.trim { it <= ' ' }.contains("ok+conn")) {
@@ -32,7 +32,7 @@ class BleConnectCommand(
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             return
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 }

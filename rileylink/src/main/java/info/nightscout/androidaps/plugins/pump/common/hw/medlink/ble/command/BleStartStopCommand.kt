@@ -12,14 +12,14 @@ open class BleStartStopCommand(
 ) :
     BleCommandReader(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         if (answer.contains("set pump state tim")) {
             bleComm.currentCommand?.clearExecutedCommand()
             bleComm.retryCommand()
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 }
