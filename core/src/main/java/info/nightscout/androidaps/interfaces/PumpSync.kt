@@ -30,13 +30,19 @@ interface PumpSync {
      *
      *  Call this function when new pump is paired to accept data from new pump
      *  to prevent overlapping pump histories
-     * @param endRunning    if true end previous running TBR and EB
+     *  @param endRunning    if true end previous running TBR and EB
      */
 
-    // @JvmOverloads and default value impossible on interface
-    // replace by `fun connectNewPump(endRunning: Boolean = true)` after full conversion to kotlin
-    fun connectNewPump(endRunning: Boolean)
-    fun connectNewPump() = connectNewPump(true)
+    fun connectNewPump(endRunning: Boolean = true)
+
+    /**
+     *  Verify if current pump type and SN is properly registered
+     *  @param type current PumpType
+     *  @param serialNumber current serial number
+     *
+     *  @return true if type and SN match to last call of connectNewPump
+     */
+    fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean
 
     /*
      *   GENERAL STATUS

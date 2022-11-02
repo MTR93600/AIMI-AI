@@ -146,7 +146,7 @@ class DanaRSPlugin @Inject constructor(
         aapsLogger.debug(LTag.PUMP, "RS connect from: $reason")
         if (danaRSService != null && mDeviceAddress != "" && mDeviceName != "") {
             val success = danaRSService?.connect(reason, mDeviceAddress) ?: false
-            if (!success) ToastUtils.showToastInUiThread(context, rh.gs(R.string.ble_not_supported_or_not_paired))
+            if (!success) ToastUtils.errorToast(context, R.string.ble_not_supported_or_not_paired)
         }
     }
 
@@ -418,7 +418,7 @@ class DanaRSPlugin @Inject constructor(
             aapsLogger.error("setTempBasalPercent: Invalid input")
             return result
         }
-        if (percentAfterConstraint > pumpDescription.maxTempPercent) percentAfterConstraint = pumpDescription.maxTempPercent
+        //if (percentAfterConstraint > pumpDescription.maxTempPercent) percentAfterConstraint = pumpDescription.maxTempPercent
         if (danaPump.isTempBasalInProgress && danaPump.tempBasalPercent == percentAfterConstraint && danaPump.tempBasalRemainingMin > 4 && !enforceNew) {
             result.enacted = false
             result.success = true

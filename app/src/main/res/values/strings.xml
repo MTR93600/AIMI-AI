@@ -850,6 +850,8 @@
     <string name="description_source_poctech">Receive BG values from Poctech app</string>
     <string name="glunovo">Glunovo</string>
     <string name="description_source_glunovo">Receive values from Glunovo app</string>
+    <string name="intelligo">Intelligo</string>
+    <string name="description_source_intelligo">Receive values from Intelligo app</string>
     <string name="description_source_tomato">Receive BG values from Tomato app (MiaoMiao device)</string>
     <string name="key_high_temptarget_raises_sensitivity" translatable="false">high_temptarget_raises_sensitivity</string>
     <string name="key_low_temptarget_lowers_sensitivity" translatable="false">low_temptarget_lowers_sensitivity</string>
@@ -1181,6 +1183,8 @@
     <string name="recalculated_data_used">Recalculated data used</string>
     <string name="bg_too_close">BG too close:\n%1$s\n%2$s</string>
     <string name="key_last_processed_glunovo_timestamp" translatable="false">last_processed_glunovo_timestamp</string>
+    <string name="key_last_processed_intelligo_timestamp" translatable="false">
+        last_processed_intelligo_timestamp</string>
     <string name="identification">Identification (email, FB or Discord nick etc)</string>
     <string name="identification_not_set">Identification not set in dev mode</string>
     <string name="a11y_dialog">dialog</string>
@@ -1193,6 +1197,7 @@
     <string name="fulluam_maxiob_title">Maximum total IOB AIMI can\'t go over [U]</string>
     <string name="fulluam_maxiob_summary">This value is called Max IOB in AIMI context\nAIMI will not add more insulin if current IOB is greater than this value</string>
 
+    <string name="key_use_AimiIgnoreCOB" translatable="false">key_use_AimiIgnoreCOB</string>
     <string name="iTime">iTime</string>
     <string name="iTimeSettings">iTime</string>
     <string name="key_iTime" translatable="false">iTime</string>
@@ -1269,6 +1274,7 @@
     <string name="key_eatingnow_isfboost_maxbolus">key_eatingnow_isfboost_maxbolus</string>
     <string name="key_eatingnow_isfbgscaler">key_eatingnow_isfbgscaler</string>
     <string name="key_eatingnow_isfbgoffset">key_eatingnow_isfbgoffset</string>
+
     <!--    <string name="key_eatingnow_isf_max_scale">key_eatingnow_isf_max_scale</string>-->
     <string name="key_eatingnow_iobmax">key_eatingnow_iobmax</string>
     <string name="key_eatingnow_timestart">key_eatingnow_timestart</string>
@@ -1390,6 +1396,8 @@
     <string name="a11y_only_on_phone">only on phone</string>
     <string name="a11y_drag_and_drop_handle">drag and drop handle</string>
     <string name="search">Search</string>
+    <string name="key_aimi_variant" translatable="false">AIMI_variant</string>
+    <string name="aimi_variant_title">AIMI Variant</string>
 
     <!-- Aidex Cgms -->
     <string name="aidex">GlucoRx Aidex</string>
@@ -1402,4 +1410,5 @@
     <string name="key_adjust_sensitivity" translatable="false">dynisf_adjust_sensitivity</string>
     <string name="dynisf_adjust_sensitivity">Adjust sensitivity and BG</string>
 
+    <string name="variant_title">Variant</string>
 </resources>

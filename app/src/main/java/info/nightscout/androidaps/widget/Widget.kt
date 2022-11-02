@@ -23,7 +23,6 @@ import info.nightscout.androidaps.extensions.toVisibility
 import info.nightscout.androidaps.extensions.valueToUnitsString
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.DetermineBasalResultSMB
-import info.nightscout.androidaps.plugins.aps.fullUAM.DetermineBasalResultUAM
 import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.plugins.general.overview.OverviewData
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
@@ -55,7 +54,11 @@ class Widget : AppWidgetProvider() {
     @Inject lateinit var sp: SP
     @Inject lateinit var constraintChecker: ConstraintChecker
 
-    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
+    companion object {
+        // This object doesn't behave like singleton,
+        // many threads were created. Making handler static resolve this issue
+        private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
+    }
     private val intentAction = "OpenApp"
 
     override fun onReceive(context: Context, intent: Intent?) {
@@ -237,7 +240,7 @@ class Widget : AppWidgetProvider() {
 
         // Show variable sensitivity
         val request = loop.lastRun?.request
-        if (request is DetermineBasalResultUAM) {
+        if (request is DetermineBasalResultSMB) {
             val isfMgdl = profileFunction.getProfile()?.getIsfMgdl()
             val variableSens = request.variableSens
             if (variableSens != isfMgdl && variableSens != null && isfMgdl != null) {

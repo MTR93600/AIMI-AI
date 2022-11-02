@@ -4,9 +4,21 @@
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:key="@string/key_fulluam_settings"
-        android:title="@string/fulluam"
+        android:title="AIMI Variant Preferences"
         app:initialExpandedChildrenCount="0">
+
+        <info.nightscout.androidaps.plugins.aps.loop.LoopVariantPreference
+            android:title="@string/variant_title"
+            android:defaultValue="default"
+            android:selectable="true"
+            app:pluginFolder="AIMI"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/key_fulluam_settings"
+        android:title="@string/fulluam">
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="1"
@@ -78,10 +90,27 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="3"
+            android:dependency="@string/key_use_AimiUAM"
+            android:dialogMessage="Value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 15 minutes."
+            android:inputType="numberDecimal"
+            android:key="@string/key_use_AIMI_CAP"
+            android:title="MaxSmb size AIMI_UAM"
+            validate:floatmaxNumber="10"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_openapsama_useautosens"
             android:title="@string/openapsama_useautosens" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiIgnoreCOB"
+            android:title="Ignore COB"
+            android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -102,33 +131,6 @@
             android:summary="@string/enablesmb_summary"
             android:title="@string/enablesmb" />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
-            android:key="@string/key_use_LuymjevU200"
-            android:summary="Dependency AIMI_UAM Mode, specify Luymjev U200"
-            android:title="AIMI UAM with Luymjev U200" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
-            android:key="@string/key_use_LuymjevU100"
-            android:summary="Dependency AIMI_UAM Mode, specify Luymjev U100"
-            android:title="AIMI UAM with Luymjev U100" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
-            android:key="@string/key_use_Fiasp"
-            android:summary="Dependency AIMI_UAM Mode, specify Fiasp, you need to make a pre-bolus at 60% minimum"
-            android:title="AIMI UAM with Fiasp" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
-            android:key="@string/key_use_Novorapid"
-            android:summary="Dependency AIMI_UAM Mode, specify Novorapid, you need to make a pre-bolus at 80% minimum"
-            android:title="AIMI UAM with Novorapid" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -173,16 +175,6 @@
             validate:minNumber="0"
             validate:testType="numericRange" />
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="3"
-            android:dependency="@string/key_use_AimiUAM"
-            android:dialogMessage="Value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 15 minutes."
-            android:inputType="numberDecimal"
-            android:key="@string/key_use_AIMI_CAP"
-            android:title="MaxSmb size AIMI_UAM"
-            validate:floatmaxNumber="10"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -346,7 +338,7 @@
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
                 android:title="@string/openapsama_current_basal_safety_multiplier"
-                validate:floatmaxNumber="10"
+                validate:floatmaxNumber="20"
                 validate:floatminNumber="1"
                 validate:testType="floatNumericRange" />
 

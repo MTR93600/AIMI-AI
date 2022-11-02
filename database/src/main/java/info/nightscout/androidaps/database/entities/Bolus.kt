@@ -44,6 +44,7 @@ data class Bolus(
     override var utcOffset: Long = TimeZone.getDefault().getOffset(timestamp).toLong(),
     var amount: Double,
     var type: Type,
+    var notes: String? = null,
     var isBasalInsulin: Boolean = false,
     @Embedded
     var insulinConfiguration: InsulinConfiguration? = null
@@ -62,6 +63,7 @@ data class Bolus(
             utcOffset == other.utcOffset &&
             amount == other.amount &&
             type == other.type &&
+            notes == other.notes &&
             isBasalInsulin == other.isBasalInsulin
 
     fun onlyNsIdAdded(previous: Bolus): Boolean =
