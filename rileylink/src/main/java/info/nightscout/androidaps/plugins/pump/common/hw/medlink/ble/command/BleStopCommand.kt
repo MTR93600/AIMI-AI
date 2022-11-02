@@ -14,9 +14,9 @@ class BleStopCommand(aapsLogger: AAPSLogger,
 
     private var checkingStatus: Boolean = false
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
         val answers = pumpResponse.toString()
         // if (answers.contains("check pump status")) {
         //     checkingStatus = true
@@ -40,7 +40,7 @@ class BleStopCommand(aapsLogger: AAPSLogger,
                 bleComm.retryCommand()
             }
             else                                   -> {
-                super.characteristicChanged(answer, bleComm, lastCommand)
+                super.characteristicChanged(answer, bleComm, lastCharacteristic)
             }
         }
     }

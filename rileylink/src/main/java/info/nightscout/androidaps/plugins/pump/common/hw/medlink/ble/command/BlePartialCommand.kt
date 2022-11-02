@@ -7,14 +7,14 @@ import info.nightscout.shared.logging.AAPSLogger
 open class BlePartialCommand(aapsLogger: AAPSLogger, medLinkServiceData: MedLinkServiceData) :
     BleCommand(aapsLogger, medLinkServiceData) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         if (answer.contains("time to powerdown") && !pumpResponse.toString().contains("ready")) {
             val resp = pumpResponse.toString()
             pumpResponse = StringBuffer()
             super.applyResponse(resp, bleComm.currentCommand, bleComm)
 
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
     }
 

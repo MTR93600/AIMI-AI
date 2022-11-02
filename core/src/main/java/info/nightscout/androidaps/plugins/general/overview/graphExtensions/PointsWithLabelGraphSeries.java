@@ -136,6 +136,7 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
         while (values.hasNext()) {
             E value = values.next();
 
+            Shape shape = value.getShape();
             mPaint.setColor(value.color(graphView.getContext()));
 
             double valY = value.getY() - minY;

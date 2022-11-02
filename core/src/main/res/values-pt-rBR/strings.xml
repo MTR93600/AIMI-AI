@@ -61,7 +61,7 @@
     <string name="yes">Sim</string>
     <string name="no">Não</string>
     <string name="loopdisabled">LOOP DESATIVADO POR RESTRIÇÕES</string>
-    <string name="novalidbasalrate">Nenhum valor de basal temporaria valido foi lido da bomba</string>
+    <string name="novalidbasalrate">Nenhum valor de basal temporária valido foi lido da bomba</string>
     <string name="limitingmaxiob">A limitar IOB máx. para %1$.1f U porque %2$s</string>
     <string name="unsafeusage">uso não seguro</string>
     <string name="pump_unreachable">Bomba inacessível</string>

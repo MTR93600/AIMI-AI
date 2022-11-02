@@ -72,6 +72,7 @@ abstract class CommandExecutor<B> protected constructor(
                 aapsLogger.info(LTag.PUMPBTCOMM, commandList.joinToString { buf.toString() })
                 return MedLinkCommandType.NoCommand.getRaw()
             }
+
         }
     }
 

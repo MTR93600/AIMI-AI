@@ -108,6 +108,7 @@ class MedLinkMedtronicFragment : DaggerFragment() {
         }
 
         binding.refresh.setOnClickListener {
+            val service =medLinkMedtronicPumpPlugin.medLinkService
             if (medLinkMedtronicPumpPlugin.medLinkService?.verifyConfiguration() != true) {
                 displayNotConfiguredDialog()
             } else {

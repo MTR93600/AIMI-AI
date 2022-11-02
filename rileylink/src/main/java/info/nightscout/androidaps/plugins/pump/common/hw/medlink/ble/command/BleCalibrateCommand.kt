@@ -13,14 +13,14 @@ class BleCalibrateCommand(
 ) :
     BleActivePumpCommand(aapsLogger, medLinkServiceData, medLinkPumpPluginAbstract) {
 
-    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCommand: String) {
+    override fun characteristicChanged(answer: String, bleComm: MedLinkBLE, lastCharacteristic: String) {
         aapsLogger.info(LTag.PUMPBTCOMM, answer)
-        aapsLogger.info(LTag.PUMPBTCOMM, lastCommand)
-        if ((lastCommand + answer).trim { it <= ' ' }.contains("nter calibration value")) {
+        aapsLogger.info(LTag.PUMPBTCOMM, lastCharacteristic)
+        if ((lastCharacteristic + answer).trim { it <= ' ' }.contains("nter calibration value")) {
             aapsLogger.info(LTag.PUMPBTCOMM, pumpResponse.toString())
             bleComm.completedCommand()
         } else {
-            super.characteristicChanged(answer, bleComm, lastCommand)
+            super.characteristicChanged(answer, bleComm, lastCharacteristic)
         }
 
     }

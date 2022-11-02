@@ -18,7 +18,7 @@ import info.nightscout.androidaps.plugins.general.wear.wearintegration.DataHandl
 import info.nightscout.androidaps.plugins.general.wear.wearintegration.DataLayerListenerServiceMobileHelper
 import info.nightscout.androidaps.utils.FabricPrivacy
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import info.nightscout.shared.logging.LTag
+
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.weardata.EventData

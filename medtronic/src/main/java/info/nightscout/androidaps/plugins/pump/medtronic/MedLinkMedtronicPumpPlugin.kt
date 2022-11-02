@@ -842,8 +842,21 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
                     TempBasalMicroBolusPair.OperationType.REACTIVATE -> {
                         tempBasalMicrobolusOperations.setShouldBeSuspended(false)
-                        val callback = oper.callback
-                        reactivatePump(oper) { callback }
+                        if (PumpRunningState.Running != pumpStatusData.pumpRunningState) {
+                            startPump(object : Callback() {
+                                override fun run() {
+                                    if (medLinkPumpStatus.pumpRunningState ===
+                                        PumpRunningState.Running
+                                    ) {
+                                        tempBasalMicrobolusOperations.operations.poll()
+                                        oper.isCommandIssued = true
+                                    }
+                                }
+                            })
+                        } else {
+                            tempBasalMicrobolusOperations.operations.poll()
+                        }
+
                     }
 
                     TempBasalMicroBolusPair.OperationType.BOLUS      -> {
@@ -970,6 +983,24 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     } else {
                         operation?.isCommandIssued = false
                     }
+                }
+
+                else                      -> {
+                    aapsLogger.info(LTag.PUMPBTCOMM, "else $operation")
+                    callback.invoke(
+                        PumpEnactResult(injector) //
+                            .success(!isConnect) //
+                            .enacted(!isConnect) //
+                            .comment(rh.gs(string.tempbasaldeliveryerror))
+                    )
+                    if (!isConnect) {
+                        lastStatus = PumpRunningState.Suspended.status
+                        tempBasalMicrobolusOperations.operations.peek()
+                        //                        createTemporaryBasalData(oper.getDuration(),
+                        //                                oper.getDose().setScale(2).doubleValue());
+                    }
+                    operation?.isCommandIssued = false
+
                 }
 
                 else                      -> {
@@ -1900,7 +1931,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
         refreshAnyStatusThatNeedsToBeRefreshed()
         //criar fila de comandos aqui, esta fila deverá ser consumida a cada execução de checagem de status
-        return buildPumpEnactResult().success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
+        return buildPumpEnactResult().enacted(true).success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
     }
 
     private fun calculateTotalSuspended(calcPercent: Double): Int {
@@ -2067,6 +2098,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     roundedPeriodDose / minBolusDose
                 ).setScale(0, RoundingMode.HALF_DOWN).toInt()
                 val calculatedDose = BigDecimal(periodDose).divide(BigDecimal(doses), 2, RoundingMode.HALF_DOWN).toDouble()
+                aapsLogger.info(LTag.PUMP,periodDose.toString())
+                aapsLogger.info(LTag.PUMP,calculatedDose.toString())
                 minDosage = BigDecimal(periodDose / doses).setScale(1, RoundingMode.HALF_DOWN).toDouble()
                 val list = buildOperations(doses.toDouble(), periodAvailableOperations, emptyList())
                 //TODO convert build operations to return list of tempmicroboluspair
@@ -2171,7 +2204,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 if (position < 0) {
                     position = 0
                 }
-                list.set(position, list[position] + pumpType.bolusSize)
+                list[position] = list[position] + pumpType.bolusSize
                 return list
             }
             if (step < 2.5) {
@@ -2185,12 +2218,12 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     private fun buildBigStepsTempSMBDosage(operations: Int, doses: Double, list: MutableList<Double>, step: Double): List<Double> {
         var doses = doses
         var nextStep = step
-        list.set(0, list[0] + pumpType.bolusSize)
+        list[0] = list[0] + pumpType.bolusSize
         doses--
         for (index in 1 until operations) {
             if (doses > 0 && nextStep < index) {
                 doses--
-                list.set(index, list[index] + pumpType.bolusSize)
+                list[index] = list[index] + pumpType.bolusSize
                 nextStep = index + step
             }
         }
@@ -2205,20 +2238,25 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     private fun buildSmallStepsTempSMBDosage(operations: Int, doses: Double, list: List<Double>, step: Double): List<Double> {
         val diff = operations - doses
-        return if (diff == 3.0) {
-            val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.33)).toInt()
-            val secondPosition = 2 * newStep
-            val thirdPosition = 3 * newStep
-            fillTempSMBWithExclusions(list, newStep, secondPosition, thirdPosition)
-        } else if (diff == 2.0) {
-            val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.25)).toInt()
-            val half = round(operations / diff).toInt()
-            val secondPosition = half + newStep
-            fillTempSMBWithExclusions(list, newStep, secondPosition)
-        } else if (diff == 1.0) {
-            fillTempSMBWithExclusions(list, Math.floorDiv(operations, 2))
-        } else {
-            fillTempSMBWithStep(list, step, doses)
+        return when (diff) {
+            3.0  -> {
+                val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.33)).toInt()
+                val secondPosition = 2 * newStep
+                val thirdPosition = 3 * newStep
+                fillTempSMBWithExclusions(list, newStep, secondPosition, thirdPosition)
+            }
+            2.0  -> {
+                val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.25)).toInt()
+                val half = round(operations / diff).toInt()
+                val secondPosition = half + newStep
+                fillTempSMBWithExclusions(list, newStep, secondPosition)
+            }
+            1.0  -> {
+                fillTempSMBWithExclusions(list, Math.floorDiv(operations, 2))
+            }
+            else -> {
+                fillTempSMBWithStep(list, step, doses)
+            }
         }
     }
 
@@ -2274,7 +2312,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             basalProfilesFromTemp, durationInMinutes, callback, absoluteBasalValue, basalType
         )
         refreshAnyStatusThatNeedsToBeRefreshed()
-        return buildPumpEnactResult().success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
+        return buildPumpEnactResult().enacted(true).success(true).comment(rh.gs(string.medtronic_cmd_desc_set_tbr))
     }
 
     private fun extractTempProfiles(profile: Profile, endTas: Long, currentTas: Int): LinkedList<ProfileValue?> {
@@ -2870,7 +2908,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             null
         }
 
-        if (currentPumpStatus === PumpRunningState.Suspended || tempBasalMicrobolusOperations.shouldBeSuspended()) {
+        if (currentPumpStatus === PumpRunningState.Suspended || !tempBasalMicrobolusOperations.shouldBeSuspended()) {
             commands.addAll(
                 buildChangeStatusFunction(
                     oper,
