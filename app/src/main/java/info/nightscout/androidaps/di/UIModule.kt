@@ -6,7 +6,7 @@ import info.nightscout.ui.widget.WidgetConfigureActivity
 import info.nightscout.androidaps.skins.SkinListPreference
 import info.nightscout.ui.widget.Widget
 import info.nightscout.androidaps.plugins.aps.loop.LoopVariantPreference
-import info.nightscout.androidaps.widget.Widget
+//import info.nightscout.androidaps.widget.Widget
 
 @Module
 @Suppress("unused")
