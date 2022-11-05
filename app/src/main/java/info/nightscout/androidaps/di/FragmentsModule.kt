@@ -36,7 +36,7 @@ import info.nightscout.androidaps.plugins.general.wear.WearFragment
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpFragment
 import info.nightscout.androidaps.plugins.source.BGSourceFragment
 import info.nightscout.androidaps.activities.fragments.*
-import info.nightscout.androidaps.plugins.general.automation.dialogs.*
+import info.nightscout.automation.dialogs.*
 import info.nightscout.androidaps.plugins.aps.AIMI.AIMIFragment
 import info.nightscout.androidaps.utils.protection.PasswordCheck
 import info.nightscout.plugins.general.autotune.AutotuneFragment
