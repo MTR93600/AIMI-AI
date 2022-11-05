@@ -19,7 +19,7 @@ import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.DataSyncSelector
 import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.general.food.FoodPlugin.FoodWorker
+import info.nightscout.plugins.general.food.FoodPlugin.FoodWorker
 import info.nightscout.androidaps.plugins.general.nsclient.NSClientAddAckWorker
 import info.nightscout.androidaps.plugins.general.nsclient.NSClientAddUpdateWorker
 import info.nightscout.androidaps.plugins.general.nsclient.NSClientMbgWorker
@@ -40,7 +40,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNo
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.plugins.general.overview.notifications.NotificationWithAction
-import info.nightscout.androidaps.plugins.profile.local.LocalProfilePlugin
+import info.nightscout.plugins.profile.ProfilePlugin
 import info.nightscout.androidaps.plugins.source.NSClientSourcePlugin.NSClientSourceWorker
 import info.nightscout.androidaps.receivers.DataWorkerStorage
 import info.nightscout.androidaps.utils.DateUtil
@@ -467,7 +467,7 @@ class NSClientService : DaggerService() {
                             val profileStoreJson = profiles[profiles.length() - 1] as JSONObject
                             rxBus.send(EventNSClientNewLog("PROFILE", "profile received"))
                             dataWorkerStorage.enqueue(
-                                OneTimeWorkRequest.Builder(LocalProfilePlugin.NSProfileWorker::class.java)
+                                OneTimeWorkRequest.Builder(ProfilePlugin.NSProfileWorker::class.java)
                                     .setInputData(dataWorkerStorage.storeInputData(profileStoreJson))
                                     .build()
                             )

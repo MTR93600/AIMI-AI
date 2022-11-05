@@ -23,7 +23,7 @@ import info.nightscout.androidaps.extensions.valueToUnitsString
 import info.nightscout.androidaps.interfaces.*
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
+import info.nightscout.androidaps.interfaces.Constraints
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSDeviceStatus
 import info.nightscout.androidaps.plugins.general.overview.graphExtensions.GlucoseValueDataPoint
 import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
@@ -72,7 +72,7 @@ class DataHandlerMobile @Inject constructor(
     private val defaultValueHelper: DefaultValueHelper,
     private val trendCalculator: TrendCalculator,
     private val dateUtil: DateUtil,
-    private val constraintChecker: ConstraintChecker,
+    private val constraintChecker: Constraints,
     private val uel: UserEntryLogger,
     private val activePlugin: ActivePlugin,
     private val commandQueue: CommandQueue,
@@ -1079,7 +1079,7 @@ class DataHandlerMobile @Inject constructor(
     private fun generateStatusString(profile: Profile?, currentBasal: String, iobSum: String, iobDetail: String, bgiString: String): String {
         var status = ""
         profile ?: return rh.gs(R.string.noprofile)
-        if (!(loop as PluginBase).isEnabled()) status += rh.gs(R.string.disabledloop) + "\n"
+        if (!(loop as PluginBase).isEnabled()) status += rh.gs(R.string.disabled_loop) + "\n"
 
         val iobString =
             if (sp.getBoolean(R.string.key_wear_detailediob, false)) "$iobSum $iobDetail"

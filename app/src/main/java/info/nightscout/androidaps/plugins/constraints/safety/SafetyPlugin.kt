@@ -12,7 +12,7 @@ import info.nightscout.androidaps.plugins.aps.openAPSAMA.OpenAPSAMAPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
 import info.nightscout.androidaps.plugins.aps.openAPSSMBDynamicISF.OpenAPSSMBDynamicISFPlugin
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
+import info.nightscout.androidaps.interfaces.Constraints
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.plugins.sensitivity.SensitivityOref1Plugin
@@ -35,7 +35,7 @@ class SafetyPlugin @Inject constructor(
     rh: ResourceHelper,
     private val sp: SP,
     private val rxBus: RxBus,
-    private val constraintChecker: ConstraintChecker,
+    private val constraintChecker: Constraints,
     private val openAPSAMAPlugin: OpenAPSAMAPlugin,
     private val openAPSSMBPlugin: OpenAPSSMBPlugin,
     private val aimiPlugin: AIMIPlugin,
