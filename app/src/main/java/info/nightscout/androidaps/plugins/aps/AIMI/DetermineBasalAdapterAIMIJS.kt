@@ -282,7 +282,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_disable_b30_BFL", sp.getBoolean(R.string.key_use_disable_b30_BFL, false))
         this.profile.put("key_AIMI_BreakFastLight_timestart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timestart, "6")))
         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
-        this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")))
+        this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
         this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
 
 

@@ -136,14 +136,14 @@
             validate:testType="floatNumericRange" />
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="3"
+            android:defaultValue="150"
             android:dependency="@string/key_use_AimiUAM"
-            android:dialogMessage="Value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 15 minutes."
+            android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
             android:inputType="numberDecimal"
             android:key="@string/key_use_AIMI_CAP"
-            android:title="MaxSmb size AIMI_UAM"
-            validate:floatmaxNumber="10"
-            validate:floatminNumber="0"
+            android:title="MaxSmb size AIMI_UAM : % of basal profile between 100% and 1000%"
+            validate:floatmaxNumber="1000"
+            validate:floatminNumber="100"
             validate:testType="floatNumericRange" />
 
         <SwitchPreference
