@@ -143,7 +143,7 @@
             android:key="@string/key_use_AIMI_CAP"
             android:title="MaxSmb size AIMI_UAM : % of basal profile between 100% and 1000%"
             validate:floatmaxNumber="1000"
-            validate:floatminNumber="100"
+            validate:floatminNumber="50"
             validate:testType="floatNumericRange" />
 
         <SwitchPreference
