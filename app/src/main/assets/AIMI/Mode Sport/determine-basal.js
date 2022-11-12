@@ -1689,13 +1689,13 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
        if (iTimeActivation === true){
-            if (UAMpredBG < 100 && iTime > 100){
+            if (UAMpredBG < 110 && iTime > 100){
                         microBolus = 0;
                         rT.reason += ", No SMB because UAMpreBG < 100, ";
             }
 
        }else{
-            if (UAMpredBG < 100){
+            if (UAMpredBG < 110){
                 microBolus = 0;
                 rT.reason += ", No SMB beacause UAMpredBG < 100, ";
             }
