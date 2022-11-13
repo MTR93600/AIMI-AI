@@ -1802,7 +1802,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         durationReq = 20;
                         rT.duration = durationReq;
                         rate = round_basal(basal*glucose_status.delta,profile);
-                     }else if (b30Ko === false && TriggerPredSMB_future_sens_45 > 39){
+                     }else if (b30Ko === false && TriggerPredSMB_future_sens_45 > 39 && bg > 80){
                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*6/60)*30;
                         durationReq = 20;
                         rT.duration = durationReq;
