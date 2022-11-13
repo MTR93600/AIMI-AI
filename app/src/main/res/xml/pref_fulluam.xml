@@ -141,8 +141,8 @@
             android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
             android:inputType="numberDecimal"
             android:key="@string/key_use_AIMI_CAP"
-            android:title="MaxSmb size AIMI_UAM : % of basal profile between 100% and 1000%"
-            validate:floatmaxNumber="1000"
+            android:title="MaxSmb size AIMI_UAM : % of basal profile between 50% and 2000%"
+            validate:floatmaxNumber="2000"
             validate:floatminNumber="50"
             validate:testType="floatNumericRange" />
 
