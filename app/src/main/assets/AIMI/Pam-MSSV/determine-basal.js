@@ -1661,7 +1661,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                 console.log("**** BG is stuck > 170 and no smb since 25 minutes, sending  : "+microBolus+"U****\n");
 
-             }else{
+             }else if (glucose_status.delta > 0){
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 

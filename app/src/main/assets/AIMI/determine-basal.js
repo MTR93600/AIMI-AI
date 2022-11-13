@@ -1132,7 +1132,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 12/11/2022 ");
+                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 13/11/2022 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1298,7 +1298,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVc-AIMI-V22b-12/11/22 ";
+    rT.reason += "\nDEVc-AIMI-V22b-13/11/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1613,13 +1613,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             var GN = 1.618;
             }
 
-            //var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
-
-           /* if (b30SMB === true && HypoPredBG > 90 && TimeSMB > 20){
-            var  microBolus = round(((profile.current_basal*5/60)*30)*smbRatio,2);
-            UAMAIMIReason += ", run b30SMB && HypoPredBG > 90, ";
-
-            }else*/ if (iTime > 20 && iTime < 26  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
+            if (iTime > 20 && iTime < 26  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
                 var microBolus = LastManualBolus / 1.618;
                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
                 microBolus = Math.min(AIMI_UAM_CAP,microBolus);
@@ -1657,7 +1651,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                 console.log("**** BG is stuck > 170 and no smb since 25 minutes, sending  : "+microBolus+"U****\n");
 
-             }else{
+             }else if (glucose_status.delta > 0){
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 

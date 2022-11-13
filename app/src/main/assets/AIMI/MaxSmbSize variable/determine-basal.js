@@ -1159,7 +1159,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 12/11/2022 Variant MaxSmbSize ");
+                console.log(" AAPS-3.1.0.3-dev-c-AIMI V22b 13/11/2022 Variant MaxSmbSize ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1326,7 +1326,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVc-AIMI-V22b-Variant MaxSmbSize-12/11/22 ";
+    rT.reason += "\nDEVc-AIMI-V22b-Variant MaxSmbSize-13/11/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1657,7 +1657,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                       //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                       //console.log("InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+")\n");
 
-            }else{
+            }else if (glucose_status.delta > 0){
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 

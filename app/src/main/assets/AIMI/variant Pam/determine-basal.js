@@ -1324,7 +1324,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\nDEVc-AIMI-V22b-Variant Pam-12/11/22 ";
+    rT.reason += "\nDEVc-AIMI-V22b-Variant Pam-13/11/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1660,7 +1660,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                 console.log("**** BG is stuck > 170 and no smb since 25 minutes, sending  : "+microBolus+"U****\n");
 
-             }else{
+             }else if (glucose_status.delta > 0){
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 
