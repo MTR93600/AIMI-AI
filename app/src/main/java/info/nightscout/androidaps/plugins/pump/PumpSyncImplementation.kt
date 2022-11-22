@@ -5,14 +5,7 @@ import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.database.AppRepository
 import info.nightscout.androidaps.database.ValueWrapper
 import info.nightscout.androidaps.database.embedments.InterfaceIDs
-import info.nightscout.androidaps.database.entities.Bolus
-import info.nightscout.androidaps.database.entities.Carbs
-import info.nightscout.androidaps.database.entities.ExtendedBolus
-import info.nightscout.androidaps.database.entities.TemporaryBasal
-import info.nightscout.androidaps.database.entities.TherapyEvent
-import info.nightscout.androidaps.database.entities.TotalDailyDose
-import info.nightscout.androidaps.database.entities.UserEntry
-import info.nightscout.androidaps.database.entities.ValueWithUnit
+import info.nightscout.androidaps.database.entities.*
 import info.nightscout.androidaps.database.transactions.InsertBolusWithTempIdTransaction
 import info.nightscout.androidaps.database.transactions.InsertIfNewByTimestampCarbsTransaction
 import info.nightscout.androidaps.database.transactions.InsertIfNewByTimestampTherapyEventTransaction
@@ -29,6 +22,7 @@ import info.nightscout.androidaps.database.transactions.SyncPumpExtendedBolusTra
 import info.nightscout.androidaps.database.transactions.SyncPumpTemporaryBasalTransaction
 import info.nightscout.androidaps.database.transactions.SyncPumpTotalDailyDoseTransaction
 import info.nightscout.androidaps.database.transactions.SyncTemporaryBasalWithTempIdTransaction
+import info.nightscout.androidaps.extensions.getHoursFromStart
 import info.nightscout.androidaps.interfaces.ActivePlugin
 import info.nightscout.androidaps.interfaces.ProfileFunction
 import info.nightscout.androidaps.interfaces.PumpSync

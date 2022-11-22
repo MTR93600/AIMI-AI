@@ -292,7 +292,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     fun startPump(callback: Callback?) {
         aapsLogger.info(LTag.PUMP, "MedtronicPumpPlugin::startPump - ")
         if (medLinkPumpStatus.pumpRunningState !== PumpRunningState.Running) {
-            buildStartStopCommands()
+            // buildStartStopCommands()
             val activity: Function<Supplier<Stream<String>>, MedLinkStandardReturn<PumpDriverState>> =
             //     if(tempBasalMicrobolusOperations != null && tempBasalMicrobolusOperations.operations.isNotEmpty() && callback != null){
             //     buildChangeStatusFunction(
@@ -983,24 +983,6 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     } else {
                         operation?.isCommandIssued = false
                     }
-                }
-
-                else                      -> {
-                    aapsLogger.info(LTag.PUMPBTCOMM, "else $operation")
-                    callback.invoke(
-                        PumpEnactResult(injector) //
-                            .success(!isConnect) //
-                            .enacted(!isConnect) //
-                            .comment(rh.gs(string.tempbasaldeliveryerror))
-                    )
-                    if (!isConnect) {
-                        lastStatus = PumpRunningState.Suspended.status
-                        tempBasalMicrobolusOperations.operations.peek()
-                        //                        createTemporaryBasalData(oper.getDuration(),
-                        //                                oper.getDose().setScale(2).doubleValue());
-                    }
-                    operation?.isCommandIssued = false
-
                 }
 
                 else                      -> {
@@ -2205,6 +2187,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     position = 0
                 }
                 list[position] = list[position] + pumpType.bolusSize
+                list[position] = BigDecimal(list[position]).setScale(
+                    1,
+                    RoundingMode.HALF_UP
+                ).toDouble()
                 return list
             }
             if (step < 2.5) {
@@ -2223,7 +2209,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         for (index in 1 until operations) {
             if (doses > 0 && nextStep < index) {
                 doses--
-                list[index] = list[index] + pumpType.bolusSize
+                list[index] = BigDecimal(list[index] + pumpType.bolusSize).setScale(
+                    1,
+                    RoundingMode.HALF_UP
+                ).toDouble()
                 nextStep = index + step
             }
         }
