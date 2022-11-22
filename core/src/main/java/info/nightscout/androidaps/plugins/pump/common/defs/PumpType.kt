@@ -13,7 +13,7 @@ enum class PumpType {
 
     GENERIC_AAPS(
         description = "Generic AAPS",
-        manufacturer = ManufacturerType.AndroidAPS,
+        manufacturer = ManufacturerType.AAPS,
         model = "VirtualPump",
         bolusSize = 0.1,
         specialBolusSize = null,
@@ -328,7 +328,7 @@ enum class PumpType {
     ),
     MDI(
         description = "MDI",
-        manufacturer = ManufacturerType.AndroidAPS,
+        manufacturer = ManufacturerType.AAPS,
         bolusSize = 0.5,
         model = "MDI",
         tbrSettings = DoseSettings(1.0, 15, 24 * 60, 0.0, 500.0),
@@ -339,7 +339,7 @@ enum class PumpType {
     // Not real pump. Used for User as a source
     USER(
         description = "USER",
-        manufacturer = ManufacturerType.AndroidAPS,
+        manufacturer = ManufacturerType.AAPS,
         model = "USER",
         tbrSettings = DoseSettings(1.0, 15, 24 * 60, 0.0, 500.0),
         extendedBolusSettings = DoseSettings(0.1, 15, 12 * 60, 0.1),
@@ -409,6 +409,25 @@ enum class PumpType {
         parent = MEDLINK_MEDTRONIC_523_723_REVEL,
         // manufacturer = ManufacturerType.Medtronic
     ); // TODO
+        source = Sources.DiaconnG8),
+
+    //EOPatch Pump
+    EOFLOW_EOPATCH2(description = "Eoflow Eopatch2",
+        manufacturer = ManufacturerType.Eoflow,
+        model = "Eopatch",
+        bolusSize = 0.05,
+        specialBolusSize = null,
+        extendedBolusSettings = DoseSettings(0.05, 30, 8 * 60, 0.05, 25.0),
+        pumpTempBasalType = PumpTempBasalType.Absolute,
+        tbrSettings = DoseSettings(0.05, 30, 12 * 60, 0.0, 15.0),
+        specialBasalDurations = PumpCapability.BasalRate_Duration30minAllowed,
+        baseBasalMinValue = 0.05,
+        baseBasalMaxValue = 15.0,
+        baseBasalStep = 0.05,
+        baseBasalSpecialSteps = null,
+        pumpCapability = PumpCapability.EopatchCapabilities,
+        isPatchPump = true,
+        source = Sources.EOPatch2);
 
     val description: String
     var manufacturer: ManufacturerType? = null
@@ -498,6 +517,7 @@ enum class PumpType {
                 InterfaceIDs.PumpType.DIACONN_G8                  -> DIACONN_G8
                 InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO       -> MEDLINK_MEDTRONIC_554_754_VEO
                 InterfaceIDs.PumpType.CACHE                       -> TODO()
+                InterfaceIDs.PumpType.EOPATCH2                     -> CACHE
             }
     }
 
@@ -628,6 +648,7 @@ enum class PumpType {
             MDI                       -> InterfaceIDs.PumpType.MDI
             USER                      -> InterfaceIDs.PumpType.USER
             DIACONN_G8                -> InterfaceIDs.PumpType.DIACONN_G8
+            EOFLOW_EOPATCH2           -> InterfaceIDs.PumpType.EOPATCH2
             CACHE                     -> InterfaceIDs.PumpType.CACHE
             MEDLINK_MEDTRONIC_523_723_REVEL -> InterfaceIDs.PumpType.MEDTRONIC_523_723_REVEL
             MEDLINK_MEDTRONIC_554_754_VEO   -> InterfaceIDs.PumpType.MEDLINK_MEDTRONIC_554_754_VEO

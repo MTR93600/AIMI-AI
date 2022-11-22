@@ -16,7 +16,6 @@ import info.nightscout.androidaps.BuildConfig
 import info.nightscout.androidaps.Constants
 import info.nightscout.androidaps.MainActivity
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.activities.ErrorHelperActivity
 import info.nightscout.androidaps.annotations.OpenForTesting
 import info.nightscout.androidaps.data.DetailedBolusInfo
 import info.nightscout.androidaps.data.PumpEnactResult
@@ -36,6 +35,7 @@ import info.nightscout.androidaps.extensions.convertedToAbsolute
 import info.nightscout.androidaps.extensions.convertedToPercent
 import info.nightscout.androidaps.extensions.plannedRemainingMinutes
 import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.ActivityNames
 import info.nightscout.androidaps.interfaces.CommandQueue
 import info.nightscout.androidaps.interfaces.Config
 import info.nightscout.androidaps.interfaces.Constraint
@@ -54,7 +54,7 @@ import info.nightscout.androidaps.plugins.aps.loop.events.EventLoopSetLastRunGui
 import info.nightscout.androidaps.plugins.aps.loop.events.EventLoopUpdateGui
 import info.nightscout.androidaps.plugins.aps.loop.events.EventNewOpenLoopNotification
 import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
+import info.nightscout.androidaps.interfaces.Constraints
 import info.nightscout.androidaps.plugins.configBuilder.RunningConfiguration
 import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
@@ -88,7 +88,7 @@ class LoopPlugin @Inject constructor(
     private val rxBus: RxBus,
     private val sp: SP,
     config: Config,
-    private val constraintChecker: ConstraintChecker,
+    private val constraintChecker: Constraints,
     rh: ResourceHelper,
     private val profileFunction: ProfileFunction,
     private val context: Context,
@@ -101,7 +101,8 @@ class LoopPlugin @Inject constructor(
     private val dateUtil: DateUtil,
     private val uel: UserEntryLogger,
     private val repository: AppRepository,
-    private val runningConfiguration: RunningConfiguration
+    private val runningConfiguration: RunningConfiguration,
+    private val activityNames: ActivityNames
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.LOOP)
@@ -751,7 +752,7 @@ class LoopPlugin @Inject constructor(
             commandQueue.tempBasalAbsolute(0.0, durationInMinutes, true, profile, PumpSync.TemporaryBasalType.EMULATED_PUMP_SUSPEND, object : Callback() {
                 override fun run() {
                     if (!result.success) {
-                        ErrorHelperActivity.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
+                        activityNames.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
                     }
                 }
             })
@@ -759,7 +760,7 @@ class LoopPlugin @Inject constructor(
             commandQueue.tempBasalPercent(0, durationInMinutes, true, profile, PumpSync.TemporaryBasalType.EMULATED_PUMP_SUSPEND, object : Callback() {
                 override fun run() {
                     if (!result.success) {
-                        ErrorHelperActivity.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
+                        activityNames.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
                     }
                 }
             })
@@ -768,7 +769,7 @@ class LoopPlugin @Inject constructor(
             commandQueue.cancelExtended(object : Callback() {
                 override fun run() {
                     if (!result.success) {
-                        ErrorHelperActivity.runAlarm(context, result.comment, rh.gs(R.string.extendedbolusdeliveryerror), R.raw.boluserror)
+                        activityNames.runAlarm(context, result.comment, rh.gs(R.string.extendedbolusdeliveryerror), R.raw.boluserror)
                     }
                 }
             })
@@ -786,7 +787,7 @@ class LoopPlugin @Inject constructor(
         commandQueue.cancelTempBasal(true, object : Callback() {
             override fun run() {
                 if (!result.success) {
-                    ErrorHelperActivity.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
+                    activityNames.runAlarm(context, result.comment, rh.gs(R.string.tempbasaldeliveryerror), R.raw.boluserror)
                 }
             }
         })
@@ -794,6 +795,6 @@ class LoopPlugin @Inject constructor(
 
     companion object {
 
-        private const val CHANNEL_ID = "AndroidAPS-OpenLoop"
+        private const val CHANNEL_ID = "AAPS-OpenLoop"
     }
 }

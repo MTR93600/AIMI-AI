@@ -17,6 +17,79 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="AIMI B30 Preferences"
+        app:initialExpandedChildrenCount="0">
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="150"
+            android:dialogMessage="If BG is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperBG"
+            android:title="B30 Upper BG to stop B30"
+            validate:floatmaxNumber="200"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dialogMessage="If delta is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperdelta"
+            android:title="B30 Upper delta to stop B30"
+            validate:floatmaxNumber="15"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="20"
+            android:dialogMessage="b30 duration is the duration in minutes of the first basal action after the manual bolus (> iTime_Starting_Bolus)"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_duration"
+            android:title="first B30 duration after a bolus"
+            validate:floatmaxNumber="100"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_Aimiprotein"
+            android:title="meal low carbs"
+            android:summary="meal low carbs with proteins and lipids. this option will force b30" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="60"
+            android:dialogMessage="with meal low carbs enable, this value define how many time after the bolus started iTime you want to force B30"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinstart"
+            android:title="B30 protein start"
+            validate:floatmaxNumber="180"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="60"
+            android:dialogMessage="with meal low carbs enable, this value define the duration of the B30 for proteins and lipids"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinduration"
+            android:title="B30 protein duration"
+            validate:floatmaxNumber="180"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
+            android:defaultValue="300"
+            android:dialogMessage="with meal low carbs enable, this value define the % of the B30 for proteins and lipids"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinpercent"
+            android:title="B30 protein %"
+            validate:floatmaxNumber="500"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="@string/key_fulluam_settings"
         android:title="@string/fulluam">
 
@@ -50,35 +123,7 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="150"
-            android:dialogMessage="If BG is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_B30_upperBG"
-            android:title="B30 Upper BG to stop B30"
-            validate:floatmaxNumber="200"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
 
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="6"
-            android:dialogMessage="If delta is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_B30_upperdelta"
-            android:title="B30 Upper delta to stop B30"
-            validate:floatmaxNumber="15"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="20"
-            android:dialogMessage="b30 duration is the duration in minutes of the first basal action after the manual bolus (> iTime_Starting_Bolus)"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_B30_duration"
-            android:title="first B30 duration after a bolus"
-            validate:floatmaxNumber="100"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="2"
@@ -91,14 +136,14 @@
             validate:testType="floatNumericRange" />
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
-            android:defaultValue="3"
+            android:defaultValue="150"
             android:dependency="@string/key_use_AimiUAM"
-            android:dialogMessage="Value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 15 minutes."
+            android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
             android:inputType="numberDecimal"
             android:key="@string/key_use_AIMI_CAP"
-            android:title="MaxSmb size AIMI_UAM"
-            validate:floatmaxNumber="10"
-            validate:floatminNumber="0"
+            android:title="MaxSmb size AIMI_UAM : % of basal profile between 50% and 2000%"
+            validate:floatmaxNumber="2000"
+            validate:floatminNumber="50"
             validate:testType="floatNumericRange" />
 
         <SwitchPreference
@@ -111,6 +156,18 @@
             android:key="@string/key_use_AimiIgnoreCOB"
             android:title="Ignore COB"
             android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiBreak"
+            android:title="Break SMB 10 minutes"
+            android:summary="If smb = 0,6 * max_smb_size or if you received 2 smb in the same hour, the interval change for 10 minutes" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiIOBpredBG"
+            android:title="BFIOB"
+            android:summary="Using the IOBpredBG instead of UAMpredBG during the breakfast" />
 
         <SwitchPreference
             android:defaultValue="false"

@@ -42,6 +42,7 @@ data class InterfaceIDs(
         YPSOPUMP,
         MDI,
         DIACONN_G8,
+        EOPATCH2,
         USER,
         MEDLINK_MEDTRONIC_554_754_VEO,
         CACHE;

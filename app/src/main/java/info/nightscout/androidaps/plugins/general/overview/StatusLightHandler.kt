@@ -21,6 +21,7 @@ import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronic
 import info.nightscout.androidaps.utils.DecimalFormatter
 import info.nightscout.androidaps.utils.WarnColors
 import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.androidaps.plugins.pump.eopatch.AppConstant
 import info.nightscout.shared.sharedPreferences.SP
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -78,14 +79,21 @@ class StatusLightHandler @Inject constructor(
         } else if (pump.pumpDescription.isBatteryReplaceable || (pump is OmnipodErosPumpPlugin && pump.isUseRileyLinkBatteryLevel && pump.isBatteryChangeLoggingEnabled())) {
             handleAge(careportal_pb_age, TherapyEvent.Type.PUMP_BATTERY_CHANGE, R.string.key_statuslights_bage_warning, 216.0, R.string.key_statuslights_bage_critical, 240.0)
         }
+
         careportal_sensor_battery_level?.text = ""
         if (!config.NSCLIENT) {
-            val insulinUnit = rh.gs(R.string.insulin_unit_shortname)
-            if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
-                handleOmnipodReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, insulinUnit)
-            } else {
-                handleLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, insulinUnit)
-            }
+        val insulinUnit = rh.gs(R.string.insulin_unit_shortname)
+        if (pump.model() == PumpType.OMNIPOD_EROS || pump.model() == PumpType.OMNIPOD_DASH) {
+            handlePatchReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, insulinUnit,
+                                  OmnipodConstants.MAX_RESERVOIR_READING)
+        } else if (pump.model() == PumpType.EOFLOW_EOPATCH2) {
+            handlePatchReservoirLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, insulinUnit,
+                                      AppConstant.MAX_RESERVOIR_READING)
+        } else {
+            handleLevel(careportal_reservoir_level, R.string.key_statuslights_res_critical, 10.0, R.string.key_statuslights_res_warning, 80.0, pump.reservoirLevel, insulinUnit)
+        }
+
+        if (!config.NSCLIENT) {
             if (bgSource.sensorBatteryLevel != -1)
                 handleLevel(careportal_sensor_battery_level, R.string.key_statuslights_sbat_critical, 5.0, R.string.key_statuslights_sbat_warning, 20.0, bgSource.sensorBatteryLevel.toDouble(), "%")
             else
@@ -116,7 +124,7 @@ class StatusLightHandler @Inject constructor(
                 //     handleLevel(careportal_battery_level, R.string.key_statuslights_bat_critical, 26.0, R.string.key_statuslights_bat_warning, 51.0, pump.pumpStatusData.batteryRemaining.toDouble(), "%")
                 // }
             } else {
-                careportal_battery_level?.text = rh.gs(R.string.notavailable)
+                careportal_battery_level?.text = rh.gs(R.string.value_unavailable_short)
                 careportal_battery_level?.setTextColor(rh.gac(careportal_battery_level.context, R.attr.defaultTextColor))
             }
             // else {
@@ -136,7 +144,7 @@ class StatusLightHandler @Inject constructor(
             warnColors.setColorByAge(view, therapyEvent.value, warn, urgent)
             view?.text = therapyEvent.value.age(rh.shortTextMode(), rh, dateUtil)
         } else {
-            view?.text = if (rh.shortTextMode()) "-" else rh.gs(R.string.notavailable)
+            view?.text = if (rh.shortTextMode()) "-" else rh.gs(R.string.value_unavailable_short)
         }
     }
 
@@ -158,14 +166,16 @@ class StatusLightHandler @Inject constructor(
 
     // Omnipod only reports reservoir level when it's 50 units or less, so we display "50+U" for any value > 50
     @Suppress("SameParameterValue")
-    private fun handleOmnipodReservoirLevel(view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int, warnDefaultValue: Double, level: Double, units: String) {
-        if (level > OmnipodConstants.MAX_RESERVOIR_READING) {
+    private fun handlePatchReservoirLevel(
+        view: TextView?, criticalSetting: Int, criticalDefaultValue: Double, warnSetting: Int,
+        warnDefaultValue: Double, level: Double, units: String, maxReading: Double
+    ) {
+        if (level >= maxReading) {
             @Suppress("SetTextI18n")
-            view?.text = " 50+$units"
+            view?.text = " ${maxReading.toInt()}+$units"
             view?.setTextColor(rh.gac(view.context, R.attr.defaultTextColor))
         } else {
             handleLevel(view, criticalSetting, criticalDefaultValue, warnSetting, warnDefaultValue, level, units)
         }
     }
-
 }
