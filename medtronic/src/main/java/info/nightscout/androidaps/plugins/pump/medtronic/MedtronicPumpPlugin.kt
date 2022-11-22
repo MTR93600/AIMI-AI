@@ -73,7 +73,7 @@ import kotlin.math.floor
  * @author Andy Rozman (andy.rozman@gmail.com)
  */
 @Singleton
-class MedtronicPumpPlugin @Inject constructor(
+class  MedtronicPumpPlugin @Inject constructor(
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
     rxBus: RxBus,

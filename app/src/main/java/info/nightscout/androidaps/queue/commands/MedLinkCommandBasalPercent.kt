@@ -35,7 +35,8 @@ class MedLinkCommandBasalPercent(
         }
 
         if (pump is MedLinkPumpDevice) {
-            pump.setTempBasalPercent(percent, durationInMinutes, profile, enforceNew, func)
+            val result = pump.setTempBasalPercent(percent, durationInMinutes, profile, enforceNew, func)
+            callback?.result(result)?.run()
         }
     }
 

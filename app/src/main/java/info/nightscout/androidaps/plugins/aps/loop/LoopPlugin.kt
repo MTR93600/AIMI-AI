@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import dagger.android.HasAndroidInjector
@@ -33,8 +35,20 @@ import info.nightscout.androidaps.extensions.buildDeviceStatus
 import info.nightscout.androidaps.extensions.convertedToAbsolute
 import info.nightscout.androidaps.extensions.convertedToPercent
 import info.nightscout.androidaps.extensions.plannedRemainingMinutes
-import info.nightscout.androidaps.interfaces.*
+import info.nightscout.androidaps.interfaces.ActivePlugin
+import info.nightscout.androidaps.interfaces.CommandQueue
+import info.nightscout.androidaps.interfaces.Config
+import info.nightscout.androidaps.interfaces.Constraint
+import info.nightscout.androidaps.interfaces.IobCobCalculator
+import info.nightscout.androidaps.interfaces.Loop
 import info.nightscout.androidaps.interfaces.Loop.LastRun
+import info.nightscout.androidaps.interfaces.PluginBase
+import info.nightscout.androidaps.interfaces.PluginDescription
+import info.nightscout.androidaps.interfaces.PluginType
+import info.nightscout.androidaps.interfaces.Profile
+import info.nightscout.androidaps.interfaces.ProfileFunction
+import info.nightscout.androidaps.interfaces.PumpDescription
+import info.nightscout.androidaps.interfaces.PumpSync
 import info.nightscout.androidaps.logging.UserEntryLogger
 import info.nightscout.androidaps.plugins.aps.loop.events.EventLoopSetLastRunGui
 import info.nightscout.androidaps.plugins.aps.loop.events.EventLoopUpdateGui
@@ -106,6 +120,9 @@ class LoopPlugin @Inject constructor(
     private var carbsSuggestionsSuspendedUntil: Long = 0
     private var prevCarbsreq = 0
     override var lastRun: LastRun? = null
+    override var closedLoopEnabled: Constraint<Boolean>? = null
+
+    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
 
     override fun onStart() {
         createNotificationChannel()
@@ -128,6 +145,7 @@ class LoopPlugin @Inject constructor(
 
     override fun onStop() {
         disposable.clear()
+        handler.removeCallbacksAndMessages(null)
         super.onStop()
     }
 
@@ -295,8 +313,8 @@ class LoopPlugin @Inject constructor(
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.pumpsuspended)))
                     return
                 }
-                val closedLoopEnabled = constraintChecker.isClosedLoopAllowed()
-                if (closedLoopEnabled.value()) {
+                closedLoopEnabled = constraintChecker.isClosedLoopAllowed()
+                if (closedLoopEnabled?.value() == true) {
                     if (allowNotification) {
                         if (resultAfterConstraints.isCarbsRequired
                             && resultAfterConstraints.carbsReq >= sp.getInt(
@@ -408,6 +426,9 @@ class LoopPlugin @Inject constructor(
                                         lastRun.tbrSetByPump = result
                                         lastRun.lastTBRRequest = lastRun.lastAPSRun
                                         lastRun.lastTBREnact = dateUtil.now()
+                                    // deliverAt is used to prevent executing too old SMB request (older than 1 min)
+                                    // executing TBR may take some time thus give more time to SMB
+                                    resultAfterConstraints.deliverAt = lastRun.lastTBREnact
                                         rxBus.send(EventLoopUpdateGui())
                                         applySMBRequest(resultAfterConstraints, object : Callback() {
                                             override fun run() {
@@ -417,10 +438,7 @@ class LoopPlugin @Inject constructor(
                                                     lastRun.lastSMBRequest = lastRun.lastAPSRun
                                                     lastRun.lastSMBEnact = dateUtil.now()
                                                 } else {
-                                                    Thread {
-                                                        SystemClock.sleep(1000)
-                                                        invoke("tempBasalFallback", allowNotification, true)
-                                                    }.start()
+                                                handler.postDelayed({ invoke("tempBasalFallback", allowNotification, true) }, 1000)
                                                 }
                                                 rxBus.send(EventLoopUpdateGui())
                                             }
@@ -614,7 +632,7 @@ class LoopPlugin @Inject constructor(
                 commandQueue.tempBasalPercent(request.percent, request.duration, false, profile, PumpSync.TemporaryBasalType.NORMAL, callback)
             }
         } else {
-            if (request.rate == 0.0 && request.duration == 0 || Math.abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep) {
+            if (request.rate == 0.0 && request.duration == 0 || abs(request.rate - pump.baseBasalRate) < pump.pumpDescription.basalStep) {
                 if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(
                         request.rate - activeTemp.convertedToAbsolute(
                             now,
@@ -652,14 +670,14 @@ class LoopPlugin @Inject constructor(
                 }
             } else
                 if (activeTemp != null && activeTemp.plannedRemainingMinutes > 5 && request.duration - activeTemp.plannedRemainingMinutes < 30 && abs(request.rate - activeTemp.convertedToAbsolute(now, profile)) < pump.pumpDescription.basalStep) {
-                    aapsLogger.info(LTag.APS, "applyAPSRequest: Temp basal set correctly")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: Temp basal set correctly")
                     callback?.result(
                         PumpEnactResult(injector).absolute(activeTemp.convertedToAbsolute(now, profile))
                             .enacted(false).success(true).duration(activeTemp.plannedRemainingMinutes)
                             .comment(R.string.let_temp_basal_run)
                     )?.run()
                 } else {
-                    aapsLogger.info(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()")
+                aapsLogger.info(LTag.APS, "applyAPSRequest: setTempBasalAbsolute()")
                     uel.log(
                         Action.TEMP_BASAL, Sources.Loop,
                         ValueWithUnit.UnitPerHour(request.rate),

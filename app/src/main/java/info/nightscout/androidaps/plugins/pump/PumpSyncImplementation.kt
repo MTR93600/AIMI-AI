@@ -71,14 +71,14 @@ class PumpSyncImplementation @Inject constructor(
         sp.remove(R.string.key_active_pump_change_timestamp)
     }
 
-    // override fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean {
-    //     val storedType = sp.getString(R.string.key_active_pump_type, "")
-    //     val storedSerial = sp.getString(R.string.key_active_pump_serial_number, "")
-    //     if (activePlugin.activePump is VirtualPumpPlugin) return true
-    //     if (type.description == storedType && serialNumber == storedSerial) return true
-    //     aapsLogger.debug(LTag.PUMP, "verifyPumpIdentification failed for $type $serialNumber")
-    //     return false
-    // }
+    override fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean {
+        val storedType = sp.getString(R.string.key_active_pump_type, "")
+        val storedSerial = sp.getString(R.string.key_active_pump_serial_number, "")
+        if (activePlugin.activePump is VirtualPumpPlugin) return true
+        if (type.description == storedType && serialNumber == storedSerial) return true
+        aapsLogger.debug(LTag.PUMP, "verifyPumpIdentification failed for $type $serialNumber")
+        return false
+    }
 
     /**
      * Check if data is coming from currently active pump to prevent overlapping pump histories

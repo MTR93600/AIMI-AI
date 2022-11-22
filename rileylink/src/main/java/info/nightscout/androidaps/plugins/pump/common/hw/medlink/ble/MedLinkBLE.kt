@@ -1109,7 +1109,7 @@ class MedLinkBLE //extends RileyLinkBLE
                 if (currentCommand!!.hasFinished()) {
                     removeFirstCommand(false)
                 } else {
-                    currentCommand!!.clearExecutedCommand()
+                    currentCommand?.clearExecutedCommand()
                 }
             }
             currentCommand = null
