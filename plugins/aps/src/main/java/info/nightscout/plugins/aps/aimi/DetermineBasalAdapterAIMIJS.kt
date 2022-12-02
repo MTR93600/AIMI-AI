@@ -121,7 +121,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
             //generate functions "determine_basal" and "setTempBasal"
             //rhino.evaluateString(scope, readFile(LoopVariantPreference.getVariantFileName(sp, AIMIDefaults.folderName)), "JavaScript", 0, null)
-            rhino.evaluateString(scope, readFile("AIMI/determine-basal.js"), "JavaScript", 0, null)
+            if (sp.getBoolean(R.string.key_use_b30mssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/b30mssv/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_mssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/mssv/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_pammssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/pammssv/determine-basal.js"), "JavaScript", 0, null)
+            else
+                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
+
+
             rhino.evaluateString(scope, readFile("OpenAPSSMB/basal-set-temp.js"), "setTempBasal.js", 0, null)
             val determineBasalObj = scope["determine_basal", scope]
             val setTempBasalFunctionsObj = scope["tempBasalFunctions", scope]

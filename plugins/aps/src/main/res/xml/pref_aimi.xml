@@ -17,6 +17,35 @@
     </PreferenceCategory>
 -->
     <PreferenceCategory
+        android:title="AIMI Variant Preferences"
+        app:initialExpandedChildrenCount="0">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_b30mssv"
+            android:title="Variant B30-MSSV"
+            android:summary="This variant will have more B30 action and max smb size variable. Absorption is managing by switching predictions IOB and UAM.For slower insulin than luymjev enable Break SMB 10." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_mssv"
+            android:title="Variant MSSV"
+            android:summary="This variant has max smb size variable. it's the most aggressive variant. For slower insulin than luymjev enable Break SMB 10." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_pam"
+            android:title="Variant PAM"
+            android:summary="This variant is a stable version with an absorption time for slower insulin." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_pammssv"
+            android:title="Variant PAM"
+            android:summary="This variant is a stable version with an absorption time for slower insulin. The max smb size is variable." />
+
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="AIMI B30 Preferences"
         app:initialExpandedChildrenCount="0">
 

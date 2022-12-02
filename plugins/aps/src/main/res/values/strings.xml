@@ -211,6 +211,10 @@
     <string name="key_use_AimiUAM_ISF" translatable="false">key_use_AimiUAM</string>
     <string name="key_use_AimiBreak" translatable="false">key_use_AimiBreak</string>
     <string name="key_use_disable_b30_BFL" translatable="false">key_use_disable_b30_BFL</string>
+    <string name="key_use_b30mssv" translatable="false">Variant B30-MSSV</string>
+    <string name="key_use_mssv" translatable="false">Variant MSSV </string>
+    <string name="key_use_pammssv" translatable="false">Variant PAM-MSSV</string>
+    <string name="key_use_pam" translatable="false">Variant PAM</string>
 
 
 </resources>
