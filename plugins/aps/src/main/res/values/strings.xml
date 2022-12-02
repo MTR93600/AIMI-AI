@@ -149,5 +149,68 @@
     <string name="loop_open_mode_min_change">Minimal request change [%]</string>
     <string name="loop_open_mode_min_change_summary" formatted="false">Open Loop will popup new change request only if change is bigger than this value in %. Default value is 20%</string>
 
+    <!--    Loop -->
+
+    <string name="aimi">AIMI</string>
+    <string name="description_aimi">Automated Insulin Management Interface</string>
+    <string name="key_aimi_settings" translatable="false">aimi_settings</string>
+    <string name="key_use_AimiIgnoreCOB" translatable="false">key_use_AimiIgnoreCOB</string>
+    <string name="key_use_Aimiprotein" translatable="false">key_use_Aimiprotein</string>
+    <string name="key_use_AimiIOBpredBG" translatable="false">key_use_AimiIOBpredBG</string>
+    <string name="iTime">iTime</string>
+    <string name="iTimeSettings">iTime</string>
+    <string name="key_iTime" translatable="false">iTime</string>
+    <string name="iTime_title">iTime</string>
+    <string name="iTime_summary">iTime is the duration in minutes of the meal who authorize larger SMB. This variable was created to let child/teenager adapt this value</string>
+    <string name="key_UAM_InsulinReq" translatable="false">UAM_InsulinReq</string>
+    <string name="UAM_InsulinReq_title">AIMI iTime SMB Power %</string>
+    <string name="UAM_InsulinReq_summary">percentage of the AIMI response during the iTime duration</string>
+    <string name="key_iTime_MaxBolus_minutes" translatable="false">iTime_MaxBolus_minutes</string>
+    <string name="iTime_MaxBolus_minutes_title">iTime_MaxBolus_minutes</string>
+    <string name="iTime_MaxBolus_minutes_summary">iTime give a duration of the meal who allow larger smb and maxbolus. this variable give the higher maxbolus (basal * iTime_MaxBolus_minutes / 60)</string>
+    <string name="disable_Libre_smb_restrictions">Filtering active for every sensor, Go SMB!</string>
+    <string name="key_iTime_Bolus" translatable="false">iTime_Bolus</string>
+    <string name="iTime_Bolus_title">iTime_Bolus</string>
+    <string name="iTime_Bolus_summary">Automated Bolus at 28 minutes if delta > 2 if iTime Start with a manual bolus and 15 minutes if delta > 2 and iTime start with more than 30 carbs</string>
+    <string name="key_iTime_Starting_Bolus" translatable="false">iTime_Starting_Bolus</string>
+    <string name="key_iTime_B30_upperBG" translatable="false">iTime_b30_upperBG</string>
+    <string name="key_iTime_B30_upperdelta" translatable="false">iTime_b30_upperdelta</string>
+    <string name="key_iTime_B30_duration" translatable="false">iTime_b30_duration</string>
+    <string name="key_aimi_B30_proteinstart" translatable="false">aimi_B30_proteinstart</string>
+    <string name="key_aimi_B30_proteinduration" translatable="false">aimi_B30_proteinduration</string>
+    <string name="key_aimi_B30_proteinpercent" translatable="false">aimi_B30_proteinpercent</string>
+    <string name="iTime_Starting_Bolus_title">iTime_Starting_Bolus</string>
+    <string name="iTime_Starting_Bolus_summary">Value of the manual Bolus who will start iTime, like > iTime_Starting_Bolus</string>
+    <string name="key_openapsama_smb_delivery_ratio" translatable="false">openapsama_smb_delivery_ratio</string>
+    <string name="key_openapsama_smb_delivery_ratio_min" translatable="false">openapsama_smb_delivery_ratio_min</string>
+    <string name="key_openapsama_smb_delivery_ratio_max" translatable="false">openapsama_smb_delivery_ratio_max</string>
+    <string name="key_openapsama_smb_delivery_ratio_bg_range" translatable="false">openapsama_smb_delivery_ratio_bg_range</string>
+    <string name="key_openapsama_smb_max_range_extension" translatable="false">openapsama_smb_max_range_extension</string>
+    <string name="openapsama_smb_delivery_ratio_summary">Default value: 0.5 This is another key OpenAPS safety cap, and specifies what share of the total insulin required can be delivered as SMB. This is to prevent people from getting into dangerous territory by setting SMB requests from the caregivers phone at the same time. Increase this experimental value slowly and with caution.</string>
+    <string name="openapsama_smb_delivery_ratio_min_summary">Default value: 0.5 This is the lower end of a linearly increasing ratio rather than the fix value above.</string>
+    <string name="openapsama_smb_delivery_ratio_max_summary">Default value: 0.9 This is the upper end of a linearly increasing ratio rather than the fix value above.</string>
+    <string name="openapsama_smb_delivery_ratio_bg_range_summary">Default value: 40. The linearly increasing SMB delivery ratio is mapped to the glucose range [target_bg, target_bg+bg_range].\nAt target_bg the SMB ratio is smb_delivery_ratio_min, at target_bg+bg_range it is smb_delivery_ratio_max\nWith 0 the linearly increasing SMB ratio is disabled and the fix smb_delivery_ratio is used.</string>
+    <string name="openapsama_smb_max_range_extension_summary">Default value: 1 This is another key OpenAPS safety cap, and specifies by what factor you can exceed the regular 120 maxSMB/maxUAM minutes. Increase this experimental value slowly and with caution.</string>
+    <string name="openapsama_smb_delivery_ratio">fixed SMB delivery ratio</string>
+    <string name="openapsama_smb_delivery_ratio_min">variable SMB delivery ratio, lower end</string>
+    <string name="openapsama_smb_delivery_ratio_max">variable SMB delivery ratio, upper end</string>
+    <string name="openapsama_smb_delivery_ratio_bg_range">variable SMB delivery ratio, mapped glucose range</string>
+    <string name="openapsama_smb_max_range_extension">SMB/UAM max range extension</string>
+    <string name="variant_title">Variant</string>
+    <string name="key_aimi_variant" translatable="false">AIMI_variant</string>
+    <string name="aimi_variant_title">AIMI Variant</string>
+    <string name="key_use_AIMI_COB" translatable="false">key_use_AIMI_COB</string>
+    <string name="key_use_AIMI_CAP" translatable="false">key_use_AIMI_CAP</string>
+    <string name="key_use_AIMI_SlowInsulin" translatable="false">key_use_AIMI_SlowInsulin</string>
+    <string name="key_use_AIMI_PBolus" translatable="false">key_use_AIMI_PBolus</string>
+    <string name="key_use_AIMI_BreakFastLight" translatable="false">key_use_AIMI_BreakfastLight</string>
+    <string name="key_AIMI_BreakFastLight_timeend">key_AIMI_BreakFastLight_timeend</string>
+    <string name="key_AIMI_BreakFastLight_timestart">key_AIMI_BreakFastLight_timestart</string>
+    <string name="key_use_AimiUAM" translatable="false">key_use_AimiUAM</string>
+    <string name="key_use_AimiPower" translatable="false">key_use_AimiUAM</string>
+    <string name="key_use_AimiUAM_ISF" translatable="false">key_use_AimiUAM</string>
+    <string name="key_use_AimiBreak" translatable="false">key_use_AimiBreak</string>
+    <string name="key_use_disable_b30_BFL" translatable="false">key_use_disable_b30_BFL</string>
+
 
 </resources>

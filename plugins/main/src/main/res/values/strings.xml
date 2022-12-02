@@ -506,4 +506,7 @@
     <string name="description_persistent_notification">Shows an ongoing notification with a short overview of what your loop is doing</string>
     <string name="old_data">OLD DATA</string>
 
+    <!--    AIMI-->
+    <string name="disable_Libre_smb_restrictions">disable_Libre_smb_restrictions</string>
+
 </resources>
