@@ -44,10 +44,9 @@ import kotlin.math.ln
 import info.nightscout.shared.utils.T
 import info.nightscout.shared.utils.DateUtil
 import info.nightscout.interfaces.stats.TirCalculator
-import info.nightscout.interfaces.stats.TIR
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
-import info.nightscout.implementation.*
+
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -60,7 +59,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var tirCalculator: TirCalculator
-    @Inject lateinit var tir: TIR
+    
 
 
 

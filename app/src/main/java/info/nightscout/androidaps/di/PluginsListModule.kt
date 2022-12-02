@@ -241,7 +241,7 @@ abstract class PluginsListModule {
     @APS
     @IntoMap
     @IntKey(230)
-    abstract fun bindOpenAPSSMBAutoISFPlugin(plugin: AIMIPlugin): PluginBase
+    abstract fun bindAIMIPlugin(plugin: AIMIPlugin): PluginBase
 
     @Binds
     @AllConfigs

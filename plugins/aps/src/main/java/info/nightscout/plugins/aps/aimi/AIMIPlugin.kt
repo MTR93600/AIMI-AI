@@ -15,7 +15,7 @@ import info.nightscout.interfaces.profiling.Profiler
 import info.nightscout.interfaces.utils.HardLimits
 import info.nightscout.plugins.aps.R
 import info.nightscout.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
-import info.nightscout.plugins.aps.openAPSSMBDynamicISF.DetermineBasalAdapterSMBDynamicISFJS
+import info.nightscout.plugins.aps.aimi.DetermineBasalAdapterAIMIJS
 import info.nightscout.plugins.aps.utils.ScriptReader
 import info.nightscout.rx.bus.RxBus
 import info.nightscout.rx.logging.AAPSLogger
