@@ -33,6 +33,7 @@ import info.nightscout.interfaces.utils.HardLimits
 import info.nightscout.plugins.aps.openAPSAMA.OpenAPSAMAPlugin
 import info.nightscout.plugins.aps.openAPSSMB.OpenAPSSMBPlugin
 import info.nightscout.plugins.aps.openAPSSMBDynamicISF.OpenAPSSMBDynamicISFPlugin
+import info.nightscout.plugins.aps.aimi.AIMIPlugin
 import info.nightscout.plugins.constraints.objectives.ObjectivesPlugin
 import info.nightscout.plugins.constraints.objectives.objectives.Objective
 import info.nightscout.plugins.constraints.safety.SafetyPlugin
@@ -85,6 +86,7 @@ class ConstraintsCheckerTest : TestBaseWithProfile() {
     private lateinit var openAPSSMBPlugin: OpenAPSSMBPlugin
     private lateinit var openAPSAMAPlugin: OpenAPSAMAPlugin
     private lateinit var openAPSSMBDynamicISFPlugin: OpenAPSSMBDynamicISFPlugin
+    private lateinit var aimiPlugin: AIMIPlugin
 
     private val injector = HasAndroidInjector {
         AndroidInjector {
@@ -186,6 +188,25 @@ class ConstraintsCheckerTest : TestBaseWithProfile() {
             )
         openAPSSMBDynamicISFPlugin =
             OpenAPSSMBDynamicISFPlugin(
+                injector,
+                aapsLogger,
+                rxBus,
+                constraintChecker,
+                rh,
+                profileFunction,
+                context,
+                activePlugin,
+                iobCobCalculator,
+                hardLimits,
+                profiler,
+                sp,
+                dateUtil,
+                repository,
+                glucoseStatusProvider,
+                config
+            )
+        aimiPlugin =
+            AIMIPlugin(
                 injector,
                 aapsLogger,
                 rxBus,

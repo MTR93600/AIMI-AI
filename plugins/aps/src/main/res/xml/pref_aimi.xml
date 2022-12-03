@@ -3,19 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
-    <!--<PreferenceCategory
-        android:title="AIMI Variant Preferences"
-        app:initialExpandedChildrenCount="0">
-
-        <info.nightscout.androidaps.plugins.aps.loop.LoopVariantPreference
-            android:title="@string/variant_title"
-            android:defaultValue="default"
-            android:selectable="true"
-            app:pluginFolder="AIMI"
-            />
-
-    </PreferenceCategory>
--->
     <PreferenceCategory
         android:title="AIMI Variant Preferences"
         app:initialExpandedChildrenCount="0">
@@ -32,11 +19,6 @@
             android:title="Variant MSSV"
             android:summary="This variant has max smb size variable. it's the most aggressive variant. For slower insulin than luymjev enable Break SMB 10." />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_pam"
-            android:title="Variant PAM"
-            android:summary="This variant is a stable version with an absorption time for slower insulin." />
 
         <SwitchPreference
             android:defaultValue="false"
