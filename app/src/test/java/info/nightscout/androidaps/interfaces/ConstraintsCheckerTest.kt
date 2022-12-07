@@ -211,23 +211,23 @@ class ConstraintsCheckerTest : TestBaseWithProfile() {
             )
         aimiPlugin =
             AIMIPlugin(
-                injector,
-                aapsLogger,
-                rxBus,
-                constraintChecker,
-                rh,
-                profileFunction,
-                context,
-                activePlugin,
-                iobCobCalculator,
-                hardLimits,
-                profiler,
-                sp,
-                dateUtil,
-                repository,
-                glucoseStatusProvider,
-                config
-            )
+                    injector,
+                    aapsLogger,
+                    rxBus,
+                    constraintChecker,
+                    rh,
+                    profileFunction,
+                    context,
+                    activePlugin,
+                    iobCobCalculator,
+                    hardLimits,
+                    profiler,
+                    sp,
+                    dateUtil,
+                    repository,
+                    glucoseStatusProvider,
+                    bgQualityCheck
+                )
         openAPSAMAPlugin =
             OpenAPSAMAPlugin(
                 injector,
