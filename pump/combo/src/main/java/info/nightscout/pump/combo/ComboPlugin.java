@@ -629,8 +629,7 @@ public class ComboPlugin extends PumpPluginBase implements Pump, Constraints {
             return new PumpEnactResult(getInjector())
                     .success(true)
                     .enacted(lastPumpBolus.amount > 0)
-                    .bolusDelivered(lastPumpBolus.amount)
-                    .carbsDelivered(detailedBolusInfo.carbs);
+                    .bolusDelivered(lastPumpBolus.amount);
         } finally {
             pump.activity = null;
             rxBus.send(new EventComboPumpUpdateGUI());
@@ -823,7 +822,7 @@ public class ComboPlugin extends PumpPluginBase implements Pump, Constraints {
                 );
                 return new PumpEnactResult(getInjector()).isTempCancel(true).success(true).enacted(true);
             } else {
-                return new PumpEnactResult(getInjector()).success(false).enacted(false);
+                return new PumpEnactResult(getInjector()).success(false).enacted(false).comment(info.nightscout.core.ui.R.string.canceling_eb_failed);
             }
         } else if (activeTemp == null) {
             return new PumpEnactResult(getInjector()).success(true).enacted(false);

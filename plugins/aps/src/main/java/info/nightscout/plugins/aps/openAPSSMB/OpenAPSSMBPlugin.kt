@@ -14,6 +14,7 @@ import info.nightscout.interfaces.aps.APS
 import info.nightscout.interfaces.aps.AutosensResult
 import info.nightscout.interfaces.aps.DetermineBasalAdapter
 import info.nightscout.interfaces.aps.SMBDefaults
+import info.nightscout.interfaces.bgQualityCheck.BgQualityCheck
 import info.nightscout.interfaces.constraints.Constraint
 import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.interfaces.iob.IobCobCalculator
@@ -55,7 +56,8 @@ class OpenAPSSMBPlugin @Inject constructor(
     private val sp: SP,
     private val dateUtil: DateUtil,
     private val repository: AppRepository,
-    private val glucoseStatusProvider: GlucoseStatusProvider
+    private val glucoseStatusProvider: GlucoseStatusProvider,
+    private val bgQualityCheck: BgQualityCheck
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.APS)
@@ -104,17 +106,17 @@ class OpenAPSSMBPlugin @Inject constructor(
         val profile = profileFunction.getProfile()
         val pump = activePlugin.activePump
         if (profile == null) {
-            rxBus.send(info.nightscout.plugins.aps.events.EventOpenAPSUpdateResultGui(rh.gs(info.nightscout.core.ui.R.string.no_profile_set)))
+            rxBus.send(info.nightscout.plugins.aps.events.EventResetOpenAPSGui(rh.gs(info.nightscout.core.ui.R.string.no_profile_set)))
             aapsLogger.debug(LTag.APS, rh.gs(info.nightscout.core.ui.R.string.no_profile_set))
             return
         }
         if (!isEnabled()) {
-            rxBus.send(info.nightscout.plugins.aps.events.EventOpenAPSUpdateResultGui(rh.gs(R.string.openapsma_disabled)))
+            rxBus.send(info.nightscout.plugins.aps.events.EventResetOpenAPSGui(rh.gs(R.string.openapsma_disabled)))
             aapsLogger.debug(LTag.APS, rh.gs(R.string.openapsma_disabled))
             return
         }
         if (glucoseStatus == null) {
-            rxBus.send(info.nightscout.plugins.aps.events.EventOpenAPSUpdateResultGui(rh.gs(R.string.openapsma_no_glucose_data)))
+            rxBus.send(info.nightscout.plugins.aps.events.EventResetOpenAPSGui(rh.gs(R.string.openapsma_no_glucose_data)))
             aapsLogger.debug(LTag.APS, rh.gs(R.string.openapsma_no_glucose_data))
             return
         }
@@ -169,7 +171,7 @@ class OpenAPSSMBPlugin @Inject constructor(
         if (constraintChecker.isAutosensModeEnabled().value()) {
             val autosensData = iobCobCalculator.getLastAutosensDataWithWaitForCalculationFinish("OpenAPSPlugin")
             if (autosensData == null) {
-                rxBus.send(info.nightscout.plugins.aps.events.EventOpenAPSUpdateResultGui(rh.gs(R.string.openaps_no_as_data)))
+                rxBus.send(info.nightscout.plugins.aps.events.EventResetOpenAPSGui(rh.gs(R.string.openaps_no_as_data)))
                 return
             }
             lastAutosensResult = autosensData.autosensResult
@@ -191,6 +193,7 @@ class OpenAPSSMBPlugin @Inject constructor(
             constraintChecker.isUAMEnabled(it)
             inputConstraints.copyReasons(it)
         }
+        val flatBGsDetected = bgQualityCheck.state == BgQualityCheck.State.FLAT
         profiler.log(LTag.APS, "detectSensitivityAndCarbAbsorption()", startPart)
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()
@@ -207,7 +210,7 @@ class OpenAPSSMBPlugin @Inject constructor(
                 smbAllowed.value(),
                 uam.value(),
                 advancedFiltering.value(),
-                activePlugin.activeBgSource.javaClass.simpleName == "DexcomPlugin"
+                flatBGsDetected
             )
             val now = System.currentTimeMillis()
             val determineBasalResultSMB = determineBasalAdapterSMBJS.invoke()

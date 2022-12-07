@@ -306,7 +306,6 @@ class DanaRSPlugin @Inject constructor(
             val result = PumpEnactResult(injector)
             result.success = connectionOK && abs(detailedBolusInfo.insulin - t.insulin) < pumpDescription.bolusStep
             result.bolusDelivered = t.insulin
-            result.carbsDelivered = detailedBolusInfo.carbs
             if (!result.success) {
                 var error = "" + danaPump.bolusStartErrorCode
                 when (danaPump.bolusStartErrorCode) {
@@ -323,7 +322,6 @@ class DanaRSPlugin @Inject constructor(
             val result = PumpEnactResult(injector)
             result.success = false
             result.bolusDelivered = 0.0
-            result.carbsDelivered = 0.0
             result.comment = rh.gs(info.nightscout.core.ui.R.string.invalid_input)
             aapsLogger.error("deliverTreatment: Invalid input")
             result
@@ -522,35 +520,40 @@ class DanaRSPlugin @Inject constructor(
 
     @Synchronized
     override fun cancelTempBasal(enforceNew: Boolean): PumpEnactResult {
-        val result = PumpEnactResult(injector)
         if (danaPump.isTempBasalInProgress) {
+            aapsLogger.debug(LTag.PUMP, "cancelRealTempBasal: Failed")
             danaRSService?.tempBasalStop()
-            result.success = !danaPump.isTempBasalInProgress
-            result.enacted = true
-            result.isTempCancel = true
+            return PumpEnactResult(injector)
+                .success(!danaPump.isTempBasalInProgress)
+                .enacted(true)
+                .isTempCancel(true)
+                .comment(info.nightscout.core.ui.R.string.canceling_tbr_failed)
         } else {
-            result.success = true
-            result.enacted = false
-            result.isTempCancel = true
-            result.comment = rh.gs(info.nightscout.core.ui.R.string.ok)
             aapsLogger.debug(LTag.PUMP, "cancelRealTempBasal: OK")
+            return PumpEnactResult(injector)
+                .success(true)
+                .enacted(false)
+                .isTempCancel(true)
+                .comment(info.nightscout.core.ui.R.string.ok)
         }
-        return result
     }
 
     @Synchronized override fun cancelExtendedBolus(): PumpEnactResult {
-        val result = PumpEnactResult(injector)
         if (danaPump.isExtendedInProgress) {
             danaRSService?.extendedBolusStop()
-            result.success = !danaPump.isExtendedInProgress
-            result.enacted = true
+            aapsLogger.debug(LTag.PUMP, "cancelExtendedBolus: Failed")
+            return PumpEnactResult(injector)
+                .success(!danaPump.isExtendedInProgress)
+                .enacted(true)
+                .comment(info.nightscout.core.ui.R.string.canceling_eb_failed)
         } else {
-            result.success = true
-            result.enacted = false
-            result.comment = rh.gs(info.nightscout.core.ui.R.string.ok)
             aapsLogger.debug(LTag.PUMP, "cancelExtendedBolus: OK")
+            return PumpEnactResult(injector)
+                .success(true)
+                .enacted(false)
+                .isTempCancel(true)
+                .comment(info.nightscout.core.ui.R.string.ok)
         }
-        return result
     }
 
     override fun getJSONStatus(profile: Profile, profileName: String, version: String): JSONObject {

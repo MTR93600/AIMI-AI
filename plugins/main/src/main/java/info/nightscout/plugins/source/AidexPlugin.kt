@@ -1,11 +1,11 @@
 package info.nightscout.plugins.source
 
 import android.content.Context
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.utils.receivers.DataWorkerStorage
+import info.nightscout.core.utils.worker.LoggingWorker
 import info.nightscout.database.entities.GlucoseValue
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.impl.transactions.CgmSourceTransaction
@@ -41,16 +41,10 @@ class AidexPlugin @Inject constructor(
     aapsLogger, rh, injector
 ), BgSource {
 
-    private var advancedFiltering = false
-
     /**
      * Aidex App doesn't have upload to NS
      */
     override fun shouldUploadToNs(glucoseValue: GlucoseValue): Boolean = true
-
-    override fun advancedFilteringSupported(): Boolean {
-        return advancedFiltering
-    }
 
     // Allow only for pumpcontrol or dev & engineering_mode
     override fun specialEnableCondition(): Boolean {
@@ -61,18 +55,13 @@ class AidexPlugin @Inject constructor(
     class AidexWorker(
         context: Context,
         params: WorkerParameters
-    ) : Worker(context, params) {
+    ) : LoggingWorker(context, params) {
 
-        @Inject lateinit var aapsLogger: AAPSLogger
         @Inject lateinit var aidexPlugin: AidexPlugin
         @Inject lateinit var repository: AppRepository
         @Inject lateinit var dataWorkerStorage: DataWorkerStorage
 
-        init {
-            (context.applicationContext as HasAndroidInjector).androidInjector().inject(this)
-        }
-
-        override fun doWork(): Result {
+        override fun doWorkAndLog(): Result {
             var ret = Result.success()
 
             if (!aidexPlugin.isEnabled()) return Result.success(workDataOf("Result" to "Plugin not enabled"))
