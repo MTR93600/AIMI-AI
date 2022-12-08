@@ -1159,7 +1159,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-d-AIMI 02/12/2022 Variant MaxSmbSize ");
+                console.log(" 3.1.0.3-dev-d-AIMI 02/12/2022 Variant MaxSmbSizeVariable ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
