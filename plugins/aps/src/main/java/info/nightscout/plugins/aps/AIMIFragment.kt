@@ -1,5 +1,5 @@
 package info.nightscout.plugins.aps
-
+/*
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
@@ -170,4 +170,4 @@ class AIMIFragment : DaggerFragment(), MenuProvider {
         binding.lastrun.text = ""
         binding.swipeRefresh.isRefreshing = false
     }
-}
+}*/

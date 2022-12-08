@@ -4,8 +4,14 @@
     xmlns:validate="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="AIMI Variant Preferences"
+        android:key="@string/key_openapssmb_settings"
+        android:title="@string/aimi"
         app:initialExpandedChildrenCount="0">
+
+    <androidx.preference.PreferenceScreen
+        android:key="AIMI_Variants"
+        android:title="AIMI Variant Preferences">
+
 
         <SwitchPreference
             android:defaultValue="false"
@@ -26,10 +32,11 @@
             android:title="Variant PAM"
             android:summary="This variant is a stable version with an absorption time for slower insulin. The max smb size is variable." />
 
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:title="AIMI B30 Preferences"
-        app:initialExpandedChildrenCount="0">
+    </androidx.preference.PreferenceScreen>
+    <androidx.preference.PreferenceScreen
+        android:key="b30_adavanced_settings"
+        android:title="AIMI B30 Preferences">
+
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="150"
@@ -98,11 +105,7 @@
             validate:testType="floatNumericRange" />
 
 
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="@string/key_aimi_settings"
-        android:title="@string/aimi">
+    </androidx.preference.PreferenceScreen>
 
         <info.nightscout.androidaps.utils.textValidator.ValidatingEditTextPreference
             android:defaultValue="1"
