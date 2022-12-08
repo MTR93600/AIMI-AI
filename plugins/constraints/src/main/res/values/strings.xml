@@ -74,5 +74,8 @@
     <string name="objectives_button_unfinish">Clear finished</string>
     <string name="objectives_button_unstart">Clear started</string>
 
+    <!--    AIMI-->
+    <string name="disable_Libre_smb_restrictions">disable_Libre_smb_restrictions</string>
+
 
 </resources>
