@@ -29,7 +29,7 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_use_pammssv"
-            android:title="Variant PAM"
+            android:title="Variant PAM-MSSV"
             android:summary="This variant is a stable version with an absorption time for slower insulin. The max smb size is variable." />
 
     </androidx.preference.PreferenceScreen>

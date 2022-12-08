@@ -298,7 +298,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant MaxSmbSize");
+       console.error( " AIMI-Variant MaxSmbSizeVariable");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1326,7 +1326,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.1.0.3-dev-d-AIMI-Variant MaxSmbSize-02/12/22 ";
+    rT.reason += "\n3.1.0.3-dev-d-AIMI-Variant MaxSmbSizeVariable-02/12/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
