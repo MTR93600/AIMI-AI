@@ -121,7 +121,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
             //generate functions "determine_basal" and "setTempBasal"
             //rhino.evaluateString(scope, readFile(LoopVariantPreference.getVariantFileName(sp, AIMIDefaults.folderName)), "JavaScript", 0, null)
-            if (sp.getBoolean(R.string.key_use_b30mssv, false))
+            if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_mssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_b30mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_mssv, false) && sp.getBoolean(R.string.key_use_pammssv, false))
+                rhino.evaluateString(scope, readFile("AIMI/pam/determine-basal.js"), "JavaScript", 0, null)
+            else if (sp.getBoolean(R.string.key_use_b30mssv, false))
                 rhino.evaluateString(scope, readFile("AIMI/b30mssv/determine-basal.js"), "JavaScript", 0, null)
             else if (sp.getBoolean(R.string.key_use_mssv, false))
                 rhino.evaluateString(scope, readFile("AIMI/mssv/determine-basal.js"), "JavaScript", 0, null)
@@ -353,9 +361,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastBolusSMBUnits", lastBolusSMBUnits)
         this.mealData.put("lastBolusSMBTime", lastBolusSMBTime)
 
-        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0))?.abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(80.0, 180.0))?.abovePct()
-        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(80.0, 180.0))?.belowPct()
+        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
+        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
         val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1))?.totalAmount
         val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7))?.totalAmount
         val tddLast24H = tddCalculator.calculateDaily(-24, 0).totalAmount

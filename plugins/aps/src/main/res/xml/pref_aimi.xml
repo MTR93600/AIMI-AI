@@ -10,7 +10,8 @@
 
     <androidx.preference.PreferenceScreen
         android:key="AIMI_Variants"
-        android:title="AIMI Variant Preferences">
+        android:title="AIMI Variant Preferences"
+        android:summary="Important : select only one variant ! if you don't respect this condition, the default will be apply, which is the variant Pam">
 
 
         <SwitchPreference
