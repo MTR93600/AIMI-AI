@@ -4,8 +4,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import info.nightscout.core.graph.OverviewData
-import info.nightscout.implementation.BolusTimerImpl
-import info.nightscout.implementation.CarbTimerImpl
 import info.nightscout.implementation.DefaultValueHelperImpl
 import info.nightscout.implementation.HardLimitsImpl
 import info.nightscout.implementation.LocalAlertUtilsImpl
@@ -20,7 +18,6 @@ import info.nightscout.implementation.logging.LoggerUtilsImpl
 import info.nightscout.implementation.overview.OverviewDataImpl
 import info.nightscout.implementation.plugin.PluginStore
 import info.nightscout.implementation.profile.ProfileFunctionImpl
-import info.nightscout.implementation.profile.ProfileInstantiatorImpl
 import info.nightscout.implementation.profile.ProfileStoreObject
 import info.nightscout.implementation.profiling.ProfilerImpl
 import info.nightscout.implementation.protection.PasswordCheckImpl
@@ -40,8 +37,6 @@ import info.nightscout.implementation.stats.TddCalculatorImpl
 import info.nightscout.implementation.stats.TirCalculatorImpl
 import info.nightscout.implementation.storage.FileStorage
 import info.nightscout.implementation.userEntry.UserEntryPresentationHelperImpl
-import info.nightscout.interfaces.BolusTimer
-import info.nightscout.interfaces.CarbTimer
 import info.nightscout.interfaces.LocalAlertUtils
 import info.nightscout.interfaces.NotificationHolder
 import info.nightscout.interfaces.Translator
@@ -53,7 +48,6 @@ import info.nightscout.interfaces.logging.UserEntryLogger
 import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.interfaces.profile.DefaultValueHelper
 import info.nightscout.interfaces.profile.ProfileFunction
-import info.nightscout.interfaces.profile.ProfileInstantiator
 import info.nightscout.interfaces.profiling.Profiler
 import info.nightscout.interfaces.protection.PasswordCheck
 import info.nightscout.interfaces.protection.ProtectionCheck
@@ -104,7 +98,6 @@ abstract class ImplementationModule {
         @Binds fun bindWarnColors(warnColorsImpl: WarnColorsImpl): WarnColors
         @Binds fun bindHardLimits(hardLimitsImpl: HardLimitsImpl): HardLimits
         @Binds fun bindResourceHelper(resourceHelperImpl: ResourceHelperImpl): ResourceHelper
-        @Binds fun bindProfileStoreInstantiator(profileStoreInstantiatorImpl: ProfileInstantiatorImpl): ProfileInstantiator
         @Binds fun bindBlePreCheck(blePreCheckImpl: BlePreCheckImpl): BlePreCheck
 
         @Binds fun bindTrendCalculatorInterface(trendCalculator: TrendCalculatorImpl): TrendCalculator
@@ -113,8 +106,6 @@ abstract class ImplementationModule {
         @Binds fun bindDexcomTirCalculatorInterface(dexcomTirCalculator: DexcomTirCalculatorImpl): DexcomTirCalculator
         @Binds fun bindPumpSyncInterface(pumpSyncImplementation: PumpSyncImplementation): PumpSync
         @Binds fun bindXDripBroadcastInterface(xDripBroadcastImpl: XDripBroadcastImpl): XDripBroadcast
-        @Binds fun bindCarbTimerInterface(carbTimer: CarbTimerImpl): CarbTimer
-        @Binds fun bindBolusTimerInterface(bolusTimer: BolusTimerImpl): BolusTimer
         @Binds fun bindLocalAlertUtilsInterface(localAlertUtils: LocalAlertUtilsImpl): LocalAlertUtils
         @Binds fun bindIconsProviderInterface(iconsProvider: IconsProviderImplementation): IconsProvider
         @Binds fun bindNotificationHolderInterface(notificationHolder: NotificationHolderImpl): NotificationHolder

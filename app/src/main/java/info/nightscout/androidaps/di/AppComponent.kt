@@ -20,6 +20,7 @@ import info.nightscout.core.di.CoreModule
 import info.nightscout.core.validators.di.ValidatorsModule
 import info.nightscout.database.impl.DatabaseModule
 import info.nightscout.implementation.di.ImplementationModule
+import info.nightscout.insulin.di.InsulinModule
 import info.nightscout.plugins.aps.di.ApsModule
 import info.nightscout.plugins.constraints.di.PluginsConstraintsModule
 import info.nightscout.plugins.di.PluginsModule
@@ -31,9 +32,11 @@ import info.nightscout.pump.dana.di.DanaHistoryModule
 import info.nightscout.pump.dana.di.DanaModule
 import info.nightscout.pump.danars.di.DanaRSModule
 import info.nightscout.pump.diaconn.di.DiaconnG8Module
+import info.nightscout.pump.virtual.di.VirtualPumpModule
 import info.nightscout.rx.di.RxModule
 import info.nightscout.shared.di.SharedModule
 import info.nightscout.shared.impl.di.SharedImplModule
+import info.nightscout.source.di.SourceModule
 import info.nightscout.ui.di.UiModule
 import info.nightscout.workflow.di.WorkflowModule
 import javax.inject.Singleton
@@ -55,6 +58,7 @@ import javax.inject.Singleton
         CoreModule::class,
         DatabaseModule::class,
         ImplementationModule::class,
+        InsulinModule::class,
         OpenHumansModule::class,
         PluginsModule::class,
         RxModule::class,
@@ -63,6 +67,7 @@ import javax.inject.Singleton
         UiModule::class,
         ValidatorsModule::class,
         PluginsConstraintsModule::class,
+        SourceModule::class,
         SyncModule::class,
         WorkflowModule::class,
 
@@ -81,7 +86,8 @@ import javax.inject.Singleton
         OmnipodDashModule::class,
         OmnipodErosModule::class,
         PumpCommonModule::class,
-        RileyLinkModule::class
+        RileyLinkModule::class,
+        VirtualPumpModule::class
     ]
 )
 interface AppComponent : AndroidInjector<MainApp> {
