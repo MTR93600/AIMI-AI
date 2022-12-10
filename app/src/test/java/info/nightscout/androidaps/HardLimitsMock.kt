@@ -31,8 +31,8 @@ class HardLimitsMock @Inject constructor(
         val VERY_HARD_LIMIT_TEMP_MIN_BG = intArrayOf(72, 180)
         val VERY_HARD_LIMIT_TEMP_MAX_BG = intArrayOf(72, 270)
         val VERY_HARD_LIMIT_TEMP_TARGET_BG = intArrayOf(72, 200)
-        val MIN_DIA = doubleArrayOf(5.0, 5.0, 5.0, 5.0, 5.0)
-        val MAX_DIA = doubleArrayOf(9.0, 9.0, 9.0, 9.0, 10.0)
+        val MIN_DIA = doubleArrayOf(2.5, 2.5, 2.5, 2.5, 2.5)
+        val MAX_DIA = doubleArrayOf(12.0, 12.0, 12.0, 12.0, 12.0)
         val MIN_IC = doubleArrayOf(2.0, 2.0, 2.0, 2.0, 0.3)
         val MAX_IC = doubleArrayOf(100.0, 100.0, 100.0, 100.0, 100.0)
         const val MIN_ISF = 2.0 // mgdl
