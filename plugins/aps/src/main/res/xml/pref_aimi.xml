@@ -22,6 +22,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_b30mssvaimi"
+            android:title="Variant B30-MSSV-100%AIMI"
+            android:summary="This variant will have more B30 action and max smb size variable. Absorption is managing by switching predictions IOB and UAM. This variant is full AIMI without manual bolus." />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_mssv"
             android:title="Variant MSSV"
             android:summary="This variant has max smb size variable. it's the most aggressive variant. For slower insulin than luymjev enable Break SMB 10." />
