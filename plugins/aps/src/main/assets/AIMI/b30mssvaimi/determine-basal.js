@@ -513,7 +513,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = variable_sens;
     sens = Math.max(profile.sens/2,sens);
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
-    sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
+    //sens = C1 < C2 && !iTimeActivation ? Math.max(profile.sens/2,profile.sens * circadian_sensitivity) : sens;
     sens = glucose_status.delta < 0 && iTimeActivation && aimi_bg < 150 ? profile.sens : sens;
     //sens = iTime < 100 && glucose_status.delta > 0 ? sens / 2 : sens;
     //enlog +=" ; Current sensitivity TDD is " +sens_currentBG * circadian_sensitivity+" based on currentbg\n";
@@ -1124,12 +1124,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
             console.log("*****Future state sensitivity is " +future_sens+" based on bg("+bg+")\n");
 
-        }else if( AIMI_UAM && aimi_delta >= 0 && iTimeActivation ) {
-        var future_sens = ( MagicNumber / (TDD * ( (eventualBG * 0.6) + (bg * 0.4) )));
-        console.log("Future state sensitivity is " +future_sens+" based on a weighted average of bg & eventual bg");
-        }else if (iTimeActivation){
-        var future_sens = ( MagicNumber / (TDD * eventualBG));
-        console.log("Future state sensitivity is " +future_sens+" based on eventual bg due to -ve delta");
+        }else if( AIMI_UAM && aimi_delta >= 10 && iTimeActivation ) {
+        var future_sens = ( MagicNumber / (TDD * ( (UAMpredBG * 0.6) + (bg * 0.4) )));
+        console.log("Future state sensitivity is " +future_sens+" based on a weighted average of bg & UAMpredBG");
+        }else if (iTimeActivation && aimi_delta < 10){
+        var future_sens = ( MagicNumber / (TDD * UAMpredBG));
+        console.log("Future state sensitivity is " +future_sens+" based on UAMpredBG  due to -ve delta")
+        ;
         }else{
         var future_sens = sens;
         }
