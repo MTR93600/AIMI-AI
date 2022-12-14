@@ -1248,8 +1248,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else {
         avgPredBG = round(IOBpredBG);
     }
-    if (AIMI_IgnoreCOB && enableUAM) avgPredBG = round((IOBpredBG + UAMpredBG) / 2);  //MD#01: If we
-     are ignoring COB and we have UAM, average IOB and UAM as above
+    if (AIMI_IgnoreCOB && enableUAM) avgPredBG = round((IOBpredBG + UAMpredBG) / 2);  //MD#01: If weare ignoring COB and we have UAM, average IOB and UAM as above
     // if avgPredBG is below minZTGuardBG, bring it up to that level
     if ( minZTGuardBG > avgPredBG ) {
         avgPredBG = minZTGuardBG;
