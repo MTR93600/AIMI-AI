@@ -1798,6 +1798,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }else if (iTimeActivation && HypoPredBG < 100){
             SMBInterval =15 * aimi_rise;
             }
+            rT.reason += "SMBInterval : "+SMBInterval+" ; ";
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
             //console.error(naive_eventualBG, insulinReq, worstCaseInsulinReq, durationReq);
