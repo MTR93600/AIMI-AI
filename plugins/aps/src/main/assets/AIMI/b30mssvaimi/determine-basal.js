@@ -1736,7 +1736,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             var smbTarget = target_bg;
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
-       if (iTimeActivation === true){
+       if (iTimeActivation === true && sens_predType == "NA"){
 
             if (UAMpredBG < 110){
                 microBolus = 0;
@@ -1787,11 +1787,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 20;
-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
+            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG > 100){
             SMBInterval = 10 * aimi_rise;
-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
+            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG < 100){
             SMBInterval = 20 * aimi_rise;
-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
             SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
