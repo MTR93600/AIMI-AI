@@ -138,7 +138,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30upperdelta = profile.b30_upperdelta;
     var deliverAt = new Date();
     // variables for deltas
-        var delta = glucose_status.delta, DeltaPctS = 1, DeltaPctL = 1;
+        var delta = glucose_status.delta;
+        var DeltaPctS = 1;
+        var DeltaPctL = 1;
         // Calculate percentage change in delta, short to now
         if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
         if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
@@ -348,7 +350,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var LastManualBolus = meal_data.lastBolusNormalUnits;
     //var now = new Date().getHours();
     var date_now = new Date();
-    var now = new Date(), nowdec = round(now.getHours() + now.getMinutes() / 60, 2), nowhrs = now.getHours(), nowmins = now.getMinutes();
+    var now = new Date();
+    var nowdec = round(now.getHours() + now.getMinutes() / 60, 2);
     var nowminutes = date_now.getHours() + date_now.getMinutes() / 60 + date_now.getSeconds() / 60 / 60;
     nowminutes = round(nowminutes,2);
     enlog += "nowminutes = " +nowminutes+" ; \n";
@@ -1245,7 +1248,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else {
         avgPredBG = round(IOBpredBG);
     }
-    if (ignoreCOB && enableUAM) avgPredBG = round((IOBpredBG + UAMpredBG) / 2);  //MD#01: If we are ignoring COB and we have UAM, average IOB and UAM as above
+    if (AIMI_IgnoreCOB && enableUAM) avgPredBG = round((IOBpredBG + UAMpredBG) / 2);  //MD#01: If we
+     are ignoring COB and we have UAM, average IOB and UAM as above
     // if avgPredBG is below minZTGuardBG, bring it up to that level
     if ( minZTGuardBG > avgPredBG ) {
         avgPredBG = minZTGuardBG;
@@ -1263,7 +1267,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else {
         minGuardBG = minIOBGuardBG;
     }
-    if (ignoreCOB && enableUAM) minGuardBG = minUAMGuardBG; //MD#01: if we are ignoring COB and have UAM just use minUAMGuardBG as above
+    if (AIMI_IgnoreCOB && enableUAM) minGuardBG = minUAMGuardBG; //MD#01: if we are ignoring COB and
+    have UAM just use minUAMGuardBG as above
     minGuardBG = round(minGuardBG);
     var minGuardBG_orig = minGuardBG;
     //console.error(minCOBGuardBG, minUAMGuardBG, minIOBGuardBG, minGuardBG);
@@ -1308,7 +1313,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else if (enableUAM) {
         minPredBG = round(Math.max(minIOBPredBG,minZTUAMPredBG));
     }
-    if (ignoreCOB && enableUAM) minPredBG = round(Math.max(minIOBPredBG, minZTUAMPredBG)); //MD#01 If we are ignoring COB with UAM enabled use pure UAM mode like above
+    if (AIMI_IgnoreCOB && enableUAM) minPredBG = round(Math.max(minIOBPredBG, minZTUAMPredBG)); //MD#01 If we
+    are ignoring COB with UAM enabled use pure UAM mode like above
     // make sure minPredBG isn't higher than avgPredBG
     minPredBG = Math.min(minPredBG, avgPredBG);
 
@@ -1322,7 +1328,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     console.error(" avgPredBG:",avgPredBG,"COB:",meal_data.mealCOB,"/",meal_data.carbs);
     // But if the COB line falls off a cliff, don't trust UAM too much:
     // use maxCOBPredBG if it's been set and lower than minPredBG
-    if (maxCOBPredBG > bg && !ignoreCOB) {
+    if (maxCOBPredBG > bg && !AIMI_IgnoreCOB) {
         minPredBG = Math.min(minPredBG, maxCOBPredBG);
     }
     // EXPERIMENT: minGuardBG prevents early prebolus with UAM force higher until SMB given when on or above target
