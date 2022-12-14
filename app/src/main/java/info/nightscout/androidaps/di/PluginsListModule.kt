@@ -63,6 +63,8 @@ import info.nightscout.source.PoctechPlugin
 import info.nightscout.source.RandomBgPlugin
 import info.nightscout.source.TomatoPlugin
 import info.nightscout.source.XdripPlugin
+import info.nightscout.smoothing.ExponentialSmoothingPlugin
+import info.nightscout.smoothing.NoSmoothingPlugin
 import javax.inject.Qualifier
 
 @Suppress("unused")
@@ -440,6 +442,18 @@ abstract class PluginsListModule {
     @IntoMap
     @IntKey(500)
     abstract fun bindThemeSwitcherPlugin(plugin: ThemeSwitcherPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(600)
+    abstract fun bindNoSmoothingPlugin(plugin: NoSmoothingPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(605)
+    abstract fun bindExponentialSmoothingPlugin(plugin: ExponentialSmoothingPlugin): PluginBase
 
     @Qualifier
     annotation class AllConfigs
