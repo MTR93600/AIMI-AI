@@ -319,7 +319,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var aimisensitivity = profile.aimisensitivity;
     var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
-    var countSMBms = meal_data.countSMBms;
+    //var countSMBms = meal_data.countSMBms;
     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
     var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
     var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
@@ -464,15 +464,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      rT.rate = rate;
      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-
-     }else if (iTimeActivation === true && countSMBms === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0){
-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
-      rT.temp = 'absolute';
-      rT.duration = 10;
-      rate = round_basal(basal*10,profile);
-      rT.rate = rate;
-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
      }else if (iTimeActivation === true && countSMB === 3 && !AIMI_BreakFastLight && glucose_status.delta > 0){
            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
@@ -1329,7 +1320,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         minPredBG = Math.min(minPredBG, maxCOBPredBG);
     }
     // EXPERIMENT: minGuardBG prevents early prebolus with UAM force higher until SMB given when on or above target
-    if (iTimeActivation && aimi_delta >= 5) {
+    if (iTimeActivation && delta >= 5) {
     minGuardBG = (minGuardBG < threshold && bg > threshold ? threshold: minGuardBG);
     }
     var aimi_rise = 1, sens_predType = "NA" ;
@@ -1787,9 +1778,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 20;
-            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG > 100){
+            }else if (iTimeActivation && UAMpredBG > 100){
             SMBInterval = 10 * aimi_rise;
-            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG < 100){
+            }else if (iTimeActivation && UAMpredBG < 100){
             SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
             SMBInterval = 20 * aimi_rise;

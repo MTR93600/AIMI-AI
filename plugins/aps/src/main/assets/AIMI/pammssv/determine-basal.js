@@ -437,15 +437,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-     }else if (iTimeActivation === true && countSMBms === 2 && HypoPredBG > 100 && !AIMI_BreakFastLight  && bg > 80){
-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
-      rT.temp = 'absolute';
-      rT.duration = 10;
-      rate = round_basal(basal*10,profile);
-      rT.rate = rate;
-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-
      }else if (iTimeActivation === true && countSMB === 3 && HypoPredBG > 100 && !AIMI_BreakFastLight && aimi_delta > 0 && bg > 80){
            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
             rT.temp = 'absolute';
@@ -1749,9 +1740,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 20;
-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
+            }else if (iTimeActivation && HypoPredBG > 100){
             SMBInterval = 10;
-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
+            }else if (iTimeActivation && HypoPredBG < 100){
             SMBInterval = 20;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
             SMBInterval = 20;
