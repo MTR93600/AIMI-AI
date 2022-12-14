@@ -1267,8 +1267,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else {
         minGuardBG = minIOBGuardBG;
     }
-    if (AIMI_IgnoreCOB && enableUAM) minGuardBG = minUAMGuardBG; //MD#01: if we are ignoring COB and
-    have UAM just use minUAMGuardBG as above
+    if (AIMI_IgnoreCOB && enableUAM) minGuardBG = minUAMGuardBG; //MD#01: if we are ignoring COB andhave UAM just use minUAMGuardBG as above
     minGuardBG = round(minGuardBG);
     var minGuardBG_orig = minGuardBG;
     //console.error(minCOBGuardBG, minUAMGuardBG, minIOBGuardBG, minGuardBG);
@@ -1313,8 +1312,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     } else if (enableUAM) {
         minPredBG = round(Math.max(minIOBPredBG,minZTUAMPredBG));
     }
-    if (AIMI_IgnoreCOB && enableUAM) minPredBG = round(Math.max(minIOBPredBG, minZTUAMPredBG)); //MD#01 If we
-    are ignoring COB with UAM enabled use pure UAM mode like above
+    if (AIMI_IgnoreCOB && enableUAM) minPredBG = round(Math.max(minIOBPredBG, minZTUAMPredBG)); //MD#01 If weare ignoring COB with UAM enabled use pure UAM mode like above
     // make sure minPredBG isn't higher than avgPredBG
     minPredBG = Math.min(minPredBG, avgPredBG);
 
