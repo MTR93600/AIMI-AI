@@ -145,7 +145,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // Calculate percentage change in delta, short to now
         if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
         if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
-        if (glucose_status.long_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+        if (glucose_status.short_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
     if (currentTime) {
         deliverAt = new Date(currentTime);
     }
@@ -1665,7 +1665,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             var GN = 1.618;
             }
 
-            if (profile.key_use_oldsmb){
+            if (!profile.key_use_newsmb){
             if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
                 var microBolus = LastManualBolus / 1.618;
                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
@@ -1701,7 +1701,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 
             }
-            }else{
+            }else if (profile.key_use_newsmb){
             if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" ){
             insulinReq = (1 + Math.sqrt(aimi_delta)) / 4;
             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);

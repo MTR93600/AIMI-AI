@@ -216,7 +216,7 @@
     <string name="key_use_mssv" translatable="false">Variant MSSV </string>
     <string name="key_use_pammssv" translatable="false">Variant PAM-MSSV</string>
     <string name="key_use_pam" translatable="false">Variant PAM</string>
-    <string name="key_use_oldSMB" translatable="false">older calculation proportional</string>
+    <string name="key_use_newSMB" translatable="false">new aimi smb calculation proportional</string>
 
 
 </resources>
