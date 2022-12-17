@@ -1665,6 +1665,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             var GN = 1.618;
             }
 
+            if (profile.key_use_oldsmb){
             if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
                 var microBolus = LastManualBolus / 1.618;
                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
@@ -1700,7 +1701,20 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 
             }
+            }else{
+            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" ){
+            insulinReq = (1 + Math.sqrt(aimi_delta)) / 4;
+            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet aimi_delta > 0 && aimismb === true && sens_predType == "UAM+"){
+            insulinReq = (1 + Math.sqrt(aimi_delta)) / 2;
+            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+            }else{
+            var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+            }
+            }
             microBolus = Math.floor(microBolus*roundSMBTo)/roundSMBTo;
+
+
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
             // calculate a long enough zero temp to eventually correct back up to target
     if ( meal_data.TDDAIMI3 ){
@@ -1785,7 +1799,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
             SMBInterval = 20 * aimi_rise;
-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
+            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 3){
             SMBInterval = 10 * aimi_rise;
             }else if (iTimeActivation && HypoPredBG < 100){
             SMBInterval =15 * aimi_rise;
