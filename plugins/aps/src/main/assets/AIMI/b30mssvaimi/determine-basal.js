@@ -141,10 +141,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var delta = glucose_status.delta;
         var DeltaPctS = 1;
         var DeltaPctL = 1;
+        var DeltaPctD = 1;
         // Calculate percentage change in delta, short to now
         if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
         if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
-
+        if (glucose_status.long_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
     if (currentTime) {
         deliverAt = new Date(currentTime);
     }
@@ -565,7 +566,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
     var Hypo_ratio = 1;
 
-     if (currentTIRLow > 10 || AIMI_BreakFastLight || iTime < 180 && glucose_status.delta < 1.618*b30upperdelta ){
+     if (currentTIRLow > 10 || AIMI_BreakFastLight || DeltaPctD < 0 ){
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
