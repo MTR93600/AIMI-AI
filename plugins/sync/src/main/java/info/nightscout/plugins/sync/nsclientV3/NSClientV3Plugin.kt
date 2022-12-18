@@ -34,7 +34,9 @@ import info.nightscout.plugins.sync.nsShared.events.EventNSClientResend
 import info.nightscout.plugins.sync.nsShared.events.EventNSClientUpdateGUI
 import info.nightscout.plugins.sync.nsclient.NsClientReceiverDelegate
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSBolus
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSCarbs
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSEffectiveProfileSwitch
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSProfileSwitch
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadBgWorker
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadLastModificationWorker
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadStatusWorker
@@ -318,8 +320,8 @@ class NSClientV3Plugin @Inject constructor(
             Operation.UPDATE -> nsAndroidClient?.let { return@let it::updateTreatment }
         }
         when (dataPair) {
-            is DataSyncSelector.PairBolus -> dataPair.value.toNSBolus()
-            // is DataSyncSelector.PairCarbs                  -> dataPair.value.toJson(false, dateUtil)
+            is DataSyncSelector.PairBolus                  -> dataPair.value.toNSBolus()
+            is DataSyncSelector.PairCarbs                  -> dataPair.value.toNSCarbs()
             // is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toJson(false, dateUtil, profileFunction)
             // is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toJson(false, profileFunction.getUnits(), dateUtil)
             // is DataSyncSelector.PairFood                   -> dataPair.value.toJson(false)
@@ -327,10 +329,10 @@ class NSClientV3Plugin @Inject constructor(
             // is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toJson(false, dateUtil)
             // is DataSyncSelector.PairTemporaryBasal         -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
             // is DataSyncSelector.PairExtendedBolus          -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
-            // is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toJson(false, dateUtil)
+            is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toNSProfileSwitch(dateUtil)
             is DataSyncSelector.PairEffectiveProfileSwitch -> dataPair.value.toNSEffectiveProfileSwitch(dateUtil)
             // is DataSyncSelector.PairOfflineEvent           -> dataPair.value.toJson(false, dateUtil)
-            else                          -> null
+            else                                           -> null
         }?.let { data ->
             runBlocking {
                 if (collection == "treatments") {
@@ -358,7 +360,14 @@ class NSClientV3Plugin @Inject constructor(
                                     }
                                     dataSyncSelector.confirmLastBolusIdIfGreater(dataPair.id)
                                 }
-                                // is DataSyncSelector.PairCarbs                  -> dataPair.value.toJson(false, dateUtil)
+                                is DataSyncSelector.PairCarbs                  -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdCarbs.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastCarbsIdIfGreater(dataPair.id)
+                                }
                                 // is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toJson(false, dateUtil, profileFunction)
                                 // is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toJson(false, profileFunction.getUnits(), dateUtil)
                                 // is DataSyncSelector.PairFood                   -> dataPair.value.toJson(false)
@@ -366,7 +375,15 @@ class NSClientV3Plugin @Inject constructor(
                                 // is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toJson(false, dateUtil)
                                 // is DataSyncSelector.PairTemporaryBasal         -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
                                 // is DataSyncSelector.PairExtendedBolus          -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
-                                // is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toJson(false, dateUtil)
+                                is DataSyncSelector.PairProfileSwitch          -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdProfileSwitches.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastProfileSwitchIdIfGreater(dataPair.id)
+                                }
+
                                 is DataSyncSelector.PairEffectiveProfileSwitch -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
