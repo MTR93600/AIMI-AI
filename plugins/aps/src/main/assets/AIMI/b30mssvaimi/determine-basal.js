@@ -1702,10 +1702,10 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             }
             }else if (profile.key_use_newsmb){
-            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" ){
+            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 180){
             insulinReq = (1 + Math.sqrt(delta)) / 4;
             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
-            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+"){
+            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 180){
             insulinReq = (1 + Math.sqrt(delta)) / 2;
             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
             }else{
