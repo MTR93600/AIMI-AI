@@ -1698,7 +1698,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                       //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
                       //console.log("InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+")\n");
 
-            }else if (glucose_status.delta > 0){
+            }else if (delta > 0){
 
                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
 
@@ -1710,7 +1710,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
             insulinReq = (1 + Math.sqrt(delta)) / 2;
             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
-            }else{
+            }else if (delta > 0){
             var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
             }
             }
