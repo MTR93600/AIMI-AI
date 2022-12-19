@@ -359,6 +359,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     //var circadian_sensitivity = 1;
     //var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
+        var circadian_smb = (0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503;
         var circadian_sensitivity = 1;
         if (nowdec >= 0 && nowdec < 2){
             //circadian_sensitivity = 1.4;
@@ -1362,6 +1363,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
         rT.reason += "sens_predType : "+sens_predType+" ; ";
+        rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
     rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 17/12/22 ";
     rT.reason += "; ";
