@@ -120,9 +120,6 @@ class LoopPlugin @Inject constructor(
     private var carbsSuggestionsSuspendedUntil: Long = 0
     private var prevCarbsreq = 0
     override var lastRun: LastRun? = null
-    override var closedLoopEnabled: Constraint<Boolean>? = null
-
-    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
 
     override fun onStart() {
         createNotificationChannel()
@@ -145,7 +142,6 @@ class LoopPlugin @Inject constructor(
 
     override fun onStop() {
         disposable.clear()
-        handler.removeCallbacksAndMessages(null)
         super.onStop()
     }
 
@@ -313,8 +309,8 @@ class LoopPlugin @Inject constructor(
                     rxBus.send(EventLoopSetLastRunGui(rh.gs(R.string.pumpsuspended)))
                     return
                 }
-                closedLoopEnabled = constraintChecker.isClosedLoopAllowed()
-                if (closedLoopEnabled?.value() == true) {
+                val closedLoopEnabled = constraintChecker.isClosedLoopAllowed()
+                if (closedLoopEnabled.value()) {
                     if (allowNotification) {
                         if (resultAfterConstraints.isCarbsRequired
                             && resultAfterConstraints.carbsReq >= sp.getInt(
@@ -438,7 +434,10 @@ class LoopPlugin @Inject constructor(
                                                     lastRun.lastSMBRequest = lastRun.lastAPSRun
                                                     lastRun.lastSMBEnact = dateUtil.now()
                                                 } else {
-                                                handler.postDelayed({ invoke("tempBasalFallback", allowNotification, true) }, 1000)
+                                                Thread {
+                                                    SystemClock.sleep(1000)
+                                                    invoke("tempBasalFallback", allowNotification, true)
+                                                }.start()
                                                 }
                                                 rxBus.send(EventLoopUpdateGui())
                                             }
