@@ -2884,6 +2884,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         }
 
         // LOG.debug("MedtronicPumpPlugin::deliverBolus - End wait period. Start delivery");
+        // LOG.debug("MedtronicPumpPlugin::deliverBolus - End wait period. Start delivery");
     }
 
     private fun buildStartStopCommands(): MutableList<CommandStructure<PumpDriverState, BleCommand>> {

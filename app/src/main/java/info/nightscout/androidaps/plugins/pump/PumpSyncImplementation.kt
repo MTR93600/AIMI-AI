@@ -71,7 +71,7 @@ class PumpSyncImplementation @Inject constructor(
         sp.remove(R.string.key_active_pump_change_timestamp)
     }
 
-    override fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean {
+    fun verifyPumpIdentification(type: PumpType, serialNumber: String): Boolean {
         val storedType = sp.getString(R.string.key_active_pump_type, "")
         val storedSerial = sp.getString(R.string.key_active_pump_serial_number, "")
         if (activePlugin.activePump is VirtualPumpPlugin) return true
