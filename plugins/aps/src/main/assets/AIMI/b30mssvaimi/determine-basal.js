@@ -359,7 +359,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     //var circadian_sensitivity = 1;
     //var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
-        var circadian_smb = (0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503;
+        var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
         var circadian_sensitivity = 1;
         if (nowdec >= 0 && nowdec < 2){
             //circadian_sensitivity = 1.4;
@@ -571,7 +571,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
-     target_bg = hypo_target;
+     target_bg = hypo_target+circadian_smb;
      Hypo_ratio = 0.7;
      enlog += "Hypo_ratio : "+Hypo_ratio+"\n";
      C2 = (target_bg * 1.618)-(glucose_status.delta * 1.618);
@@ -621,7 +621,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             hypo_target = 100;
             enlog +="target_bg from "+target_bg+" to "+hypo_target+" because HypoPredBG is lesser than 125 : "+HypoPredBG+";\n";
         }*/
-        target_bg = hypo_target;
+        target_bg = hypo_target + circadian_smb;
         halfBasalTarget = 160;
         var c = halfBasalTarget - normalTarget;
         //sensitivityRatio = c/(c+target_bg-normalTarget);
@@ -659,7 +659,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         } else {
             enlog +="target_bg from "+target_bg+" to "+hyper_target+" because HyperPredBG > 180 : "+HyperPredBG+" ;\n";
         }
-        target_bg = hyper_target;
+        target_bg = hyper_target+circadian_smb;
         C1 = bg + (glucose_status.delta*1.618);
         C2 = target_bg * 1.618;
         halfBasalTarget = 160;
@@ -1705,11 +1705,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }
             }else if (profile.key_use_newsmb){
             if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
-            insulinReq = (1 + Math.sqrt(delta)) / 4;
-            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+            insulinReq = ((1 + Math.sqrt(delta)) / 4);
+            var microBolus = circadian_smb > (-2) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
-            insulinReq = (1 + Math.sqrt(delta)) / 2;
-            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+            insulinReq = ((1 + Math.sqrt(delta)) / 2);
+            var microBolus = circadian_smb > (-2) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
             }else if (delta > 0){
             var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
             }
