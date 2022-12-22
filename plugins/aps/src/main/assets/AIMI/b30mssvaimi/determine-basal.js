@@ -1708,7 +1708,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
              insulinReq = ((1 + Math.sqrt(delta)) / 4);
              var microBolus = circadian_smb > (-10) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) :
              Math.min(AIMI_UAM_CAP,insulinReq);
-             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 200){
+             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 150){
              insulinReq = ((1 + Math.sqrt(delta)) / 2);
                  if (circadian_smb > (-3)){
                  var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
