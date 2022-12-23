@@ -34,14 +34,20 @@ import info.nightscout.plugins.sync.nsShared.events.EventNSClientResend
 import info.nightscout.plugins.sync.nsShared.events.EventNSClientUpdateGUI
 import info.nightscout.plugins.sync.nsclient.NsClientReceiverDelegate
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSBolus
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSCarbs
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSEffectiveProfileSwitch
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSProfileSwitch
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadBgWorker
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadLastModificationWorker
 import info.nightscout.plugins.sync.nsclientV3.workers.LoadStatusWorker
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventAppExit
 import info.nightscout.rx.events.EventChargingState
 import info.nightscout.rx.events.EventNSClientNewLog
 import info.nightscout.rx.events.EventNetworkChange
+import info.nightscout.rx.events.EventNewBG
+import info.nightscout.rx.events.EventNewHistoryData
 import info.nightscout.rx.events.EventPreferenceChange
 import info.nightscout.rx.events.EventSWSyncStatus
 import info.nightscout.rx.logging.AAPSLogger
@@ -58,9 +64,11 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.max
 
 @Singleton
 class NSClientV3Plugin @Inject constructor(
@@ -105,30 +113,22 @@ class NSClientV3Plugin @Inject constructor(
             when {
                 sp.getBoolean(R.string.key_ns_client_paused, false)          -> rh.gs(info.nightscout.core.ui.R.string.paused)
                 isAllowed.not()                                              -> blockingReason
-                nsAndroidClient.lastStatus == null                           -> rh.gs(R.string.not_connected)
+                nsAndroidClient?.lastStatus == null                           -> rh.gs(R.string.not_connected)
                 workIsRunning(arrayOf(JOB_NAME))                             -> rh.gs(R.string.working)
-                nsAndroidClient.lastStatus?.apiPermissions?.isFull() == true -> rh.gs(info.nightscout.shared.R.string.connected)
-                nsAndroidClient.lastStatus?.apiPermissions?.isRead() == true -> rh.gs(R.string.read_only)
+                nsAndroidClient?.lastStatus?.apiPermissions?.isFull() == true -> rh.gs(info.nightscout.shared.R.string.connected)
+                nsAndroidClient?.lastStatus?.apiPermissions?.isRead() == true -> rh.gs(R.string.read_only)
                 else                                                         -> rh.gs(info.nightscout.core.ui.R.string.unknown)
             }
 
-    internal lateinit var nsAndroidClient: NSAndroidClient
-//    private lateinit var nsAndroidRxClient: NSAndroidRxClient
+    internal var nsAndroidClient: NSAndroidClient? = null
 
-    val isAllowed get() = nsClientReceiverDelegate.allowed
-    val blockingReason get() = nsClientReceiverDelegate.blockingReason
+    private val isAllowed get() = nsClientReceiverDelegate.allowed
+    private val blockingReason get() = nsClientReceiverDelegate.blockingReason
 
-    private val maxAge = T.days(77).msecs()
-    internal var newestDataOnServer: LastModified? = null // timestamp of last modification for every collection
-    internal var lastLoadedSrvModified =
-        LastModified(
-            LastModified.Collections(
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge
-            )
-        ) // timestamp of last fetched data for every collection
+    val maxAge = T.days(77).msecs()
+    internal var newestDataOnServer: LastModified? = null // timestamp of last modification for every collection provided by server
+    internal var lastLoadedSrvModified = LastModified(LastModified.Collections()) // max srvLastModified timestamp of last fetched data for every collection
+    internal var firstLoadContinueTimestamp = LastModified(LastModified.Collections()) // timestamp of last fetched data for every collection during initial load
 
     override fun onStart() {
 //        context.bindService(Intent(context, NSClientService::class.java), mConnection, Context.BIND_AUTO_CREATE)
@@ -137,16 +137,9 @@ class NSClientV3Plugin @Inject constructor(
         lastLoadedSrvModified = Json.decodeFromString(
             sp.getString(
                 R.string.key_ns_client_v3_last_modified,
-                Json.encodeToString(
-                    LastModified.serializer(),
-                    LastModified(LastModified.Collections(dateUtil.now() - maxAge, dateUtil.now() - maxAge, dateUtil.now() - maxAge, dateUtil.now() - maxAge))
-                )
+                Json.encodeToString(LastModified.serializer(), LastModified(LastModified.Collections()))
             )
         )
-        lastLoadedSrvModified.collections.entries = max(dateUtil.now() - maxAge, lastLoadedSrvModified.collections.entries)
-        lastLoadedSrvModified.collections.treatments = max(dateUtil.now() - maxAge, lastLoadedSrvModified.collections.treatments)
-        lastLoadedSrvModified.collections.profile = max(dateUtil.now() - maxAge, lastLoadedSrvModified.collections.profile)
-        lastLoadedSrvModified.collections.devicestatus = max(dateUtil.now() - maxAge, lastLoadedSrvModified.collections.devicestatus)
 
         setClient()
 
@@ -166,10 +159,10 @@ class NSClientV3Plugin @Inject constructor(
                            if (ev.isChanged(rh.gs(R.string.key_ns_client_token)) || ev.isChanged(rh.gs(info.nightscout.core.utils.R.string.key_nsclientinternal_url)))
                                setClient()
                        }, fabricPrivacy::logException)
-        // disposable += rxBus
-        //     .toObservable(EventAppExit::class.java)
-        //     .observeOn(aapsSchedulers.io)
-        //     .subscribe({ if (nsClientService != null) context.unbindService(mConnection) }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventAppExit::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({ WorkManager.getInstance(context).cancelUniqueWork(JOB_NAME) }, fabricPrivacy::logException)
         disposable += rxBus
             .toObservable(EventNSClientNewLog::class.java)
             .observeOn(aapsSchedulers.io)
@@ -185,10 +178,18 @@ class NSClientV3Plugin @Inject constructor(
             .toObservable(EventNSClientResend::class.java)
             .observeOn(aapsSchedulers.io)
             .subscribe({ event -> resend(event.reason) }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventNewBG::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({ scheduleExecution() }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventNewHistoryData::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({ scheduleExecution() }, fabricPrivacy::logException)
 
         runLoop = Runnable {
-            executeLoop()
             handler.postDelayed(runLoop, REFRESH_INTERVAL)
+            executeLoop()
         }
         handler.postDelayed(runLoop, REFRESH_INTERVAL)
         executeLoop()
@@ -212,9 +213,8 @@ class NSClientV3Plugin @Inject constructor(
         preferenceFragment.findPreference<SwitchPreference>(rh.gs(R.string.key_ns_receive_tbr_eb))?.isVisible = config.isEngineeringMode()
     }
 
-    override val hasWritePermission: Boolean get() = nsAndroidClient.lastStatus?.apiPermissions?.isFull() ?: false
-    override val connected: Boolean get() = nsAndroidClient.lastStatus != null
-
+    override val hasWritePermission: Boolean get() = nsAndroidClient?.lastStatus?.apiPermissions?.isFull() ?: false
+    override val connected: Boolean get() = nsAndroidClient?.lastStatus != null
     override fun clearLog() {
         handler.post {
             synchronized(listLog) { listLog.clear() }
@@ -283,27 +283,23 @@ class NSClientV3Plugin @Inject constructor(
         //     })
     }
 
-    override fun updateLatestBgReceivedIfNewer(latestReceived: Long) {
-        if (latestReceived > lastLoadedSrvModified.collections.entries) {
-            lastLoadedSrvModified.collections.entries = latestReceived
-            storeLastFetched()
+    override fun isFirstLoad(collection: NsClient.Collection) =
+        when (collection) {
+            NsClient.Collection.ENTRIES    -> lastLoadedSrvModified.collections.entries == 0L
+            NsClient.Collection.TREATMENTS -> lastLoadedSrvModified.collections.treatments == 0L
         }
+
+    override fun updateLatestBgReceivedIfNewer(latestReceived: Long) {
+        if (isFirstLoad(NsClient.Collection.ENTRIES)) firstLoadContinueTimestamp.collections.entries = latestReceived
     }
 
     override fun updateLatestTreatmentReceivedIfNewer(latestReceived: Long) {
-        lastLoadedSrvModified.collections.treatments = latestReceived
-        storeLastFetched()
+        if (isFirstLoad(NsClient.Collection.TREATMENTS)) firstLoadContinueTimestamp.collections.treatments = latestReceived
     }
 
     override fun resetToFullSync() {
-        lastLoadedSrvModified = LastModified(
-            LastModified.Collections(
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge,
-                dateUtil.now() - maxAge
-            )
-        )
+        firstLoadContinueTimestamp = LastModified(LastModified.Collections())
+        lastLoadedSrvModified = LastModified(LastModified.Collections())
         storeLastFetched()
     }
 
@@ -316,15 +312,16 @@ class NSClientV3Plugin @Inject constructor(
     }
 
     enum class Operation { CREATE, UPDATE }
+
     private val gson: Gson = GsonBuilder().create()
     private fun dbOperation(collection: String, dataPair: DataSyncSelector.DataPair, progress: String, operation: Operation) {
-        val call = when(operation) {
-            Operation.CREATE -> nsAndroidClient::createTreatment
-            Operation.UPDATE -> nsAndroidClient::updateTreatment
+        val call = when (operation) {
+            Operation.CREATE -> nsAndroidClient?.let { return@let it::createTreatment }
+            Operation.UPDATE -> nsAndroidClient?.let { return@let it::updateTreatment }
         }
         when (dataPair) {
-            is DataSyncSelector.PairBolus -> dataPair.value.toNSBolus()
-            // is DataSyncSelector.PairCarbs                  -> dataPair.value.toJson(false, dateUtil)
+            is DataSyncSelector.PairBolus                  -> dataPair.value.toNSBolus()
+            is DataSyncSelector.PairCarbs                  -> dataPair.value.toNSCarbs()
             // is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toJson(false, dateUtil, profileFunction)
             // is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toJson(false, profileFunction.getUnits(), dateUtil)
             // is DataSyncSelector.PairFood                   -> dataPair.value.toJson(false)
@@ -332,10 +329,10 @@ class NSClientV3Plugin @Inject constructor(
             // is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toJson(false, dateUtil)
             // is DataSyncSelector.PairTemporaryBasal         -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
             // is DataSyncSelector.PairExtendedBolus          -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
-            // is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toJson(false, dateUtil)
-            // is DataSyncSelector.PairEffectiveProfileSwitch -> dataPair.value.toJson(false, dateUtil)
+            is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toNSProfileSwitch(dateUtil)
+            is DataSyncSelector.PairEffectiveProfileSwitch -> dataPair.value.toNSEffectiveProfileSwitch(dateUtil)
             // is DataSyncSelector.PairOfflineEvent           -> dataPair.value.toJson(false, dateUtil)
-            else                          -> null
+            else                                           -> null
         }?.let { data ->
             runBlocking {
                 if (collection == "treatments") {
@@ -343,37 +340,60 @@ class NSClientV3Plugin @Inject constructor(
                         val id = if (dataPair.value is TraceableDBEntry) (dataPair.value as TraceableDBEntry).interfaceIDs.nightscoutId else ""
                         rxBus.send(
                             EventNSClientNewLog(
-                                when(operation) {
+                                when (operation) {
                                     Operation.CREATE -> "ADD $collection"
                                     Operation.UPDATE -> "UPDATE $collection"
                                 },
-                                when(operation) {
+                                when (operation) {
                                     Operation.CREATE -> "Sent ${dataPair.javaClass.simpleName} ${gson.toJson(data)} $progress"
                                     Operation.UPDATE -> "Sent ${dataPair.javaClass.simpleName} $id ${gson.toJson(data)} $progress"
                                 }
                             )
                         )
-                        val result = call(data)
-                        when (dataPair) {
-                            is DataSyncSelector.PairBolus -> {
-                                if (result.response == 201) { // created
-                                    dataPair.value.interfaceIDs.nightscoutId = result.identifier
-                                    storeDataForDb.nsIdBoluses.add(dataPair.value)
-                                    storeDataForDb.scheduleNsIdUpdate()
+                        call?.let { it(data) }?.let { result ->
+                            when (dataPair) {
+                                is DataSyncSelector.PairBolus                  -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdBoluses.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastBolusIdIfGreater(dataPair.id)
                                 }
-                                dataSyncSelector.confirmLastBolusIdIfGreater(dataPair.id)
+                                is DataSyncSelector.PairCarbs                  -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdCarbs.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastCarbsIdIfGreater(dataPair.id)
+                                }
+                                // is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toJson(false, dateUtil, profileFunction)
+                                // is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toJson(false, profileFunction.getUnits(), dateUtil)
+                                // is DataSyncSelector.PairFood                   -> dataPair.value.toJson(false)
+                                // is DataSyncSelector.PairGlucoseValue           -> dataPair.value.toJson(false, dateUtil)
+                                // is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toJson(false, dateUtil)
+                                // is DataSyncSelector.PairTemporaryBasal         -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
+                                // is DataSyncSelector.PairExtendedBolus          -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
+                                is DataSyncSelector.PairProfileSwitch          -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdProfileSwitches.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastProfileSwitchIdIfGreater(dataPair.id)
+                                }
+
+                                is DataSyncSelector.PairEffectiveProfileSwitch -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdEffectiveProfileSwitches.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastEffectiveProfileSwitchIdIfGreater(dataPair.id)
+                                }
+                                // is DataSyncSelector.PairOfflineEvent           -> dataPair.value.toJson(false, dateUtil)
                             }
-                            // is DataSyncSelector.PairCarbs                  -> dataPair.value.toJson(false, dateUtil)
-                            // is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toJson(false, dateUtil, profileFunction)
-                            // is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toJson(false, profileFunction.getUnits(), dateUtil)
-                            // is DataSyncSelector.PairFood                   -> dataPair.value.toJson(false)
-                            // is DataSyncSelector.PairGlucoseValue           -> dataPair.value.toJson(false, dateUtil)
-                            // is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toJson(false, dateUtil)
-                            // is DataSyncSelector.PairTemporaryBasal         -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
-                            // is DataSyncSelector.PairExtendedBolus          -> dataPair.value.toJson(false, profileFunction.getProfile(dataPair.value.timestamp), dateUtil)
-                            // is DataSyncSelector.PairProfileSwitch          -> dataPair.value.toJson(false, dateUtil)
-                            // is DataSyncSelector.PairEffectiveProfileSwitch -> dataPair.value.toJson(false, dateUtil)
-                            // is DataSyncSelector.PairOfflineEvent           -> dataPair.value.toJson(false, dateUtil)
                         }
                     } catch (e: Exception) {
                         aapsLogger.error(LTag.NSCLIENT, "Upload exception", e)
@@ -382,7 +402,8 @@ class NSClientV3Plugin @Inject constructor(
             }
         }
     }
-    private fun storeLastFetched() {
+
+    fun storeLastFetched() {
         sp.putString(R.string.key_ns_client_v3_last_modified, Json.encodeToString(LastModified.serializer(), lastLoadedSrvModified))
     }
 
@@ -391,20 +412,19 @@ class NSClientV3Plugin @Inject constructor(
     }
 
     fun scheduleNewExecution() {
-        val toTime = lastLoadedSrvModified.collections.entries + T.mins(6).plus(T.secs(0)).msecs()
-        if (toTime > dateUtil.now()) {
-            handler.postDelayed({ executeLoop() }, toTime - dateUtil.now())
-            rxBus.send(EventNSClientNewLog("NEXT", dateUtil.dateAndTimeAndSecondsString(toTime)))
-        }
+        var toTime = lastLoadedSrvModified.collections.entries + T.mins(6).plus(T.secs(0)).msecs()
+        if (toTime < dateUtil.now()) toTime = dateUtil.now() + T.mins(1).plus(T.secs(0)).msecs()
+        handler.postDelayed({ executeLoop() }, toTime - dateUtil.now())
+        rxBus.send(EventNSClientNewLog("NEXT", dateUtil.dateAndTimeAndSecondsString(toTime)))
     }
 
     private fun executeLoop() {
         if (sp.getBoolean(R.string.key_ns_client_paused, false)) {
-            rxBus.send(EventNSClientNewLog("NSCLIENT", "paused"))
+            rxBus.send(EventNSClientNewLog("RUN", "paused"))
             return
         }
         if (!isAllowed) {
-            rxBus.send(EventNSClientNewLog("NSCLIENT", blockingReason))
+            rxBus.send(EventNSClientNewLog("RUN", blockingReason))
             return
         }
         if (workIsRunning(arrayOf(JOB_NAME)))
@@ -433,5 +453,21 @@ class NSClientV3Plugin @Inject constructor(
                 if (workInfo.state == WorkInfo.State.BLOCKED || workInfo.state == WorkInfo.State.ENQUEUED || workInfo.state == WorkInfo.State.RUNNING)
                     return true
         return false
+    }
+
+    private val eventWorker = Executors.newSingleThreadScheduledExecutor()
+    private var scheduledEventPost: ScheduledFuture<*>? = null
+    private fun scheduleExecution() {
+        class PostRunnable : Runnable {
+
+            override fun run() {
+                scheduledEventPost = null
+                executeLoop()
+            }
+        }
+        // cancel waiting task to prevent sending multiple posts
+        scheduledEventPost?.cancel(false)
+        val task: Runnable = PostRunnable()
+        scheduledEventPost = eventWorker.schedule(task, 10, TimeUnit.SECONDS)
     }
 }

@@ -765,7 +765,7 @@ class StoreDataForDbImpl @Inject constructor(
         // cancel waiting task to prevent sending multiple posts
         scheduledEventPost?.cancel(false)
         val task: Runnable = PostRunnable()
-        scheduledEventPost = eventWorker.schedule(task, 30, TimeUnit.SECONDS)
+        scheduledEventPost = eventWorker.schedule(task, 10, TimeUnit.SECONDS)
     }
 
     private fun updateNsIds() {
