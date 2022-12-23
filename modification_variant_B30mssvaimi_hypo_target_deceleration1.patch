@@ -1,0 +1,17 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 049f693fd03e65a8c51e1801616876f92e600539)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 3b340fe7eed990b26269939a23999c2d3c7ed969)
+@@ -566,7 +566,7 @@
+     var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
+     var Hypo_ratio = 1;
+ 
+-     if (currentTIRLow > 10 || AIMI_BreakFastLight || DeltaPctD < 0 ){
++     if (currentTIRLow > 10 || AIMI_BreakFastLight || DeltaPctD < (-1.5) ){
+      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
+      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
+ 

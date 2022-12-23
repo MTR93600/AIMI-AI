@@ -1,0 +1,24 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 7c8f27e4d3bde9a67033cf52dc5bc2e956713b49)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision fe8658bfddf882a00499af2853253dad7334e6a7)
+@@ -359,6 +359,7 @@
+ 
+     //var circadian_sensitivity = 1;
+     //var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
++        var circadian_smb = (0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503;
+         var circadian_sensitivity = 1;
+         if (nowdec >= 0 && nowdec < 2){
+             //circadian_sensitivity = 1.4;
+@@ -1362,6 +1363,7 @@
+         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
+         rT.reason += " aimismb : "+aimismb+" ; ";
+         rT.reason += "sens_predType : "+sens_predType+" ; ";
++        rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+ 
+     rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 17/12/22 ";
+     rT.reason += "; ";

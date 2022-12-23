@@ -1,0 +1,247 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssv/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssv/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssv/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssv/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssv/determine-basal.js	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -311,7 +311,7 @@
+     var aimisensitivity = profile.aimisensitivity;
+     var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+     var countSMB = meal_data.countSMB;
+-    var countSMBms = meal_data.countSMBms;
++    //var countSMBms = meal_data.countSMBms;
+     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
+     var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
+     var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
+@@ -438,15 +438,6 @@
+      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+ 
+-     }else if (iTimeActivation === true && countSMBms === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0){
+-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+-      rT.temp = 'absolute';
+-      rT.duration = 10;
+-      rate = round_basal(basal*10,profile);
+-      rT.rate = rate;
+-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+-
+      }else if (iTimeActivation === true && countSMB === 3 && !AIMI_BreakFastLight && glucose_status.delta > 0){
+            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+             rT.temp = 'absolute';
+@@ -1745,9 +1736,9 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
++            }else if (iTimeActivation && HypoPredBG > 100){
+             SMBInterval = 10;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
++            }else if (iTimeActivation && HypoPredBG < 100){
+             SMBInterval = 20;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+             SMBInterval = 20;
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -319,7 +319,7 @@
+     var aimisensitivity = profile.aimisensitivity;
+     var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+     var countSMB = meal_data.countSMB;
+-    var countSMBms = meal_data.countSMBms;
++    //var countSMBms = meal_data.countSMBms;
+     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
+     var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
+     var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
+@@ -465,15 +465,6 @@
+      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+ 
+-     }else if (iTimeActivation === true && countSMBms === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0){
+-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+-      rT.temp = 'absolute';
+-      rT.duration = 10;
+-      rate = round_basal(basal*10,profile);
+-      rT.rate = rate;
+-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+-
+      }else if (iTimeActivation === true && countSMB === 3 && !AIMI_BreakFastLight && glucose_status.delta > 0){
+            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+             rT.temp = 'absolute';
+@@ -1329,7 +1320,7 @@
+         minPredBG = Math.min(minPredBG, maxCOBPredBG);
+     }
+     // EXPERIMENT: minGuardBG prevents early prebolus with UAM force higher until SMB given when on or above target
+-    if (iTimeActivation && aimi_delta >= 5) {
++    if (iTimeActivation && delta >= 5) {
+     minGuardBG = (minGuardBG < threshold && bg > threshold ? threshold: minGuardBG);
+     }
+     var aimi_rise = 1, sens_predType = "NA" ;
+@@ -1787,9 +1778,9 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG > 100){
++            }else if (iTimeActivation && UAMpredBG > 100){
+             SMBInterval = 10 * aimi_rise;
+-            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG < 100){
++            }else if (iTimeActivation && UAMpredBG < 100){
+             SMBInterval = 20 * aimi_rise;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
+             SMBInterval = 20 * aimi_rise;
+Index: plugins/aps/src/main/assets/AIMI/mssv/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/mssv/determine-basal.js b/plugins/aps/src/main/assets/AIMI/mssv/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/mssv/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/assets/AIMI/mssv/determine-basal.js	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -311,7 +311,7 @@
+     var aimisensitivity = profile.aimisensitivity;
+     var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+     var countSMB = meal_data.countSMB;
+-    var countSMBms = meal_data.countSMBms;
++    //var countSMBms = meal_data.countSMBms;
+     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
+     var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
+     var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
+@@ -438,15 +438,6 @@
+      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+ 
+-     }else if (iTimeActivation === true && countSMBms === 2 && HypoPredBG > 100 && !AIMI_BreakFastLight  && bg > 80){
+-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+-      rT.temp = 'absolute';
+-      rT.duration = 10;
+-      rate = round_basal(basal*10,profile);
+-      rT.rate = rate;
+-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+-
+      }else if (iTimeActivation === true && countSMB === 3 && HypoPredBG > 100 && !AIMI_BreakFastLight && aimi_delta > 0 && bg > 80){
+            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+             rT.temp = 'absolute';
+@@ -1745,9 +1736,9 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
++            }else if (iTimeActivation && HypoPredBG > 100){
+             SMBInterval = 10;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
++            }else if (iTimeActivation && HypoPredBG < 100){
+             SMBInterval = 20
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+             SMBInterval = 20;
+Index: plugins/aps/src/main/assets/AIMI/pam/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/pam/determine-basal.js b/plugins/aps/src/main/assets/AIMI/pam/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/pam/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/assets/AIMI/pam/determine-basal.js	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -311,7 +311,7 @@
+     var aimisensitivity = profile.aimisensitivity;
+     var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+     var countSMB = meal_data.countSMB;
+-    var countSMBms = meal_data.countSMBms;
++    //var countSMBms = meal_data.countSMBms;
+     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
+     var AIMI_COB = AIMI_IgnoreCOB ? 0 : meal_data.mealCOB;
+     var AIMI_IOBpredBGbf = profile.key_use_AimiIOBpredBG;
+@@ -437,15 +437,6 @@
+      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+ 
+-     }else if (iTimeActivation === true && countSMBms === 2 && HypoPredBG > 100 && !AIMI_BreakFastLight && bg > 80){
+-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+-      rT.temp = 'absolute';
+-      rT.duration = 10;
+-      rate = round_basal(basal*10,profile);
+-      rT.rate = rate;
+-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+-
+      }else if (iTimeActivation === true && countSMB === 3 && HypoPredBG > 100 && !AIMI_BreakFastLight && aimi_delta > 0 && bg > 80){
+            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+             rT.temp = 'absolute';
+@@ -1748,9 +1739,9 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
++            }else if (iTimeActivation && HypoPredBG > 100){
+             SMBInterval = 10;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
++            }else if (iTimeActivation && HypoPredBG < 100){
+             SMBInterval = 20;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+             SMBInterval = 20;
+Index: plugins/aps/src/main/assets/AIMI/pammssv/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/pammssv/determine-basal.js b/plugins/aps/src/main/assets/AIMI/pammssv/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/pammssv/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/assets/AIMI/pammssv/determine-basal.js	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -437,15 +437,6 @@
+      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+ 
+-     }else if (iTimeActivation === true && countSMBms === 2 && HypoPredBG > 100 && !AIMI_BreakFastLight  && bg > 80){
+-     rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+-      rT.temp = 'absolute';
+-      rT.duration = 10;
+-      rate = round_basal(basal*10,profile);
+-      rT.rate = rate;
+-      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+-      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+-
+      }else if (iTimeActivation === true && countSMB === 3 && HypoPredBG > 100 && !AIMI_BreakFastLight && aimi_delta > 0 && bg > 80){
+            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+             rT.temp = 'absolute';
+@@ -1749,9 +1740,9 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
++            }else if (iTimeActivation && HypoPredBG > 100){
+             SMBInterval = 10;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
++            }else if (iTimeActivation && HypoPredBG < 100){
+             SMBInterval = 20;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
+             SMBInterval = 20;
+Index: plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+--- a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
++++ b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision 474abbf9c5fd6be89cb6d85473f326051020ea21)
+@@ -351,11 +351,11 @@
+         bolusMealLinks.forEach { bolus ->
+             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastBolusNormalTimecount += 1
+             if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1
+-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1
++            //if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1
+         }
+         this.mealData.put("countBolus", lastBolusNormalTimecount)
+         this.mealData.put("countSMB", lastBolusSMBcount)
+-        this.mealData.put("countSMBms", lastSMBmscount)
++        //this.mealData.put("countSMBms", lastSMBmscount)
+ 
+         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
+         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L

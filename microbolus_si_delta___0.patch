@@ -1,0 +1,26 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision fe8658bfddf882a00499af2853253dad7334e6a7)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 6ae5d3f49354cf56cc608ac63b2e252c2231e5c9)
+@@ -1698,7 +1698,7 @@
+                       //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
+                       //console.log("InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+")\n");
+ 
+-            }else if (glucose_status.delta > 0){
++            }else if (delta > 0){
+ 
+                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+ 
+@@ -1710,7 +1710,7 @@
+             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+             insulinReq = (1 + Math.sqrt(delta)) / 2;
+             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+-            }else{
++            }else if (delta > 0){
+             var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+             }
+             }
