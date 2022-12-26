@@ -1,0 +1,45 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision cd28d43a05f76aa629a99fec99a8ec406d0f1f46)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 070208accd2852a882c0fe42c80626cc6503c531)
+@@ -1165,7 +1165,7 @@
+ var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
+ var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
+ var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
+-if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150) {
++if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime) {
+ AIMI_BreakFastLight = true;
+ AIMI_BL_StartTime = nowdec;
+ AIMI_BL_EndTime = AIMI_BL_StartTime + 2;
+@@ -1180,7 +1180,7 @@
+ }
+                 console.error("\n");
+                 console.log("--------------");
+-                console.log(" 3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 20/12/22 ");
++                console.log(" 3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 21/12/22 ");
+                 console.log("--------------");
+                 if ( meal_data.TDDAIMI3 ){
+                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
+@@ -1365,7 +1365,7 @@
+         rT.reason += "sens_predType : "+sens_predType+" ; ";
+         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+ 
+-    rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 20/12/22 ";
++    rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 21/12/22 ";
+     rT.reason += "; ";
+ 
+     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
+@@ -1706,7 +1706,8 @@
+             }else if (profile.key_use_newsmb){
+              if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+              insulinReq = ((1 + Math.sqrt(delta)) / 4);
+-             var microBolus = circadian_smb > (-3) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
++             var microBolus = circadian_smb > (-10) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) :
++             Math.min(AIMI_UAM_CAP,insulinReq);
+              }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+              insulinReq = ((1 + Math.sqrt(delta)) / 2);
+                  if (circadian_smb > (-3)){

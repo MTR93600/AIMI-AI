@@ -1,0 +1,21 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 5768e55ab9d5c3487d0e4f1e6f98e034e0592747)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 7c8f27e4d3bde9a67033cf52dc5bc2e956713b49)
+@@ -1702,10 +1702,10 @@
+ 
+             }
+             }else if (profile.key_use_newsmb){
+-            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
++            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+             insulinReq = (1 + Math.sqrt(delta)) / 4;
+             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+-            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
++            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+             insulinReq = (1 + Math.sqrt(delta)) / 2;
+             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+             }else{

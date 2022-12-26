@@ -1,0 +1,32 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 688f457d19f28e7fae25bc7ea868d1d470517b53)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision e3a1bcd0316ac2a16ff6d815497e92be2fe7bb94)
+@@ -1736,7 +1736,7 @@
+             var smbTarget = target_bg;
+             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
+             durationReq = round(30*worstCaseInsulinReq / basal);
+-       if (iTimeActivation === true){
++       if (iTimeActivation === true && sens_predType == "NA"){
+ 
+             if (UAMpredBG < 110){
+                 microBolus = 0;
+@@ -1787,11 +1787,11 @@
+ 
+             if (iTimeActivation && AIMI_BreakFastLight){
+             SMBInterval = 20;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG > 100){
++            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG > 100){
+             SMBInterval = 10 * aimi_rise;
+-            }else if (iTimeActivation && countSMBms === 2 && HypoPredBG < 100){
++            }else if (iTimeActivation && countSMBms === 2 && UAMpredBG < 100){
+             SMBInterval = 20 * aimi_rise;
+-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
++            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
+             SMBInterval = 20 * aimi_rise;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
+             SMBInterval = 10 * aimi_rise;

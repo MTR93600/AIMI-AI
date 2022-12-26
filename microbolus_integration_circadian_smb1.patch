@@ -1,0 +1,26 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 8854766f229f2285b993ada7238db1e63009e6d2)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision b41019d8e8c8edff462a804f133ff94a83f61162)
+@@ -1180,7 +1180,7 @@
+ }
+                 console.error("\n");
+                 console.log("--------------");
+-                console.log(" 3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 17/12/22 ");
++                console.log(" 3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 20/12/22 ");
+                 console.log("--------------");
+                 if ( meal_data.TDDAIMI3 ){
+                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
+@@ -1365,7 +1365,7 @@
+         rT.reason += "sens_predType : "+sens_predType+" ; ";
+         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+ 
+-    rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 17/12/22 ";
++    rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 20/12/22 ";
+     rT.reason += "; ";
+ 
+     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

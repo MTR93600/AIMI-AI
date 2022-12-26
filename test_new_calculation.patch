@@ -1,0 +1,101 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 3b340fe7eed990b26269939a23999c2d3c7ed969)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
+@@ -1665,6 +1665,7 @@
+             var GN = 1.618;
+             }
+ 
++            if (profile.key_use_oldsmb){
+             if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
+                 var microBolus = LastManualBolus / 1.618;
+                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
+@@ -1699,8 +1700,21 @@
+ 
+                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+ 
++            }
++            }else{
++            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" ){
++            insulinReq = (1 + Math.sqrt(aimi_delta)) / 4;
++            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
++            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet aimi_delta > 0 && aimismb === true && sens_predType == "UAM+"){
++            insulinReq = (1 + Math.sqrt(aimi_delta)) / 2;
++            var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
++            }else{
++            var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
++            }
+             }
+             microBolus = Math.floor(microBolus*roundSMBTo)/roundSMBTo;
++
++
+             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
+             // calculate a long enough zero temp to eventually correct back up to target
+     if ( meal_data.TDDAIMI3 ){
+@@ -1785,7 +1799,7 @@
+             SMBInterval = 20 * aimi_rise;
+             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG < 150){
+             SMBInterval = 20 * aimi_rise;
+-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
++            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 3){
+             SMBInterval = 10 * aimi_rise;
+             }else if (iTimeActivation && HypoPredBG < 100){
+             SMBInterval =15 * aimi_rise;
+Index: plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+--- a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision 3b340fe7eed990b26269939a23999c2d3c7ed969)
++++ b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
+@@ -308,6 +308,7 @@
+         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
+         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
+         //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
++        this.profile.put("key_use_oldsmb", sp.getBoolean(R.string.key_use_oldSMB, false))
+ 
+ 
+ //**********************************************************************************************************************************************
+Index: plugins/aps/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/res/values/strings.xml b/plugins/aps/src/main/res/values/strings.xml
+--- a/plugins/aps/src/main/res/values/strings.xml	(revision 3b340fe7eed990b26269939a23999c2d3c7ed969)
++++ b/plugins/aps/src/main/res/values/strings.xml	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
+@@ -216,6 +216,7 @@
+     <string name="key_use_mssv" translatable="false">Variant MSSV </string>
+     <string name="key_use_pammssv" translatable="false">Variant PAM-MSSV</string>
+     <string name="key_use_pam" translatable="false">Variant PAM</string>
++    <string name="key_use_oldSMB" translatable="false">older calculation proportional</string>
+ 
+ 
+ </resources>
+\ No newline at end of file
+Index: plugins/aps/src/main/res/xml/pref_aimi.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/res/xml/pref_aimi.xml b/plugins/aps/src/main/res/xml/pref_aimi.xml
+--- a/plugins/aps/src/main/res/xml/pref_aimi.xml	(revision 3b340fe7eed990b26269939a23999c2d3c7ed969)
++++ b/plugins/aps/src/main/res/xml/pref_aimi.xml	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
+@@ -172,6 +172,12 @@
+             android:key="@string/key_openapsama_use_autosens"
+             android:title="@string/openapsama_use_autosens" />
+ 
++        <SwitchPreference
++            android:defaultValue="false"
++            android:key="@string/key_use_oldSMB"
++            android:title="old smb aimi calculation"
++            android:summary="old smb aimi calculation" />
++
+         <SwitchPreference
+             android:defaultValue="false"
+             android:key="@string/key_use_AimiIgnoreCOB"

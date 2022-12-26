@@ -1,0 +1,56 @@
+Index: core/validators/src/main/res/values/attrs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/core/validators/src/main/res/values/attrs.xml b/core/validators/src/main/res/values/attrs.xml
+new file mode 100644
+--- /dev/null	(revision cd28d43a05f76aa629a99fec99a8ec406d0f1f46)
++++ b/core/validators/src/main/res/values/attrs.xml	(revision cd28d43a05f76aa629a99fec99a8ec406d0f1f46)
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++   <!-- <declare-styleable name="FormEditText">FormEditText</declare-styleable>-->
++</resources>
+\ No newline at end of file
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision b41019d8e8c8edff462a804f133ff94a83f61162)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision cd28d43a05f76aa629a99fec99a8ec406d0f1f46)
+@@ -1704,16 +1704,22 @@
+ 
+             }
+             }else if (profile.key_use_newsmb){
+-            if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+-            insulinReq = ((1 + Math.sqrt(delta)) / 4);
+-            var microBolus = circadian_smb > (-2) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
+-            }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
+-            insulinReq = ((1 + Math.sqrt(delta)) / 2);
+-            var microBolus = circadian_smb > (-2) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
+-            }else if (delta > 0){
+-            var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+-            }
+-            }
++             if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
++             insulinReq = ((1 + Math.sqrt(delta)) / 4);
++             var microBolus = circadian_smb > (-3) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
++             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && sens_predType == "UAM+" && UAMpredBG >= 220){
++             insulinReq = ((1 + Math.sqrt(delta)) / 2);
++                 if (circadian_smb > (-3)){
++                 var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
++                 }else if (circadian_smb < (-5)){
++                 var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
++                 }else{
++                 var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
++                 }
++             }else if (delta > 0){
++             var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
++             }
++             }
+             microBolus = Math.floor(microBolus*roundSMBTo)/roundSMBTo;
+ 
+ 
