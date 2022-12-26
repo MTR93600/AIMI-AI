@@ -367,33 +367,35 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
-        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1))?.totalAmount
-        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7))?.totalAmount
-        val tddLast24H = tddCalculator.calculateDaily(-24, 0).totalAmount
-        val tddLast4H = tddCalculator.calculateDaily(-4, 0).totalAmount
-        val tddLast8to4H = tddCalculator.calculateDaily(-8, -4).totalAmount
-        val tddLast24to23H = tddCalculator.calculateDaily(-24, -23).totalAmount
-        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47).totalAmount
-        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71).totalAmount
-        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95).totalAmount
-        val tddlastHaverage = (tddLast24to23H+tddLast48to47H+tddLast72to71H+tddLast96to95H)/4
+        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount
+        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.totalAmount
+        val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
+        val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
+        val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
+        val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
+        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47)?.totalAmount
+        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
+        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
+        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4
 
-        val tddWeightedFromLast8H = ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
-        var tdd =
+        val tddWeightedFromLast8H = ((1.4 * tddLast4H!!) + (0.6 * tddLast8to4H!!)) * 3
+        var variableSensitivity: Double
+        var tdd: Double? = null
+        tdd=
             if (tdd1D != null && tdd7D != null && lastHourTIRLow!! > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
             else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
             else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
             else tddWeightedFromLast8H
 
 
-        val aimisensitivity = if (tdd7D!= null && tdd7D != 0.0) tddLast24H / tdd7D else 1
+        val aimisensitivity = if (tdd7D!= null && tdd7D != 0.0) tddLast24H?.div(tdd7D) else 1
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
             insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
         }
-        var variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+        variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
         variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
 
         this.profile.put("variable_sens", variableSensitivity)
@@ -407,9 +409,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
-        this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3))?.totalAmount)
-        this.mealData.put("TDDAIMIBASAL3", tddCalculator.averageTDD(tddCalculator.calculate(3))?.basalAmount)
-        this.mealData.put("TDDAIMIBASAL7", tddCalculator.averageTDD(tddCalculator.calculate(7))?.basalAmount)
+        this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = false))?.totalAmount)
+        this.mealData.put("TDDAIMIBASAL3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = false))?.basalAmount)
+        this.mealData.put("TDDAIMIBASAL7", tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.basalAmount)
 
         //StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         this.mealData.put("StatLow7", tirCalculator.averageTIR(tirCalculator.calculate(7, 65.0, 180.0))?.belowPct())
