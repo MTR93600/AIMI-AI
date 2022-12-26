@@ -307,7 +307,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant B30-MSSV-100%AIMI 3.1.0.3-dev-e-AIMI");
+       console.error( " AIMI-Variant B30-MSSV-100%AIMI 3.1.0.3-dev-f-AIMI");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1180,7 +1180,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 22/12/22 ");
+                console.log(" 3.1.0.3-dev-f-AIMI-Variant B30-MSSV-100%AIMI 22/12/22 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1365,7 +1365,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
-    rT.reason += "\n3.1.0.3-dev-e-AIMI-Variant B30-MSSV-100%AIMI 22/12/22 ";
+    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-100%AIMI 22/12/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1712,6 +1712,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                insulinReq = ((1 + Math.sqrt(delta)) / 2);
                    if (circadian_smb > (-3)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                     }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
+                     var microBolus = Math.min(AIMI_UAM_CAP + 1,insulinReq*2);
                      }else if (circadian_smb < (-5)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                      }else if(circadian_smb > -1 && bg > 200 ){
