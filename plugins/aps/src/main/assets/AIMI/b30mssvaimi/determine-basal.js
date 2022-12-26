@@ -1712,6 +1712,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                insulinReq = ((1 + Math.sqrt(delta)) / 2);
                    if (circadian_smb > (-3)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                     }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
+                     var microBolus = Math.min(AIMI_UAM_CAP + 1,insulinReq*2);
                      }else if (circadian_smb < (-5)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                      }else if(circadian_smb > -1 && bg > 200 ){
