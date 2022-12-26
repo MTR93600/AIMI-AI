@@ -17,10 +17,19 @@ import info.nightscout.sdk.remotemodel.RemoteTreatment
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
+/**
+ * Convert to [RemoteTreatment] and back to [NSTreatment]
+ * testing purpose only
+ *
+ * @return treatment after double conversion
+ */
+fun NSTreatment.convertToRemoteAndBack(): NSTreatment? =
+    toRemoteTreatment()?.toTreatment()
+
 internal fun RemoteTreatment.toTreatment(): NSTreatment? {
     val treatmentTimestamp = timestamp()
     when {
-        insulin != null && insulin > 0                                     ->
+        insulin != null && insulin > 0 ->
             return NSBolus(
                 date = treatmentTimestamp,
                 device = this.device,
@@ -40,6 +49,7 @@ internal fun RemoteTreatment.toTreatment(): NSTreatment? {
                 pumpSerial = this.pumpSerial,
                 insulin = this.insulin,
                 type = NSBolus.BolusType.fromString(this.type),
+                isBasalInsulin = isBasalInsulin ?: false
             )
 
         carbs != null && carbs > 0                                         ->
@@ -355,7 +365,8 @@ internal fun NSTreatment.toRemoteTreatment(): RemoteTreatment? =
             pumpType = pumpType,
             pumpSerial = pumpSerial,
             insulin = insulin,
-            type = type.name
+            type = type.name,
+            isBasalInsulin = isBasalInsulin
         )
 
         is NSCarbs                  -> RemoteTreatment(
@@ -448,7 +459,7 @@ internal fun NSTreatment.toRemoteTreatment(): RemoteTreatment? =
             durationInMilliseconds = duration,
             absolute = absolute,
             percent = percent,
-            rate = absolute,
+            rate = rate,
             type = type.name
         )
 
