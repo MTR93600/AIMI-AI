@@ -29,7 +29,7 @@
     <string name="objectives_smb_gate">You must read the wiki and rise maxIOB to get SMBs working fine! A good start is maxIOB=average mealbolus + 3 x max daily basal</string>
     <string name="objectives_smb_learned">Using SMB is your goal. Oref1 algorithm was designed to help you with your boluses as well. You should not give full bolus for your food but only part of it and let AAPS give you the rest if needed. This way you have more space for miscalculated carbs. Did you know that you can set a percentage of bolus calculator result to reduce the size of bolus?</string>
     <string name="objectives_auto_objective">Enabling automation</string>
-    <string name="objectives_auto_gate">Read the docs on how automation works. Set up your first simple rules. Instead of action let AAPS display only notification. When you are sure automation is triggered at the right time replace notification by real action. (https://androidaps.readthedocs.io/en/latest/EN/Usage/Automation.html)</string>
+    <string name="objectives_auto_gate">Read the docs on how automation works. Set up your first simple rules. Instead of action let AAPS display only notification. When you are sure automation is triggered at the right time replace notification by real action. (https://wiki.aaps.app/en/latest/EN/Usage/Automation.html)</string>
     <string name="objectives_auto_learned">Automation can be a good servant but a bad master. Don\'t overuse it. Do not try to replace underlying algorithm. Test the rule with message only before use. It depends on order.</string>
     <string name="objectives_bgavailableinns">BG available in NS</string>
     <string name="objectives_pumpstatusavailableinns">Pump status available in NS</string>
@@ -54,7 +54,7 @@
     <string name="objectives_exam_learned_isf">You learned meaning of ISF value and it affects amount of insulin used for BG correction.</string>
     <string name="objectives_exam_learned_ic">You learned meaning of IC value and it affects amount of insulin needed to cover carbs.</string>
     <string name="objectives_exam_learned_hypott">Hypo temp target is used only to prevent overcorrection after hypo, when there is usually stacked negative IOB. Additional actions should be evaluated to prevent this situation again in the future.</string>
-    <string name="objectives_exam_learned_profileswitch">Using percentage doesn\'t affect targets BGs but basal, ISF and IC are adjusted to give more insulin (above 100%) or less insulin (under 100%).</string>
+    <string name="objectives_exam_learned_profileswitch">Using percentage doesn\'t affect targets BGs but basal, ISF and IC are adjusted to give more insulin (above 100%%) or less insulin (under 100%%).</string>
     <string name="objectives_exam_learned_profileswitchtime">By using timeshift in profile switch you can adapt circadian profile to irregularities like late wake up.</string>
     <string name="objectives_exam_learned_profileswitch4">Editing profile itself is not sufficient to make a change. You still need to do a profile switch to activate changes.</string>
     <string name="objectives_exam_learned_exercise">You should reduce amount of insulin in the body at least 1 hour before starting exercise by selecting profile under 100%.</string>
@@ -76,10 +76,10 @@
     <string name="unfinshed_button">Next unfinished</string>
     <string name="requestcode">Request code: %1$s</string>
     <string name="objectives_hint">(check all correct answers)</string>
-    <string name="disconnectpump_hint" formatted="false">https://androidaps.readthedocs.io/en/latest/EN/Getting-Started/FAQ.html#what-to-do-when-taking-a-shower-or-bath</string>
-    <string name="usetemptarget_hint" formatted="false">https://androidaps.readthedocs.io/en/latest/EN/Getting-Started/Screenshots.html#the-homescreen</string>
-    <string name="useaction_hint" formatted="false">https://androidaps.readthedocs.io/en/latest/EN/Getting-Started/Screenshots.html#config-builder</string>
-    <string name="usescale_hint" formatted="false">https://androidaps.readthedocs.io/en/latest/EN/Getting-Started/Screenshots.html#the-homescreen</string>
+    <string name="disconnectpump_hint" formatted="false">https://wiki.aaps.app/en/latest/EN/Getting-Started/FAQ.html#what-to-do-when-taking-a-shower-or-bath</string>
+    <string name="usetemptarget_hint" formatted="false">https://wiki.aaps.app/en/latest/EN/Getting-Started/Screenshots.html#the-homescreen</string>
+    <string name="useaction_hint" formatted="false">https://wiki.aaps.app/en/latest/EN/Getting-Started/Screenshots.html#config-builder</string>
+    <string name="usescale_hint" formatted="false">https://wiki.aaps.app/en/latest/EN/Getting-Started/Screenshots.html#the-homescreen</string>
     <string name="notconnected">Not connected to the internet</string>
     <string name="failedretrievetime">Failed retrieve time</string>
     <string name="requirementnotmet">Objective requirements not met</string>
