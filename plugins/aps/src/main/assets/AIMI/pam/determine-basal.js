@@ -1596,9 +1596,14 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             var AIMI_R = 161.8;
 
             var maxBolusTT = maxBolus;
-            var AIMI_UAM_CAP = (profile.key_use_AIMI_CAP/100) * profile.current_basal;
+            if (profile.key_use_enable_mssv){
+            var AIMI_UAM_CAP = lastHourTIRLow >= 5 && last2HourTIRAbove < 4 ? ((profile.key_use_AIMI_CAP/100) * basal) * 0.8 : (profile.key_use_AIMI_CAP/100) * basal;
             AIMI_UAM_CAP = Math.min(AIMI_UAM_CAP,(profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
+            }else{
+            var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
+            rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
+            }
 
             var roundSMBTo = 1 / profile.bolus_increment;
 
