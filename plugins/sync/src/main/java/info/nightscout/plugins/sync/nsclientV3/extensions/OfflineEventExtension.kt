@@ -2,6 +2,7 @@ package info.nightscout.plugins.sync.nsclientV3.extensions
 
 import info.nightscout.database.entities.OfflineEvent
 import info.nightscout.database.entities.embedments.InterfaceIDs
+import info.nightscout.sdk.localmodel.treatment.EventType
 import info.nightscout.sdk.localmodel.treatment.NSOfflineEvent
 
 fun NSOfflineEvent.toOfflineEvent(): OfflineEvent =
@@ -15,11 +16,22 @@ fun NSOfflineEvent.toOfflineEvent(): OfflineEvent =
     )
 
 fun NSOfflineEvent.Reason?.toReason(): OfflineEvent.Reason =
-    when (this) {
-        NSOfflineEvent.Reason.DISCONNECT_PUMP -> OfflineEvent.Reason.DISCONNECT_PUMP
-        NSOfflineEvent.Reason.SUSPEND         -> OfflineEvent.Reason.SUSPEND
-        NSOfflineEvent.Reason.DISABLE_LOOP    -> OfflineEvent.Reason.DISABLE_LOOP
-        NSOfflineEvent.Reason.SUPER_BOLUS     -> OfflineEvent.Reason.SUPER_BOLUS
-        NSOfflineEvent.Reason.OTHER           -> OfflineEvent.Reason.OTHER
-        null                                  -> OfflineEvent.Reason.OTHER
-    }
+    OfflineEvent.Reason.fromString(this?.name)
+
+fun OfflineEvent.toNSOfflineEvent(): NSOfflineEvent =
+    NSOfflineEvent(
+        eventType = EventType.APS_OFFLINE,
+        isValid = isValid,
+        date = timestamp,
+        utcOffset = utcOffset,
+        duration = duration,
+        reason = reason.toReason(),
+        identifier = interfaceIDs.nightscoutId,
+        pumpId = interfaceIDs.pumpId,
+        pumpType = interfaceIDs.pumpType?.name,
+        pumpSerial = interfaceIDs.pumpSerial,
+        endId = interfaceIDs.endId
+    )
+
+fun OfflineEvent.Reason?.toReason(): NSOfflineEvent.Reason =
+    NSOfflineEvent.Reason.fromString(this?.name)

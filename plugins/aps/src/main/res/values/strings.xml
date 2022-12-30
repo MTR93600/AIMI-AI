@@ -217,6 +217,7 @@
     <string name="key_use_pammssv" translatable="false">Variant PAM-MSSV</string>
     <string name="key_use_pam" translatable="false">Variant PAM</string>
     <string name="key_use_newSMB" translatable="false">new aimi smb calculation proportional</string>
+    <string name="key_use_enable_mssv" translatable="false">Enable the variation of max smb size</string>
 
 
 </resources>

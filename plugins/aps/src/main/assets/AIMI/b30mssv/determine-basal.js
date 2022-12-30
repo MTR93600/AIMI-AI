@@ -439,7 +439,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
      }else if (iTimeActivation === true && countSMB === 3 && !AIMI_BreakFastLight && glucose_status.delta > 0){
-           rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+           rT.reason += ". force basal because you receive 3 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
             rT.temp = 'absolute';
             rT.duration = 10;
             rate = round_basal(basal*10,profile);
@@ -448,7 +448,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
     }else if (iTimeActivation === true && profile.enable_AIMI_protein && glucose_status.delta > 0 && iTime >= profile.b30_protein_start && iTime < (profile.b30_protein_start+profile.b30_protein_duration) && !AIMI_BreakFastLight && bg > 80){
-             rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(basal*(profile.b30_protein_percent / 100)/60)*10;
+             rT.reason += ". force basal because you enable B30 Proteins : "+profile.b30_protein_duration+"10 minutes" +(basal*(profile.b30_protein_percent / 100)/60)*10;
              rT.temp = 'absolute';
              rT.duration = profile.b30_protein_duration;
              rate = round_basal(basal*(profile.b30_protein_percent / 100),profile);
@@ -1150,7 +1150,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-f-AIMI-Variant B30-MSSV-26/12/22 ");
+                console.log(" 3.1.0.3-dev-f-AIMI-Variant B30-MSSV-30/12/22 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1317,7 +1317,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-26/12/22 ";
+    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-30/12/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1598,10 +1598,15 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
             var AIMI_R = 161.8;
 
             var maxBolusTT = maxBolus;
-            var AIMI_UAM_CAP = lastHourTIRAbove >= 5 ? ((profile.key_use_AIMI_CAP/100) * basal) * 1.2 : (profile.key_use_AIMI_CAP/100) * basal;
-            AIMI_UAM_CAP = lastHourTIRLow >= 5 && last2HourTIRAbove < 4 ? ((profile.key_use_AIMI_CAP/100) * basal) * 0.8 : (profile.key_use_AIMI_CAP/100) * basal;
+            //var AIMI_UAM_CAP = lastHourTIRAbove >= 5 ? ((profile.key_use_AIMI_CAP/100) * basal) * 1.2 : (profile.key_use_AIMI_CAP/100) * basal;
+            if (profile.key_use_enable_mssv){
+            var AIMI_UAM_CAP = lastHourTIRLow >= 5 && last2HourTIRAbove < 4 ? ((profile.key_use_AIMI_CAP/100) * basal) * 0.8 : (profile.key_use_AIMI_CAP/100) * basal;
             AIMI_UAM_CAP = Math.min(AIMI_UAM_CAP,(profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
+            }else{
+            var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
+            rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
+            }
 
             var roundSMBTo = 1 / profile.bolus_increment;
 

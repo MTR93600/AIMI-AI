@@ -169,6 +169,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_enable_mssv"
+            android:title="Enable the variation of max smb size"
+            android:summary="If it's enable mssv will discrease the value when TIR low during the last hour > 5%, or if the target have changed for a higher one and the basal value discrease. The opposite is true about lowering the target, that will increase the basal value and increase the mssv value until +100% of the initial value in the settings. If it's disable, the calculation will be using constant value, basal from the profile and the mssv settings in the preferences." />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_openapsama_use_autosens"
             android:title="@string/openapsama_use_autosens" />
 
