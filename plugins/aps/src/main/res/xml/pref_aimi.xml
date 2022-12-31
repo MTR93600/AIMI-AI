@@ -224,7 +224,6 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiUAM_ISF"
             android:summary="Dependency with AIMI_UAM mode, active a faster scale ISF"
             android:title="AIMI UAM Super ISF" />
