@@ -547,11 +547,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
     var Hypo_ratio = 1;
 
-     if (currentTIRLow > 10 || AIMI_BreakFastLight || iTime < 180 && glucose_status.delta < 1.618*b30upperdelta ){
+     if (currentTIRLow > 10 || AIMI_BreakFastLight || circadian_smb > (-3) || iTime < 180 && glucose_status.delta < 1.618*b30upperdelta ){
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
-     target_bg = hypo_target;
+     target_bg = circadian_smb > 5 ? 144 : hypo_target+circadian_smb;
      Hypo_ratio = 0.7;
      enlog += "Hypo_ratio : "+Hypo_ratio+"\n";
      C2 = (target_bg * 1.618)-(glucose_status.delta * 1.618);
@@ -574,7 +574,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      sensitivityRatio = round(sensitivityRatio,2);
      enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
      sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-     basal = profile.current_basal * sensitivityRatio;
+     basal = circadian_smb > 5 ? profile.current_basal / 2 : profile.current_basal * sensitivityRatio;
      basal = round_basal(basal, profile);
      if (basal !== profile_current_basal) {
          enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
@@ -601,7 +601,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             hypo_target = 100;
             enlog +="target_bg from "+target_bg+" to "+hypo_target+" because HypoPredBG is lesser than 125 : "+HypoPredBG+";\n";
         }*/
-        target_bg = hypo_target;
+        target_bg = hypo_target + circadian_smb;
         halfBasalTarget = 160;
         var c = halfBasalTarget - normalTarget;
         //sensitivityRatio = c/(c+target_bg-normalTarget);
@@ -622,7 +622,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = round(sensitivityRatio,2);
         enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
         sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-        basal = profile.current_basal * sensitivityRatio;
+        basal = circadian_smb > 5 ? profile.current_basal / 2 : profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
             enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
@@ -639,7 +639,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         } else {
             enlog +="target_bg from "+target_bg+" to "+hyper_target+" because HyperPredBG > 180 : "+HyperPredBG+" ;\n";
         }
-        target_bg = hyper_target;
+        target_bg = hyper_target+circadian_smb;
         C1 = bg + (glucose_status.delta*1.618);
         C2 = target_bg * 1.618;
         halfBasalTarget = 160;
@@ -1336,6 +1336,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+        rT.reason += "sens_predType : "+sens_predType+" ; ";
         var aimiDIA = round(dia*30*circadian_sensitivity,2);
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
@@ -1669,7 +1670,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
             }else if (iTime < iTimeProfile && AIMI_UAM && !AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true){
 
                       insulinReq = autoAIMIsmb > 0 ? autoAIMIsmb : round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
-                      insulinReq = countSMB > 3 ? round((((aimi_delta * GN) + (min_bg*0.52) ) / future_sens) * smb_ratio,2) : insulinReq;
+                      insulinReq = countSMB > 3 && circadian_smb > (-2) ? round((((aimi_delta * GN) + (min_bg*0.52) ) / future_sens) * smb_ratio,2) : insulinReq;
                       //insulinReq = (insulinReq > (max_iob - iob_data.iob) ? max_iob - iob_data.iob : insulinReq);
                       var microBolus = Math.min(AIMI_UAM_CAP,(insulinReq * Hypo_ratio));
                       microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);

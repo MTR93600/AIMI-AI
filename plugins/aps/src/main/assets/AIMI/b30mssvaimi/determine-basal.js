@@ -672,7 +672,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = round(sensitivityRatio,2);
         enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
         sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-        basal = profile.current_basal * sensitivityRatio;
+        basal = circadian_smb > 5 ? profile.current_basal / 2 : profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
             enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
