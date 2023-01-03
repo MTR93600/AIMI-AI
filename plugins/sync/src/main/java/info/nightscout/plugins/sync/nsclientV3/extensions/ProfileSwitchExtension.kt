@@ -11,6 +11,7 @@ import info.nightscout.sdk.localmodel.treatment.EventType
 import info.nightscout.sdk.localmodel.treatment.NSProfileSwitch
 import info.nightscout.shared.utils.DateUtil
 import info.nightscout.shared.utils.T
+import java.security.InvalidParameterException
 
 fun NSProfileSwitch.toProfileSwitch(activePlugin: ActivePlugin, dateUtil: DateUtil): ProfileSwitch? {
     val pureProfile =
@@ -21,8 +22,8 @@ fun NSProfileSwitch.toProfileSwitch(activePlugin: ActivePlugin, dateUtil: DateUt
 
     return ProfileSwitch(
         isValid = isValid,
-        timestamp = date,
-        utcOffset = utcOffset,
+        timestamp = date ?: throw InvalidParameterException(),
+        utcOffset = T.mins(utcOffset ?: 0L).msecs(),
         basalBlocks = profileSealed.basalBlocks,
         isfBlocks = profileSealed.isfBlocks,
         icBlocks = profileSealed.icBlocks,
@@ -48,7 +49,7 @@ fun ProfileSwitch.toNSProfileSwitch(dateUtil: DateUtil): NSProfileSwitch {
         eventType = EventType.PROFILE_SWITCH,
         isValid = isValid,
         date = timestamp,
-        utcOffset = utcOffset,
+        utcOffset = T.msecs(utcOffset).mins(),
         timeShift = timeshift,
         percentage = percentage,
         duration = T.mins(duration).msecs(),

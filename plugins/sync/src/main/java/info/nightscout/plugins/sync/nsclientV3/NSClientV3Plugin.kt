@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.core.validators.ValidatingEditTextPreference
 import info.nightscout.database.entities.interfaces.TraceableDBEntry
 import info.nightscout.interfaces.Config
 import info.nightscout.interfaces.Constants
@@ -42,6 +43,7 @@ import info.nightscout.plugins.sync.nsclientV3.extensions.toNSExtendedBolus
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSFood
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSOfflineEvent
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSProfileSwitch
+import info.nightscout.plugins.sync.nsclientV3.extensions.toNSSvgV3
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSTemporaryBasal
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSTemporaryTarget
 import info.nightscout.plugins.sync.nsclientV3.extensions.toNSTherapyEvent
@@ -69,7 +71,10 @@ import info.nightscout.shared.utils.DateUtil
 import info.nightscout.shared.utils.T
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.Executors
@@ -114,6 +119,7 @@ class NSClientV3Plugin @Inject constructor(
     }
 
     private val disposable = CompositeDisposable()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var runLoop: Runnable
     private val handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
     private val listLog: MutableList<EventNSClientNewLog> = ArrayList()
@@ -140,7 +146,6 @@ class NSClientV3Plugin @Inject constructor(
     internal var firstLoadContinueTimestamp = LastModified(LastModified.Collections()) // timestamp of last fetched data for every collection during initial load
 
     override fun onStart() {
-//        context.bindService(Intent(context, NSClientService::class.java), mConnection, Context.BIND_AUTO_CREATE)
         super.onStart()
 
         lastLoadedSrvModified = Json.decodeFromString(
@@ -220,6 +225,7 @@ class NSClientV3Plugin @Inject constructor(
             preferenceFragment.findPreference<SwitchPreference>(rh.gs(info.nightscout.core.utils.R.string.key_ns_create_announcements_from_carbs_req))?.isVisible = false
         }
         preferenceFragment.findPreference<SwitchPreference>(rh.gs(R.string.key_ns_receive_tbr_eb))?.isVisible = config.isEngineeringMode()
+        preferenceFragment.findPreference<ValidatingEditTextPreference>(rh.gs(info.nightscout.core.utils.R.string.key_nsclientinternal_api_secret))?.isVisible = false
     }
 
     override val hasWritePermission: Boolean get() = nsAndroidClient?.lastStatus?.apiPermissions?.isFull() ?: false
@@ -310,7 +316,7 @@ class NSClientV3Plugin @Inject constructor(
     override fun resetToFullSync() {
         firstLoadContinueTimestamp = LastModified(LastModified.Collections())
         lastLoadedSrvModified = LastModified(LastModified.Collections())
-        storeLastFetched()
+        storeLastLoadedSrvModified()
     }
 
     override fun dbAdd(collection: String, dataPair: DataSyncSelector.DataPair, progress: String) {
@@ -325,16 +331,16 @@ class NSClientV3Plugin @Inject constructor(
 
     private val gson: Gson = GsonBuilder().create()
     private fun dbOperation(collection: String, dataPair: DataSyncSelector.DataPair, progress: String, operation: Operation) {
-        if (collection == "food") {
+        if (collection == "entries") {
             val call = when (operation) {
-                Operation.CREATE -> nsAndroidClient?.let { return@let it::createFood }
-                Operation.UPDATE -> nsAndroidClient?.let { return@let it::updateFood }
+                Operation.CREATE -> nsAndroidClient?.let { return@let it::createSvg }
+                Operation.UPDATE -> nsAndroidClient?.let { return@let it::updateSvg }
             }
             when (dataPair) {
-                is DataSyncSelector.PairFood -> dataPair.value.toNSFood()
-                else                         -> null
+                is DataSyncSelector.PairGlucoseValue -> dataPair.value.toNSSvgV3()
+                else                                 -> null
             }?.let { data ->
-                runBlocking {
+                scope.launch {
                     try {
                         val id = if (dataPair.value is TraceableDBEntry) (dataPair.value as TraceableDBEntry).interfaceIDs.nightscoutId else ""
                         rxBus.send(
@@ -350,6 +356,69 @@ class NSClientV3Plugin @Inject constructor(
                             )
                         )
                         call?.let { it(data) }?.let { result ->
+                            when (result.response) {
+                                200  -> rxBus.send(EventNSClientNewLog("UPDATED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                201  -> rxBus.send(EventNSClientNewLog("ADDED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                400  -> rxBus.send(EventNSClientNewLog("FAIL", "${dataPair.value.javaClass.simpleName} ${result.errorResponse}"))
+
+                                else -> {
+                                    rxBus.send(EventNSClientNewLog("ERROR", "${dataPair.value.javaClass.simpleName} "))
+                                    return@launch
+                                }
+                            }
+                            when (dataPair) {
+                                is DataSyncSelector.PairGlucoseValue -> {
+                                    if (result.response == 201) { // created
+                                        dataPair.value.interfaceIDs.nightscoutId = result.identifier
+                                        storeDataForDb.nsIdGlucoseValues.add(dataPair.value)
+                                        storeDataForDb.scheduleNsIdUpdate()
+                                    }
+                                    dataSyncSelector.confirmLastGlucoseValueIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedGlucoseValuesCompat()
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        aapsLogger.error(LTag.NSCLIENT, "Upload exception", e)
+                    }
+                }
+            }
+        }
+        if (collection == "food") {
+            val call = when (operation) {
+                Operation.CREATE -> nsAndroidClient?.let { return@let it::createFood }
+                Operation.UPDATE -> nsAndroidClient?.let { return@let it::updateFood }
+            }
+            when (dataPair) {
+                is DataSyncSelector.PairFood -> dataPair.value.toNSFood()
+                else                         -> null
+            }?.let { data ->
+                scope.launch {
+                    try {
+                        val id = if (dataPair.value is TraceableDBEntry) (dataPair.value as TraceableDBEntry).interfaceIDs.nightscoutId else ""
+                        rxBus.send(
+                            EventNSClientNewLog(
+                                when (operation) {
+                                    Operation.CREATE -> "ADD $collection"
+                                    Operation.UPDATE -> "UPDATE $collection"
+                                },
+                                when (operation) {
+                                    Operation.CREATE -> "Sent ${dataPair.javaClass.simpleName} ${gson.toJson(data)} $progress"
+                                    Operation.UPDATE -> "Sent ${dataPair.javaClass.simpleName} $id ${gson.toJson(data)} $progress"
+                                }
+                            )
+                        )
+                        call?.let { it(data) }?.let { result ->
+                            when (result.response) {
+                                200  -> rxBus.send(EventNSClientNewLog("UPDATED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                201  -> rxBus.send(EventNSClientNewLog("ADDED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                400  -> rxBus.send(EventNSClientNewLog("FAIL", "${dataPair.value.javaClass.simpleName} ${result.errorResponse}"))
+
+                                else -> {
+                                    rxBus.send(EventNSClientNewLog("ERROR", "${dataPair.value.javaClass.simpleName} "))
+                                    return@launch
+                                }
+                            }
                             when (dataPair) {
                                 is DataSyncSelector.PairFood -> {
                                     if (result.response == 201) { // created
@@ -358,6 +427,7 @@ class NSClientV3Plugin @Inject constructor(
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastFoodIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedFoodsCompat()
                                 }
                             }
                         }
@@ -377,13 +447,13 @@ class NSClientV3Plugin @Inject constructor(
                 is DataSyncSelector.PairCarbs                  -> dataPair.value.toNSCarbs()
                 is DataSyncSelector.PairBolusCalculatorResult  -> dataPair.value.toNSBolusWizard()
                 is DataSyncSelector.PairTemporaryTarget        -> dataPair.value.toNSTemporaryTarget()
-                // is DataSyncSelector.PairGlucoseValue           -> dataPair.value.toJson(false, dateUtil)
                 is DataSyncSelector.PairTherapyEvent           -> dataPair.value.toNSTherapyEvent()
 
                 is DataSyncSelector.PairTemporaryBasal         -> {
                     val profile = profileFunction.getProfile(dataPair.value.timestamp)
                     if (profile == null) {
                         dataSyncSelector.confirmLastTemporaryBasalIdIfGreater(dataPair.id)
+                        dataSyncSelector.processChangedTemporaryBasalsCompat()
                         return
                     }
                     dataPair.value.toNSTemporaryBasal(profile)
@@ -392,6 +462,7 @@ class NSClientV3Plugin @Inject constructor(
                     val profile = profileFunction.getProfile(dataPair.value.timestamp)
                     if (profile == null) {
                         dataSyncSelector.confirmLastExtendedBolusIdIfGreater(dataPair.id)
+                        dataSyncSelector.processChangedExtendedBolusesCompat()
                         return
                     }
                     dataPair.value.toNSExtendedBolus(profile)
@@ -401,7 +472,7 @@ class NSClientV3Plugin @Inject constructor(
                 is DataSyncSelector.PairOfflineEvent           -> dataPair.value.toNSOfflineEvent()
                 else                                           -> null
             }?.let { data ->
-                runBlocking {
+                scope.launch {
                     try {
                         val id = if (dataPair.value is TraceableDBEntry) (dataPair.value as TraceableDBEntry).interfaceIDs.nightscoutId else ""
                         rxBus.send(
@@ -417,60 +488,77 @@ class NSClientV3Plugin @Inject constructor(
                             )
                         )
                         call?.let { it(data) }?.let { result ->
+                            when (result.response) {
+                                200  -> rxBus.send(EventNSClientNewLog("UPDATED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                201  -> rxBus.send(EventNSClientNewLog("ADDED", "OK ${dataPair.value.javaClass.simpleName}"))
+                                400  -> rxBus.send(EventNSClientNewLog("FAIL", "${dataPair.value.javaClass.simpleName} ${result.errorResponse}"))
+
+                                else -> {
+                                    rxBus.send(EventNSClientNewLog("ERROR", "${dataPair.value.javaClass.simpleName} "))
+                                    return@launch
+                                }
+                            }
                             when (dataPair) {
-                                is DataSyncSelector.PairBolus                 -> {
+                                is DataSyncSelector.PairBolus                  -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdBoluses.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastBolusIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedBolusesCompat()
                                 }
 
-                                is DataSyncSelector.PairCarbs                 -> {
+                                is DataSyncSelector.PairCarbs                  -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdCarbs.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastCarbsIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedCarbsCompat()
                                 }
 
-                                is DataSyncSelector.PairBolusCalculatorResult -> {
+                                is DataSyncSelector.PairBolusCalculatorResult  -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdBolusCalculatorResults.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastBolusCalculatorResultsIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedBolusCalculatorResultsCompat()
                                 }
 
-                                is DataSyncSelector.PairTemporaryTarget       -> {
+                                is DataSyncSelector.PairTemporaryTarget        -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdTemporaryTargets.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastTempTargetsIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedTempTargetsCompat()
                                 }
-                                // is DataSyncSelector.PairGlucoseValue           -> dataPair.value.toJson(false, dateUtil)
-                                is DataSyncSelector.PairTherapyEvent          -> {
+
+                                is DataSyncSelector.PairTherapyEvent           -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdTherapyEvents.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastTherapyEventIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedTherapyEventsCompat()
                                 }
 
-                                is DataSyncSelector.PairTemporaryBasal        -> {
+                                is DataSyncSelector.PairTemporaryBasal         -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdTemporaryBasals.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastTemporaryBasalIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedTemporaryBasalsCompat()
                                 }
+
                                 is DataSyncSelector.PairExtendedBolus          -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
@@ -478,6 +566,7 @@ class NSClientV3Plugin @Inject constructor(
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastExtendedBolusIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedExtendedBolusesCompat()
                                 }
 
                                 is DataSyncSelector.PairProfileSwitch          -> {
@@ -487,6 +576,7 @@ class NSClientV3Plugin @Inject constructor(
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastProfileSwitchIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedProfileSwitchesCompat()
                                 }
 
                                 is DataSyncSelector.PairEffectiveProfileSwitch -> {
@@ -496,15 +586,17 @@ class NSClientV3Plugin @Inject constructor(
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastEffectiveProfileSwitchIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedEffectiveProfileSwitchesCompat()
                                 }
 
-                                is DataSyncSelector.PairOfflineEvent -> {
+                                is DataSyncSelector.PairOfflineEvent           -> {
                                     if (result.response == 201) { // created
                                         dataPair.value.interfaceIDs.nightscoutId = result.identifier
                                         storeDataForDb.nsIdOfflineEvents.add(dataPair.value)
                                         storeDataForDb.scheduleNsIdUpdate()
                                     }
                                     dataSyncSelector.confirmLastOfflineEventIdIfGreater(dataPair.id)
+                                    dataSyncSelector.processChangedOfflineEventsCompat()
                                 }
                             }
                         }
@@ -516,12 +608,8 @@ class NSClientV3Plugin @Inject constructor(
         }
     }
 
-    fun storeLastFetched() {
+    fun storeLastLoadedSrvModified() {
         sp.putString(R.string.key_ns_client_v3_last_modified, Json.encodeToString(LastModified.serializer(), lastLoadedSrvModified))
-    }
-
-    fun test() {
-        executeLoop()
     }
 
     fun scheduleNewExecution() {
