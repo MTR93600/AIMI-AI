@@ -263,7 +263,7 @@ class MyPreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChang
 
     private fun preprocessPreferences() {
         for (plugin in pluginStore.plugins) {
-            plugin.preprocessPreferences(this)
+            if (plugin.isEnabled()) plugin.preprocessPreferences(this)
         }
     }
 

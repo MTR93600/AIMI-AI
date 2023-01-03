@@ -672,7 +672,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         sensitivityRatio = round(sensitivityRatio,2);
         enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
         sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-        basal = profile.current_basal * sensitivityRatio;
+        basal = circadian_smb > 5 ? profile.current_basal / 2 : profile.current_basal * sensitivityRatio;
         basal = round_basal(basal, profile);
         if (basal !== profile_current_basal) {
             enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
@@ -723,61 +723,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
         }
     }
-//============================================
-// Matrices de transition
-  var A = 1;
-  var B = -sens * iob_data.iob;
-  var H = 1;
-  var Q = 0.01;
-  var R = 0.1;
-  var P = 1;
-  var x = bg-delta;
-  var K;
 
-  // Étape de prédiction
-  var x_pred = A * x + B;
-  var P_pred = A * P * A + Q;
-
-  // Étape de correction
-  K = P_pred * H / (H * P_pred * H + R);
-  x = x_pred + K * (bg - H * x_pred);
-  P = (1 - K * H) * P_pred;
-  console.log("###K : "+K+"####x : "+x+"####P : "+P+"####");
-  // Estimation des constantes k1 et k2
-  //var k1 = (normalTarget - bg) * x;
-  //var k2 = ((bg-delta) - bg) * x;
-  var k1 = (normalTarget - bg) * (delta);
-  var k2 = (delta) * (delta);
-
-  // Évolution de la glycémie
-
-  var dGdt = round(-sens * iob_data.iob * 5 + k1 * (normalTarget - bg) + k2 * ((bg-delta) - bg) * (60/5),2);
-  //===================================================
-    var A = 1;
-    var H = 1;
-    var Q = 0.01;
-    var R = 0.1;
-    var P = 1;
-    var x = bg-delta;
-    var K;
-
-    // Étape de prédiction
-    var x_pred = A * x;
-    var P_pred = A * P * A + Q;
-
-    // Étape de correction
-    K = P_pred * H / (H * P_pred * H + R);
-    x = x_pred + K * (bg - H * x_pred);
-    P = (1 - K * H) * P_pred;
-
-    // Estimation des constantes k1 et k2
-    var k1 = (normalTarget - bg) * x;
-    var k2 = ((bg-delta) - bg) * x;
-    console.log("#####k1 : "+k1+"####k2 :"+k2+"####");
-    // Calcul de la dose d'insuline
-    var insulindose = (normalTarget - bg) / (k1 * (60/5) - sens);
-    var G_equilibrium = bg + (-sens * iob_data.iob * 5 + k1 * (target_bg - bg) + k2 * (delta)) * (60/5);
-//var dGdt = cgm(bg, iob_data.iob, sens, normalTarget);
 //================= MT =====================================
     //console.log("***hypo_target : "+hypo_target+" & hyper_target : "+hyper_target);
 
@@ -1448,9 +1394,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += " aimismb : "+aimismb+" ; ";
         rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
-        rT.reason += "dGdt : "+dGdt+" ; ";
-        rT.reason += "insulindose : "+insulindose+" ; ";
-        rT.reason += "G_equilibrium : "+G_equilibrium+" ; ";
+
 
     rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-100%AIMI 31/12/22 ";
     rT.reason += "; ";

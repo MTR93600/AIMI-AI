@@ -55,8 +55,8 @@ class LoadBgWorker(
                     else {
                         response = nsAndroidClient.getSgvsModifiedSince(lastLoaded, 500)
                         sgvs = response.values
-                        nsClientV3Plugin.lastLoadedSrvModified.collections.entries = response.lastServerModified
-                        nsClientV3Plugin.storeLastFetched()
+                        response.lastServerModified?.let { nsClientV3Plugin.lastLoadedSrvModified.collections.entries = it }
+                        nsClientV3Plugin.storeLastLoadedSrvModified()
                     }
                     aapsLogger.debug("SGVS: $sgvs")
                     if (sgvs.isNotEmpty()) {
@@ -74,7 +74,7 @@ class LoadBgWorker(
                         // End first load
                         if (isFirstLoad) {
                             nsClientV3Plugin.lastLoadedSrvModified.collections.entries = lastLoaded
-                            nsClientV3Plugin.storeLastFetched()
+                            nsClientV3Plugin.storeLastLoadedSrvModified()
                         }
                         rxBus.send(EventNSClientNewLog("RCV END", "No SGVs from ${dateUtil
                             .dateAndTimeAndSecondsString(lastLoaded)}"))
@@ -95,7 +95,7 @@ class LoadBgWorker(
                 // End first load
                 if (isFirstLoad) {
                     nsClientV3Plugin.lastLoadedSrvModified.collections.entries = lastLoaded
-                    nsClientV3Plugin.storeLastFetched()
+                    nsClientV3Plugin.storeLastLoadedSrvModified()
                 }
                 rxBus.send(EventNSClientNewLog("RCV END", "No new SGVs from ${dateUtil
                     .dateAndTimeAndSecondsString(lastLoaded)}"))
