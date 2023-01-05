@@ -521,7 +521,7 @@ class MedLinkBLE //extends RileyLinkBLE
                             clearExecutedCommand()
                         }
                         needRetry = false
-                        disconnect()
+                        close(true)
                     }
                     super.run()
                 }
@@ -537,7 +537,8 @@ class MedLinkBLE //extends RileyLinkBLE
         aapsLogger.info(LTag.PUMPBTCOMM, "" + bluetoothConnectionGatt)
         aapsLogger.info(LTag.PUMPBTCOMM, connectionStatus.name)
         aapsLogger.info(LTag.PUMPBTCOMM, "" + msg.btSleepTime)
-        if ((connectionStatus == ConnectionStatus.DISCONNECTING || connectionStatus == ConnectionStatus.DISCOVERING) && System.currentTimeMillis() - connectionStatusChange > 60000) {
+        if ((//connectionStatus == ConnectionStatus.DISCONNECTING ||
+                connectionStatus == ConnectionStatus.DISCOVERING) && System.currentTimeMillis() - connectionStatusChange > 60000) {
             disconnect()
         }
         if (msg.btSleepTime > 0) {
@@ -545,10 +546,10 @@ class MedLinkBLE //extends RileyLinkBLE
         }
         addCommands(serviceUUID, charaUUID, msg)
         aapsLogger.info(LTag.PUMPBTCOMM, "before connect")
-        if (!connectionStatus.isConnecting || System.currentTimeMillis() - connectionStatusChange > 600000) {
+        if (!connectionStatus.isConnecting || System.currentTimeMillis() - connectionStatusChange > 40000) {
             medLinkConnect()
-        } else if (System.currentTimeMillis() - connectionStatusChange > 130000) {
-            disconnect()
+        } else if (!connectionStatus.isConnecting  && connectionStatus != ConnectionStatus.DISCONNECTING) {
+            disconnect() ///TODO rethink
         }
     }
 
@@ -1027,22 +1028,26 @@ class MedLinkBLE //extends RileyLinkBLE
 
     private var bluetoothConnectionGatt: BluetoothGatt? = null
     fun disconnect() {
-        changeConnectionStatus(ConnectionStatus.DISCONNECTING)
-        servicesDiscovered = false
-        pumpResponse = StringBuffer()
-        aapsLogger.warn(LTag.PUMPBTCOMM, "Closing GATT connection")
-        // Close old connection
-        if (bluetoothConnectionGatt != null) {
-            // Not sure if to disconnect or to close first..
-            bluetoothConnectionGatt!!.disconnect()
-            manualDisconnect = true
+        if (connectionStatus == ConnectionStatus.DISCONNECTING) {
+            close(true)
         } else {
-            changeConnectionStatus(ConnectionStatus.CLOSED)
+            changeConnectionStatus(ConnectionStatus.DISCONNECTING)
+            servicesDiscovered = false
+            pumpResponse = StringBuffer()
+            aapsLogger.warn(LTag.PUMPBTCOMM, "Closing GATT connection")
+            // Close old connection
+            if (bluetoothConnectionGatt != null) {
+                // Not sure if to disconnect or to close first..
+                bluetoothConnectionGatt!!.disconnect()
+                manualDisconnect = true
+            } else {
+                changeConnectionStatus(ConnectionStatus.CLOSED)
+            }
+            aapsLogger.info(LTag.PUMPBTCOMM, "Post disconnect")
+            setConnected(false)
+            isDiscovering = false
+            commandQueueBusy = false
         }
-        aapsLogger.info(LTag.PUMPBTCOMM, "Post disconnect")
-        setConnected(false)
-        isDiscovering = false
-        commandQueueBusy = false
     }
 
     @JvmOverloads
@@ -1059,7 +1064,9 @@ class MedLinkBLE //extends RileyLinkBLE
             needToCheckOnHold = true
         }
         if (force) {
-            disconnect()
+            if(connectionStatus != ConnectionStatus.DISCONNECTING) {
+                disconnect()
+            }
             if (System.currentTimeMillis() - lastConfirmedCommand < 6000 && currentCommand != null && MedLinkCommandType.Connect.isSameCommand(
                     currentCommand!!.getCurrentCommand()
                 )

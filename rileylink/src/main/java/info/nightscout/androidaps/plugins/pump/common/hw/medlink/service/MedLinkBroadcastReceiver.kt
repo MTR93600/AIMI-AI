@@ -51,8 +51,8 @@ class MedLinkBroadcastReceiver(val medLinkService: MedLinkService) : DaggerBroad
     @JvmField @Inject
     var serviceTaskExecutor: ServiceTaskExecutor? = null
 
-    @JvmField @Inject
-    var activePlugin: ActivePlugin? = null
+    @Inject
+    lateinit var activePlugin: ActivePlugin
     private val broadcastIdentifiers: MutableMap<String, List<String>> = HashMap()
     private fun createBroadcastIdentifiers() {
 
