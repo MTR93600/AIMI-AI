@@ -533,7 +533,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     private val lastPumpEntryTime: Long
-        private get() {
+         get() {
             val lastPumpEntryTime = sp.getLong(MedtronicConst.Statistics.LastPumpHistoryEntry, 0L)
             return try {
                 val localDateTime = DateTimeUtil.toLocalDateTime(lastPumpEntryTime)
