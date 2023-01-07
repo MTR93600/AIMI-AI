@@ -366,9 +366,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
 
 
-    var insulinPeakTime = 60;
+    var insulinPeakTime = 45;
     // add 30m to allow for insulin delivery (SMBs or temps)
-    insulinPeakTime = 90;
+    insulinPeakTime = 60;
     insulinPeakTime *= circadian_sensitivity;
     //enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
 
@@ -1159,7 +1159,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-f-AIMI-Variant B30-MSSV-31/12/22 ");
+                console.log(" 3.1.0.3-dev-f-AIMI-Variant B30-MSSV-07/01/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1335,13 +1335,14 @@ var aimi_rise = 1, sens_predType = "NA" ;
         rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-        rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
-        rT.reason += "sens_predType : "+sens_predType+" ; ";
+        rT.reason += ", circadian_smb test : "+circadian_smb;
+        rT.reason += ", sens_predType : "+sens_predType;
         var aimiDIA = round(dia*30*circadian_sensitivity,2);
-        rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
-        rT.reason += " aimismb : "+aimismb+" ; ";
+        rT.reason += ", Dia : "+aimiDIA+" minutes";
+        rT.reason += ", aimismb : "+aimismb;
+        rT.reason += ", aimi_rise : "+aimi_rise;
 
-    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-31/12/22 ";
+    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-07/01/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1738,7 +1739,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
             var smbTarget = target_bg;
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
-       if (iTimeActivation === true){
+       if (iTimeActivation === true && sens_predType == "NA"){
             if (UAMpredBG < 110 && iTime > 100){
                         microBolus = 0;
                         rT.reason += ", No SMB because UAMpreBG < 100, ";
@@ -1794,16 +1795,16 @@ var aimi_rise = 1, sens_predType = "NA" ;
 
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 20;
-            }else if (iTimeActivation && HypoPredBG > 100){
-            SMBInterval = 10;
-            }else if (iTimeActivation && HypoPredBG < 100){
-            SMBInterval = 20;
+            }else if (iTimeActivation && HypoPredBG > 100 && UAMpredBG > 100){
+            SMBInterval = 10 * aimi_rise;
+            }else if (iTimeActivation && HypoPredBG < 100 && UAMpredBG < 100){
+            SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
-            SMBInterval = 20;
+            SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
-            SMBInterval = 10;
+            SMBInterval = 10 * aimi_rise;
             }else if (iTimeActivation && HypoPredBG < 100){
-            SMBInterval =15;
+            SMBInterval =15 * aimi_rise;
             }
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
