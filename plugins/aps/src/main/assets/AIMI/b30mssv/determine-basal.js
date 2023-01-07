@@ -447,11 +447,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-     }else if (iTimeActivation === true && countSMB === 3 && !AIMI_BreakFastLight && glucose_status.delta > 0){
-           rT.reason += ". force basal because you receive 3 time max smb size : 10 minutes" +(profile.current_basal*10/60)*10;
+     }else if (iTimeActivation === true && countSMB === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+           rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*delta/60)*10;
             rT.temp = 'absolute';
             rT.duration = 10;
-            rate = round_basal(basal*10,profile);
+            rate = round_basal(profile.current_basal*delta,profile);
             rT.rate = rate;
             rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
             return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
@@ -1623,15 +1623,25 @@ var aimi_rise = 1, sens_predType = "NA" ;
             var AIMI_R = 161.8;
 
             var maxBolusTT = maxBolus;
-            //var AIMI_UAM_CAP = lastHourTIRAbove >= 5 ? ((profile.key_use_AIMI_CAP/100) * basal) * 1.2 : (profile.key_use_AIMI_CAP/100) * basal;
             if (profile.key_use_enable_mssv){
+            var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
+            if (lastHourTIRLow >= 5 && circadian_smb > 0) {
+            AIMI_UAM_CAP *= 0.7;
+            }else if (circadian_smb > 3){
+            AIMI_UAM_CAP *= 0.7;
+            }else if (circadian_smb < -1){
+            AIMI_UAM_CAP = ((profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
+            }
+            rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
+            //var AIMI_UAM_CAP = lastHourTIRAbove >= 5 ? ((profile.key_use_AIMI_CAP/100) * basal) * 1.2 : (profile.key_use_AIMI_CAP/100) * basal;
+            /*if (profile.key_use_enable_mssv){
             var AIMI_UAM_CAP = lastHourTIRLow >= 5 && last2HourTIRAbove < 4 ? ((profile.key_use_AIMI_CAP/100) * basal) * 0.8 : (profile.key_use_AIMI_CAP/100) * basal;
             AIMI_UAM_CAP = Math.min(AIMI_UAM_CAP,(profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
             }else{
             var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
-            }
+            }*/
 
             var roundSMBTo = 1 / profile.bolus_increment;
 
@@ -1794,17 +1804,13 @@ var aimi_rise = 1, sens_predType = "NA" ;
 
 
             if (iTimeActivation && AIMI_BreakFastLight){
+            SMBInterval = 15;
+            }else if (iTimeActivation && UAMpredBG < 100){
             SMBInterval = 20;
-            }else if (iTimeActivation && HypoPredBG > 100 && UAMpredBG > 100){
+            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
             SMBInterval = 10 * aimi_rise;
-            }else if (iTimeActivation && HypoPredBG < 100 && UAMpredBG < 100){
-            SMBInterval = 20 * aimi_rise;
-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP){
-            SMBInterval = 20 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
-            }else if (iTimeActivation && HypoPredBG < 100){
-            SMBInterval =15 * aimi_rise;
             }
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
             var nextBolusSeconds = round((SMBInterval - lastBolusAge) * 60, 0) % 60;
@@ -1840,28 +1846,28 @@ var aimi_rise = 1, sens_predType = "NA" ;
 
             rate = round_basal(basal*10,profile);
 
-            }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= b30upperdelta && bg < b30upperLimit){
-                     if(bg < 100 && glucose_status.delta <= 4 && iTime > 180){
-                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(profile.current_basal*glucose_status.delta/60)*30;
+            }else if (iTimeActivation === true && iTime < iTimeProfile && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit){
+                     if(bg < 100 && delta <= 5){
+                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
                          durationReq = 20;
                          rT.duration = durationReq;
-                         rate = round_basal(basal*glucose_status.delta,profile);
+                         rate = round_basal(basal*delta,profile);
                       }else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit){
                      rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*8/60)*30;
                      durationReq = profile.b30_duration;
                      rT.duration = durationReq;
                      rate = round_basal(basal*8,profile);
                      }else if (b30Ko === false){
-                      rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
+                      rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
                       durationReq = 20;
                       rT.duration = durationReq;
-                      rate = round_basal(basal*6,profile);
+                      rate = round_basal(basal*delta,profile);
                   }
              }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170){
-                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
+                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*20;
                    durationReq = 20;
                    rT.duration = durationReq;
-                   rate = round_basal(basal*6,profile);
+                   rate = round_basal(basal*delta,profile);
 
             }
 
