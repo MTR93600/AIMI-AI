@@ -450,7 +450,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      }else if (iTimeActivation === true && countSMB === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*delta/60)*10;
             rT.temp = 'absolute';
-            rT.duration = 10;
+            rT.duration = 20;
             rate = round_basal(profile.current_basal*delta,profile);
             rT.rate = rate;
             rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
@@ -1335,12 +1335,11 @@ var aimi_rise = 1, sens_predType = "NA" ;
         rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
-        rT.reason += ", circadian_smb test : "+circadian_smb;
-        rT.reason += ", sens_predType : "+sens_predType;
+        rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+        rT.reason += "sens_predType : "+sens_predType+" ; ";
         var aimiDIA = round(dia*30*circadian_sensitivity,2);
-        rT.reason += ", Dia : "+aimiDIA+" minutes";
-        rT.reason += ", aimismb : "+aimismb;
-        rT.reason += ", aimi_rise : "+aimi_rise;
+        rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
+        rT.reason += " aimismb : "+aimismb+" ; ";
 
     rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant B30-MSSV-07/01/23 ";
     rT.reason += "; ";
@@ -1623,14 +1622,15 @@ var aimi_rise = 1, sens_predType = "NA" ;
             var AIMI_R = 161.8;
 
             var maxBolusTT = maxBolus;
-            if (profile.key_use_enable_mssv){
             var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
+            if (profile.key_use_enable_mssv){
             if (lastHourTIRLow >= 5 && circadian_smb > 0) {
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb > 3){
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb < -1){
             AIMI_UAM_CAP = ((profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
+            }
             }
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
             //var AIMI_UAM_CAP = lastHourTIRAbove >= 5 ? ((profile.key_use_AIMI_CAP/100) * basal) * 1.2 : (profile.key_use_AIMI_CAP/100) * basal;
