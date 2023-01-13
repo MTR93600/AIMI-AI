@@ -17,7 +17,6 @@ import info.nightscout.shared.utils.T
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("SpellCheckingInspection")
 @Singleton
 class ProcessedDeviceStatusDataImpl @Inject constructor(
     private val rh: ResourceHelper,
@@ -59,12 +58,12 @@ class ProcessedDeviceStatusDataImpl @Inject constructor(
             }
             string.append("<span style=\"color:${level.toColor()}\">")
             // val insulinUnit = rh.gs(info.nightscout.core.ui.R.string.insulin_unit_shortname)
-            val fields = nsSettingsStatus.pumpExtendedSettingsFields()
-            // Removed here. Same value is in StatusLights
+        // val fields = nsSettingsStatus.pumpExtendedSettingsFields()
+        // Removed here. Same value is in StatusLights
             // if (pumpData.reservoirDisplayOverride != "") string.append(pumpData.reservoirDisplayOverride).append("$insulinUnit ")
             // else if (fields.contains("reservoir")) string.append(pumpData.reservoir.toInt()).append("$insulinUnit ")
             if (pumpData.isPercent) string.append(pumpData.percent).append("% ")
-            if (!pumpData.isPercent) string.append(Round.roundTo(pumpData.voltage, 0.001)).append(" ")
+            if (!pumpData.isPercent && pumpData.voltage > 0) string.append(Round.roundTo(pumpData.voltage, 0.001)).append(" ")
             string.append(dateUtil.minAgo(rh, pumpData.clock)).append(" ")
             string.append(pumpData.status).append(" ")
             //string.append(device).append(" ")
