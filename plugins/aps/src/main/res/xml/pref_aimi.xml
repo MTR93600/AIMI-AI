@@ -158,7 +158,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="150"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
             android:inputType="numberDecimal"
             android:key="@string/key_use_AIMI_CAP"
@@ -230,7 +229,6 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AIMI_BreakFastLight"
             android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
             android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
@@ -244,7 +242,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="6"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Enter AIMI UAM Light Breakfast start time in 24h e.g. 6AM is 6"
             android:inputType="number"
             android:key="@string/key_AIMI_BreakFastLight_timestart"
@@ -255,7 +252,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="10"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Enter AIMI UAM Light Breakfast end time in 24h e.g. 5AM is 10"
             android:inputType="number"
             android:key="@string/key_AIMI_BreakFastLight_timeend"
