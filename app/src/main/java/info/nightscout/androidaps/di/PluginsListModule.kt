@@ -331,7 +331,7 @@ abstract class PluginsListModule {
     abstract fun bindTidepoolPlugin(plugin: TidepoolPlugin): PluginBase
 
     @Binds
-    @Unfinished
+    @AllConfigs
     @IntoMap
     @IntKey(362)
     abstract fun bindNSClientV3Plugin(plugin: NSClientV3Plugin): PluginBase

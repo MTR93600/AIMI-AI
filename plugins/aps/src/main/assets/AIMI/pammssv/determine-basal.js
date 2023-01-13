@@ -1149,7 +1149,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-f-AIMI 30/12/2022 Variant Pam-MSSV ");
+                console.log(" 3.1.0.3-dev-g-AIMI 13/01/2022 Variant Pam-MSSV ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1315,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.1.0.3-dev-f-AIMI-Variant Pam-MSSV-30/12/22 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Pam-MSSV-13/01/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
