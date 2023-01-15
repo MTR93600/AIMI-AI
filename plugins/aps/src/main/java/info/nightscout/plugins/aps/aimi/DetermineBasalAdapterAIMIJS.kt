@@ -368,8 +368,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
-        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount
-        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.totalAmount
+        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = true))?.totalAmount
+        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
         val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
