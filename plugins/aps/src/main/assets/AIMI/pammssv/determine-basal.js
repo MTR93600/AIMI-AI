@@ -416,11 +416,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     if (iTimeActivation === true && iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true && glucose_status.delta > 0){
-        rT.reason += ". force basal because iTime is running and lesser than "+(basal*1.618)+" minutes :"+(basal*10/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
+        rT.reason += ". force basal because iTime is running and lesser than "+(basal*1.618)+" minutes :"+(basal*(LastManualBolus/basal)/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
         //rT.deliverAt = deliverAt;
         rT.temp = 'absolute';
         rT.duration = (profile.b30_duration*1.618);
-        rate = round_basal(basal*10,profile);
+        rate = round_basal(basal*(LastManualBolus/basal),profile);
         rT.rate = rate;
         //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
         //rT.rate = profile.current_basal*10;
@@ -1149,7 +1149,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI 13/01/2022 Variant Pam-MSSV ");
+                console.log(" 3.1.0.3-dev-g-AIMI 16/01/2022 Variant Pam-MSSV ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1315,7 +1315,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Pam-MSSV-13/01/22 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Pam-MSSV-16/01/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
