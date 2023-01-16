@@ -371,11 +371,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var autoAIMIsmb = (iob_data.iob - tddlastHaverage) > 0 && lastHourTIRLow ===0 && AIMI_UAM && aimi_delta > 5 ? iob_data.iob - tddlastHaverage : 0;
     enlog += "\nautoAIMIsmb : "+autoAIMIsmb+", ";
 
-    //var AIMI_COB = profile.key_use_AIMI_COB;
-    /*var AIMI_UAM_U200 = profile.enable_AIMI_UAM_U200;
-    var AIMI_UAM_U100 = profile.enable_AIMI_UAM_U100;
-    var AIMI_UAM_Fiasp = profile.enable_AIMI_UAM_Fiasp;
-    var AIMI_UAM_Novorapid = profile.enable_AIMI_UAM_Novorapid;*/
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
     var LastManualBolus = meal_data.lastBolusNormalUnits;
@@ -415,7 +410,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     circadian_sensitivity = round(circadian_sensitivity,2);
     enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
 
-
+    var iTimeActivation = AIMI_UAM ? true : false;
     var insulinPeakTime = 60;
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
@@ -450,7 +445,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var C1 = bg + glucose_status.delta;
     var C2 = (profile.min_bg * 1.618)-(glucose_status.delta * 1.618);
 
-    var iTimeActivation = AIMI_UAM ? true : false;
+
     if (AIMI_UAM && LastManualBolus >= iTime_Start_Bolus && lastbolusAge < iTimeProfile){
 
             var iTime = lastbolusAge;
@@ -469,7 +464,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30activity = iob_data.iob - iob_data.basaliob;
     console.log("\nb30activity : "+round(b30activity,2)+" ; ");
 
-    if (glucose_status.delta <= b30upperdelta && bg < b30upperLimit){
+    if (delta <= b30upperdelta && bg < b30upperLimit){
     aimismb = false;
     }else if (bg < 100){
     aimismb = false;
@@ -1811,7 +1806,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             if (UAMpredBG < 110){
                 microBolus = 0;
-                rT.reason += ", No SMB beacause UAMpredBG < 100, ";
+                rT.reason += ", No SMB because UAMpredBG < 100, ";
             }
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
