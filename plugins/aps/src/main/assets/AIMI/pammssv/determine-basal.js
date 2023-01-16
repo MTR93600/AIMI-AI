@@ -415,7 +415,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
-    if (iTimeActivation === true && iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true && glucose_status.delta > 0){
+    if (iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true){
         rT.reason += ". force basal because iTime is running and lesser than "+(basal*1.618)+" minutes :"+(basal*(LastManualBolus/basal)/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
         //rT.deliverAt = deliverAt;
         rT.temp = 'absolute';
@@ -428,7 +428,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BreakfastLight";
         return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1 && BFIOB===false){
+        }else if (iTime < profile.b30_duration && meal_data.countBolus === 1 && BFIOB===false){
      rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
      rT.temp = 'absolute';
      rT.duration = profile.b30_duration;
