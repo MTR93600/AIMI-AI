@@ -369,44 +369,91 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
         val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = true))?.totalAmount
-        val tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
+        var tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
         val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
-        val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
+        /*val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
         val tddLast48to47H = tddCalculator.calculateDaily(-48, -47)?.totalAmount
         val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
         val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
-        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4
-
-        val tddWeightedFromLast8H = ((1.4 * tddLast4H!!) + (0.6 * tddLast8to4H!!)) * 3
-        var variableSensitivity: Double
-        var tdd: Double? = null
-        tdd=
-            if (tdd1D != null && tdd7D != null && lastHourTIRLow!! > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-            else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-            else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
-            else tddWeightedFromLast8H
-
-
-        val aimisensitivity = if (tdd7D!= null && tdd7D != 0.0) tddLast24H?.div(tdd7D) else 1
+        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4*/
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
             insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
         }
-        variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-        variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
+        /*var variableSensitivity: Double
+        var tdd: Double? = null
+        if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
+            val tddWeightedFromLast8H = ((1.4 * tddLast4H!!) + (0.6 * tddLast8to4H!!)) * 3
+
+            tdd =
+                if (tdd1D != null && tdd7D != null && lastHourTIRLow!! > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+                else tddWeightedFromLast8H
+
+            val aimisensitivity = tddLast24H / tdd7D!!
+            this.profile.put("aimisensitivity", aimisensitivity)
+
+            variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+            variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
+        }else{
+            variableSensitivity = profile.getIsfMgdl()
+            val aimisensitivity = 1
+            this.profile.put("aimisensitivity", aimisensitivity)
+        }*/
+// Add variable for readability and to avoid repeating the same calculations
+        val tddWeightedFromLast8H: Double? = if(tddLast4H != null && tddLast8to4H != null){
+            ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
+        }else{
+            null
+        }
+
+// Use null-safe operator to avoid unnecessary unwrapping
+        tdd7D = tdd7D?.let { it } ?: return
+
+// Use when expression to make the code more readable
+        val tdd = when {
+            // Checking the condition if its true
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+            else -> {
+                tddWeightedFromLast8H ?: 0.0 // or any default value you want
+            }
+        }
+
+        val aimisensitivity = tddLast24H?.let { tddLast24H / tdd7D } ?: return
+
+// Add comments to explain the purpose and logic of the code
+        var variableSensitivity: Double?
+        if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
+            //Calculating aimisensitivity
+            this.profile.put("aimisensitivity", aimisensitivity)
+            //Calculating variableSensitivity
+            variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+            //Round to 0.1
+            variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
+        } else {
+            variableSensitivity = null
+            // If the above conditions are not met then we are assigning profile's isfMgdl to variableSensitivity
+            val aimisensitivity = 1
+            this.profile.put("aimisensitivity", aimisensitivity)
+        }
+
+
 
         this.profile.put("variable_sens", variableSensitivity)
         this.profile.put("lastHourTIRLow", lastHourTIRLow)
         this.profile.put("TDD", tdd)
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
-        this.profile.put("aimisensitivity", aimisensitivity)
+
         this.profile.put("insulinDivisor", insulinDivisor)
-        this.profile.put("tddlastHaverage", tddlastHaverage)
+        //this.profile.put("tddlastHaverage", tddlastHaverage)
         this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
@@ -420,8 +467,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
 
-       if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tdd7D != 0.0)
-            autosensData.put("ratio", aimisensitivity)
+       if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
+            autosensData.put("ratio", tddLast24H / tdd7D)
         else
             autosensData.put("ratio", 1.0)
 

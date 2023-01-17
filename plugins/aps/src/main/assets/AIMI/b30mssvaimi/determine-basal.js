@@ -346,7 +346,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var lastHourTIRLow = profile.lastHourTIRLow;
     var lastHourTIRAbove = profile.lastHourTIRAbove;
     var last2HourTIRAbove = profile.last2HourTIRAbove;
-    var tddlastHaverage = profile.tddlastHaverage;
+    //var tddlastHaverage = profile.tddlastHaverage;
     var aimisensitivity = profile.aimisensitivity;
     var AIMI_UAM = target_bg >= 130 ? false : profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
@@ -368,8 +368,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
     }
     //enlog += "aimi_bg : "+aimi_bg+", aimi_delta : "+aimi_delta+"\n";
-    var autoAIMIsmb = (iob_data.iob - tddlastHaverage) > 0 && lastHourTIRLow ===0 && AIMI_UAM && aimi_delta > 5 ? iob_data.iob - tddlastHaverage : 0;
-    enlog += "\nautoAIMIsmb : "+autoAIMIsmb+", ";
+    /*var autoAIMIsmb = (iob_data.iob - tddlastHaverage) > 0 && lastHourTIRLow ===0 && AIMI_UAM && aimi_delta > 5 ? iob_data.iob - tddlastHaverage : 0;
+    enlog += "\nautoAIMIsmb : "+autoAIMIsmb+", ";*/
 
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
@@ -470,20 +470,21 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimismb = false;
     }
 
+    if (meal_data.countBolus ===1 && nowdec >=5 && nowdec <= 11 && AIMI_IOBpredBGbf){
+    var BFIOB = true;
+    }else{
+    var BFIOB = false;
+    }
     if (iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true){
         rT.reason += ". force basal because iTime is running and lesser than "+(basal*1.618)+" minutes :"+(basal*(LastManualBolus/basal)/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
-        //rT.deliverAt = deliverAt;
         rT.temp = 'absolute';
         rT.duration = (profile.b30_duration*1.618);
         rate = round_basal(basal*(LastManualBolus/basal),profile);
         rT.rate = rate;
-        //round(((meal_data.TDDLastI3)/60)*20,2) > profile.current_basal*5 ? round(profile.current_basal*5,2) : round(((meal_data.TDDLastI3)/60)*20,2) ;
-        //rT.rate = profile.current_basal*10;
-        //return rT;
         rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BreakfastLight";
         return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-        }else if (iTime < profile.b30_duration && meal_data.countBolus === 1 && BFIOB===false){
+        }else if (iTime < profile.b30_duration && meal_data.countBolus === 1){
      rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
      rT.temp = 'absolute';
      rT.duration = profile.b30_duration;
@@ -512,11 +513,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
      }
 
-    if (meal_data.countBolus ===1 && nowdec >=5 && nowdec <= 11 && AIMI_IOBpredBGbf){
-    var BFIOB = true;
-    }else{
-    var BFIOB = false;
-    }
 
 
 
@@ -1007,10 +1003,29 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // over 60 minutes (data points every 5m)
             var predDev = ci * ( 1 - Math.min(1,IOBpredBGs.length/(60/5)) );
             //IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev;
-             IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2));
+             //IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2));
+            // calculate insulin activity
+            var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
+
+            // round to 2 decimal places and multiply by 5
+            insulin_activity = round(insulin_activity * 5, 2);
+
+            // add the insulin activity to the last element of IOBpredBGs
+            IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
+
             // calculate predBGs with long zero temp without deviations
             //var ZTpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev : ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
-            var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + (round(( -iobTick.iobWithZeroTemp.activity * (1800 / ( TDD * (Math.log(( Math.max(ZTpredBGs[ZTpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ), 2));
+            //var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + (round(( -iobTick.iobWithZeroTemp.activity * (1800 / ( TDD * (Math.log(( Math.max(ZTpredBGs[ZTpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ), 2));
+            // calculate insulin activity with zero temp
+            insulin_activity = -iobTick.iobWithZeroTemp.activity * (1800 / (TDD * (Math.log((Math.max(ZTpredBGs[ZTpredBGs.length-1], 39) / insulinDivisor) + 1))));
+
+            // round to 2 decimal places and multiply by 5
+            insulin_activity = round(insulin_activity * 5, 2);
+
+            // add the insulin activity to the last element of ZTpredBGs
+            var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + insulin_activity;
+
+
             // for COBpredBGs, predicted carb impact drops linearly from current carb impact down to zero
             // eventually accounting for all carbs (if they can be absorbed over DIA)
             var predCI = Math.max(0, Math.max(0,ci) * ( 1 - COBpredBGs.length/Math.max(cid*2,1) ) );
@@ -1043,10 +1058,37 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
             //UAMpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI : UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
-            UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
+            //UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
             //console.error(predBGI, predCI, predUCI);
-            // truncate all BG predictions at 4 hours
+            if (BFIOB || AIMI_UAM === false) {
+                // calculate insulin activity
+                insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
+                // round to 2 decimal places and multiply by 5
+                insulin_activity = round(insulin_activity * 5, 2);
+
+                // add the insulin activity to the last element of IOBpredBGs
+                UAMpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
+            } else {
+                // calculate insulin activity
+                insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(UAMpredBGs[UAMpredBGs.length-1], 39) / insulinDivisor) + 1))));
+
+                // round to 2 decimal places and multiply by 5
+                insulin_activity = round(insulin_activity * 5, 2);
+
+                // add the insulin activity to the last element of UAMpredBGs
+                UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + insulin_activity;
+
+                // add the minimum value between 0 and predDev
+                UAMpredBG += Math.min(0, predDev);
+
+                // add predUCI
+                UAMpredBG += predUCI;
+            }
+
+
+
+            // truncate all BG predictions at 4 hours
             if ( IOBpredBGs.length < 48) { IOBpredBGs.push(IOBpredBG); }
             if ( COBpredBGs.length < 48) { COBpredBGs.push(COBpredBG); }
             if ( aCOBpredBGs.length < 48) { aCOBpredBGs.push(aCOBpredBG); }
@@ -1205,7 +1247,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 16/01/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 17/01/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1391,7 +1433,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 16/01/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 17/01/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1717,27 +1759,18 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             }else if (iTimeActivation && AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= AIMI_BL_EndTime && !profile.temptargetSet && aimi_delta > 0 && aimismb === true){
 
-                       insulinReq = autoAIMIsmb > 0 ? autoAIMIsmb : round((((aimi_delta * GN) + (min_bg*0.52) ) / future_sens)*smb_ratio,2);
-                       //insulinReq = round(((bg - min_bg) / sens) * smb_ratio,2);
-                       //maxBolusTT = round(((smb_max_range * profile.current_basal * profile.maxUAMSMBBasalMinutes * 1.618)+(glucose_status.delta * 1.618) / 60) *(insulinReq/1.618) ,1);
-                       //insulinReq = (insulinReq > (max_iob - iob_data.iob) ? max_iob - iob_data.iob : insulinReq);
+                       insulinReq = round((((aimi_delta * GN) + (min_bg*0.52) ) / future_sens)*smb_ratio,2);
+
                        var microBolus = Math.min(AIMI_UAM_CAP,(insulinReq * Hypo_ratio));
                        microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-                       //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
-                       //console.log("Breakfast Light - InsulinReq("+insulinReq/2+"), limitIOB("+limitIOB+"), smb_ratio("+smb_ratio+"), Hypo_ratio("+Hypo_ratio+")\n");
-
 
 
             }else if (iTimeActivation && AIMI_UAM && !AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true){
 
                       insulinReq = round((((aimi_delta * GN) + (aimi_bg*0.52) ) / future_sens) * bgDegree,2);
                       insulinReq = countSMB > 3 && circadian_smb > (-2) ? round((((aimi_delta * GN) + (min_bg*0.52)) / future_sens) * smb_ratio,2) : insulinReq;
-                      //insulinReq = (insulinReq > (max_iob - iob_data.iob) ? max_iob - iob_data.iob : insulinReq);
                       var microBolus = Math.min(AIMI_UAM_CAP,(insulinReq * Hypo_ratio));
                       microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-                      //microBolus = iTime > 120 && AIMI_lastBolusSMBUnits < 0.8 * AIMI_UAM_CAP ? microBolus / 1.618 : microBolus;
-                      //microBolus = (iTime >= profile.b30_duration && iTime <= profile.b30_duration+20) ? microBolus*0.5 : microBolus;
-                      //console.log("InsulinReq("+insulinReq+"), limitIOB("+limitIOB+"), bgDegree("+bgDegree+"), Hypo_ratio("+Hypo_ratio+")\n");
 
             }else if (delta > 0){
 
@@ -1886,7 +1919,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
 
-        if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1){
+        /*if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1){
             rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
             //rT.deliverAt = deliverAt;
             durationReq = profile.b30_duration;
@@ -1911,13 +1944,46 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                       rT.duration = durationReq;
                       rate = round_basal(basal*6,profile);
                   }
-             }else if (iTimeActivation === true && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170){
+             }else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 170){
                    rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
                    durationReq = 20;
                    rT.duration = durationReq;
                    rate = round_basal(basal*delta,profile);
 
+            }*/
+        if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1) {
+            rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
+            //rT.deliverAt = deliverAt;
+            var durationReq = profile.b30_duration;
+            rT.duration = durationReq;
+
+            var rate = round_basal(basal*10,profile);
+
+        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit) {
+            if(bg < 100 && delta <= 5) {
+                rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
+                var durationReq = 20;
+                rT.duration = durationReq;
+                var rate = round_basal(basal*delta,profile);
+            } else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
+                rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*8/60)*30;
+                var durationReq = profile.b30_duration;
+                rT.duration = durationReq;
+                var rate = round_basal(basal*8,profile);
+            } else if (b30Ko === false) {
+                rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
+                var durationReq = 20;
+                rT.duration = durationReq;
+                var rate = round_basal(basal*6,profile);
             }
+        } else if (iTimeActivation === true && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170) {
+            rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
+            var durationReq = 20;
+            rT.duration = durationReq;
+            var rate = round_basal(basal*delta,profile);
+        }
+
+
 
         if (rate > maxSafeBasal) {
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
