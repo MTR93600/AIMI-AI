@@ -317,7 +317,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var last2HourTIRAbove = profile.last2HourTIRAbove;
     //var tddlastHaverage = profile.tddlastHaverage;
     var aimisensitivity = profile.aimisensitivity;
-    var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+    var AIMI_UAM = profile.temptargetSet && target_bg >= 130 || target_bg >= 130 ? false : profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
     //var countSMBms = meal_data.countSMBms;
     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;
