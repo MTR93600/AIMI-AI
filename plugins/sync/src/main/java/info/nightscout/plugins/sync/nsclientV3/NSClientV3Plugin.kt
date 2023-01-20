@@ -132,12 +132,14 @@ class NSClientV3Plugin @Inject constructor(
             when {
                 sp.getBoolean(R.string.key_ns_client_paused, false)           -> rh.gs(info.nightscout.core.ui.R.string.paused)
                 isAllowed.not()                                               -> blockingReason
+                lastOperationError != null                                    -> rh.gs(info.nightscout.core.ui.R.string.error)
                 nsAndroidClient?.lastStatus == null                           -> rh.gs(R.string.not_connected)
                 workIsRunning(arrayOf(JOB_NAME))                              -> rh.gs(R.string.working)
                 nsAndroidClient?.lastStatus?.apiPermissions?.isFull() == true -> rh.gs(info.nightscout.shared.R.string.connected)
                 nsAndroidClient?.lastStatus?.apiPermissions?.isRead() == true -> rh.gs(R.string.read_only)
                 else                                                          -> rh.gs(info.nightscout.core.ui.R.string.unknown)
             }
+    var lastOperationError: String? = null
 
     internal var nsAndroidClient: NSAndroidClient? = null
 
@@ -287,12 +289,12 @@ class NSClientV3Plugin @Inject constructor(
         executeLoop("RESEND", forceNew = false)
     }
 
-    override fun pause(newState: Boolean) {
-        sp.putBoolean(R.string.key_ns_client_paused, newState)
-        rxBus.send(EventPreferenceChange(rh.gs(R.string.key_ns_client_paused)))
-    }
+     override fun pause(newState: Boolean) {
+         sp.putBoolean(R.string.key_ns_client_paused, newState)
+         rxBus.send(EventPreferenceChange(rh.gs(R.string.key_ns_client_paused)))
+     }
 
-    override val version: NsClient.Version get() = NsClient.Version.V3
+    override fun detectedNsVersion(): String? = nsAndroidClient?.lastStatus?.version
 
     override val address: String get() = sp.getString(info.nightscout.core.utils.R.string.key_nsclientinternal_url, "")
 
@@ -315,6 +317,7 @@ class NSClientV3Plugin @Inject constructor(
             NsClient.Collection.ENTRIES    -> lastLoadedSrvModified.collections.entries == 0L
             NsClient.Collection.TREATMENTS -> lastLoadedSrvModified.collections.treatments == 0L
             NsClient.Collection.FOODS      -> lastLoadedSrvModified.collections.foods == 0L
+            NsClient.Collection.PROFILE    -> lastLoadedSrvModified.collections.profile == 0L
         }
 
     override fun updateLatestBgReceivedIfNewer(latestReceived: Long) {
