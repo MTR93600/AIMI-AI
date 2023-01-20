@@ -430,8 +430,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     if (iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true){
-        rT.reason += ". force basal because iTime is running and lesser than "+(profile.b30_duration*1.618)+" minutes :"+(basal*10/60)*(profile.b30_duration*1.618)+" U, remaining
-        time : " +((profile.b30_duration*1.618) - iTime);
+        rT.reason += ". force basal because iTime is running and lesser than "+(profile.b30_duration*1.618)+" minutes :"+(basal*10/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
         rT.temp = 'absolute';
         rT.duration = (profile.b30_duration*1.618);
         rate = round_basal(basal*10,profile);
