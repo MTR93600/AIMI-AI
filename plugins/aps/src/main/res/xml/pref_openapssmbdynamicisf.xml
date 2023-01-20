@@ -8,6 +8,12 @@
         android:title="@string/openapssmb"
         app:initialExpandedChildrenCount="0">
 
+        <info.nightscout.plugins.aps.loop.LoopVariantPreference
+            android:title="@string/DynISF_variant_title"
+            android:defaultValue="default"
+            android:selectable="true"
+            app:pluginFolder="OpenAPSSMBDynamicISF" />
+
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="1"
             android:dialogMessage="@string/openapsma_max_basal_summary"
