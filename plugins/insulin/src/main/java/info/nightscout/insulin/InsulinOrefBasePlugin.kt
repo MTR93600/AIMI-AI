@@ -80,8 +80,8 @@ abstract class InsulinOrefBasePlugin(
         val result = Iob()
         if (bolus.amount != 0.0) {
             val now = System.currentTimeMillis() / (1000*60*60)
-            //val circadian_sensitivity = (0.00000379*Math.pow(now.toDouble(),5.0))-(0.00016422*Math.pow(now.toDouble(),4.0))+(0.00128081*Math.pow(now.toDouble(),3.0))+(0.02533782*Math.pow(now.toDouble(),2.0))-(0.33275556*now)+1.38581503
-            var circadian_sensitivity = 1
+            val circadian_sensitivity = (0.00000379*Math.pow(now.toDouble(),5.0))-(0.00016422*Math.pow(now.toDouble(),4.0))+(0.00128081*Math.pow(now.toDouble(),3.0))+(0.02533782*Math.pow(now.toDouble(),2.0))-(0.33275556*now)+1.38581503
+            /*var circadian_sensitivity = 1
             when (now) {
                 in 0..1   -> {
                     //circadian_sensitivity = 1.4;
@@ -110,7 +110,7 @@ abstract class InsulinOrefBasePlugin(
                     //circadian_sensitivity = 1.2;
                     val circadian_sensitivity = (0.000125*Math.pow(now.toDouble(),3.0))-(0.0015*Math.pow(now.toDouble(),2.0))-(0.0045*now)+1
                 }
-            }
+            }*/
 
             val bolusTime = bolus.timestamp
             val t = (time - bolusTime) / 1000.0 / 60.0
