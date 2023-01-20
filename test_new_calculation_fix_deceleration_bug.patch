@@ -1,0 +1,91 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision db8688a8c613d889fec1ff3beb01aab8577776be)
+@@ -145,7 +145,7 @@
+         // Calculate percentage change in delta, short to now
+         if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
+         if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+-        if (glucose_status.long_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
++        if (glucose_status.short_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+     if (currentTime) {
+         deliverAt = new Date(currentTime);
+     }
+@@ -1665,7 +1665,7 @@
+             var GN = 1.618;
+             }
+ 
+-            if (profile.key_use_oldsmb){
++            if (!profile.key_use_newsmb){
+             if (iTime > 20 && iTime < 25  && aimi_delta > 0 && !AIMI_BreakFastLight && aimismb === true && !profile.temptargetSet){//#MT AIMI
+                 var microBolus = LastManualBolus / 1.618;
+                 microBolus = (microBolus === AIMI_lastBolusSMBUnits ? 0  : microBolus);
+@@ -1701,7 +1701,7 @@
+                 var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+ 
+             }
+-            }else{
++            }else if (profile.key_use_newsmb){
+             if (iTimeActivation && AIMI_BreakFastLight && !profile.temptargetSet && aimi_delta > 0 && aimismb === true && sens_predType == "UAM+" ){
+             insulinReq = (1 + Math.sqrt(aimi_delta)) / 4;
+             var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
+Index: plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+--- a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
++++ b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision db8688a8c613d889fec1ff3beb01aab8577776be)
+@@ -308,7 +308,7 @@
+         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
+         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
+         //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
+-        this.profile.put("key_use_oldsmb", sp.getBoolean(R.string.key_use_oldSMB, false))
++        this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_oldSMB, false))
+ 
+ 
+ //**********************************************************************************************************************************************
+Index: plugins/aps/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/res/values/strings.xml b/plugins/aps/src/main/res/values/strings.xml
+--- a/plugins/aps/src/main/res/values/strings.xml	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
++++ b/plugins/aps/src/main/res/values/strings.xml	(revision db8688a8c613d889fec1ff3beb01aab8577776be)
+@@ -216,7 +216,7 @@
+     <string name="key_use_mssv" translatable="false">Variant MSSV </string>
+     <string name="key_use_pammssv" translatable="false">Variant PAM-MSSV</string>
+     <string name="key_use_pam" translatable="false">Variant PAM</string>
+-    <string name="key_use_oldSMB" translatable="false">older calculation proportional</string>
++    <string name="key_use_newSMB" translatable="false">new aimi smb calculation proportional</string>
+ 
+ 
+ </resources>
+\ No newline at end of file
+Index: plugins/aps/src/main/res/xml/pref_aimi.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/res/xml/pref_aimi.xml b/plugins/aps/src/main/res/xml/pref_aimi.xml
+--- a/plugins/aps/src/main/res/xml/pref_aimi.xml	(revision f86ed92238014245c4c7e5385fc623e2a5c0a5c8)
++++ b/plugins/aps/src/main/res/xml/pref_aimi.xml	(revision db8688a8c613d889fec1ff3beb01aab8577776be)
+@@ -174,9 +174,9 @@
+ 
+         <SwitchPreference
+             android:defaultValue="false"
+-            android:key="@string/key_use_oldSMB"
+-            android:title="old smb aimi calculation"
+-            android:summary="old smb aimi calculation" />
++            android:key="@string/key_use_newSMB"
++            android:title="new smb aimi calculation"
++            android:summary="new smb aimi calculation" />
+ 
+         <SwitchPreference
+             android:defaultValue="false"

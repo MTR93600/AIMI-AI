@@ -1,0 +1,17 @@
+Index: plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt
+--- a/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision d87fb2f7c7715d936a35c64b733b26a3192b43a8)
++++ b/plugins/aps/src/main/java/info/nightscout/plugins/aps/aimi/DetermineBasalAdapterAIMIJS.kt	(revision 0f86fec6758582bc988cef9c3d9458478191beb5)
+@@ -308,7 +308,7 @@
+         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
+         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
+         //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
+-        this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_oldSMB, false))
++        this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
+ 
+ 
+ //**********************************************************************************************************************************************
