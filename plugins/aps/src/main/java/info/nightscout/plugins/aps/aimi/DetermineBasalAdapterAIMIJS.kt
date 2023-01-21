@@ -73,7 +73,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var smbAlwaysAllowed = false
     private var currentTime: Long = 0
     private var flatBGsDetected = false
-    private val millsToThePast = T.hours(1).msecs()
+    private val millsToThePast = T.mins(60).msecs()
     private var lastBolusNormalTimecount: Long = 0
     private var lastBolusSMBcount: Long = 0
     private var lastSMBmscount: Long = 0
