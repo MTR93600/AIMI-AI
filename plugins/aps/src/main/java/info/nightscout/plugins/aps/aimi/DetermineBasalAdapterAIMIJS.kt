@@ -399,7 +399,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd = when {
             // Checking the condition if its true
             tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
             tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0 -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
             else -> {
                 tddWeightedFromLast8H ?: 0.0 // or any default value you want
