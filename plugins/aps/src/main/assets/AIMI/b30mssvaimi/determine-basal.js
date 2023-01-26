@@ -1890,7 +1890,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += ", No SMB because delta < -10, ";
         }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3){
         microBolus = 0;
-        rT.reason += ", No SMB because it's stable, ";
+        rT.reason += ", No SMB because it's stable ";
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
