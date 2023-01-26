@@ -7,7 +7,7 @@ import info.nightscout.rx.logging.LTag
 import org.json.JSONException
 import org.json.JSONObject
 
-class DetermineBasalResultSMB private constructor(injector: HasAndroidInjector) : APSResultObject(injector), VariableSensitivityResult {
+open class DetermineBasalResultSMB internal constructor(injector: HasAndroidInjector) : APSResultObject(injector), VariableSensitivityResult {
 
     private var eventualBG = 0.0
     private var snoozeBG = 0.0

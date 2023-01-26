@@ -3,6 +3,7 @@ package info.nightscout.interfaces.iob
 import info.nightscout.database.entities.ExtendedBolus
 import info.nightscout.database.entities.TemporaryBasal
 import info.nightscout.interfaces.aps.AutosensData
+import info.nightscout.database.entities.UserEntry
 import info.nightscout.interfaces.aps.AutosensDataStore
 import info.nightscout.interfaces.aps.AutosensResult
 import info.nightscout.interfaces.aps.BasalData
@@ -103,4 +104,8 @@ interface IobCobCalculator {
      *  @return IobTotal
      */
     fun calculateIobFromTempBasalsIncludingConvertedExtended(): IobTotal
+    fun getFutureCob(): Double
+    fun getMostRecentCarbByDate(): Long?
+    fun getMostRecentCarbAmount(): Double?
+    fun getUserEntryDataWithNotesFromTime(timestamp: Long): List<UserEntry>
 }

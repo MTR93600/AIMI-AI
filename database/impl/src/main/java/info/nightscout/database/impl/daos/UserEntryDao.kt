@@ -26,4 +26,6 @@ interface UserEntryDao {
     @Query("SELECT * FROM $TABLE_USER_ENTRY WHERE timestamp >= :timestamp AND source != :excludeSource ORDER BY id DESC")
     fun getUserEntryFilteredDataFromTime(excludeSource: Sources, timestamp: Long): Single<List<UserEntry>>
 
+    @Query("SELECT * FROM $TABLE_USER_ENTRY WHERE timestamp >= :timestamp and note is not null ORDER BY id DESC")
+    fun getUserEntryDataWithNotesFromTime(timestamp: Long): Single<List<UserEntry>>
 }
