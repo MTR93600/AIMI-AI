@@ -167,8 +167,15 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30upperLimit = profile.b30_upperBG;
     var b30upperdelta = profile.b30_upperdelta;
     var deliverAt = new Date();
+    //variable for step
+
+    var recentSteps5Minutes = profile.recentSteps5Minutes;
+    var recentSteps10Minutes = profile.recentSteps10Minutes;
+    var aimi_activity = recentSteps5Minutes > 100 && recentSteps10Minutes > 200 ? true : false;
     // variables for deltas
         var delta = glucose_status.delta;
+        var shortAvgDelta = glucose_status.short_avgdelta;
+        var longAvgDelta = glucose_status.long_avgdelta;
         var DeltaPctS = 1;
         var DeltaPctL = 1;
         var DeltaPctD = 1;
@@ -715,6 +722,25 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
     }
 
+    //set activity behavior
+
+
+       if (aimi_activity === true){
+       target_bg = 140;
+       sensitivityRatio = c/(c+target_bg-normalTarget);
+       sensitivityRatio = round(sensitivityRatio,2);
+       enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+
+       basal = profile.current_basal * sensitivityRatio;
+       basal = round_basal(basal, profile);
+       if (basal !== profile_current_basal) {
+           enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+       } else {
+           enlog +="Basal unchanged: "+basal+";\n";
+       }
+
+       }
+
 //================= MT =====================================
     //console.log("***hypo_target : "+hypo_target+" & hyper_target : "+hyper_target);
 
@@ -1247,7 +1273,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 21/01/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 27/01/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1433,7 +1459,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 21/01/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 27/01/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1843,6 +1869,28 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 microBolus = 0;
                 rT.reason += ", No SMB because UAMpredBG < 100, ";
             }
+        }
+        if (bg < target_bg && delta < -2){
+        microBolus = 0;
+        rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
+        }else if (bg < (target_bg - 15) && shortAvgDelta <= 2){
+        microBolus = 0;
+        rT.reason += ", No SMB because bg < (target_bg - 15) && shortAvgDelta <= 2, ";
+        }else if (bg < 90){
+        microBolus = 0;
+        rT.reason += ", No SMB because bg < 90, ";
+        }else if (bg < 150 && delta < -5){
+        microBolus = 0;
+        rT.reason += ", No SMB because bg < 150 && delta < -5, ";
+        }else if (bg < 200 && delta < -7){
+        microBolus = 0;
+        rT.reason += ", No SMB because bg < 200 && delta < -7, ";
+        }else if (delta < -10){
+        microBolus = 0;
+        rT.reason += ", No SMB because delta < -10, ";
+        }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3){
+        microBolus = 0;
+        rT.reason += ", No SMB because it's stable, ";
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {

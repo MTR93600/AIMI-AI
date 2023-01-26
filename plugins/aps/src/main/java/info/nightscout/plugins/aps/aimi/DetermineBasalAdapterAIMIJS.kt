@@ -47,6 +47,7 @@ import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
+import info.nightscout.plugins.aps.openAPSaiSMB.StepService
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -77,6 +78,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var lastBolusNormalTimecount: Long = 0
     private var lastBolusSMBcount: Long = 0
     private var lastSMBmscount: Long = 0
+    private var recentSteps5Minutes: Int = 0
+    private var recentSteps10Minutes: Int = 0
+    private var recentSteps15Minutes: Int = 0
+    private var recentSteps30Minutes: Int = 0
+    private var recentSteps60Minutes: Int = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -447,7 +453,20 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
 
-       if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
+        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
+        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
+        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
+        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
+        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
+
+        this.profile.put("recentSteps5Minutes", recentSteps5Minutes)
+        this.profile.put("recentSteps10Minutes", recentSteps10Minutes)
+        this.profile.put("recentSteps15Minutes", recentSteps15Minutes)
+        this.profile.put("recentSteps30Minutes", recentSteps30Minutes)
+        this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
+
+
+        if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", tddLast24H / tdd7D)
         else
             autosensData.put("ratio", 1.0)
