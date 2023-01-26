@@ -738,7 +738,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        } else {
            enlog +="Basal unchanged: "+basal+";\n";
        }
-
+        rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
        }
 
 //================= MT =====================================
