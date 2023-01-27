@@ -364,6 +364,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
         val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
         val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4*/
+        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
+        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
+        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
+        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
+        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
@@ -421,6 +426,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
             variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+            if (recentSteps5Minutes > 200 && recentSteps15Minutes > 400) variableSensitivity *= 1.5
+            if (recentSteps30Minutes > 1000 && recentSteps5Minutes === 0) variableSensitivity *= 1.3
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {
@@ -452,13 +459,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("currentTIRLow", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.belowPct())
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
-
-        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
-        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
-        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
-        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
-        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
-
 
         this.profile.put("recentSteps5Minutes", recentSteps5Minutes)
         this.profile.put("recentSteps10Minutes", recentSteps10Minutes)
