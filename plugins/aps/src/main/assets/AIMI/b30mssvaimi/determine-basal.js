@@ -171,6 +171,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var recentSteps5Minutes = profile.recentSteps5Minutes;
     var recentSteps10Minutes = profile.recentSteps10Minutes;
+    var recentSteps60Minutes = profile.recentSteps60Minutes;
     var aimi_activity = recentSteps5Minutes > 100 && recentSteps10Minutes > 200 ? true : false;
     // variables for deltas
         var delta = glucose_status.delta;
@@ -739,6 +740,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
            enlog +="Basal unchanged: "+basal+";\n";
        }
         rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
+       }else if (recentSteps60Minutes > 1000 && recentSteps5Minutes === 0){
+       target_bg = 120;
+       sensitivityRatio = c/(c+target_bg-normalTarget);
+       sensitivityRatio = round(sensitivityRatio,2);
+       enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+       basal = profile.current_basal * sensitivityRatio;
+       basal = round_basal(basal, profile);
+       if (basal !== profile_current_basal) {
+          enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+       } else {
+          enlog +="Basal unchanged: "+basal+";\n";
+       }
+       rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
        }
 
 //================= MT =====================================
@@ -1940,6 +1954,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
             SMBInterval = 10 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
+            SMBInterval = 10 * aimi_rise;
+            }else if (recentSteps60Minutes > 900 && recentSteps5Minutes === 0){
             SMBInterval = 10 * aimi_rise;
             }
             rT.reason += "SMBInterval : "+SMBInterval+" ; ";
