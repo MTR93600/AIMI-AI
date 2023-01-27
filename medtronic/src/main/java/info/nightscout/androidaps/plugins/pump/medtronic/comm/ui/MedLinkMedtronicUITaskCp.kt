@@ -64,7 +64,7 @@ class MedLinkMedtronicUITaskCp @Inject constructor(injector: HasAndroidInjector,
         when (pumpMessage.firstCommand()) {
             MedLinkCommandType.BolusStatus                                                                                                                                            -> {
                 run { communicationManager.setCommand(pumpMessage) }
-                run {
+                // run {
 //                pumpMessage.getBaseCallback().andThen(f -> {
 //                    medtronicPumpStatus.getBatteryLevel();
 //                    BatteryStatusDTO batteryStatus = new BatteryStatusDTO();
@@ -75,8 +75,8 @@ class MedLinkMedtronicUITaskCp @Inject constructor(injector: HasAndroidInjector,
 //                            batteryStatus.getCalculatedPercent(medtronicPumpStatus.getBatteryType()));
 //                    return f;
 //                });
-                    communicationManager.getStatusData(pumpMessage)
-                }
+//                     communicationManager.getStatusData(pumpMessage)
+//                 }
             }
 
             MedLinkCommandType.GetState                                                                                                                                               -> {

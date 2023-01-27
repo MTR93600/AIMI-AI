@@ -61,16 +61,17 @@ data class BolusProgressCallback(
             if (bolusEvent.percent == 100 || pumpStatus.bolusDeliveredAmount == 0.0) {
                 aapsLogger.info(LTag.PUMPBTCOMM, "boluscompleted")
 
-                pumpStatus.lastBolusInfo.let {
-                    it.timestamp = pumpStatus.lastBolusTime?.time ?: it.timestamp
+                medLinkPumpPlugin.handleNewTreatmentData(Stream.of(JSONObject(detailedBolusInfo.toJsonString())))
 
-                    it.insulin = pumpStatus.lastBolusAmount ?: it.insulin
-
-                    it.bolusType = detailedBolusInfo.bolusType
-                    it.carbs = detailedBolusInfo.carbs
-                    it.eventType = detailedBolusInfo.eventType
-                    medLinkPumpPlugin.handleNewTreatmentData(Stream.of(JSONObject(it.toJsonString())))
-                }
+                // pumpStatus.lastBolusInfo.let {
+                //     it.timestamp = pumpStatus.lastBolusTime?.time ?: it.timestamp
+                //
+                //     it.insulin = pumpStatus.lastBolusAmount ?: it.insulin
+                //
+                //     it.bolusType = detailedBolusInfo.bolusType
+                //     it.carbs = detailedBolusInfo.carbs
+                //     it.eventType = detailedBolusInfo.eventType
+                // }
                 SystemClock.sleep(200)
                 bolusEvent.status = resourceHelper.gs(R.string.bolusdelivering, pumpStatus.lastBolusAmount)
                 bolusEvent.percent = 100

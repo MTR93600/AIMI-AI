@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sensor_lost">Sensor lost</string>
     <!--    Keys-->
     <!--    General-->
     <string name="total_insulin_label">Total insulina hj/ont</string>

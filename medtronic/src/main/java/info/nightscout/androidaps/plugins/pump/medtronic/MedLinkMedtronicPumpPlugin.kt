@@ -150,6 +150,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     aapsSchedulers!!, pumpSync!!, pumpSyncStorage!!
 ), Pump, MicrobolusPumpInterface, MedLinkPumpDevice, MedtronicPumpPluginInterface {
 
+    private var changeStatusTimestamp: Long = 0
     private lateinit var remainingBolus: DetailedBolusInfo
     private var bolusHistoryCheck: Boolean = false
     private var hasFirstAlert: Boolean = false
@@ -198,8 +199,6 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     private var lastBgs: Array<Int?>? = null
     private var bgIndex = 0
     private var lastBolusHistoryRead = 0L
-    private var lastDeliveredBolus = 0.0
-    private val bolusDeliveryTime = 0L
     private var pumpTimeDelta = 0L
     private var lastDetailedBolusInfo: DetailedBolusInfo? = null
     private var late1Min = false
@@ -329,7 +328,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     aapsLogger, medLinkService!!.medLinkServiceData,
                     this
                 ),
-                CommandPriority.NORMAL
+                CommandPriority.HIGH
             )
             medLinkService!!.medtronicUIComm?.executeCommandCP(message)
         }
@@ -533,7 +532,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     private val lastPumpEntryTime: Long
-         get() {
+        get() {
             val lastPumpEntryTime = sp.getLong(MedtronicConst.Statistics.LastPumpHistoryEntry, 0L)
             return try {
                 val localDateTime = DateTimeUtil.toLocalDateTime(lastPumpEntryTime)
@@ -2080,8 +2079,8 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     roundedPeriodDose / minBolusDose
                 ).setScale(0, RoundingMode.HALF_DOWN).toInt()
                 val calculatedDose = BigDecimal(periodDose).divide(BigDecimal(doses), 2, RoundingMode.HALF_DOWN).toDouble()
-                aapsLogger.info(LTag.PUMP,periodDose.toString())
-                aapsLogger.info(LTag.PUMP,calculatedDose.toString())
+                aapsLogger.info(LTag.PUMP, periodDose.toString())
+                aapsLogger.info(LTag.PUMP, calculatedDose.toString())
                 minDosage = BigDecimal(periodDose / doses).setScale(1, RoundingMode.HALF_DOWN).toDouble()
                 val list = buildOperations(doses.toDouble(), periodAvailableOperations, emptyList())
                 //TODO convert build operations to return list of tempmicroboluspair
@@ -2234,15 +2233,18 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 val thirdPosition = 3 * newStep
                 fillTempSMBWithExclusions(list, newStep, secondPosition, thirdPosition)
             }
+
             2.0  -> {
                 val newStep = java.lang.Double.valueOf(Math.floor(operations * 0.25)).toInt()
                 val half = round(operations / diff).toInt()
                 val secondPosition = half + newStep
                 fillTempSMBWithExclusions(list, newStep, secondPosition)
             }
+
             1.0  -> {
                 fillTempSMBWithExclusions(list, Math.floorDiv(operations, 2))
             }
+
             else -> {
                 fillTempSMBWithStep(list, step, doses)
             }
@@ -2372,7 +2374,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
         if (temporaryBasal != null) {
 
-            aapsLogger.info(LTag.PUMPBTCOMM,temporaryBasal.toString())
+            aapsLogger.info(LTag.PUMPBTCOMM, temporaryBasal.toString())
 
             val previousBasal = temporaryBasal
             if ((pumpStatusData.pumpRunningState == PumpRunningState.Suspended || (previousBasal?.desiredPct != null && previousBasal.desiredPct!! < 100)) && percent >= 100) {
@@ -3363,7 +3365,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                     }
                 }
                 lastProcessedBolusTimestamp = bInfo.bolusTimestamp?.minus(mod) ?: bInfo.timestamp
-                if(lastProcessedBolusTimestamp < System.currentTimeMillis() + 120000) {
+                if (lastProcessedBolusTimestamp < System.currentTimeMillis() + 120000) {
                     pumpSyncStorage.pumpSync.syncBolusWithTempId(
                         lastProcessedBolusTimestamp, bInfo.insulin,
                         generateTempId(bInfo.timestamp),
@@ -3383,6 +3385,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
 
     override fun getBatteryType(): String {
         return medLinkPumpStatus.batteryType.toString()
+    }
+
+    override fun changeStatusTime(currentTimeMillis: Long) {
+        changeStatusTimestamp = currentTimeMillis
     }
 
     private fun handleNewEvent() {
@@ -3480,6 +3486,14 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     }
 
     var lastReservoirLevel = -1.0
+
+        private fun handleChangeStatusData() {
+            if (medLinkPumpStatus.pumpRunningState == PumpRunningState.Running && changeStatusTimestamp > 0) {
+                pumpSync.syncStopTemporaryBasalWithPumpId(changeStatusTimestamp, changeStatusTimestamp, pumpType, medLinkPumpStatus.serialNumber)
+                changeStatusTimestamp = 0
+            }
+        }
+
     private fun handleDailyDoseUpdate() {
         if (lastReservoirLevel >= 0.0 && lastReservoirLevel - pumpStatusData.reservoirRemainingUnits > 0.3) {
             readBolusHistory()
@@ -3515,6 +3529,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
             }
         }
         handleNewPumpData()
+
         if (sens.bgValue.size == 1 &&
             medLinkPumpStatus.needToGetBGHistory() && isInitialized()
         ) {
@@ -3551,11 +3566,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     fun handleNewPumpData() {
         medtronicUtil.dismissNotification(MedtronicNotificationType.PumpUnreachable, rxBus)
         handleBatteryData()
-        //        if(sens.length>0) {
-        // if (lastDetailedBolusInfo != null) {
-        //     handleBolusDelivered(lastDetailedBolusInfo)
-        // }
-
+        handleChangeStatusData()
         handleDailyDoseUpdate()
         handleProfile()
         handleBolusAlarm()
@@ -3583,8 +3594,10 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 aapsLogger.info(LTag.PUMPBTCOMM, "reading profile")
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + lastProfileRead)
                 aapsLogger.info(LTag.PUMPBTCOMM, "" + rate)
-                aapsLogger.info(LTag.PUMPBTCOMM, "" + medLinkPumpStatus
-                    .currentBasal)
+                aapsLogger.info(
+                    LTag.PUMPBTCOMM, "" + medLinkPumpStatus
+                        .currentBasal
+                )
                 basalProfile?.toString()?.let { aapsLogger.info(LTag.PUMPBTCOMM, it) }
 
                 readPumpProfile()
@@ -3609,7 +3622,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
                 state.bolus != null &&
                 medLinkPumpStatus.lastBolusTime!!.time > state.bolus?.timestamp!!
             ) {
-                aapsLogger.info(LTag.PUMPBTCOMM,"${medLinkPumpStatus.lastBolusTime!!.time} & ${lastBolusInfo.bolusTimestamp}")
+                aapsLogger.info(LTag.PUMPBTCOMM, "${medLinkPumpStatus.lastBolusTime!!.time} & ${lastBolusInfo.bolusTimestamp}")
                 lastBolusInfo.bolusTimestamp = medLinkPumpStatus.lastBolusTime!!.time
                 handleNewTreatmentData(of(JSONObject(lastBolusInfo.toJsonString())))
                 bolusHistoryCheck = false

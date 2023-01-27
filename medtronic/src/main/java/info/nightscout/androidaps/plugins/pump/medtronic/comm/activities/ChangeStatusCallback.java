@@ -66,6 +66,7 @@ public class ChangeStatusCallback extends BaseCallback<PumpDriverState, Supplier
                 return PumpDriverState.Suspended;
 
             } else {
+                medLinkMedtronicPumpPlugin.changeStatusTime(System.currentTimeMillis());
                 return PumpDriverState.Busy;
             }
         });

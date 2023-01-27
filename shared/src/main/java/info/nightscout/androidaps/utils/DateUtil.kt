@@ -465,7 +465,7 @@ class DateUtil @Inject constructor(private val context: Context) {
 
     fun minAfter(resourceHelper: ResourceHelper, time: Long): String? {
         val mins = (time - now()).toInt() / 1000 / 60
-        return resourceHelper.gs(R.string.minago, mins)
+        return resourceHelper.gs(R.string.minafter, mins)
     }
 
     fun hourAfter(time: Long, resourceHelper: ResourceHelper): String? {
