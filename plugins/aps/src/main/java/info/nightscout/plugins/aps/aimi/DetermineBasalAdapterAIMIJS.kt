@@ -47,7 +47,7 @@ import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
-import info.nightscout.plugins.aps.openAPSaiSMB.StepService
+import info.nightscout.plugins.aps.aimi.StepService
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -351,6 +351,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastBolusSMBUnits", lastBolusSMBUnits)
         this.mealData.put("lastBolusSMBTime", lastBolusSMBTime)
 
+        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
+        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
+        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
+        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
+        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
+
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
@@ -421,6 +427,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
             variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+            if (recentSteps5Minutes > 200 && recentSteps15Minutes > 400) variableSensitivity *= 1.5
+            if (recentSteps30Minutes > 1000 && recentSteps5Minutes === 0) variableSensitivity *= 1.3
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {
@@ -453,11 +461,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
 
-        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
-        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
-        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
-        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
-        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
+
 
 
         this.profile.put("recentSteps5Minutes", recentSteps5Minutes)

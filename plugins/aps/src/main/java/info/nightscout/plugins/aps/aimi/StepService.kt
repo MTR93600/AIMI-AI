@@ -1,4 +1,4 @@
-package info.nightscout.plugins.aps.openAPSaiSMB
+package info.nightscout.plugins.aps.aimi
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
