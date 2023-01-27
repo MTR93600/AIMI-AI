@@ -752,7 +752,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        } else {
           enlog +="Basal unchanged: "+basal+";\n";
        }
-       rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
+       rT.reason += ", recentSteps60Minutes : "+recentSteps60Minutes+", basal activity : "+basal;
        }
 
 //================= MT =====================================
@@ -1957,6 +1957,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = 10 * aimi_rise;
             }else if (recentSteps60Minutes > 900 && recentSteps5Minutes === 0){
             SMBInterval = 10 * aimi_rise;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 1000 : "+recentSteps60Minutes;
             }
             rT.reason += "SMBInterval : "+SMBInterval+" ; ";
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
