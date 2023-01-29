@@ -426,8 +426,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
             variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-            if (recentSteps5Minutes > 200 && recentSteps15Minutes > 400) variableSensitivity *= 1.5
-            if (recentSteps30Minutes > 1000 && recentSteps5Minutes === 0) variableSensitivity *= 1.3
+            if (recentSteps5Minutes > 100 && recentSteps15Minutes > 200) variableSensitivity *= 1.5
+            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0) variableSensitivity *= 1.3
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {

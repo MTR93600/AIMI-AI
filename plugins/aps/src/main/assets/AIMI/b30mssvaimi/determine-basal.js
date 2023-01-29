@@ -171,8 +171,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var recentSteps5Minutes = profile.recentSteps5Minutes;
     var recentSteps10Minutes = profile.recentSteps10Minutes;
+    var recentSteps30Minutes = profile.recentSteps30Minutes;
     var recentSteps60Minutes = profile.recentSteps60Minutes;
-    var aimi_activity = recentSteps5Minutes > 100 && recentSteps10Minutes > 200 ? true : false;
+    var aimi_activity = recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
     // variables for deltas
         var delta = glucose_status.delta;
         var shortAvgDelta = glucose_status.short_avgdelta;
@@ -738,7 +739,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
            enlog +="Basal unchanged: "+basal+";\n";
        }
         rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
-       }else if (recentSteps60Minutes > 1000 && recentSteps5Minutes === 0){
+       }else if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0){
        target_bg = 120;
        sensitivityRatio = c/(c+target_bg-normalTarget);
        sensitivityRatio = round(sensitivityRatio,2);
@@ -750,7 +751,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        } else {
           enlog +="Basal unchanged: "+basal+";\n";
        }
-       rT.reason += ", recentSteps60Minutes : "+recentSteps60Minutes+", basal activity : "+basal;
+       rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
        }
 
 //================= MT =====================================
@@ -1285,7 +1286,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 27/01/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 30/01/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1471,7 +1472,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 27/01/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 30/01/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1953,9 +1954,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = 10 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
-            }else if (recentSteps60Minutes > 900 && recentSteps5Minutes === 0){
+            }else if (recentSteps30Minutes > 900 && recentSteps5Minutes >= 0){
             SMBInterval = 10 * aimi_rise;
-            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 1000 : "+recentSteps60Minutes;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+recentSteps30Minutes;
             }
             rT.reason += "SMBInterval : "+SMBInterval+" ; ";
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
