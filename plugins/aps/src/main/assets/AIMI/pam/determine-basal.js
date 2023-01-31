@@ -701,7 +701,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                        } else {
                           enlog +="Basal unchanged: "+basal+";\n";
                        }
-                       rT.reason += ", recentSteps60Minutes : "+recentSteps60Minutes+", basal activity : "+basal;
+                       rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
                        }
 
 //================= MT =====================================
