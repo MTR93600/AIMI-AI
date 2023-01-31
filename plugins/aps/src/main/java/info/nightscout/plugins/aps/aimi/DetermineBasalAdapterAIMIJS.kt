@@ -295,7 +295,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
         this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
-
+        this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
 
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
