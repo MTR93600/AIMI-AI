@@ -141,15 +141,16 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         deliverAt = new Date(currentTime);
     }
     //variable for step
+     var countsteps = profile.key_use_countsteps;
      var recentSteps5Minutes = profile.recentSteps5Minutes;
      var recentSteps10Minutes = profile.recentSteps10Minutes;
      var recentSteps30Minutes = profile.recentSteps30Minutes;
      var recentSteps60Minutes = profile.recentSteps60Minutes;
-      var aimi_activity = recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
+     var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
      // variables for deltas
-         var delta = glucose_status.delta;
-         var shortAvgDelta = glucose_status.short_avgdelta;
-         var longAvgDelta = glucose_status.long_avgdelta;
+     var delta = glucose_status.delta;
+     var shortAvgDelta = glucose_status.short_avgdelta;
+     var longAvgDelta = glucose_status.long_avgdelta;
     var DeltaPctS = 1;
     var DeltaPctL = 1;
     var DeltaPctD = 1;
@@ -694,7 +695,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                        enlog +="Basal unchanged: "+basal+";\n";
                    }
                     rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
-                   }else if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0){
+                   }else if (countsteps === true && recentSteps30Minutes > 500 && recentSteps5Minutes >= 0){
                    target_bg = 120;
                    sensitivityRatio = c/(c+target_bg-normalTarget);
                    sensitivityRatio = round(sensitivityRatio,2);
@@ -1814,7 +1815,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
                                 }else if (delta < -10){
                                 microBolus = 0;
                                 rT.reason += ", No SMB because delta < -10, ";
-                                }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3){
+                                }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200){
                                 microBolus = 0;
                                 rT.reason += ", No SMB because it's stable ";
                                 }
@@ -1868,7 +1869,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
             SMBInterval = 10 * aimi_rise;
             }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
-            }else if (recentSteps30Minutes >= 900 && recentSteps5Minutes >= 0){
+            }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0){
           SMBInterval = 10 * aimi_rise;
           rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+recentSteps30Minutes;
           }
