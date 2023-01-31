@@ -439,7 +439,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var BFIOB = false;
     }
 
-    if (iTime < (profile.b30_duration) && meal_data.countBolus === 1 && BFIOB===true){
+    if (iTime < (profile.b30_duration) && meal_data.countBolus === 1){
     rT.reason += ". force basal because iTime is running and lesser than "+(profile.b30_duration)+" minutes :"+((LastManualBolus/3)*(60/profile.b30_duration)/60)*(profile.b30_duration)+" U, remaining time : " +((profile.b30_duration) - iTime);
     rT.temp = 'absolute';
     rT.duration = (profile.b30_duration);
@@ -448,16 +448,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BFIOB";
     return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-    }else if (iTime < profile.b30_duration && meal_data.countBolus === 1){
-     rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
-     rT.temp = 'absolute';
-     rT.duration = profile.b30_duration;
-     rate = round_basal(basal*10,profile);
-     rT.rate = rate;
-     rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
-     return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-
-     }else if (iTimeActivation === true && countSMB === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+    }else if (iTimeActivation === true && countSMB === 2 && !AIMI_BreakFastLight && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*delta/60)*10;
             rT.temp = 'absolute';
             rT.duration = 20;
