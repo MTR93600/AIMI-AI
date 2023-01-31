@@ -1038,7 +1038,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             }
             //UAMpredBG = iTime < iTimeProfile ? IOBpredBGs[IOBpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI : UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
             UAMpredBG = iob_data.iob > ((AIMI_lastBolusSMBUnits * 1.618) + 1) || BFIOB || AIMI_UAM === false || iTime > 100 && aimi_bg <= 170 ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
-            if (!TDDAIMI3){
+            if (!meal_data.TDDAIMI3){
                         IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev;
                          //IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2));
                         }else{
@@ -1052,7 +1052,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                         IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
                         }
                         // calculate predBGs with long zero temp without deviations
-                        if ( !TDDAIMI3){
+                        if ( !meal_data.TDDAIMI3){
                         var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
                         //var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + (round(( -iobTick.iobWithZeroTemp.activity * (1800 / ( TDD * (Math.log(( Math.max(ZTpredBGs[ZTpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ), 2));
                         }else{
@@ -1097,7 +1097,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                             //UAMduration=iTime < iTimeProfile ? round((IOBpredBGs.length+1)*5/60,1) : round((UAMpredBGs.length+1)*5/60,1);
                             UAMduration = round((UAMpredBGs.length+1)*5/60,1);
                         }
-                        if (!TDDAIMI3){
+                        if (!meal_data.TDDAIMI3){
                         UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
                         //UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
                         //console.error(predBGI, predCI, predUCI);
