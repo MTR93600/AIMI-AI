@@ -1389,7 +1389,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 var aimi_rise = 1, sens_predType = "NA" ;
     if (iTimeActivation){
-    if (DeltaPctS > 1 && DeltaPctL > 1.5) sens_predType = "UAM+"; // with acceleration
+    if (DeltaPctS > 1.5 && DeltaPctL > 2) sens_predType = "UAM+"; // with acceleration
     if (UAMpredBG > 170 && bg < 140) sens_predType = "UAM+"; // when predicted high and bg is lower
     }
     if (sens_predType == "UAM+"){
