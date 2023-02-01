@@ -447,7 +447,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     rT.duration = (profile.b30_duration*1.618);
     rate = round_basal(basal*10,profile);
     rT.rate = rate;
-    rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BreakfastLight";
+    rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BFIOB";
     return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
     }else if (iTime < profile.b30_duration && meal_data.countBolus === 1){
@@ -1787,7 +1787,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
              insulinReq = ((1 + Math.sqrt(aimi_delta)) / 4);
              var microBolus = circadian_smb > (-10) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
              microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-             }else if (iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
+             }else if (iTimeActivation && bfl_bfiob === false && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
                    if (circadian_smb > (-3)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
