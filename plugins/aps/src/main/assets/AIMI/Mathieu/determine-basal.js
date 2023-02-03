@@ -521,7 +521,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (microBolusAllowed && iTimeActivation && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 6)){
+     if (AIMI_lastBolusSMBUnits != LastManualBolus &&  microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 6)){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
@@ -1297,7 +1297,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 02/02/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 03/02/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1483,7 +1483,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 02/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 03/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
