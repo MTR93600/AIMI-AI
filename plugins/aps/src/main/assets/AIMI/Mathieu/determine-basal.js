@@ -521,7 +521,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (AIMI_lastBolusSMBUnits != LastManualBolus &&  microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 6)){
+     if (TimeSMB >= profile.b30_duration && microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 6)){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
