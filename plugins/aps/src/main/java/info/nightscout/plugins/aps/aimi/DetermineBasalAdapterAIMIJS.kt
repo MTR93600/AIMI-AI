@@ -74,9 +74,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var currentTime: Long = 0
     private var flatBGsDetected = false
     private val millsToThePast = T.mins(60).msecs()
+    private val millsToThePast2 = T.mins(40).msecs()
     private var lastBolusNormalTimecount: Long = 0
+    private var extendedsmbCount: Long = 0
     private var lastBolusSMBcount: Long = 0
-    private var lastSMBmscount: Long = 0
+    private var SMBcount: Long = 0
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -338,11 +340,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         bolusMealLinks.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastBolusNormalTimecount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1
-            //if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1
+        }
+        val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
+        extendedsmb.forEach{bolus ->
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == lastBolusNormalUnits) extendedsmbCount +=1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount !== lastBolusNormalUnits) SMBcount += 1
         }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
-        //this.mealData.put("countSMBms", lastSMBmscount)
+        this.mealData.put("countSMB40", SMBcount)
+        this.mealData.put("extendedsmbCount", extendedsmbCount)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L

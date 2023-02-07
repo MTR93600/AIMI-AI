@@ -502,7 +502,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
      return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
-     }else if (iTimeActivation === true && countSMB === 2 && !AIMI_BreakFastLight && delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if (iTimeActivation === true && meal_data.countSMB40 === 2 && !AIMI_BreakFastLight && delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
            rT.reason += ". force basal because you receive 2 time max smb size : 10 minutes" +(profile.current_basal*delta/60)*20;
             rT.temp = 'absolute';
             rT.duration = 20;
@@ -521,11 +521,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 5)){
+     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
      }
+
 
 
 
@@ -1299,6 +1300,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 console.log("--------------");
                 console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 07/02/23 ");
                 console.log(", UPDATE : no automated BFL during the first 180 minutes of iTime, the function No SMB is disable during the 60 first minutes of Itime, The new SMB calculation respect the max msb size with no variation");
+                console.log(", UPDATE2 : creating a request about smb count in the last 40 minutes with the same value than the last manual bolus, if it's < 1 it will try again to send the extended bolussmb. The B30 after 2 SMB is now regarding 40 minutes to count instead of 60 minutes only for this variant.");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
