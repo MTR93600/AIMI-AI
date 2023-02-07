@@ -1282,7 +1282,7 @@ var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) +
 var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
 var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
-if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime) {
+if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime && iTime > 180) {
 AIMI_BreakFastLight = true;
 AIMI_BL_StartTime = nowdec;
 AIMI_BL_EndTime = AIMI_BL_StartTime + 2;
@@ -1297,7 +1297,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 04/02/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 07/02/23 ");
+                console.log(", UPDATE : no automated BFL during the first 180 minutes of iTime, the function No SMB is disable during the 60 first minutes of Itime, The new SMB calculation respect the max msb size with no variation");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1483,7 +1484,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 04/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 07/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1854,7 +1855,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
-                     var microBolus = Math.min(AIMI_UAM_CAP + 1,insulinReq*2);
+                     var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }else if (circadian_smb < (-5)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
@@ -1924,6 +1925,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 rT.reason += ", No SMB because UAMpredBG < 100, ";
             }
         }
+        if (iTime > 60){
         if (bg < target_bg && delta < -2){
         microBolus = 0;
         rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
@@ -1948,6 +1950,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         }else if (nosmb === true){
         microBolus = 0;
         rT.reason += ", No SMB nosmb = true ";
+        }
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
