@@ -2,17 +2,16 @@ package info.nightscout.androidaps.data
 
 import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.R
 import info.nightscout.androidaps.TestBase
-import info.nightscout.androidaps.interfaces.Loop
-import info.nightscout.androidaps.interfaces.ProfileFunction
+import info.nightscout.core.wizard.QuickWizard
+import info.nightscout.core.wizard.QuickWizardEntry
+import info.nightscout.interfaces.aps.Loop
+import info.nightscout.interfaces.profile.ProfileFunction
 import info.nightscout.shared.sharedPreferences.SP
-import info.nightscout.androidaps.utils.wizard.QuickWizard
-import info.nightscout.androidaps.utils.wizard.QuickWizardEntry
 import org.json.JSONArray
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 
@@ -28,23 +27,29 @@ class QuickWizardTest : TestBase() {
         "\"useBG\":0,\"useCOB\":0,\"useBolusIOB\":1,\"useBasalIOB\":2,\"useTrend\":0,\"useSuperBolus\":0,\"useTemptarget\":0}"
     private var array: JSONArray = JSONArray("[$data1,$data2]")
 
-    val injector = HasAndroidInjector {
+    class MockedTime : QuickWizardEntry.Time() {
+        override fun secondsFromMidnight() = 0
+    }
+    private val mockedTime = MockedTime()
+
+    private val injector = HasAndroidInjector {
         AndroidInjector {
             if (it is QuickWizardEntry) {
                 it.aapsLogger = aapsLogger
                 it.sp = sp
                 it.profileFunction = profileFunction
                 it.loop = loop
+                it.time = mockedTime
             }
         }
     }
 
     private lateinit var quickWizard: QuickWizard
 
-    @Before
+    @BeforeEach
     fun mock() {
-        `when`(profileFunction.secondsFromMidnight()).thenReturn(0)
-        `when`(sp.getString(R.string.key_quickwizard, "[]")).thenReturn("[]")
+
+        `when`(sp.getString(info.nightscout.core.utils.R.string.key_quickwizard, "[]")).thenReturn("[]")
         quickWizard = QuickWizard(sp, injector)
     }
 

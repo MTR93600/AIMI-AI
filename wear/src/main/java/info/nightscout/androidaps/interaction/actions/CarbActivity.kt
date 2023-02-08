@@ -3,17 +3,17 @@
 package info.nightscout.androidaps.interaction.actions
 
 import android.os.Bundle
-import android.support.wearable.view.GridPagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.events.EventWearToMobile
+import info.nightscout.rx.events.EventWearToMobile
 import info.nightscout.androidaps.interaction.utils.EditPlusMinusViewAdapter
 import info.nightscout.androidaps.interaction.utils.PlusMinusEditText
+import info.nightscout.androidaps.nondeprecated.GridPagerAdapterNonDeprecated
 import info.nightscout.shared.SafeParse
-import info.nightscout.shared.weardata.EventData.ActionECarbsPreCheck
+import info.nightscout.rx.weardata.EventData.ActionECarbsPreCheck
 import java.text.DecimalFormat
 
 class CarbActivity : ViewSelectorActivity() {
@@ -29,7 +29,7 @@ class CarbActivity : ViewSelectorActivity() {
         finish()
     }
 
-    private inner class MyGridViewPagerAdapter : GridPagerAdapter() {
+    private inner class MyGridViewPagerAdapter : GridPagerAdapterNonDeprecated() {
 
         val increment1 = sp.getInt(R.string.key_carbs_button_increment_1, 5).toDouble()
         val increment2 = sp.getInt(R.string.key_carbs_button_increment_2, 10).toDouble()

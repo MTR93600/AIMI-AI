@@ -7,9 +7,10 @@ import android.util.Log
 import android.widget.Toast
 import dagger.android.DaggerActivity
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.events.EventWearToMobile
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.shared.weardata.EventData
+import info.nightscout.rx.events.EventWearToMobile
+import info.nightscout.shared.extensions.safeGetPackageInfo
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.weardata.EventData
 import javax.inject.Inject
 
 /**
@@ -31,7 +32,7 @@ class QuickSnoozeActivity : DaggerActivity() {
                 val i = Intent()
                 i.setClassName(xDripPackageName, "$xDripPackageName.QuickSnooze")
                 startActivity(i)
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 Log.e("WEAR", "failed to snooze xDrip: ", e)
             }
         } else {
@@ -41,9 +42,10 @@ class QuickSnoozeActivity : DaggerActivity() {
         finish()
     }
 
+    @Suppress("SameParameterValue")
     private fun isPackageExisted(targetPackage: String): Boolean {
         try {
-            packageManager.getPackageInfo(targetPackage, PackageManager.GET_META_DATA)
+            packageManager.safeGetPackageInfo(targetPackage, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             return false
         }

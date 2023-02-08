@@ -9,9 +9,10 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import info.nightscout.androidaps.R
 import info.nightscout.androidaps.databinding.ActivityPreferencesBinding
-import info.nightscout.androidaps.utils.locale.LocaleHelper
+import info.nightscout.configuration.activities.DaggerAppCompatActivityWithResult
+import info.nightscout.core.ui.locale.LocaleHelper
 
-class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+class PreferencesActivity : DaggerAppCompatActivityWithResult(), PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
     private var preferenceId = 0
     private var myPreferenceFragment: MyPreferenceFragment? = null
@@ -21,11 +22,11 @@ class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
+        setTheme(info.nightscout.core.ui.R.style.AppTheme)
         binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        title = rh.gs(R.string.nav_preferences)
+        title = rh.gs(info.nightscout.configuration.R.string.nav_preferences)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         myPreferenceFragment = MyPreferenceFragment()
@@ -69,13 +70,14 @@ class PreferencesActivity : NoSplashAppCompatActivity(), PreferenceFragmentCompa
         super.attachBaseContext(LocaleHelper.wrap(newBase))
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             android.R.id.home -> {
+                @Suppress("DEPRECATION")
                 onBackPressed()
-                return true
+                true
             }
+
+            else              -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
-    }
 }

@@ -1,11 +1,12 @@
 package info.nightscout.androidaps.interaction.utils
 
+import info.nightscout.androidaps.R
 import info.nightscout.androidaps.TestBase
 import info.nightscout.androidaps.data.RawDisplayData
 import info.nightscout.androidaps.testing.mockers.RawDataMocker
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
 /**
@@ -17,13 +18,18 @@ class DisplayFormatTest : TestBase() {
     private lateinit var displayFormat: DisplayFormat
     private lateinit var rawDataMocker: RawDataMocker
 
-    @Before fun mock() {
+    @BeforeEach
+    fun mock() {
         rawDataMocker = RawDataMocker(wearUtil)
         wearUtilMocker.prepareMock()
         displayFormat = DisplayFormat()
         displayFormat.wearUtil = wearUtil
         displayFormat.sp = sp
+        displayFormat.context = context
         Mockito.`when`(sp.getBoolean("complication_unicode", true)).thenReturn(true)
+        Mockito.`when`(context.getString(R.string.hour_short)).thenReturn("h")
+        Mockito.`when`(context.getString(R.string.day_short)).thenReturn("d")
+        Mockito.`when`(context.getString(R.string.week_short)).thenReturn("w")
     }
 
     @Test fun shortTimeSinceTest() {

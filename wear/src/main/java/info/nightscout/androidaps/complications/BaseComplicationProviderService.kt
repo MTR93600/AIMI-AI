@@ -21,16 +21,17 @@ import info.nightscout.androidaps.comm.DataLayerListenerServiceWear.Companion.IN
 import info.nightscout.androidaps.complications.ComplicationTapBroadcastReceiver.Companion.getTapActionIntent
 import info.nightscout.androidaps.complications.ComplicationTapBroadcastReceiver.Companion.getTapWarningSinceIntent
 import info.nightscout.androidaps.data.RawDisplayData
-import info.nightscout.androidaps.events.EventWearToMobile
+import info.nightscout.rx.events.EventWearToMobile
 import info.nightscout.androidaps.interaction.utils.Constants
 import info.nightscout.androidaps.interaction.utils.DisplayFormat
 import info.nightscout.androidaps.interaction.utils.Inevitable
 import info.nightscout.androidaps.interaction.utils.Persistence
 import info.nightscout.androidaps.interaction.utils.WearUtil
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
-import info.nightscout.shared.weardata.EventData.ActionResendData
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+
+import info.nightscout.rx.weardata.EventData.ActionResendData
 import javax.inject.Inject
 
 /**
@@ -85,9 +86,9 @@ abstract class BaseComplicationProviderService : ComplicationProviderService() {
         }
         when (dataType) {
             ComplicationData.TYPE_ICON, ComplicationData.TYPE_SHORT_TEXT, ComplicationData.TYPE_RANGED_VALUE -> if (since > 0) {
-                builder.setShortText(ComplicationText.plainText(displayFormat.shortTimeSince(since) + " old"))
+                builder.setShortText(ComplicationText.plainText(displayFormat.shortTimeSince(since) + " " + getString(R.string.old)))
             } else {
-                builder.setShortText(ComplicationText.plainText("!err!"))
+                builder.setShortText(ComplicationText.plainText(getString(R.string.error)))
             }
 
             ComplicationData.TYPE_LONG_TEXT                                                                  -> {
@@ -125,9 +126,9 @@ abstract class BaseComplicationProviderService : ComplicationProviderService() {
         }
         when (dataType) {
             ComplicationData.TYPE_ICON, ComplicationData.TYPE_SHORT_TEXT, ComplicationData.TYPE_RANGED_VALUE -> if (since > 0) {
-                builder.setShortText(ComplicationText.plainText(displayFormat.shortTimeSince(since) + " old"))
+                builder.setShortText(ComplicationText.plainText(displayFormat.shortTimeSince(since) + " " + getString(R.string.old)))
             } else {
-                builder.setShortText(ComplicationText.plainText("!old!"))
+                builder.setShortText(ComplicationText.plainText(getString(R.string.old_warning)))
             }
 
             ComplicationData.TYPE_LONG_TEXT                                                                  -> {

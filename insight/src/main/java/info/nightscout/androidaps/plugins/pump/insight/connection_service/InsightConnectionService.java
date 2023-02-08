@@ -89,8 +89,9 @@ import info.nightscout.androidaps.plugins.pump.insight.utils.PairingDataStorage;
 import info.nightscout.androidaps.plugins.pump.insight.utils.crypto.Cryptograph;
 import info.nightscout.androidaps.plugins.pump.insight.utils.crypto.DerivedKeys;
 import info.nightscout.androidaps.plugins.pump.insight.utils.crypto.KeyPair;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.shared.logging.LTag;
+import info.nightscout.rx.logging.AAPSLogger;
+import info.nightscout.rx.logging.LTag
+;
 import info.nightscout.shared.sharedPreferences.SP;
 
 public class InsightConnectionService extends DaggerService implements ConnectionEstablisher.Callback, InputStreamReader.Callback, OutputStreamWriter.Callback {
@@ -267,7 +268,7 @@ public class InsightConnectionService extends DaggerService implements Connectio
         }
         pairingDataStorage = new PairingDataStorage(this);
         state = pairingDataStorage.isPaired() ? InsightState.DISCONNECTED : InsightState.NOT_PAIRED;
-        wakeLock = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AndroidAPS:InsightConnectionService");
+        wakeLock = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AAPS:InsightConnectionService");
     }
 
     private void setState(InsightState state) {

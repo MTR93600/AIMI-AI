@@ -1,8 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.insight;
 
-import static info.nightscout.androidaps.extensions.PumpStateExtensionKt.convertedToAbsolute;
-import static info.nightscout.androidaps.extensions.PumpStateExtensionKt.getPlannedRemainingMinutes;
-
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
@@ -30,38 +27,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.android.HasAndroidInjector;
-import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.interfaces.Profile;
-import info.nightscout.androidaps.data.PumpEnactResult;
-import info.nightscout.androidaps.events.EventInitializationChanged;
-import info.nightscout.androidaps.events.EventRefreshOverview;
+import info.nightscout.androidaps.insight.R;
 import info.nightscout.androidaps.insight.database.InsightBolusID;
+import info.nightscout.androidaps.insight.database.InsightDatabase;
 import info.nightscout.androidaps.insight.database.InsightDbHelper;
 import info.nightscout.androidaps.insight.database.InsightHistoryOffset;
 import info.nightscout.androidaps.insight.database.InsightPumpID;
 import info.nightscout.androidaps.insight.database.InsightPumpID.EventType;
-import info.nightscout.androidaps.insight.R;
-import info.nightscout.androidaps.interfaces.CommandQueue;
-import info.nightscout.androidaps.interfaces.Config;
-import info.nightscout.androidaps.interfaces.Constraint;
-import info.nightscout.androidaps.interfaces.Constraints;
-import info.nightscout.androidaps.interfaces.PluginDescription;
-import info.nightscout.androidaps.interfaces.PluginType;
-import info.nightscout.androidaps.interfaces.ProfileFunction;
-import info.nightscout.androidaps.interfaces.Pump;
-import info.nightscout.androidaps.interfaces.PumpDescription;
-import info.nightscout.androidaps.interfaces.PumpPluginBase;
-import info.nightscout.androidaps.interfaces.PumpSync;
-import info.nightscout.androidaps.interfaces.PumpSync.PumpState.TemporaryBasal;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.shared.logging.LTag;
-import info.nightscout.androidaps.plugins.bus.RxBus;
-import info.nightscout.androidaps.plugins.common.ManufacturerType;
-import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification;
-import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
-import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress;
-import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
 import info.nightscout.androidaps.plugins.pump.insight.app_layer.Service;
 import info.nightscout.androidaps.plugins.pump.insight.app_layer.history.HistoryReadingDirection;
 import info.nightscout.androidaps.plugins.pump.insight.app_layer.history.ReadHistoryEventsMessage;
@@ -128,13 +100,42 @@ import info.nightscout.androidaps.plugins.pump.insight.exceptions.app_layer_erro
 import info.nightscout.androidaps.plugins.pump.insight.exceptions.app_layer_errors.NoActiveTBRToCanceLException;
 import info.nightscout.androidaps.plugins.pump.insight.utils.ExceptionTranslator;
 import info.nightscout.androidaps.plugins.pump.insight.utils.ParameterBlockUtil;
-import info.nightscout.androidaps.utils.DateUtil;
-import info.nightscout.androidaps.utils.T;
-import  info.nightscout.androidaps.interfaces.ResourceHelper;
+import info.nightscout.core.events.EventNewNotification;
+import info.nightscout.interfaces.Config;
+import info.nightscout.interfaces.constraints.Constraint;
+import info.nightscout.interfaces.constraints.Constraints;
+import info.nightscout.interfaces.notifications.Notification;
+import info.nightscout.interfaces.plugin.OwnDatabasePlugin;
+import info.nightscout.interfaces.plugin.PluginDescription;
+import info.nightscout.interfaces.plugin.PluginType;
+import info.nightscout.interfaces.profile.Profile;
+import info.nightscout.interfaces.profile.ProfileFunction;
+import info.nightscout.interfaces.pump.DetailedBolusInfo;
+import info.nightscout.interfaces.pump.Insight;
+import info.nightscout.interfaces.pump.Pump;
+import info.nightscout.interfaces.pump.PumpEnactResult;
+import info.nightscout.interfaces.pump.PumpPluginBase;
+import info.nightscout.interfaces.pump.PumpSync;
+import info.nightscout.interfaces.pump.PumpSync.PumpState.TemporaryBasal;
+import info.nightscout.interfaces.pump.defs.ManufacturerType;
+import info.nightscout.interfaces.pump.defs.PumpDescription;
+import info.nightscout.interfaces.pump.defs.PumpType;
+import info.nightscout.interfaces.queue.CommandQueue;
+import info.nightscout.rx.bus.RxBus;
+import info.nightscout.rx.events.EventDismissNotification;
+import info.nightscout.rx.events.EventInitializationChanged;
+import info.nightscout.rx.events.EventOverviewBolusProgress;
+import info.nightscout.rx.events.EventRefreshOverview;
+import info.nightscout.rx.logging.AAPSLogger;
+import info.nightscout.rx.logging.LTag;
+import info.nightscout.shared.interfaces.ResourceHelper;
 import info.nightscout.shared.sharedPreferences.SP;
+import info.nightscout.shared.utils.DateUtil;
+import info.nightscout.shared.utils.T;
 
 @Singleton
-public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constraints, InsightConnectionService.StateCallback {
+public class LocalInsightPlugin extends PumpPluginBase implements Pump, Insight, Constraints, OwnDatabasePlugin,
+        InsightConnectionService.StateCallback {
 
     private final AAPSLogger aapsLogger;
     private final RxBus rxBus;
@@ -146,8 +147,9 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
     private final DateUtil dateUtil;
     private final InsightDbHelper insightDbHelper;
     private final PumpSync pumpSync;
+    private final InsightDatabase insightDatabase;
 
-    public static final String ALERT_CHANNEL_ID = "AndroidAPS-InsightAlert";
+    public static final String ALERT_CHANNEL_ID = "AAPS-InsightAlert";
 
     private final PumpDescription pumpDescription;
     private InsightAlertService alertService;
@@ -206,10 +208,11 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             Config config,
             DateUtil dateUtil,
             InsightDbHelper insightDbHelper,
-            PumpSync pumpSync
+            PumpSync pumpSync,
+            InsightDatabase insightDatabase
     ) {
         super(new PluginDescription()
-                        .pluginIcon(R.drawable.ic_insight_128)
+                        .pluginIcon(info.nightscout.core.ui.R.drawable.ic_insight_128)
                         .pluginName(R.string.insight_local)
                         .shortName(R.string.insightpump_shortname)
                         .mainType(PluginType.PUMP)
@@ -229,10 +232,11 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         this.dateUtil = dateUtil;
         this.insightDbHelper = insightDbHelper;
         this.pumpSync = pumpSync;
+        this.insightDatabase = insightDatabase;
 
         pumpDescription = new PumpDescription();
         pumpDescription.fillFor(PumpType.ACCU_CHEK_INSIGHT);
-        lastBolusTimestamp = sp.getLong(R.string.key_insight_last_bolus_timestamp,0L);
+        lastBolusTimestamp = sp.getLong(R.string.key_insight_last_bolus_timestamp, 0L);
         lastBolusAmount = sp.getDouble(R.string.key_insight_last_bolus_amount, 0.0);
     }
 
@@ -387,7 +391,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             SetDateTimeMessage setDateTimeMessage = new SetDateTimeMessage();
             setDateTimeMessage.setPumpTime(pumpTime);
             connectionService.requestMessage(setDateTimeMessage).await();
-            Notification notification = new Notification(Notification.INSIGHT_DATE_TIME_UPDATED, rh.gs(R.string.pump_time_updated), Notification.INFO, 60);
+            Notification notification = new Notification(Notification.INSIGHT_DATE_TIME_UPDATED, rh.gs(info.nightscout.core.ui.R.string.pump_time_updated), Notification.INFO, 60);
             rxBus.send(new EventNewNotification(notification));
         }
     }
@@ -494,11 +498,11 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             profileBlock.setProfileBlocks(profileBlocks);
             ParameterBlockUtil.writeConfigurationBlock(connectionService, profileBlock);
             rxBus.send(new EventDismissNotification(Notification.FAILED_UPDATE_PROFILE));
-            Notification notification = new Notification(Notification.PROFILE_SET_OK, rh.gs(R.string.profile_set_ok), Notification.INFO, 60);
+            Notification notification = new Notification(Notification.PROFILE_SET_OK, rh.gs(info.nightscout.core.ui.R.string.profile_set_ok), Notification.INFO, 60);
             rxBus.send(new EventNewNotification(notification));
             result.success(true)
                     .enacted(true)
-                    .comment(R.string.virtualpump_resultok);
+                    .comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
             this.profileBlocks = profileBlocks;
             try {
                 fetchStatus();
@@ -506,17 +510,17 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             }
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while setting profile: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
-            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(R.string.failedupdatebasalprofile), Notification.URGENT);
+            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(info.nightscout.core.ui.R.string.failed_update_basal_profile), Notification.URGENT);
             rxBus.send(new EventNewNotification(notification));
             result.comment(ExceptionTranslator.getString(context, e));
         } catch (InsightException e) {
             aapsLogger.info(LTag.PUMP, "Exception while setting profile: " + e.getClass().getCanonicalName());
-            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(R.string.failedupdatebasalprofile), Notification.URGENT);
+            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(info.nightscout.core.ui.R.string.failed_update_basal_profile), Notification.URGENT);
             rxBus.send(new EventNewNotification(notification));
             result.comment(ExceptionTranslator.getString(context, e));
         } catch (Exception e) {
             aapsLogger.error("Exception while setting profile", e);
-            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(R.string.failedupdatebasalprofile), Notification.URGENT);
+            Notification notification = new Notification(Notification.FAILED_UPDATE_PROFILE, rh.gs(info.nightscout.core.ui.R.string.failed_update_basal_profile), Notification.URGENT);
             rxBus.send(new EventNewNotification(notification));
             result.comment(ExceptionTranslator.getString(context, e));
         }
@@ -590,13 +594,13 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                 EventOverviewBolusProgress.Treatment t = new EventOverviewBolusProgress.Treatment(0, 0, detailedBolusInfo.getBolusType() == DetailedBolusInfo.BolusType.SMB, detailedBolusInfo.getId());
                 final EventOverviewBolusProgress bolusingEvent = EventOverviewBolusProgress.INSTANCE;
                 bolusingEvent.setT(t);
-                bolusingEvent.setStatus(rh.gs(R.string.bolus_delivered, 0d, insulin));
+                bolusingEvent.setStatus(rh.gs(info.nightscout.pump.common.R.string.bolus_delivered_so_far, 0d, insulin));
                 bolusingEvent.setPercent(0);
                 rxBus.send(bolusingEvent);
                 int trials = 0;
                 long now = dateUtil.now();
                 String serial = serialNumber();
-                insightDbHelper.createOrUpdate( new InsightBolusID(
+                insightDbHelper.createOrUpdate(new InsightBolusID(
                         now,
                         serial,
                         bolusID,
@@ -629,14 +633,15 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                         trials = -1;
                         int percentBefore = bolusingEvent.getPercent();
                         bolusingEvent.setPercent((int) (100D / activeBolus.getInitialAmount() * (activeBolus.getInitialAmount() - activeBolus.getRemainingAmount())));
-                        bolusingEvent.setStatus(rh.gs(R.string.bolus_delivered, activeBolus.getInitialAmount() - activeBolus.getRemainingAmount(), activeBolus.getInitialAmount()));
+                        bolusingEvent.setStatus(rh.gs(info.nightscout.pump.common.R.string.bolus_delivered_so_far, activeBolus.getInitialAmount() - activeBolus.getRemainingAmount(),
+                                activeBolus.getInitialAmount()));
                         if (percentBefore != bolusingEvent.getPercent())
                             rxBus.send(bolusingEvent);
                     } else {
                         synchronized ($bolusLock) {
                             if (bolusCancelled || trials == -1 || trials++ >= 5) {
                                 if (!bolusCancelled) {
-                                    bolusingEvent.setStatus(rh.gs(R.string.bolus_delivered, insulin, insulin));
+                                    bolusingEvent.setStatus(rh.gs(info.nightscout.pump.common.R.string.bolus_delivered_so_far, insulin, insulin));
                                     bolusingEvent.setPercent(100);
                                     rxBus.send(bolusingEvent);
                                 }
@@ -707,7 +712,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                                     .isPercent(false)
                                     .absolute(absoluteRate)
                                     .duration(durationInMinutes)
-                                    .comment(R.string.virtualpump_resultok);
+                                    .comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
                         } else {
                             result.comment(ebResult.getComment());
                         }
@@ -759,7 +764,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     .duration(durationInMinutes)
                     .success(true)
                     .enacted(true)
-                    .comment(R.string.virtualpump_resultok);
+                    .comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
             readHistory();
             fetchStatus();
         } catch (AppLayerErrorException e) {
@@ -810,7 +815,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     null,
                     null
             ));
-            result.success(true).enacted(true).comment(R.string.virtualpump_resultok);
+            result.success(true).enacted(true).comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while delivering extended bolus: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
             result.comment(ExceptionTranslator.getString(context, e));
@@ -856,10 +861,10 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     .isTempCancel(true);
             confirmAlert(AlertType.WARNING_36);
             alertService.ignore(null);
-            result.comment(R.string.virtualpump_resultok);
+            result.comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
         } catch (NoActiveTBRToCanceLException e) {
             result.success(true);
-            result.comment(R.string.virtualpump_resultok);
+            result.comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while canceling TBR: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
             result.comment(ExceptionTranslator.getString(context, e));
@@ -906,7 +911,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     }
                 }
             }
-            result.success(true).comment(R.string.virtualpump_resultok);
+            result.success(true).comment(info.nightscout.core.ui.R.string.virtualpump_resultok);
         } catch (AppLayerErrorException e) {
             aapsLogger.info(LTag.PUMP, "Exception while canceling extended bolus: " + e.getClass().getCanonicalName() + " (" + e.getErrorCode() + ")");
             result.comment(ExceptionTranslator.getString(context, e));
@@ -964,15 +969,15 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             }
             PumpSync.PumpState.TemporaryBasal tb = pumpSync.expectedPumpState().getTemporaryBasal();
             if (tb != null) {
-                extended.put("TempBasalAbsoluteRate", convertedToAbsolute(tb, now, profile));
+                extended.put("TempBasalAbsoluteRate", tb.convertedToAbsolute(now, profile));
                 extended.put("TempBasalStart", dateUtil.dateAndTimeString(tb.getTimestamp()));
-                extended.put("TempBasalRemaining", getPlannedRemainingMinutes(tb));
+                extended.put("TempBasalRemaining", tb.getPlannedRemainingMinutes());
             }
             PumpSync.PumpState.ExtendedBolus eb = pumpSync.expectedPumpState().getExtendedBolus();
             if (eb != null) {
                 extended.put("ExtendedBolusAbsoluteRate", eb.getRate());
                 extended.put("ExtendedBolusStart", dateUtil.dateAndTimeString(eb.getTimestamp()));
-                extended.put("ExtendedBolusRemaining", getPlannedRemainingMinutes(eb));
+                extended.put("ExtendedBolusRemaining", eb.getPlannedRemainingMinutes());
             }
             extended.put("BaseBasalRate", getBaseBasalRate());
             status.put("timestamp", dateUtil.toISOString(now));
@@ -1173,7 +1178,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         } catch (Exception e) {
             aapsLogger.error("Exception while reading history", e);
         }
-        new Handler(Looper.getMainLooper()).post(() -> rxBus.send(new EventRefreshOverview("LocalInsightPlugin::readHistory", false)));
+        rxBus.send(new EventRefreshOverview("LocalInsightPlugin::readHistory", false));
     }
 
     private void processHistoryEvents(String serial, List<HistoryEvent> historyEvents) {
@@ -1210,12 +1215,12 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         for (TemporaryBasal temporaryBasal : temporaryBasals) {
             if (temporaryBasal.getDuration() == 0L) {                    // for Stop TBR event duration = 0L
                 pumpSync.syncStopTemporaryBasalWithPumpId(
-                            temporaryBasal.getTimestamp(),
-                            temporaryBasal.getPumpId(),
-                            PumpType.ACCU_CHEK_INSIGHT,
-                            serial);
+                        temporaryBasal.getTimestamp(),
+                        temporaryBasal.getPumpId(),
+                        PumpType.ACCU_CHEK_INSIGHT,
+                        serial);
             }
-            if (temporaryBasal.getRate() != 100.0){
+            if (temporaryBasal.getRate() != 100.0) {
                 pumpSync.syncTemporaryBasalWithPumpId(
                         temporaryBasal.getTimestamp(),
                         temporaryBasal.getRate(),
@@ -1237,7 +1242,8 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             processCannulaFilledEvent(serial, (CannulaFilledEvent) event);
         else if (event instanceof TotalDailyDoseEvent)
             processTotalDailyDoseEvent(serial, (TotalDailyDoseEvent) event);
-        else if (event instanceof TubeFilledEvent) processTubeFilledEvent(serial, (TubeFilledEvent) event);
+        else if (event instanceof TubeFilledEvent)
+            processTubeFilledEvent(serial, (TubeFilledEvent) event);
         else if (event instanceof SniffingDoneEvent)
             processSniffingDoneEvent(serial, (SniffingDoneEvent) event);
         else if (event instanceof PowerUpEvent) processPowerUpEvent(serial, (PowerUpEvent) event);
@@ -1331,7 +1337,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             case PAUSED:
                 pumpID.setEventType(EventType.PumpPaused);
                 if (sp.getBoolean("insight_log_operating_mode_changes", false))
-                    logNote(timestamp, rh.gs(R.string.pump_paused));
+                    logNote(timestamp, rh.gs(info.nightscout.core.ui.R.string.pump_paused));
                 break;
         }
         insightDbHelper.createOrUpdate(pumpID);
@@ -1444,20 +1450,20 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
                     PumpType.ACCU_CHEK_INSIGHT,
                     serial);
             lastBolusTimestamp = bolusID.getTimestamp();
-            sp.putLong(R.string.key_insight_last_bolus_timestamp,lastBolusTimestamp);
+            sp.putLong(R.string.key_insight_last_bolus_timestamp, lastBolusTimestamp);
             lastBolusAmount = event.getImmediateAmount();
             sp.putDouble(R.string.key_insight_last_bolus_amount, lastBolusAmount);
         }
         if (event.getBolusType() == BolusType.EXTENDED || event.getBolusType() == BolusType.MULTIWAVE) {
             if (event.getDuration() > 0 && profileFunction.getProfile(bolusID.getTimestamp()) != null)
-                    pumpSync.syncExtendedBolusWithPumpId(
-                            bolusID.getTimestamp(),
-                            event.getExtendedAmount(),
-                            timestamp - startTimestamp,
-                            isFakingTempsByExtendedBoluses(),
-                            bolusID.getId(),
-                            PumpType.ACCU_CHEK_INSIGHT,
-                            serial);
+                pumpSync.syncExtendedBolusWithPumpId(
+                        bolusID.getTimestamp(),
+                        event.getExtendedAmount(),
+                        timestamp - startTimestamp,
+                        isFakingTempsByExtendedBoluses(),
+                        bolusID.getId(),
+                        PumpType.ACCU_CHEK_INSIGHT,
+                        serial);
         }
     }
 
@@ -1583,22 +1589,22 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
 
     @NonNull @Override
     public Constraint<Integer> applyBasalPercentConstraints(Constraint<Integer> percentRate, @NonNull Profile profile) {
-        percentRate.setIfGreater(getAapsLogger(), 0, rh.gs(R.string.limitingpercentrate, 0, rh.gs(R.string.itmustbepositivevalue)), this);
-        percentRate.setIfSmaller(getAapsLogger(), getPumpDescription().getMaxTempPercent(), rh.gs(R.string.limitingpercentrate, getPumpDescription().getMaxTempPercent(), rh.gs(R.string.pumplimit)), this);
+        percentRate.setIfGreater(getAapsLogger(), 0, rh.gs(info.nightscout.core.ui.R.string.limitingpercentrate, 0, rh.gs(info.nightscout.core.ui.R.string.itmustbepositivevalue)), this);
+        percentRate.setIfSmaller(getAapsLogger(), getPumpDescription().getMaxTempPercent(), rh.gs(info.nightscout.core.ui.R.string.limitingpercentrate, getPumpDescription().getMaxTempPercent(), rh.gs(info.nightscout.core.ui.R.string.pumplimit)), this);
         return percentRate;
     }
 
     @NonNull @Override
     public Constraint<Double> applyBolusConstraints(@NonNull Constraint<Double> insulin) {
         if (!limitsFetched) return insulin;
-        insulin.setIfSmaller(getAapsLogger(), maximumBolusAmount, rh.gs(R.string.limitingbolus, maximumBolusAmount, rh.gs(R.string.pumplimit)), this);
+        insulin.setIfSmaller(getAapsLogger(), maximumBolusAmount, rh.gs(info.nightscout.core.ui.R.string.limitingbolus, maximumBolusAmount, rh.gs(info.nightscout.core.ui.R.string.pumplimit)), this);
         if (insulin.value() < minimumBolusAmount) {
 
             //TODO: Add function to Constraints or use different approach
             // This only works if the interface of the InsightPlugin is called last.
             // If not, another constraint could theoretically set the value between 0 and minimumBolusAmount
 
-            insulin.set(getAapsLogger(), 0d, rh.gs(R.string.limitingbolus, minimumBolusAmount, rh.gs(R.string.pumplimit)), this);
+            insulin.set(getAapsLogger(), 0d, rh.gs(info.nightscout.core.ui.R.string.limitingbolus, minimumBolusAmount, rh.gs(info.nightscout.core.ui.R.string.pumplimit)), this);
         }
         return insulin;
     }
@@ -1612,7 +1618,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
     public void onStateChanged(InsightState state) {
         if (state == InsightState.CONNECTED) {
             statusLoaded = false;
-            new Handler(Looper.getMainLooper()).post(() -> rxBus.send(new EventDismissNotification(Notification.INSIGHT_TIMEOUT_DURING_HANDSHAKE)));
+            rxBus.send(new EventDismissNotification(Notification.INSIGHT_TIMEOUT_DURING_HANDSHAKE));
         } else if (state == InsightState.NOT_PAIRED) {
             connectionService.withdrawConnectionRequest(this);
             statusLoaded = false;
@@ -1625,20 +1631,20 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
             activeTBR = null;
             activeBoluses = null;
             tbrOverNotificationBlock = null;
-            new Handler(Looper.getMainLooper()).post(() -> rxBus.send(new EventRefreshOverview("LocalInsightPlugin::onStateChanged", false)));
+            rxBus.send(new EventRefreshOverview("LocalInsightPlugin::onStateChanged", false));
         }
-        new Handler(Looper.getMainLooper()).post(() -> rxBus.send(new EventLocalInsightUpdateGUI()));
+        rxBus.send(new EventLocalInsightUpdateGUI());
     }
 
     @Override
     public void onPumpPaired() {
-        commandQueue.readStatus(rh.gs(R.string.pump_paired), null);
+        commandQueue.readStatus(rh.gs(info.nightscout.core.ui.R.string.pump_paired), null);
     }
 
     @Override
     public void onTimeoutDuringHandshake() {
         Notification notification = new Notification(Notification.INSIGHT_TIMEOUT_DURING_HANDSHAKE, rh.gs(R.string.timeout_during_handshake), Notification.URGENT);
-        new Handler(Looper.getMainLooper()).post(() -> rxBus.send(new EventNewNotification(notification)));
+        rxBus.send(new EventNewNotification(notification));
     }
 
     @Override
@@ -1646,4 +1652,7 @@ public class LocalInsightPlugin extends PumpPluginBase implements Pump, Constrai
         return true;
     }
 
+    @Override public void clearAllTables() {
+        insightDatabase.clearAllTables();
+    }
 }

@@ -3,18 +3,18 @@
 package info.nightscout.androidaps.interaction.actions
 
 import android.os.Bundle
-import android.support.wearable.view.GridPagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.events.EventWearToMobile
+import info.nightscout.rx.events.EventWearToMobile
 import info.nightscout.androidaps.interaction.utils.EditPlusMinusViewAdapter
 import info.nightscout.androidaps.interaction.utils.PlusMinusEditText
+import info.nightscout.androidaps.nondeprecated.GridPagerAdapterNonDeprecated
 import info.nightscout.shared.SafeParse.stringToDouble
 import info.nightscout.shared.SafeParse.stringToInt
-import info.nightscout.shared.weardata.EventData.ActionECarbsPreCheck
+import info.nightscout.rx.weardata.EventData.ActionECarbsPreCheck
 import java.text.DecimalFormat
 
 class ECarbActivity : ViewSelectorActivity() {
@@ -32,7 +32,7 @@ class ECarbActivity : ViewSelectorActivity() {
         finish()
     }
 
-    private inner class MyGridViewPagerAdapter : GridPagerAdapter() {
+    private inner class MyGridViewPagerAdapter : GridPagerAdapterNonDeprecated() {
 
         override fun getColumnCount(arg0: Int): Int = 4
         override fun getRowCount(): Int = 1

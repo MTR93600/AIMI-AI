@@ -103,7 +103,7 @@
     <string name="action_preset_1">Ön ayar 1</string>
     <string name="action_preset_2">Ön ayar 2</string>
     <string name="action_preset_3">Ön ayar 3</string>
-    <string name="action_free_amount" comment="In prime/fill menu, allows to enter any amount to be used for priming/filling">Serbest miktar</string>
+    <string name="action_free_amount" comment="In prime/fill menu, allows one to enter any amount to be used for priming/filling">Serbest miktar</string>
     <string name="action_confirm">ONAYLA</string>
     <string name="action_timeshift">vardiya</string>
     <string name="action_bolus">Bolus</string>
@@ -176,9 +176,6 @@
     <string name="no_iob_u">--Ü</string>
     <string name="no_cob_g">--g</string>
     <string name="no_tmp_basal_u_h">-.--Ü/sa</string>
-    <string name="uploader_na">Yükleyici: ---%</string>
-    <string name="no_status">S: durum yok</string>
-    <string name="time_stamp_na_min_ago">-- Dakika önce</string>
     <string name="delta_na">--- mg/dl</string>
     <string name="no_loop_status">Döngü Durumu Yok</string>
     <string name="cob_000g">000g</string>

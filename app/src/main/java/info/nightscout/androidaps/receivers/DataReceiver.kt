@@ -6,20 +6,29 @@ import android.provider.Telephony
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import dagger.android.DaggerBroadcastReceiver
-import info.nightscout.androidaps.plugins.general.smsCommunicator.SmsCommunicatorPlugin
-import info.nightscout.androidaps.plugins.source.*
-import info.nightscout.androidaps.utils.extensions.copyDouble
-import info.nightscout.androidaps.utils.extensions.copyLong
-import info.nightscout.androidaps.utils.extensions.copyString
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.BundleLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.core.utils.extensions.copyDouble
+import info.nightscout.core.utils.extensions.copyLong
+import info.nightscout.core.utils.extensions.copyString
+import info.nightscout.core.utils.receivers.DataWorkerStorage
+import info.nightscout.interfaces.receivers.Intents
+import info.nightscout.plugins.general.smsCommunicator.SmsCommunicatorPlugin
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.BundleLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.source.AidexPlugin
+import info.nightscout.source.DexcomPlugin
+import info.nightscout.source.EversensePlugin
+import info.nightscout.source.GlimpPlugin
+import info.nightscout.source.MM640gPlugin
+import info.nightscout.source.PoctechPlugin
+import info.nightscout.source.TomatoPlugin
+import info.nightscout.source.XdripSourcePlugin
 import javax.inject.Inject
 
 open class DataReceiver : DaggerBroadcastReceiver() {
 
     @Inject lateinit var aapsLogger: AAPSLogger
-    @Inject lateinit var dataWorker: DataWorker
+    @Inject lateinit var dataWorkerStorage: DataWorkerStorage
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -28,8 +37,8 @@ open class DataReceiver : DaggerBroadcastReceiver() {
 
         when (intent.action) {
             Intents.ACTION_NEW_BG_ESTIMATE            ->
-                OneTimeWorkRequest.Builder(XdripPlugin.XdripWorker::class.java)
-                    .setInputData(dataWorker.storeInputData(bundle, intent.action)).build()
+                OneTimeWorkRequest.Builder(XdripSourcePlugin.XdripSourceWorker::class.java)
+                    .setInputData(dataWorkerStorage.storeInputData(bundle, intent.action)).build()
             Intents.POCTECH_BG                        ->
                 OneTimeWorkRequest.Builder(PoctechPlugin.PoctechWorker::class.java)
                     .setInputData(Data.Builder().also {
@@ -57,18 +66,18 @@ open class DataReceiver : DaggerBroadcastReceiver() {
                     }.build()).build()
             Telephony.Sms.Intents.SMS_RECEIVED_ACTION ->
                 OneTimeWorkRequest.Builder(SmsCommunicatorPlugin.SmsCommunicatorWorker::class.java)
-                    .setInputData(dataWorker.storeInputData(bundle, intent.action)).build()
+                    .setInputData(dataWorkerStorage.storeInputData(bundle, intent.action)).build()
             Intents.EVERSENSE_BG                      ->
                 OneTimeWorkRequest.Builder(EversensePlugin.EversenseWorker::class.java)
-                    .setInputData(dataWorker.storeInputData(bundle, intent.action)).build()
+                    .setInputData(dataWorkerStorage.storeInputData(bundle, intent.action)).build()
             Intents.DEXCOM_BG                         ->
                 OneTimeWorkRequest.Builder(DexcomPlugin.DexcomWorker::class.java)
-                    .setInputData(dataWorker.storeInputData(bundle, intent.action)).build()
+                    .setInputData(dataWorkerStorage.storeInputData(bundle, intent.action)).build()
             Intents.AIDEX_NEW_BG_ESTIMATE             ->
                 OneTimeWorkRequest.Builder(AidexPlugin.AidexWorker::class.java)
-                    .setInputData(dataWorker.storeInputData(bundle, intent.action)).build()
+                    .setInputData(dataWorkerStorage.storeInputData(bundle, intent.action)).build()
             else                                      -> null
-        }?.let { request -> dataWorker.enqueue(request) }
+        }?.let { request -> dataWorkerStorage.enqueue(request) }
     }
 
 }

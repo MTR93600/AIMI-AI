@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dia_whatmeansdia">Какво е вярно за DIA?</string>
+    <string name="dia_label_exam">Продължителност на действие на инсулина (DIA)</string>
+    <string name="dia_profile">Трябва да зададете стойността за DIA в профила си.</string>
+    <string name="dia_minimumis5h">Минималната стойност е 5 часа.</string>
+    <string name="dia_valuemustbedetermined">Вие трябва сами за себе си да установите правилната стойност за DIA.</string>
+    <string name="hypott_label">Хипо врменна цел</string>
+    <string name="hypott_whenhypott">Каква е основната причина за задаване на хипо временна цел?</string>
+    <string name="hypott_wrongbasal">За да коригирате хипо предизвикано от грешни базални настройки.</string>
+    <string name="hypott_exercise">За да коригирате хипо предизвикано от физическа дейност.</string>
+    <string name="hypott_0basal">За да предотвратите понижаване на КЗ ако вече е активен 0% временен базал.</string>
+    <string name="offlineprofile_whatprofile">Кой профил може да бъде използван и конфигуриран без интернет?</string>
+    <string name="offlineprofile_label">Тема: Offline профил</string>
+    <string name="offlineprofile_nsprofile">NS профил може да бъде използван, но не и да бъде конфигуриран.</string>
+    <string name="pumpdisconnect_whattodo">Какво трябва да се направи когато се разкача помпата?</string>
+    <string name="pumpdisconnect_unnecessary">Това не е нужно, инсулин няма да бъде доставен, тъй като помпата е физически разкачена.</string>
+    <string name="pumpdisconnect_notstop">Доставянето на инсулин няма да спре докато помпата е свързана.</string>
+    <string name="whatistrue">Отбележете всички правилни отговори.</string>
+    <string name="troubleshooting_hint2">https://www.facebook.com/groups/AndroidAPSUsers/</string>
+    <string name="troubleshooting_hint3">https://discord.gg/4fQUWHZ4Mw</string>
+    <string name="insulin_fiasp">Fiasp®</string>
+    <string name="sensitivity_which">Отбележете всички правилни отговори.</string>
+    <string name="ic_label_exam">Съотношение на инсулин към въглехидрати (I:C)</string>
+    <string name="ic_increasingvalue">По-високите стойности на I:C водят до по-малко инсулин доставени за дадено количество въглехидрати.</string>
+    <string name="ic_decreasingvalue">По-ниските стойности на I:C водят до повече инсулин доставен за дадено количество въглехидрати.</string>
+    <string name="profileswitch_unchanged">ISF и I:C ще останат непроменени.</string>
+</resources>

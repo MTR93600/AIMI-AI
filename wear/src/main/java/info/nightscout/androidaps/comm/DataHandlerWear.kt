@@ -16,20 +16,20 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.tiles.TileService
 import com.google.android.gms.wearable.WearableListenerService
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.events.EventWearToMobile
 import info.nightscout.androidaps.interaction.WatchfaceConfigurationActivity
 import info.nightscout.androidaps.interaction.actions.AcceptActivity
 import info.nightscout.androidaps.interaction.actions.ProfileSwitchActivity
 import info.nightscout.androidaps.interaction.utils.Persistence
-import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.tile.ActionsTileService
 import info.nightscout.androidaps.tile.QuickWizardTileService
 import info.nightscout.androidaps.tile.TempTargetTileService
-import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.rx.AapsSchedulers
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventWearToMobile
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.rx.weardata.EventData
 import info.nightscout.shared.sharedPreferences.SP
-import info.nightscout.shared.weardata.EventData
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
@@ -162,8 +162,8 @@ class DataHandlerWear @Inject constructor(
                 sp.putInt(R.string.key_bolus_wizard_percentage, it.bolusPercentage)
                 sp.putInt(R.string.key_treatments_safety_max_carbs, it.maxCarbs)
                 sp.putDouble(R.string.key_treatments_safety_max_bolus, it.maxBolus)
-                sp.putDouble(R.string.key_insulin_button_increment_1, it.insulinButtonIncrement1)
-                sp.putDouble(R.string.key_insulin_button_increment_2, it.insulinButtonIncrement2)
+                sp.putDouble(info.nightscout.shared.R.string.key_insulin_button_increment_1, it.insulinButtonIncrement1)
+                sp.putDouble(info.nightscout.shared.R.string.key_insulin_button_increment_2, it.insulinButtonIncrement2)
                 sp.putInt(R.string.key_carbs_button_increment_1, it.carbsButtonIncrement1)
                 sp.putInt(R.string.key_carbs_button_increment_2, it.carbsButtonIncrement2)
             }

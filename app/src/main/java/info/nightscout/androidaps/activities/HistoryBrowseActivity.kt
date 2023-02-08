@@ -11,47 +11,53 @@ import android.widget.TextView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.jjoe64.graphview.GraphView
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.R
-import info.nightscout.androidaps.activities.fragments.HistoryBrowserData
+import dagger.android.support.DaggerAppCompatActivity
 import info.nightscout.androidaps.databinding.ActivityHistorybrowseBinding
-import info.nightscout.androidaps.events.EventAutosensCalculationFinished
-import info.nightscout.androidaps.events.EventCustomCalculationFinished
-import info.nightscout.androidaps.events.EventRefreshOverview
-import info.nightscout.androidaps.events.EventScale
-import info.nightscout.androidaps.extensions.toVisibility
-import info.nightscout.androidaps.extensions.toVisibilityKeepSpace
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.BuildHelper
-import info.nightscout.androidaps.plugins.general.overview.OverviewMenus
-import info.nightscout.androidaps.plugins.general.overview.events.EventUpdateOverviewGraph
-import info.nightscout.androidaps.plugins.general.overview.graphData.GraphData
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.events.EventIobCalculationProgress
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.DefaultValueHelper
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.rx.AapsSchedulers
-import info.nightscout.androidaps.workflow.CalculationWorkflow
-import info.nightscout.shared.logging.LTag
+import info.nightscout.core.events.EventIobCalculationProgress
+import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.core.workflow.CalculationWorkflow
+import info.nightscout.interfaces.Config
+import info.nightscout.interfaces.overview.OverviewMenus
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.DefaultValueHelper
+import info.nightscout.plugins.general.overview.graphData.GraphData
+import info.nightscout.rx.AapsSchedulers
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventAutosensCalculationFinished
+import info.nightscout.rx.events.EventCustomCalculationFinished
+import info.nightscout.rx.events.EventRefreshOverview
+import info.nightscout.rx.events.EventScale
+import info.nightscout.rx.events.EventUpdateOverviewGraph
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.extensions.toVisibility
+import info.nightscout.shared.extensions.toVisibilityKeepSpace
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.DateUtil
+import info.nightscout.shared.utils.T
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import java.util.*
+import java.util.Calendar
+import java.util.GregorianCalendar
 import javax.inject.Inject
 import kotlin.math.min
 
-class HistoryBrowseActivity : NoSplashAppCompatActivity() {
+class HistoryBrowseActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var historyBrowserData: HistoryBrowserData
     @Inject lateinit var injector: HasAndroidInjector
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     @Inject lateinit var defaultValueHelper: DefaultValueHelper
     @Inject lateinit var activePlugin: ActivePlugin
-    @Inject lateinit var buildHelper: BuildHelper
+    @Inject lateinit var config: Config
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var overviewMenus: OverviewMenus
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var context: Context
     @Inject lateinit var calculationWorkflow: CalculationWorkflow
+    @Inject lateinit var rxBus: RxBus
+    @Inject lateinit var rh: ResourceHelper
+    @Inject lateinit var aapsLogger: AAPSLogger
 
     private val disposable = CompositeDisposable()
 
@@ -103,7 +109,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         binding.date.setOnClickListener {
             MaterialDatePicker.Builder.datePicker()
                 .setSelection(dateUtil.timeStampToUtcDateMillis(historyBrowserData.overviewData.fromTime))
-                .setTheme(R.style.DatePicker)
+                .setTheme(info.nightscout.core.ui.R.style.DatePicker)
                 .build()
                 .apply {
                     addOnPositiveButtonClickListener { selection ->
@@ -123,7 +129,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             windowManager.defaultDisplay.getMetrics(dm)
 
         axisWidth = if (dm.densityDpi <= 120) 3 else if (dm.densityDpi <= 160) 10 else if (dm.densityDpi <= 320) 35 else if (dm.densityDpi <= 420) 50 else if (dm.densityDpi <= 560) 70 else 80
-        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gac(this, R.attr.graphGrid)
+        binding.bgGraph.gridLabelRenderer?.gridColor = rh.gac(this, info.nightscout.core.ui.R.attr.graphGrid)
         binding.bgGraph.gridLabelRenderer?.reloadStyles()
         binding.bgGraph.gridLabelRenderer?.labelVerticalWidth = axisWidth
 
@@ -204,12 +210,12 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
                 val graph = GraphView(this)
                 graph.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rh.dpToPx(100)).also { it.setMargins(0, rh.dpToPx(15), 0, rh.dpToPx(10)) }
-                graph.gridLabelRenderer?.gridColor = rh.gac(R.attr.graphGrid)
+                graph.gridLabelRenderer?.gridColor = rh.gac(info.nightscout.core.ui.R.attr.graphGrid)
                 graph.gridLabelRenderer?.reloadStyles()
                 graph.gridLabelRenderer?.isHorizontalLabelsVisible = false
                 graph.gridLabelRenderer?.labelVerticalWidth = axisWidth
                 graph.gridLabelRenderer?.numVerticalLabels = 3
-                graph.viewport.backgroundColor = rh.gac(this, R.attr.viewPortBackgroundColor)
+                graph.viewport.backgroundColor = rh.gac(this, info.nightscout.core.ui.R.attr.viewPortBackgroundColor)
                 relativeLayout.addView(graph)
 
                 val label = TextView(this)
@@ -251,15 +257,13 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
 
     private fun runCalculation(from: String) {
         calculationWorkflow.runCalculation(
-            CalculationWorkflow.HISTORY_CALCULATION,
-            historyBrowserData.iobCobCalculator,
-            historyBrowserData.overviewData,
-            from,
-            historyBrowserData.overviewData.toTime,
+            job = CalculationWorkflow.HISTORY_CALCULATION,
+            iobCobCalculator = historyBrowserData.iobCobCalculator,
+            overviewData = historyBrowserData.overviewData,
+            reason = from,
+            end = historyBrowserData.overviewData.toTime,
             bgDataReload = true,
-            limitDataToOldestAvailable = false,
-            cause = EventCustomCalculationFinished(),
-            runLoop = false
+            cause = EventCustomCalculationFinished()
         )
     }
 
@@ -280,7 +284,6 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         binding.zoom.text = rangeToDisplay.toString()
     }
 
-    @Suppress("UNUSED_PARAMETER")
     @SuppressLint("SetTextI18n")
     fun updateGUI(from: String) {
         aapsLogger.debug(LTag.UI, "updateGui $from")
@@ -292,7 +295,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
         val menuChartSettings = overviewMenus.setting
         graphData.addInRangeArea(historyBrowserData.overviewData.fromTime, historyBrowserData.overviewData.endTime, defaultValueHelper.determineLowLine(), defaultValueHelper.determineHighLine())
         graphData.addBgReadings(menuChartSettings[0][OverviewMenus.CharType.PRE.ordinal], context)
-        if (buildHelper.isDev()) graphData.addBucketedData()
+        graphData.addBucketedData()
         graphData.addTreatments(context)
         graphData.addEps(context, 0.95)
         if (menuChartSettings[0][OverviewMenus.CharType.TREAT.ordinal])
@@ -341,7 +344,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
             if (menuChartSettings[g + 1][OverviewMenus.CharType.DEV.ordinal]) secondGraphData.addDeviations(useDevForScale, 1.0)
             if (menuChartSettings[g + 1][OverviewMenus.CharType.BGI.ordinal]) secondGraphData.addMinusBGI(useBGIForScale, if (alignDevBgiScale) 1.0 else 0.8)
             if (menuChartSettings[g + 1][OverviewMenus.CharType.SEN.ordinal]) secondGraphData.addRatio(useRatioForScale, if (useRatioForScale) 1.0 else 0.8)
-            if (menuChartSettings[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] && buildHelper.isDev()) secondGraphData.addDeviationSlope(useDSForScale, 1.0)
+            if (menuChartSettings[g + 1][OverviewMenus.CharType.DEVSLOPE.ordinal] && config.isDev()) secondGraphData.addDeviationSlope(useDSForScale, 1.0)
 
             // set manual x bounds to have nice steps
             secondGraphData.formatAxis(historyBrowserData.overviewData.fromTime, historyBrowserData.overviewData.endTime)
@@ -364,7 +367,7 @@ class HistoryBrowseActivity : NoSplashAppCompatActivity() {
     }
 
     private fun updateCalcProgress(percent: Int) {
-        binding.progressBar.progress = percent
         binding.progressBar.visibility = (percent != 100).toVisibilityKeepSpace()
+        binding.progressBar.progress = percent
     }
 }
