@@ -372,11 +372,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
         val TDDLast8 = tddCalculator.calculateDaily(-8, 0)?.totalAmount
-        /*val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
-        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47)?.totalAmount
-        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
-        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
-        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4*/
+
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
