@@ -47,7 +47,6 @@ import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
-import info.nightscout.plugins.aps.openAPSaiSMB.StepService
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -60,7 +59,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var tirCalculator: TirCalculator
-    
+
 
 
 
@@ -75,9 +74,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var currentTime: Long = 0
     private var flatBGsDetected = false
     private val millsToThePast = T.mins(60).msecs()
+    private val millsToThePast2 = T.mins(40).msecs()
     private var lastBolusNormalTimecount: Long = 0
+    private var extendedsmbCount: Long = 0
     private var lastBolusSMBcount: Long = 0
-    private var lastSMBmscount: Long = 0
+    private var SMBcount: Long = 0
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -296,7 +297,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
         this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
-
+        this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
 
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
@@ -339,11 +340,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         bolusMealLinks.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastBolusNormalTimecount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1
-            //if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1
+        }
+        val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
+        extendedsmb.forEach{bolus ->
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == lastBolusNormalUnits) extendedsmbCount +=1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount !== lastBolusNormalUnits) SMBcount += 1
         }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
-        //this.mealData.put("countSMBms", lastSMBmscount)
+        this.mealData.put("countSMB40", SMBcount)
+        this.mealData.put("extendedsmbCount", extendedsmbCount)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
@@ -351,51 +357,29 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastBolusSMBUnits", lastBolusSMBUnits)
         this.mealData.put("lastBolusSMBTime", lastBolusSMBTime)
 
-        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
-        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
-        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = true))?.totalAmount
-        var tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
-        val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
-        val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
-        val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
-        /*val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
-        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47)?.totalAmount
-        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
-        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
-        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4*/
         this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
         this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
         this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
         this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
 
+        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 160.0))?.abovePct()
+        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.belowPct()
+        val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = true))?.totalAmount
+        var tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
+        val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
+        val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
+        val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
+        val TDDLast8 = tddCalculator.calculateDaily(-8, 0)?.totalAmount
+
+
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
             insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
         }
-        /*var variableSensitivity: Double
-        var tdd: Double? = null
-        if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
-            val tddWeightedFromLast8H = ((1.4 * tddLast4H!!) + (0.6 * tddLast8to4H!!)) * 3
 
-            tdd =
-                if (tdd1D != null && tdd7D != null && lastHourTIRLow!! > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
-                else tddWeightedFromLast8H
-
-            val aimisensitivity = tddLast24H / tdd7D!!
-            this.profile.put("aimisensitivity", aimisensitivity)
-
-            variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-            variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
-        }else{
-            variableSensitivity = profile.getIsfMgdl()
-            val aimisensitivity = 1
-            this.profile.put("aimisensitivity", aimisensitivity)
-        }*/
 // Add variable for readability and to avoid repeating the same calculations
         val tddWeightedFromLast8H: Double? = if(tddLast4H != null && tddLast8to4H != null){
             ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
@@ -426,8 +410,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
             variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-            if (recentSteps5Minutes > 200 && recentSteps15Minutes > 400) variableSensitivity *= 1.5
-            if (recentSteps30Minutes > 1000 && recentSteps5Minutes === 0) variableSensitivity *= 1.3
+            if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5
+            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 ) variableSensitivity *= 1.3
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {
@@ -453,12 +437,21 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.totalAmount)
         this.mealData.put("TDDAIMIBASAL3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.basalAmount)
         this.mealData.put("TDDAIMIBASAL7", tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.basalAmount)
+        this.mealData.put("TDDPUMP", tddCalculator.calculateDaily(-8, 0)?.totalAmount)
+        this.mealData.put("aimiTDD24", tddCalculator.calculateDaily(-24, 0)?.totalAmount)
+        this.mealData.put("TDDLast8", TDDLast8)
+
 
         //StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         this.mealData.put("StatLow7", tirCalculator.averageTIR(tirCalculator.calculate(7, 65.0, 180.0))?.belowPct())
+        this.mealData.put("StatInRange7", tirCalculator.averageTIR(tirCalculator.calculate(7, 65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRLow", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.belowPct())
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
+        this.mealData.put("currentTIR_70_140_Above", tirCalculator.averageTIR(tirCalculator.calculateDaily(70.0, 140.0))?.abovePct())
+
+
+
 
         this.profile.put("recentSteps5Minutes", recentSteps5Minutes)
         this.profile.put("recentSteps10Minutes", recentSteps10Minutes)

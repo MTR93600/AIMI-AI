@@ -20,6 +20,7 @@ import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import info.nightscout.androidaps.di.DaggerAppComponent
 import info.nightscout.plugins.aps.openAPSaiSMB.StepService
+import info.nightscout.plugins.aps.aimi.StepService
 import info.nightscout.androidaps.receivers.BTReceiver
 import info.nightscout.androidaps.receivers.ChargingStateReceiver
 import info.nightscout.androidaps.receivers.KeepAliveWorker
