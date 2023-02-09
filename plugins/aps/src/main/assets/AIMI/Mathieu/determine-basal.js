@@ -1298,9 +1298,10 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 07/02/23 ");
+                console.log(" 3.1.0.3-dev-g-AIMI-Variant Mathieu 09/02/23 ");
                 console.log(", UPDATE : no automated BFL during the first 180 minutes of iTime, the function No SMB is disable during the 60 first minutes of Itime, The new SMB calculation respect the max msb size with no variation");
                 console.log(", UPDATE2 : creating a request about smb count in the last 40 minutes with the same value than the last manual bolus, if it's < 1 it will try again to send the extended bolussmb. The B30 after 2 SMB is now regarding 40 minutes to count instead of 60 minutes only for this variant.");
+                console.log(", UPDATE 3 : when you will receive with new smb calculation enable a smb > 80% maxsmbsize during the next 40 minutes the calculation will be regarding in three parts. depending of the condition you will receive one or two or all the smb. the interval in the case of 80% of mxsmbsize happen, will be between 15 and 20 minutes");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1486,7 +1487,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 07/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant Mathieu 09/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1837,7 +1838,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
              insulinReq = ((1 + Math.sqrt(aimi_delta)) / 4);
              var microBolus = circadian_smb > (-10) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
              microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-             if (iTime > 180){
+             if (iTime > 180 || meal_data.MaxSMBcount >=1){
                  var M1 = microBolus / 3;
                  var M2 = microBolus / 2;
                     if (bg < 150 && delta <= 10){
@@ -1869,7 +1870,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }
-                   if (iTime > 180){
+                   if (iTime > 180 || meal_data.MaxSMBcount >=1 ){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                        if (bg < 150 && delta <= 10){
@@ -1999,9 +2000,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = 15;
             }else if (iTimeActivation && UAMpredBG < 100){
             SMBInterval = 20;
-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
-            SMBInterval = 10 * aimi_rise;
-            }else if (iTimeActivation && meal_data.lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
+            }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
+            SMBInterval = 15 * aimi_rise;
+            }else if (iTimeActivation && AIMI_lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
             }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0){
             SMBInterval = 10 * aimi_rise;
