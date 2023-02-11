@@ -9,7 +9,7 @@ buildscript {
         rxkotlin_version = '3.0.1'
         room_version = '2.5.0'
         lifecycle_version = '2.5.1'
-        dagger_version = '2.44.2'
+        dagger_version = '2.45'
         coroutines_version = '1.6.4'
         activity_version = '1.6.1'
         fragmentktx_version = '1.5.5'
@@ -60,7 +60,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.1'
         classpath 'com.google.gms:google-services:4.3.14'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.4'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
