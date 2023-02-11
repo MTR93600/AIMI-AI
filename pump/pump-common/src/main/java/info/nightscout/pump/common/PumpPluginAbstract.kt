@@ -346,7 +346,10 @@ abstract class PumpPluginAbstract protected constructor(
         PumpEnactResult(injector).success(false).enacted(false).comment(resourceId)
 
     init {
-        pumpDescription.fillFor(pumpType)
-        this.pumpType = pumpType
+        if(pumpDescription!= null) {
+            pumpDescription.fillFor(pumpType)
+
+            this.pumpType = pumpType
+        }
     }
 }
