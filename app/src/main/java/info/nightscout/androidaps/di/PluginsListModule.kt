@@ -15,7 +15,6 @@ import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlu
 import info.nightscout.androidaps.plugins.pump.medtronic.MedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.OmnipodDashPumpPlugin
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.OmnipodErosPumpPlugin
-import info.nightscout.source.MedLinkPlugin
 import info.nightscout.automation.AutomationPlugin
 import info.nightscout.configuration.configBuilder.ConfigBuilderPlugin
 import info.nightscout.configuration.maintenance.MaintenancePlugin
@@ -53,16 +52,10 @@ import info.nightscout.pump.virtual.VirtualPumpPlugin
 import info.nightscout.sensitivity.SensitivityAAPSPlugin
 import info.nightscout.sensitivity.SensitivityOref1Plugin
 import info.nightscout.sensitivity.SensitivityWeightedAveragePlugin
-import info.nightscout.source.AidexPlugin
-import info.nightscout.source.DexcomPlugin
-import info.nightscout.source.GlimpPlugin
-import info.nightscout.source.GlunovoPlugin
-import info.nightscout.source.IntelligoPlugin
-import info.nightscout.source.MM640gPlugin
-import info.nightscout.source.NSClientSourcePlugin
-import info.nightscout.source.PoctechPlugin
-import info.nightscout.source.RandomBgPlugin
-import info.nightscout.source.TomatoPlugin
+import info.nightscout.smoothing.AvgSmoothingPlugin
+import info.nightscout.smoothing.ExponentialSmoothingPlugin
+import info.nightscout.smoothing.NoSmoothingPlugin
+import info.nightscout.source.*
 import javax.inject.Qualifier
 
 @Suppress("unused")
@@ -314,20 +307,38 @@ abstract class PluginsListModule {
     @Binds
     @AllConfigs
     @IntoMap
-    @IntKey(360)
+    @IntKey(350)
     abstract fun bindNSClientPlugin(plugin: NSClientPlugin): PluginBase
 
     @Binds
-    @Unfinished
+    @AllConfigs
     @IntoMap
-    @IntKey(368)
-    abstract fun bindTidepoolPlugin(plugin: TidepoolPlugin): PluginBase
+    @IntKey(355)
+    abstract fun bindNSClientV3Plugin(plugin: NSClientV3Plugin): PluginBase
 
     @Binds
     @Unfinished
     @IntoMap
-    @IntKey(362)
-    abstract fun bindNSClientV3Plugin(plugin: NSClientV3Plugin): PluginBase
+    @IntKey(360)
+    abstract fun bindTidepoolPlugin(plugin: TidepoolPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(364)
+    abstract fun bindXdripPlugin(plugin: XdripPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(366)
+    abstract fun bindDataBroadcastPlugin(plugin: DataBroadcastPlugin): PluginBase
+
+    @Binds
+    @NotNSClient
+    @IntoMap
+    @IntKey(368)
+    abstract fun bindsOpenHumansPlugin(plugin: OpenHumansUploaderPlugin): PluginBase
 
     @Binds
     @AllConfigs
@@ -347,17 +358,12 @@ abstract class PluginsListModule {
     @IntKey(381)
     abstract fun bindBgQualityCheckPlugin(plugin: BgQualityCheckPlugin): PluginBase
 
-    @Binds
-    @AllConfigs
-    @IntoMap
-    @IntKey(390)
-    abstract fun bindDataBroadcastPlugin(plugin: DataBroadcastPlugin): PluginBase
 
     @Binds
     @AllConfigs
     @IntoMap
     @IntKey(400)
-    abstract fun bindXdripPlugin(plugin: XdripPlugin): PluginBase
+    abstract fun bindXdripSourcePlugin(plugin: XdripSourcePlugin): PluginBase
 
     @Binds
     @AllConfigs
@@ -427,12 +433,6 @@ abstract class PluginsListModule {
     abstract fun bindRandomBgPlugin(plugin: RandomBgPlugin): PluginBase
 
     @Binds
-    @NotNSClient
-    @IntoMap
-    @IntKey(480)
-    abstract fun bindsOpenHumansPlugin(plugin: OpenHumansUploaderPlugin): PluginBase
-
-    @Binds
     @AllConfigs
     @IntoMap
     @IntKey(490)
@@ -443,6 +443,24 @@ abstract class PluginsListModule {
     @IntoMap
     @IntKey(500)
     abstract fun bindThemeSwitcherPlugin(plugin: ThemeSwitcherPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(600)
+    abstract fun bindNoSmoothingPlugin(plugin: NoSmoothingPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(605)
+    abstract fun bindExponentialSmoothingPlugin(plugin: ExponentialSmoothingPlugin): PluginBase
+
+    @Binds
+    @AllConfigs
+    @IntoMap
+    @IntKey(610)
+    abstract fun bindAvgSmoothingPlugin(plugin: AvgSmoothingPlugin): PluginBase
 
     @Qualifier
     annotation class AllConfigs
