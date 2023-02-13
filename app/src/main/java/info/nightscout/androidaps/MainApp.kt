@@ -19,7 +19,7 @@ import androidx.work.WorkManager
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import info.nightscout.androidaps.di.DaggerAppComponent
-import info.nightscout.plugins.aps.openAPSaiSMB.StepService
+//import info.nightscout.plugins.aps.openAPSaiSMB.StepService
 import info.nightscout.plugins.aps.aimi.StepService
 import info.nightscout.androidaps.receivers.BTReceiver
 import info.nightscout.androidaps.receivers.ChargingStateReceiver
@@ -162,7 +162,7 @@ class MainApp : DaggerApplication() {
 
         val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        sensorManager.registerListener(StepService, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager.registerListener(info.nightscout.plugins.aps.aimi.StepService, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     private fun setRxErrorHandler() {
