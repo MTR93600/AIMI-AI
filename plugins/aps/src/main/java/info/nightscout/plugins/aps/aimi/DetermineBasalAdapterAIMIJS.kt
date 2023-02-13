@@ -79,6 +79,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var extendedsmbCount: Long = 0
     private var lastBolusSMBcount: Long = 0
     private var SMBcount: Long = 0
+    private var MaxSMBcount: Long = 0
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -284,17 +285,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("enable_AIMI_Break", sp.getBoolean(R.string.key_use_AimiBreak, false))
         this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
         this.profile.put("key_use_AimiIOBpredBG", sp.getBoolean(R.string.key_use_AimiIOBpredBG, false))
-        //this.profile.put("enable_AIMI_UAM_U200", sp.getBoolean(R.string.key_use_LuymjevU200, false))
-        //this.profile.put("enable_AIMI_UAM_U100", sp.getBoolean(R.string.key_use_LuymjevU100, false))
-        //this.profile.put("enable_AIMI_UAM_Fiasp", sp.getBoolean(R.string.key_use_Fiasp, false))
-        //this.profile.put("enable_AIMI_UAM_Novorapid", sp.getBoolean(R.string.key_use_Novorapid, false))
         this.profile.put("key_use_AimiUAM_ISF", sp.getBoolean(R.string.key_use_AimiUAM_ISF, false))
         this.profile.put("key_use_AIMI_BreakFastLight", sp.getBoolean(R.string.key_use_AIMI_BreakFastLight, false))
         this.profile.put("key_use_disable_b30_BFL", sp.getBoolean(R.string.key_use_disable_b30_BFL, false))
         this.profile.put("key_AIMI_BreakFastLight_timestart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timestart, "6")))
         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
-        //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
         this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
@@ -345,11 +341,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         extendedsmb.forEach{bolus ->
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == lastBolusNormalUnits) extendedsmbCount +=1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount !== lastBolusNormalUnits) SMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === false ) MaxSMBcount += 1
         }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
         this.mealData.put("countSMB40", SMBcount)
         this.mealData.put("extendedsmbCount", extendedsmbCount)
+        this.mealData.put("MaxSMBcount", MaxSMBcount)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
@@ -372,6 +370,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
         val TDDLast8 = tddCalculator.calculateDaily(-8, 0)?.totalAmount
+        val maxaimismb = SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))
 
 
         val insulinDivisor = when {

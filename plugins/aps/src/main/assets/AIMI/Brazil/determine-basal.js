@@ -1922,7 +1922,7 @@ console.log("BYPASS OREF1");
                                   var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
                                   microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                                   }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
-                                  var microBolus = Math.min(AIMI_UAM_CAP + 1,insulinReq*2);
+                                  var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                                   microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                                   }else if (circadian_smb < (-5)){
                                   var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
