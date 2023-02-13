@@ -8,38 +8,39 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.common.base.Joiner
-import info.nightscout.androidaps.data.DetailedBolusInfo
-import info.nightscout.androidaps.database.AppRepository
-import info.nightscout.androidaps.database.entities.TemporaryTarget
-import info.nightscout.androidaps.database.entities.UserEntry.Action
-import info.nightscout.androidaps.database.entities.UserEntry.Sources
-import info.nightscout.androidaps.database.entities.ValueWithUnit
-import info.nightscout.androidaps.database.transactions.InsertAndCancelCurrentTemporaryTargetTransaction
-import info.nightscout.androidaps.dialogs.DialogFragmentWithDate
-import info.nightscout.androidaps.extensions.formatColor
-import info.nightscout.androidaps.interfaces.ActivityNames
-import info.nightscout.androidaps.interfaces.BolusTimer
-import info.nightscout.androidaps.interfaces.CarbTimer
-import info.nightscout.androidaps.interfaces.CommandQueue
-import info.nightscout.androidaps.interfaces.Constraint
-import info.nightscout.androidaps.interfaces.GlucoseUnit
-import info.nightscout.androidaps.interfaces.IobCobCalculator
-import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.logging.UserEntryLogger
-import info.nightscout.androidaps.interfaces.Constraints
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
-import info.nightscout.androidaps.queue.Callback
-import info.nightscout.androidaps.utils.DecimalFormatter
-import info.nightscout.androidaps.utils.DefaultValueHelper
-import info.nightscout.androidaps.utils.HtmlHelper
-import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.ToastUtils
-import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.utils.protection.ProtectionCheck
-import info.nightscout.androidaps.utils.protection.ProtectionCheck.Protection.BOLUS
-import info.nightscout.shared.logging.LTag
+import info.nightscout.core.ui.dialogs.OKDialog
+import info.nightscout.core.ui.toast.ToastUtils
+import info.nightscout.core.utils.extensions.formatColor
+import info.nightscout.database.entities.TemporaryTarget
+import info.nightscout.database.entities.UserEntry.Action
+import info.nightscout.database.entities.UserEntry.Sources
+import info.nightscout.database.entities.ValueWithUnit
+import info.nightscout.database.impl.AppRepository
+import info.nightscout.database.impl.transactions.InsertAndCancelCurrentTemporaryTargetTransaction
+import info.nightscout.interfaces.Constants.CARBS_FAV1_DEFAULT
+import info.nightscout.interfaces.Constants.CARBS_FAV2_DEFAULT
+import info.nightscout.interfaces.Constants.CARBS_FAV3_DEFAULT
+import info.nightscout.interfaces.GlucoseUnit
+import info.nightscout.interfaces.automation.Automation
+import info.nightscout.interfaces.constraints.Constraint
+import info.nightscout.interfaces.constraints.Constraints
+import info.nightscout.interfaces.iob.GlucoseStatusProvider
+import info.nightscout.interfaces.iob.IobCobCalculator
+import info.nightscout.interfaces.logging.UserEntryLogger
+import info.nightscout.interfaces.profile.DefaultValueHelper
+import info.nightscout.interfaces.profile.Profile
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.protection.ProtectionCheck
+import info.nightscout.interfaces.protection.ProtectionCheck.Protection.BOLUS
+import info.nightscout.interfaces.pump.DetailedBolusInfo
+import info.nightscout.interfaces.queue.Callback
+import info.nightscout.interfaces.queue.CommandQueue
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.interfaces.utils.DecimalFormatter
+import info.nightscout.interfaces.utils.HtmlHelper
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.T
 import info.nightscout.ui.R
 import info.nightscout.ui.databinding.DialogCarbsBinding
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -60,19 +61,11 @@ class CarbsDialog : DialogFragmentWithDate() {
     @Inject lateinit var iobCobCalculator: IobCobCalculator
     @Inject lateinit var glucoseStatusProvider: GlucoseStatusProvider
     @Inject lateinit var uel: UserEntryLogger
-    @Inject lateinit var carbTimer: CarbTimer
-    @Inject lateinit var bolusTimer: BolusTimer
+    @Inject lateinit var automation: Automation
     @Inject lateinit var commandQueue: CommandQueue
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var protectionCheck: ProtectionCheck
-    @Inject lateinit var activityNames: ActivityNames
-
-    companion object {
-
-        const val FAV1_DEFAULT = 5
-        const val FAV2_DEFAULT = 10
-        const val FAV3_DEFAULT = 20
-    }
+    @Inject lateinit var uiInteraction: UiInteraction
 
     private var queryingProtection = false
     private val disposable = CompositeDisposable()
@@ -91,11 +84,11 @@ class CarbsDialog : DialogFragmentWithDate() {
         val time = binding.time.value.toInt()
         if (time > 12 * 60 || time < -7 * 24 * 60) {
             binding.time.value = 0.0
-            ToastUtils.warnToast(ctx, R.string.constraint_applied)
+            ToastUtils.warnToast(ctx, info.nightscout.core.ui.R.string.constraint_applied)
         }
         if (binding.duration.value > 10) {
             binding.duration.value = 0.0
-            ToastUtils.warnToast(ctx, R.string.constraint_applied)
+            ToastUtils.warnToast(ctx, info.nightscout.core.ui.R.string.constraint_applied)
         }
         if (binding.carbs.value.toInt() > maxCarbs) {
             binding.carbs.value = 0.0
@@ -133,7 +126,7 @@ class CarbsDialog : DialogFragmentWithDate() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (sp.getBoolean(R.string.key_usebolusreminder, false)) {
+        if (sp.getBoolean(info.nightscout.core.utils.R.string.key_usebolusreminder, false)) {
             glucoseStatusProvider.glucoseStatusData?.let { glucoseStatus ->
                 if (glucoseStatus.glucose + 3 * glucoseStatus.delta < 70.0)
                     binding.bolusReminder.visibility = View.VISIBLE
@@ -154,36 +147,36 @@ class CarbsDialog : DialogFragmentWithDate() {
             savedInstanceState?.getDouble("carbs")
                 ?: 0.0, 0.0, maxCarbs, 1.0, DecimalFormat("0"), false, binding.okcancel.ok, textWatcher
         )
-        val plus1text = toSignedString(sp.getInt(R.string.key_carbs_button_increment_1, FAV1_DEFAULT))
+        val plus1text = toSignedString(sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_1, CARBS_FAV1_DEFAULT))
         binding.plus1.text = plus1text
-        binding.plus1.contentDescription = rh.gs(R.string.carbs) + " " + plus1text
+        binding.plus1.contentDescription = rh.gs(info.nightscout.core.ui.R.string.carbs) + " " + plus1text
         binding.plus1.setOnClickListener {
             binding.carbs.value = max(
                 0.0, binding.carbs.value
-                    + sp.getInt(R.string.key_carbs_button_increment_1, FAV1_DEFAULT)
+                    + sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_1, CARBS_FAV1_DEFAULT)
             )
             validateInputs()
             binding.carbs.announceValue()
         }
 
-        val plus2text = toSignedString(sp.getInt(R.string.key_carbs_button_increment_2, FAV2_DEFAULT))
+        val plus2text = toSignedString(sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_2, CARBS_FAV2_DEFAULT))
         binding.plus2.text = plus2text
-        binding.plus2.contentDescription = rh.gs(R.string.carbs) + " " + plus2text
+        binding.plus2.contentDescription = rh.gs(info.nightscout.core.ui.R.string.carbs) + " " + plus2text
         binding.plus2.setOnClickListener {
             binding.carbs.value = max(
                 0.0, binding.carbs.value
-                    + sp.getInt(R.string.key_carbs_button_increment_2, FAV2_DEFAULT)
+                    + sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_2, CARBS_FAV2_DEFAULT)
             )
             validateInputs()
             binding.carbs.announceValue()
         }
-        val plus3text = toSignedString(sp.getInt(R.string.key_carbs_button_increment_3, FAV3_DEFAULT))
+        val plus3text = toSignedString(sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_3, CARBS_FAV3_DEFAULT))
         binding.plus3.text = plus3text
-        binding.plus2.contentDescription = rh.gs(R.string.carbs) + " " + plus3text
+        binding.plus2.contentDescription = rh.gs(info.nightscout.core.ui.R.string.carbs) + " " + plus3text
         binding.plus3.setOnClickListener {
             binding.carbs.value = max(
                 0.0, binding.carbs.value
-                    + sp.getInt(R.string.key_carbs_button_increment_3, FAV3_DEFAULT)
+                    + sp.getInt(info.nightscout.core.utils.R.string.key_carbs_button_increment_3, CARBS_FAV3_DEFAULT)
             )
             validateInputs()
             binding.carbs.announceValue()
@@ -239,58 +232,58 @@ class CarbsDialog : DialogFragmentWithDate() {
         val hypoTTDuration = defaultValueHelper.determineHypoTTDuration()
         val hypoTT = defaultValueHelper.determineHypoTT()
         val actions: LinkedList<String?> = LinkedList()
-        val unitLabel = if (units == GlucoseUnit.MMOL) rh.gs(R.string.mmol) else rh.gs(R.string.mgdl)
+        val unitLabel = if (units == GlucoseUnit.MMOL) rh.gs(info.nightscout.core.ui.R.string.mmol) else rh.gs(info.nightscout.core.ui.R.string.mgdl)
         val useAlarm = binding.alarmCheckBox.isChecked
         val remindBolus = binding.bolusReminderCheckBox.isChecked
 
         val activitySelected = binding.activityTt.isChecked
         if (activitySelected)
             actions.add(
-                rh.gs(R.string.temp_target_short) + ": " + (DecimalFormatter.to1Decimal(activityTT) + " " + unitLabel + " (" + rh.gs(R.string.format_mins, activityTTDuration) + ")").formatColor(
+                rh.gs(R.string.temp_target_short) + ": " + (DecimalFormatter.to1Decimal(activityTT) + " " + unitLabel + " (" + rh.gs(info.nightscout.core.ui.R.string.format_mins, activityTTDuration) + ")").formatColor(
                     context,
                     rh,
-                    R.attr.tempTargetConfirmation
+                    info.nightscout.core.ui.R.attr.tempTargetConfirmation
                 )
             )
         val eatingSoonSelected = binding.eatingSoonTt.isChecked
         if (eatingSoonSelected)
             actions.add(
                 rh.gs(R.string.temp_target_short) + ": " + (DecimalFormatter.to1Decimal(eatingSoonTT) + " " + unitLabel + " (" + rh.gs(
-                    R.string.format_mins,
+                    info.nightscout.core.ui.R.string.format_mins,
                     eatingSoonTTDuration
-                ) + ")").formatColor(context, rh, R.attr.tempTargetConfirmation)
+                ) + ")").formatColor(context, rh, info.nightscout.core.ui.R.attr.tempTargetConfirmation)
             )
         val hypoSelected = binding.hypoTt.isChecked
         if (hypoSelected)
             actions.add(
-                rh.gs(R.string.temp_target_short) + ": " + (DecimalFormatter.to1Decimal(hypoTT) + " " + unitLabel + " (" + rh.gs(R.string.format_mins, hypoTTDuration) + ")").formatColor(
+                rh.gs(R.string.temp_target_short) + ": " + (DecimalFormatter.to1Decimal(hypoTT) + " " + unitLabel + " (" + rh.gs(info.nightscout.core.ui.R.string.format_mins, hypoTTDuration) + ")").formatColor(
                     context,
                     rh,
-                    R.attr.tempTargetConfirmation
+                    info.nightscout.core.ui.R.attr.tempTargetConfirmation
                 )
             )
 
         val timeOffset = binding.time.value.toInt()
         if (useAlarm && carbs > 0 && timeOffset > 0)
-            actions.add(rh.gs(R.string.alarminxmin, timeOffset).formatColor(context, rh, R.attr.infoColor))
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.alarminxmin, timeOffset).formatColor(context, rh, info.nightscout.core.ui.R.attr.infoColor))
         val duration = binding.duration.value.toInt()
         if (duration > 0)
-            actions.add(rh.gs(R.string.duration) + ": " + duration + rh.gs(R.string.shorthour))
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.duration) + ": " + duration + rh.gs(info.nightscout.shared.R.string.shorthour))
         if (carbsAfterConstraints > 0) {
-            actions.add(rh.gs(R.string.carbs) + ": " + "<font color='" + rh.gac(context, R.attr.carbsColor) + "'>" + rh.gs(R.string.format_carbs, carbsAfterConstraints) + "</font>")
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.carbs) + ": " + "<font color='" + rh.gac(context, info.nightscout.core.ui.R.attr.carbsColor) + "'>" + rh.gs(info.nightscout.core.graph.R.string.format_carbs, carbsAfterConstraints) + "</font>")
             if (carbsAfterConstraints != carbs)
-                actions.add("<font color='" + rh.gac(context, R.attr.warningColor) + "'>" + rh.gs(R.string.carbs_constraint_applied) + "</font>")
+                actions.add("<font color='" + rh.gac(context, info.nightscout.core.ui.R.attr.warningColor) + "'>" + rh.gs(R.string.carbs_constraint_applied) + "</font>")
         }
         val notes = binding.notesLayout.notes.text.toString()
         if (notes.isNotEmpty())
-            actions.add(rh.gs(R.string.notes_label) + ": " + notes)
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.notes_label) + ": " + notes)
 
         if (eventTimeChanged)
-            actions.add(rh.gs(R.string.time) + ": " + dateUtil.dateAndTimeString(eventTime))
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.time) + ": " + dateUtil.dateAndTimeString(eventTime))
 
         if (carbsAfterConstraints > 0 || activitySelected || eatingSoonSelected || hypoSelected) {
             activity?.let { activity ->
-                OKDialog.showConfirmation(activity, rh.gs(R.string.carbs), HtmlHelper.fromHtml(Joiner.on("<br/>").join(actions)), {
+                OKDialog.showConfirmation(activity, rh.gs(info.nightscout.core.ui.R.string.carbs), HtmlHelper.fromHtml(Joiner.on("<br/>").join(actions)), {
                     when {
                         activitySelected -> {
                             uel.log(
@@ -377,22 +370,22 @@ class CarbsDialog : DialogFragmentWithDate() {
                                 ValueWithUnit.Hour(duration).takeIf { duration != 0 })
                         commandQueue.bolus(detailedBolusInfo, object : Callback() {
                             override fun run() {
-                                carbTimer.removeAutomationEventEatReminder()
+                                automation.removeAutomationEventEatReminder()
                                 if (!result.success) {
-                                    activityNames.runAlarm(ctx, result.comment, rh.gs(R.string.treatmentdeliveryerror), R.raw.boluserror)
-                                } else if (sp.getBoolean(R.string.key_usebolusreminder, false) && remindBolus)
-                                    bolusTimer.scheduleAutomationEventBolusReminder()
+                                    uiInteraction.runAlarm(result.comment, rh.gs(info.nightscout.core.ui.R.string.treatmentdeliveryerror), info.nightscout.core.ui.R.raw.boluserror)
+                                } else if (sp.getBoolean(info.nightscout.core.utils.R.string.key_usebolusreminder, false) && remindBolus)
+                                    automation.scheduleAutomationEventBolusReminder()
                             }
                         })
                     }
                     if (useAlarm && carbs > 0 && timeOffset > 0) {
-                        carbTimer.scheduleTimeToEatReminder(T.mins(timeOffset.toLong()).secs().toInt())
+                        automation.scheduleTimeToEatReminder(T.mins(timeOffset.toLong()).secs().toInt())
                     }
                 }, null)
             }
         } else
             activity?.let { activity ->
-                OKDialog.show(activity, rh.gs(R.string.carbs), rh.gs(R.string.no_action_selected))
+                OKDialog.show(activity, rh.gs(info.nightscout.core.ui.R.string.carbs), rh.gs(info.nightscout.core.ui.R.string.no_action_selected))
             }
         return true
     }

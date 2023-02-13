@@ -4,34 +4,34 @@ import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.TestBase
 import info.nightscout.androidaps.TestPumpPlugin
-import info.nightscout.androidaps.dana.DanaPump
-import info.nightscout.androidaps.dana.database.DanaHistoryRecordDao
 import info.nightscout.androidaps.danaRKorean.DanaRKoreanPlugin
 import info.nightscout.androidaps.danaRv2.DanaRv2Plugin
 import info.nightscout.androidaps.danar.DanaRPlugin
 import info.nightscout.androidaps.danar.comm.MessageBase
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.CommandQueue
-import info.nightscout.androidaps.interfaces.ConfigBuilder
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.interfaces.Constraints
-import info.nightscout.androidaps.plugins.pump.common.bolusInfo.DetailedBolusInfoStorage
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.interfaces.ConfigBuilder
+import info.nightscout.interfaces.constraints.Constraints
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.Instantiator
+import info.nightscout.interfaces.pump.DetailedBolusInfoStorage
+import info.nightscout.interfaces.pump.PumpSync
+import info.nightscout.interfaces.queue.CommandQueue
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.pump.dana.DanaPump
+import info.nightscout.pump.dana.database.DanaHistoryRecordDao
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
-import org.junit.Before
+import info.nightscout.shared.utils.DateUtil
+import org.junit.jupiter.api.BeforeEach
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.`when`
+import org.mockito.kotlin.doNothing
 
 open class DanaRTestBase : TestBase() {
 
     @Mock lateinit var sp: SP
-    @Mock lateinit var profileFunction: ProfileFunction
     @Mock lateinit var activePlugin: ActivePlugin
     @Mock lateinit var dateUtil: DateUtil
     @Mock lateinit var danaRPlugin: DanaRPlugin
@@ -44,16 +44,20 @@ open class DanaRTestBase : TestBase() {
     @Mock lateinit var constraintChecker: Constraints
     @Mock lateinit var pumpSync: PumpSync
     @Mock lateinit var danaHistoryRecordDao: DanaHistoryRecordDao
+    @Mock lateinit var instantiator: Instantiator
+    @Mock lateinit var uiInteraction: UiInteraction
 
     private lateinit var testPumpPlugin: TestPumpPlugin
 
-    @Before
+    @BeforeEach
     fun setup() {
-        danaPump = DanaPump(aapsLogger, sp, dateUtil, injector)
+        danaPump = DanaPump(aapsLogger, sp, dateUtil, instantiator)
         testPumpPlugin = TestPumpPlugin(injector)
         `when`(activePlugin.activePump).thenReturn(testPumpPlugin)
         doNothing().`when`(danaRKoreanPlugin).setPluginEnabled(anyObject(), anyBoolean())
         doNothing().`when`(danaRPlugin).setPluginEnabled(anyObject(), anyBoolean())
+        doNothing().`when`(danaRKoreanPlugin).setFragmentVisible(anyObject(), anyBoolean())
+        doNothing().`when`(danaRPlugin).setFragmentVisible(anyObject(), anyBoolean())
         `when`(rh.gs(ArgumentMatchers.anyInt())).thenReturn("")
     }
 
@@ -75,6 +79,7 @@ open class DanaRTestBase : TestBase() {
                 it.commandQueue = commandQueue
                 it.pumpSync = pumpSync
                 it.danaHistoryRecordDao = danaHistoryRecordDao
+                it.uiInteraction = uiInteraction
             }
         }
     }

@@ -15,7 +15,7 @@ import info.nightscout.androidaps.plugins.pump.omnipod.common.databinding.Omnipo
 import info.nightscout.androidaps.plugins.pump.omnipod.common.databinding.OmnipodCommonWizardProgressIndicationBinding
 import info.nightscout.androidaps.plugins.pump.omnipod.common.ui.wizard.common.activity.OmnipodWizardActivityBase
 import info.nightscout.androidaps.plugins.pump.omnipod.common.ui.wizard.common.viewmodel.ViewModelBase
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.shared.interfaces.ResourceHelper
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -51,7 +51,7 @@ abstract class WizardFragmentBase : DaggerFragment() {
         if (nextPage == null) {
             binding.navButtonsLayout.buttonNext.text = getString(R.string.omnipod_common_wizard_button_finish)
             binding.navButtonsLayout.buttonNext.backgroundTintList =
-                ColorStateList.valueOf(rh.gac(context, R.attr.omniWizardFinishButtonColor))
+                ColorStateList.valueOf(rh.gac(context, info.nightscout.core.ui.R.attr.omniWizardFinishButtonColor))
         }
 
         updateProgressIndication()

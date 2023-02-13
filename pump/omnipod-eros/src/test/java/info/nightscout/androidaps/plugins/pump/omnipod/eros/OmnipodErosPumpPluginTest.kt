@@ -3,24 +3,25 @@ package info.nightscout.androidaps.plugins.pump.omnipod.eros
 import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.TestBase
-import info.nightscout.androidaps.data.PumpEnactResult
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.ActivityNames
-import info.nightscout.androidaps.interfaces.CommandQueue
-import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
-import info.nightscout.androidaps.plugins.pump.common.defs.TempBasalPair
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
+import info.nightscout.androidaps.plugins.pump.omnipod.eros.history.database.ErosHistoryDatabase
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.manager.AapsOmnipodErosManager
-import info.nightscout.androidaps.utils.rx.TestAapsSchedulers
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.Profile
+import info.nightscout.interfaces.pump.PumpEnactResult
+import info.nightscout.interfaces.pump.PumpSync
+import info.nightscout.interfaces.pump.defs.PumpType
+import info.nightscout.interfaces.queue.CommandQueue
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.pump.common.defs.TempBasalPair
+import info.nightscout.rx.TestAapsSchedulers
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.shared.interfaces.ResourceHelper
 import org.joda.time.DateTimeZone
 import org.joda.time.tz.UTCProvider
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Answers
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
@@ -34,14 +35,15 @@ class OmnipodErosPumpPluginTest : TestBase() {
     @Mock lateinit var rh: ResourceHelper
     @Mock(answer = Answers.RETURNS_DEEP_STUBS) lateinit var activePlugin: ActivePlugin
     @Mock lateinit var aapsOmnipodErosManager: AapsOmnipodErosManager
-    @Mock lateinit var activityNames: ActivityNames
+    @Mock lateinit var uiInteraction: UiInteraction
     @Mock lateinit var commandQueue: CommandQueue
     @Mock lateinit var rileyLinkUtil: RileyLinkUtil
     @Mock lateinit var pumpSync: PumpSync
+    @Mock lateinit var erosHistoryDatabase: ErosHistoryDatabase
 
     private var rxBusWrapper = RxBus(TestAapsSchedulers(), aapsLogger)
 
-    @Before fun prepare() {
+    @BeforeEach fun prepare() {
         `when`(rh.gs(ArgumentMatchers.anyInt(), ArgumentMatchers.anyLong()))
             .thenReturn("")
     }
@@ -52,9 +54,9 @@ class OmnipodErosPumpPluginTest : TestBase() {
         // mock all the things
         val plugin = OmnipodErosPumpPlugin(
             injector, aapsLogger, TestAapsSchedulers(), rxBusWrapper, null,
-            rh, activePlugin, null, null, aapsOmnipodErosManager, commandQueue,
+            rh, null, null, aapsOmnipodErosManager, commandQueue,
             null, null, null, null,
-            rileyLinkUtil, null, null, pumpSync, activityNames
+            rileyLinkUtil, null, null, pumpSync, uiInteraction, erosHistoryDatabase
         )
         val pumpState = PumpSync.PumpState(null, null, null, null, "")
         `when`(pumpSync.expectedPumpState()).thenReturn(pumpState)

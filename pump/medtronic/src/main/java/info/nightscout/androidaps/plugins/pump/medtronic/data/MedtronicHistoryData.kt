@@ -3,37 +3,45 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.data.DetailedBolusInfo
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
-import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
-import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntry
-import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryBolus
-import info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryTBR
-import info.nightscout.androidaps.plugins.pump.common.utils.DateTimeUtil
-import info.nightscout.androidaps.plugins.pump.common.utils.StringUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.R
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.MedtronicPumpHistoryDecoder
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntry
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryEntryType
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump.PumpHistoryResult
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.*
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BolusDTO
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BolusWizardDTO
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.DailyTotalsDTO
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalPair
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.TempBasalProcessDTO
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.PumpBolusType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicConst
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.plugins.pump.common.sync.PumpSyncStorage
+import info.nightscout.core.utils.DateTimeUtil
+import info.nightscout.interfaces.notifications.Notification
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.pump.DetailedBolusInfo
+import info.nightscout.interfaces.pump.PumpSync
+import info.nightscout.interfaces.pump.defs.PumpType
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.pump.common.sync.PumpDbEntry
+import info.nightscout.pump.common.sync.PumpDbEntryBolus
+import info.nightscout.pump.common.sync.PumpDbEntryCarbs
+import info.nightscout.pump.common.sync.PumpDbEntryTBR
+import info.nightscout.pump.common.sync.PumpSyncStorage
+import info.nightscout.pump.core.utils.StringUtil
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.LocalDateTime
-import java.util.*
+import java.util.GregorianCalendar
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,10 +63,11 @@ open class MedtronicHistoryData @Inject constructor(
     val rxBus: RxBus,
     val activePlugin: ActivePlugin,
     val medtronicUtil: MedtronicUtil,
-    val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
+    private val medtronicPumpHistoryDecoder: MedtronicPumpHistoryDecoder,
     val medtronicPumpStatus: MedtronicPumpStatus,
-    val pumpSync: PumpSync,
-    val pumpSyncStorage: PumpSyncStorage
+    private val pumpSync: PumpSync,
+    private val pumpSyncStorage: PumpSyncStorage,
+    private val uiInteraction: UiInteraction
 ) {
 
     var allHistory: MutableList<PumpHistoryEntry> = mutableListOf()
@@ -572,13 +581,15 @@ open class MedtronicHistoryData @Inject constructor(
         if (bolus.containsDecodedData("Estimate")) {
             val bolusWizard = bolus.decodedData["Estimate"] as BolusWizardDTO
 
-            pumpSyncStorage.addCarbs(info.nightscout.androidaps.plugins.pump.common.sync.PumpDbEntryCarbs(
+            pumpSyncStorage.addCarbs(
+                PumpDbEntryCarbs(
                 tryToGetByLocalTime(bolus.atechDateTime),
                 bolusWizard.carbs.toDouble(),
                 medtronicPumpStatus.pumpType,
                 medtronicPumpStatus.serialNumber,
                 bolus.pumpId
-            ))
+            )
+            )
         }
     }
 
@@ -643,7 +654,7 @@ open class MedtronicHistoryData @Inject constructor(
 
 
                         if (tempBasalProcessDTO.durationAsSeconds <= 0) {
-                            rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
+                            uiInteraction.addNotification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)
                             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
                         } else {
                             val result = pumpSync.syncTemporaryBasalWithTempId(
@@ -684,7 +695,7 @@ open class MedtronicHistoryData @Inject constructor(
                             "duration=${tempBasalProcessDTO.durationAsSeconds} s, pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
                         if (tempBasalProcessDTO.durationAsSeconds <= 0) {
-                            rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
+                            uiInteraction.addNotification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)
                             aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
                         } else {
                             val result = pumpSync.syncTemporaryBasalWithPumpId(
@@ -953,7 +964,7 @@ open class MedtronicHistoryData @Inject constructor(
                 "pumpSerial=${medtronicPumpStatus.serialNumber}]")
 
             if (tempBasalProcess.durationAsSeconds <= 0) {
-                rxBus.send(EventNewNotification(Notification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)))
+                uiInteraction.addNotification(Notification.MDT_INVALID_HISTORY_DATA, rh.gs(R.string.invalid_history_data), Notification.URGENT)
                 aapsLogger.debug(LTag.PUMP, "syncTemporaryBasalWithPumpId - Skipped")
             } else {
             val result = pumpSync.syncTemporaryBasalWithPumpId(

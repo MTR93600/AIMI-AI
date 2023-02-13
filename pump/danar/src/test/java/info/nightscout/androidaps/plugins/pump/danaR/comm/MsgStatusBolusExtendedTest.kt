@@ -1,9 +1,9 @@
 package info.nightscout.androidaps.plugins.pump.danaR.comm
 
 import info.nightscout.androidaps.danar.comm.MsgStatusBolusExtended
-import info.nightscout.androidaps.utils.T
+import info.nightscout.shared.utils.T
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class MsgStatusBolusExtendedTest : DanaRTestBase() {
 

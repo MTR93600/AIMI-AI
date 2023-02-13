@@ -8,24 +8,21 @@ import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
-import info.nightscout.androidaps.database.AppRepository
-import info.nightscout.androidaps.database.ValueWrapper
-import info.nightscout.androidaps.database.embedments.InterfaceIDs
-import info.nightscout.androidaps.database.entities.Bolus
-import info.nightscout.androidaps.database.entities.TotalDailyDose
-import info.nightscout.androidaps.extensions.toTableRow
-import info.nightscout.androidaps.extensions.toTableRowHeader
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.IobCobCalculator
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.interfaces.stats.TddCalculator
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.MidnightTime
-import info.nightscout.androidaps.utils.T
-import info.nightscout.implementation.R
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.database.ValueWrapper
+import info.nightscout.database.entities.Bolus
+import info.nightscout.database.entities.TotalDailyDose
+import info.nightscout.database.entities.embedments.InterfaceIDs
+import info.nightscout.database.impl.AppRepository
+import info.nightscout.interfaces.iob.IobCobCalculator
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.stats.TddCalculator
+import info.nightscout.interfaces.utils.MidnightTime
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.DateUtil
+import info.nightscout.shared.utils.T
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,7 +40,7 @@ class TddCalculatorImpl @Inject constructor(
     override fun calculate(days: Long): LongSparseArray<TotalDailyDose> {
         var startTime = MidnightTime.calc(dateUtil.now() - T.days(days).msecs())
         val endTime = MidnightTime.calc(dateUtil.now())
-        val stepSize = T.hours(24).msecs()
+        //val stepSize = T.hours(24).msecs() // this is not true on DST change
 
         val result = LongSparseArray<TotalDailyDose>()
         // Try to load cached values
@@ -51,21 +48,24 @@ class TddCalculatorImpl @Inject constructor(
             val tdd = repository.getCalculatedTotalDailyDose(startTime).blockingGet()
             if (tdd is ValueWrapper.Existing) result.put(startTime, tdd.value)
             else break
-            startTime += stepSize
+            //startTime += stepSize
+            startTime = MidnightTime.calc(startTime + T.hours(27).msecs()) // be sure we find correct midnight
         }
 
         if (endTime > startTime) {
-            for (midnight in startTime until endTime step stepSize) {
-                val tdd = calculate(midnight, midnight + stepSize)
+            var midnight = startTime
+            while (midnight < endTime) {
+                val tdd = calculate(midnight, midnight + T.hours(24).msecs())
                 result.put(midnight, tdd)
+                midnight = MidnightTime.calc(midnight + T.hours(27).msecs()) // be sure we find correct midnight
             }
         }
         for (i in 0 until result.size()) {
             val tdd = result.valueAt(i)
             if (tdd.interfaceIDs.pumpType != InterfaceIDs.PumpType.CACHE) {
                 tdd.interfaceIDs.pumpType = InterfaceIDs.PumpType.CACHE
-                aapsLogger.debug(LTag.CORE, "Storing TDD $tdd")
-                repository.createTotalDailyDose(tdd)
+                aapsLogger.debug(LTag.CORE, "Storing TDD ${tdd.timestamp}")
+                repository.insertTotalDailyDose(tdd)
             }
         }
         return result
@@ -139,7 +139,7 @@ class TddCalculatorImpl @Inject constructor(
         return TableLayout(context).also { layout ->
             layout.layoutParams = TableLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
             layout.addView(TextView(context).apply {
-                text = rh.gs(R.string.tdd)
+                text = rh.gs(info.nightscout.core.ui.R.string.tdd)
                 setTypeface(typeface, Typeface.BOLD)
                 gravity = Gravity.CENTER_HORIZONTAL
                 setTextAppearance(android.R.style.TextAppearance_Material_Medium)
@@ -149,7 +149,7 @@ class TddCalculatorImpl @Inject constructor(
             averageTdd?.let { averageTdd ->
                 layout.addView(TextView(context).apply {
                     layoutParams = lp
-                    text = rh.gs(R.string.average)
+                    text = rh.gs(info.nightscout.core.ui.R.string.average)
                     setTypeface(typeface, Typeface.BOLD)
                     gravity = Gravity.CENTER_HORIZONTAL
                     setTextAppearance(android.R.style.TextAppearance_Material_Medium)
@@ -157,7 +157,7 @@ class TddCalculatorImpl @Inject constructor(
                 layout.addView(averageTdd.toTableRow(context, rh, tdds.size(), includeCarbs = true))
             }
             layout.addView(TextView(context).apply {
-                text = rh.gs(R.string.today)
+                text = rh.gs(info.nightscout.shared.R.string.today)
                 setTypeface(typeface, Typeface.BOLD)
                 gravity = Gravity.CENTER_HORIZONTAL
                 setTextAppearance(android.R.style.TextAppearance_Material_Medium)

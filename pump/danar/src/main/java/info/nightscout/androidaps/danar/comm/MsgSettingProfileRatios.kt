@@ -1,8 +1,9 @@
 package info.nightscout.androidaps.danar.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.dana.DanaPump
-import info.nightscout.shared.logging.LTag
+import info.nightscout.pump.dana.DanaPump
+import info.nightscout.rx.logging.LTag
+
 
 class MsgSettingProfileRatios(
     injector: HasAndroidInjector

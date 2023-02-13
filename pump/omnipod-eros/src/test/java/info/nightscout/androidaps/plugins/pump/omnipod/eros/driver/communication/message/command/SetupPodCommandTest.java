@@ -1,11 +1,11 @@
 package info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.communication.message.command;
 
-import org.joda.time.DateTime;
-import org.junit.Test;
-
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
-
 import static org.junit.Assert.assertArrayEquals;
+
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+
+import info.nightscout.pump.core.utils.ByteUtil;
 
 public class SetupPodCommandTest {
     @Test

@@ -1,11 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.comm.message
 
 import com.google.crypto.tink.subtle.Hex
-import info.nightscout.androidaps.extensions.toHex
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.comm.Id
-import info.nightscout.shared.logging.AAPSLoggerTest
+import info.nightscout.core.utils.toHex
 import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class MessagePacketTest {
 

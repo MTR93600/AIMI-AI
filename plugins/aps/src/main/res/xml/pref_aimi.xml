@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:validate="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:key="@string/key_openapssmb_settings"
+        android:title="@string/aimi"
+        app:initialExpandedChildrenCount="0">
+
+    <androidx.preference.PreferenceScreen
+        android:key="AIMI_Variants"
+        android:title="AIMI Variant Preferences"
+        android:summary="Important : select only one variant ! if you don't respect this condition, the default will be apply, which is the variant Pam">
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_b30mssv"
+            android:title="Variant B30-MSSV"
+            android:summary="This variant will have more B30 action and max smb size variable. Absorption is managing by switching predictions IOB and UAM.For slower insulin than luymjev enable Break SMB 10." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_mssv"
+            android:title="Variant MSSV"
+            android:summary="This variant has max smb size variable. it's the most aggressive variant. For slower insulin than luymjev enable Break SMB 10." />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_pammssv"
+            android:title="Variant PAM-MSSV"
+            android:summary="This variant is a stable version with an absorption time for slower insulin. The max smb size is variable." />
+
+    </androidx.preference.PreferenceScreen>
+    <androidx.preference.PreferenceScreen
+        android:key="b30_adavanced_settings"
+        android:title="AIMI B30 Preferences">
+
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="150"
+            android:dialogMessage="If BG is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperBG"
+            android:title="B30 Upper BG to stop B30"
+            validate:floatmaxNumber="200"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dialogMessage="If delta is bigger than this value, B30 (basal 500% during 30 minutes) will not running"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_upperdelta"
+            android:title="B30 Upper delta to stop B30"
+            validate:floatmaxNumber="15"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="20"
+            android:dialogMessage="b30 duration is the duration in minutes of the first basal action after the manual bolus (> iTime_Starting_Bolus)"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_duration"
+            android:title="first B30 duration after a bolus"
+            validate:floatmaxNumber="100"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_Aimiprotein"
+            android:title="meal low carbs"
+            android:summary="meal low carbs with proteins and lipids. this option will force b30" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="60"
+            android:dialogMessage="with meal low carbs enable, this value define how many time after the bolus started iTime you want to force B30"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinstart"
+            android:title="B30 protein start"
+            validate:floatmaxNumber="180"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="60"
+            android:dialogMessage="with meal low carbs enable, this value define the duration of the B30 for proteins and lipids"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinduration"
+            android:title="B30 protein duration"
+            validate:floatmaxNumber="180"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="300"
+            android:dialogMessage="with meal low carbs enable, this value define the % of the B30 for proteins and lipids"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimi_B30_proteinpercent"
+            android:title="B30 protein %"
+            validate:floatmaxNumber="500"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+
+    </androidx.preference.PreferenceScreen>
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="1"
+            android:dialogMessage="@string/openapsma_max_basal_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapsma_max_basal"
+            android:title="@string/openapsma_max_basal_title"
+            validate:floatmaxNumber="25.0"
+            validate:floatminNumber="0.1"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="3"
+            android:dialogMessage="@string/openapssmb_max_iob_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_openapssmb_max_iob"
+            android:title="@string/openapssmb_max_iob_title"
+            validate:floatmaxNumber="25.0"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="180"
+            android:dialogMessage="@string/iTime_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime"
+            android:title="@string/iTime_title"
+            validate:floatmaxNumber="1500"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="2"
+            android:dialogMessage="@string/iTime_Starting_Bolus_summary"
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_Starting_Bolus"
+            android:title="@string/iTime_Starting_Bolus_title"
+            validate:floatmaxNumber="5"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="150"
+            android:dependency="@string/key_use_AimiUAM"
+            android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
+            android:inputType="numberDecimal"
+            android:key="@string/key_use_AIMI_CAP"
+            android:title="MaxSmb size AIMI_UAM : % of basal profile between 50% and 2000%"
+            validate:floatmaxNumber="2000"
+            validate:floatminNumber="50"
+            validate:testType="floatNumericRange" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_openapsama_use_autosens"
+            android:title="@string/openapsama_use_autosens" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiIgnoreCOB"
+            android:title="Ignore COB"
+            android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiBreak"
+            android:title="Break SMB 10 minutes"
+            android:summary="If smb = 0,6 * max_smb_size or if you received 2 smb in the same hour, the interval change for 10 minutes" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiIOBpredBG"
+            android:title="BFIOB"
+            android:summary="Using the IOBpredBG instead of UAMpredBG during the breakfast" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiUAM"
+            android:title="Use AIMI FULL UAM"
+            android:summary="Enable the Full UAM code to define the size of the SMB. Need iTime true with an SMB >= iTime_Starting_Bolus" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_AimiPower"
+            android:title="Use AIMI Power"
+            android:summary="Enable give the full AIMI UAM power during the iTime duration, disable give a 50% power answer during the iTime duration" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_smb"
+            android:summary="@string/enable_smb_summary"
+            android:title="@string/enable_smb" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
+            android:key="@string/key_use_AimiUAM_ISF"
+            android:summary="Dependency with AIMI_UAM mode, active a faster scale ISF"
+            android:title="AIMI UAM Super ISF" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
+            android:key="@string/key_use_AIMI_BreakFastLight"
+            android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
+            android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AIMI_BreakFastLight"
+            android:key="@string/key_use_disable_b30_BFL"
+            android:summary="Disable B30 if Breakfast Light is enable. In this case you will not get 500% basal after the first 20 minutes"
+            android:title="AIMI UAM BreakFast Light/Night B30 disable" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="6"
+            android:dependency="@string/key_use_AimiUAM"
+            android:dialogMessage="Enter AIMI UAM Light Breakfast start time in 24h e.g. 6AM is 6"
+            android:inputType="number"
+            android:key="@string/key_AIMI_BreakFastLight_timestart"
+            android:title="Start Time AIMI UAM Breakfast Light "
+            validate:maxNumber="23"
+            validate:minNumber="0"
+            validate:testType="numericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="10"
+            android:dependency="@string/key_use_AimiUAM"
+            android:dialogMessage="Enter AIMI UAM Light Breakfast end time in 24h e.g. 5AM is 10"
+            android:inputType="number"
+            android:key="@string/key_AIMI_BreakFastLight_timeend"
+            android:title="End Time AIMI UAM Breakfast Light"
+            validate:maxNumber="23"
+            validate:minNumber="0"
+            validate:testType="numericRange" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_smb"
+            android:key="@string/key_allowSMB_with_high_temptarget"
+            android:summary="@string/enable_smb_with_high_temp_target_summary"
+            android:title="@string/enable_smb_with_high_temp_target" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_smb"
+            android:key="@string/key_enableSMB_always"
+            android:summary="@string/enable_smb_always_summary"
+            android:title="@string/enable_smb_always" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_smb"
+            android:key="@string/key_enableSMB_with_COB"
+            android:summary="@string/enable_smb_with_cob_summary"
+            android:title="@string/enable_smb_with_cob" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_smb"
+            android:key="@string/key_enableSMB_with_temptarget"
+            android:summary="@string/enable_smb_with_temp_target_summary"
+            android:title="@string/enable_smb_with_temp_target" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_smb"
+            android:key="@string/key_enableSMB_after_carbs"
+            android:summary="@string/enable_smb_after_carbs_summary"
+            android:title="@string/enable_smb_after_carbs" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="3"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:key="@string/key_smb_interval"
+            android:maxLines="20"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/smb_interval_summary"
+            validate:maxNumber="10"
+            validate:minNumber="1"
+            validate:testType="numericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="30"
+            android:digits="0123456789"
+            android:entries="@array/smbMaxMinutes"
+            android:entryValues="@array/smbMaxMinutes"
+            android:inputType="number"
+            android:key="@string/key_smb_max_minutes"
+            android:title="@string/smb_max_minutes_summary"
+            validate:maxNumber="200"
+            validate:minNumber="15"
+            validate:testType="numericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="30"
+            android:dialogMessage="@string/uam_smb_max_minutes"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:key="@string/key_uam_smb_max_minutes"
+            android:maxLines="20"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/uam_smb_max_minutes_summary"
+            validate:maxNumber="200"
+            validate:minNumber="15"
+            validate:testType="numericRange" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_uam"
+            android:summary="@string/enable_uam_summary"
+            android:title="@string/enable_uam" />
+
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/key_sensitivity_raises_target"
+            android:summary="@string/sensitivity_raises_target_summary"
+            android:title="@string/sensitivity_raises_target_title" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_resistance_lowers_target"
+            android:summary="@string/resistance_lowers_target_summary"
+            android:title="@string/resistance_lowers_target_title" />
+        <!-- TODO AS-FIX -->
+        <SwitchPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="@string/key_high_temptarget_raises_sensitivity"
+            android:summary="@string/high_temptarget_raises_sensitivity_summary"
+            android:title="@string/high_temptarget_raises_sensitivity_title" />
+
+        <!-- TODO AS-FIX -->
+        <SwitchPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="@string/key_low_temptarget_lowers_sensitivity"
+            android:summary="@string/low_temptarget_lowers_sensitivity_summary"
+            android:title="@string/low_temptarget_lowers_sensitivity_title" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="1"
+            android:dialogMessage="@string/carbs_req_threshold_summary"
+            android:digits="0123456789"
+            android:inputType="number"
+            android:key="@string/key_carbsReqThreshold"
+            android:maxLines="20"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/carbs_req_threshold_summary"
+            android:title="@string/carbs_req_threshold"
+            validate:maxNumber="10"
+            validate:minNumber="1"
+            validate:testType="numericRange" />
+
+        <androidx.preference.PreferenceScreen
+            android:key="absorption_smb_advanced"
+            android:title="@string/advancedsettings_title">
+
+            <Preference android:summary="@string/openapsama_link_to_preference_json_doc_txt">
+                <intent
+                    android:action="android.intent.action.VIEW"
+                    android:data="@string/openapsama_link_to_preference_json_doc" />
+            </Preference>
+
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="@string/key_always_use_shortavg"
+                android:summary="@string/always_use_short_avg_summary"
+                android:title="@string/always_use_short_avg" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="3"
+                android:dialogMessage="@string/openapsama_max_daily_safety_multiplier_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_max_daily_safety_multiplier"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:title="@string/openapsama_max_daily_safety_multiplier"
+                validate:maxNumber="10"
+                validate:minNumber="1"
+                validate:testType="numericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="4"
+                android:dialogMessage="@string/openapsama_current_basal_safety_multiplier_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_current_basal_safety_multiplier"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_current_basal_safety_multiplier"
+                validate:floatmaxNumber="20"
+                validate:floatminNumber="1"
+                validate:testType="floatNumericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="0.5"
+                android:dialogMessage="@string/openapsama_smb_delivery_ratio_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_smb_delivery_ratio"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_smb_delivery_ratio"
+                validate:floatmaxNumber="1"
+                validate:floatminNumber="0.1"
+                validate:testType="floatNumericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="0.5"
+                android:dialogMessage="@string/openapsama_smb_delivery_ratio_min_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_smb_delivery_ratio_min"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_smb_delivery_ratio_min"
+                validate:floatmaxNumber="1"
+                validate:floatminNumber="0.1"
+                validate:testType="floatNumericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="0.7"
+                android:dialogMessage="@string/openapsama_smb_delivery_ratio_max_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_smb_delivery_ratio_max"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_smb_delivery_ratio_max"
+                validate:floatmaxNumber="1"
+                validate:floatminNumber="0.1"
+                validate:testType="floatNumericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="40"
+                android:dialogMessage="@string/openapsama_smb_delivery_ratio_bg_range_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_smb_delivery_ratio_bg_range"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_smb_delivery_ratio_bg_range"
+                validate:floatmaxNumber="100"
+                validate:floatminNumber="0"
+                validate:testType="floatNumericRange" />
+
+            <info.nightscout.core.validators.ValidatingEditTextPreference
+                android:defaultValue="1"
+                android:dialogMessage="@string/openapsama_smb_max_range_extension_summary"
+                android:digits="0123456789.,"
+                android:inputType="number"
+                android:key="@string/key_openapsama_smb_max_range_extension"
+                android:maxLines="20"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/openapsama_smb_max_range_extension"
+                validate:floatmaxNumber="1.2"
+                validate:floatminNumber="0.8"
+                validate:testType="floatNumericRange" />
+
+        </androidx.preference.PreferenceScreen>
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

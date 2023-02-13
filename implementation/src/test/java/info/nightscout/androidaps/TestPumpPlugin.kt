@@ -1,18 +1,20 @@
 package info.nightscout.androidaps
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.data.DetailedBolusInfo
-import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.data.PumpEnactResult
-import info.nightscout.androidaps.interfaces.PumpDescription
-import info.nightscout.androidaps.interfaces.Pump
-import info.nightscout.androidaps.interfaces.PumpSync
-import info.nightscout.androidaps.plugins.common.ManufacturerType
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
-import info.nightscout.androidaps.utils.TimeChangeType
+import info.nightscout.androidaps.annotations.OpenForTesting
+import info.nightscout.interfaces.profile.Profile
+import info.nightscout.interfaces.pump.DetailedBolusInfo
+import info.nightscout.interfaces.pump.Pump
+import info.nightscout.interfaces.pump.PumpEnactResult
+import info.nightscout.interfaces.pump.PumpSync
+import info.nightscout.interfaces.pump.defs.ManufacturerType
+import info.nightscout.interfaces.pump.defs.PumpDescription
+import info.nightscout.interfaces.pump.defs.PumpType
+import info.nightscout.interfaces.utils.TimeChangeType
 import org.json.JSONObject
 
 @Suppress("MemberVisibilityCanBePrivate")
+@OpenForTesting
 class TestPumpPlugin(val injector: HasAndroidInjector) : Pump {
 
     var connected = false
@@ -24,7 +26,7 @@ class TestPumpPlugin(val injector: HasAndroidInjector) : Pump {
     val lastData = 0L
 
     val baseBasal = 0.0
-    override val pumpDescription = PumpDescription()
+    override var pumpDescription = PumpDescription()
 
     override fun isInitialized(): Boolean = true
     override fun isSuspended(): Boolean = false
@@ -51,8 +53,12 @@ class TestPumpPlugin(val injector: HasAndroidInjector) : Pump {
     override val batteryLevel: Int = 0
     override fun deliverTreatment(detailedBolusInfo: DetailedBolusInfo): PumpEnactResult = PumpEnactResult(injector).success(true)
     override fun stopBolusDelivering() {}
-    override fun setTempBasalAbsolute(absoluteRate: Double, durationInMinutes: Int, profile: Profile, enforceNew: Boolean, tbrType: PumpSync.TemporaryBasalType): PumpEnactResult = PumpEnactResult(injector).success(true)
-    override fun setTempBasalPercent(percent: Int, durationInMinutes: Int, profile: Profile, enforceNew: Boolean, tbrType: PumpSync.TemporaryBasalType): PumpEnactResult = PumpEnactResult(injector).success(true)
+    override fun setTempBasalAbsolute(absoluteRate: Double, durationInMinutes: Int, profile: Profile, enforceNew: Boolean, tbrType: PumpSync.TemporaryBasalType): PumpEnactResult =
+        PumpEnactResult(injector).success(true)
+
+    override fun setTempBasalPercent(percent: Int, durationInMinutes: Int, profile: Profile, enforceNew: Boolean, tbrType: PumpSync.TemporaryBasalType): PumpEnactResult =
+        PumpEnactResult(injector).success(true)
+
     override fun setExtendedBolus(insulin: Double, durationInMinutes: Int): PumpEnactResult = PumpEnactResult(injector).success(true)
     override fun cancelTempBasal(enforceNew: Boolean): PumpEnactResult = PumpEnactResult(injector).success(true)
     override fun cancelExtendedBolus(): PumpEnactResult = PumpEnactResult(injector).success(true)

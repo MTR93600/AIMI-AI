@@ -10,25 +10,25 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.google.common.base.Joiner
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.Constants
-import info.nightscout.androidaps.database.AppRepository
-import info.nightscout.androidaps.database.entities.TherapyEvent
-import info.nightscout.androidaps.database.entities.UserEntry
-import info.nightscout.androidaps.database.entities.ValueWithUnit
-import info.nightscout.androidaps.database.transactions.InsertIfNewByTimestampTherapyEventTransaction
-import info.nightscout.androidaps.dialogs.DialogFragmentWithDate
-import info.nightscout.androidaps.extensions.fromConstant
-import info.nightscout.androidaps.interfaces.GlucoseUnit
-import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.logging.UserEntryLogger
-import info.nightscout.androidaps.plugins.iob.iobCobCalculator.GlucoseStatusProvider
-import info.nightscout.androidaps.utils.HtmlHelper
-import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.Translator
-import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.shared.logging.LTag
+import info.nightscout.core.extensions.fromConstant
+import info.nightscout.core.ui.dialogs.OKDialog
+import info.nightscout.database.entities.TherapyEvent
+import info.nightscout.database.entities.UserEntry
+import info.nightscout.database.entities.ValueWithUnit
+import info.nightscout.database.impl.AppRepository
+import info.nightscout.database.impl.transactions.InsertIfNewByTimestampTherapyEventTransaction
+import info.nightscout.interfaces.Constants
+import info.nightscout.interfaces.GlucoseUnit
+import info.nightscout.interfaces.Translator
+import info.nightscout.interfaces.iob.GlucoseStatusProvider
+import info.nightscout.interfaces.logging.UserEntryLogger
+import info.nightscout.interfaces.profile.Profile
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.interfaces.utils.HtmlHelper
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.T
 import info.nightscout.ui.R
 import info.nightscout.ui.databinding.DialogCareBinding
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -50,28 +50,13 @@ class CareDialog : DialogFragmentWithDate() {
 
     private val disposable = CompositeDisposable()
 
-    enum class EventType {
-        BGCHECK,
-        SENSOR_INSERT,
-        BATTERY_CHANGE,
-        NOTE,
-        EXERCISE,
-        QUESTION,
-        ANNOUNCEMENT
-    }
+    private var options: UiInteraction.EventType = UiInteraction.EventType.BGCHECK
 
-    private var options: EventType = EventType.BGCHECK
     //private var valuesWithUnit = mutableListOf<XXXValueWithUnit?>()
     private var valuesWithUnit = mutableListOf<ValueWithUnit?>()
 
     @StringRes
-    private var event: Int = R.string.none
-
-    fun setOptions(options: EventType, @StringRes event: Int): CareDialog {
-        this.options = options
-        this.event = event
-        return this
-    }
+    private var event: Int = info.nightscout.core.ui.R.string.none
 
     private var _binding: DialogCareBinding? = null
 
@@ -81,14 +66,14 @@ class CareDialog : DialogFragmentWithDate() {
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putDouble("bg", binding.bg.value)
-        savedInstanceState.putDouble("duration", binding.duration.value)
         savedInstanceState.putInt("event", event)
         savedInstanceState.putInt("options", options.ordinal)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         onCreateViewGeneral()
         _binding = DialogCareBinding.inflate(inflater, container, false)
         return binding.root
@@ -97,46 +82,50 @@ class CareDialog : DialogFragmentWithDate() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        savedInstanceState?.let {
-            event = savedInstanceState.getInt("event", R.string.error)
-            options = EventType.values()[savedInstanceState.getInt("options", 0)]
+        (savedInstanceState ?: arguments)?.let {
+            event = it.getInt("event", info.nightscout.core.ui.R.string.error)
+            options = UiInteraction.EventType.values()[it.getInt("options", 0)]
         }
 
-        binding.icon.setImageResource(when (options) {
-            EventType.BGCHECK        -> R.drawable.ic_cp_bgcheck
-            EventType.SENSOR_INSERT  -> R.drawable.ic_cp_cgm_insert
-            EventType.BATTERY_CHANGE -> R.drawable.ic_cp_pump_battery
-            EventType.NOTE           -> R.drawable.ic_cp_note
-            EventType.EXERCISE       -> R.drawable.ic_cp_exercise
-            EventType.QUESTION       -> R.drawable.ic_cp_question
-            EventType.ANNOUNCEMENT   -> R.drawable.ic_cp_announcement
-        })
-        binding.title.text = rh.gs(when (options) {
-            EventType.BGCHECK        -> R.string.careportal_bgcheck
-            EventType.SENSOR_INSERT  -> R.string.careportal_cgmsensorinsert
-            EventType.BATTERY_CHANGE -> R.string.careportal_pumpbatterychange
-            EventType.NOTE           -> R.string.careportal_note
-            EventType.EXERCISE       -> R.string.careportal_exercise
-            EventType.QUESTION       -> R.string.careportal_question
-            EventType.ANNOUNCEMENT   -> R.string.careportal_announcement
-        })
+        binding.icon.setImageResource(
+            when (options) {
+                UiInteraction.EventType.BGCHECK        -> info.nightscout.core.main.R.drawable.ic_cp_bgcheck
+                UiInteraction.EventType.SENSOR_INSERT  -> info.nightscout.core.main.R.drawable.ic_cp_cgm_insert
+                UiInteraction.EventType.BATTERY_CHANGE -> info.nightscout.core.main.R.drawable.ic_cp_pump_battery
+                UiInteraction.EventType.NOTE           -> info.nightscout.core.main.R.drawable.ic_cp_note
+                UiInteraction.EventType.EXERCISE       -> info.nightscout.core.main.R.drawable.ic_cp_exercise
+                UiInteraction.EventType.QUESTION       -> info.nightscout.core.main.R.drawable.ic_cp_question
+                UiInteraction.EventType.ANNOUNCEMENT   -> info.nightscout.core.main.R.drawable.ic_cp_announcement
+            }
+        )
+        binding.title.text = rh.gs(
+            when (options) {
+                UiInteraction.EventType.BGCHECK        -> info.nightscout.core.ui.R.string.careportal_bgcheck
+                UiInteraction.EventType.SENSOR_INSERT  -> info.nightscout.core.ui.R.string.cgm_sensor_insert
+                UiInteraction.EventType.BATTERY_CHANGE -> info.nightscout.core.ui.R.string.pump_battery_change
+                UiInteraction.EventType.NOTE           -> info.nightscout.core.ui.R.string.careportal_note
+                UiInteraction.EventType.EXERCISE       -> info.nightscout.core.ui.R.string.careportal_exercise
+                UiInteraction.EventType.QUESTION       -> info.nightscout.core.ui.R.string.careportal_question
+                UiInteraction.EventType.ANNOUNCEMENT   -> info.nightscout.core.ui.R.string.careportal_announcement
+            }
+        )
 
         when (options) {
-            EventType.QUESTION,
-            EventType.ANNOUNCEMENT,
-            EventType.BGCHECK        -> {
+            UiInteraction.EventType.QUESTION,
+            UiInteraction.EventType.ANNOUNCEMENT,
+            UiInteraction.EventType.BGCHECK        -> {
                 binding.durationLayout.visibility = View.GONE
             }
 
-            EventType.SENSOR_INSERT,
-            EventType.BATTERY_CHANGE -> {
+            UiInteraction.EventType.SENSOR_INSERT,
+            UiInteraction.EventType.BATTERY_CHANGE -> {
                 binding.bgLayout.visibility = View.GONE
                 binding.bgsource.visibility = View.GONE
                 binding.durationLayout.visibility = View.GONE
             }
 
-            EventType.NOTE,
-            EventType.EXERCISE       -> {
+            UiInteraction.EventType.NOTE,
+            UiInteraction.EventType.EXERCISE       -> {
                 binding.bgLayout.visibility = View.GONE
                 binding.bgsource.visibility = View.GONE
             }
@@ -155,17 +144,23 @@ class CareDialog : DialogFragmentWithDate() {
         }
 
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
-            binding.bgUnits.text = rh.gs(R.string.mmol)
-            binding.bg.setParams(savedInstanceState?.getDouble("bg")
-                ?: bg, 2.0, 30.0, 0.1, DecimalFormat("0.0"), false, binding.okcancel.ok, bgTextWatcher)
+            binding.bgUnits.text = rh.gs(info.nightscout.core.ui.R.string.mmol)
+            binding.bg.setParams(
+                savedInstanceState?.getDouble("bg")
+                    ?: bg, 2.0, 30.0, 0.1, DecimalFormat("0.0"), false, binding.okcancel.ok, bgTextWatcher
+            )
         } else {
-            binding.bgUnits.text = rh.gs(R.string.mgdl)
-            binding.bg.setParams(savedInstanceState?.getDouble("bg")
-                ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok, bgTextWatcher)
+            binding.bgUnits.text = rh.gs(info.nightscout.core.ui.R.string.mgdl)
+            binding.bg.setParams(
+                savedInstanceState?.getDouble("bg")
+                    ?: bg, 36.0, 500.0, 1.0, DecimalFormat("0"), false, binding.okcancel.ok, bgTextWatcher
+            )
         }
-        binding.duration.setParams(savedInstanceState?.getDouble("duration")
-            ?: 0.0, 0.0, Constants.MAX_PROFILE_SWITCH_DURATION, 10.0, DecimalFormat("0"), false, binding.okcancel.ok)
-        if (options == EventType.NOTE || options == EventType.QUESTION || options == EventType.ANNOUNCEMENT || options == EventType.EXERCISE)
+        binding.duration.setParams(
+            savedInstanceState?.getDouble("duration")
+                ?: 0.0, 0.0, Constants.MAX_PROFILE_SWITCH_DURATION, 10.0, DecimalFormat("0"), false, binding.okcancel.ok
+        )
+        if (options == UiInteraction.EventType.NOTE || options == UiInteraction.EventType.QUESTION || options == UiInteraction.EventType.ANNOUNCEMENT || options == UiInteraction.EventType.EXERCISE)
             binding.notesLayout.root.visibility = View.VISIBLE // independent to preferences
         binding.bgLabel.labelFor = binding.bg.editTextId
         binding.durationLabel.labelFor = binding.duration.editTextId
@@ -178,26 +173,26 @@ class CareDialog : DialogFragmentWithDate() {
 
     override fun submit(): Boolean {
         val enteredBy = sp.getString("careportal_enteredby", "AndroidAPS")
-        val unitResId = if (profileFunction.getUnits() == GlucoseUnit.MGDL) R.string.mgdl else R.string.mmol
+        val unitResId = if (profileFunction.getUnits() == GlucoseUnit.MGDL) info.nightscout.core.ui.R.string.mgdl else info.nightscout.core.ui.R.string.mmol
 
         eventTime -= eventTime % 1000
 
         val therapyEvent = TherapyEvent(
             timestamp = eventTime,
             type = when (options) {
-                EventType.BGCHECK        -> TherapyEvent.Type.FINGER_STICK_BG_VALUE
-                EventType.SENSOR_INSERT  -> TherapyEvent.Type.SENSOR_CHANGE
-                EventType.BATTERY_CHANGE -> TherapyEvent.Type.PUMP_BATTERY_CHANGE
-                EventType.NOTE           -> TherapyEvent.Type.NOTE
-                EventType.EXERCISE       -> TherapyEvent.Type.EXERCISE
-                EventType.QUESTION       -> TherapyEvent.Type.QUESTION
-                EventType.ANNOUNCEMENT   -> TherapyEvent.Type.ANNOUNCEMENT
+                UiInteraction.EventType.BGCHECK        -> TherapyEvent.Type.FINGER_STICK_BG_VALUE
+                UiInteraction.EventType.SENSOR_INSERT  -> TherapyEvent.Type.SENSOR_CHANGE
+                UiInteraction.EventType.BATTERY_CHANGE -> TherapyEvent.Type.PUMP_BATTERY_CHANGE
+                UiInteraction.EventType.NOTE           -> TherapyEvent.Type.NOTE
+                UiInteraction.EventType.EXERCISE       -> TherapyEvent.Type.EXERCISE
+                UiInteraction.EventType.QUESTION       -> TherapyEvent.Type.QUESTION
+                UiInteraction.EventType.ANNOUNCEMENT   -> TherapyEvent.Type.ANNOUNCEMENT
             },
             glucoseUnit = TherapyEvent.GlucoseUnit.fromConstant(profileFunction.getUnits())
         )
 
         val actions: LinkedList<String> = LinkedList()
-        if (options == EventType.BGCHECK || options == EventType.QUESTION || options == EventType.ANNOUNCEMENT) {
+        if (options == UiInteraction.EventType.BGCHECK || options == UiInteraction.EventType.QUESTION || options == UiInteraction.EventType.ANNOUNCEMENT) {
             val meterType =
                 when {
                     binding.meter.isChecked  -> TherapyEvent.MeterType.FINGER
@@ -205,35 +200,35 @@ class CareDialog : DialogFragmentWithDate() {
                     else                     -> TherapyEvent.MeterType.MANUAL
                 }
             actions.add(rh.gs(R.string.glucose_type) + ": " + translator.translate(meterType))
-            actions.add(rh.gs(R.string.bg_label) + ": " + Profile.toCurrentUnitsString(profileFunction, binding.bg.value) + " " + rh.gs(unitResId))
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.bg_label) + ": " + Profile.toCurrentUnitsString(profileFunction, binding.bg.value) + " " + rh.gs(unitResId))
             therapyEvent.glucoseType = meterType
             therapyEvent.glucose = binding.bg.value
             valuesWithUnit.add(ValueWithUnit.fromGlucoseUnit(binding.bg.value, profileFunction.getUnits().asText))
             valuesWithUnit.add(ValueWithUnit.TherapyEventMeterType(meterType))
         }
-        if (options == EventType.NOTE || options == EventType.EXERCISE) {
-            actions.add(rh.gs(R.string.duration_label) + ": " + rh.gs(R.string.format_mins, binding.duration.value.toInt()))
+        if (options == UiInteraction.EventType.NOTE || options == UiInteraction.EventType.EXERCISE) {
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.duration_label) + ": " + rh.gs(info.nightscout.core.ui.R.string.format_mins, binding.duration.value.toInt()))
             therapyEvent.duration = T.mins(binding.duration.value.toLong()).msecs()
-            valuesWithUnit.add(ValueWithUnit.Minute(binding.duration.value.toInt()).takeIf { !binding.duration.value.equals(0.0) } )
+            valuesWithUnit.add(ValueWithUnit.Minute(binding.duration.value.toInt()).takeIf { !binding.duration.value.equals(0.0) })
         }
         val notes = binding.notesLayout.notes.text.toString()
         if (notes.isNotEmpty()) {
-            actions.add(rh.gs(R.string.notes_label) + ": " + notes)
+            actions.add(rh.gs(info.nightscout.core.ui.R.string.notes_label) + ": " + notes)
             therapyEvent.note = notes
         }
 
-        if (eventTimeChanged) actions.add(rh.gs(R.string.time) + ": " + dateUtil.dateAndTimeString(eventTime))
+        if (eventTimeChanged) actions.add(rh.gs(info.nightscout.core.ui.R.string.time) + ": " + dateUtil.dateAndTimeString(eventTime))
 
         therapyEvent.enteredBy = enteredBy
 
-        val source = when  (options) {
-            EventType.BGCHECK        -> UserEntry.Sources.BgCheck
-            EventType.SENSOR_INSERT  -> UserEntry.Sources.SensorInsert
-            EventType.BATTERY_CHANGE -> UserEntry.Sources.BatteryChange
-            EventType.NOTE           -> UserEntry.Sources.Note
-            EventType.EXERCISE       -> UserEntry.Sources.Exercise
-            EventType.QUESTION       -> UserEntry.Sources.Question
-            EventType.ANNOUNCEMENT   -> UserEntry.Sources.Announcement
+        val source = when (options) {
+            UiInteraction.EventType.BGCHECK        -> UserEntry.Sources.BgCheck
+            UiInteraction.EventType.SENSOR_INSERT  -> UserEntry.Sources.SensorInsert
+            UiInteraction.EventType.BATTERY_CHANGE -> UserEntry.Sources.BatteryChange
+            UiInteraction.EventType.NOTE           -> UserEntry.Sources.Note
+            UiInteraction.EventType.EXERCISE       -> UserEntry.Sources.Exercise
+            UiInteraction.EventType.QUESTION       -> UserEntry.Sources.Question
+            UiInteraction.EventType.ANNOUNCEMENT   -> UserEntry.Sources.Announcement
         }
 
         activity?.let { activity ->

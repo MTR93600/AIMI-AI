@@ -1,14 +1,13 @@
 package info.nightscout.androidaps.danaRv2.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.dana.DanaPump
-import info.nightscout.androidaps.danar.R
 import info.nightscout.androidaps.danar.comm.MessageBase
-import info.nightscout.androidaps.events.EventPumpStatusChanged
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType
-import info.nightscout.androidaps.utils.T
-import java.util.*
+import info.nightscout.interfaces.pump.defs.PumpType
+import info.nightscout.pump.dana.DanaPump
+import info.nightscout.rx.events.EventPumpStatusChanged
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.utils.T
+import java.util.GregorianCalendar
 
 class MsgHistoryEventsV2 constructor(
     injector: HasAndroidInjector,
@@ -279,6 +278,6 @@ class MsgHistoryEventsV2 constructor(
             }
         }
         if (datetime > danaPump.lastEventTimeLoaded) danaPump.lastEventTimeLoaded = datetime
-        rxBus.send(EventPumpStatusChanged(rh.gs(R.string.processinghistory) + ": " + status))
+        rxBus.send(EventPumpStatusChanged(rh.gs(info.nightscout.pump.dana.R.string.processinghistory) + ": " + status))
     }
 }

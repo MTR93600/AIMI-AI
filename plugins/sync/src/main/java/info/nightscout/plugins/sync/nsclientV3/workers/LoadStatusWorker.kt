@@ -1,0 +1,31 @@
+package info.nightscout.plugins.sync.nsclientV3.workers
+
+import android.content.Context
+import androidx.work.WorkerParameters
+import androidx.work.workDataOf
+import info.nightscout.core.utils.worker.LoggingWorker
+import info.nightscout.plugins.sync.nsclientV3.NSClientV3Plugin
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
+
+class LoadStatusWorker(
+    context: Context, params: WorkerParameters
+) : LoggingWorker(context, params) {
+
+    @Inject lateinit var nsClientV3Plugin: NSClientV3Plugin
+
+    override fun doWorkAndLog(): Result {
+        var ret = Result.success()
+
+        runBlocking {
+            try {
+                val status = nsClientV3Plugin.nsAndroidClient.getStatus()
+                aapsLogger.debug("STATUS: $status")
+            } catch (error: Exception) {
+                aapsLogger.error("Error: ", error)
+                ret = Result.failure(workDataOf("Error" to error.toString()))
+            }
+        }
+        return ret
+    }
+}

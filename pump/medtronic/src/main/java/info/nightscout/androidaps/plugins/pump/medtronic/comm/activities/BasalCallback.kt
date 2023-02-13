@@ -6,8 +6,8 @@ import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedL
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkBasalProfileParser
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
 import java.util.function.Supplier
 import java.util.stream.Collectors
 import java.util.stream.Stream

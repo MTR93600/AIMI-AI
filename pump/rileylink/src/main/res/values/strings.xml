@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="sensor_lost">Sensor lost</string>
+
     <string name="med_link_ble_config_scan_title">MedLink Scan</string>
 
 

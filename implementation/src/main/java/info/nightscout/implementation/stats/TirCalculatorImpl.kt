@@ -8,17 +8,16 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TextView
-import info.nightscout.androidaps.Constants
-import info.nightscout.androidaps.database.AppRepository
-import info.nightscout.androidaps.interfaces.Profile
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.interfaces.stats.TIR
-import info.nightscout.androidaps.interfaces.stats.TirCalculator
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.MidnightTime
-import info.nightscout.androidaps.utils.T
-import info.nightscout.implementation.R
+import info.nightscout.database.impl.AppRepository
+import info.nightscout.interfaces.Constants
+import info.nightscout.interfaces.profile.Profile
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.stats.TIR
+import info.nightscout.interfaces.stats.TirCalculator
+import info.nightscout.interfaces.utils.MidnightTime
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.DateUtil
+import info.nightscout.shared.utils.T
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -121,7 +120,7 @@ class TirCalculatorImpl @Inject constructor(
         return result
     }
 
-    override fun averageTIR(tirs: LongSparseArray<TIR>): TIR {
+     override fun averageTIR(tirs: LongSparseArray<TIR>): TIR {
         val totalTir = if (tirs.size() > 0) {
             TirImpl(tirs.valueAt(0).date, tirs.valueAt(0).lowThreshold, tirs.valueAt(0).highThreshold)
         } else {
@@ -157,7 +156,7 @@ class TirCalculatorImpl @Inject constructor(
             layout.layoutParams = TableLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
             layout.addView(
                 TextView(context).apply {
-                    text = rh.gs(R.string.tir) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + ")"
+                    text = rh.gs(info.nightscout.core.ui.R.string.tir) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + ")"
                     setTypeface(typeface, Typeface.BOLD)
                     gravity = Gravity.CENTER_HORIZONTAL
                     setTextAppearance(android.R.style.TextAppearance_Material_Medium)
@@ -166,7 +165,7 @@ class TirCalculatorImpl @Inject constructor(
             for (i in 0 until tir7.size()) layout.addView(tir7.valueAt(i).toTableRow(context, rh, dateUtil))
             layout.addView(
                 TextView(context).apply {
-                    text = rh.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + ")"
+                    text = rh.gs(info.nightscout.core.ui.R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTirMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTirMgdl) + ")"
                     setTypeface(typeface, Typeface.BOLD)
                     gravity = Gravity.CENTER_HORIZONTAL
                     setTextAppearance(android.R.style.TextAppearance_Material_Medium)
@@ -175,7 +174,7 @@ class TirCalculatorImpl @Inject constructor(
             layout.addView(averageTir30.toTableRow(context, rh, tir30.size()))
             layout.addView(
                 TextView(context).apply {
-                    text = rh.gs(R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTitMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTitMgdl) + ")"
+                    text = rh.gs(info.nightscout.core.ui.R.string.average) + " (" + Profile.toCurrentUnitsString(profileFunction, lowTitMgdl) + "-" + Profile.toCurrentUnitsString(profileFunction, highTitMgdl) + ")"
                     setTypeface(typeface, Typeface.BOLD)
                     gravity = Gravity.CENTER_HORIZONTAL
                     setTextAppearance(android.R.style.TextAppearance_Material_Medium)

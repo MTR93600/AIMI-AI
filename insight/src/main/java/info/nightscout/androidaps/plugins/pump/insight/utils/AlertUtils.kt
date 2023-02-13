@@ -4,7 +4,7 @@ import info.nightscout.androidaps.insight.R
 import info.nightscout.androidaps.plugins.pump.insight.descriptors.Alert
 import info.nightscout.androidaps.plugins.pump.insight.descriptors.AlertCategory
 import info.nightscout.androidaps.plugins.pump.insight.descriptors.AlertType
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.shared.interfaces.ResourceHelper
 import java.text.DecimalFormat
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -106,7 +106,7 @@ class AlertUtils @Inject constructor(private val rh: ResourceHelper) {
 
     fun getAlertIcon(alertCategory: AlertCategory) = when (alertCategory) {
         AlertCategory.ERROR       -> R.drawable.ic_error
-        AlertCategory.MAINTENANCE -> R.drawable.ic_maintenance
+        AlertCategory.MAINTENANCE -> info.nightscout.core.ui.R.drawable.ic_maintenance
         AlertCategory.WARNING     -> R.drawable.ic_warning
         AlertCategory.REMINDER    -> R.drawable.ic_reminder
     }

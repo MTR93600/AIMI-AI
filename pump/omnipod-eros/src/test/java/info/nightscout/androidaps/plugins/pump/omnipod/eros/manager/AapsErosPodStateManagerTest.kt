@@ -1,18 +1,18 @@
 package info.nightscout.androidaps.plugins.pump.omnipod.eros.manager
 
 import info.nightscout.androidaps.TestBase
-import info.nightscout.androidaps.plugins.bus.RxBus
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.definition.FirmwareVersion
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.definition.PodProgressStatus
-import info.nightscout.androidaps.utils.rx.TestAapsSchedulers
+import info.nightscout.rx.TestAapsSchedulers
+import info.nightscout.rx.bus.RxBus
 import info.nightscout.shared.sharedPreferences.SP
 import org.joda.time.DateTime
 import org.joda.time.DateTimeUtils
 import org.joda.time.DateTimeZone
 import org.joda.time.Duration
-import org.junit.After
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 class AapsErosPodStateManagerTest : TestBase() {
@@ -89,7 +89,7 @@ class AapsErosPodStateManagerTest : TestBase() {
         )
     }
 
-    @After fun tearDown() {
+    @AfterEach fun tearDown() {
         DateTimeUtils.setCurrentMillisSystem()
     }
 }

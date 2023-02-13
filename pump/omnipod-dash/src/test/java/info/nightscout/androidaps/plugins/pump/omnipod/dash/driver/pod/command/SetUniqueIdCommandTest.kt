@@ -3,13 +3,13 @@ package info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.pod.command
 import org.apache.commons.codec.DecoderException
 import org.apache.commons.codec.binary.Hex
 import org.junit.Assert
-import org.junit.Test
-import java.util.*
+import org.junit.jupiter.api.Test
+import java.util.Date
 
 class SetUniqueIdCommandTest {
 
     @Test @Throws(DecoderException::class) fun testEncoding() {
-        val encoded = SetUniqueIdCommand.Builder()
+        @Suppress("DEPRECATION") val encoded = SetUniqueIdCommand.Builder()
             .setUniqueId(37879811)
             .setSequenceNumber(6.toShort())
             .setLotNumber(135556289)

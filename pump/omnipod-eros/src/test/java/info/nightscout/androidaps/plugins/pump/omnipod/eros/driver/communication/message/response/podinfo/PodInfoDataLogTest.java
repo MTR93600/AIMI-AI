@@ -1,13 +1,13 @@
 package info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.communication.message.response.podinfo;
 
-import org.joda.time.Duration;
-import org.junit.Test;
-
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil;
-import info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.definition.FaultEventCode;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.joda.time.Duration;
+import org.junit.jupiter.api.Test;
+
+import info.nightscout.androidaps.plugins.pump.omnipod.eros.driver.definition.FaultEventCode;
+import info.nightscout.pump.core.utils.ByteUtil;
 
 public class PodInfoDataLogTest {
     @Test

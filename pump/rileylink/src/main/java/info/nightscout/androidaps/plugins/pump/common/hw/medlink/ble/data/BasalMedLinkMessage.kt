@@ -1,10 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.data
 
-import info.nightscout.androidaps.interfaces.Profile
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.CommandPriority
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.ble.command.BleCommand
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkCommandType
+import info.nightscout.interfaces.profile.Profile
 import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
@@ -19,7 +19,7 @@ class BasalMedLinkMessage<B>(
     btSleepSize: Long,
     bleCommand: BleCommand
 ) : MedLinkPumpMessage<B, Profile?>(MedLinkCommandType.ActiveBasalProfile,
-                                   baseCallBack,
+                                    baseCallBack,
                                     btSleepSize, bleCommand,
                                     CommandPriority.NORMAL) {
     init {

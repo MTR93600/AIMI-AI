@@ -1,12 +1,10 @@
 package info.nightscout.androidaps.danaRKorean.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.danar.R
 import info.nightscout.androidaps.danar.comm.MessageBase
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
-import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
-import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
+import info.nightscout.interfaces.notifications.Notification
+import info.nightscout.rx.events.EventDismissNotification
+import info.nightscout.rx.logging.LTag
 
 class MsgInitConnStatusBasic_k(
     injector: HasAndroidInjector
@@ -32,14 +30,12 @@ class MsgInitConnStatusBasic_k(
         aapsLogger.debug(LTag.PUMPCOMM, "easyUIMode: $easyUIMode")
         aapsLogger.debug(LTag.PUMPCOMM, "Pump password: " + danaPump.password)
         if (danaPump.isEasyModeEnabled) {
-            val notification = Notification(Notification.EASY_MODE_ENABLED, rh.gs(R.string.danar_disableeasymode), Notification.URGENT)
-            rxBus.send(EventNewNotification(notification))
+            uiInteraction.addNotification(Notification.EASY_MODE_ENABLED, rh.gs(info.nightscout.pump.dana.R.string.danar_disableeasymode), Notification.URGENT)
         } else {
             rxBus.send(EventDismissNotification(Notification.EASY_MODE_ENABLED))
         }
         if (!danaPump.isPasswordOK) {
-            val notification = Notification(Notification.WRONG_PUMP_PASSWORD, rh.gs(R.string.wrongpumppassword), Notification.URGENT)
-            rxBus.send(EventNewNotification(notification))
+            uiInteraction.addNotification(Notification.WRONG_PUMP_PASSWORD, rh.gs(info.nightscout.pump.dana.R.string.wrongpumppassword), Notification.URGENT)
         } else {
             rxBus.send(EventDismissNotification(Notification.WRONG_PUMP_PASSWORD))
         }

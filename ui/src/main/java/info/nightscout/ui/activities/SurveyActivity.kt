@@ -2,30 +2,26 @@ package info.nightscout.ui.activities
 
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
-import info.nightscout.androidaps.dialogs.ProfileViewerDialog
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.stats.TddCalculator
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.InstanceId
-import info.nightscout.androidaps.utils.ToastUtils
+import dagger.android.support.DaggerAppCompatActivity
+import info.nightscout.core.ui.toast.ToastUtils
+import info.nightscout.core.utils.fabric.InstanceId
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.ui.UiInteraction
 import info.nightscout.shared.SafeParse
-import info.nightscout.shared.logging.LTag
+import info.nightscout.shared.utils.DateUtil
 import info.nightscout.ui.R
 import info.nightscout.ui.databinding.ActivitySurveyBinding
 import info.nightscout.ui.defaultProfile.DefaultProfile
 import javax.inject.Inject
 
-class SurveyActivity : NoSplashAppCompatActivity() {
+class SurveyActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var activePlugin: ActivePlugin
-    @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var defaultProfile: DefaultProfile
     @Inject lateinit var dateUtil: DateUtil
+    @Inject lateinit var uiInteraction: UiInteraction
 
     private lateinit var binding: ActivitySurveyBinding
 
@@ -38,10 +34,10 @@ class SurveyActivity : NoSplashAppCompatActivity() {
 
         val profileStore = activePlugin.activeProfileSource.profile
         val profileList = profileStore?.getProfileList() ?: return
-        binding.spinner.adapter = ArrayAdapter(this, R.layout.spinner_centered, profileList)
+        binding.spinner.adapter = ArrayAdapter(this, info.nightscout.core.ui.R.layout.spinner_centered, profileList)
 
         binding.profile.setOnClickListener {
-            val age = SafeParse.stringToDouble(binding.age.text.toString())
+            val age = SafeParse.stringToInt(binding.age.text.toString())
             val weight = SafeParse.stringToDouble(binding.weight.text.toString())
             val tdd = SafeParse.stringToDouble(binding.tdd.text.toString())
             if (age < 1 || age > 120) {
@@ -58,15 +54,14 @@ class SurveyActivity : NoSplashAppCompatActivity() {
             }
             profileFunction.getProfile()?.let { runningProfile ->
                 defaultProfile.profile(age, tdd, weight, profileFunction.getUnits())?.let { profile ->
-                    ProfileViewerDialog().also { pvd ->
-                        pvd.arguments = Bundle().also {
-                            it.putLong("time", dateUtil.now())
-                            it.putInt("mode", ProfileViewerDialog.Mode.PROFILE_COMPARE.ordinal)
-                            it.putString("customProfile", runningProfile.toPureNsJson(dateUtil).toString())
-                            it.putString("customProfile2", profile.jsonObject.toString())
-                            it.putString("customProfileName", "Age: $age TDD: $tdd Weight: $weight")
-                        }
-                    }.show(supportFragmentManager, "ProfileViewDialog")
+                    uiInteraction.runProfileViewerDialog(
+                        fragmentManager = supportFragmentManager,
+                        time = dateUtil.now(),
+                        mode = UiInteraction.Mode.PROFILE_COMPARE,
+                        customProfile = runningProfile.toPureNsJson(dateUtil).toString(),
+                        customProfileName = "Age: $age TDD: $tdd Weight: $weight",
+                        customProfile2 = profile.jsonObject.toString()
+                    )
                 }
             }
         }
@@ -91,7 +86,7 @@ class SurveyActivity : NoSplashAppCompatActivity() {
             val specificProfile = profileStore.getSpecificProfile(profileName)
 
             r.profileJson = specificProfile.toString()
-
+/*
             val auth = FirebaseAuth.getInstance()
             auth.signInAnonymously()
                 .addOnCompleteListener(this) { task ->
@@ -109,6 +104,7 @@ class SurveyActivity : NoSplashAppCompatActivity() {
 
                     // ...
                 }
+  */
             finish()
         }
     }

@@ -1,12 +1,9 @@
 package info.nightscout.androidaps.plugins.aps.loop
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.AttributeSet
 import androidx.preference.DropDownPreference
-import androidx.preference.PreferenceDataStore
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.core.R
 import info.nightscout.shared.sharedPreferences.SP
 import java.util.*
 import javax.inject.Inject
@@ -21,8 +18,8 @@ class LoopVariantPreference(context: Context, attrs: AttributeSet?)
 
     init {
         (context.applicationContext as HasAndroidInjector).androidInjector().inject(this)
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.LoopVariantPreference, 0, 0)
-        pluginFolder = typedArray.getString(R.styleable.LoopVariantPreference_pluginFolder)
+        val typedArray = context.obtainStyledAttributes(attrs, info.nightscout.core.validators.R.styleable.LoopVariantPreference, 0, 0)
+        pluginFolder = typedArray.getString(info.nightscout.core.validators.R.styleable.LoopVariantPreference_pluginFolder)
         key = "key_${pluginFolder}_variant";
         val entries = Vector<CharSequence>()
         entries.add(DEFAULT)

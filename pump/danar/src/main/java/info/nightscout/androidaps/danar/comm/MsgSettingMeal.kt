@@ -1,11 +1,9 @@
 package info.nightscout.androidaps.danar.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.danar.R
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
-import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
-import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
+import info.nightscout.interfaces.notifications.Notification
+import info.nightscout.rx.events.EventDismissNotification
+import info.nightscout.rx.logging.LTag
 
 class MsgSettingMeal(
     injector: HasAndroidInjector
@@ -34,14 +32,12 @@ class MsgSettingMeal(
             danaPump.basalStep = 0.01
         }
         if (danaPump.basalStep != 0.01) {
-            val notification = Notification(Notification.WRONG_BASAL_STEP, rh.gs(R.string.danar_setbasalstep001), Notification.URGENT)
-            rxBus.send(EventNewNotification(notification))
+            uiInteraction.addNotification(Notification.WRONG_BASAL_STEP, rh.gs(info.nightscout.pump.dana.R.string.danar_setbasalstep001), Notification.URGENT)
         } else {
             rxBus.send(EventDismissNotification(Notification.WRONG_BASAL_STEP))
         }
         if (danaPump.isConfigUD) {
-            val notification = Notification(Notification.UD_MODE_ENABLED, rh.gs(R.string.danar_switchtouhmode), Notification.URGENT)
-            rxBus.send(EventNewNotification(notification))
+            uiInteraction.addNotification(Notification.UD_MODE_ENABLED, rh.gs(info.nightscout.pump.dana.R.string.danar_switchtouhmode), Notification.URGENT)
         } else {
             rxBus.send(EventDismissNotification(Notification.UD_MODE_ENABLED))
         }

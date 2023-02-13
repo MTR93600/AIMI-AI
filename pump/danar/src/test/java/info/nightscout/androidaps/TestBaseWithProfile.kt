@@ -3,19 +3,19 @@ package info.nightscout.androidaps
 import android.content.Context
 import dagger.android.AndroidInjector
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.data.ProfileSealed
-import info.nightscout.androidaps.extensions.pureProfileFromJson
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.Config
-import info.nightscout.androidaps.interfaces.IobCobCalculator
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ProfileStore
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.core.extensions.pureProfileFromJson
+import info.nightscout.core.profile.ProfileSealed
+import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.interfaces.Config
+import info.nightscout.interfaces.iob.IobCobCalculator
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.profile.ProfileStore
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.shared.interfaces.ResourceHelper
+import info.nightscout.shared.utils.DateUtil
 import org.json.JSONObject
-import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
 import org.mockito.ArgumentMatchers.anyDouble
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
@@ -44,7 +44,7 @@ open class TestBaseWithProfile : TestBase() {
 
     @Suppress("PropertyName") val TESTPROFILENAME = "someProfile"
 
-    @Before
+    @BeforeEach
     fun prepareMock() {
         validProfileJSON = "{\"dia\":\"5\",\"carbratio\":[{\"time\":\"00:00\",\"value\":\"30\"}],\"carbs_hr\":\"20\",\"delay\":\"20\",\"sens\":[{\"time\":\"00:00\",\"value\":\"3\"}," +
             "{\"time\":\"2:00\",\"value\":\"3.4\"}],\"timezone\":\"UTC\",\"basal\":[{\"time\":\"00:00\",\"value\":\"1\"}],\"target_low\":[{\"time\":\"00:00\",\"value\":\"4.5\"}]," +
@@ -152,6 +152,6 @@ open class TestBaseWithProfile : TestBase() {
         store.put(TESTPROFILENAME, JSONObject(validProfileJSON))
         json.put("defaultProfile", TESTPROFILENAME)
         json.put("store", store)
-        return ProfileStore(profileInjector, json, dateUtil)
+        return ProfileStoreObject(profileInjector, json, dateUtil)
     }
 }

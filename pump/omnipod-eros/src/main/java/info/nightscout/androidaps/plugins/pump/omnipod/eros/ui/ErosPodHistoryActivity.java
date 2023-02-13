@@ -22,22 +22,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
-import info.nightscout.androidaps.plugins.pump.omnipod.eros.history.ErosHistory;
-import info.nightscout.androidaps.plugins.pump.omnipod.eros.history.database.ErosHistoryRecordEntity;
-import info.nightscout.androidaps.interfaces.Profile;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.shared.logging.LTag;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpHistoryEntryGroup;
-import info.nightscout.androidaps.plugins.pump.common.defs.PumpType;
-import info.nightscout.androidaps.plugins.pump.common.defs.TempBasalPair;
-import info.nightscout.androidaps.plugins.pump.common.utils.ProfileUtil;
+import dagger.android.support.DaggerAppCompatActivity;
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.R;
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.definition.PodHistoryEntryType;
+import info.nightscout.androidaps.plugins.pump.omnipod.eros.history.ErosHistory;
+import info.nightscout.androidaps.plugins.pump.omnipod.eros.history.database.ErosHistoryRecordEntity;
 import info.nightscout.androidaps.plugins.pump.omnipod.eros.util.AapsOmnipodUtil;
-import  info.nightscout.androidaps.interfaces.ResourceHelper;
+import info.nightscout.interfaces.profile.Profile;
+import info.nightscout.interfaces.pump.defs.PumpType;
+import info.nightscout.pump.common.defs.PumpHistoryEntryGroup;
+import info.nightscout.pump.common.defs.TempBasalPair;
+import info.nightscout.pump.common.utils.ProfileUtil;
+import info.nightscout.rx.logging.AAPSLogger;
+import info.nightscout.rx.logging.LTag;
+import info.nightscout.shared.interfaces.ResourceHelper;
 
-public class ErosPodHistoryActivity extends NoSplashAppCompatActivity {
+public class ErosPodHistoryActivity extends DaggerAppCompatActivity {
 
     @Inject AAPSLogger aapsLogger;
     @Inject AapsOmnipodUtil aapsOmnipodUtil;
@@ -148,7 +148,7 @@ public class ErosPodHistoryActivity extends NoSplashAppCompatActivity {
 
         typeListFull = getTypeList(PumpHistoryEntryGroup.Companion.getTranslatedList(rh));
 
-        ArrayAdapter<TypeList> spinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_centered, typeListFull);
+        ArrayAdapter<TypeList> spinnerAdapter = new ArrayAdapter<>(this, info.nightscout.core.ui.R.layout.spinner_centered, typeListFull);
         historyTypeSpinner.setAdapter(spinnerAdapter);
 
         historyTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

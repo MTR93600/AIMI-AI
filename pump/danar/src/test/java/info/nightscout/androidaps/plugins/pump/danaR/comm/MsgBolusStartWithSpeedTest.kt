@@ -1,9 +1,9 @@
 package info.nightscout.androidaps.plugins.pump.danaR.comm
 
 import info.nightscout.androidaps.danar.comm.MsgBolusStartWithSpeed
-import info.nightscout.androidaps.interfaces.Constraint
+import info.nightscout.interfaces.constraints.Constraint
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
 class MsgBolusStartWithSpeedTest : DanaRTestBase() {

@@ -1,6 +1,5 @@
 package info.nightscout.androidaps.plugins.pump.insight.activities;
 
-import info.nightscout.androidaps.extensions.BluetoothAdapterExtensionKt;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -33,16 +32,17 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
-import info.nightscout.androidaps.extensions.IntentExtensionKt;
+import dagger.android.support.DaggerAppCompatActivity;
 import info.nightscout.androidaps.insight.R;
-import info.nightscout.androidaps.interfaces.PumpSync;
-import info.nightscout.androidaps.plugins.pump.common.ble.BlePreCheck;
 import info.nightscout.androidaps.plugins.pump.insight.connection_service.InsightConnectionService;
 import info.nightscout.androidaps.plugins.pump.insight.descriptors.InsightState;
 import info.nightscout.androidaps.plugins.pump.insight.utils.ExceptionTranslator;
+import info.nightscout.core.utils.extensions.BluetoothAdapterExtensionKt;
+import info.nightscout.core.utils.extensions.IntentExtensionKt;
+import info.nightscout.interfaces.pump.BlePreCheck;
+import info.nightscout.interfaces.pump.PumpSync;
 
-public class InsightPairingActivity extends NoSplashAppCompatActivity implements InsightConnectionService.StateCallback, View.OnClickListener, InsightConnectionService.ExceptionCallback {
+public class InsightPairingActivity extends DaggerAppCompatActivity implements InsightConnectionService.StateCallback, View.OnClickListener, InsightConnectionService.ExceptionCallback {
 
     @Inject BlePreCheck blePreCheck;
     @Inject Context context;
@@ -68,7 +68,8 @@ public class InsightPairingActivity extends NoSplashAppCompatActivity implements
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ((InsightConnectionService.LocalBinder) binder).getService();
-            if (service.isPaired()) return;
+            if (service.isPaired()) {
+            }
             else {
                 service.requestConnection(InsightPairingActivity.this);
                 service.registerStateCallback(InsightPairingActivity.this);

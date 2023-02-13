@@ -1,16 +1,9 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.util
 
 import com.google.gson.GsonBuilder
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNotification
-import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification
-import info.nightscout.androidaps.plugins.general.overview.notifications.Notification
 import info.nightscout.androidaps.plugins.pump.common.events.EventRileyLinkDeviceStatusChange
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.RileyLinkUtil
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.RileyLinkServiceData
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.ClockDTO
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.PumpSettingDTO
 import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.RLHistoryItemMedtronic
@@ -18,11 +11,17 @@ import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicCommandTy
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicNotificationType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
-import info.nightscout.androidaps.interfaces.ResourceHelper
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.pump.core.utils.ByteUtil
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventDismissNotification
+import info.nightscout.rx.logging.AAPSLogger
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
 import org.joda.time.LocalTime
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.experimental.or
@@ -35,7 +34,8 @@ class MedtronicUtil @Inject constructor(
     private val aapsLogger: AAPSLogger,
     private val rxBus: RxBus,
     private val rileyLinkUtil: RileyLinkUtil,
-    private val medtronicPumpStatus: MedtronicPumpStatus
+    private val medtronicPumpStatus: MedtronicPumpStatus,
+    private val uiInteraction: UiInteraction
 ) {
 
     private val ENVELOPE_SIZE = 4 // 0xA7 S1 S2 S3 CMD PARAM_COUNT [PARAMS]
@@ -93,20 +93,20 @@ class MedtronicUtil @Inject constructor(
         return ByteUtil.concat(input.size.toByte(), input)
     }
 
-    fun sendNotification(notificationType: MedtronicNotificationType, rh: ResourceHelper, rxBus: RxBus) {
-        val notification = Notification( //
-            notificationType.notificationType,  //
-            rh.gs(notificationType.resourceId),  //
-            notificationType.notificationUrgency)
-        rxBus.send(EventNewNotification(notification))
+    fun sendNotification(notificationType: MedtronicNotificationType, rh: ResourceHelper) {
+        uiInteraction.addNotification(
+            notificationType.notificationType,
+            rh.gs(notificationType.resourceId),
+            notificationType.notificationUrgency
+        )
     }
 
-    fun sendNotification(notificationType: MedtronicNotificationType, rh: ResourceHelper, rxBus: RxBus, vararg parameters: Any?) {
-        val notification = Notification( //
-            notificationType.notificationType,  //
-            rh.gs(notificationType.resourceId, *parameters),  //
-            notificationType.notificationUrgency)
-        rxBus.send(EventNewNotification(notification))
+    fun sendNotification(notificationType: MedtronicNotificationType, rh: ResourceHelper, vararg parameters: Any?) {
+        uiInteraction.addNotification(
+            notificationType.notificationType,
+            rh.gs(notificationType.resourceId, *parameters),
+            notificationType.notificationUrgency
+        )
     }
 
     fun dismissNotification(notificationType: MedtronicNotificationType, rxBus: RxBus) {

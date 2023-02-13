@@ -7,36 +7,34 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkQuery
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.common.util.concurrent.ListenableFuture
-import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.BuildConfig
 import info.nightscout.androidaps.R
-import info.nightscout.androidaps.data.ProfileSealed
-import info.nightscout.androidaps.database.AppRepository
-import info.nightscout.androidaps.events.EventProfileSwitchChanged
-import info.nightscout.androidaps.extensions.buildDeviceStatus
-import info.nightscout.androidaps.interfaces.ActivePlugin
-import info.nightscout.androidaps.interfaces.CommandQueue
-import info.nightscout.androidaps.interfaces.Config
-import info.nightscout.androidaps.interfaces.IobCobCalculator
-import info.nightscout.androidaps.interfaces.LocalAlertUtils
-import info.nightscout.androidaps.interfaces.Loop
-import info.nightscout.androidaps.interfaces.PluginBase
-import info.nightscout.androidaps.interfaces.ProfileFunction
-import info.nightscout.androidaps.interfaces.ResourceHelper
-import info.nightscout.androidaps.plugins.bus.RxBus
-import info.nightscout.androidaps.plugins.configBuilder.RunningConfiguration
-import info.nightscout.androidaps.plugins.general.maintenance.MaintenancePlugin
-import info.nightscout.androidaps.queue.commands.Command
-import info.nightscout.androidaps.utils.DateUtil
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.T
-import info.nightscout.shared.logging.AAPSLogger
-import info.nightscout.shared.logging.LTag
+import info.nightscout.configuration.maintenance.MaintenancePlugin
+import info.nightscout.core.profile.ProfileSealed
+import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.core.utils.worker.LoggingWorker
+import info.nightscout.database.impl.AppRepository
+import info.nightscout.interfaces.Config
+import info.nightscout.interfaces.LocalAlertUtils
+import info.nightscout.interfaces.aps.Loop
+import info.nightscout.interfaces.configBuilder.RunningConfiguration
+import info.nightscout.interfaces.iob.IobCobCalculator
+import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.plugin.PluginBase
+import info.nightscout.interfaces.profile.ProfileFunction
+import info.nightscout.interfaces.queue.Command
+import info.nightscout.interfaces.queue.CommandQueue
+import info.nightscout.interfaces.receivers.ReceiverStatusStore
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventProfileSwitchChanged
+import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
+import info.nightscout.shared.utils.DateUtil
+import info.nightscout.shared.utils.T
 import info.nightscout.ui.widget.Widget
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -45,9 +43,8 @@ import kotlin.math.abs
 class KeepAliveWorker(
     private val context: Context,
     params: WorkerParameters
-) : Worker(context, params) {
+) : LoggingWorker(context, params) {
 
-    @Inject lateinit var aapsLogger: AAPSLogger
     @Inject lateinit var localAlertUtils: LocalAlertUtils
     @Inject lateinit var repository: AppRepository
     @Inject lateinit var config: Config
@@ -65,10 +62,6 @@ class KeepAliveWorker(
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var sp: SP
 
-    init {
-        (context.applicationContext as HasAndroidInjector).androidInjector().inject(this)
-    }
-
     companion object {
 
         private val STATUS_UPDATE_FREQUENCY = T.mins(15).msecs()
@@ -83,7 +76,7 @@ class KeepAliveWorker(
         private const val KA_10 = "KeepAlive_10"
     }
 
-    override fun doWork(): Result {
+    override fun doWorkAndLog(): Result {
         aapsLogger.debug(LTag.CORE, "KeepAlive received from: " + inputData.getString("schedule"))
 
         // 15 min interval is WorkManager minimum so schedule another instances to have 5 min interval
@@ -167,7 +160,7 @@ class KeepAliveWorker(
         else if (dateUtil.isOlderThan(activePlugin.activeAPS.lastAPSRun, 5)) shouldUploadStatus = true
         if (dateUtil.isOlderThan(lastIobUpload, IOB_UPDATE_FREQUENCY_IN_MINUTES) && shouldUploadStatus) {
             lastIobUpload = dateUtil.now()
-            buildDeviceStatus(
+            loop.buildDeviceStatus(
                 dateUtil, loop, iobCobCalculator, profileFunction,
                 activePlugin.activePump, receiverStatusStore, runningConfiguration,
                 BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILDVERSION
@@ -197,10 +190,10 @@ class KeepAliveWorker(
             rxBus.send(EventProfileSwitchChanged())
         } else if (isStatusOutdated && !pump.isBusy()) {
             lastReadStatus = dateUtil.now()
-            commandQueue.readStatus(rh.gs(R.string.keepalive_status_outdated), null)
+            commandQueue.readStatus(rh.gs(info.nightscout.core.ui.R.string.keepalive_status_outdated), null)
         } else if (isBasalOutdated && !pump.isBusy()) {
             lastReadStatus = dateUtil.now()
-            commandQueue.readStatus(rh.gs(R.string.keepalive_basal_outdated), null)
+            commandQueue.readStatus(rh.gs(info.nightscout.core.ui.R.string.keepalive_basal_outdated), null)
         }
     }
 }

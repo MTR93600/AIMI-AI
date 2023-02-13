@@ -1,8 +1,9 @@
 package info.nightscout.androidaps.danar.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.shared.logging.LTag
-import java.util.*
+import info.nightscout.pump.dana.comm.RecordTypes
+import info.nightscout.rx.logging.LTag
+import java.util.Calendar
 
 class MsgSetCarbsEntry(
     injector: HasAndroidInjector,
@@ -15,7 +16,7 @@ class MsgSetCarbsEntry(
         aapsLogger.debug(LTag.PUMPBTCOMM, "New message")
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = time
-        addParamByte(info.nightscout.androidaps.dana.comm.RecordTypes.RECORD_TYPE_CARBO)
+        addParamByte(RecordTypes.RECORD_TYPE_CARBO)
         addParamByte((calendar[Calendar.YEAR] % 100).toByte())
         addParamByte((calendar[Calendar.MONTH] + 1).toByte())
         addParamByte(calendar[Calendar.DAY_OF_MONTH].toByte())

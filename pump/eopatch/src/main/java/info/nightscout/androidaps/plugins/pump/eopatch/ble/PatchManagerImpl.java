@@ -33,8 +33,6 @@ import javax.crypto.KeyAgreement;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.data.DetailedBolusInfo;
-import info.nightscout.androidaps.interfaces.PumpSync;
 import info.nightscout.androidaps.plugins.pump.eopatch.EoPatchRxBus;
 import info.nightscout.androidaps.plugins.pump.eopatch.alarm.AlarmCode;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.ActivateTask;
@@ -56,7 +54,6 @@ import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.StopComboBolusTa
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.StopExtBolusTask;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.StopNowBolusTask;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.StopTempBasalTask;
-import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.SyncBasalHistoryTask;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.TaskBase;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.TaskFunc;
 import info.nightscout.androidaps.plugins.pump.eopatch.ble.task.UpdateConnectionTask;
@@ -92,9 +89,10 @@ import info.nightscout.androidaps.plugins.pump.eopatch.vo.NormalBasal;
 import info.nightscout.androidaps.plugins.pump.eopatch.vo.PatchConfig;
 import info.nightscout.androidaps.plugins.pump.eopatch.vo.PatchState;
 import info.nightscout.androidaps.plugins.pump.eopatch.vo.TempBasal;
-import info.nightscout.androidaps.utils.rx.AapsSchedulers;
-import info.nightscout.shared.logging.AAPSLogger;
-import info.nightscout.shared.logging.LTag;
+import info.nightscout.interfaces.pump.DetailedBolusInfo;
+import info.nightscout.rx.AapsSchedulers;
+import info.nightscout.rx.logging.AAPSLogger;
+import info.nightscout.rx.logging.LTag;
 import info.nightscout.shared.sharedPreferences.SP;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -104,13 +102,12 @@ import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @Singleton
-public class PatchManagerImpl{
+public class PatchManagerImpl {
     @Inject IPreferenceManager pm;
     @Inject Context context;
     @Inject SP sp;
     @Inject AAPSLogger aapsLogger;
     @Inject AapsSchedulers aapsSchedulers;
-    @Inject PumpSync pumpSync;
 
     @Inject StartBondTask START_BOND;
     @Inject GetPatchInfoTask GET_PATCH_INFO;
@@ -154,27 +151,27 @@ public class PatchManagerImpl{
         Observable<Intent> dateTimeChanged = RxBroadcastReceiver.Companion.create(context, filter);
 
         compositeDisposable.add(
-            Observable.combineLatest(patch.observeConnected(), pm.observePatchLifeCycle(),
-                (connected, lifeCycle) -> (connected && lifeCycle.isActivated()))
-                .subscribeOn(aapsSchedulers.getIo())
-                .filter(ok -> ok)
-                .observeOn(aapsSchedulers.getIo())
-                .doOnNext(v -> TaskBase.enqueue(TaskFunc.UPDATE_CONNECTION))
-                .retry()
-                .subscribe());
+                Observable.combineLatest(patch.observeConnected(), pm.observePatchLifeCycle(),
+                                (connected, lifeCycle) -> (connected && lifeCycle.isActivated()))
+                        .subscribeOn(aapsSchedulers.getIo())
+                        .filter(ok -> ok)
+                        .observeOn(aapsSchedulers.getIo())
+                        .doOnNext(v -> TaskBase.enqueue(TaskFunc.UPDATE_CONNECTION))
+                        .retry()
+                        .subscribe());
 
         compositeDisposable.add(
-            Observable.combineLatest(patch.observeConnected(),
-                            pm.observePatchLifeCycle().distinctUntilChanged(),
-                            dateTimeChanged.startWith(Observable.just(new Intent())),
-                (connected, lifeCycle, value) -> (connected && lifeCycle.isActivated()))
-                .subscribeOn(aapsSchedulers.getIo())
-                .doOnNext(v -> aapsLogger.debug(LTag.PUMP,"Has the date or time changed? "+v))
-                .filter(ok -> ok)
-                .doOnNext(v -> TaskBase.enqueue(TaskFunc.SET_GLOBAL_TIME))
-                .doOnError(e -> aapsLogger.error(LTag.PUMP, "Failed to set EOPatch time."))
-                .retry()
-                .subscribe());
+                Observable.combineLatest(patch.observeConnected(),
+                                pm.observePatchLifeCycle().distinctUntilChanged(),
+                                dateTimeChanged.startWith(Observable.just(new Intent())),
+                                (connected, lifeCycle, value) -> (connected && lifeCycle.isActivated()))
+                        .subscribeOn(aapsSchedulers.getIo())
+                        .doOnNext(v -> aapsLogger.debug(LTag.PUMP, "Has the date or time changed? " + v))
+                        .filter(ok -> ok)
+                        .doOnNext(v -> TaskBase.enqueue(TaskFunc.SET_GLOBAL_TIME))
+                        .doOnError(e -> aapsLogger.error(LTag.PUMP, "Failed to set EOPatch time."))
+                        .retry()
+                        .subscribe());
 
         compositeDisposable.add(
                 patch.observeConnected()
@@ -233,7 +230,7 @@ public class PatchManagerImpl{
                                 }
                             })
                             .flatMap(integer -> {
-                                if(pc.getLowReservoirAlertAmount() != doseUnit || pc.getPatchExpireAlertTime() != hours) {
+                                if (pc.getLowReservoirAlertAmount() != doseUnit || pc.getPatchExpireAlertTime() != hours) {
                                     return setLowReservoir(doseUnit, hours)
                                             .doOnSuccess(patchBooleanResponse -> {
                                                 pc.setLowReservoirAlertAmount(doseUnit);
@@ -244,7 +241,7 @@ public class PatchManagerImpl{
                                 return Single.just(true);
                             })
                             .flatMap(ret -> {
-                                if(pc.getInfoReminder() != buzzer) {
+                                if (pc.getInfoReminder() != buzzer) {
                                     return infoReminderSet(buzzer)
                                             .doOnSuccess(patchBooleanResponse -> {
                                                 pc.setInfoReminder(buzzer);
@@ -256,7 +253,7 @@ public class PatchManagerImpl{
                             .subscribe());
         }
 
-        if(!connected && activated){
+        if (!connected && activated) {
             pm.getPatchConfig().updatetDisconnectedTime();
         }
     }
@@ -304,7 +301,7 @@ public class PatchManagerImpl{
 
         NormalBasal normalBasal = pm.getNormalBasalManager().getNormalBasal();
 
-        if(normalBasal.updateNormalBasalIndex()) {
+        if (normalBasal.updateNormalBasalIndex()) {
             pm.flushNormalBasalManager();
         }
     }
@@ -319,7 +316,7 @@ public class PatchManagerImpl{
     /**
      * getPatchConnection() 을 사용해야 한다.
      * 아직 Life Cycle 이 Activated 가 아님.
-     *
+     * <p>
      * Activation Process task #1 Get Patch Information from Patch
      * Fragment: fragment_patch_connect_new
      */
@@ -348,7 +345,7 @@ public class PatchManagerImpl{
 
     public Single<TemperatureResponse> getTemperature() {
         return TEMPERATURE_GET.get()
-		        .timeout(DEFAULT_API_TIME_OUT, TimeUnit.SECONDS);
+                .timeout(DEFAULT_API_TIME_OUT, TimeUnit.SECONDS);
     }
 
     public Observable<Long> startPriming(long timeout, long count) {
@@ -381,7 +378,6 @@ public class PatchManagerImpl{
                     if (success) {
                         TaskBase.enqueue(TaskFunc.LOW_RESERVOIR);
                         TaskBase.enqueue(TaskFunc.INFO_REMINDER);
-                        pumpSync.connectNewPump(true);
                     }
                 });
     }
@@ -482,7 +478,7 @@ public class PatchManagerImpl{
         return stopExtBolusTask.stop().timeout(DEFAULT_API_TIME_OUT, TimeUnit.SECONDS);
     }
 
-    public Single<ComboBolusStopResponse> stopComboBolus(){
+    public Single<ComboBolusStopResponse> stopComboBolus() {
         return stopComboBolusTask.stop().timeout(DEFAULT_API_TIME_OUT, TimeUnit.SECONDS);
     }
 
@@ -524,6 +520,7 @@ public class PatchManagerImpl{
 
     @Inject
     DeactivateTask deactivateTask;
+
     // Patch Activation Tasks
     public Single<DeactivationStatus> deactivate(long timeout, boolean force) {
         return deactivateTask.run(force, timeout);
@@ -538,12 +535,14 @@ public class PatchManagerImpl{
 
     @Inject
     SetLowReservoirTask setLowReservoirTask;
+
     public Single<PatchBooleanResponse> setLowReservoir(int doseUnit, int hours) {
         return setLowReservoirTask.set(doseUnit, hours).timeout(DEFAULT_API_TIME_OUT, TimeUnit.SECONDS);
     }
 
     @Inject
     UpdateConnectionTask updateConnectionTask;
+
     public Single<PatchState> updateConnection() {
         return updateConnectionTask.update();
     }
@@ -559,14 +558,11 @@ public class PatchManagerImpl{
     @Inject
     PatchStateManager patchStateManager;
 
-    @Inject
-    SyncBasalHistoryTask syncBasalHistoryTask;
-
     void onAlarmNotification(AlarmNotification notification) throws Throwable {
         patchStateManager.updatePatchState(PatchState.create(notification.patchState, System.currentTimeMillis()));
 
         if (pm.getPatchConfig().isActivated()) {
-            if(!patch.isSeqReady()){
+            if (!patch.isSeqReady()) {
                 getSequence().subscribe();
             }
             updateBasal();
@@ -601,11 +597,11 @@ public class PatchManagerImpl{
 
     public Single<Boolean> sharedKey() {
         return genKeyPair().flatMap(keyPair -> ECPublicToRawBytes(keyPair)
-                .flatMap(bytes -> PUBLIC_KEY_SET.send(bytes)
-                        .map(KeyResponse::getPublicKey)
-                        .map(bytes2 -> rawToEncodedECPublicKey(SECP256R1, bytes2))
-                        .map(publicKey -> generateSharedSecret(keyPair.getPrivate(), publicKey))
-                        .doOnSuccess(this::saveShared).map(v2 -> true)))
+                        .flatMap(bytes -> PUBLIC_KEY_SET.send(bytes)
+                                .map(KeyResponse::getPublicKey)
+                                .map(bytes2 -> rawToEncodedECPublicKey(SECP256R1, bytes2))
+                                .map(publicKey -> generateSharedSecret(keyPair.getPrivate(), publicKey))
+                                .doOnSuccess(this::saveShared).map(v2 -> true)))
                 .doOnError(e -> aapsLogger.error(LTag.PUMP, "sharedKey error"));
     }
 
@@ -731,7 +727,7 @@ public class PatchManagerImpl{
         return patch.observeConnectionState();
     }
 
-    public void updateMacAddress(String mac, boolean b){
+    public void updateMacAddress(String mac, boolean b) {
         patch.updateMacAddress(mac, b);
     }
 }

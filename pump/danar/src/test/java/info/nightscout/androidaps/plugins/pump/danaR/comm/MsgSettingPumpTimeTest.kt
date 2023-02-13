@@ -1,10 +1,10 @@
 package info.nightscout.androidaps.plugins.pump.danaR.comm
 
-import info.nightscout.androidaps.dana.DanaPump
 import info.nightscout.androidaps.danar.comm.MsgSettingPumpTime
+import info.nightscout.pump.dana.DanaPump
 import org.joda.time.DateTime
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class MsgSettingPumpTimeTest : DanaRTestBase() {
 

@@ -2,14 +2,16 @@ package info.nightscout.androidaps.plugins.pump.medtronic.comm.history.pump
 
 //import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.TestBase
-import info.nightscout.androidaps.plugins.pump.common.utils.ByteUtil
 import info.nightscout.androidaps.plugins.pump.medtronic.comm.history.RawHistoryPage
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedtronicPumpStatus
 import info.nightscout.androidaps.plugins.pump.medtronic.util.MedtronicUtil
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.pump.core.utils.ByteUtil
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
 /**
  * Created by andy on 11/1/18.
@@ -17,6 +19,7 @@ import org.junit.Test
 @Suppress("SpellCheckingInspection")
 class MedtronicPumpHistoryDecoderUTest : TestBase() {
 
+    @Mock lateinit var uiInteraction: UiInteraction
     //@Mock lateinit var injector: HasAndroidInjector
     //@Mock lateinit var rh: ResourceHelper
 //    @Mock(answer = Answers.RETURNS_DEEP_STUBS) lateinit var activePlugin: ActivePlugin
@@ -28,11 +31,11 @@ class MedtronicPumpHistoryDecoderUTest : TestBase() {
     //private var medtronicUtil: MedtronicUtil? = null
     //private var decoder: MedtronicPumpHistoryDecoder? = null
 
-    @Before fun setup() {
+    @BeforeEach fun setup() {
         medtronicPumpStatus =
             MedtronicPumpStatus(rh, sp, rxBus, rileyLinkUtil)
         medtronicUtil =
-            MedtronicUtil(aapsLogger, rxBus, rileyLinkUtil, medtronicPumpStatus)
+            MedtronicUtil(aapsLogger, rxBus, rileyLinkUtil, medtronicPumpStatus, uiInteraction)
         decoder = MedtronicPumpHistoryDecoder(aapsLogger, medtronicUtil, ByteUtil())
     }
 

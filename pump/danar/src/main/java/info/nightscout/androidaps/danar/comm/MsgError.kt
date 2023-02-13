@@ -1,9 +1,8 @@
 package info.nightscout.androidaps.danar.comm
 
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.danar.R
-import info.nightscout.shared.logging.LTag
-import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress
+import info.nightscout.rx.events.EventOverviewBolusProgress
+import info.nightscout.rx.logging.LTag
 
 class MsgError(
     injector: HasAndroidInjector
@@ -18,11 +17,11 @@ class MsgError(
         val errorCode = intFromBuff(bytes, 0, 1)
         var errorString = ""
         when (errorCode) {
-            1, 2, 3 -> errorString = rh.gs(R.string.pumperror) + " " + errorCode
-            4       -> errorString = rh.gs(R.string.pumpshutdown)
-            5       -> errorString = rh.gs(R.string.occlusion)
-            7       -> errorString = rh.gs(R.string.lowbattery)
-            8       -> errorString = rh.gs(R.string.batterydischarged)
+            1, 2, 3 -> errorString = rh.gs(info.nightscout.pump.dana.R.string.pumperror) + " " + errorCode
+            4       -> errorString = rh.gs(info.nightscout.pump.dana.R.string.pumpshutdown)
+            5       -> errorString = rh.gs(info.nightscout.pump.dana.R.string.occlusion)
+            7       -> errorString = rh.gs(info.nightscout.pump.dana.R.string.lowbattery)
+            8       -> errorString = rh.gs(info.nightscout.pump.dana.R.string.batterydischarged)
         }
         if (errorCode < 8) { // bolus delivering stopped
             val bolusingEvent = EventOverviewBolusProgress

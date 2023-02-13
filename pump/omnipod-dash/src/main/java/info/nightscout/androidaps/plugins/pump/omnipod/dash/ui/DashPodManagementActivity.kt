@@ -4,28 +4,29 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.activities.NoSplashAppCompatActivity
-import info.nightscout.androidaps.extensions.toVisibility
-import info.nightscout.androidaps.interfaces.ActivityNames
-import info.nightscout.androidaps.interfaces.CommandQueue
+import dagger.android.support.DaggerAppCompatActivity
 import info.nightscout.androidaps.plugins.pump.omnipod.common.queue.command.CommandPlayTestBeep
 import info.nightscout.androidaps.plugins.pump.omnipod.common.ui.wizard.activation.PodActivationWizardActivity
-import info.nightscout.androidaps.plugins.pump.omnipod.dash.R
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.databinding.OmnipodDashPodManagementBinding
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.pod.definition.ActivationProgress
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.driver.pod.state.OmnipodDashPodStateManager
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.ui.wizard.activation.DashPodActivationWizardActivity
 import info.nightscout.androidaps.plugins.pump.omnipod.dash.ui.wizard.deactivation.DashPodDeactivationWizardActivity
-import info.nightscout.androidaps.queue.Callback
-import info.nightscout.androidaps.queue.events.EventQueueChanged
-import info.nightscout.androidaps.utils.FabricPrivacy
-import info.nightscout.androidaps.utils.alertDialogs.OKDialog
-import info.nightscout.androidaps.utils.rx.AapsSchedulers
+import info.nightscout.core.ui.dialogs.OKDialog
+import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.interfaces.queue.Callback
+import info.nightscout.interfaces.queue.CommandQueue
+import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.rx.AapsSchedulers
+import info.nightscout.rx.bus.RxBus
+import info.nightscout.rx.events.EventQueueChanged
+import info.nightscout.shared.extensions.toVisibility
+import info.nightscout.shared.interfaces.ResourceHelper
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
-class DashPodManagementActivity : NoSplashAppCompatActivity() {
+class DashPodManagementActivity : DaggerAppCompatActivity() {
 
     @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var commandQueue: CommandQueue
@@ -33,7 +34,9 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
     @Inject lateinit var context: Context
     @Inject lateinit var aapsSchedulers: AapsSchedulers
     @Inject lateinit var podStateManager: OmnipodDashPodStateManager
-    @Inject lateinit var activityNames: ActivityNames
+    @Inject lateinit var uiInteraction: UiInteraction
+    @Inject lateinit var rh: ResourceHelper
+    @Inject lateinit var rxBus: RxBus
 
     private var disposables: CompositeDisposable = CompositeDisposable()
 
@@ -65,7 +68,7 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
         binding.buttonDiscardPod.setOnClickListener {
             OKDialog.showConfirmation(
                 this,
-                rh.gs(R.string.omnipod_common_pod_management_discard_pod_confirmation),
+                rh.gs(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_pod_management_discard_pod_confirmation),
                 Thread {
                     podStateManager.reset()
                 }
@@ -74,7 +77,7 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
 
         binding.buttonPlayTestBeep.setOnClickListener {
             binding.buttonPlayTestBeep.isEnabled = false
-            binding.buttonPlayTestBeep.setText(R.string.omnipod_common_pod_management_button_playing_test_beep)
+            binding.buttonPlayTestBeep.setText(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_pod_management_button_playing_test_beep)
 
             commandQueue.customCommand(
                 CommandPlayTestBeep(),
@@ -82,10 +85,10 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
                     override fun run() {
                         if (!result.success) {
                             displayErrorDialog(
-                                rh.gs(R.string.omnipod_common_warning),
+                                rh.gs(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_warning),
                                 rh.gs(
-                                    R.string.omnipod_common_two_strings_concatenated_by_colon,
-                                    rh.gs(R.string.omnipod_common_error_failed_to_play_test_beep),
+                                    info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_two_strings_concatenated_by_colon,
+                                    rh.gs(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_error_failed_to_play_test_beep),
                                     result.comment
                                 ),
                                 false
@@ -131,14 +134,14 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
         if (podStateManager.activationProgress.isAtLeast(ActivationProgress.PHASE_1_COMPLETED)) {
             if (commandQueue.isCustomCommandInQueue(CommandPlayTestBeep::class.java)) {
                 binding.buttonPlayTestBeep.isEnabled = false
-                binding.buttonPlayTestBeep.setText(R.string.omnipod_common_pod_management_button_playing_test_beep)
+                binding.buttonPlayTestBeep.setText(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_pod_management_button_playing_test_beep)
             } else {
                 binding.buttonPlayTestBeep.isEnabled = true
-                binding.buttonPlayTestBeep.setText(R.string.omnipod_common_pod_management_button_play_test_beep)
+                binding.buttonPlayTestBeep.setText(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_pod_management_button_play_test_beep)
             }
         } else {
             binding.buttonPlayTestBeep.isEnabled = false
-            binding.buttonPlayTestBeep.setText(R.string.omnipod_common_pod_management_button_play_test_beep)
+            binding.buttonPlayTestBeep.setText(info.nightscout.androidaps.plugins.pump.omnipod.common.R.string.omnipod_common_pod_management_button_play_test_beep)
         }
 
         if (discardButtonEnabled) {
@@ -147,8 +150,6 @@ class DashPodManagementActivity : NoSplashAppCompatActivity() {
     }
 
     private fun displayErrorDialog(title: String, message: String, @Suppress("SameParameterValue") withSound: Boolean) {
-        context.let {
-            activityNames.runAlarm(it, message, title, if (withSound) R.raw.boluserror else 0)
-        }
+        uiInteraction.runAlarm(message, title, if (withSound) info.nightscout.core.ui.R.raw.boluserror else 0)
     }
 }
