@@ -8,6 +8,7 @@ import info.nightscout.core.extensions.plannedRemainingMinutes
 import info.nightscout.database.ValueWrapper
 import info.nightscout.interfaces.GlucoseUnit
 import info.nightscout.interfaces.aps.DetermineBasalAdapter
+import info.nightscout.plugins.aps.APSResultObject
 import info.nightscout.interfaces.aps.AIMIDefaults
 import info.nightscout.interfaces.iob.GlucoseStatus
 import info.nightscout.interfaces.iob.IobCobCalculator
@@ -49,6 +50,7 @@ import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.UserEntry
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
+import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
 import java.io.File
 import java.util.*
 import kotlin.math.min
@@ -132,6 +134,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
     @Suppress("SpellCheckingInspection")
+
     private fun logDataToCsv(predictedSMB: Float, smbToGive: Float) {
         val dateStr = dateUtil.dateAndTimeString(dateUtil.now())
 
@@ -185,6 +188,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         return smbToGive
     }
     override operator fun invoke(): DetermineBasalResultSMB? {
+
+        val predictedSMB = calculateSMBFromModel()
+        var smbToGive = predictedSMB
+
+
+        smbToGive = roundToPoint05(smbToGive)
+
+        logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
         aapsLogger.debug(LTag.APS, "Glucose status: " + mGlucoseStatus.toString().also { glucoseStatusParam = it })
         aapsLogger.debug(LTag.APS, "IOB data:       " + iobData.toString().also { iobDataParam = it })
