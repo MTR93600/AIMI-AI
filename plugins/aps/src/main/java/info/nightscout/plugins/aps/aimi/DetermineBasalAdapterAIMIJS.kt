@@ -195,7 +195,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         smbToGive = roundToPoint05(smbToGive)
 
-        logDataToCsv(predictedSMB, smbToGive)
+        //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
         aapsLogger.debug(LTag.APS, "Glucose status: " + mGlucoseStatus.toString().also { glucoseStatusParam = it })
         aapsLogger.debug(LTag.APS, "IOB data:       " + iobData.toString().also { iobDataParam = it })
@@ -258,6 +258,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 try {
                     val resultJson = JSONObject(result)
                     determineBasalResultSMB = DetermineBasalResultSMB(injector, resultJson)
+                    logDataToCsv(determineBasalResultSMB.smb.toFloat(),determineBasalResultSMB.smb.toFloat())
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -357,7 +358,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.tdd24HrsPerHour = tdd24Hrs / 24
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
-        this.maxSMB = sp.getDouble(R.string.key_openapssmb_max_smb, 1.0).toFloat()
+        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
 
         // profile.dia
         val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())
