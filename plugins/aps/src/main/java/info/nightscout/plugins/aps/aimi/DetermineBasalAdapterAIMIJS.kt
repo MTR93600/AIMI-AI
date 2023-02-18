@@ -96,6 +96,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tdd2DaysPerHour = 0.0f
     private var tddPerHour = 0.0f
     private var tdd24HrsPerHour = 0.0f
+    private var tddlastHrs = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
     private var profile = JSONObject()
@@ -158,6 +159,36 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         file.appendText(valuesToRecord + "\n")
     }
+    private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
+        var smbToGive = smbToGiveParam
+        // don't exceed max IOB
+        if (iob + smbToGive > maxIob) {
+            smbToGive = maxIob - iob
+        }
+        // don't exceed max SMB
+        if (smbToGive > maxSMB) {
+            smbToGive = maxSMB
+        }
+        // don't give insulin if below target too aggressive
+        val belowTargetAndDropping = bg < targetBg && delta < -2
+        val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
+        val belowMinThreshold = bg < 70
+        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
+            smbToGive = 0.0f
+        }
+
+        // don't give insulin if dropping fast
+        val droppingFast = bg < 150 && delta < -5
+        val droppingFastAtHigh = bg < 200 && delta < -7
+        val droppingVeryFast = delta < -10
+        if (droppingFast || droppingFastAtHigh || droppingVeryFast) {
+            smbToGive = 0.0f
+        }
+        if (smbToGive < 0.0f) {
+            smbToGive = 0.0f
+        }
+        return smbToGive
+    }
 
     private fun roundToPoint05(number: Float): Float {
         return (number * 20.0).roundToInt() / 20.0f
@@ -187,6 +218,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         return smbToGive
     }
+
     override operator fun invoke(): DetermineBasalResultSMB? {
 
         val predictedSMB = calculateSMBFromModel()
@@ -357,6 +389,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
         this.tdd24HrsPerHour = tdd24Hrs / 24
 
+        tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
+
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
         this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
 
@@ -390,6 +424,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("current_basal", basalRate)
         this.profile.put("temptargetSet", tempTargetSet)
         this.profile.put("autosens_adjust_targets", sp.getBoolean(R.string.key_openapsama_autosens_adjusttargets, true))
+        this.profile.put("accelerating_up",accelerating_up)
+        this.profile.put("deccelerating_up",deccelerating_up)
+        this.profile.put("accelerating_down",accelerating_down)
+        this.profile.put("deccelerating_down",deccelerating_down)
+        this.profile.put("stable",stable)
+        this.profile.put("tdd7DaysPerHour",tdd7DaysPerHour)
+        this.profile.put("tdd2DaysPerHour",tdd2DaysPerHour)
+        this.profile.put("tddPerHour",tddPerHour)
+        this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
+        this.profile.put("mss",maxSMB)
+        this.profile.put("tddlastHrs",tddlastHrs)
 
         val insulin = activePlugin.activeInsulin
         val insulinType = insulin.friendlyName

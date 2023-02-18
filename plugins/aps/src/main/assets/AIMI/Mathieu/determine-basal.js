@@ -2035,38 +2035,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
 
-        /*if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1){
-            rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
-            //rT.deliverAt = deliverAt;
-            durationReq = profile.b30_duration;
-            rT.duration = durationReq;
 
-            rate = round_basal(basal*10,profile);
-
-            }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit){
-                     if(bg < 100 && delta <= 5){
-                         rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-                         durationReq = 20;
-                         rT.duration = durationReq;
-                         rate = round_basal(basal*delta,profile);
-                      }else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit){
-                     rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*8/60)*30;
-                     durationReq = profile.b30_duration;
-                     rT.duration = durationReq;
-                     rate = round_basal(basal*8,profile);
-                     }else if (b30Ko === false){
-                      rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
-                      durationReq = 20;
-                      rT.duration = durationReq;
-                      rate = round_basal(basal*6,profile);
-                  }
-             }else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 170){
-                   rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-                   durationReq = 20;
-                   rT.duration = durationReq;
-                   rate = round_basal(basal*delta,profile);
-
-            }*/
         if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1) {
             rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
             //rT.deliverAt = deliverAt;
@@ -2097,6 +2066,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             var durationReq = 20;
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
+        }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
+        rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tddlastHrs - profile.tddlastHrs);
+        var durationReq = 20;
+        rT.duration = durationReq;
+        var rate = round_basal(profile.tddlastHrs - profile.tddlastHrs);
         }
 
 
