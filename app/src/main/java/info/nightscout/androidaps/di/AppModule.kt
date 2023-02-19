@@ -12,10 +12,15 @@ import info.nightscout.androidaps.implementations.InstantiatorImpl
 import info.nightscout.androidaps.implementations.UiInteractionImpl
 import info.nightscout.androidaps.interfaces.BgSync
 import info.nightscout.androidaps.plugins.BgSyncImplementation
+import info.nightscout.androidaps.plugins.MedLinkProfileParserImpl
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile
+import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType
 import info.nightscout.androidaps.workflow.CalculationWorkflowImpl
 import info.nightscout.androidaps.workflow.WorkerClassesImpl
 import info.nightscout.core.workflow.CalculationWorkflow
 import info.nightscout.interfaces.Config
+import info.nightscout.interfaces.plugin.MedLinkProfileParser
 import info.nightscout.interfaces.plugin.PluginBase
 import info.nightscout.interfaces.profile.Instantiator
 import info.nightscout.interfaces.ui.UiInteraction
@@ -59,11 +64,14 @@ open class AppModule {
         @Binds fun bindCalculationWorkflow(calculationWorkflow: CalculationWorkflowImpl): CalculationWorkflow
         @Binds fun bindInstantiator(instantiatorImpl: InstantiatorImpl): Instantiator
 
+
         /**
          * Medlink binding
          */
         @Binds fun bindBgSync(bgSyncImplementation: BgSyncImplementation): BgSync
 
+        @Binds fun bindMedLinkProfileParser(medLinkProfileParser: MedLinkProfileParserImpl<MedLinkStandardReturn<MedLinkMedtronicDeviceType>>)
+        :MedLinkProfileParser<MedLinkStandardReturn<MedLinkMedtronicDeviceType>,BasalProfile>
     }
 }
 

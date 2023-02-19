@@ -1,5 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.data
 
+
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.android.HasAndroidInjector
@@ -32,7 +33,8 @@ import javax.inject.Singleton
 /**
  * Created by dirceu
  * used by medlink
- */
+*/
+
 // TODO: After release we need to refactor how data is retrieved from pump, each entry in history needs to be marked, and sorting
 //  needs to happen according those markings, not on time stamp (since AAPS can change time anytime it drifts away). This
 //  needs to include not returning any records if TZ goes into -x area. To fully support this AAPS would need to take note of
@@ -52,11 +54,9 @@ class MedLinkMedtronicHistoryData @Inject constructor(
     medtronicPumpStatus: MedtronicPumpStatus,
     pumpSync: PumpSync,
     pumpSyncStorage: PumpSyncStorage,
-    uiInteraction: UiInteraction,
-) : MedtronicHistoryData(
-    injector, aapsLogger, sp, rh, rxBus, activePlugin, medtronicUtil, medtronicPumpHistoryDecoder, medtronicPumpStatus, pumpSync, pumpSyncStorage,
-    uiInteraction
-) {
+    uiInteraction: UiInteraction
+): MedtronicHistoryData(injector, aapsLogger, sp, rh, rxBus, activePlugin, medtronicUtil, medtronicPumpHistoryDecoder, medtronicPumpStatus, pumpSync, pumpSyncStorage,
+uiInteraction ) {
 
     private var newHistory: MutableList<PumpHistoryEntry> = ArrayList<PumpHistoryEntry>()
     private var isInit = false
@@ -446,7 +446,6 @@ class MedLinkMedtronicHistoryData @Inject constructor(
     // }
 
     private enum class ProcessHistoryRecord(val description: String) {
-
         Bolus("Bolus"), TBR("TBR"), Suspend("Suspend");
 
     }

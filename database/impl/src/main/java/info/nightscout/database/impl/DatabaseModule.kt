@@ -83,9 +83,7 @@ open class DatabaseModule {
 
     private val migration22to23 = object : Migration(22,23) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("ALTER TABLE `glucoseValues` ADD COLUMN `isig` DOUBLE")
-            database.execSQL("ALTER TABLE `glucoseValues` ADD COLUMN `calibrationFactor` DOUBLE")
-            database.execSQL("ALTER TABLE `glucoseValues` ADD COLUMN `sensorUptime` INTEGER")
+            database.execSQL("ALTER TABLE `deviceStatus` ADD COLUMN `isCharging` INTEGER")
             // Custom indexes must be dropped on migration to pass room schema checking after upgrade
             dropCustomIndexes(database)
         }

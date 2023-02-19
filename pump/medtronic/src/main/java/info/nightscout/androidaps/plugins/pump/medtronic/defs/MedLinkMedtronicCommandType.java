@@ -23,6 +23,8 @@ import info.nightscout.androidaps.plugins.pump.medtronic.comm.message.UnknownMes
  * and Carelink USB communication.
  * <p>
  * Author: Andy {andy@atech-software.com}
+ *
+ * used by medlink
  */
 public enum MedLinkMedtronicCommandType implements Serializable // , MinimedCommandTypeInterface
 {

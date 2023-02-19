@@ -3,7 +3,6 @@ package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkStatusParser;
 import info.nightscout.pump.common.data.MedLinkPumpStatus;
 
 /**
@@ -12,7 +11,7 @@ import info.nightscout.pump.common.data.MedLinkPumpStatus;
 public abstract class BaseStatusCallback extends BaseCallback<MedLinkPumpStatus, Supplier<Stream<String>>> {
 
     private final MedLinkPumpStatus pumpStatus;
-    private MedLinkStatusParser parser = new MedLinkStatusParser();
+//    private MedLinkStatusParser parser = new MedLinkStatusParser();
     public BaseStatusCallback(MedLinkPumpStatus pumpStatus) {
         super();
         this.pumpStatus = pumpStatus;

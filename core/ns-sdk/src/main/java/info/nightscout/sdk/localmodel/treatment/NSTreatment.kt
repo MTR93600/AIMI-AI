@@ -3,14 +3,14 @@ package info.nightscout.sdk.localmodel.treatment
 import info.nightscout.sdk.localmodel.entry.NsUnits
 
 interface NSTreatment {
-    val date: Long
+    var date: Long?
     val device: String?
-    val identifier: String
+    val identifier: String?
     val units: NsUnits?
     val eventType: EventType
-    val srvModified: Long
-    val srvCreated: Long
-    val utcOffset: Long
+    val srvModified: Long?
+    val srvCreated: Long?
+    var utcOffset: Long?
     val subject: String?
     var isReadOnly: Boolean
     val isValid: Boolean
@@ -19,6 +19,7 @@ interface NSTreatment {
     val endId: Long?
     val pumpType: String?
     val pumpSerial: String?
+    var app: String?
 
     fun Double.asMgdl() =
         when (units) {

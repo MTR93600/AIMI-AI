@@ -2,6 +2,10 @@ package info.nightscout.androidaps.plugins.pump.common.hw.connector.defs;
 
 import dagger.android.DaggerService;
 
+
+/**
+ * used by medlink
+ */
 public interface CommunicatorPumpDevice {
 
 //    void setIsBusy(boolean isBusy_);

@@ -162,6 +162,8 @@
     <string name="dia">Время действия инсулина DIA</string>
     <string name="ic_short">IC углкоэф ГУ/инс</string>
     <string name="isf_short">ISF (чувствительность к инсулину)</string>
+    <string name="canceling_tbr_failed">Отмена врем базала не состоялась</string>
+    <string name="canceling_eb_failed">Сбой отмены пролонгированного болюса</string>
     <string name="virtualpump_uploadstatus_title">статус передачи данных в NS</string>
     <string name="suspendloop_label">Отключенный/приостановленный цикл</string>
     <string name="iob_label">Активный инсулин (IOB)</string>
@@ -426,7 +428,7 @@
     <string name="autotune_param">Парам</string>
     <string name="autotune_percent">%</string>
     <string name="autotune_missing">Отсутствует</string>
-    <string name="autotune_profile_name">Профиль авто тюн</string>
+    <string name="autotune_profile_name">Профиль автотюн %1$s</string>
     <string name="autotune_run">Выполнить Autotune</string>
     <string name="autotune_check_input_profile_button">Проверьте профиль ввода</string>
     <string name="autotune_compare_profile">Сравнить профили</string>
@@ -471,6 +473,7 @@
     <string name="wizard_explain_tt">ВремЦ: %1$s</string>
     <string name="wizard_explain_tt_to">%1$s до %2$s</string>
     <string name="wizard_pump_not_available">Нет помпы!</string>
+    <string name="quickwizard">Мастер QuickWizard</string>
     <!--    Preferences-->
     <string name="child">Ребенок</string>
     <string name="teenage">Подросток</string>
@@ -552,6 +555,10 @@
     <string name="nav_plugin_preferences">Настройки расширений</string>
     <!-- SmsCommunicator -->
     <string name="smscommunicator_missingsmspermission">Отсутствует смс разрешение</string>
+    <!-- About -->
+    <string name="cta_dont_kill_my_app_info">Не останавливать приложение?</string>
+    <string name="fabric_upload_disabled">Загрузка журналов сбоя на сервер отключена!</string>
+    <string name="about_link_urls">\n\nDocumentation:\nhttps://wiki.aaps.app\n\nFacebook:\nhttps://www.facebook.com/groups/AndroidAPSUsers</string>
     <plurals name="days">
         <item quantity="one">%1$d день</item>
         <item quantity="few">%1$d дня</item>

@@ -5,6 +5,10 @@ import com.google.gson.annotations.Expose;
 import info.nightscout.rx.logging.AAPSLogger;
 
 
+
+/**
+ * used by medlink
+ */
 public class TempBasalMicroBolusDTO extends TempBasalPair {
 
     @Expose

@@ -139,6 +139,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     pumpSync: PumpSync?,
     pumpSyncStorage: PumpSyncStorage?,
     private val bgSync: BgSync,
+    private val  parser: MedLinkProfileParser<MedLinkStandardReturn<MedLinkMedtronicDeviceType>,BasalProfile>
 ) : MedLinkPumpPluginAbstract(
     PluginDescription() //
         .mainType(PluginType.PUMP) //
@@ -182,7 +183,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     // variables for handling statuses and history
     private var firstRun = true
     private var isRefresh = false
-    private val statusRefreshMap: MutableMap<MedLinkMedtronicStatusRefreshType?, Long?> = HashMap()
+    private val statusRefreshMap: MutableMap<MedLinkMedtronicStatusRefreshType?, Long?> = EnumMap(info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicStatusRefreshType::class.java)
     private var isInitialized = false
     private val lastPumpHistoryEntry: PumpHistoryEntry? = null
     private val busyTimestamps: MutableList<Long> = ArrayList()
@@ -1350,7 +1351,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
         val basalCallback: Function<Supplier<Stream<String>>,
             MedLinkStandardReturn<BasalProfile>> = BasalCallback(aapsLogger, this)
         val profileCallback: Function<Supplier<Stream<String>>,
-            MedLinkStandardReturn<Profile?>> = ProfileCallback(injector, aapsLogger, context, this)
+            MedLinkStandardReturn<Profile?>> = ProfileCallback(context, this, parser)
         val msg = BasalMedLinkMessage<BasalProfile>(
             basalCallback, profileCallback,
             btSleepTime, BleCommand(aapsLogger, medLinkService!!.medLinkServiceData)

@@ -16,6 +16,10 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.Rile
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.data.BleAdvertisedData;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.service.tasks.ServiceTask;
 
+
+/**
+ * used by medlink
+ */
 public interface ConnectorUtil {
     static boolean isSame(Double d1, Double d2) {
         double diff = d1 - d2;

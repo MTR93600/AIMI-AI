@@ -8,7 +8,9 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.defs.RileyLin
 
 /**
  * Created by Dirceu on 16/09/2020.
+ * used by medlink
  */
+
 
 @Singleton
 public interface CommunicatorServiceData {

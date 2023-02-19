@@ -22,7 +22,7 @@ class SyncPumpBolusTransaction(
             if (
                 current.timestamp != bolus.timestamp ||
                 current.amount != bolus.amount ||
-                current.type != bolusType ?: current.type
+                (bolus.isSMBorBasal() && current.type != bolusType ?: current.type)
             ) {
                 current.timestamp = bolus.timestamp
                 current.amount = bolus.amount

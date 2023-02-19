@@ -503,6 +503,7 @@
     <string name="wizard_explain_tt">TempT: %1$s</string>
     <string name="wizard_explain_tt_to">%1$s to %2$s</string>
     <string name="wizard_pump_not_available">No pump available!</string>
+    <string name="quickwizard">QuickWizard</string>
 
 
     <!--    Preferences-->
@@ -601,6 +602,11 @@
     <!-- SmsCommunicator -->
     <string name="smscommunicator_missingsmspermission">Missing SMS permission</string>
 
+    <!-- About -->
+    <string name="cta_dont_kill_my_app_info">Don\'t kill my app?</string>
+    <string name="fabric_upload_disabled">Crash logs upload disabled!</string>
+    <string name="about_link_urls">\n\nDocumentation:\nhttps://wiki.aaps.app\n\nFacebook:\nhttps://www.facebook.com/groups/AndroidAPSUsers</string>
+    
     <plurals name="days">
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>

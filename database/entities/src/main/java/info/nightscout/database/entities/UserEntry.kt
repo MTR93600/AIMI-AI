@@ -184,7 +184,7 @@ data class UserEntry(
         Aaps,               // MainApp
         Unknown,             //if necessary
         MedLinkMedtronic,
-        Enlite
+        Enlite,
         ;
 
         companion object {

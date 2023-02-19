@@ -2,18 +2,16 @@ package info.nightscout.database.impl.transactions
 
 import info.nightscout.database.entities.GlucoseValue
 import info.nightscout.database.entities.TherapyEvent
-import java.lang.Math.abs
+import info.nightscout.database.transactions.TransactionGlucoseValue
 
 /**
  * Inserts data from a CGM source into the database
  */
-class CgmSourceTransaction(
-    private val glucoseValues: List<info.nightscout.database.transactions.TransactionGlucoseValue>,
+class CgmSourceTransaction constructor(
+    private val glucoseValues: List<TransactionGlucoseValue>,
     private val calibrations: List<Calibration>,
-    private val sensorInsertionTime: Long?,
-    private val syncer: Boolean = false
+    private val sensorInsertionTime: Long?
 ) : Transaction<CgmSourceTransaction.TransactionResult>() {
-
 
     override fun run(): TransactionResult {
         val result = TransactionResult()
@@ -26,9 +24,8 @@ class CgmSourceTransaction(
                 noise = it.noise,
                 trendArrow = it.trendArrow,
                 sourceSensor = it.sourceSensor,
-                isig = it.isig,
-                calibrationFactor = it.calibrationFactor,
-                sensorUptime = it.sensorUptime
+                isValid = it.isValid,
+                utcOffset = it.utcOffset
             ).also { gv ->
                 gv.interfaceIDs.nightscoutId = it.nightscoutId
             }
@@ -39,35 +36,21 @@ class CgmSourceTransaction(
             current?.let { existing -> glucoseValue.isValid = existing.isValid }
             when {
                 // new record, create new
-                current == null                                                                -> {
+                current == null                                                      -> {
                     database.glucoseValueDao.insertNewEntry(glucoseValue)
                     result.inserted.add(glucoseValue)
                 }
                 // different record, update
-                !current.contentEqualsTo(glucoseValue) && !syncer                              -> {
-                    glucoseValue.id = current.id
-
-                    if (glucoseValue.sourceSensor == GlucoseValue.SourceSensor.MM_ENLITE) {
-                        if (glucoseValue.trendArrow == GlucoseValue.TrendArrow.NONE) {
-                            glucoseValue.trendArrow = current.trendArrow
-                        }
-                        if (abs(glucoseValue.value - current.value) == 1.0) {
-                            glucoseValue.value = current.value
-                        }
-                        if(!glucoseValue.contentEqualsTo(current)){
-                            database.glucoseValueDao.updateExistingEntry(glucoseValue)
-                            result.updated.add(glucoseValue)
-                        }
-                    } else
-                        if( database.glucoseValueDao.updateExistingEntry(glucoseValue)>0) {
-                            result.updated.add(glucoseValue)
-                        }
-                }
-                // update NS id if didn't exist and now provided
-                current.interfaceIDs.nightscoutId == null && it.nightscoutId != null && syncer -> {
+                !current.contentEqualsTo(glucoseValue)                               -> {
                     glucoseValue.id = current.id
                     database.glucoseValueDao.updateExistingEntry(glucoseValue)
                     result.updated.add(glucoseValue)
+                }
+                // update NS id if didn't exist and now provided
+                current.interfaceIDs.nightscoutId == null && it.nightscoutId != null -> {
+                    current.interfaceIDs.nightscoutId = it.nightscoutId
+                    database.glucoseValueDao.updateExistingEntry(current)
+                    result.updatedNsId.add(glucoseValue)
                 }
             }
         }
@@ -97,7 +80,11 @@ class CgmSourceTransaction(
         return result
     }
 
-
+    data class Calibration(
+        val timestamp: Long,
+        val value: Double,
+        val glucoseUnit: TherapyEvent.GlucoseUnit
+    )
 
     class TransactionResult {
 
@@ -114,11 +101,4 @@ class CgmSourceTransaction(
                 result.addAll(updated)
             }
     }
-
-    data class Calibration(
-        val timestamp: Long,
-        val value: Double,
-        val glucoseUnit: TherapyEvent.GlucoseUnit
-    )
-
 }

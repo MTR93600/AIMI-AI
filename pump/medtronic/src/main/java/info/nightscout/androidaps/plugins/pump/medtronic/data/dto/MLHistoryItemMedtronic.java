@@ -10,6 +10,7 @@ import info.nightscout.shared.interfaces.ResourceHelper;
 /**
  * Created by Dirceu on 25/09/20
  * copied from {@link RLHistoryItemMedtronic}
+ * used by medlink
  */
 public class MLHistoryItemMedtronic extends MLHistoryItem {
 

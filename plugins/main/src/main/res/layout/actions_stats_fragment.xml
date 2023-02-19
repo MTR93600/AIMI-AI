@@ -284,4 +284,57 @@
 
     </TableRow>
 
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/medlink_db_level"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:drawableLeft="@drawable/ic_cp_age_battery"
+            android:gravity="center_vertical"
+            android:paddingStart="15dp"
+            android:paddingRight="2dp"
+            android:text="@string/device_battery_label"
+            android:textSize="14sp" />
+
+
+        <TextView
+            android:id="@+id/medlink_battery_level_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:paddingRight="0dp"
+            android:text="75%"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/medlink_battery_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="2dp"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="2dp"
+            android:layout_span="5"
+            android:background="@color/list_delimiter" />
+
+    </TableRow>
 </TableLayout>

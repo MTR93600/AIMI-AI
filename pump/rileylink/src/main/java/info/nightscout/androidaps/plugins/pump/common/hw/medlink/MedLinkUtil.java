@@ -11,7 +11,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import info.nightscout.androidaps.plugins.pump.common.hw.connector.defs.CommunicatorEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.data.MLHistoryItem;
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.defs.MedLinkEncodingType;
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.encoding.Encoding4b6b;
@@ -28,7 +27,7 @@ public class MedLinkUtil  {
     private List<MLHistoryItem> historyMedLink = new ArrayList<>();
     private ServiceTask currentTask;
 
-    private CommunicatorEncodingType encoding = MedLinkEncodingType.FourByteSixByteLocal;
+    private MedLinkEncodingType encoding = MedLinkEncodingType.FourByteSixByteLocal;
     private Encoding4b6b encoding4b6b;
 
     // TODO maybe not needed
@@ -38,11 +37,11 @@ public class MedLinkUtil  {
     public MedLinkUtil() {
     }
 
-    public CommunicatorEncodingType getEncoding() {
+    public MedLinkEncodingType getEncoding() {
         return encoding;
     }
 
-    public void setEncoding(CommunicatorEncodingType encoding) {
+    public void setEncoding(MedLinkEncodingType encoding) {
         this.setEncoding(encoding);
     }
 

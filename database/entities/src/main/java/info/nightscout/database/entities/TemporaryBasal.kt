@@ -40,14 +40,16 @@ data class TemporaryBasal(
     var type: Type,
     var isAbsolute: Boolean,
     var rate: Double,
-    override var duration: Long
+    override var duration: Long,
+    var desiredRate: Double? = null,
+    var desiredPct: Int? = null,
 ) : TraceableDBEntry, DBEntryWithTimeAndDuration {
 
     init {
         require(duration > 0)
     }
 
-    private fun contentEqualsTo(other: TemporaryBasal): Boolean =
+    fun contentEqualsTo(other: TemporaryBasal): Boolean =
         isValid == other.isValid &&
             timestamp == other.timestamp &&
             utcOffset == other.utcOffset &&

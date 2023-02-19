@@ -12,11 +12,14 @@
     <string name="riley_link_ble_config_connected_never">Nooit</string>
     <string name="riley_link_ble_config_remove_riley_link">Verwyder</string>
     <!-- RL Status Page -->
+    <string name="medlink_scanner_title">MedLink Skan</string>
+    <string name="medlink_status">MedLink Status</string>
     <string name="rileylink_settings_tab1">Instellings</string>
     <string name="rileylink_settings_tab2">Geskiedenis</string>
     <string name="rileylink_status">RileyLink Status</string>
     <string name="medtronic_pump_status">Pomp Status</string>
     <string name="title_activity_rileylink_settings">RileyLink Instellings</string>
+    <string name="title_activity_medlink_settings">MedLink Instellings</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_name">Naam:</string>
     <string name="rileylink_battery_level_value">%1$d%%</string>

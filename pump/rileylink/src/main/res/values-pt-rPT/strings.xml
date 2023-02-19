@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- RL keys -->
+    <string name="medlink_scanner_title">Procura MedLink</string>
+    <string name="medlink_status">Estado do MedLink</string>
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Procurar</string>
     <string name="riley_link_ble_config_scan_stop">Parar</string>
@@ -21,6 +23,7 @@
     <string name="rileylink_status">Estado do RileyLink</string>
     <string name="medtronic_pump_status">Estado da Bomba</string>
     <string name="title_activity_rileylink_settings">Definições do RileyLink</string>
+    <string name="title_activity_medlink_settings">Definições do MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_address">Endereço:</string>
     <string name="rileylink_name">Nome:</string>

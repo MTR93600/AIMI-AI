@@ -204,6 +204,7 @@ class FillDialog : DialogFragmentWithDate() {
         detailedBolusInfo.context = context
         detailedBolusInfo.bolusType = DetailedBolusInfo.BolusType.PRIMING
         detailedBolusInfo.notes = notes
+        aapsLogger.info(LTag.PUMPQUEUE, "bolusing filldialog")
         commandQueue.bolus(detailedBolusInfo, object : Callback() {
             override fun run() {
                 if (!result.success) {

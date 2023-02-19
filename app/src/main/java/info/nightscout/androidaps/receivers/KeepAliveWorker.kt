@@ -14,7 +14,6 @@ import info.nightscout.androidaps.BuildConfig
 import info.nightscout.androidaps.R
 import info.nightscout.configuration.maintenance.MaintenancePlugin
 import info.nightscout.core.profile.ProfileSealed
-import info.nightscout.core.utils.fabric.FabricPrivacy
 import info.nightscout.core.utils.worker.LoggingWorker
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.interfaces.Config
@@ -23,7 +22,6 @@ import info.nightscout.interfaces.aps.Loop
 import info.nightscout.interfaces.configBuilder.RunningConfiguration
 import info.nightscout.interfaces.iob.IobCobCalculator
 import info.nightscout.interfaces.plugin.ActivePlugin
-import info.nightscout.interfaces.plugin.PluginBase
 import info.nightscout.interfaces.profile.ProfileFunction
 import info.nightscout.interfaces.queue.Command
 import info.nightscout.interfaces.queue.CommandQueue
@@ -36,6 +34,7 @@ import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.utils.DateUtil
 import info.nightscout.shared.utils.T
 import info.nightscout.ui.widget.Widget
+import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
@@ -43,7 +42,7 @@ import kotlin.math.abs
 class KeepAliveWorker(
     private val context: Context,
     params: WorkerParameters
-) : LoggingWorker(context, params) {
+) : LoggingWorker(context, params, Dispatchers.Default) {
 
     @Inject lateinit var localAlertUtils: LocalAlertUtils
     @Inject lateinit var repository: AppRepository
@@ -57,7 +56,6 @@ class KeepAliveWorker(
     @Inject lateinit var receiverStatusStore: ReceiverStatusStore
     @Inject lateinit var rxBus: RxBus
     @Inject lateinit var commandQueue: CommandQueue
-    @Inject lateinit var fabricPrivacy: FabricPrivacy
     @Inject lateinit var maintenancePlugin: MaintenancePlugin
     @Inject lateinit var rh: ResourceHelper
     @Inject lateinit var sp: SP
@@ -76,7 +74,7 @@ class KeepAliveWorker(
         private const val KA_10 = "KeepAlive_10"
     }
 
-    override fun doWorkAndLog(): Result {
+    override suspend fun doWorkAndLog(): Result {
         aapsLogger.debug(LTag.CORE, "KeepAlive received from: " + inputData.getString("schedule"))
 
         // 15 min interval is WorkManager minimum so schedule another instances to have 5 min interval
@@ -155,8 +153,7 @@ class KeepAliveWorker(
         var shouldUploadStatus = false
         if (config.NSCLIENT) return
         if (config.PUMPCONTROL) shouldUploadStatus = true
-        else if (!(loop as PluginBase).isEnabled() || iobCobCalculator.ads.actualBg() == null)
-            shouldUploadStatus = true
+        else if (!loop.isEnabled() || iobCobCalculator.ads.actualBg() == null) shouldUploadStatus = true
         else if (dateUtil.isOlderThan(activePlugin.activeAPS.lastAPSRun, 5)) shouldUploadStatus = true
         if (dateUtil.isOlderThan(lastIobUpload, IOB_UPDATE_FREQUENCY_IN_MINUTES) && shouldUploadStatus) {
             lastIobUpload = dateUtil.now()

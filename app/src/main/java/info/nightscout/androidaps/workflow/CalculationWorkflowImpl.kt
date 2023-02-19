@@ -12,9 +12,11 @@ import dagger.android.HasAndroidInjector
 import info.nightscout.core.graph.OverviewData
 import info.nightscout.core.utils.fabric.FabricPrivacy
 import info.nightscout.core.utils.receivers.DataWorkerStorage
+import info.nightscout.core.utils.worker.then
 import info.nightscout.core.workflow.CalculationWorkflow
 import info.nightscout.core.workflow.CalculationWorkflow.Companion.JOB
 import info.nightscout.core.workflow.CalculationWorkflow.Companion.MAIN_CALCULATION
+import info.nightscout.core.workflow.CalculationWorkflow.Companion.PASS
 import info.nightscout.interfaces.iob.IobCobCalculator
 import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.plugins.iob.iobCobCalculator.IobCobCalculatorPlugin
@@ -156,7 +158,7 @@ class CalculationWorkflowImpl @Inject constructor(
             )
             .then(
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
-                    .setInputData(Data.Builder().putString(JOB, job).build())
+                    .setInputData(Data.Builder().putString(JOB, job).putInt(PASS, CalculationWorkflow.ProgressData.DRAW_BG.pass).build())
                     .build()
             )
             .then(
@@ -176,7 +178,7 @@ class CalculationWorkflowImpl @Inject constructor(
             )
             .then(
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
-                    .setInputData(Data.Builder().putString(JOB, job).build())
+                    .setInputData(Data.Builder().putString(JOB, job).putInt(PASS, CalculationWorkflow.ProgressData.DRAW_TT.pass).build())
                     .build()
             )
             .then(
@@ -196,8 +198,9 @@ class CalculationWorkflowImpl @Inject constructor(
                     .build()
             )
             .then(
+                job == MAIN_CALCULATION,
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
-                    .setInputData(Data.Builder().putString(JOB, job).build())
+                    .setInputData(Data.Builder().putString(JOB, job).putInt(PASS, CalculationWorkflow.ProgressData.DRAW_IOB.pass).build())
                     .build()
             )
             .then(
@@ -213,16 +216,12 @@ class CalculationWorkflowImpl @Inject constructor(
                     .build()
             )
             .then(
-                job == MAIN_CALCULATION,
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
-                    .setInputData(Data.Builder().putString(JOB, job).build())
+                    .setInputData(Data.Builder().putString(JOB, job).putInt(PASS, CalculationWorkflow.ProgressData.DRAW_FINAL.pass).build())
                     .build()
             )
             .enqueue()
     }
-
-    fun WorkContinuation.then(shouldAdd: Boolean, work: OneTimeWorkRequest): WorkContinuation =
-        if (shouldAdd) then(work) else this
 
     private fun runOnEventTherapyEventChange() {
         WorkManager.getInstance(context)
@@ -234,6 +233,7 @@ class CalculationWorkflowImpl @Inject constructor(
             )
             .then(
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
+                    .setInputData(Data.Builder().putInt(PASS, CalculationWorkflow.ProgressData.DRAW_FINAL.pass).build())
                     .build()
             )
             .enqueue()
@@ -255,6 +255,7 @@ class CalculationWorkflowImpl @Inject constructor(
             )
             .then(
                 OneTimeWorkRequest.Builder(UpdateGraphWorker::class.java)
+                    .setInputData(Data.Builder().putInt(PASS, CalculationWorkflow.ProgressData.DRAW_FINAL.pass).build())
                     .build()
             )
             .enqueue()

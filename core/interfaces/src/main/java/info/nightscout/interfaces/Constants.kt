@@ -111,6 +111,8 @@ object Constants {
     const val CARBS_FAV2_DEFAULT = 10
     const val CARBS_FAV3_DEFAULT = 20
 
+
     const val INTERVAL_BETWEEN_OPERATIONS: Int = 5
     const val SECONDS_PER_DAY = 24 * 60 *60
+
 }

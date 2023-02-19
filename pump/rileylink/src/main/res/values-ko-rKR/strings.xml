@@ -21,6 +21,7 @@
     <string name="rileylink_status">RileyLink 상태</string>
     <string name="medtronic_pump_status">펌프 상태</string>
     <string name="title_activity_rileylink_settings">RileyLink 설정</string>
+    <string name="title_activity_medlink_settings">MedLink 설정</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_address">주소:</string>
     <string name="rileylink_name">이름:</string>

@@ -5,6 +5,8 @@
     <string name="key_insulin_button_increment_3" translatable="false">insulin_button_increment_3</string>
 
     <!--    DateUtil-->
+    <string name="minafter">In %1$d m</string>
+    <string name="hoursafter">In %1$.1f h</string>
     <string name="minago">%1$d m ago</string>
     <string name="minago_long">%1$d minutes ago</string>
     <string name="hoursago">%1$.1f h ago</string>

@@ -97,17 +97,11 @@
     <string name="sms_read_status_failed">Четенето на статуса се провали</string>
     <string name="sms_profile_switch_created">Създаден запис - Промяна на профил</string>
     <string name="sms_wrong_tbr_duration">Продължителността на временния база; трябва да бъде кратна на %1$d минути и по-голяма от 0.</string>
-    <!-- xDrip status line -->
-    <!-- StatusLine -->
-    <string name="xdrip_status">xDrip+ линия със статута (часовник)</string>
-    <string name="xdrip_status_shortname">xds</string>
-    <string name="description_xdrip_status_line">Покажи информация за вашия APS на xDrip + циферблат на часовник.</string>
     <string name="xdrip_status_detailed_iob_title">Покажи подробен IOB</string>
     <string name="xdrip_status_detailed_iob_summary">Раздели IOB от болус и от базал на часовника</string>
     <string name="disabled_loop">Loop изключен</string>
     <string name="xdrip_status_show_bgi_title">Показвай BGI</string>
     <string name="xdrip_status_show_bgi_summary">Добави BGI към статуса</string>
-    <string name="xdrip_status_settings">xDrip+ статус (часовник)</string>
     <!-- Food-->
     <string name="food_short">Храна</string>
     <string name="description_food">Показва въведените в Nightscout храни</string>
@@ -179,13 +173,9 @@
     <string name="chart_menu">Меню на графиката</string>
     <string name="set_basal_question">Приложи нов временен базал:</string>
     <string name="overview_cgm">CGM</string>
-    <string name="quickwizard">Бърз болус</string>
     <string name="overview">Общ</string>
     <string name="overview_shortname">ОСН</string>
     <string name="description_overview">Показва текущото състояние на вашия APS и бутони за най-често използваните действия</string>
-    <string name="overview_editquickwizard_usecob">Калкулиране на COB</string>
-    <string name="overview_editquickwizard_usetemptarget">Калкулиране на временни цели</string>
-    <string name="overview_editquickwizard_usepercentage">Процентно изчисление</string>
     <string name="overview_buttons_selection">Бутони</string>
     <string name="show_calibration_button_summary">Изпрати калибрация до xDrip+ или отвори BYODA калибрационнен диалог</string>
     <string name="show_cgm_button_summary">Отваря xDrip+ или BYODA, бутон назад те връща в AAPS</string>
@@ -199,20 +189,6 @@
     <string name="uploader">Uploader</string>
     <string name="data_status">Статус на данни за КЗ</string>
     <string name="quickwizard_settings">Настройки за бърз болус</string>
-    <string name="overview_edit_quickwizard_button_text">Текст на бутона:</string>
-    <string name="overview_edit_quickwizard_carbs">Вълехидрати:</string>
-    <string name="overview_edit_quickwizard_valid">Валиден от:</string>
-    <string name="overview_edit_quickwizard_list_activity_add">Добави</string>
-    <string name="overview_quickwizard_item_edit_button">Редакция</string>
-    <string name="overview_edit_quickwizard_use_bg">Калкулиране на КЗ</string>
-    <string name="overview_edit_quickwizard_use_bolus_iob">Калкулиране на Болус IOB</string>
-    <string name="overview_edit_quickwizard_use_basal_iob">Калкулиране на базален IOB</string>
-    <string name="overview_edit_quickwizard_use_trend">Калкулиране на тенденция КЗ</string>
-    <string name="overview_edit_quickwizard_use_superbolus">Калкулиране суперболус</string>
-    <string name="overview_edit_quickwizard_percentage">% от профила</string>
-    <string name="device_all">Всички</string>
-    <string name="positive_only">Само положителни</string>
-    <string name="negative_only">Само отрицателни</string>
     <string name="keep_screen_on_title">Винаги включен екран</string>
     <string name="keep_screen_on_summary">Предотвратяване на андроид да изключва екрана. Това ще доведе до консумацията на много енергия, когато устройството не е включено в контакта.</string>
     <string name="treatments">Лечения</string>
@@ -278,7 +254,6 @@
     <string name="buttonson_description">Бутоните винаги се показват на дъното на екрана.</string>
     <string name="largedisplay_description">Голям екран</string>
     <string name="skin">Тема</string>
-    <!--    DataBroadcast-->
     <!--    Iob-->
     <string name="send_logfiles">Изпрати последните лог файлове на разработчиците. Непредвидена ситуация.</string>
     <!--    Wear-->

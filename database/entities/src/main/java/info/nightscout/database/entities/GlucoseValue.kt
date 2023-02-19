@@ -124,8 +124,7 @@ data class GlucoseValue(
         COB_PREDICTION("COBPrediction"),
         UAM_PREDICTION("UAMPrediction"),
         ZT_PREDICTION("ZTPrediction"),
-
-        MM_ENLITE("Enlite"),
+        MM_ENLITE("Enlite")
         ;
 
         companion object {

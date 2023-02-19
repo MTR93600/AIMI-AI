@@ -11,6 +11,7 @@ import info.nightscout.rx.logging.LTag;
 
 /**
  * Created by Dirceu on 12/12/20.
+ * used by medlink
  */
 public class MedLinkBasalProfileParser {
     private final AAPSLogger aapsLogger;

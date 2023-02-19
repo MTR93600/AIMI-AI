@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import info.nightscout.androidaps.database.daos.MedLinkDao
 import info.nightscout.database.entities.*
-import info.nightscout.database.impl.daos.*
 import info.nightscout.database.impl.daos.APSResultDao
 import info.nightscout.database.impl.daos.APSResultLinkDao
 import info.nightscout.database.impl.daos.BolusCalculatorResultDao
@@ -18,11 +17,14 @@ import info.nightscout.database.impl.daos.FoodDao
 import info.nightscout.database.impl.daos.GlucoseValueDao
 import info.nightscout.database.impl.daos.MultiwaveBolusLinkDao
 import info.nightscout.database.impl.daos.OfflineEventDao
+import info.nightscout.database.impl.daos.PreferenceChangeDao
 import info.nightscout.database.impl.daos.ProfileSwitchDao
 import info.nightscout.database.impl.daos.TemporaryBasalDao
 import info.nightscout.database.impl.daos.TemporaryTargetDao
 import info.nightscout.database.impl.daos.TherapyEventDao
 import info.nightscout.database.impl.daos.TotalDailyDoseDao
+import info.nightscout.database.impl.daos.UserEntryDao
+import info.nightscout.database.impl.daos.VersionChangeDao
 
 const val DATABASE_VERSION = 23
 

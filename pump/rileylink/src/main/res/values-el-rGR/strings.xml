@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="medlink_status">Κατάσταση MedLink</string>
     <!-- RL keys -->
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Scan</string>
@@ -17,6 +18,7 @@
     <string name="rileylink_status">Κατάσταση RileyLink</string>
     <string name="medtronic_pump_status">Κατάσταση Αντλίας</string>
     <string name="title_activity_rileylink_settings">Ρυθμίσεις RileyLink</string>
+    <string name="title_activity_medlink_settings">Ρυθμίσεις MedLink</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_name">Όνομα:</string>
     <string name="rileylink_battery_level_value">%1$d%%</string>

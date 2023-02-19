@@ -61,7 +61,7 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     abstract val temporaryBasal: PumpSync.PumpState.TemporaryBasal?
 
     abstract fun handleBolusDelivered(lastBolusInfo: DetailedBolusInfo?)
-    protected override val disposable = CompositeDisposable()
+    override val disposable = CompositeDisposable()
 
     // Pump capabilities
     final override var pumpDescription = PumpDescription()
@@ -89,13 +89,14 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
     override fun onStart() {
         super.onStart()
         initPumpStatusData()
-        if (hasService()) {
+        serviceConnection?.let { serviceConnection ->
             val intent = Intent(context, serviceClass)
-            context.bindService(intent, serviceConnection!!, Context.BIND_AUTO_CREATE)
-            disposable.add(rxBus
-                               .toObservable(EventAppExit::class.java)
-                               .observeOn(aapsSchedulers.io)
-                               .subscribe({ _ -> context.unbindService(serviceConnection!!) }) { throwable: Throwable? -> fabricPrivacy.logException(throwable!!) }
+            context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+            disposable.add(
+                rxBus
+                    .toObservable(EventAppExit::class.java)
+                    .observeOn(aapsSchedulers.io)
+                    .subscribe({ context.unbindService(serviceConnection) }, fabricPrivacy::logException)
             )
         }
         serviceRunning = true
@@ -104,8 +105,8 @@ abstract class MedLinkPumpPluginAbstract protected constructor(
 
     override fun onStop() {
         aapsLogger.debug(LTag.PUMP, model().model + " onStop()")
-        if (hasService()) {
-            context.unbindService(serviceConnection!!)
+        serviceConnection?.let { serviceConnection ->
+            context.unbindService(serviceConnection)
         }
         serviceRunning = false
         disposable.clear()

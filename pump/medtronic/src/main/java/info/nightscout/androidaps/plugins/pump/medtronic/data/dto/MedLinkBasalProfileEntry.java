@@ -3,6 +3,7 @@ package info.nightscout.androidaps.plugins.pump.medtronic.data.dto;
 
 /**
  * Created by Dirceu on 18/01/21.
+ * used by medlink
  */
 public class MedLinkBasalProfileEntry extends  BasalProfileEntry {
 

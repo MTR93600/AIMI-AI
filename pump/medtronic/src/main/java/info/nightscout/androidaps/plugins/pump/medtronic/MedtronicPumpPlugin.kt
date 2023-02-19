@@ -86,7 +86,7 @@ import kotlin.math.floor
  * @author Andy Rozman (andy.rozman@gmail.com)
  */
 @Singleton
-class MedtronicPumpPlugin @Inject constructor(
+class  MedtronicPumpPlugin @Inject constructor(
     injector: HasAndroidInjector,
     aapsLogger: AAPSLogger,
     rxBus: RxBus,
@@ -544,7 +544,7 @@ class MedtronicPumpPlugin @Inject constructor(
 
     private var bolusDeliveryType = BolusDeliveryType.Idle
 
-    private enum class BolusDeliveryType {
+    enum class BolusDeliveryType {
         Idle,  //
         DeliveryPrepared,  //
         Delivering,  //
@@ -595,13 +595,9 @@ class MedtronicPumpPlugin @Inject constructor(
             return PumpEnactResult(injector) //
                 .success(false) //
                 .enacted(false) //
-                .comment(
-                    rh.gs(
-                        R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
-                        medtronicPumpStatus.reservoirRemainingUnits,
-                        detailedBolusInfo.insulin
-                    )
-                )
+                .comment(rh.gs(R.string.medtronic_cmd_bolus_could_not_be_delivered_no_insulin,
+                               medtronicPumpStatus.reservoirRemainingUnits,
+                               detailedBolusInfo.insulin))
         }
         bolusDeliveryType = BolusDeliveryType.DeliveryPrepared
         if (isPumpNotReachable) {
@@ -1057,16 +1053,13 @@ class MedtronicPumpPlugin @Inject constructor(
                     val differenceTime = System.currentTimeMillis() - runningTBR.date
                     //val tbrData = runningTBR
 
-                    val result = pumpSync.syncTemporaryBasalWithPumpId(
+                    val result = pumpSync.syncStopTemporaryBasalWithPumpId(
                         runningTBR.date,
-                        runningTBR.rate,
-                        differenceTime,
-                        runningTBR.isAbsolute,
-                        runningTBR.tbrType,
                         runningTBR.pumpId!!,
                         runningTBR.pumpType,
                         runningTBR.serialNumber
                     )
+
 
                     val differenceTimeMin = floor(differenceTime / (60.0 * 1000.0))
 

@@ -30,8 +30,10 @@ import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.utils.DateUtil
 import info.nightscout.shared.utils.T
+import kotlinx.coroutines.Dispatchers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.security.InvalidParameterException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,8 +86,7 @@ class NSClientSourcePlugin @Inject constructor(
     class NSClientSourceWorker(
         context: Context,
         params: WorkerParameters
-    ) :
-        LoggingWorker(context, params) {
+    ) : LoggingWorker(context, params, Dispatchers.IO) {
 
         @Inject lateinit var nsClientSourcePlugin: NSClientSourcePlugin
         @Inject lateinit var injector: HasAndroidInjector
@@ -113,19 +114,20 @@ class NSClientSourcePlugin @Inject constructor(
 
         private fun toGv(sgv: NSSgvV3): TransactionGlucoseValue {
             return TransactionGlucoseValue(
-                timestamp = sgv.date,
+                timestamp = sgv.date ?: throw InvalidParameterException(),
                 value = sgv.sgv,
                 noise = sgv.noise?.toDouble(),
                 raw = sgv.filtered,
-                trendArrow = GlucoseValue.TrendArrow.fromString(sgv.direction.nsName),
+                trendArrow = GlucoseValue.TrendArrow.fromString(sgv.direction?.nsName),
                 nightscoutId = sgv.identifier,
                 sourceSensor = GlucoseValue.SourceSensor.fromString(sgv.device),
-                isValid = sgv.isValid
+                isValid = sgv.isValid,
+                utcOffset = T.mins(sgv.utcOffset ?: 0L).msecs()
             )
         }
 
         @Suppress("SpellCheckingInspection")
-        override fun doWorkAndLog(): Result {
+        override suspend fun doWorkAndLog(): Result {
             var ret = Result.success()
             val sgvs = dataWorkerStorage.pickupObject(inputData.getLong(DataWorkerStorage.STORE_KEY, -1))
                 ?: return Result.failure(workDataOf("Error" to "missing input data"))
@@ -148,7 +150,6 @@ class NSClientSourcePlugin @Inject constructor(
                     }
 
                 } else if (sgvs is List<*>) { // V3 client
-//                xDripBroadcast.sendSgvs(sgvs)
 
                     for (i in 0 until sgvs.size) {
                         val sgv = toGv(sgvs[i] as NSSgvV3)

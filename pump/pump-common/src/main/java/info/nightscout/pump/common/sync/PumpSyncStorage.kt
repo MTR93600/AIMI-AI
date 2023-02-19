@@ -1,18 +1,14 @@
 package info.nightscout.pump.common.sync
 
-
 import com.thoughtworks.xstream.XStream
 import com.thoughtworks.xstream.security.AnyTypePermission
 import info.nightscout.androidaps.annotations.OpenForTesting
-import info.nightscout.interfaces.XDripBroadcast
 import info.nightscout.interfaces.pump.DetailedBolusInfo
 import info.nightscout.interfaces.pump.PumpSync
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
 
 import info.nightscout.shared.sharedPreferences.SP
-import org.json.JSONArray
-import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,8 +20,7 @@ import javax.inject.Singleton
 class PumpSyncStorage @Inject constructor(
     val pumpSync: PumpSync,
     val sp: SP,
-    val aapsLogger: AAPSLogger,
-    val xDripBroadcast: XDripBroadcast
+    val aapsLogger: AAPSLogger
 ) {
 
     companion object {
@@ -71,8 +66,11 @@ class PumpSyncStorage @Inject constructor(
 
             if (jsonData.isNotBlank()) {
                 @Suppress("UNCHECKED_CAST")
-                pumpSyncStorageTBR = xstream.fromXML(jsonData, List::class.java) as
-                    MutableList<PumpDbEntryTBR>
+                pumpSyncStorageTBR = try {
+                    xstream.fromXML(jsonData, MutableList::class.java) as MutableList<PumpDbEntryTBR>
+                } catch (e: Exception) {
+                    mutableListOf()
+                }
 
                 aapsLogger.debug(LTag.PUMP, "Loading Pump Sync Storage: tbrs=${pumpSyncStorageTBR.size}.")
                 aapsLogger.debug(LTag.PUMP, "DD: PumpSyncStorageTBR=$pumpSyncStorageTBR")
@@ -82,7 +80,7 @@ class PumpSyncStorage @Inject constructor(
     }
 
     fun saveStorageBolus() {
-        if (!pumpSyncStorageBolus.isEmpty()) {
+        if (pumpSyncStorageBolus.isNotEmpty()) {
             sp.putString(pumpSyncStorageBolusKey, xstream.toXML(pumpSyncStorageBolus))
             aapsLogger.debug(LTag.PUMP, "Saving Pump Sync Storage: boluses=${pumpSyncStorageBolus.size}")
         } else {
@@ -92,7 +90,7 @@ class PumpSyncStorage @Inject constructor(
     }
 
     fun saveStorageTBR() {
-        if (!pumpSyncStorageTBR.isEmpty()) {
+        if (pumpSyncStorageTBR.isNotEmpty()) {
             sp.putString(pumpSyncStorageTBRKey, xstream.toXML(pumpSyncStorageTBR))
             aapsLogger.debug(LTag.PUMP, "Saving Pump Sync Storage: tbr=${pumpSyncStorageTBR.size}")
         } else {
@@ -120,7 +118,6 @@ class PumpSyncStorage @Inject constructor(
 
     fun addBolusWithTempId(detailedBolusInfo: DetailedBolusInfo, writeToInternalHistory: Boolean, creator: PumpSyncEntriesCreator): Boolean {
         val temporaryId = creator.generateTempId(detailedBolusInfo.timestamp)
-
         val result = pumpSync.addBolusWithTempId(
             detailedBolusInfo.timestamp,
             detailedBolusInfo.insulin,
@@ -149,7 +146,6 @@ class PumpSyncStorage @Inject constructor(
 
             pumpSyncStorageBolus.add(dbEntry)
             saveStorageBolus()
-            xDripBroadcast.sendTreatments(JSONArray( JSONObject(detailedBolusInfo.toJsonString())))
         }
         return result
     }

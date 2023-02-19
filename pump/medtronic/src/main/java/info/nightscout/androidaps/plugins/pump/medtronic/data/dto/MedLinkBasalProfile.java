@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * Created by Dirceu on 18/01/21.
+ * used by medlink
  */
 //public class MedLinkBasalProfile extends  BasalProfile {
 //    public MedLinkBasalProfile(AAPSLogger aapsLogger) {

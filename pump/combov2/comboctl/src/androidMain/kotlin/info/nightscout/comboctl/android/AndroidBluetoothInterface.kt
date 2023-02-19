@@ -1,11 +1,6 @@
 package info.nightscout.comboctl.android
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter as SystemBluetoothAdapter
-import android.bluetooth.BluetoothDevice as SystemBluetoothDevice
-import android.bluetooth.BluetoothManager as SystemBluetoothManager
-import android.bluetooth.BluetoothServerSocket as SystemBluetoothServerSocket
-import android.bluetooth.BluetoothSocket as SystemBluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -20,6 +15,11 @@ import info.nightscout.comboctl.base.toBluetoothAddress
 import java.io.IOException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
+import android.bluetooth.BluetoothAdapter as SystemBluetoothAdapter
+import android.bluetooth.BluetoothDevice as SystemBluetoothDevice
+import android.bluetooth.BluetoothManager as SystemBluetoothManager
+import android.bluetooth.BluetoothServerSocket as SystemBluetoothServerSocket
+import android.bluetooth.BluetoothSocket as SystemBluetoothSocket
 
 private val logger = Logger.get("AndroidBluetoothInterface")
 
@@ -381,13 +381,6 @@ class AndroidBluetoothInterface(private val androidContext: Context) : Bluetooth
         // instance was already processed. This check here instead
         // verifies if we have seen the same Bluetooth address on
         // *different* Android Bluetooth device instances.
-        // TODO: Test how AndroidBluetoothInterface behaves if the
-        // device is unpaired while discovery  is ongoing (manually by
-        // the user for example). In theory, this should be handled
-        // properly by the onBondStateChanged function below.
-        // TODO: This check may not be necessary on all Android
-        // devices. On some, it seems to also work if we use the
-        // first offered BluetoothDevice.
         if (comboctlBtAddress !in previouslyDiscoveredDevices) {
             previouslyDiscoveredDevices[comboctlBtAddress] = androidBtDevice
             logger(LogLevel.DEBUG) {

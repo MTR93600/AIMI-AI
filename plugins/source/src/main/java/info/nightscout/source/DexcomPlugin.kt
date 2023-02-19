@@ -36,6 +36,7 @@ import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.utils.DateUtil
 import info.nightscout.shared.utils.T
 import info.nightscout.source.activities.RequestDexcomPermissionActivity
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -83,7 +84,7 @@ class DexcomPlugin @Inject constructor(
     class DexcomWorker(
         context: Context,
         params: WorkerParameters
-    ) : LoggingWorker(context, params) {
+    ) : LoggingWorker(context, params, Dispatchers.IO) {
 
         @Inject lateinit var injector: HasAndroidInjector
         @Inject lateinit var dexcomPlugin: DexcomPlugin
@@ -94,7 +95,7 @@ class DexcomPlugin @Inject constructor(
         @Inject lateinit var repository: AppRepository
         @Inject lateinit var uel: UserEntryLogger
 
-        override fun doWorkAndLog(): Result {
+        override suspend fun doWorkAndLog(): Result {
             var ret = Result.success()
 
             if (!dexcomPlugin.isEnabled()) return Result.success(workDataOf("Result" to "Plugin not enabled"))
@@ -184,11 +185,11 @@ class DexcomPlugin @Inject constructor(
                                     }
                                 }
                             }
-                            xDripBroadcast.send(result.inserted[i])
+                            xDripBroadcast.sendIn640gMode(result.inserted[i])
                             aapsLogger.debug(LTag.DATABASE, "Inserted bg ${result.inserted[i]}")
                         }
                         result.updated.forEach {
-                            xDripBroadcast.send(it)
+                            xDripBroadcast.sendIn640gMode(it)
                             aapsLogger.debug(LTag.DATABASE, "Updated bg $it")
                         }
                         result.sensorInsertionsInserted.forEach {

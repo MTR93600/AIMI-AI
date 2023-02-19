@@ -1,17 +1,17 @@
 package info.nightscout.androidaps.plugins.pump.medtronic.comm.activities
 
 import android.content.Context
-import dagger.android.HasAndroidInjector
 import info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities.MedLinkStandardReturn
 import info.nightscout.androidaps.plugins.pump.medtronic.MedLinkMedtronicPumpPlugin
 import info.nightscout.androidaps.plugins.pump.medtronic.R
-import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.MedLinkProfileParser
+import info.nightscout.androidaps.plugins.pump.medtronic.data.dto.BasalProfile
 import info.nightscout.androidaps.plugins.pump.medtronic.defs.BasalProfileStatus
+import info.nightscout.androidaps.plugins.pump.medtronic.defs.MedLinkMedtronicDeviceType
 import info.nightscout.androidaps.plugins.pump.medtronic.driver.MedLinkMedtronicPumpStatus
 import info.nightscout.core.ui.toast.ToastUtils.showToastInUiThread
+import info.nightscout.interfaces.plugin.MedLinkProfileParser
 import info.nightscout.interfaces.profile.Profile
-import info.nightscout.rx.logging.AAPSLogger
-
+import info.nightscout.interfaces.sync.DataSyncSelector
 import org.json.JSONException
 import java.util.function.Function
 import java.util.function.Supplier
@@ -20,17 +20,16 @@ import java.util.stream.Stream
 /**
  * Created by Dirceu on 01/02/21.
  */
-class ProfileCallback(private val injector: HasAndroidInjector, private val aapsLogger: AAPSLogger, private val ctx: Context, private val medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin) :
+class ProfileCallback(private val ctx: Context, private val medLinkMedtronicPumpPlugin: MedLinkMedtronicPumpPlugin,
+                      private val parser: MedLinkProfileParser<MedLinkStandardReturn<MedLinkMedtronicDeviceType>, BasalProfile>) :
     Function<Supplier<Stream<String>>, MedLinkStandardReturn<Profile?>> {
 
     override fun apply(answer: Supplier<Stream<String>>): MedLinkStandardReturn<Profile?> {
-        val parser = MedLinkProfileParser(
-            injector, aapsLogger,
-            medLinkMedtronicPumpPlugin
-        )
+        val x:DataSyncSelector.PairProfileSwitch
+
         var result: MedLinkStandardReturn<Profile?>
         try {
-            val profile = parser.parseProfile(answer)
+            val profile = parser.parseProfile(answer, medLinkMedtronicPumpPlugin.basalProfile)
             result = MedLinkStandardReturn(answer, profile)
             (medLinkMedtronicPumpPlugin.pumpStatusData as MedLinkMedtronicPumpStatus).basalProfileStatus = BasalProfileStatus.ProfileOK
             if (profile != null &&  !medLinkMedtronicPumpPlugin.isThisProfileSet(profile)) {

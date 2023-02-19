@@ -8,6 +8,10 @@ import java.util.Objects;
 
 import kotlin.jvm.functions.Function1;
 
+
+/**
+ * used by medlink
+ */
 public class TempBasalMicroBolusPair extends TempBasalPair{
 
     private boolean commandIssued = false;

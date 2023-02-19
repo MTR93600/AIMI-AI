@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- RL keys -->
+    <string name="medlink_scanner_title">MedLink skanavimas</string>
+    <string name="medlink_status">MedLink statusas</string>
     <!-- RL BLE Config -->
     <string name="riley_link_ble_config_button_scan_start">Skanuoti</string>
     <string name="riley_link_ble_config_scan_stop">Stop</string>
@@ -21,6 +23,7 @@
     <string name="rileylink_status">RileyLink statusas</string>
     <string name="medtronic_pump_status">Pompos statusas</string>
     <string name="title_activity_rileylink_settings">RileyLink parametrai</string>
+    <string name="title_activity_medlink_settings">MedLink parametrai</string>
     <string name="rileylink_title">RileyLink</string>
     <string name="rileylink_address">Adresas:</string>
     <string name="rileylink_name">Vardas:</string>

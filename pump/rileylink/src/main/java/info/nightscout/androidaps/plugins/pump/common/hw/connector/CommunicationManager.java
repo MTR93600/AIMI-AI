@@ -4,6 +4,9 @@ import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.data.RLMe
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.defs.RLMessageType;
 import info.nightscout.pump.core.defs.PumpDeviceState;
 
+/**
+ * used by medlink
+ */
 public interface CommunicationManager {
     RLMessage createResponseMessage(byte[] payload);
 

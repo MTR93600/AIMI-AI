@@ -3,6 +3,8 @@ package info.nightscout.androidaps.plugins.pump.common.di
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import info.nightscout.androidaps.plugins.pump.common.dialog.RileyLinkBLEConfigActivity
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBluetoothStateReceiver
+import info.nightscout.androidaps.plugins.pump.common.hw.medlink.service.MedLinkBroadcastReceiver
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RFSpy
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.RileyLinkBLE
 import info.nightscout.androidaps.plugins.pump.common.hw.rileylink.ble.command.SendAndListen
@@ -47,4 +49,9 @@ abstract class RileyLinkModule {
     @ContributesAndroidInjector abstract fun contributesRileyLinkBLEConfigActivity(): RileyLinkBLEConfigActivity
 
     @ContributesAndroidInjector abstract fun contributesRileyLinkService(): RileyLinkService
+    @ContributesAndroidInjector abstract fun contributesRileyLinkBroadcastReceiver(): RileyLinkBroadcastReceiver
+    @ContributesAndroidInjector abstract fun contributesRileyLinkBluetoothStateReceiver(): RileyLinkBluetoothStateReceiver
+
+    @ContributesAndroidInjector abstract fun contributesMedLinkBroadcastReceiver(): MedLinkBroadcastReceiver
+    @ContributesAndroidInjector abstract fun contributesMedLinkBluetoothStateReceiver(): MedLinkBluetoothStateReceiver
 }

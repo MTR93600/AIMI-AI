@@ -1,8 +1,5 @@
 package info.nightscout.comboctl.android
 
-import android.bluetooth.BluetoothAdapter as SystemBluetoothAdapter
-import android.bluetooth.BluetoothDevice as SystemBluetoothDevice
-import android.bluetooth.BluetoothSocket as SystemBluetoothSocket
 import android.content.Context
 import info.nightscout.comboctl.base.BluetoothAddress
 import info.nightscout.comboctl.base.BluetoothDevice
@@ -12,11 +9,14 @@ import info.nightscout.comboctl.base.ComboIOException
 import info.nightscout.comboctl.base.LogLevel
 import info.nightscout.comboctl.base.Logger
 import info.nightscout.comboctl.utils.retryBlocking
+import kotlinx.coroutines.Dispatchers
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
+import android.bluetooth.BluetoothAdapter as SystemBluetoothAdapter
+import android.bluetooth.BluetoothDevice as SystemBluetoothDevice
+import android.bluetooth.BluetoothSocket as SystemBluetoothSocket
 
 private val logger = Logger.get("AndroidBluetoothDevice")
 
@@ -67,8 +67,9 @@ class AndroidBluetoothDevice(
             // just yet (for example because the UI is still shown on the LCD), while
             // the retryBlocking loop here is in place because the _Android device_
             // may not be ready to connect right away.
-            // TODO: Test and define what happens when all attempts failed.
-            // The user needs to be informed and given the choice to try again.
+            // When all attempts fail, retryBlocking() lets the exception pass through.
+            // That exception is wrapped in BluetoothException, which then needs to be
+            // handled by the caller.
             val totalNumAttempts = 5
             retryBlocking(numberOfRetries = totalNumAttempts, delayBetweenRetries = 100) { attemptNumber, previousException ->
                 if (abortConnectAttempt)

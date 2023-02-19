@@ -85,6 +85,9 @@
     <string name="combov2_reservoir_low_warning">Niveau réservoir pompe bas</string>
     <string name="combov2_setting_tbr_succeeded">Paramétrage du DBT réussi</string>
     <string name="combov2_setting_tbr_failed">Échec du réglage du DBT</string>
+    <string name="combov2_set_emulated_100_tbr">Définir l\'émulation 100% TBR</string>
+    <string name="combov2_letting_emulated_100_tbr_finish">Laisser se terminer l\'émulation 100% TBR en cours</string>
+    <string name="combov2_ignoring_redundant_100_tbr">Requête 100% DBT redondante ignorée</string>
     <string name="combov2_hit_unexpected_tbr_limit">Limite inattendue lors de l’ajustement du DBT: le pourcentage cible de %1$d%%, a dépassé la limite de %1$d%%</string>
     <string name="combov2_cannot_set_absolute_tbr_if_basal_zero">Impossible de définir le DBT absolu si le débit de basal est zéro</string>
     <string name="combov2_pair_with_pump_summary">Appairer AndroidAPS et Android avec une pompe Accu-Chek Combo non appariée</string>
@@ -108,4 +111,8 @@
     <string name="combov2_datetime_changed">Date et/ou heure modifiée(s)</string>
     <string name="combov2_dst_started">Changement d\'heure commencé</string>
     <string name="combov2_dst_ended">Changement d\'heure terminée</string>
+    <string name="combov2_cannot_connect_pump_error_observed">Impossible de se connecter à la pompe car la pompe a signalé une erreur. L\'utilisateur doit gérer l\'erreur, puis attendre 5 minutes ou appuyer sur le bouton Actualiser dans l\'onglet de la pompe.</string>
+    <string name="combov2_refresh_pump_status_after_error">Actualisation de l\'état de la pompe après que la pompe ait signalé une erreur</string>
+    <string name="combov2_go_back">Retour</string>
+    <string name="combov2_cannot_pair_driver_not_initialized_explanation">Impossible d\'effectuer l\'appairage car le pilote n\'est pas initialisé. Cela se produit généralement parce que les autorisations Bluetooth nécessaires n\'ont pas été accordées. Revenez en arrière, accordez les autorisations Bluetooth, puis essayez à nouveau de vous associer.</string>
 </resources>

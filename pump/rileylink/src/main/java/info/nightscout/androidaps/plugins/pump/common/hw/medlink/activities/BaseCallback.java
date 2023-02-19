@@ -1,8 +1,6 @@
 package info.nightscout.androidaps.plugins.pump.common.hw.medlink.activities;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * Created by Dirceu on 26/11/20.

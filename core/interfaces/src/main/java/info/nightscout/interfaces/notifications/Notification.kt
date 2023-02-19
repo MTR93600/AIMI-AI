@@ -134,7 +134,7 @@ open class Notification {
         const val COMBO_PUMP_SUSPENDED = 80
         const val COMBO_UNKNOWN_TBR = 81
 
-        const val CALIBRATION_ALARM = 90
+        const val CALIBRATION_ALARM = 79
 
         const val USER_MESSAGE = 1000
 

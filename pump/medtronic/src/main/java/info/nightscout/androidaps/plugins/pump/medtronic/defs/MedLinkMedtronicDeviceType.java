@@ -7,6 +7,8 @@ import java.util.Map;
  * Taken from MedtronicDeviceType
  * <p>
  * Author: Dirceu Semighini Filho
+
+ * used by medlink
  */
 
 public enum MedLinkMedtronicDeviceType {

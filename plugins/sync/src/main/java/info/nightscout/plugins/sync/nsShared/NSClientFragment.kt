@@ -1,8 +1,6 @@
 package info.nightscout.plugins.sync.nsShared
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -22,11 +20,9 @@ import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.interfaces.plugin.PluginBase
 import info.nightscout.interfaces.plugin.PluginFragment
 import info.nightscout.interfaces.sync.DataSyncSelector
-import info.nightscout.interfaces.sync.NsClient
 import info.nightscout.plugins.sync.R
 import info.nightscout.plugins.sync.databinding.NsClientFragmentBinding
 import info.nightscout.plugins.sync.nsShared.events.EventNSClientUpdateGUI
-import info.nightscout.plugins.sync.nsclientV3.NSClientV3Plugin
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
 import info.nightscout.rx.events.EventNSClientRestart
@@ -56,17 +52,14 @@ class NSClientFragment : DaggerFragment(), MenuProvider, PluginFragment {
         const val ID_MENU_RESTART = 508
         const val ID_MENU_SEND_NOW = 509
         const val ID_MENU_FULL_SYNC = 510
-        const val ID_MENU_TEST = 601
     }
 
     override var plugin: PluginBase? = null
     private val nsClientPlugin
         get() = activePlugin.activeNsClient
-    private val version: NsClient.Version get() = nsClientPlugin?.version ?: NsClient.Version.NONE
 
     private val disposable = CompositeDisposable()
 
-    private var handler = Handler(HandlerThread(this::class.simpleName + "Handler").also { it.start() }.looper)
     private var _binding: NsClientFragmentBinding? = null
 
     // This property is only valid between onCreateView and
@@ -97,8 +90,6 @@ class NSClientFragment : DaggerFragment(), MenuProvider, PluginFragment {
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        if (config.isUnfinishedMode())
-            menu.add(Menu.FIRST, ID_MENU_TEST, 0, "Test").setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.FIRST, ID_MENU_CLEAR_LOG, 0, rh.gs(R.string.clear_log)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.FIRST, ID_MENU_RESTART, 0, rh.gs(R.string.restart)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.FIRST, ID_MENU_SEND_NOW, 0, rh.gs(R.string.deliver_now)).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
@@ -130,11 +121,6 @@ class NSClientFragment : DaggerFragment(), MenuProvider, PluginFragment {
                         Runnable { nsClientPlugin?.resetToFullSync() }
                     )
                 }
-                true
-            }
-
-            ID_MENU_TEST      -> {
-                nsClientPlugin?.let { plugin -> if (plugin is NSClientV3Plugin) handler.post { plugin.test() } }
                 true
             }
 

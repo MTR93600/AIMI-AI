@@ -386,7 +386,15 @@ class DanaRSPlugin @Inject constructor(
                     }
                 }
             }
-            temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), percentRate.toDouble(), false, tbrType, 0L, 0L))
+            temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(
+                dateUtil.now(),
+                T.mins(durationInMinutes.toLong()).msecs(),
+                percentRate.toDouble(),
+                false,
+                tbrType,
+                0L,
+                0L
+            ))
             // Convert duration from minutes to hours
             aapsLogger.debug(LTag.PUMP, "setTempBasalAbsolute: Setting temp basal $percentRate% for $durationInMinutes minutes (doLowTemp || doHighTemp)")
             val result = if (percentRate == 0 && durationInMinutes > 30) {
@@ -433,7 +441,15 @@ class DanaRSPlugin @Inject constructor(
             aapsLogger.debug(LTag.PUMP, "setTempBasalPercent: Correct value already set")
             return result
         }
-        temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), percent.toDouble(), false, tbrType, 0L, 0L))
+        temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(
+            dateUtil.now(),
+            T.mins(durationInMinutes.toLong()).msecs(),
+            percent.toDouble(),
+            false,
+            tbrType,
+            0L,
+            0L
+        ))
         val connectionOK: Boolean = if (durationInMinutes == 15 || durationInMinutes == 30) {
             danaRSService?.tempBasalShortDuration(percentAfterConstraint, durationInMinutes)
                 ?: false

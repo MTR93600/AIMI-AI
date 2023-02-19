@@ -342,7 +342,15 @@ class DiaconnG8Plugin @Inject constructor(
                     }
                 }
             }
-            temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), absoluteRate, true, tbrType, 0L, 0L))
+            temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(
+                dateUtil.now(),
+                T.mins(durationInMinutes.toLong()).msecs(),
+                absoluteRate,
+                true,
+                tbrType,
+                0L,
+                0L
+            ))
             // Convert duration from minutes to hours
             aapsLogger.debug(LTag.PUMP, "setTempBasalAbsolute: Setting temp basal $absoluteAfterConstrain U for $durationInMinutes mins (doLowTemp || doHighTemp)")
             val connectionOK: Boolean = if (durationInMinutes == 15 || durationInMinutes == 30) {

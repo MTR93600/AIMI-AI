@@ -483,7 +483,7 @@
     <!--    Constraints-->
     <string name="limitingbasalratio">最大基础率被限定为 %1$.2f U/h 由于 %2$s</string>
     <string name="pumplimit">泵限制</string>
-    <string name="limitingpercentrate">由于 %2$s, 将最大百分比限制为 %1$d%</string>
+    <string name="limitingpercentrate">由于 %2$s, 将最大百分比限制为 %1$d%%</string>
     <string name="itmustbepositivevalue">它必须是正数</string>
     <string name="limitingbolus">由于 %2$s, 将大剂量限制为 %1$.1f U</string>
     <!-- Locale -->
@@ -519,6 +519,7 @@
     <string name="nav_plugin_preferences">插件选项</string>
     <!-- SmsCommunicator -->
     <string name="smscommunicator_missingsmspermission">缺少 SMS 短信权限</string>
+    <!-- About -->
     <plurals name="days">
         <item quantity="other">%1$d　天</item>
     </plurals>

@@ -111,8 +111,7 @@ android {
     defaultConfig {
         multiDexEnabled true
         versionCode 1500
-        version "3.1.0.3-dev-e-AIMI"
-        version "3.1.0.3-dev-c-AIMI"
+        version "3.1.0.3-dev-g"
         buildConfigField "String", "VERSION", '"' + version + '"'
         buildConfigField "String", "BUILDVERSION", '"' + generateGitBuild() + '-' + generateDate() + '"'
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
@@ -178,7 +177,6 @@ allprojects {
 }
 
 dependencies {
-    implementation project(path: ':plugins:aps')
     wearApp project(':wear')
 
     // in order to use internet's versions you'd need to enable Jetifier again
@@ -204,6 +202,7 @@ dependencies {
     implementation project(':plugins:main')
     implementation project(':plugins:openhumans')
     implementation project(':plugins:sensitivity')
+    implementation project(':plugins:smoothing')
     implementation project(':plugins:source')
     implementation project(':plugins:sync')
     implementation project(':implementation')
@@ -280,10 +279,10 @@ printf('isMaster: %s\n', isMaster().toString())
 printf('gitAvailable: %s\n', gitAvailable().toString())
 printf('allCommitted: %s\n', allCommitted().toString())
 printf('--------------\n')
-//if (isMaster() && !gitAvailable()) {
-//    throw new GradleException('GIT system is not available. On Windows try to run Android Studio as an Administrator. Check if GIT is installed and Studio have permissions to use it')
-//}
-//if (isMaster() && !allCommitted()) {
-//    throw new GradleException('There are uncommitted changes. Clone sources again as described in wiki and do not allow gradle update')
-//}
+if (isMaster() && !gitAvailable()) {
+    throw new GradleException('GIT system is not available. On Windows try to run Android Studio as an Administrator. Check if GIT is installed and Studio have permissions to use it')
+}
+if (isMaster() && !allCommitted()) {
+    throw new GradleException('There are uncommitted changes. Clone sources again as described in wiki and do not allow gradle update')
+}
 

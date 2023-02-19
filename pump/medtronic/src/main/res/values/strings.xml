@@ -27,7 +27,7 @@
     <string name="medlink_init_commands">Commands to be executed on first connect</string>
     <string name="medlink_change_cannula_action">Do you change the cannula together with reservoir?</string>
     <string name="medlink_change_cannula_summary">When you enable this option, whenever there is a reservoir change, a change cannula event will be created.</string>
-<!--    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>-->
+    <!--    <string name="key_medlink_init_commands_profile" translatable="false">medlink_init_commands_profile</string>-->
     <bool name="key_medlink_change_cannula">true</bool>
 
     <bool name="key_medlink_handle_cannula_change_event">false</bool>
