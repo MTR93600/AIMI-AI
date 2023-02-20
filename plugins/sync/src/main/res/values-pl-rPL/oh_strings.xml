@@ -39,7 +39,7 @@
     <string name="algorithm_debug_data">Dane diagnostyczne algorytmu</string>
     <string name="data_not_uploaded">Dane NIE przesłane</string>
     <string name="passwords">Hasła</string>
-    <string name="nightscout_url">Nightscout URL</string>
+    <string name="nightscout_url">Adres URL strony Nightscout</string>
     <string name="nightscout_api_secret">Twoje API secret Nightscout</string>
     <string name="free_text_fields">Wolne pola tekstowe</string>
     <string name="agree">Rozumiem i zgadzam się.</string>
@@ -53,4 +53,4 @@
     <string name="we_re_done">Gotowe!</string>
     <string name="silently_upload_date_note">Od teraz Twój telefon będzie od czasu do czasu przesyłać dane w tle.</string>
     <string name="close">Zamknij</string>
- </resources>
+</resources>
