@@ -346,7 +346,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant B30-MSSV-100%AIMI 3.1.0.3-dev-g-AIMI");
+       console.error( " AIMI-Variant B30-MSSV-100%AIMI 3.1.0.3-dev-h-AIMI");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1293,7 +1293,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 09/02/23 ");
+                console.log(" 3.1.0.3-dev-h-AIMI-Variant B30-MSSV-100%AIMI 09/02/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1479,7 +1479,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-g-AIMI-Variant B30-MSSV-100%AIMI 09/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant B30-MSSV-100%AIMI 09/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

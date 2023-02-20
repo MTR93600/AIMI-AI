@@ -1380,7 +1380,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
 }
         console.log("------------------------------");
-                console.log(" AAPS-3.1.0.3-dev-g-AIMI Variant Brazil 10/07/2022 ");
+                console.log(" AAPS-3.1.0.3-dev-h-AIMI Variant Brazil 10/07/2022 ");
                 console.log("------------------------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.log(enlog);
