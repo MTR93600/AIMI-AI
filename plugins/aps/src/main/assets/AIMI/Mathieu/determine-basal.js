@@ -484,14 +484,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }else{
     var BFIOB = false;
     }
-    if (iTime < (profile.b30_duration*1.618) && meal_data.countBolus === 1 && BFIOB===true){
-        rT.reason += ". force basal because iTime is running and lesser than "+(profile.b30_duration*1.618)+" minutes :"+(basal*10/60)*(profile.b30_duration*1.618)+" U, remaining time : " +((profile.b30_duration*1.618) - iTime);
+    if (BFIOB===true && profile.extendedsmbCount === 1 && delta > 0){
+        rT.reason += ". force basal because iTime is running and BFIOB is enable :"+(basal*10/60)*60+" U";
         rT.temp = 'absolute';
-        rT.duration = (profile.b30_duration*1.618);
+        rT.duration = 60;
         rate = round_basal(basal*10,profile);
         rT.rate = rate;
         rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI BFIOB";
-        return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+        return tempBasalFunctions.setTempBasal(rate, 60, profile, rT, currenttemp);
 
         }else if (iTime < profile.b30_duration && meal_data.countBolus === 1){
      rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
@@ -1923,7 +1923,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             durationReq = round(30*worstCaseInsulinReq / basal);
        if (iTimeActivation === true && sens_predType == "NA"){
 
-            if (UAMpredBG < 110){
+            if (UAMpredBG < 110 && iTime > (profile.b30_duration + 15) && meal_data.extendedsmbCount >= 1 ){
                 microBolus = 0;
                 rT.reason += ", No SMB because UAMpredBG < 100, ";
             }
