@@ -1298,10 +1298,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 10/02/23 ");
+                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 21/02/23 ");
                 console.log(", UPDATE : Merge Milos version dev h. nightscout need to be in version dev 15. you will have to update your ns with the dev branch");
                 console.log(", UPDATE2 : force basal when the delta is stable but the quantity of insulin received in the hour < at the quantity average in the last 7 days");
                 console.log(", UPDATE 3 : fixe bug about extended bolus because of a no smb case");
+                console.log(", UPDATE 4 : force basal if bg stay stuck > 170");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1487,7 +1488,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant Mathieu 20/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant Mathieu 21/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -2002,6 +2003,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = 20;
             }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
             SMBInterval = 15 * aimi_rise;
+                if (bg > 170){
+                rT.reason += ",Forcing basal because bg > 170";
+                var durationReq = profile.b30_duration;
+                rT.duration = durationReq;
+                var rate = round_basal(basal*10,profile);
+                }
             }else if (iTimeActivation && AIMI_lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
             SMBInterval = 10 * aimi_rise;
             }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0){
