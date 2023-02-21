@@ -111,7 +111,7 @@ android {
     defaultConfig {
         multiDexEnabled true
         versionCode 1500
-        version "3.1.0.3-dev-g"
+        version "3.1.0.3-dev-g-AIMI"
         buildConfigField "String", "VERSION", '"' + version + '"'
         buildConfigField "String", "BUILDVERSION", '"' + generateGitBuild() + '-' + generateDate() + '"'
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
@@ -142,26 +142,7 @@ android {
                     appIconRound: "@null"
             ]
         }
-        aapsclient {
-            applicationId "info.nightscout.aapsclient"
-            dimension "standard"
-            resValue "string", "app_name", "AAPSClient"
-            versionName version + "-aapsclient"
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_yellowowl",
-                    appIconRound: "@null"
-            ]
-        }
-        aapsclient2 {
-            applicationId "info.nightscout.aapsclient2"
-            dimension "standard"
-            resValue "string", "app_name", "AAPSClient2"
-            versionName version + "-aapsclient"
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_yellowowl",
-                    appIconRound: "@null"
-            ]
-        }
+
     }
 
     useLibrary "org.apache.http.legacy"

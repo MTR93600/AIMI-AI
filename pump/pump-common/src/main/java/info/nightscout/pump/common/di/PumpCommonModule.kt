@@ -2,7 +2,6 @@ package info.nightscout.pump.common.di
 
 import dagger.Module
 import dagger.Provides
-import info.nightscout.interfaces.XDripBroadcast
 import info.nightscout.interfaces.pump.PumpSync
 import info.nightscout.pump.common.sync.PumpSyncStorage
 import info.nightscout.rx.logging.AAPSLogger
@@ -18,10 +17,9 @@ class PumpCommonModule {
     fun providesPumpSyncStorage(
         pumpSync: PumpSync,
         sp: SP,
-        aapsLogger: AAPSLogger,
-        xDripBroadcast: XDripBroadcast
+        aapsLogger: AAPSLogger
     ): PumpSyncStorage {
-        return PumpSyncStorage(pumpSync, sp, aapsLogger, xDripBroadcast )
+        return PumpSyncStorage(pumpSync, sp, aapsLogger)
     }
 
 }

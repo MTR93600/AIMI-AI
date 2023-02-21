@@ -159,6 +159,8 @@
                         trendArrow = GlucoseValue.TrendArrow.NONE,
                         sourceSensor = sourceSensor
                     )
+                    // xDripBroadcast.send(glucoseValue)
+
                     glucoseValues += TransactionGlucoseValue(
                         timestamp = timestamp,
                         value = glucoseValueBundle.getDouble("value"),

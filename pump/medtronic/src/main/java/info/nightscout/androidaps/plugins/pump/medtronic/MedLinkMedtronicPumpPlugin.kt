@@ -105,6 +105,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToInt
 import info.nightscout.core.ui.R.string
+import info.nightscout.interfaces.plugin.MedLinkProfileParser
 import info.nightscout.interfaces.pump.actions.CustomActionType
 import info.nightscout.interfaces.pump.defs.ManufacturerType
 import info.nightscout.interfaces.queue.CustomCommand
@@ -139,7 +140,7 @@ open class MedLinkMedtronicPumpPlugin @Inject constructor(
     pumpSync: PumpSync?,
     pumpSyncStorage: PumpSyncStorage?,
     private val bgSync: BgSync,
-    private val  parser: MedLinkProfileParser<MedLinkStandardReturn<MedLinkMedtronicDeviceType>,BasalProfile>
+    private val  parser: MedLinkProfileParser<MedLinkStandardReturn<MedLinkMedtronicDeviceType>, BasalProfile>
 ) : MedLinkPumpPluginAbstract(
     PluginDescription() //
         .mainType(PluginType.PUMP) //

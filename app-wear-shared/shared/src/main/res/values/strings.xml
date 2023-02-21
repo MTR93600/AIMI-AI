@@ -41,7 +41,5 @@
     <string name="disconnecting">Disconnecting</string>
     <string name="waiting_for_disconnection">Waiting for disconnection</string>
 
-    <string name="minafter">In %1$d m</string>
-    <string name="hoursafter">In %1$.1f h</string>
 
 </resources>

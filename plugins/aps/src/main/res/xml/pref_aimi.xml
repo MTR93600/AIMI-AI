@@ -8,32 +8,12 @@
         android:title="@string/aimi"
         app:initialExpandedChildrenCount="0">
 
-    <androidx.preference.PreferenceScreen
-        android:key="AIMI_Variants"
-        android:title="AIMI Variant Preferences"
-        android:summary="Important : select only one variant ! if you don't respect this condition, the default will be apply, which is the variant Pam">
+    <info.nightscout.plugins.aps.loop.LoopVariantPreference
+        android:title="@string/DynISF_variant"
+        android:defaultValue="default"
+        android:selectable="true"
+        app:pluginFolder="AIMI" />
 
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_b30mssv"
-            android:title="Variant B30-MSSV"
-            android:summary="This variant will have more B30 action and max smb size variable. Absorption is managing by switching predictions IOB and UAM.For slower insulin than luymjev enable Break SMB 10." />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_mssv"
-            android:title="Variant MSSV"
-            android:summary="This variant has max smb size variable. it's the most aggressive variant. For slower insulin than luymjev enable Break SMB 10." />
-
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_pammssv"
-            android:title="Variant PAM-MSSV"
-            android:summary="This variant is a stable version with an absorption time for slower insulin. The max smb size is variable." />
-
-    </androidx.preference.PreferenceScreen>
     <androidx.preference.PreferenceScreen
         android:key="b30_adavanced_settings"
         android:title="AIMI B30 Preferences">
@@ -152,7 +132,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="150"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Value in % of increase the basal profile to determine the value of MaxSmb size with AIMI_UAM. If this SMB is send, the interval with the next SMB will be 20 minutes."
             android:inputType="numberDecimal"
             android:key="@string/key_use_AIMI_CAP"
@@ -163,8 +142,20 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_enable_mssv"
+            android:title="Enable the variation of max smb size"
+            android:summary="If it's enable mssv will discrease the value when TIR low during the last hour > 5%, or if the target have changed for a higher one and the basal value discrease. The opposite is true about lowering the target, that will increase the basal value and increase the mssv value until +100% of the initial value in the settings. If it's disable, the calculation will be using constant value, basal from the profile and the mssv settings in the preferences." />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_openapsama_use_autosens"
             android:title="@string/openapsama_use_autosens" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_newSMB"
+            android:title="new smb aimi calculation"
+            android:summary="new smb aimi calculation" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -206,14 +197,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiUAM_ISF"
             android:summary="Dependency with AIMI_UAM mode, active a faster scale ISF"
             android:title="AIMI UAM Super ISF" />
 
         <SwitchPreference
             android:defaultValue="false"
-            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AIMI_BreakFastLight"
             android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
             android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
@@ -227,7 +216,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="6"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Enter AIMI UAM Light Breakfast start time in 24h e.g. 6AM is 6"
             android:inputType="number"
             android:key="@string/key_AIMI_BreakFastLight_timestart"
@@ -238,7 +226,6 @@
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="10"
-            android:dependency="@string/key_use_AimiUAM"
             android:dialogMessage="Enter AIMI UAM Light Breakfast end time in 24h e.g. 5AM is 10"
             android:inputType="number"
             android:key="@string/key_AIMI_BreakFastLight_timeend"

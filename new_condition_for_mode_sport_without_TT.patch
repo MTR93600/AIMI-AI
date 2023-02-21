@@ -1,0 +1,17 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 8a3c6ac911ddaf0515ab36fd4dd93f6eceb70d5a)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 5ee9eab38ed6ebeb1011dc50fa3338eed552a6d6)
+@@ -318,7 +318,7 @@
+     var last2HourTIRAbove = profile.last2HourTIRAbove;
+     var tddlastHaverage = profile.tddlastHaverage;
+     var aimisensitivity = profile.aimisensitivity;
+-    var AIMI_UAM = profile.temptargetSet && target_bg >= 140 ? false : profile.enable_AIMI_UAM;
++    var AIMI_UAM = target_bg >= 140 ? false : profile.enable_AIMI_UAM;
+     var countSMB = meal_data.countSMB;
+     //var countSMBms = meal_data.countSMBms;
+     var AIMI_IgnoreCOB = profile.key_use_AimiIgnoreCOB;

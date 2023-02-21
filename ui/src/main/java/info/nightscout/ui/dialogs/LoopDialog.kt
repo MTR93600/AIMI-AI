@@ -99,7 +99,7 @@ class LoopDialog : DaggerDialogFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         // load data from bundle
         (savedInstanceState ?: arguments)?.let { bundle ->
@@ -168,7 +168,7 @@ class LoopDialog : DaggerDialogFragment() {
         binding.overviewDisconnect15m.visibility = pumpDescription.tempDurationStep15mAllowed.toVisibility()
         binding.overviewDisconnect30m.visibility = pumpDescription.tempDurationStep30mAllowed.toVisibility()
         when {
-            pump.isSuspended()   && pump !is MedLinkPumpPluginBase-> {
+            pump.isSuspended() && pump !is MedLinkPumpPluginBase   -> {
                 binding.overviewLoop.visibility = View.GONE
                 binding.overviewSuspend.visibility = View.GONE
                 binding.overviewPump.visibility = View.GONE
@@ -329,6 +329,22 @@ class LoopDialog : DaggerDialogFragment() {
                 uel.log(UserEntry.Action.LOOP_ENABLED, UserEntry.Sources.LoopDialog)
                 (loop as PluginBase).setPluginEnabled(PluginType.LOOP, true)
                 (loop as PluginBase).setFragmentVisible(PluginType.LOOP, true)
+                if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                    disposable += repository.runTransactionForResult(CancelCurrentOfflineEventIfAnyTransaction(dateUtil.now()))
+                        .subscribe({ result ->
+                                       result.updated.forEach { aapsLogger.debug(LTag.DATABASE, "Updated OfflineEvent $it") }
+                                   }, {
+                                       aapsLogger.error(LTag.DATABASE, "Error while saving OfflineEvent", it)
+                                   })
+                    rxBus.send(EventRefreshOverview("suspend_menu"))
+                    commandQueue.cancelTempBasal(true, object : Callback() {
+                        override fun run() {
+                            if (!result.success) {
+                                uiInteraction.runAlarm(result.comment, rh.gs(info.nightscout.core.ui.R.string.temp_basal_delivery_error), info.nightscout.core.ui.R.raw.boluserror)
+                            }
+                        }
+                    })
+                }
                 configBuilder.storeSettings("EnablingLoop")
                 rxBus.send(EventRefreshOverview("suspend_menu"))
                 disposable += repository.runTransactionForResult(CancelCurrentOfflineEventIfAnyTransaction(dateUtil.now()))
@@ -392,6 +408,9 @@ class LoopDialog : DaggerDialogFragment() {
                 profileFunction.getProfile()?.let { profile ->
                     uel.log(UserEntry.Action.DISCONNECT, UserEntry.Sources.LoopDialog, ValueWithUnit.Minute(15))
                     loop.goToZeroTemp(T.mins(15).mins().toInt(), profile, OfflineEvent.Reason.DISCONNECT_PUMP)
+                    if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                        loop.suspendLoop(T.mins(15).mins().toInt())
+                    }
                     rxBus.send(EventRefreshOverview("suspend_menu"))
                 }
                 return true
@@ -401,6 +420,9 @@ class LoopDialog : DaggerDialogFragment() {
                 profileFunction.getProfile()?.let { profile ->
                     uel.log(UserEntry.Action.DISCONNECT, UserEntry.Sources.LoopDialog, ValueWithUnit.Minute(30))
                     loop.goToZeroTemp(T.mins(30).mins().toInt(), profile, OfflineEvent.Reason.DISCONNECT_PUMP)
+                    if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                        loop.suspendLoop(T.mins(30).mins().toInt())
+                    }
                     rxBus.send(EventRefreshOverview("suspend_menu"))
                 }
                 return true
@@ -410,6 +432,9 @@ class LoopDialog : DaggerDialogFragment() {
                 profileFunction.getProfile()?.let { profile ->
                     uel.log(UserEntry.Action.DISCONNECT, UserEntry.Sources.LoopDialog, ValueWithUnit.Hour(1))
                     loop.goToZeroTemp(T.hours(1).mins().toInt(), profile, OfflineEvent.Reason.DISCONNECT_PUMP)
+                    if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                        loop.suspendLoop(T.hours(1).mins().toInt())
+                    }
                     rxBus.send(EventRefreshOverview("suspend_menu"))
                 }
                 sp.putBoolean(info.nightscout.core.utils.R.string.key_objectiveusedisconnect, true)
@@ -420,6 +445,9 @@ class LoopDialog : DaggerDialogFragment() {
                 profileFunction.getProfile()?.let { profile ->
                     uel.log(UserEntry.Action.DISCONNECT, UserEntry.Sources.LoopDialog, ValueWithUnit.Hour(2))
                     loop.goToZeroTemp(T.hours(2).mins().toInt(), profile, OfflineEvent.Reason.DISCONNECT_PUMP)
+                    if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                        loop.suspendLoop(T.hours(2).mins().toInt())
+                    }
                     rxBus.send(EventRefreshOverview("suspend_menu"))
                 }
                 return true
@@ -429,6 +457,9 @@ class LoopDialog : DaggerDialogFragment() {
                 profileFunction.getProfile()?.let { profile ->
                     uel.log(UserEntry.Action.DISCONNECT, UserEntry.Sources.LoopDialog, ValueWithUnit.Hour(3))
                     loop.goToZeroTemp(T.hours(3).mins().toInt(), profile, OfflineEvent.Reason.DISCONNECT_PUMP)
+                    if (activePlugin.activePump is MedLinkPumpPluginBase) {
+                        loop.suspendLoop(T.hours(3).mins().toInt())
+                    }
                     rxBus.send(EventRefreshOverview("suspend_menu"))
                 }
                 return true
@@ -450,7 +481,7 @@ class LoopDialog : DaggerDialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        if(!queryingProtection) {
+        if (!queryingProtection) {
             queryingProtection = true
             activity?.let { activity ->
                 val cancelFail = {

@@ -1,0 +1,17 @@
+Index: plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js
+--- a/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision 0940a1e50f94a8ba3fa4e0960de110e8938ea65f)
++++ b/plugins/aps/src/main/assets/AIMI/b30mssvaimi/determine-basal.js	(revision acc57c77873c1f8a381f1bc6ae967ee68feeb54e)
+@@ -1326,7 +1326,7 @@
+     var aimi_rise = 1, sens_predType = "NA" ;
+     if (iTimeActivation){
+     if (DeltaPctS > 1 && DeltaPctL > 1.5) sens_predType = "UAM+"; // with acceleration
+-    if (UAMpredBG > 140 && bg < 140) sens_predType = "UAM+"; // when predicted high and bg is lower
++    if (UAMpredBG > 170 && bg < 140) sens_predType = "UAM+"; // when predicted high and bg is lower
+     }
+     if (sens_predType == "UAM+"){
+     aimi_rise = (bg <= 140 && UAMpredBG > bg ? 0.75 : 0.5);

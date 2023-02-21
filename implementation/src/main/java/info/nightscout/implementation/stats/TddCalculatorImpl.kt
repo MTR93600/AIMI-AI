@@ -35,7 +35,7 @@ class TddCalculatorImpl @Inject constructor(
     private val profileFunction: ProfileFunction,
     private val dateUtil: DateUtil,
     private val iobCobCalculator: IobCobCalculator,
-    private val repository: AppRepository
+    private val repository: AppRepository,
 ) : TddCalculator {
 
     override fun calculate(days: Long, allowMissingDays: Boolean): LongSparseArray<TotalDailyDose>? {
@@ -93,7 +93,11 @@ class TddCalculatorImpl @Inject constructor(
         repository.getBolusesDataFromTimeToTime(startTime, endTime, true).blockingGet()
             .filter { it.type != Bolus.Type.PRIMING }
             .forEach { t ->
-                tdd.bolusAmount += t.amount
+                if (t.type == Bolus.Type.TBR) {
+                    tdd.basalAmount += t.amount
+                } else {
+                    tdd.bolusAmount += t.amount
+                }
             }
         repository.getCarbsDataFromTimeToTimeExpanded(startTime, endTime, true).blockingGet().forEach { t ->
             tdd.carbs += t.amount
