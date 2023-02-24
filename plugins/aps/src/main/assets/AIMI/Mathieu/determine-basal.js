@@ -1298,7 +1298,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 21/02/23 ");
+                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 24/02/23 ");
                 console.log(", UPDATE : Merge Milos version dev h. nightscout need to be in version dev 15. you will have to update your ns with the dev branch");
                 console.log(", UPDATE2 : force basal when the delta is stable but the quantity of insulin received in the hour < at the quantity average in the last 7 days");
                 console.log(", UPDATE 3 : fixe bug about extended bolus because of a no smb case");
@@ -1488,7 +1488,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant Mathieu 21/02/23 ";
+    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant Mathieu 24/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1839,7 +1839,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
              insulinReq = ((1 + Math.sqrt(aimi_delta)) / 4);
              var microBolus = circadian_smb > (-10) ? Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio) : Math.min(AIMI_UAM_CAP,insulinReq);
              microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
-             if (iTime > 180 || meal_data.MaxSMBcount >=1){
+             if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1){
                  var M1 = microBolus / 3;
                  var M2 = microBolus / 2;
                     if (bg < 150 && delta <= 10){
@@ -1871,7 +1871,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }
-                   if (iTime > 180 || meal_data.MaxSMBcount >=1 ){
+                   if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1 ){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                        if (bg < 150 && delta <= 10){
