@@ -473,11 +473,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30activity = iob_data.iob - iob_data.basaliob;
     console.log("\nb30activity : "+round(b30activity,2)+" ; ");
 
-    if (delta <= b30upperdelta && bg < b30upperLimit){
-    aimismb = false;
-    }else if (bg < 100){
-    aimismb = false;
-    }
+   if (delta <= b30upperdelta && bg < b30upperLimit) && iTime > 180{
+       aimismb = false;
+       }else if (bg < 100 && iTime > 180){
+       aimismb = false;
+       }
 
     if (meal_data.countBolus ===1 && nowdec >=5 && nowdec <= 11 && AIMI_IOBpredBGbf){
     var BFIOB = true;
