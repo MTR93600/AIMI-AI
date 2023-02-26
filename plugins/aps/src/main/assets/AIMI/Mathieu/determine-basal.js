@@ -521,7 +521,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && !profile.temptargetSet && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
+     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
@@ -1283,7 +1283,7 @@ var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) +
 var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
 var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
-if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime && iTime > 180) {
+if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime && iTime > 180 && iTime > 180) {
 AIMI_BreakFastLight = true;
 AIMI_BL_StartTime = nowdec;
 AIMI_BL_EndTime = AIMI_BL_StartTime + 2;
