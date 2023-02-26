@@ -23,7 +23,7 @@ internal interface CarbsDao : TraceableDao<Carbs> {
     override fun deleteTrackedChanges(): Int
 
     @Query("SELECT id FROM $TABLE_CARBS ORDER BY id DESC limit 1")
-    fun getLastId(): Maybe<Long>
+    fun getLastId(): Long?
 
     @Query("SELECT * FROM $TABLE_CARBS WHERE nightscoutId = :nsId AND referenceId IS NULL")
     fun findByNSId(nsId: String): Carbs?
@@ -33,6 +33,9 @@ internal interface CarbsDao : TraceableDao<Carbs> {
 
     @Query("SELECT * FROM $TABLE_CARBS WHERE isValid = 1 AND referenceId IS NULL ORDER BY id DESC LIMIT 1")
     fun getLastCarbsRecord(): Carbs?
+
+    @Query("SELECT * FROM $TABLE_CARBS WHERE isValid = 1 AND referenceId IS NULL AND timestamp < time() ORDER BY timestamp DESC LIMIT 1")
+    fun getMostRecentCarbByDate(): Carbs?
 
     @Query("SELECT * FROM $TABLE_CARBS WHERE isValid = 1 AND referenceId IS NULL ORDER BY id DESC LIMIT 1")
     fun getLastCarbsRecordMaybe(): Maybe<Carbs>

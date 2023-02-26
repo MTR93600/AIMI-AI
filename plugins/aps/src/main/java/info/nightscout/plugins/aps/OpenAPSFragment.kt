@@ -18,6 +18,7 @@ import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.plugins.aps.databinding.OpenapsFragmentBinding
 import info.nightscout.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.plugins.aps.events.EventResetOpenAPSGui
+import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
 import info.nightscout.plugins.aps.utils.JSONFormatter
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
@@ -124,6 +125,11 @@ class OpenAPSFragment : DaggerFragment(), MenuProvider {
         if (_binding == null) return
         val openAPSPlugin = activePlugin.activeAPS
         openAPSPlugin.lastAPSResult?.let { lastAPSResult ->
+            // if (lastAPSResult is DetermineBasalResultaiSMB) {
+            //     binding.result.text = lastAPSResult.reason
+            // } else {
+            //     binding.result.text = jsonFormatter.format(lastAPSResult.json)
+            // }
             binding.result.text = jsonFormatter.format(lastAPSResult.json)
             binding.request.text = lastAPSResult.toSpanned()
         }

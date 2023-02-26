@@ -38,6 +38,8 @@ import kotlin.math.roundToInt
     internal val database: AppDatabase
 ) {
 
+
+
     private val changeSubject = PublishSubject.create<List<DBEntry>>()
 
     fun changeObservable(): Observable<List<DBEntry>> = changeSubject.subscribeOn(Schedulers.io())
@@ -124,7 +126,7 @@ import kotlin.math.roundToInt
         val ret = StringBuilder()
         removed
             .filter { it.second > 0 }
-            .map { ret.append(it.first + " " + it.second + "\n") }
+            .map { ret.append(it.first + " " + it.second + "<br>") }
         return ret.toString()
     }
 
@@ -151,10 +153,8 @@ import kotlin.math.roundToInt
         database.glucoseValueDao.getModifiedFrom(lastId)
             .subscribeOn(Schedulers.io())
 
-    fun getLastGlucoseValueIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastGlucoseValueId(): Long? =
         database.glucoseValueDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     fun getLastGlucoseValueWrapped(): Single<ValueWrapper<GlucoseValue>> =
         database.glucoseValueDao.getLast()
@@ -234,10 +234,8 @@ import kotlin.math.roundToInt
     fun deleteAllTempTargetEntries() =
         database.temporaryTargetDao.deleteAllEntries()
 
-    fun getLastTempTargetIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastTempTargetId(): Long? =
         database.temporaryTargetDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // USER ENTRY
     fun getAllUserEntries(): Single<List<UserEntry>> =
@@ -310,10 +308,8 @@ import kotlin.math.roundToInt
             .map { if (!ascending) it.reversed() else it }
             .subscribeOn(Schedulers.io())
 
-    fun getLastProfileSwitchIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastProfileSwitchId(): Long? =
         database.profileSwitchDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // EFFECTIVE PROFILE SWITCH
     /*
@@ -369,10 +365,8 @@ import kotlin.math.roundToInt
     fun deleteAllEffectiveProfileSwitches() =
         database.effectiveProfileSwitchDao.deleteAllEntries()
 
-    fun getLastEffectiveProfileSwitchIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastEffectiveProfileSwitchId(): Long? =
         database.effectiveProfileSwitchDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // THERAPY EVENT
     /*
@@ -436,10 +430,8 @@ import kotlin.math.roundToInt
         database.therapyEventDao.compatGetTherapyEventDataFromToTime(from, to)
             .subscribeOn(Schedulers.io())
 
-    fun getLastTherapyEventIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastTherapyEventId(): Long? =
         database.therapyEventDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // FOOD
     /*
@@ -472,10 +464,8 @@ import kotlin.math.roundToInt
     fun deleteAllFoods() =
         database.foodDao.deleteAllEntries()
 
-    fun getLastFoodIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastFoodId(): Long? =
         database.foodDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // BOLUS
     /*
@@ -540,10 +530,8 @@ import kotlin.math.roundToInt
     fun deleteAllBoluses() =
         database.bolusDao.deleteAllEntries()
 
-    fun getLastBolusIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastBolusId(): Long? =
         database.bolusDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
     // CARBS
 
     private fun expandCarbs(carbs: Carbs): List<Carbs> =
@@ -595,6 +583,12 @@ import kotlin.math.roundToInt
 
     fun getLastCarbsRecord(): Carbs? =
         database.carbsDao.getLastCarbsRecord()
+
+    fun getMostRecentCarbByDate(): Carbs? = database.carbsDao.getMostRecentCarbByDate()
+
+    fun getUserEntryDataWithNotesFromTime(timestamp: Long): Single<List<UserEntry>> =
+        database.userEntryDao.getUserEntryDataWithNotesFromTime(timestamp)
+            .subscribeOn(Schedulers.io())
 
     fun getLastCarbsRecordWrapped(): Single<ValueWrapper<Carbs>> =
         database.carbsDao.getLastCarbsRecordMaybe()
@@ -657,10 +651,8 @@ import kotlin.math.roundToInt
     fun deleteAllCarbs() =
         database.carbsDao.deleteAllEntries()
 
-    fun getLastCarbsIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastCarbsId(): Long? =
         database.carbsDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // BOLUS CALCULATOR RESULT
     /*
@@ -699,10 +691,8 @@ import kotlin.math.roundToInt
     fun deleteAllBolusCalculatorResults() =
         database.bolusCalculatorResultDao.deleteAllEntries()
 
-    fun getLastBolusCalculatorResultIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastBolusCalculatorResultId(): Long? =
         database.bolusCalculatorResultDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // DEVICE STATUS
     fun insert(deviceStatus: DeviceStatus): Long =
@@ -724,10 +714,8 @@ import kotlin.math.roundToInt
         database.deviceStatusDao.getModifiedFrom(lastId)
             .subscribeOn(Schedulers.io())
 
-    fun getLastDeviceStatusIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastDeviceStatusId(): Long? =
         database.deviceStatusDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // TEMPORARY BASAL
     /*
@@ -790,10 +778,8 @@ import kotlin.math.roundToInt
     fun getOldestTemporaryBasalRecord(): TemporaryBasal? =
         database.temporaryBasalDao.getOldestRecord()
 
-    fun getLastTemporaryBasalIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastTemporaryBasalId(): Long? =
         database.temporaryBasalDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // EXTENDED BOLUS
     /*
@@ -848,10 +834,8 @@ import kotlin.math.roundToInt
     fun getOldestExtendedBolusRecord(): ExtendedBolus? =
         database.extendedBolusDao.getOldestRecord()
 
-    fun getLastExtendedBolusIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastExtendedBolusId(): Long? =
         database.extendedBolusDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     // TotalDailyDose
     fun getLastTotalDailyDoses(count: Int, ascending: Boolean): Single<List<TotalDailyDose>> =
@@ -919,10 +903,8 @@ import kotlin.math.roundToInt
     fun deleteAllOfflineEventEntries() =
         database.offlineEventDao.deleteAllEntries()
 
-    fun getLastOfflineEventIdWrapped(): Single<ValueWrapper<Long>> =
+    fun getLastOfflineEventId(): Long? =
         database.offlineEventDao.getLastId()
-            .subscribeOn(Schedulers.io())
-            .toWrappedSingle()
 
     suspend fun collectNewEntriesSince(since: Long, until: Long, limit: Int, offset: Int) = NewEntries(
         apsResults = database.apsResultDao.getNewEntriesSince(since, until, limit, offset),

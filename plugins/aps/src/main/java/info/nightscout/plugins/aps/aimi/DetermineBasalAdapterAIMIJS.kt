@@ -1,5 +1,6 @@
 package info.nightscout.plugins.aps.aimi
 
+import android.os.Environment
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.extensions.convertedToAbsolute
 import info.nightscout.core.extensions.getPassedDurationToTimeInMinutes
@@ -7,6 +8,7 @@ import info.nightscout.core.extensions.plannedRemainingMinutes
 import info.nightscout.database.ValueWrapper
 import info.nightscout.interfaces.GlucoseUnit
 import info.nightscout.interfaces.aps.DetermineBasalAdapter
+import info.nightscout.plugins.aps.APSResultObject
 import info.nightscout.interfaces.aps.AIMIDefaults
 import info.nightscout.interfaces.iob.GlucoseStatus
 import info.nightscout.interfaces.iob.IobCobCalculator
@@ -46,7 +48,14 @@ import info.nightscout.shared.utils.DateUtil
 import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
+import info.nightscout.database.entities.UserEntry
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
+import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
+import java.io.File
+import java.util.*
+import kotlin.math.min
+import kotlin.math.roundToInt
+import org.tensorflow.lite.Interpreter
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -59,10 +68,37 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var tirCalculator: TirCalculator
-    
 
 
 
+    private var iob = 0.0f
+    private var cob = 0.0f
+    private var lastCarbAgeMin: Int = 0
+    private var futureCarbs = 0.0f
+    private var recentNotes: List<UserEntry>? = null
+    private var tags0to60minAgo = ""
+    private var tags60to120minAgo = ""
+    private var tags120to180minAgo = ""
+    private var tags180to240minAgo = ""
+    private var bg = 0.0f
+    private var targetBg = 100.0f
+    private var delta = 0.0f
+    private var shortAvgDelta = 0.0f
+    private var longAvgDelta = 0.0f
+    private var accelerating_up: Int = 0
+    private var deccelerating_up: Int = 0
+    private var accelerating_down: Int = 0
+    private var deccelerating_down: Int = 0
+    private var stable: Int = 0
+    private var maxIob = 0.0f
+    private var maxSMB = 1.0f
+    private var tdd7DaysPerHour = 0.0f
+    private var tdd2DaysPerHour = 0.0f
+    private var tddPerHour = 0.0f
+    private var tdd24HrsPerHour = 0.0f
+    private var tddlastHrs = 0.0f
+    private var hourOfDay: Int = 0
+    private var weekend: Int = 0
     private var profile = JSONObject()
     private var mGlucoseStatus = JSONObject()
     private var iobData: JSONArray? = null
@@ -74,9 +110,20 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var currentTime: Long = 0
     private var flatBGsDetected = false
     private val millsToThePast = T.mins(60).msecs()
+    private val millsToThePast2 = T.mins(40).msecs()
     private var lastBolusNormalTimecount: Long = 0
+    private var extendedsmbCount: Long = 0
     private var lastBolusSMBcount: Long = 0
-    private var lastSMBmscount: Long = 0
+    private var SMBcount: Long = 0
+    private var MaxSMBcount: Long = 0
+    private var recentSteps5Minutes: Int = 0
+    private var recentSteps10Minutes: Int = 0
+    private var recentSteps15Minutes: Int = 0
+    private var recentSteps30Minutes: Int = 0
+    private var recentSteps60Minutes: Int = 0
+    private val path = File(Environment.getExternalStorageDirectory().toString())
+    private val modelFile = File(path, "AAPS/ml/model.tflite")
+    private var now: Long = 0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -88,7 +135,99 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
     @Suppress("SpellCheckingInspection")
+
+    private fun logDataToCsv(predictedSMB: Float, smbToGive: Float) {
+        val dateStr = dateUtil.dateAndTimeString(dateUtil.now())
+
+        val headerRow = "dateStr,dateLong,hourOfDay,weekend," +
+            "bg,targetBg,iob,cob,lastCarbAgeMin,futureCarbs,delta,shortAvgDelta,longAvgDelta," +
+            "tdd7DaysPerHour,tdd2DaysPerHour,tddPerHour,tdd24HrsPerHour," +
+            "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
+            "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
+            "predictedSMB,maxIob,maxSMB,smbGiven\n"
+        val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
+            "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
+            "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
+            "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
+            "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
+            "$predictedSMB,$maxIob,$maxSMB,$smbToGive"
+
+        val file = File(path, "AAPS/aiSMB_records.csv")
+        if (!file.exists()) {
+            file.createNewFile()
+            file.appendText(headerRow)
+        }
+        file.appendText(valuesToRecord + "\n")
+    }
+    private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
+        var smbToGive = smbToGiveParam
+        // don't exceed max IOB
+        if (iob + smbToGive > maxIob) {
+            smbToGive = maxIob - iob
+        }
+        // don't exceed max SMB
+        if (smbToGive > maxSMB) {
+            smbToGive = maxSMB
+        }
+        // don't give insulin if below target too aggressive
+        val belowTargetAndDropping = bg < targetBg && delta < -2
+        val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
+        val belowMinThreshold = bg < 70
+        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
+            smbToGive = 0.0f
+        }
+
+        // don't give insulin if dropping fast
+        val droppingFast = bg < 150 && delta < -5
+        val droppingFastAtHigh = bg < 200 && delta < -7
+        val droppingVeryFast = delta < -10
+        if (droppingFast || droppingFastAtHigh || droppingVeryFast) {
+            smbToGive = 0.0f
+        }
+        if (smbToGive < 0.0f) {
+            smbToGive = 0.0f
+        }
+        return smbToGive
+    }
+
+    private fun roundToPoint05(number: Float): Float {
+        return (number * 20.0).roundToInt() / 20.0f
+    }
+
+    private fun roundToPoint001(number: Float): Float {
+        return (number * 1000.0).roundToInt() / 1000.0f
+    }
+
+    private fun calculateSMBFromModel(): Float {
+        if (!modelFile.exists()) {
+            aapsLogger.error(LTag.APS, "NO Model found at AAPS/ml/model.tflite")
+            return 0.0f
+        }
+
+        val interpreter = Interpreter(modelFile)
+        val modelInputs = floatArrayOf(
+            hourOfDay.toFloat(), weekend.toFloat(),
+            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
+            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
+        )
+        val output = arrayOf(floatArrayOf(0.0f))
+        interpreter.run(modelInputs, output)
+        interpreter.close()
+        var smbToGive = output[0][0]
+        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        return smbToGive
+    }
+
     override operator fun invoke(): DetermineBasalResultSMB? {
+
+        val predictedSMB = calculateSMBFromModel()
+        var smbToGive = predictedSMB
+
+
+        smbToGive = roundToPoint05(smbToGive)
+
+        //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
         aapsLogger.debug(LTag.APS, "Glucose status: " + mGlucoseStatus.toString().also { glucoseStatusParam = it })
         aapsLogger.debug(LTag.APS, "IOB data:       " + iobData.toString().also { iobDataParam = it })
@@ -151,6 +290,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 try {
                     val resultJson = JSONObject(result)
                     determineBasalResultSMB = DetermineBasalResultSMB(injector, resultJson)
+                    logDataToCsv(determineBasalResultSMB.smb.toFloat(),determineBasalResultSMB.smb.toFloat())
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -197,10 +337,79 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         advancedFiltering: Boolean,
         flatBGsDetected: Boolean
     ) {
+        this.now = System.currentTimeMillis()
+        this.hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        this.weekend = if (dayOfWeek == Calendar.SUNDAY || dayOfWeek == Calendar.SATURDAY) 1 else 0
+
+        val iobCalcs = iobCobCalculator.calculateIobFromBolus()
+        this.iob = iobCalcs.iob.toFloat() + iobCalcs.basaliob.toFloat()
+        this.bg = glucoseStatus.glucose.toFloat()
+        this.targetBg = targetBg.toFloat()
+        this.cob = mealData.mealCOB.toFloat()
+        var lastCarbTimestamp = mealData.lastCarbTime
+
+        if(lastCarbTimestamp.toInt() == 0) {
+            val oneDayAgoIfNotFound = now - 24 * 60 * 60 * 1000
+            lastCarbTimestamp = iobCobCalculator.getMostRecentCarbByDate() ?: oneDayAgoIfNotFound
+        }
+        this.lastCarbAgeMin = ((now - lastCarbTimestamp) / (60 * 1000)).toDouble().roundToInt()
+
+        if(lastCarbAgeMin < 15 && cob == 0.0f) {
+            this.cob = iobCobCalculator.getMostRecentCarbAmount()?.toFloat() ?: 0.0f
+        }
+
+        this.futureCarbs = iobCobCalculator.getFutureCob().toFloat()
+        val fourHoursAgo = now - 4 * 60 * 60 * 1000
+        this.recentNotes = iobCobCalculator.getUserEntryDataWithNotesFromTime(fourHoursAgo)
+        this.tags0to60minAgo = parseNotes(0, 60)
+        this.tags60to120minAgo = parseNotes(60, 120)
+        this.tags120to180minAgo = parseNotes(120, 180)
+        this.tags180to240minAgo = parseNotes(180, 240)
+
+        this.delta = glucoseStatus.delta.toFloat()
+        this.shortAvgDelta = glucoseStatus.shortAvgDelta.toFloat()
+        this.longAvgDelta = glucoseStatus.longAvgDelta.toFloat()
+
+        this.accelerating_up = if (delta > 2 && delta - longAvgDelta > 2) 1 else 0
+        this.deccelerating_up = if (delta > 0 && (delta < shortAvgDelta || delta < longAvgDelta)) 1 else 0
+        this.accelerating_down = if (delta < -2 && delta - longAvgDelta < -2) 1 else 0
+        this.deccelerating_down = if (delta < 0 && (delta > shortAvgDelta || delta > longAvgDelta)) 1 else 0
+        this.stable = if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3) 1 else 0
+
+        val tdd7Days = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
+        this.tdd7DaysPerHour = tdd7Days / 24
+
+        val tdd2Days = tddCalculator.averageTDD(tddCalculator.calculate(2, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
+        this.tdd2DaysPerHour = tdd2Days / 24
+
+        val tddDaily = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
+        this.tddPerHour = tddDaily / 24
+
+        val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
+        this.tdd24HrsPerHour = tdd24Hrs / 24
+
+        tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
+
+        this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
+        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+
+        // profile.dia
+        val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())
+        val absIob = abs.iob
+        val absNet = abs.netInsulin
+        val absBasal = abs.basaliob
+
+        aapsLogger.debug(LTag.APS, "IOB options : bolus iob: ${iobCalcs.iob} basal iob : ${iobCalcs.basaliob}")
+        aapsLogger.debug(LTag.APS, "IOB options : calculateAbsoluteIobFromBaseBasals iob: $absIob net : $absNet basal : $absBasal")
+
+
+
         val pump = activePlugin.activePump
         val pumpBolusStep = pump.pumpDescription.bolusStep
+        this.profile = JSONObject()
         this.profile.put("max_iob", maxIob)
-        this.profile.put("dia", profile.dia)
+        this.profile.put("dia", min(profile.dia, 3.0))
         this.profile.put("type", "current")
         this.profile.put("max_daily_basal", profile.getMaxDailyBasal())
         this.profile.put("max_basal", maxBasal)
@@ -211,6 +420,21 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("sens", profile.getIsfMgdl())
         this.profile.put("max_daily_safety_multiplier", sp.getInt(R.string.key_openapsama_max_daily_safety_multiplier, 3))
         this.profile.put("current_basal_safety_multiplier", sp.getDouble(R.string.key_openapsama_current_basal_safety_multiplier, 4.0))
+        this.profile.put("skip_neutral_temps", true)
+        this.profile.put("current_basal", basalRate)
+        this.profile.put("temptargetSet", tempTargetSet)
+        this.profile.put("autosens_adjust_targets", sp.getBoolean(R.string.key_openapsama_autosens_adjusttargets, true))
+        this.profile.put("accelerating_up",accelerating_up)
+        this.profile.put("deccelerating_up",deccelerating_up)
+        this.profile.put("accelerating_down",accelerating_down)
+        this.profile.put("deccelerating_down",deccelerating_down)
+        this.profile.put("stable",stable)
+        this.profile.put("tdd7DaysPerHour",tdd7DaysPerHour)
+        this.profile.put("tdd2DaysPerHour",tdd2DaysPerHour)
+        this.profile.put("tddPerHour",tddPerHour)
+        this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
+        this.profile.put("mss",maxSMB)
+        this.profile.put("tddlastHrs",tddlastHrs)
 
         val insulin = activePlugin.activeInsulin
         val insulinType = insulin.friendlyName
@@ -277,20 +501,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("enable_AIMI_Break", sp.getBoolean(R.string.key_use_AimiBreak, false))
         this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
         this.profile.put("key_use_AimiIOBpredBG", sp.getBoolean(R.string.key_use_AimiIOBpredBG, false))
-        //this.profile.put("enable_AIMI_UAM_U200", sp.getBoolean(R.string.key_use_LuymjevU200, false))
-        //this.profile.put("enable_AIMI_UAM_U100", sp.getBoolean(R.string.key_use_LuymjevU100, false))
-        //this.profile.put("enable_AIMI_UAM_Fiasp", sp.getBoolean(R.string.key_use_Fiasp, false))
-        //this.profile.put("enable_AIMI_UAM_Novorapid", sp.getBoolean(R.string.key_use_Novorapid, false))
         this.profile.put("key_use_AimiUAM_ISF", sp.getBoolean(R.string.key_use_AimiUAM_ISF, false))
         this.profile.put("key_use_AIMI_BreakFastLight", sp.getBoolean(R.string.key_use_AIMI_BreakFastLight, false))
         this.profile.put("key_use_disable_b30_BFL", sp.getBoolean(R.string.key_use_disable_b30_BFL, false))
         this.profile.put("key_AIMI_BreakFastLight_timestart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timestart, "6")))
         this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
-        //this.profile.put("key_insulin_oref_peak", SafeParse.stringToDouble(sp.getString(R.string.key_insulin_oref_peak, "35")))
         this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
-
+        this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
 
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
@@ -333,11 +552,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         bolusMealLinks.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastBolusNormalTimecount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid) lastBolusSMBcount += 1
-            //if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "3")) ) lastSMBmscount += 1
+        }
+        val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
+        extendedsmb.forEach{bolus ->
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == lastBolusNormalUnits) extendedsmbCount +=1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount !== lastBolusNormalUnits) SMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === false ) MaxSMBcount += 1
         }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
-        //this.mealData.put("countSMBms", lastSMBmscount)
+        this.mealData.put("countSMB40", SMBcount)
+        this.mealData.put("extendedsmbCount", extendedsmbCount)
+        this.mealData.put("MaxSMBcount", MaxSMBcount)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
@@ -345,46 +571,30 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastBolusSMBUnits", lastBolusSMBUnits)
         this.mealData.put("lastBolusSMBTime", lastBolusSMBTime)
 
-        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
-        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
+        this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
+        this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
+        this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
+        this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
+        this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
+
+        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 160.0))?.abovePct()
+        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.belowPct()
         val tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = true))?.totalAmount
         var tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.totalAmount
         val tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
-        /*val tddLast24to23H = tddCalculator.calculateDaily(-24, -23)?.totalAmount
-        val tddLast48to47H = tddCalculator.calculateDaily(-48, -47)?.totalAmount
-        val tddLast72to71H = tddCalculator.calculateDaily(-72, -71)?.totalAmount
-        val tddLast96to95H = tddCalculator.calculateDaily(-96, -95)?.totalAmount
-        val tddlastHaverage = (tddLast24to23H!!+ tddLast48to47H!! +tddLast72to71H!!+tddLast96to95H!!)/4*/
+        val TDDLast8 = tddCalculator.calculateDaily(-8, 0)?.totalAmount
+        val maxaimismb = SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))
+
 
         val insulinDivisor = when {
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
             insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
         }
-        /*var variableSensitivity: Double
-        var tdd: Double? = null
-        if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
-            val tddWeightedFromLast8H = ((1.4 * tddLast4H!!) + (0.6 * tddLast8to4H!!)) * 3
 
-            tdd =
-                if (tdd1D != null && tdd7D != null && lastHourTIRLow!! > 0 && tdd7D != 0.0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0 && lastHourTIRAbove!! > 0 && last2HourTIRAbove!! > 0) ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-                else if (tdd1D != null && tdd7D != null && tdd7D != 0.0) (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
-                else tddWeightedFromLast8H
-
-            val aimisensitivity = tddLast24H / tdd7D!!
-            this.profile.put("aimisensitivity", aimisensitivity)
-
-            variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-            variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
-        }else{
-            variableSensitivity = profile.getIsfMgdl()
-            val aimisensitivity = 1
-            this.profile.put("aimisensitivity", aimisensitivity)
-        }*/
 // Add variable for readability and to avoid repeating the same calculations
         val tddWeightedFromLast8H: Double? = if(tddLast4H != null && tddLast8to4H != null){
             ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
@@ -415,6 +625,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
             variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
+            if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5
+            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 ) variableSensitivity *= 1.3
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {
@@ -440,14 +652,30 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.totalAmount)
         this.mealData.put("TDDAIMIBASAL3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.basalAmount)
         this.mealData.put("TDDAIMIBASAL7", tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = true))?.basalAmount)
+        this.mealData.put("TDDPUMP", tddCalculator.calculateDaily(-8, 0)?.totalAmount)
+        this.mealData.put("aimiTDD24", tddCalculator.calculateDaily(-24, 0)?.totalAmount)
+        this.mealData.put("TDDLast8", TDDLast8)
+
 
         //StatTIR = TirCalculator(rh,profileFunction,dateUtil,repository)
         this.mealData.put("StatLow7", tirCalculator.averageTIR(tirCalculator.calculate(7, 65.0, 180.0))?.belowPct())
+        this.mealData.put("StatInRange7", tirCalculator.averageTIR(tirCalculator.calculate(7, 65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRLow", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.belowPct())
         this.mealData.put("currentTIRRange", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.inRangePct())
         this.mealData.put("currentTIRAbove", tirCalculator.averageTIR(tirCalculator.calculateDaily(65.0, 180.0))?.abovePct())
+        this.mealData.put("currentTIR_70_140_Above", tirCalculator.averageTIR(tirCalculator.calculateDaily(70.0, 140.0))?.abovePct())
 
-       if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
+
+
+
+        this.profile.put("recentSteps5Minutes", recentSteps5Minutes)
+        this.profile.put("recentSteps10Minutes", recentSteps10Minutes)
+        this.profile.put("recentSteps15Minutes", recentSteps15Minutes)
+        this.profile.put("recentSteps30Minutes", recentSteps30Minutes)
+        this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
+
+
+        if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", tddLast24H / tdd7D)
         else
             autosensData.put("ratio", 1.0)
@@ -474,6 +702,33 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             string = string.substring(20)
         }
         return string
+    }
+
+    fun parseNotes(startMinAgo: Int, endMinAgo: Int): String {
+        val olderTimeStamp = now - endMinAgo * 60 * 1000
+        val moreRecentTimeStamp = now - startMinAgo * 60 * 1000
+        var notes = ""
+        recentNotes?.forEach { note ->
+            if(note.timestamp > olderTimeStamp
+                && note.timestamp <= moreRecentTimeStamp
+                && !note.note.lowercase().contains("low treatment")
+                && !note.note.lowercase().contains("less aggressive")
+                && !note.note.lowercase().contains("more aggressive")
+                && !note.note.lowercase().contains("too aggressive")
+            ) {
+                notes += if(notes.isEmpty()) "" else " "
+                notes += note.note
+            }
+        }
+        notes = notes.lowercase()
+        notes.replace(","," ")
+        notes.replace("."," ")
+        notes.replace("!"," ")
+        notes.replace("a"," ")
+        notes.replace("an"," ")
+        notes.replace("and"," ")
+        notes.replace("\\s+"," ")
+        return notes
     }
 
     init {

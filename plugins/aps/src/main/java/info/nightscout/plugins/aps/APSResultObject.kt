@@ -173,7 +173,7 @@ open class APSResultObject @Inject constructor(val injector: HasAndroidInjector)
                             val gv = GlucoseValue(
                                 raw = 0.0,
                                 noise = 0.0,
-                                value = iob.getInt(i).toDouble(),
+                                value = iob.getDouble(i),
                                 timestamp = startTime + i * 5 * 60 * 1000L,
                                 sourceSensor = GlucoseValue.SourceSensor.IOB_PREDICTION,
                                 trendArrow = GlucoseValue.TrendArrow.NONE

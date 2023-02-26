@@ -93,6 +93,7 @@ class TddCalculatorImpl @Inject constructor(
         repository.getBolusesDataFromTimeToTime(startTime, endTime, true).blockingGet()
             .filter { it.type != Bolus.Type.PRIMING }
             .forEach { t ->
+                //medlink TBR need to be counted as basal.
                 if (t.type == Bolus.Type.TBR) {
                     tdd.basalAmount += t.amount
                 } else {

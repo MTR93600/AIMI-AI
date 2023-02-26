@@ -187,6 +187,7 @@ class PumpSyncImplementation @Inject constructor(
                 pumpSerial = pumpSerial
             )
         )
+        aapsLogger.info(LTag.DATABASE, bolus.toString())
         repository.runTransactionForResult(SyncBolusWithTempIdMedLinkTransaction(bolus, type?.toDBbBolusType()))
             .doOnError { aapsLogger.error(LTag.DATABASE, "Error while saving Bolus", it) }
             .blockingGet()

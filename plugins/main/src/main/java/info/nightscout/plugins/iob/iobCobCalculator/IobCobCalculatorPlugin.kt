@@ -18,6 +18,7 @@ import info.nightscout.database.ValueWrapper
 import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.ExtendedBolus
 import info.nightscout.database.entities.TemporaryBasal
+import info.nightscout.database.entities.UserEntry
 import info.nightscout.database.entities.interfaces.end
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.interfaces.Constants
@@ -310,6 +311,26 @@ class IobCobCalculatorPlugin @Inject constructor(
         // Future carbs
         carbs.forEach { carb -> if (carb.timestamp > now) futureCarbs += carb.amount }
         return CobInfo(timestamp, displayCob, futureCarbs)
+    }
+
+    override fun getFutureCob(): Double {
+        var futureCarbs = 0.0
+        val now = dateUtil.now()
+        val carbs = repository.getCarbsDataFromTimeExpanded(now, true).blockingGet()
+        carbs.forEach { carb -> if (carb.timestamp > now) futureCarbs += carb.amount }
+        return futureCarbs
+    }
+
+    override fun getMostRecentCarbByDate(): Long? {
+        return repository.getMostRecentCarbByDate()?.timestamp
+    }
+
+    override fun getMostRecentCarbAmount(): Double? {
+        return repository.getMostRecentCarbByDate()?.amount
+    }
+
+    override fun getUserEntryDataWithNotesFromTime(timestamp: Long): List<UserEntry> {
+        return repository.getUserEntryDataWithNotesFromTime(timestamp).blockingGet()
     }
 
     override fun getMealDataWithWaitingForCalculationFinish(): MealData {

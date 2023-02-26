@@ -153,7 +153,6 @@ interface BgSync {
         LIBRE_1_TOMATO,
         LIBRE_1_RF,
         LIBRE_1_LIMITTER,
-        GLIMP,
         LIBRE_2_NATIVE,
         POCTECH_NATIVE,
         GLUNOVO_NATIVE,
@@ -193,7 +192,6 @@ interface BgSync {
                 LIBRE_1_TOMATO            -> GlucoseValue.SourceSensor.LIBRE_1_TOMATO
                 LIBRE_1_RF                -> GlucoseValue.SourceSensor.LIBRE_1_RF
                 LIBRE_1_LIMITTER          -> GlucoseValue.SourceSensor.LIBRE_1_LIMITTER
-                GLIMP                     -> GlucoseValue.SourceSensor.GLIMP
                 LIBRE_2_NATIVE            -> GlucoseValue.SourceSensor.LIBRE_2_NATIVE
                 POCTECH_NATIVE            -> GlucoseValue.SourceSensor.POCTECH_NATIVE
                 GLUNOVO_NATIVE            -> GlucoseValue.SourceSensor.GLUNOVO_NATIVE

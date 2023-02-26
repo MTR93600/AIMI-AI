@@ -148,6 +148,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_countsteps"
+            android:title="Enable counting steps"
+            android:summary="This option will enable the function counting steps from the hardware of your android phone. The action will be increasing the ISF and the target, discreasing the basal." />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_openapsama_use_autosens"
             android:title="@string/openapsama_use_autosens" />
 
@@ -360,7 +366,7 @@
 
         <androidx.preference.PreferenceScreen
             android:key="absorption_smb_advanced"
-            android:title="@string/advancedsettings_title">
+            android:title="@string/advanced_settings_title">
 
             <Preference android:summary="@string/openapsama_link_to_preference_json_doc_txt">
                 <intent

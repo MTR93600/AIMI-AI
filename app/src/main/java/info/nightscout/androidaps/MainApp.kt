@@ -1,8 +1,11 @@
 package info.nightscout.androidaps
 
 import android.bluetooth.BluetoothDevice
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -16,6 +19,8 @@ import androidx.work.WorkManager
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import info.nightscout.androidaps.di.DaggerAppComponent
+//import info.nightscout.plugins.aps.openAPSaiSMB.StepService
+import info.nightscout.plugins.aps.aimi.StepService
 import info.nightscout.androidaps.receivers.BTReceiver
 import info.nightscout.androidaps.receivers.ChargingStateReceiver
 import info.nightscout.androidaps.receivers.KeepAliveWorker
@@ -154,6 +159,10 @@ class MainApp : DaggerApplication() {
             Widget.updateWidget(this)
         }
         handler.postDelayed(refreshWidget, 60000)
+
+        val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        sensorManager.registerListener(info.nightscout.plugins.aps.aimi.StepService, stepSensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
     private fun setRxErrorHandler() {
