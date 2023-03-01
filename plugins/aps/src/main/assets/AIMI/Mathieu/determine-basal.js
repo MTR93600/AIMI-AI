@@ -205,10 +205,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var bg = glucose_status.glucose;
     var noise = glucose_status.noise;
+    var aimisafesensor = false;
     // 38 is an xDrip error state that usually indicates sensor failure
     // all other BG values between 11 and 37 mg/dL reflect non-error-code BG values, so we should zero temp for those
     if (bg <= 10 || bg === 38 || noise >= 3) {  //Dexcom is in ??? mode or calibrating, or xDrip reports high noise
         rT.reason = "CGM is calibrating, in ??? state, or noise is high";
+        aimisafesensor = true;
     }
     if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
         rT.reason = "If current system time "+systemTime+" is correct, then BG data is too old. The last BG data was read "+minAgo+"m ago at "+bgTime;
@@ -217,6 +219,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     } else if ( bg > 60 && glucose_status.delta == 0 && glucose_status.short_avgdelta > -1 && glucose_status.short_avgdelta < 1 && glucose_status.long_avgdelta > -1 && glucose_status.long_avgdelta < 1 && !isSaveCgmSource) {
         if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {
             rT.reason = "CGM was just calibrated";
+            aimisafesensor = true;
+
         } /*else {
             rT.reason = "Error: CGM data is unchanged for the past ~45m";
         }*/
@@ -419,7 +423,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     circadian_sensitivity = round(circadian_sensitivity,2);
     enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
 
-    var iTimeActivation = AIMI_UAM ? true : false;
+    var iTimeActivation = AIMI_UAM && aimisafesensor === false ? true : false;
     var insulinPeakTime = 60;
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
@@ -1298,11 +1302,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 24/02/23 ");
-                console.log(", UPDATE : Merge Milos version dev h. nightscout need to be in version dev 15. you will have to update your ns with the dev branch");
-                console.log(", UPDATE2 : force basal when the delta is stable but the quantity of insulin received in the hour < at the quantity average in the last 7 days");
-                console.log(", UPDATE 3 : fixe bug about extended bolus because of a no smb case");
-                console.log(", UPDATE 4 : force basal if bg stay stuck > 170");
+                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 01/03/23 ");
+                console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
+                console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1449,8 +1451,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
     }*/
     var aimi_rise = 1, sens_predType = "NA" ;
     if (iTimeActivation){
-    if (DeltaPctS > 1 && DeltaPctL > 1.5) sens_predType = "UAM+"; // with acceleration
-    if (UAMpredBG > 170 && bg < 140) sens_predType = "UAM+"; // when predicted high and bg is lower
+        if (DeltaPctS > 1 && DeltaPctL > 1.5) sens_predType = "UAM+"; // with acceleration
+        if (UAMpredBG > 160 && bg < 140 && iTime < 180){
+        sens_predType = "UAM+"; // when predicted high and bg is lower
+        }else if (UAMpredBG >= 240 && bg < 160 && aimi_delta >= 8){
+        sens_predType = "UAM+";
+        }
     }
     if (sens_predType == "UAM+"){
     aimi_rise = (bg <= 140 && UAMpredBG > bg ? 0.75 : 0.5);
