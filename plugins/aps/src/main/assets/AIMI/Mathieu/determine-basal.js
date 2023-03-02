@@ -1305,6 +1305,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 01/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
+                console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
