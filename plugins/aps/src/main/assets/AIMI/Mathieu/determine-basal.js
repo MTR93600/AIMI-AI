@@ -1942,7 +1942,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         }else if (bg < (target_bg - 15) && shortAvgDelta <= 2){
         microBolus = 0;
         rT.reason += ", No SMB because bg < (target_bg - 15) && shortAvgDelta <= 2, ";
-        }else if (bg < 90){
+        }else if (bg < 90 && profile.accelerating_up === 0){
         microBolus = 0;
         rT.reason += ", No SMB because bg < 90, ";
         }else if (bg < 150 && delta < -5){
@@ -2005,9 +2005,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             if (iTimeActivation && AIMI_BreakFastLight){
             SMBInterval = 15;
-            }else if (iTimeActivation && UAMpredBG < 100){
+            }else if (iTimeActivation && UAMpredBG < 100 && iTime > 100 && profile.accelerating_up === 0){
             SMBInterval = 20;
-            }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100){
+            }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100 && profile.accelerating_up === 0){
             SMBInterval = 15 * aimi_rise;
                 if (bg > 170){
                 rT.reason += ",Forcing basal because bg > 170";
@@ -2015,9 +2015,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 rT.duration = durationReq;
                 var rate = round_basal(basal*10,profile);
                 }
-            }else if (iTimeActivation && AIMI_lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break || iTimeActivation && countSMB > 2){
+            }else if (iTimeActivation && AIMI_lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break && profile.accelerating_up === 0 || iTimeActivation && countSMB > 2 && profile.accelerating_up === 0){
             SMBInterval = 10 * aimi_rise;
-            }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0){
+            }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
             SMBInterval = 10 * aimi_rise;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+recentSteps30Minutes;
             }
