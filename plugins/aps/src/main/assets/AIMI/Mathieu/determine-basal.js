@@ -350,7 +350,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant Mathieu 3.1.0.3-dev-h-AIMI");
+       console.error( " AIMI-Variant Mathieu 3.2.0-dev-beta1-AIMI");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1302,10 +1302,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.1.0.3-dev-h-AIMI-Variant Mathieu 01/03/23 ");
+                console.log(" 3.2.0-dev-beta1-AIMI-Variant Mathieu 01/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
+                console.log(", UPDATE4 : Merge milos 3.2.0-beta1");
+                console.log(", UPDATE5 : deccelerating_up = 1 interval will be 20 minutes and B30 action");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1495,7 +1497,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.1.0.3-dev-h-AIMI-Variant Mathieu 24/02/23 ";
+    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Mathieu 24/02/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -2009,9 +2011,14 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }else if (iTimeActivation && UAMpredBG < 100 && iTime > 100 && profile.accelerating_up === 0){
             SMBInterval = 20;
             }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100 && profile.accelerating_up === 0){
-            SMBInterval = 15 * aimi_rise;
+            SMBInterval = profile.deccelerating_up === 1 ? 20 : 15 * aimi_rise;
                 if (bg > 170){
                 rT.reason += ",Forcing basal because bg > 170";
+                var durationReq = profile.b30_duration;
+                rT.duration = durationReq;
+                var rate = round_basal(basal*10,profile);
+                }else if (delta > 0 && SMBInterval == 20 and profile.deccelerating_up === 1 ){
+                rT.reason += ",Forcing basal because deccelerating_up is true";
                 var durationReq = profile.b30_duration;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*10,profile);
