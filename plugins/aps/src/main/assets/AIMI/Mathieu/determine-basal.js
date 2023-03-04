@@ -1302,7 +1302,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-beta1-AIMI-Variant Mathieu 01/03/23 ");
+                console.log(" 3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
@@ -1497,7 +1497,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Mathieu 24/02/23 ";
+    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -2014,12 +2014,12 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             SMBInterval = profile.deccelerating_up === 1 ? 20 : 15 * aimi_rise;
                 if (bg > 170){
                 rT.reason += ",Forcing basal because bg > 170";
-                var durationReq = profile.b30_duration;
+                var durationReq = SMBInterval;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*10,profile);
-                }else if (delta > 0 && SMBInterval == 20 and profile.deccelerating_up === 1 ){
+                }else if (delta > 0 && SMBInterval === 20 and profile.deccelerating_up === 1 ){
                 rT.reason += ",Forcing basal because deccelerating_up is true";
-                var durationReq = profile.b30_duration;
+                var durationReq = SMBInterval;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*10,profile);
                 }
