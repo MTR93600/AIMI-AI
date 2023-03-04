@@ -85,6 +85,32 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_use_Aimib30bolus"
+            android:title="Automated Bolus"
+            android:summary="Enabling an automated bolus which will happen xx minutes after the manual bolus and which is a % of the manual bolus. The condition of application is only this option enable, for now the code don't check anything else. The variable will define the time after the manual bolus et the % of this one you want receive. This is only working with the variant Extended Bolus and b30Bolus." />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="This variable define which % of the manual bolus you will receive xx minutes after the bolus. This is only working with the variant Extended Bolus and b30Bolus."
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_bolus"
+            android:title="B30 bolus %"
+            validate:floatmaxNumber="500"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="This variable define the time after the manual bolus, you will receive this SMB b30_bolus. This is only working with the variant Extended Bolus and b30Bolus."
+            android:inputType="numberDecimal"
+            android:key="@string/key_iTime_B30_bolus_duration"
+            android:title="B30_bolus Time after the manual bolus"
+            validate:floatmaxNumber="500"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
 
     </androidx.preference.PreferenceScreen>
 

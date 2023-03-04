@@ -116,6 +116,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var lastBolusSMBcount: Long = 0
     private var SMBcount: Long = 0
     private var MaxSMBcount: Long = 0
+    private var b30bolus: Long = 0
+    private var lastBolusNormalUnits: Long = 0
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -487,6 +489,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("b30_upperBG",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_upperBG,"150")))
         this.profile.put("b30_duration",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_duration,"20")))
         this.profile.put("b30_upperdelta",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_upperdelta,"6")))
+        this.profile.put("b30_bolus",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus,"50")))
+        this.profile.put("b30_bolus_duration",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus_duration,"50")))
+        this.profile.put("enable_AIMI_b30_bolus", sp.getBoolean(R.string.key_use_Aimib30bolus, false))
         this.profile.put("enable_AIMI_protein", sp.getBoolean(R.string.key_use_Aimiprotein, false))
         this.profile.put("b30_protein_start",SafeParse.stringToDouble(sp.getString(R.string.key_aimi_B30_proteinstart,"60")))
         this.profile.put("b30_protein_duration",SafeParse.stringToDouble(sp.getString(R.string.key_aimi_B30_proteinduration,"60")))
@@ -543,7 +548,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         val getlastBolusNormal = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.NORMAL).blockingGet()
-        val lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount else 0L
+        lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount.toLong() else 0L
         val lastBolusNormalTime = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.timestamp else 0L
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
@@ -555,15 +560,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
         extendedsmb.forEach{bolus ->
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount == lastBolusNormalUnits) extendedsmbCount +=1
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount !== lastBolusNormalUnits) SMBcount += 1
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === false ) MaxSMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits) extendedsmbCount +=1
+            if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits) SMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true ) MaxSMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount === (lastBolusNormalUnits * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus, "50"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true && sp.getBoolean(R.string.key_use_Aimib30bolus, false) === true) b30bolus += 1
         }
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
         this.mealData.put("countSMB40", SMBcount)
         this.mealData.put("extendedsmbCount", extendedsmbCount)
         this.mealData.put("MaxSMBcount", MaxSMBcount)
+        this.mealData.put("b30bolus", b30bolus)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L

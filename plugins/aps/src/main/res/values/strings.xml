@@ -228,5 +228,8 @@
     <string name="key_use_newSMB" translatable="false">new aimi smb calculation proportional</string>
     <string name="key_use_enable_mssv" translatable="false">Enable the variation of max smb size</string>
     <string name="key_use_countsteps" translatable="false">Enable counting steps</string>
+    <string name="key_iTime_B30_bolus">key_iTime_B30_bolus</string>
+    <string name="key_iTime_B30_bolus_duration">key_iTime_B30_bolus_duration</string>
+    <string name="key_use_Aimib30bolus">key_use_Aimib30bolus</string>
 
 </resources>
