@@ -350,7 +350,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant Mathieu 3.2.0-dev-beta1-AIMI");
+       console.error( " AIMI-Variant Extended Bolus & b30bolus 3.2.0-dev-beta1-AIMI");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -1307,7 +1307,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ");
+                console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 04/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
@@ -1503,7 +1503,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ";
+    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 04/03/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
