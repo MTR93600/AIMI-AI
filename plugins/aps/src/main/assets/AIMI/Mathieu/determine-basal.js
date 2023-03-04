@@ -2017,7 +2017,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 var durationReq = SMBInterval;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*10,profile);
-                }else if (delta > 0 && SMBInterval === 20 and profile.deccelerating_up === 1 ){
+                }else if (delta > 0 && SMBInterval === 20 && profile.deccelerating_up === 1 ){
                 rT.reason += ",Forcing basal because deccelerating_up is true";
                 var durationReq = SMBInterval;
                 rT.duration = durationReq;
