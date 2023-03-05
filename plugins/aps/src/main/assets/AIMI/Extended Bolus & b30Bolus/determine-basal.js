@@ -1307,13 +1307,14 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 04/03/23 ");
+                console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
                 console.log(", UPDATE4 : Merge milos 3.2.0-beta1");
                 console.log(", UPDATE5 : deccelerating_up = 1 interval will be 20 minutes and B30 action");
                 console.log(", UPDATE6 : creating a new b30_bolus settings in b30 section. this one will run xx minutes after the manual bolus and will be a % of this one.")
+                console.log(", UPDATE7 : creating one more case accelerating_up = 1 to send a bigger smb in full UAM.");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1503,7 +1504,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 04/03/23 ";
+    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1870,7 +1871,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                  }
              }else if (iTimeActivation && bfl_bfiob === false && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                   if (circadian_smb > (-3)){
+                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0){
+                   var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
+                   microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
+                   rT.reason += ", accelerating_up === 1 => sending the max smb size earlier.";
+                   }else if (circadian_smb > (-3)){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
