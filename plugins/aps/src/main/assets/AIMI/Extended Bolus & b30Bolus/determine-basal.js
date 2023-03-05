@@ -1871,7 +1871,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                  }
              }else if (iTimeActivation && bfl_bfiob === false && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0){
+                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0 && circadian_smb < -4){
                    var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                    microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                    rT.reason += ", accelerating_up === 1 => sending the max smb size earlier.";
