@@ -89,7 +89,7 @@
             android:defaultValue="false"
             android:key="@string/key_use_Aimib30bolus"
             android:title="Automated Bolus"
-            android:summary="Enabling an automated bolus which will happen xx minutes after the manual bolus and which is a % of the manual bolus. The condition of application is only this option enable, for now the code don't check anything else. The variable will define the time after the manual bolus et the % of this one you want receive. This is only working with the variant Extended Bolus and b30Bolus." />
+            android:summary="Enabling an automated bolus which will happen xx minutes after the manual bolus and which is a % of the manual bolus. The condition of application is only this option enable, for now the code don't check anything else. The variable will define the time after the manual bolus et the % of this one you want receive. This is only working with the variant Extended_Bolus_and_b30Bolus and the variant Mathieu." />
 
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="50"
