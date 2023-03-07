@@ -1502,6 +1502,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += " aimismb : "+aimismb+" ; ";
         rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
+        rT.reason += "insulinR test : "+profile.insulinR+" ; ";
 
 
     rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ";
@@ -1871,8 +1872,9 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                  }
              }else if (iTimeActivation && bfl_bfiob === false && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0 && circadian_smb < -4){
+                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0 && bg > 150 && UAMpredBG > 220){
                    var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
+                   microBolus = (microBolus + iob_data.iob) < (profile.insulinR*3) && microBolus < profile.insulinR ? profile.insulinR : microBolus;
                    microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                    rT.reason += ", accelerating_up === 1 => sending the max smb size earlier.";
                    }else if (circadian_smb > (-3)){

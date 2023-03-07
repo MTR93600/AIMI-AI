@@ -600,6 +600,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
         val tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
         val TDDLast8 = tddCalculator.calculateDaily(-8, 0)?.totalAmount
+        val TDD4hwindow = tddCalculator.calculateDaily(-24, -21)?.totalAmount
+        val insulinR = TDD4hwindow?.div(3)
         val maxaimismb = SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))
 
 
@@ -688,6 +690,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("recentSteps15Minutes", recentSteps15Minutes)
         this.profile.put("recentSteps30Minutes", recentSteps30Minutes)
         this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
+
+        this.profile.put("insulinR", insulinR)
 
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
