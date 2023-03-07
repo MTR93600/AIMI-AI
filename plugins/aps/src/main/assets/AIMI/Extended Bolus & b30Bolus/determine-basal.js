@@ -1951,7 +1951,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 rT.reason += ", No SMB because UAMpredBG < 100, ";
             }
         }
-        if (iTime > 60){
+
         if (bg < target_bg && delta < -2){
         microBolus = 0;
         rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
@@ -1976,7 +1976,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         }else if (nosmb === true){
         microBolus = 0;
         rT.reason += ", No SMB nosmb = true ";
-        }
+
         }
             // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
@@ -2068,9 +2068,15 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
 
+        if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 180){
+            rT.reason += ". force basal because it's stable but bg > 180 : "+(basal*10/60)*30+" U";
+            //rT.deliverAt = deliverAt;
+            var durationReq = profile.b30_duration;
+            rT.duration = durationReq;
 
+            var rate = round_basal(basal*10,profile);
 
-        if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1) {
+        }else if (iTimeActivation === true && iTime < profile.b30_duration && meal_data.countBolus === 1) {
             rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
             //rT.deliverAt = deliverAt;
             var durationReq = profile.b30_duration;
