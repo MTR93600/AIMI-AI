@@ -525,12 +525,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
+     if (microBolusAllowed && iTimeActivation && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
      }
 
+     if (profile.enable_AIMI_b30_bolus && iTime > profile.b30_bolus_duration && iTime <= (profile.b30_bolus_duration + 15) && profile.b30bolus ===0 ){
+                 rT.units = (LastManualBolus * profile.b30_bolus)/100;
+                 rT.reason += "B30 Bolus" + rT.units + "U. Event was programmed at " + profile.b30_bolus_duration + " minutes after the manual bolus.";
+                 return rT;
+    }
 
 
 

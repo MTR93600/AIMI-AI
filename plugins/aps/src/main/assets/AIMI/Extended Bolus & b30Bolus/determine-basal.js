@@ -525,7 +525,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
              return tempBasalFunctions.setTempBasal(rate, profile.b30_protein_duration, profile, rT, currenttemp);
 
      }
-     if (microBolusAllowed && iTimeActivation && !profile.key_use_AimiIOBpredBG && !AIMI_BreakFastLight && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
+     if (microBolusAllowed && iTimeActivation && iTime > profile.b30_duration && iTime < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
             rT.units = LastManualBolus;
             rT.reason += "Extended Bolus" + rT.units + "U. ";
             return rT;
@@ -1872,7 +1872,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                  }
              }else if (iTimeActivation && bfl_bfiob === false && !profile.temptargetSet && delta > 0 && aimismb === true && UAMpredBG >= 150){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0 && bg > 150 && UAMpredBG > 220){
+                   if (profile.accelerating_up === 1 && aimi_delta > 0 && profile.lastPBoluscount === 0 && bg > 140 && UAMpredBG > 220){
                    var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                    microBolus = (microBolus + iob_data.iob) < (profile.insulinR*3) && microBolus < profile.insulinR ? profile.insulinR : microBolus;
                    microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
