@@ -1119,7 +1119,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             //UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
             //console.error(predBGI, predCI, predUCI);
             }else{
-            if (BFIOB || AIMI_UAM === false) {
+            if (BFIOB || AIMI_UAM === false || delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200) {
                 // calculate insulin activity
                 insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
@@ -1893,17 +1893,17 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }
-                   if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1 ){
+                   if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1 && profile.accelerating_up === 0){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
-                       if (bg < 150 && delta <= 10){
+                       if (bg < 130 && delta <= 10){
                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? nosmb = true : M1;
-                       }else if (bg < 150 && delta > 10){
+                       }else if (bg < 130 && delta > 10){
 
                            microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? M1 : M2;
-                       }else if (bg > 150 && delta > 10){
+                       }else if (bg > 130 && delta > 10){
                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? M2 : microBolus;
-                       }else if (bg > 150 && delta <= 10 ){
+                       }else if (bg > 130 && delta <= 10){
                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? nosmb = true : M1;
                        }
                     }
