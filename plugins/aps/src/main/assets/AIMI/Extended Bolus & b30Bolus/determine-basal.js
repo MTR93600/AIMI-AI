@@ -1119,7 +1119,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             //UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
             //console.error(predBGI, predCI, predUCI);
             }else{
-            if (BFIOB || AIMI_UAM === false || delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200) {
+            if (BFIOB || AIMI_UAM === false) {
                 // calculate insulin activity
                 insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
@@ -1503,6 +1503,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
         rT.reason += "insulinR test : "+profile.insulinR+" ; ";
+        rT.reason += "AISMB : "+profile.smbToGive+" U ; ";
 
 
     rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ";
@@ -1808,7 +1809,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             var roundSMBTo = 1 / profile.bolus_increment;
             var nosmb = false;
-
+            var AI = false;
 
             var limitIOB = Math.min((0.90*max_iob),((aimi_bg * 1.618) / sens));
             console.log("####limitIOB : "+limitIOB+"\n")
@@ -1877,9 +1878,18 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                    microBolus = (microBolus + iob_data.iob) < (profile.insulinR*3) && microBolus < profile.insulinR ? profile.insulinR : microBolus;
                    microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                    rT.reason += ", accelerating_up === 1 => sending the max smb size earlier.";
-                   }else if (circadian_smb > (-3)){
-                     var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                   }else if (circadian_smb > (-5)){
+                      var microBolus = profile.modelai === true ? profile.smbToGive : Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                      AI = true;
+                      rT.reason += ", AIMI_AI is running.";
+                     //var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
+                     }else if (circadian_smb > -7 && bg <= 110){
+                     var microBolus = profile.modelai === true ? profile.smbToGive : Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                           AI = true;
+                           rT.reason += ", AIMI_AI is running.";
+                          //var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*smb_ratio);
+                          microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }else if (circadian_smb >= (-4) && circadian_smb <= (-3)  && bg > 140){
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq*2);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
@@ -1893,7 +1903,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }
-                   if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1 && profile.accelerating_up === 0){
+                   if (iTime > 180 && bg < 170 || meal_data.MaxSMBcount >=1 && profile.accelerating_up === 0 && AI === false){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                        if (bg < 130 && delta <= 10){
@@ -1909,7 +1919,10 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                     }
 
                }else if (delta > 0){
-             var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+             //var microBolus = Math.min(insulinReq*smb_ratio, maxBolusTT);
+             var microBolus = profile.modelai === true ? profile.smbToGive : Math.min(insulinReq*smb_ratio, maxBolusTT);
+             rT.reason += ", AIMI_AI is running.";
+             AI = profile.modelai === true ? true : false;
              microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
              }
              }
@@ -1970,7 +1983,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         }else if (delta < -10){
         microBolus = 0;
         rT.reason += ", No SMB because delta < -10, ";
-        }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200){
+        }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200 && AI === false){
         microBolus = 0;
         rT.reason += ", No SMB because it's stable ";
         }else if (nosmb === true){

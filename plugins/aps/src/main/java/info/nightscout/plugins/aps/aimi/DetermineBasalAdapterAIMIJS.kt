@@ -56,6 +56,7 @@ import java.util.*
 import kotlin.math.min
 import kotlin.math.roundToInt
 import org.tensorflow.lite.Interpreter
+import kotlin.math.absoluteValue
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -97,6 +98,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tddPerHour = 0.0f
     private var tdd24HrsPerHour = 0.0f
     private var tddlastHrs = 0.0f
+    private var tddDaily = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
     private var profile = JSONObject()
@@ -128,6 +130,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val path = File(Environment.getExternalStorageDirectory().toString())
     private val modelFile = File(path, "AAPS/ml/model.tflite")
     private var now: Long = 0
+    private var modelai: Boolean = false
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -145,12 +148,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         val headerRow = "dateStr,dateLong,hourOfDay,weekend," +
             "bg,targetBg,iob,cob,lastCarbAgeMin,futureCarbs,delta,shortAvgDelta,longAvgDelta," +
-            "tdd7DaysPerHour,tdd2DaysPerHour,tddPerHour,tdd24HrsPerHour," +
+            "accelerating_up,deccelerating_up,accelerating_down,deccelerating_down,stable," +
+            "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
             "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
             "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
             "predictedSMB,maxIob,maxSMB,smbGiven\n"
         val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
             "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
+            "$accelerating_up,$deccelerating_up,$accelerating_down,$deccelerating_down,$stable," +
             "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
             "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
             "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
@@ -163,13 +168,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         file.appendText(valuesToRecord + "\n")
     }
-    private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
+   private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
         var smbToGive = smbToGiveParam
         // don't exceed max IOB
         if (iob + smbToGive > maxIob) {
             smbToGive = maxIob - iob
         }
         // don't exceed max SMB
+        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * 0.38 / 100).toFloat()
         if (smbToGive > maxSMB) {
             smbToGive = maxSMB
         }
@@ -227,8 +233,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         val predictedSMB = calculateSMBFromModel()
         var smbToGive = predictedSMB
-
-
+        smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
 
         //logDataToCsv(predictedSMB, smbToGive)
@@ -244,6 +249,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         aapsLogger.debug(LTag.APS, "SMBAlwaysAllowed:  $smbAlwaysAllowed")
         aapsLogger.debug(LTag.APS, "CurrentTime: $currentTime")
         aapsLogger.debug(LTag.APS, "flatBGsDetected: $flatBGsDetected")
+
         var determineBasalResultSMB: DetermineBasalResultSMB? = null
         val rhino = Context.enter()
         val scope: Scriptable = rhino.initStandardObjects()
@@ -294,7 +300,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 try {
                     val resultJson = JSONObject(result)
                     determineBasalResultSMB = DetermineBasalResultSMB(injector, resultJson)
-                    logDataToCsv(determineBasalResultSMB.smb.toFloat(),determineBasalResultSMB.smb.toFloat())
+                    logDataToCsv(predictedSMB,determineBasalResultSMB.smb.toFloat())
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -339,7 +345,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         microBolusAllowed: Boolean,
         uamAllowed: Boolean,
         advancedFiltering: Boolean,
-        flatBGsDetected: Boolean
+        flatBGsDetected: Boolean,
     ) {
         this.now = System.currentTimeMillis()
         this.hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -387,13 +393,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd2Days = tddCalculator.averageTDD(tddCalculator.calculate(2, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
         this.tdd2DaysPerHour = tdd2Days / 24
 
-        val tddDaily = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
+        tddDaily = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
         this.tddPerHour = tddDaily / 24
 
         val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
         this.tdd24HrsPerHour = tdd24Hrs / 24
 
         tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
+
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
         this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
@@ -439,6 +446,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
         this.profile.put("mss",maxSMB)
         this.profile.put("tddlastHrs",tddlastHrs)
+
 
         val insulin = activePlugin.activeInsulin
         val insulinType = insulin.friendlyName
@@ -665,6 +673,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //this.profile.put("tddlastHaverage", tddlastHaverage)
         this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
+        if (modelFile.exists()){
+            modelai = true
+        }
+        this.profile.put("modelai", modelai)
         //tddAIMI = TddCalculator(aapsLogger,rh,activePlugin,profileFunction,dateUtil,iobCobCalculator, repository)
         this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.totalAmount)
         this.mealData.put("TDDAIMIBASAL3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.basalAmount)
@@ -692,6 +704,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
 
         this.profile.put("insulinR", insulinR)
+        this.profile.put("smbToGive", calculateSMBFromModel())
 
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
