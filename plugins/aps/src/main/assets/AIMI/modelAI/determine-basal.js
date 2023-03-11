@@ -398,28 +398,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var circadian_sensitivity = 1;
     var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
     var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
-        /*var circadian_sensitivity = 1;
-        if (nowdec >= 0 && nowdec < 2){
-            //circadian_sensitivity = 1.4;
-            circadian_sensitivity = (0.09130*Math.pow(nowdec,3))-(0.33261*Math.pow(nowdec,2))+1.4;
-        } else if (nowdec >= 2 && nowdec < 3){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.0869*Math.pow(nowdec,3))-(0.05217*Math.pow(nowdec,2))-(0.23478*nowdec)+0.8;
-        } else if (nowdec >= 3 && nowdec < 8){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.0007*Math.pow(nowdec,3))-(0.000730*Math.pow(nowdec,2))-(0.0007826*nowdec)+0.6;
-        } else if (nowdec >= 8 && nowdec < 11){
-             //circadian_sensitivity = 0.6;
-             circadian_sensitivity = (0.001244*Math.pow(nowdec,3))-(0.007619*Math.pow(nowdec,2))-(0.007826*nowdec)+0.4;
-        } else if (nowdec >= 11 && nowdec < 15){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.00078*Math.pow(nowdec,3))-(0.00272*Math.pow(nowdec,2))-(0.07619*nowdec)+0.8;
-        } else if (nowdec >= 15 && nowdec <= 22){
-             circadian_sensitivity = 1.0;
-        } else if (nowdec >= 22 && nowdec <= 24){
-            //circadian_sensitivity = 1.2;
-            circadian_sensitivity = (0.000125*Math.pow(nowdec,3))-(0.0015*Math.pow(nowdec,2))-(0.0045*nowdec)+1.2;
-        }*/
+
     circadian_sensitivity = round(circadian_sensitivity,2);
     enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
 
@@ -488,7 +467,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }else{
     var BFIOB = false;
     }
-    if (BFIOB===true && profile.extendedsmbCount === 1 && delta > 0){
+    /*if (BFIOB===true && profile.extendedsmbCount === 1 && delta > 0){
         rT.reason += ". force basal because iTime is running and BFIOB is enable :"+(basal*10/60)*60+" U";
         rT.temp = 'absolute';
         rT.duration = 60;
@@ -535,38 +514,17 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             rT.units = (LastManualBolus * profile.b30_bolus)/100;
             rT.reason += "B30 Bolus" + rT.units + "U. Event was programmed at " + profile.b30_bolus_duration + " minutes after the manual bolus.";
             return rT;
-     }
-
-
+     }*/
 
         basal = iTimeActivation && bg > 100 && aimi_activity === false ? basal / circadian_sensitivity : basal;
         basal = Math.max(profile.current_basal * 0.5,basal);
         enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
-        var statTirBelow = meal_data.StatLow7;
-        //var statinrange = meal_data.StatInRange7;
         var currentTIRLow = meal_data.currentTIRLow;
         var CurrentTIRinRange = meal_data.currentTIRRange;
         var CurrentTIRAbove = meal_data.currentTIRAbove;
 
-
         enlog +="TDD  : "+TDD+"\n";
-
-        //var smbTDD = 0;
-
-        var AIMI_BasalAv3 = (meal_data.TDDAIMIBASAL3/24);
-        var AIMI_BasalAv7 = (meal_data.TDDAIMIBASAL7/24);
-        AIMI_BasalAv7 -= (AIMI_BasalAv7 * (statTirBelow/100) * 1.618);
-        AIMI_BasalAv3 -= (AIMI_BasalAv3 * (statTirBelow/100) * 1.618);
-        //enlog += "###Basal average 7 days : "+AIMI_BasalAv7+"### \n";
-        //enlog += "###Basal average 3 days : "+AIMI_BasalAv3+"### \n";
-        var AIMI_Basal = (AIMI_BasalAv3 + AIMI_BasalAv7) / 2;
-        AIMI_Basal = round((AIMI_Basal + (AIMI_Basal*0.65))/2,2);
-        enlog += "###AIMI Basal proposition : "+AIMI_Basal+"### \n";
-        //enlog += "AIMI basal proposal for the day : "+AIMI_Basal+", AIMI basal proposal for the night : "+AIMI_Basal*0.65+" \n";
-
-
-
     if (meal_data.TDDAIMI3){
     var TDDaverage3 = meal_data.TDDAIMI3;
     }else{
@@ -602,13 +560,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var csf = profile.sens / profile.carb_ratio ;
 
     var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
-    //var EBG180 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest2,2));
-    //var EBG120 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBGTest3,2));
     var EBG60 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
     var REBG = round(EBG / min_bg,2);
     var REBG60 = round(EBG60 / min_bg,2);
-    var EBX = Math.max(0,round(Math.min(EBG,EBG60),2));
-    var REBX = Math.max(0.5,round(Math.min(REBG60,REBG),2));
     var Hypo_ratio = 1;
 
      if (currentTIRLow > 10 || AIMI_BreakFastLight || circadian_smb > (-3) ){
@@ -626,7 +580,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      sensitivityRatio = c/(c+target_bg-normalTarget);
      var sensitivityTDD = Math.max(0.5,aimisensitivity);
      enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
-     //sensitivityRatio = REBX;
      // limit sensitivityRatio to profile.autosens_max (1.2x by default)
      sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
      sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
@@ -1325,10 +1278,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
                 console.log(enlog);
                 }
-                /*console.log("Pump extrapolated TDD = "+tdd_pump);
-                console.log("tdd7 using 7-day average "+tdd7);
-                console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD);}
-                console.log("Current sensitivity is " +variable_sens+" based on current bg");*/
                 console.log("eRatio : "+eRatio);
                 console.log("-------------");
                 console.log("- TriggerPredSMB : "+TriggerPredSMB);
@@ -1492,8 +1441,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += ", \naimi_delta : "+aimi_delta;
         rT.reason += (meal_data.TDDAIMI3 ? (", TDD : "+round(TDD,1)) : "No TDD 3 days");
         rT.reason += ", CurrentTIR : "+round(CurrentTIRinRange,1)+"%";
-        rT.reason += (currentTIRLow>5 ? (", current TIR low  : "+round(currentTIRLow,1)+"% may be you can try this basal value (to consider this value you have to get 7 days of data) : " +round(AIMI_Basal,2)) : (", current TIR low: "+round(currentTIRLow,1)+"%"));
-        rT.reason += (CurrentTIRAbove>10 ? (", current TIR above  : "+round(CurrentTIRAbove,1)+"% may be you can try this basal value (to consider this value you have to get 7 days of data): " +round(AIMI_Basal,2)) : (", current TIR above : "+round(CurrentTIRAbove,1)+"%"));
         rT.reason += (iTimeActivation === true ? (", iTime : "+iTime+"/"+iTimeProfile) : (", iTime is disable"));
         rT.reason += (profile.current_basal !== basal ? (", new basal : "+round(basal,2)+" instead of : "+profile.current_basal) : "");
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
@@ -1798,15 +1745,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
             }
             }
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
-
-            /*var AIMI_UAM_CAP = lastHourTIRLow >= 5 && last2HourTIRAbove < 4 ? ((profile.key_use_AIMI_CAP/100) * basal) * 0.8 : (profile.key_use_AIMI_CAP/100) * basal;
-            AIMI_UAM_CAP = Math.min(AIMI_UAM_CAP,(profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100));
-            rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
-            }else{
-            var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
-            rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
-            }*/
-
             var roundSMBTo = 1 / profile.bolus_increment;
             var nosmb = false;
             var AI = false;
@@ -2021,10 +1959,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 rT.reason += "; setting " + durationReq + "m low temp of " + smbLowTempReq + "U/h";
             }
             rT.reason += ". ";
-
-            if (nowdec > 0 && nowdec < 7){
-            rT.reason += " ; Basal proposition : " + AIMI_Basal;
-            }
             //allow SMBs every 3 minutes by default
             var SMBInterval = 3;
             if (profile.SMBInterval) {
@@ -2097,8 +2031,8 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             var rate = round_basal(basal*10,profile);
 
-        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit) {
-            if(bg < 100 && delta <= 5) {
+        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg =< b30upperLimit) {
+            if(bg < 100 && delta <= 5 && delta > 0) {
                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
                 var durationReq = 20;
                 rT.duration = durationReq;
@@ -2114,7 +2048,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 rT.duration = durationReq;
                 var rate = round_basal(basal*6,profile);
             }
-        } else if (iTimeActivation === true && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170) {
+        } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150) {
             rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
             var durationReq = 20;
             rT.duration = durationReq;
