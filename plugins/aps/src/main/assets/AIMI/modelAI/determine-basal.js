@@ -1270,7 +1270,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 console.log(", UPDATE7 : creating one more case accelerating_up = 1 to send a bigger smb in full UAM.");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
-                console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
+                console.error(" aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
                 console.error("\n");
                 console.error(" aimismb : ",aimismb," b30Ko : ",b30Ko," iTime : ",iTime," TDD : ",TDD," sensitivityRatio : ",sensitivityRatio);
                 console.error("\n");
@@ -1300,7 +1300,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                     console.log("-------------");
                     }
                 }
-
 
     //console.error(insulinPeakTime, insulinPeak5m, profile.insulinPeakTime, profile.curve);
     //console.log("curve prediction : "+curvepred);
@@ -2031,7 +2030,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
             var rate = round_basal(basal*10,profile);
 
-        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg =< b30upperLimit) {
+        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <=b30upperLimit) {
             if(bg < 100 && delta <= 5 && delta > 0) {
                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
                 var durationReq = 20;
