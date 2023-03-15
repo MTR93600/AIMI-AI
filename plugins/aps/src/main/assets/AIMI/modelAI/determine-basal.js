@@ -422,15 +422,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     enlog += "\nC1 = "+C1+" and C2 = "+C2;
     var UAMAIMIReason = "";
-    var aimismb = true;
     var b30activity = iob_data.iob - iob_data.basaliob;
     console.log("\nb30activity : "+round(b30activity,2)+" ; ");
 
-   if (delta <= b30upperdelta && bg < b30upperLimit && iTime > 180){
-       aimismb = false;
-       }else if (bg < 100 && iTime > 180){
-       aimismb = false;
-       }
 
     basal = basal / circadian_sensitivity;
     basal = Math.max(profile.current_basal * 0.5,basal);
@@ -1178,7 +1172,7 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
                 if ( meal_data.TDDAIMI3 ){
                 console.error(" aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
                 console.error("\n");
-                console.error(" aimismb : ",aimismb," iTime : ",iTime," TDD : ",TDD," sensitivityRatio : ",sensitivityRatio);
+                console.error(" TDD : ",TDD," sensitivityRatio : ",sensitivityRatio);
                 console.error("\n");
                 console.error("\n");
 
@@ -1351,7 +1345,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
         var aimiDIA = round(dia*60*circadian_sensitivity,2);
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
-        rT.reason += " aimismb : "+aimismb+" ; ";
         rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
         rT.reason += "insulinR test : "+profile.insulinR+" ; ";
@@ -1412,11 +1405,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
     if ( maxDelta > 0.20 * bg && iTimeActivation === false){
         console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
-        enableSMB = false;
-    }
-    if (aimismb === false) {
-        console.error("aimismb :",aimismb," ; ");
-        rT.reason += "BG value is lesser than "+b30upperLimit+" aimismb is "+aimismb+" ; ";
         enableSMB = false;
     }
 
