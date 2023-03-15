@@ -443,10 +443,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var TriggerPredSMB = round( bg - (iob_data.iob * sens) ) + round( 240 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var csf = profile.sens / profile.carb_ratio ;
 
-    var EBG =Math.max(0, round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + bg,2));
-    var EBG60 = Math.max(0,round((0.02 * glucose_status.delta * glucose_status.delta) + (0.58 * glucose_status.long_avgdelta) + HyperPredBG,2));
-    var REBG = round(EBG / min_bg,2);
-    var REBG60 = round(EBG60 / min_bg,2);
     var Hypo_ratio = 1;
 
      if (currentTIRLow > 10 || circadian_smb > (-3) ){
