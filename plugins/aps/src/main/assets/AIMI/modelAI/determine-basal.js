@@ -409,16 +409,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     insulinPeakTime = iTimeActivation && bg > 100 ? insulinPeakTime * circadian_sensitivity : insulinPeakTime;
     //enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
 
-    var AIMI_BreakFastLight = profile.key_use_AIMI_BreakFastLight;
+
     var AIMI_Power = profile.enable_AIMI_Power;
-    var AIMI_BL_StartTime = profile.key_AIMI_BreakFastLight_timestart;
-    var AIMI_BL_EndTime = profile.key_AIMI_BreakFastLight_timeend;
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
     var AIMI_BG_ACC = glucose_status.delta / glucose_status.short_avgdelta;
     enlog += "\nAIMI_BG_ACC : "+AIMI_BG_ACC;
     enlog += "\n";
     var b30Ko = false;
-    if (AIMI_BreakFastLight && profile.key_use_disable_b30_BFL){b30Ko = true;}
     var AIMI_ACC = false;
 
 
@@ -426,13 +423,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     AIMI_ACC = true;
     enlog += "\nAIMI_ACC for fast sugar : "+AIMI_ACC;
     }
-
-
-    if (nowdec >= AIMI_BL_EndTime){
-        AIMI_BreakFastLight = false;
-    }
-    enlog += "\nAIMI_BreakFastLight = "+AIMI_BreakFastLight;
-
 
     var C1 = bg + glucose_status.delta;
     var C2 = (profile.min_bg * 1.618)-(glucose_status.delta * 1.618);
@@ -516,7 +506,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var REBG60 = round(EBG60 / min_bg,2);
     var Hypo_ratio = 1;
 
-     if (currentTIRLow > 10 || AIMI_BreakFastLight || circadian_smb > (-3) ){
+     if (currentTIRLow > 10 || circadian_smb > (-3) ){
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
@@ -1169,7 +1159,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if ( meal_data.TDDAIMI3 ){
         //var future_sens = ( 277700 / (TDD * eventualBG));
         //var future_sens = round(future_sens,1);
-        if(AIMI_ISF && AIMI_UAM && !AIMI_BreakFastLight && !iTimeActivation){
+        if(AIMI_ISF && AIMI_UAM && !iTimeActivation){
 
             //var future_sens = ( 277700 / (TDD * TrigPredAIMI));
             var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
@@ -1196,19 +1186,9 @@ var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) +
 var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
 var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
 var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
-if (TriggerPredSMB_future_sens_45 < 100 && iTimeActivation && aimi_bg < 150 && nowdec >= AIMI_BL_EndTime && iTime > 180 && iTime > 180) {
-AIMI_BreakFastLight = true;
-AIMI_BL_StartTime = nowdec;
-AIMI_BL_EndTime = AIMI_BL_StartTime + 2;
-}
 
 UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45+", TriggerPredSMB_future_sens_35 :"+TriggerPredSMB_future_sens_35+", ";
-if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= AIMI_BL_EndTime){
 
-    var future_sens = sens;
-    console.log("*****Future_sens is not use with light breakfast");
-
-}
                 console.error("\n");
                 console.log("--------------");
                 console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
@@ -1376,7 +1356,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
-    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", ISF: " + convert_bg(sens, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", eRatio: " + eRatio + ", BFL: " + AIMI_BreakFastLight + ", Target: " +convert_bg(target_bg, profile) + ",minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
+    rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", ISF: " + convert_bg(sens, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", eRatio: " + eRatio + ", Target: " +convert_bg(target_bg, profile) + ",minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
     if (lastCOBpredBG > 0) {
         rT.reason += ", COBpredBG " + convert_bg(lastCOBpredBG, profile);
     }
@@ -1454,7 +1434,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         enableSMB = false;
     }
     //var boosteat = glucose_status.delta + glucose_status.short_avgdelta + glucose_status.long_avgdelta;
-    if ( maxDelta > 0.20 * bg && iTimeActivation === false && !AIMI_BreakFastLight ){
+    if ( maxDelta > 0.20 * bg && iTimeActivation === false){
         console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
         enableSMB = false;
