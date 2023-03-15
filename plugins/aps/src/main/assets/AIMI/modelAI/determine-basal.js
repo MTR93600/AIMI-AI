@@ -406,7 +406,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var insulinPeakTime = 60;
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
-    insulinPeakTime = iTimeActivation && bg > 100 ? insulinPeakTime * circadian_sensitivity : insulinPeakTime;
+    insulinPeakTime = insulinPeakTime * circadian_sensitivity;
     //enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
 
 
