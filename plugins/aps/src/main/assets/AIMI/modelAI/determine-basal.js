@@ -178,13 +178,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var delta = glucose_status.delta;
     var shortAvgDelta = glucose_status.short_avgdelta;
     var longAvgDelta = glucose_status.long_avgdelta;
-    var DeltaPctS = 1;
-    var DeltaPctL = 1;
-    var DeltaPctD = 1;
-    // Calculate percentage change in delta, short to now
-    if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
-    if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
-    if (glucose_status.short_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+    ),2);
     if (currentTime) {
         deliverAt = new Date(currentTime);
     }
@@ -1282,22 +1276,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
         minPredBG = Math.min(minPredBG, maxCOBPredBG);
     }
 
-    var aimi_rise = 1, sens_predType = "NA" ;
-    if (iTimeActivation){
-        if (DeltaPctS > 1 && DeltaPctL > 1.5) sens_predType = "UAM+"; // with acceleration
-        if (UAMpredBG > 160 && bg < 140){
-        sens_predType = "UAM+"; // when predicted high and bg is lower
-        }else if (UAMpredBG >= 240 && bg < 160 && aimi_delta >= 8){
-        sens_predType = "UAM+";
-        }
-    }
-    if (sens_predType == "UAM+"){
-    aimi_rise = (bg <= 140 && UAMpredBG > bg ? 0.75 : 0.5);
-    aimi_rise = (bg > 140 && delta >= 15 ? 0.3 : aimi_rise);
-    minBG = Math.max(minPredBG,minGuardBG); // go with the largest value for UAM+
-    }
-
-
     rT.COB=meal_data.mealCOB;
     rT.IOB=iob_data.iob;
     rT.reason="COB: " + round(meal_data.mealCOB, 1) + ", Dev: " + convert_bg(deviation, profile) + ", BGI: " + convert_bg(bgi, profile) + ", ISF: " + convert_bg(sens, profile) + ", CR: " + round(profile.carb_ratio, 2) + ", eRatio: " + eRatio + ", Target: " +convert_bg(target_bg, profile) + ",minPredBG " + convert_bg(minPredBG, profile) + ", minGuardBG " + convert_bg(minGuardBG, profile) + ", IOBpredBG " + convert_bg(lastIOBpredBG, profile);
@@ -1319,7 +1297,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
         var aimiDIA = round(dia*60*circadian_sensitivity,2);
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
-        rT.reason += "sens_predType : "+sens_predType+" ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
         rT.reason += "insulinR test : "+profile.insulinR+" ; ";
         rT.reason += "AISMB : "+profile.smbToGive+" U ; ";
