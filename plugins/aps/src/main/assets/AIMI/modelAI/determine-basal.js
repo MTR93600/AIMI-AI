@@ -380,10 +380,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimi_bg = (bg + (bg + glucose_status.delta))/2;
     aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
     }
-    //enlog += "aimi_bg : "+aimi_bg+", aimi_delta : "+aimi_delta+"\n";
-    /*var autoAIMIsmb = (iob_data.iob - tddlastHaverage) > 0 && lastHourTIRLow ===0 && AIMI_UAM && aimi_delta > 5 ? iob_data.iob - tddlastHaverage : 0;
-    enlog += "\nautoAIMIsmb : "+autoAIMIsmb+", ";*/
-
     var iTime_Start_Bolus = profile.iTime_Start_Bolus;
     var iTimeProfile = profile.iTime;
     var LastManualBolus = meal_data.lastBolusNormalUnits;
@@ -400,16 +396,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
 
     circadian_sensitivity = round(circadian_sensitivity,2);
-    enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
-
     var iTimeActivation = AIMI_UAM && aimisafesensor === false ? true : false;
     var insulinPeakTime = 60;
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
     insulinPeakTime = insulinPeakTime * circadian_sensitivity;
-    //enlog += " ; insulinPeakTime : "+insulinPeakTime+"\n";
-
-
     var AIMI_Power = profile.enable_AIMI_Power;
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
 
@@ -441,11 +432,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        aimismb = false;
        }
 
-    if (meal_data.countBolus ===1 && nowdec >=5 && nowdec <= 11 && AIMI_IOBpredBGbf){
-    var BFIOB = true;
-    }else{
-    var BFIOB = false;
-    }
     basal = basal / circadian_sensitivity;
     basal = Math.max(profile.current_basal * 0.5,basal);
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
@@ -999,10 +985,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             }
             if (!meal_data.TDDAIMI3){
             UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
-            //UAMpredBG = BFIOB || AIMI_UAM === false ? IOBpredBGs[IOBpredBGs.length-1] + (round((-iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) : UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log(( Math.max(UAMpredBGs[UAMpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + predUCI;
+
             //console.error(predBGI, predCI, predUCI);
             }else{
-            if (BFIOB || AIMI_UAM === false) {
+            if (AIMI_UAM === false) {
                 // calculate insulin activity
                 insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
