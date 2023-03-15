@@ -412,16 +412,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var AIMI_Power = profile.enable_AIMI_Power;
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
-    var AIMI_BG_ACC = glucose_status.delta / glucose_status.short_avgdelta;
-    enlog += "\nAIMI_BG_ACC : "+AIMI_BG_ACC;
-    enlog += "\n";
-    var AIMI_ACC = false;
-
-
-    if (AIMI_BG_ACC < 1 && glucose_status.delta >= 20){
-    AIMI_ACC = true;
-    enlog += "\nAIMI_ACC for fast sugar : "+AIMI_ACC;
-    }
 
     var C1 = bg + glucose_status.delta;
     var C2 = (profile.min_bg * 1.618)-(glucose_status.delta * 1.618);
