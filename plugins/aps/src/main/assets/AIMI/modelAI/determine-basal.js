@@ -372,8 +372,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     aimi_bg = (bg + (bg + glucose_status.delta))/2;
     aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
     }
-    var iTime_Start_Bolus = profile.iTime_Start_Bolus;
-    var iTimeProfile = profile.iTime;
+
     var LastManualBolus = meal_data.lastBolusNormalUnits;
     //var now = new Date().getHours();
     var date_now = new Date();
@@ -424,7 +423,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = variable_sens;
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
     sens = glucose_status.delta < 0 && iTimeActivation && aimi_bg < 150 ? profile.sens : sens;
-    enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTimeActivation && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-iTime-TIRLow : "+sens+ " \n" : " \n";
+    enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTimeActivation && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-aimi-TIRLow : "+sens+ " \n" : " \n";
     }else{
     sens = iTimeActivation && glucose_status.delta > 15 ? profile.sens / 2 : Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
     enlog += iTimeActivation && glucose_status.delta > 15 ? "ISF from profile divide by 2 because iTimeActivation && glucose_status.delta > 15 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
@@ -1622,7 +1621,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var rate = round_basal(basal*10,profile);
 
         }else if (iTimeActivation === true && lastbolusAge < profile.b30_duration && meal_data.countBolus === 1) {
-            rT.reason += ". force basal because AIMI is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - iTime);
+            rT.reason += ". force basal because AIMI is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - lastbolusAge);
             //rT.deliverAt = deliverAt;
             var durationReq = profile.b30_duration;
             rT.duration = durationReq;
