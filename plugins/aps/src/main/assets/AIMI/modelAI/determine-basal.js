@@ -339,9 +339,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
         //console.log(" (autosens ratio "+sensitivityRatio+")");
     }
-    /* ************************
-       ** TS AutoTDD code    **
-       ************************ */
+
        console.error("--------------");
        console.error("\n");
        console.error( " AIMI-Variant Extended Bolus & b30bolus 3.2.0-dev-beta1-AIMI");
@@ -485,98 +483,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      } else {
          enlog +="Basal unchanged: "+basal+";\n";
      }
-     }else if (!profile.temptargetSet && HypoPredBG <= 125 && profile.sensitivity_raises_target && C1 < C2){//&& glucose_status.delta <= 0
-
-        var hypo_target = round(Math.min(200, min_bg + (EBG - min_bg)/3 ),0);
-        hypo_target *= Math.max(1,circadian_sensitivity);
-        hypo_target = Math.min(144,hypo_target);
-       if (EBG <= 120 && HypoPredBG < 90) {
-            hypo_target = 130 * Math.max(1,circadian_sensitivity);
-            hypo_target = Math.min(144,hypo_target);
-
-            enlog +="target_bg from "+target_bg+" to "+hypo_target+" because EBG is lesser than 100 and HypoPredBG < 80 : "+EBG+"; \n";
-        }else if (EBG60 <= 90 && EBG60 >0 ) {
-            hypo_target = 100 *Math.max(1,circadian_sensitivity);
-            hypo_target = Math.min(110,hypo_target);
-            enlog +="target_bg from "+target_bg+" to "+hypo_target+" because EBG60 is lesser than 90: "+EBG60+";\n ";
-        }else if (target_bg === hypo_target) {
-            enlog +="target_bg unchanged: "+hypo_target+";\n";
-        }/*else{
-            hypo_target = 100;
-            enlog +="target_bg from "+target_bg+" to "+hypo_target+" because HypoPredBG is lesser than 125 : "+HypoPredBG+";\n";
-        }*/
-        target_bg = hypo_target + circadian_smb;
-        halfBasalTarget = 160;
-        var c = halfBasalTarget - normalTarget;
-        //sensitivityRatio = c/(c+target_bg-normalTarget);
-        if (meal_data.TDDAIMI3){
-         sensitivityRatio = c/(c+target_bg-normalTarget);
-         var sensitivityTDD = Math.max(0.5,aimisensitivity);
-         enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
-         //sensitivityRatio = REBX;
-         // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-         sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
-         sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
-         }else{
-         sensitivityRatio = c/(c+target_bg-normalTarget);
-         sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
-
-         }
-
-        sensitivityRatio = round(sensitivityRatio,2);
-        enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
-        sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-        basal = circadian_smb > 5 ? profile.current_basal / 2 : profile.current_basal * sensitivityRatio;
-        basal = round_basal(basal, profile);
-        if (basal !== profile_current_basal) {
-            enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
-        } else {
-            enlog +="Basal unchanged: "+basal+";\n";
-        }
-    } else if (!profile.temptargetSet && HyperPredBG >= 180 && profile.resistance_lowers_target) {
-
-        var hyper_target = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
-        hyper_target *= Math.min(circadian_sensitivity,1);
-        hyper_target = Math.max(hyper_target,80);
-        if (target_bg === hyper_target) {
-            enlog +="target_bg unchanged: "+hyper_target+";\n";
-        } else {
-            enlog +="target_bg from "+target_bg+" to "+hyper_target+" because HyperPredBG > 180 : "+HyperPredBG+" ;\n";
-        }
-        target_bg = hyper_target+circadian_smb;
-        C1 = bg + (glucose_status.delta*1.618);
-        C2 = target_bg * 1.618;
-        halfBasalTarget = 160;
-        var c = halfBasalTarget - normalTarget;
-        //sensitivityRatio = c/(c+target_bg-normalTarget);
-        if (meal_data.TDDAIMI3){
-             sensitivityRatio = c/(c+target_bg-normalTarget);
-             var sensitivityTDD = Math.max(0.5,aimisensitivity);
-             enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
-             //sensitivityRatio = REBX;
-             // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
-             sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
-             sensitivityRatio = glucose_status.delta < 0 && sensitivityRatio > 1 ? 1 : sensitivityRatio;
-             }else{
-             sensitivityRatio = c/(c+target_bg-normalTarget);
-             sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
-             sensitivityRatio = glucose_status.delta < 0 && sensitivityRatio > 1 ? 1 : sensitivityRatio;
-
-             }
-        sensitivityRatio = round(sensitivityRatio,2);
-        enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
-        if (iTimeActivation){
-        basal = profile.current_basal * sensitivityRatio;
-        basal = round_basal(basal, profile);
-
-        if (basal !== profile_current_basal) {
-            enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
-        } else {
-            enlog +="Basal unchanged: "+basal+";\n";
-        }
-        }
-    }
+     }
 
     //set activity behavior
        if (aimi_activity === true){
