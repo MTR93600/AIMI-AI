@@ -446,7 +446,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }else{
     var BFIOB = false;
     }
-    basal = iTimeActivation && bg > 100 && aimi_activity === false ? basal / circadian_sensitivity : basal;
+    basal = basal / circadian_sensitivity;
     basal = Math.max(profile.current_basal * 0.5,basal);
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
