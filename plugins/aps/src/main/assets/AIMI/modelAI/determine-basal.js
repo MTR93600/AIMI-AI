@@ -1133,13 +1133,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
                 console.error("\n");
                 console.log("--------------");
                 console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
-                console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
-                console.log(", UPDATE2 : if calibration sensor, disable aimi");
-                console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
-                console.log(", UPDATE4 : Merge milos 3.2.0-beta1");
-                console.log(", UPDATE5 : deccelerating_up = 1 interval will be 20 minutes and B30 action");
-                console.log(", UPDATE6 : creating a new b30_bolus settings in b30 section. this one will run xx minutes after the manual bolus and will be a % of this one.")
-                console.log(", UPDATE7 : creating one more case accelerating_up = 1 to send a bigger smb in full UAM.");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error(" aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
