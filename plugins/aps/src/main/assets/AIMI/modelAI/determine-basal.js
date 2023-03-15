@@ -400,7 +400,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var C2 = (profile.min_bg * 1.618)-(glucose_status.delta * 1.618);
 
     enlog += "\nC1 = "+C1+" and C2 = "+C2;
-    var UAMAIMIReason = "";
+
     var b30activity = iob_data.iob - iob_data.basaliob;
     console.log("\nb30activity : "+round(b30activity,2)+" ; ");
 
@@ -439,8 +439,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
 
 
-    var HypoPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
-    var HyperPredBG = round( bg - (iob_data.iob * sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
+
+
     var TriggerPredSMB = round( bg - (iob_data.iob * sens) ) + round( 240 / 5 * ( minDelta - round(( -iob_data.activity * sens * 5 ), 2)));
     var csf = profile.sens / profile.carb_ratio ;
 
@@ -1002,14 +1002,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     console.error("UAM Impact:",uci,"mg/dL per 5m; UAM Duration:",UAMduration,"hours");
     console.log("EventualBG is" +eventualBG+" ;");
-    //var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
+
     var AIMI_ISF = profile.key_use_AimiUAM_ISF;
     if ( meal_data.TDDAIMI3 ){
         //var future_sens = ( 277700 / (TDD * eventualBG));
         //var future_sens = round(future_sens,1);
         if(AIMI_ISF && AIMI_UAM && !iTimeActivation){
 
-            //var future_sens = ( 277700 / (TDD * TrigPredAIMI));
             var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
             console.log("*****Future state sensitivity is " +future_sens+" based on bg("+bg+")\n");
 
@@ -1030,12 +1029,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     round(future_sens);
     future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? profile.sens : round(future_sens);
 var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
-var TriggerPredSMB_future_sens_60 = round( bg - (iob_data.iob * future_sens) ) + round( 60 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
-var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
-var TriggerPredSMB_future_sens_35 = round( bg - (iob_data.iob * future_sens) ) + round( 35 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2)));
-var TrigPredAIMI =  (TriggerPredSMB_future_sens_60 + TriggerPredSMB_future_sens_35) / 1.618;
-
-UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45+", TriggerPredSMB_future_sens_35 :"+TriggerPredSMB_future_sens_35+", ";
 
                 console.error("\n");
                 console.log("--------------");
@@ -1052,14 +1045,6 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
                 }
                 console.log("eRatio : "+eRatio);
                 console.log("-------------");
-                console.log("- TriggerPredSMB : "+TriggerPredSMB);
-                console.log("- TriggerPredSMB_future_sens_60 : "+TriggerPredSMB_future_sens_60);
-                console.log("- TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45);
-                console.log("- TriggerPredSMB_future_sens_35 : "+TriggerPredSMB_future_sens_35);
-                console.log("- TrigPredAIMI : "+TrigPredAIMI);
-                console.log("- EBG : "+EBG+" ; REBG : "+REBG);
-                console.log("- EBG60 : "+EBG60+" ; REBG60 : "+REBG60);
-                console.log("- HypoPredBG : "+HypoPredBG+" ; HyperPredBG : "+HyperPredBG);
                 console.log("-------------");
                 console.log("- target_bg : "+target_bg);
                 console.log("- Sensitivity ratio set to "+sensitivityRatio+" based on temp target of"+target_bg);
@@ -1207,7 +1192,7 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
     //var carbsReqBG = naive_eventualBG;
-    var carbsReqBG = iTimeActivation ? TriggerPredSMB_future_sens_45 : naive_eventualBG;
+    var carbsReqBG = naive_eventualBG;
     if ( carbsReqBG < 40 ) {
         carbsReqBG = Math.min( minGuardBG, carbsReqBG );
     }
@@ -1674,8 +1659,7 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
          rate = round_basal(maxSafeBasal, profile);
          }
-         rT.reason += ",TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45+",";
-        rT.reason += UAMAIMIReason;
+
         insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
 
         if (insulinScheduled >= insulinReq * 2) { // if current temp would deliver >2x more than the required insulin, lower the rate
