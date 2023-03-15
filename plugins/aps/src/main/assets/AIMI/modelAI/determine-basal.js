@@ -1965,28 +1965,18 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 SMBInterval = Math.min(10,Math.max(1,profile.SMBInterval));
             }
 
-            if (iTimeActivation && AIMI_BreakFastLight){
+            if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
             SMBInterval = 15;
-            }else if (iTimeActivation && UAMpredBG < 100 && iTime > 100 && profile.accelerating_up === 0){
-            SMBInterval = 20;
-            }else if (iTimeActivation && AIMI_lastBolusSMBUnits >= 0.8 * AIMI_UAM_CAP && UAMpredBG > 100 && profile.accelerating_up === 0){
-            SMBInterval = profile.deccelerating_up === 1 ? 20 : 15 * aimi_rise;
-                if (bg > 170){
-                rT.reason += ",Forcing basal because bg > 170";
-                var durationReq = SMBInterval;
-                rT.duration = durationReq;
-                var rate = round_basal(basal*10,profile);
-                }else if (delta > 0 && SMBInterval === 20 && profile.deccelerating_up === 1 ){
-                rT.reason += ",Forcing basal because deccelerating_up is true";
-                var durationReq = SMBInterval;
-                rT.duration = durationReq;
-                var rate = round_basal(basal*10,profile);
-                }
-            }else if (iTimeActivation && AIMI_lastBolusSMBUnits > 0.6 * AIMI_UAM_CAP && profile.enable_AIMI_Break && profile.accelerating_up === 0 || iTimeActivation && countSMB > 2 && profile.accelerating_up === 0){
-            SMBInterval = 10 * aimi_rise;
-            }else if (countsteps === true && recentSteps30Minutes > 900 && recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
-            SMBInterval = 10 * aimi_rise;
-            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+recentSteps30Minutes;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
+            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7){
+            SMBInterval = 15;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
+            }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 200){
+            SMBInterval = 15;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because bg is stable";
+            }else if (circadian_smb > 0){
+            SMBInterval = 10;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
             }
             rT.reason += "SMBInterval : "+SMBInterval+" ; ";
             var nextBolusMins = round(SMBInterval-lastBolusAge,0);
