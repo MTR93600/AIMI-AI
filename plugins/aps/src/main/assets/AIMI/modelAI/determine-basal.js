@@ -178,7 +178,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var delta = glucose_status.delta;
     var shortAvgDelta = glucose_status.short_avgdelta;
     var longAvgDelta = glucose_status.long_avgdelta;
-    ),2);
+
     if (currentTime) {
         deliverAt = new Date(currentTime);
     }
