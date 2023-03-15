@@ -175,16 +175,16 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var recentSteps60Minutes = profile.recentSteps60Minutes;
     var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
     // variables for deltas
-        var delta = glucose_status.delta;
-        var shortAvgDelta = glucose_status.short_avgdelta;
-        var longAvgDelta = glucose_status.long_avgdelta;
-        var DeltaPctS = 1;
-        var DeltaPctL = 1;
-        var DeltaPctD = 1;
-        // Calculate percentage change in delta, short to now
-        if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
-        if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
-        if (glucose_status.short_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+    var delta = glucose_status.delta;
+    var shortAvgDelta = glucose_status.short_avgdelta;
+    var longAvgDelta = glucose_status.long_avgdelta;
+    var DeltaPctS = 1;
+    var DeltaPctL = 1;
+    var DeltaPctD = 1;
+    // Calculate percentage change in delta, short to now
+    if (glucose_status.short_avgdelta != 0) DeltaPctS = round(1 + ((glucose_status.delta - glucose_status.short_avgdelta) / Math.abs(glucose_status.short_avgdelta)),2);
+    if (glucose_status.long_avgdelta != 0) DeltaPctL = round(1 + ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
+    if (glucose_status.short_avgdelta <= 0) DeltaPctD = round(1 - ((glucose_status.delta - glucose_status.long_avgdelta) / Math.abs(glucose_status.long_avgdelta)),2);
     if (currentTime) {
         deliverAt = new Date(currentTime);
     }
@@ -1750,7 +1750,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
              AI = profile.modelai === true ? true : false;
              microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
              }
-             }
+
 
             microBolus = Math.floor(microBolus*roundSMBTo)/roundSMBTo;
 
