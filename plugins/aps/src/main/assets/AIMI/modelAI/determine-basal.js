@@ -415,7 +415,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var AIMI_BG_ACC = glucose_status.delta / glucose_status.short_avgdelta;
     enlog += "\nAIMI_BG_ACC : "+AIMI_BG_ACC;
     enlog += "\n";
-    var b30Ko = false;
     var AIMI_ACC = false;
 
 
@@ -1203,7 +1202,7 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
                 if ( meal_data.TDDAIMI3 ){
                 console.error(" aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
                 console.error("\n");
-                console.error(" aimismb : ",aimismb," b30Ko : ",b30Ko," iTime : ",iTime," TDD : ",TDD," sensitivityRatio : ",sensitivityRatio);
+                console.error(" aimismb : ",aimismb," iTime : ",iTime," TDD : ",TDD," sensitivityRatio : ",sensitivityRatio);
                 console.error("\n");
                 console.error("\n");
 
@@ -1845,16 +1844,11 @@ UAMAIMIReason += " TrigPredAIMI : "+TrigPredAIMI+", TriggerPredSMB_future_sens_4
                 var durationReq = 20;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*delta,profile);
-            } else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
+            } else if (bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*8/60)*30;
                 var durationReq = profile.b30_duration;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*8,profile);
-            } else if (b30Ko === false) {
-                rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
-                var durationReq = 20;
-                rT.duration = durationReq;
-                var rate = round_basal(basal*6,profile);
             }
         } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150) {
             rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
