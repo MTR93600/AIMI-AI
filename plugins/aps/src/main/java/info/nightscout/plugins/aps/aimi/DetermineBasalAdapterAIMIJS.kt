@@ -183,7 +183,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val belowTargetAndDropping = bg < targetBg && delta < -2
         val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
         val belowMinThreshold = bg < 70
-        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
+        val stablebg = delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150
+        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob || stablebg) {
             smbToGive = 0.0f
         }
 
@@ -196,6 +197,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         if (smbToGive < 0.0f) {
             smbToGive = 0.0f
+        }
+        if (bg <150 && delta > 0 && delta < 5){
+            smbToGive *= 0.5f
         }
         return smbToGive
     }
@@ -651,17 +655,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             //Round to 0.1
             variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
         } else {
-            variableSensitivity = null
-            // If the above conditions are not met then we are assigning profile's isfMgdl to variableSensitivity
-            val aimisensitivity = 1
-            this.profile.put("aimisensitivity", aimisensitivity)
+            variableSensitivity = profile.getIsfMgdl()
         }
+        tdd?.let { this.profile.put("TDD", tdd) }
+        this.profile.put("aimisensitivity", aimisensitivity)
 
 
 
         this.profile.put("variable_sens", variableSensitivity)
         this.profile.put("lastHourTIRLow", lastHourTIRLow)
-        this.profile.put("TDD", tdd)
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
         this.profile.put("lastPBoluscount", lastPBoluscount)
