@@ -450,6 +450,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
         this.profile.put("mss",maxSMB)
         this.profile.put("tddlastHrs",tddlastHrs)
+        this.profile.put("hourOfDay",hourOfDay)
+        this.profile.put("weekend",weekend)
+
 
 
         val insulin = activePlugin.activeInsulin
