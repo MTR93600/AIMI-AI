@@ -380,8 +380,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
         var currentTIRLow = meal_data.currentTIRLow;
-        var CurrentTIRinRange = meal_data.currentTIRRange;
-        var CurrentTIRAbove = meal_data.currentTIRAbove;
+        var currentTIRinRange = meal_data.currentTIRRange;
+        var currentTIRAbove = meal_data.currentTIRAbove;
 
         enlog +="TDD  : "+TDD+"\n";
     if (meal_data.TDDAIMI3){
@@ -1136,9 +1136,10 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         rT.reason += ", UAMpredBG " + convert_bg(lastUAMpredBG, profile)
     }
     var dia = profile.dia;
+    var aimiDIA = round(dia * 60 * circadian_sensitivity,2);
 
     rT.reason += "; ";
-        rT.reason += "AIMI_UAM : "+AIMI_UAM;
+        /*rT.reason += "AIMI_UAM : "+AIMI_UAM;
         rT.reason += "\naimi_bg : "+aimi_bg;
         rT.reason += ", \naimi_delta : "+aimi_delta;
         rT.reason += (meal_data.TDDAIMI3 ? (", TDD : "+round(TDD,1)) : "No TDD 3 days");
@@ -1149,7 +1150,17 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
         rT.reason += "insulinR test : "+profile.insulinR+" ; ";
-        rT.reason += "AISMB : "+profile.smbToGive+" U ; ";
+        rT.reason += "AISMB : "+profile.smbToGive+" U ; ";*/
+        rT.reason +=" , Variant Model AIMI 14/03/2023";
+        rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
+        rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
+        rT.reason += ", Dia : "+aimiDIA+" minutes";
+        rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
+        rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
+        rT.reason += ",circadian_smb test : "+circadian_smb;
+        //rT.reason += ",aimismb test de valeur : "+aimi_smb;
+        rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
+        rT.reason += (profile.modelai === true ? ", The ai model predicted SMB of "+profile.predictedSMB+"u after safety requirements and rounding to .05, requested "+profile.smbToGive+"u to the pump" : "The ai model need a file which is missing");
 
 
     rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ";

@@ -946,7 +946,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
             rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
             rT.reason += ",circadian_smb test : "+circadian_smb;
-            rT.reason += "aimismb test de valeur : "+aimi_smb;
+            rT.reason += ",aimismb test de valeur : "+aimi_smb;
             rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
             rT.reason += (profile.modelai === true ? ", The ai model predicted SMB after safety requirements and rounding to .05, requested "+profile.smbToGive+"u to the pump" : "The ai model need a file which is missing");
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

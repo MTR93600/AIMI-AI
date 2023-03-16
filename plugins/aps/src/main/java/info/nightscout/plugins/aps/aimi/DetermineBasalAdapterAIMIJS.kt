@@ -691,9 +691,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("insulinR", insulinR)
         val predictedSMB = calculateSMBFromModel()
         var smbToGive = predictedSMB
+        this.profile.put("predictedSMB", smbToGive)
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGive)
+
 
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
