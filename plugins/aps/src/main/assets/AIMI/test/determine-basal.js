@@ -156,26 +156,45 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var delta = glucose_status.delta;
     var shortAvgDelta = glucose_status.short_avgdelta;
     var longAvgDelta = glucose_status.long_avgdelta;
+    var aimi_bg = bg;
+    var aimi_delta = glucose_status.delta;
+    if (glucose_status.delta >= 0 && lastbolusAge > 100){
+    aimi_bg = (bg + (bg - glucose_status.delta))/2;
+    aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+    }else if (glucose_status.delta < 0 && lastbolusAge > 100){
+    aimi_bg = (bg + (bg + glucose_status.delta))/2;
+    aimi_delta = ((bg - aimi_bg) + glucose_status.delta)/2;
+    }
     var systemTime = new Date();
     var dia = profile.dia;
+    var AIMI_UAM = target_bg >= 130 || aimi_activity === true ? false : profile.enable_AIMI_UAM;
     var nowdec = round(systemTime.getHours() + systemTime.getMinutes() / 60, 2);
     var nowminutes = systemTime.getHours() + systemTime.getMinutes() / 60 + systemTime.getSeconds() / 60 / 60;
     nowminutes = round(nowminutes,2);
     var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
     var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
     circadian_sensitivity = round(circadian_sensitivity,2);
-    var dia = profile.dia;
+    var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
     var aimiDIA = round(dia * 60 * circadian_sensitivity,2);
     var lastHourTIRLow = profile.lastHourTIRLow;
     var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
     var currentTIRLow = meal_data.currentTIRLow;
     var currentTIRinRange = meal_data.currentTIRRange;
     var currentTIRAbove = meal_data.currentTIRAbove;
+    var aimisafesensor = false;
+    var iTimeActivation = AIMI_UAM && aimisafesensor === false ? true : false;
     basal = basal/circadian_sensitivity;
     basal = Math.max(profile.current_basal * 0.5,basal);
     basal = round(basal,2);
     var aimi_smb = circadian_smb < 0 ? circadian_smb * -1 : 0;
     aimi_smb = round(Math.log(aimi_smb),2);
+    if (meal_data.TDDAIMI3){
+    var TDDaverage3 = meal_data.TDDAIMI3;
+    }else{
+    var TDDaverage3 = ((basal * 12)*100)/21;
+    }
+    var MagicNumber = profile.sens*TDDaverage3*profile.min_bg;
+    enlog += "TDDaverage3("+TDDaverage3+") and MagicNumber("+MagicNumber+")\n";
     if (currentTime) {
         systemTime = currentTime;
     }
@@ -188,6 +207,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // all other BG values between 11 and 37 mg/dL reflect non-error-code BG values, so we should zero temp for those
     if (bg <= 10 || bg === 38 || noise >= 3) {  //Dexcom is in ??? mode or calibrating, or xDrip reports high noise
         rT.reason = "CGM is calibrating, in ??? state, or noise is high";
+        aimisafesensor = true;
     }
     if (minAgo > 12 || minAgo < -5) { // Dexcom data is too old, or way in the future
         rT.reason = "If current system time "+systemTime+" is correct, then BG data is too old. The last BG data was read "+minAgo+"m ago at "+bgTime;
@@ -195,8 +215,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     } else if ( bg > 60 && flatBGsDetected) {
         if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {
             rT.reason = "CGM was just calibrated";
+            aimisafesensor = true;
         } else {
             rT.reason = "Error: CGM data is unchanged for the past ~45m";
+            aimisafesensor = true;
         }
     }
     if (bg <= 10 || bg === 38 || noise >= 3 || minAgo > 12 || minAgo < -5 || ( bg > 60 && flatBGsDetected )) {
@@ -221,7 +243,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             return rT;
         }
     }
-
+    var iTimeActivation = AIMI_UAM && aimisafesensor === false ? true : false;
     var max_iob = profile.max_iob; // maximum amount of non-bolus IOB OpenAPS will ever deliver
 
     // if min and max are set, then set target to their average
@@ -787,26 +809,31 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     minPredBG = round(minIOBPredBG);
     var fSensBG = Math.min(minPredBG,bg);
 
-        if (TDD) {
-             if (bg > target_bg && glucose_status.delta < 3 && glucose_status.delta > -3 && glucose_status.short_avgdelta > -3 && glucose_status.short_avgdelta < 3 && eventualBG > target_bg && eventualBG < bg ){
-                 var future_sens = ( 1800 / (Math.log((((fSensBG * 0.5) + (bg * 0.5))/insulinDivisor)+1)*TDD));
-                 console.log("Future state sensitivity is " +future_sens+" based on eventual and current bg due to flat glucose level above target");
-                 rT.reason += "Dosing sensitivity: " +future_sens+" using eventual BG;";
-             }else if( glucose_status.delta > 0 && eventualBG > target_bg || eventualBG > bg){
-                 var future_sens = ( 1800 / (Math.log((bg/insulinDivisor)+1)*TDD));
-                 //var future_sens_old = ( 277700 / (TDD * bg));
-                 console.log("Future state sensitivity is " +future_sens+" using current bg due to small delta or variation");
-                 rT.reason += "Dosing sensitivity: " +future_sens+" using current BG;";
-                 }else{
-                var future_sens = ( 1800 / (Math.log((fSensBG/insulinDivisor)+1)*TDD));
-                //var future_sens_old = ( 277700 / (TDD * eventualBG));
-                console.log("Future state sensitivity is " +future_sens+" based on eventual bg due to -ve delta");
-                rT.reason += "Dosing sensitivity: " +future_sens+" using eventual BG;";
-             }
-              future_sens = round(future_sens,1);
-         }else{
-         var future_sens = variable_sens;
-         }
+        var AIMI_ISF = profile.key_use_AimiUAM_ISF;
+        if (TDD){
+            //var future_sens = ( 277700 / (TDD * eventualBG));
+            //var future_sens = round(future_sens,1);
+            if(AIMI_ISF && AIMI_UAM && !iTimeActivation){
+
+                var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
+                console.log("*****Future state sensitivity is " +future_sens+" based on bg("+bg+")\n");
+
+            }else if( AIMI_UAM && aimi_delta >= 10 && iTimeActivation ) {
+            var future_sens = ( MagicNumber / (TDD * ( (UAMpredBG * 0.6) + (bg * 0.4) )));
+            console.log("Future state sensitivity is " +future_sens+" based on a weighted average of bg & UAMpredBG");
+            }else if (iTimeActivation && aimi_delta < 10){
+            var future_sens = ( MagicNumber / (TDD * UAMpredBG));
+            console.log("Future state sensitivity is " +future_sens+" based on UAMpredBG  due to -ve delta")
+            ;
+            }else{
+            var future_sens = sens;
+            }
+        }else{
+        var future_sens = sens;
+        }
+        future_sens = iTimeActivation && lastHourTIRLow > 0 ? round(future_sens * 1.618,1) :
+        round(future_sens);
+        future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? profile.sens : round(future_sens);
     var fractionCarbsLeft = meal_data.mealCOB/meal_data.carbs;
     // if we have COB and UAM is enabled, average both
     if ( minUAMPredBG < 999 && minCOBPredBG < 999 ) {

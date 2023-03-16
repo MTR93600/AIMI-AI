@@ -971,8 +971,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     var AIMI_ISF = profile.key_use_AimiUAM_ISF;
     if (TDD){
-        //var future_sens = ( 277700 / (TDD * eventualBG));
-        //var future_sens = round(future_sens,1);
+
         if(AIMI_ISF && AIMI_UAM && !iTimeActivation){
 
             var future_sens = ( (MagicNumber/1.618) / (TDD * bg));
