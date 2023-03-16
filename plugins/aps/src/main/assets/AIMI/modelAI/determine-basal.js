@@ -106,36 +106,7 @@ function enable_smb(
     console.error("SMB disabled (no enableSMB preferences active or no condition satisfied)");
     return true;
 }
-/*function cgm(bg, iob_data, sens, normalTarget) {
-  // Matrices de transition
-  var A = 1;
-  var B = -sens * iob_data.iob;
-  var H = 1;
-  var Q = 0.01;
-  var R = 0.1;
-  var P = 1;
-  var x = bg-delta;
-  var K;
 
-  // Étape de prédiction
-  var x_pred = A * x + B;
-  var P_pred = A * P * A + Q;
-
-  // Étape de correction
-  K = P_pred * H / (H * P_pred * H + R);
-  x = x_pred + K * (bg - H * x_pred);
-  P = (1 - K * H) * P_pred;
-
-  // Estimation des constantes k1 et k2
-  var k1 = (normalTarget - bg) * x;
-  var k2 = ((bg-delta) - bg) * x;
-
-  // Évolution de la glycémie
-
-  var evobg = -sens * iob_data.iob + k1 * (normalTarget - bg) + k2 * ((bg-delta) - bg);
-
-  return evobg
-}*/
 
 function determine_varSMBratio(profile, bg, target_bg)
 {   // mod 12: let SMB delivery ratio increase f#rom min to max depending on how much bg exceeds target
@@ -162,7 +133,7 @@ function determine_varSMBratio(profile, bg, target_bg)
 
 
 
-var determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime, isSaveCgmSource) {
+var determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime, flatBGsDetected) {
     var rT = {}; //short for requestedTemp
     var b30upperLimit = profile.b30_upperBG;
     var b30upperdelta = profile.b30_upperdelta;
@@ -210,7 +181,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason = "If current system time "+systemTime+" is correct, then BG data is too old. The last BG data was read "+minAgo+"m ago at "+bgTime;
     // if BG is too old/noisy, or is changing less than 1 mg/dL/5m for 45m, cancel any high temps and shorten any long zero temps
     //cherry pick from oref upstream dev cb8e94990301277fb1016c778b4e9efa55a6edbc
-    } else if ( bg > 60 && glucose_status.delta == 0 && glucose_status.short_avgdelta > -1 && glucose_status.short_avgdelta < 1 && glucose_status.long_avgdelta > -1 && glucose_status.long_avgdelta < 1 && !isSaveCgmSource) {
+    } else if ( bg > 60 && flatBGsDetected) {
         if ( glucose_status.last_cal && glucose_status.last_cal < 3 ) {
             rT.reason = "CGM was just calibrated";
             aimisafesensor = true;
@@ -219,9 +190,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             rT.reason = "Error: CGM data is unchanged for the past ~45m";
         }*/
     }
-    //cherry pick from oref upstream dev cb8e94990301277fb1016c778b4e9efa55a6edbc
 
-    if (bg <= 10 || bg === 38 || noise >= 3 || minAgo > 12 || minAgo < -5  ) {//|| ( bg > 60 && glucose_status.delta == 0 && glucose_status.short_avgdelta > -1 && glucose_status.short_avgdelta < 1 && glucose_status.long_avgdelta > -1 && glucose_status.long_avgdelta < 1 ) && !isSaveCgmSource
+
+    if (bg <= 10 || bg === 38 || noise >= 3 || minAgo > 12 || minAgo < -5 || ( bg > 60 && flatBGsDetected )){
         if (currenttemp.rate > basal) { // high temp is running
             rT.reason += ". Replacing high temp basal of "+currenttemp.rate+" with neutral temp of "+basal;
             rT.deliverAt = deliverAt;
@@ -797,7 +768,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // for IOBpredBGs, predicted deviation impact drops linearly from current deviation down to zero
             // over 60 minutes (data points every 5m)
             var predDev = ci * ( 1 - Math.min(1,IOBpredBGs.length/(60/5)) );
-            if (!meal_data.TDDAIMI3){
+            if (!TDD){
             IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev;
              //IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2));
             }else{
@@ -811,7 +782,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
             }
             // calculate predBGs with long zero temp without deviations
-            if ( !meal_data.TDDAIMI3){
+            if ( !TDD){
             var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
             //var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + (round(( -iobTick.iobWithZeroTemp.activity * (1800 / ( TDD * (Math.log(( Math.max(ZTpredBGs[ZTpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ), 2));
             }else{
@@ -853,7 +824,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 //console.error(UAMpredBGs.length,slopeFromDeviations, predUCI);
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
-            if (!meal_data.TDDAIMI3){
+            if (!TDD){
             UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
 
             //console.error(predBGI, predCI, predUCI);
@@ -999,7 +970,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.log("EventualBG is" +eventualBG+" ;");
 
     var AIMI_ISF = profile.key_use_AimiUAM_ISF;
-    if ( meal_data.TDDAIMI3 ){
+    if (TDD){
         //var future_sens = ( 277700 / (TDD * eventualBG));
         //var future_sens = round(future_sens,1);
         if(AIMI_ISF && AIMI_UAM && !iTimeActivation){
@@ -1232,7 +1203,6 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         //rT.reason += "minGuardBG "+minGuardBG+"<"+threshold+": SMB disabled; ";
         enableSMB = false;
     }
-    //var boosteat = glucose_status.delta + glucose_status.short_avgdelta + glucose_status.long_avgdelta;
     if ( maxDelta > 0.20 * bg && iTimeActivation === false){
         console.error("maxDelta",convert_bg(maxDelta, profile),"> 20% of BG",convert_bg(bg, profile),"- disabling SMB");
         rT.reason += "maxDelta "+convert_bg(maxDelta, profile)+" > 20% of BG "+convert_bg(bg, profile)+": SMB disabled; ";
