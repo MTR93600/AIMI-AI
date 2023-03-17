@@ -216,7 +216,8 @@ class DetermineBasalAdapteraiSMB internal constructor(private val injector: HasA
         interpreter.run(modelInputs, output)
         interpreter.close()
         var smbToGive = output[0][0]
-        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        //smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        smbToGive = String.format(Locale.US, "%.4f", smbToGive).toFloat()
         return smbToGive
     }
 

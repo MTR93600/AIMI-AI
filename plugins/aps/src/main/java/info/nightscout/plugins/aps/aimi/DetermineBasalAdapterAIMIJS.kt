@@ -229,16 +229,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         interpreter.run(modelInputs, output)
         interpreter.close()
         var smbToGive = output[0][0]
-        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        //smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        smbToGive = String.format(Locale.US, "%.4f", smbToGive).toFloat()
         return smbToGive
     }
 
     override operator fun invoke(): DetermineBasalResultSMB? {
 
         val predictedSMB = calculateSMBFromModel()
-        var smbToGive = predictedSMB
-        smbToGive = applySafetyPrecautions(smbToGive)
-        smbToGive = roundToPoint05(smbToGive)
+        //var smbToGive = predictedSMB
+        //smbToGive = applySafetyPrecautions(smbToGive)
+        //smbToGive = roundToPoint05(smbToGive)
 
         //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
@@ -696,6 +697,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var smbToGive = predictedSMB
         this.profile.put("predictedSMB", smbToGive)
         smbToGive = applySafetyPrecautions(smbToGive)
+        if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
+            smbToGive = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+        }else if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
+            smbToGive = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+        }
+
         smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGive)
 
