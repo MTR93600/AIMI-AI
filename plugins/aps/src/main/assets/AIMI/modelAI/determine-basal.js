@@ -372,9 +372,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     basal = Math.max(profile.current_basal * 0.5,basal);
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
     if ( meal_data.TDDAIMI3 ){
-        var currentTIRLow = meal_data.currentTIRLow;
-        var currentTIRinRange = meal_data.currentTIRRange;
-        var currentTIRAbove = meal_data.currentTIRAbove;
+        var currentTIRLow = round(meal_data.currentTIRLow,2);
+        var currentTIRinRange = round(meal_data.currentTIRRange,2);
+        var currentTIRAbove = round(meal_data.currentTIRAbove,2);
 
         enlog +="TDD  : "+TDD+"\n";
     if (meal_data.TDDAIMI3){
@@ -1089,7 +1089,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
     var aimiDIA = round(dia * 60 * circadian_sensitivity,2);
 
         rT.reason += "; ";
-        rT.reason += "============================================================================="
+        rT.reason += "================================================================="
         rT.reason +=" , Variant Model AIMI 16/03/2023 3.2.0-dev-i";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
