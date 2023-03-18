@@ -371,11 +371,33 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     basal = basal / circadian_sensitivity;
     basal = Math.max(profile.current_basal * 0.5,basal);
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
+
+    if (lastbolusAge < profile.b30_duration && meal_data.countBolus === 1){
+         rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
+         rT.temp = 'absolute';
+         rT.duration = profile.b30_duration;
+         rate = round_basal(basal*10,profile);
+         rT.rate = rate;
+         rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+         return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+     }else if(lastbolusAge > 60 &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
+         rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(profile.current_basal*delta/60)*10;
+         rT.temp = 'absolute';
+         rT.duration = 20;
+         rate = round_basal(profile.current_basal*delta,profile);
+         rT.rate = rate;
+         rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+         return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+     }
+    if (lastbolusAge > profile.b30_duration && lastbolusAge < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
+                rT.units = LastManualBolus;
+                rT.reason += "AIMI Bolus because the meal was start" + rT.units + "U. ";
+                return rT;
+         }
     if ( meal_data.TDDAIMI3 ){
         var currentTIRLow = round(meal_data.currentTIRLow,2);
         var currentTIRinRange = round(meal_data.currentTIRRange,2);
         var currentTIRAbove = round(meal_data.currentTIRAbove,2);
-
         enlog +="TDD  : "+TDD+"\n";
     if (meal_data.TDDAIMI3){
     var TDDaverage3 = meal_data.TDDAIMI3;
@@ -1459,6 +1481,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
+        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
+            microBolus = 0;
+            rT.reason += ", B30 decision : No SMB = true => force basal, ";
         }
         // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
