@@ -372,7 +372,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     basal = Math.max(profile.current_basal * 0.5,basal);
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
-    if (lastbolusAge < profile.b30_duration && meal_data.countBolus === 1){
+    if (lastbolusAge < profile.b30_duration){
          rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
          rT.temp = 'absolute';
          rT.duration = profile.b30_duration;
@@ -388,6 +388,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+     }else if(lastbolusAge > 60 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+               rT.reason += ". force basal because bg < 130 and the rise is small" +(profile.current_basal*delta/60)*10;
+               rT.temp = 'absolute';
+               rT.duration = 20;
+               rate = round_basal(profile.current_basal*delta,profile);
+               rT.rate = rate;
+               rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+               return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
      }
     if (lastbolusAge > profile.b30_duration && lastbolusAge < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1){
                 rT.units = LastManualBolus;
@@ -1530,6 +1538,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because bg is stable";
             }else if (circadian_smb > 0 && lastbolusAge > 60 ){
+            SMBInterval = 15;
+            rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
+            }else if(lastbolusAge > 60 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
             SMBInterval = 10;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
             }
