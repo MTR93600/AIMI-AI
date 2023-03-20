@@ -594,6 +594,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("extendedsmbCount", extendedsmbCount)
         this.mealData.put("MaxSMBcount", MaxSMBcount)
         this.mealData.put("b30bolus", b30bolus)
+        this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
