@@ -1478,7 +1478,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         if (UAMpredBG < 110){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < 100, ";
-        }/*else if (bg < target_bg && delta < -2){
+        }else if (bg < target_bg && delta < -2){
             microBolus = 0;
             rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
         }else if (bg < (target_bg - 15) && shortAvgDelta <= 2){
@@ -1493,7 +1493,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
-        }*/else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
+        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
         }
