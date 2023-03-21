@@ -350,7 +350,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
        ************************ */
        console.error("--------------");
        console.error("\n");
-       console.error( " AIMI-Variant Extended Bolus & b30bolus 3.2.0-dev-beta1-AIMI");
+       console.error( " AIMI-Variant Extended Bolus & b30bolus 3.2.0-dev-i-AIMI");
        console.error("\n");
        console.error("--------------");
     var TDD = profile.TDD;
@@ -398,28 +398,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     //var circadian_sensitivity = 1;
     var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
     var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
-        /*var circadian_sensitivity = 1;
-        if (nowdec >= 0 && nowdec < 2){
-            //circadian_sensitivity = 1.4;
-            circadian_sensitivity = (0.09130*Math.pow(nowdec,3))-(0.33261*Math.pow(nowdec,2))+1.4;
-        } else if (nowdec >= 2 && nowdec < 3){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.0869*Math.pow(nowdec,3))-(0.05217*Math.pow(nowdec,2))-(0.23478*nowdec)+0.8;
-        } else if (nowdec >= 3 && nowdec < 8){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.0007*Math.pow(nowdec,3))-(0.000730*Math.pow(nowdec,2))-(0.0007826*nowdec)+0.6;
-        } else if (nowdec >= 8 && nowdec < 11){
-             //circadian_sensitivity = 0.6;
-             circadian_sensitivity = (0.001244*Math.pow(nowdec,3))-(0.007619*Math.pow(nowdec,2))-(0.007826*nowdec)+0.4;
-        } else if (nowdec >= 11 && nowdec < 15){
-             //circadian_sensitivity = 0.8;
-             circadian_sensitivity = (0.00078*Math.pow(nowdec,3))-(0.00272*Math.pow(nowdec,2))-(0.07619*nowdec)+0.8;
-        } else if (nowdec >= 15 && nowdec <= 22){
-             circadian_sensitivity = 1.0;
-        } else if (nowdec >= 22 && nowdec <= 24){
-            //circadian_sensitivity = 1.2;
-            circadian_sensitivity = (0.000125*Math.pow(nowdec,3))-(0.0015*Math.pow(nowdec,2))-(0.0045*nowdec)+1.2;
-        }*/
+
     circadian_sensitivity = round(circadian_sensitivity,2);
     enlog += "circadian_sensitivity : "+circadian_sensitivity+"\n";
 
@@ -1307,11 +1286,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-beta1-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
+                console.log(" 3.2.0-dev-i-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
-                console.log(", UPDATE4 : Merge milos 3.2.0-beta1");
+                console.log(", UPDATE4 : Merge milos 3.2.0-i");
                 console.log(", UPDATE5 : deccelerating_up = 1 interval will be 20 minutes and B30 action");
                 console.log(", UPDATE6 : creating a new b30_bolus settings in b30 section. this one will run xx minutes after the manual bolus and will be a % of this one.")
                 console.log(", UPDATE7 : creating one more case accelerating_up = 1 to send a bigger smb in full UAM.");

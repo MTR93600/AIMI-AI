@@ -1416,7 +1416,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Pam-09/02/22 ";
+    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Pam-09/02/22 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39

@@ -1307,11 +1307,11 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ");
+                console.log(" 3.2.0-dev-i-AIMI-Variant Mathieu 04/03/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
-                console.log(", UPDATE4 : Merge milos 3.2.0-beta1");
+                console.log(", UPDATE4 : Merge milos 3.2.0-i");
                 console.log(", UPDATE5 : deccelerating_up = 1 interval will be 20 minutes and B30 action");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
@@ -1323,10 +1323,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 
                 console.log(enlog);
                 }
-                /*console.log("Pump extrapolated TDD = "+tdd_pump);
-                console.log("tdd7 using 7-day average "+tdd7);
-                console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD);}
-                console.log("Current sensitivity is " +variable_sens+" based on current bg");*/
+
                 console.log("eRatio : "+eRatio);
                 console.log("-------------");
                 console.log("- TriggerPredSMB : "+TriggerPredSMB);
@@ -1502,7 +1499,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         rT.reason += "circadian_smb test : "+circadian_smb+" ; ";
 
 
-    rT.reason += "\n3.2.0-dev-beta1-AIMI-Variant Mathieu 04/03/23 ";
+    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Mathieu 04/03/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
