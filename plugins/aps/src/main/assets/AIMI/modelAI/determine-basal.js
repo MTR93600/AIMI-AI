@@ -373,15 +373,18 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
 
     if (lastbolusAge < profile.b30_duration && LastManualBolus >= 0){
-         rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - iTime);
+         rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - lastbolusAge);
          rT.temp = 'absolute';
+         rT.deliverAt = deliverAt;
          rT.duration = profile.b30_duration;
-         rate = round_basal(basal*10,profile);
+         rate = round_basal(profile.current_basal*10,profile);
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
+         //return tempBasalFunctions.setTempBasal(basal*10, profile.b30_duration, profile, rT, currenttemp);
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
      }else if(lastbolusAge > 60 &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
          rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(profile.current_basal*delta/60)*10;
+         rT.deliverAt = deliverAt;
          rT.temp = 'absolute';
          rT.duration = 20;
          rate = round_basal(profile.current_basal*delta,profile);
@@ -390,6 +393,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
      }else if(lastbolusAge > 60 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(profile.current_basal*delta/60)*10;
+               rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
                rT.duration = 20;
                rate = round_basal(profile.current_basal*delta,profile);
@@ -1474,7 +1478,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         if (UAMpredBG < 110){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < 100, ";
-        }else if (bg < target_bg && delta < -2){
+        }/*else if (bg < target_bg && delta < -2){
             microBolus = 0;
             rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
         }else if (bg < (target_bg - 15) && shortAvgDelta <= 2){
@@ -1489,7 +1493,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
-        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
+        }*/else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
         }
@@ -1569,7 +1573,6 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
-
         if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
             rT.reason += ". force basal because it's stable but bg > 150 : "+(basal*10/60)*30+" U";
             //rT.deliverAt = deliverAt;
@@ -1578,15 +1581,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             var rate = round_basal(basal*10,profile);
 
-        }else if (iTimeActivation === true && lastbolusAge < profile.b30_duration && meal_data.countBolus === 1) {
-            rT.reason += ". force basal because AIMI is running and lesser than "+profile.b30_duration+" minutes : "+(basal*10/60)*30+" U, remaining time : " +(profile.b30_duration - lastbolusAge);
-            //rT.deliverAt = deliverAt;
-            var durationReq = profile.b30_duration;
-            rT.duration = durationReq;
-
-            var rate = round_basal(basal*10,profile);
-
-        } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <=b30upperLimit) {
+        }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <=b30upperLimit) {
             if(bg < 100 && delta <= 5 && delta > 0) {
                 rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
                 var durationReq = 20;
