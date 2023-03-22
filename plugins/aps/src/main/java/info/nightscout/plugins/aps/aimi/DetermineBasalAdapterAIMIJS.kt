@@ -451,7 +451,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tdd2DaysPerHour",tdd2DaysPerHour)
         this.profile.put("tddPerHour",tddPerHour)
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
-        this.profile.put("mss",maxSMB)
+
         this.profile.put("tddlastHrs",tddlastHrs)
         this.profile.put("hourOfDay",hourOfDay)
         this.profile.put("weekend",weekend)
@@ -589,14 +589,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         lastprebolus.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastPBoluscount += 1
         }
-        this.maxSMB = lastBolusNormalUnits.toFloat()
-        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
         if (lastbolusage > 120 || lastbolusage == null ){
             this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
         }else{
             this.maxSMB = lastBolusNormalUnits.toFloat()
         }
+        this.profile.put("mss",maxSMB)
 
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
