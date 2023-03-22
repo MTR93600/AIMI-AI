@@ -1223,7 +1223,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-i-AIMI 21/03/2023 Variant Pam2 ");
+                console.log(" 3.2.0-dev-i-AIMI 22/03/2023 Variant Pam2 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1234,10 +1234,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 
                 console.log(enlog);
                 }
-                /*console.log("Pump extrapolated TDD = "+tdd_pump);
-                console.log("tdd7 using 7-day average "+tdd7);
-                console.log("TDD 7 ="+tdd7+", TDD Pump ="+tdd_pump+" and TDD = "+TDD);}
-                console.log("Current sensitivity is " +variable_sens+" based on current bg");*/
+
                 console.log("eRatio : "+eRatio);
                 console.log("-------------");
                 console.log("- TriggerPredSMB : "+TriggerPredSMB);
@@ -1396,7 +1393,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Pam2-21/03/23 ";
+    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Pam2-22/03/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1827,9 +1824,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 }else if (bg < 150 && delta < -5){
                     microBolus = 0;
                     rT.reason += ", No SMB because bg < 150 && delta < -5, ";
-                }else if (nosmb === true){
-                    microBolus = 0;
-                    rT.reason += ", No SMB = true => force basal, ";
                 }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
                     microBolus = 0;
                     rT.reason += ", B30 decision : No SMB = true => force basal, ";
@@ -1987,20 +1981,3 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 };
 
 module.exports = determine_basal;
-
-
-        if (currenttemp.duration > 5 && (round_basal(rate, profile) <= round_basal(currenttemp.rate, profile))) { // if required temp <~ existing temp basal
-            rT.reason += "temp " + currenttemp.rate + " >~ req " + rate + "U/hr. ";
-            return rT;
-        }
-
-
-        // required temp > existing temp basal
-        rT.reason += "temp " + currenttemp.rate + "<" + rate + "U/hr. ";
-        return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-    }
-
-};
-
-module.exports = determine_basal;
-
