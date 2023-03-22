@@ -1827,9 +1827,6 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 }else if (bg < 150 && delta < -5){
                     microBolus = 0;
                     rT.reason += ", No SMB because bg < 150 && delta < -5, ";
-                }else if (nosmb === true){
-                    microBolus = 0;
-                    rT.reason += ", No SMB = true => force basal, ";
                 }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
                     microBolus = 0;
                     rT.reason += ", B30 decision : No SMB = true => force basal, ";

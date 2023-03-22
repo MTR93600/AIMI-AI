@@ -93,6 +93,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var stable: Int = 0
     private var maxIob = 0.0f
     private var maxSMB = 1.0f
+    private var lastbolusage: Long = 0
     private var tdd7DaysPerHour = 0.0f
     private var tdd2DaysPerHour = 0.0f
     private var tddPerHour = 0.0f
@@ -408,7 +409,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
-        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+
+
 
         // profile.dia
         val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())
@@ -587,6 +589,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         lastprebolus.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastPBoluscount += 1
         }
+        this.maxSMB = lastBolusNormalUnits.toFloat()
+        this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+        this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
+        if (lastbolusage > 120 || lastbolusage == null ){
+            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+        }else{
+            this.maxSMB = lastBolusNormalUnits.toFloat()
+        }
 
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
@@ -595,6 +605,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("MaxSMBcount", MaxSMBcount)
         this.mealData.put("b30bolus", b30bolus)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
+        this.mealData.put("lastbolusage", lastbolusage)
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
