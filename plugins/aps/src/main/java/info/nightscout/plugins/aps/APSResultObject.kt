@@ -170,15 +170,17 @@ open class APSResultObject @Inject constructor(val injector: HasAndroidInjector)
                     if (predBGs.has("IOB")) {
                         val iob = predBGs.getJSONArray("IOB")
                         for (i in 1 until iob.length()) {
-                            val gv = GlucoseValue(
-                                raw = 0.0,
-                                noise = 0.0,
-                                value = iob.getInt(i).toDouble(),
-                                timestamp = startTime + i * 5 * 60 * 1000L,
-                                sourceSensor = GlucoseValue.SourceSensor.IOB_PREDICTION,
-                                trendArrow = GlucoseValue.TrendArrow.NONE
-                            )
-                            array.add(gv)
+                            if (!iob.isNull(i)) {
+                                val gv = GlucoseValue(
+                                    raw = 0.0,
+                                    noise = 0.0,
+                                    value = iob.getInt(i).toDouble(),
+                                    timestamp = startTime + i * 5 * 60 * 1000L,
+                                    sourceSensor = GlucoseValue.SourceSensor.IOB_PREDICTION,
+                                    trendArrow = GlucoseValue.TrendArrow.NONE
+                                )
+                                array.add(gv)
+                            }
                         }
                     }
                     if (predBGs.has("aCOB")) {

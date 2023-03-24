@@ -1127,7 +1127,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         rT.reason +=" , Variant Model AIMI 16/03/2023 3.2.0-dev-i";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
-        rT.reason += ", Dia : "+aimiDIA+" minutes";
+        rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
         rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
         rT.reason += ",circadian_smb test : "+circadian_smb;
@@ -1425,7 +1425,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             if (!profile.temptargetSet && delta > 0){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
                    if (circadian_smb > (-7)){
-                      var microBolus = profile.modelai === true ? profile.smbToGive : Math.min(AIMI_UAM_CAP,insulinReq);
+                      var microBolus = profile.modelai === true && profile.smbToGive > 0 ? profile.smbToGive : Math.min(AIMI_UAM_CAP,insulinReq);
                       AI = true;
                       rT.reason += ", AIMI_AI is running.";
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
@@ -1581,7 +1581,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var rate = round_basal(basal*10,profile);
             return tempBasalFunctions.setTempBasal(rate, profile.b30_duration, profile, rT, currenttemp);
 
-        }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <=b30upperLimit) {
+        }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200) {
             if(bg < 100 && delta <= 5 && delta > 0) {
                 rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
                 var durationReq = 20;
@@ -1594,16 +1594,17 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 var rate = round_basal(basal*8,profile);
             }
             return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
-        } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150) {
+        } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150 && bg < 200) {
             rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
             var durationReq = 20;
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
+            return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
         }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
-        rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tddlastHrs - profile.tddlastHrs);
+        rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tdd7DaysPerHour - profile.tddlastHrs);
         var durationReq = 20;
         rT.duration = durationReq;
-        var rate = round_basal(profile.tddlastHrs - profile.tddlastHrs,profile);
+        var rate = round_basal(profile.tdd7DaysPerHour - profile.tddlastHrs,profile);
         return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
         }else if(nosmb === true && delta > 0){
                 rT.reason += ". force basal because no smb = true : "+(basal * 3);

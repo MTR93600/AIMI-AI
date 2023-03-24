@@ -100,6 +100,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tdd24HrsPerHour = 0.0f
     private var tddlastHrs = 0.0f
     private var tddDaily = 0.0f
+    private var predictedSMB = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
     private var profile = JSONObject()
@@ -122,7 +123,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var SMBcount: Long = 0
     private var MaxSMBcount: Long = 0
     private var b30bolus: Long = 0
-    private var lastBolusNormalUnits: Long = 0
+    private var lastBolusNormalUnits = 0.0f
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -181,7 +182,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             smbToGive = maxSMB
         }
         // don't give insulin if below target too aggressive
-        val belowTargetAndDropping = bg < targetBg && delta < -2
+        /*val belowTargetAndDropping = bg < targetBg && delta < -2
         val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
         val belowMinThreshold = bg < 70
         val stablebg = delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150
@@ -198,7 +199,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         if (smbToGive < 0.0f) {
             smbToGive = 0.0f
-        }
+        }*/
         if (bg <150 && delta > 0 && delta < 5){
             smbToGive *= 0.5f
         }
@@ -230,14 +231,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         interpreter.run(modelInputs, output)
         interpreter.close()
         var smbToGive = output[0][0]
-        //smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
-        smbToGive = String.format(Locale.US, "%.4f", smbToGive).toFloat()
+        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
+        //smbToGive = String.format(Locale.US, "%.4f", smbToGive.toDouble()).toFloat()
         return smbToGive
     }
 
     override operator fun invoke(): DetermineBasalResultSMB? {
 
-        val predictedSMB = calculateSMBFromModel()
+        //val predictedSMB = calculateSMBFromModel()
         //var smbToGive = predictedSMB
         //smbToGive = applySafetyPrecautions(smbToGive)
         //smbToGive = roundToPoint05(smbToGive)
@@ -568,7 +569,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         val getlastBolusNormal = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.NORMAL).blockingGet()
-        lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount.toLong() else 0L
+        lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount.toFloat() else 0.0F
         val lastBolusNormalTime = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.timestamp else 0L
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
@@ -580,8 +581,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
         extendedsmb.forEach{bolus ->
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits) extendedsmbCount +=1
-            if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits) SMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits.toLong()) extendedsmbCount +=1
+            if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits.toLong()) SMBcount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true ) MaxSMBcount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount === (lastBolusNormalUnits * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus, "50"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true && sp.getBoolean(R.string.key_use_Aimib30bolus, false) === true) b30bolus += 1
         }
@@ -591,10 +592,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
-        if (lastbolusage > 120 || lastbolusage == null ){
+        if (lastbolusage > 120){
             this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
         }else{
-            this.maxSMB = lastBolusNormalUnits.toFloat()
+            this.maxSMB = lastBolusNormalUnits
         }
         this.profile.put("mss",maxSMB)
 
@@ -647,15 +648,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         tdd7D = tdd7D?.let { it } ?: return
 
 // Use when expression to make the code more readable
+
         val tdd = when {
             // Checking the condition if its true
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
             else -> {
                 tddWeightedFromLast8H ?: 0.0 // or any default value you want
             }
         }
+
+
 
         val aimisensitivity = tddLast24H?.let { tddLast24H / tdd7D } ?: return
 
@@ -715,10 +719,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             smbToGive = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
         }
 
-        smbToGive = roundToPoint05(smbToGive)
+        //smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGive)
-
-
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", tddLast24H / tdd7D)
