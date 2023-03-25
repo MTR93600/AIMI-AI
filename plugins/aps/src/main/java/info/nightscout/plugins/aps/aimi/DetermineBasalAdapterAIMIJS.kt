@@ -133,6 +133,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val modelFile = File(path, "AAPS/ml/model.tflite")
     private var now: Long = 0
     private var modelai: Boolean = false
+    private var smbToGive = 0.0f
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -171,7 +172,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         file.appendText(valuesToRecord + "\n")
     }
    private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
-        var smbToGive = smbToGiveParam
+         smbToGive = smbToGiveParam
         // don't exceed max IOB
         if (iob + smbToGive > maxIob) {
             smbToGive = maxIob - iob
@@ -235,7 +236,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //smbToGive = String.format(Locale.US, "%.4f", smbToGive.toDouble()).toFloat()
         return smbToGive
     }*/
-        val interpreter = Interpreter(modelFile)
+        /*val interpreter = Interpreter(modelFile)
 
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
@@ -260,14 +261,57 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         return smbToGive
+    }*/
+        val interpreter = Interpreter(modelFile)
+
+        val modelInputs = floatArrayOf(
+            hourOfDay.toFloat(), weekend.toFloat(),
+            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
+            accelerating_up.toFloat(), deccelerating_up.toFloat(), accelerating_down.toFloat(), deccelerating_down.toFloat(), stable.toFloat(),
+            tdd7DaysPerHour, tdd2DaysPerHour, tddDailyPerHour, tdd24HrsPerHour,
+            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
+        )
+
+        val output = arrayOf(FloatArray(1))
+
+        try {
+            interpreter.run(modelInputs, output)
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.APS, "Error running model: ${e.message}")
+            interpreter.close()
+            return 0.0f
+        }
+
+        interpreter.close()
+
+         smbToGive = output[0][0]
+
+        if (smbToGive.isNaN() || smbToGive.isInfinite()) {
+            aapsLogger.error(LTag.APS, "Invalid output from model: $smbToGive")
+            return 0.0f
+        }
+
+        smbToGive = "%.4f".format(smbToGive).toFloat()
+
+        return smbToGive
     }
 
-    override operator fun invoke(): DetermineBasalResultSMB? {
 
-        //val predictedSMB = calculateSMBFromModel()
-        //var smbToGive = predictedSMB
-        //smbToGive = applySafetyPrecautions(smbToGive)
-        //smbToGive = roundToPoint05(smbToGive)
+        override operator fun invoke(): DetermineBasalResultSMB? {
+            try {
+                predictedSMB = calculateSMBFromModel()
+
+                // Utiliser la valeur de smbToGive
+            } catch (e: Exception) {
+                // Afficher le message d'erreur ou effectuer une autre action en cas d'erreur
+                aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
+                var errorAI =  aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
+                this.profile.put("errorAI", errorAI)
+            }
+
+        smbToGive = predictedSMB
+        smbToGive = applySafetyPrecautions(smbToGive)
+        smbToGive = roundToPoint05(smbToGive)
 
         //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
@@ -735,25 +779,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
 
         this.profile.put("insulinR", insulinR)
-        try {
-            val predictedSMB = calculateSMBFromModel()
 
-            this.profile.put("predictedSMB", predictedSMB)
-
-            // Utiliser la valeur de smbToGive
-        } catch (e: Exception) {
-            // Afficher le message d'erreur ou effectuer une autre action en cas d'erreur
-           aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
-            var errorAI =  aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
-            this.profile.put("errorAI", errorAI)
-        }
 
 
 
         //val predictedSMB = calculateSMBFromModel()
-        var smbToGive = predictedSMB
+        /*var smbToGive = predictedSMB
         //this.profile.put("predictedSMB", smbToGive)
-        smbToGive = applySafetyPrecautions(smbToGive)
+        smbToGive = applySafetyPrecautions(smbToGive)*/
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
             smbToGive = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
         }else if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
@@ -762,6 +795,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         //smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGive)
+        this.profile.put("predictedSMB", predictedSMB)
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", tddLast24H / tdd7D)
