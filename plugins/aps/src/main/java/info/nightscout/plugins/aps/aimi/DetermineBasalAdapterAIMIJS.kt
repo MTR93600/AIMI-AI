@@ -220,7 +220,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             return 0.0f
         }
 
-        val interpreter = Interpreter(modelFile)
+        /* val interpreter = Interpreter(modelFile)
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
@@ -233,6 +233,31 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var smbToGive = output[0][0]
         smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         //smbToGive = String.format(Locale.US, "%.4f", smbToGive.toDouble()).toFloat()
+        return smbToGive
+    }*/
+        val interpreter = Interpreter(modelFile)
+
+        val modelInputs = floatArrayOf(
+            hourOfDay.toFloat(), weekend.toFloat(),
+            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
+            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
+        )
+        val output = arrayOf(floatArrayOf(0.0f))
+        try {
+            interpreter.run(modelInputs, output)
+        } catch (e: Exception) {
+            aapsLogger.error(LTag.APS, "Error running model: ${e.message}")
+            return 0.0f
+        } finally {
+            interpreter.close()
+        }
+        var smbToGive = output[0][0]
+        if (smbToGive.isNaN() || smbToGive.isInfinite()) {
+            aapsLogger.error(LTag.APS, "Invalid output from model: $smbToGive")
+            return 0.0f
+        }
+        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         return smbToGive
     }
 
@@ -709,9 +734,24 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
 
         this.profile.put("insulinR", insulinR)
-        val predictedSMB = calculateSMBFromModel()
+        try {
+            val predictedSMB = calculateSMBFromModel()
+
+            this.profile.put("predictedSMB", predictedSMB)
+
+            // Utiliser la valeur de smbToGive
+        } catch (e: Exception) {
+            // Afficher le message d'erreur ou effectuer une autre action en cas d'erreur
+           aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
+            var errorAI =  aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
+            this.profile.put("errorAI", errorAI)
+        }
+
+
+
+        //val predictedSMB = calculateSMBFromModel()
         var smbToGive = predictedSMB
-        this.profile.put("predictedSMB", smbToGive)
+        //this.profile.put("predictedSMB", smbToGive)
         smbToGive = applySafetyPrecautions(smbToGive)
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
             smbToGive = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()

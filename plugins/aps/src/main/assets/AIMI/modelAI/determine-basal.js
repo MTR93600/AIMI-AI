@@ -1123,6 +1123,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
     var aimiDIA = round(dia * 60 * circadian_sensitivity,2);
 
         rT.reason += "; ";
+        rT.reason += ", errorAI : "+profile.errorAI+" ; ";
         rT.reason += "================================================================="
         rT.reason +=" , Variant Model AIMI 16/03/2023 3.2.0-dev-i";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
@@ -1407,13 +1408,13 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
 
             var maxBolusTT = maxBolus;
-            var AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP)/100);
+            var AIMI_UAM_CAP = profile.mss;
             if (profile.key_use_enable_mssv){
             if (lastHourTIRLow >= 5 && circadian_smb > 0) {
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb > 3){
             AIMI_UAM_CAP *= 0.7;
-            }else if (circadian_smb < -1){
+            }else if (circadian_smb < -1 && lastbolusAge > 120){
             AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
