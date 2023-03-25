@@ -401,11 +401,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
      }
-    if (lastbolusAge > profile.b30_duration && lastbolusAge < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1 && LastManualBolus >= 0){
+    /*if (lastbolusAge > profile.b30_duration && lastbolusAge < (profile.b30_duration + 15) && meal_data.extendedsmbCount < 1 && LastManualBolus >= 0){
                 rT.units = LastManualBolus;
                 rT.reason += "AIMI Bolus because the meal was start" + rT.units + "U. ";
                 return rT;
-         }
+         }*/
     if ( meal_data.TDDAIMI3 ){
         var currentTIRLow = round(meal_data.currentTIRLow,2);
         var currentTIRinRange = round(meal_data.currentTIRRange,2);
