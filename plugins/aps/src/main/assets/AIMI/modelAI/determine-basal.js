@@ -1594,7 +1594,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 rT.duration = durationReq;
                 var rate = round_basal(basal*8,profile);
             }
-            return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
+            return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150 && bg < 200) {
             rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
             var durationReq = 15;
