@@ -96,7 +96,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var lastbolusage: Long = 0
     private var tdd7DaysPerHour = 0.0f
     private var tdd2DaysPerHour = 0.0f
-    private var tddDailyPerHour = 0.0f
+    private var tddPerHour = 0.0f
     private var tdd24HrsPerHour = 0.0f
     private var tddlastHrs = 0.0f
     private var tddDaily = 0.0f
@@ -159,7 +159,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
             "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
             "$accelerating_up,$deccelerating_up,$accelerating_down,$deccelerating_down,$stable," +
-            "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddDailyPerHour,$tdd24HrsPerHour," +
+            "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
             "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
             "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
             "$predictedSMB,$maxIob,$maxSMB,$smbToGive"
@@ -267,8 +267,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
-            accelerating_up.toFloat(), deccelerating_up.toFloat(), accelerating_down.toFloat(), deccelerating_down.toFloat(), stable.toFloat(),
-            tdd7DaysPerHour, tdd2DaysPerHour, tddDailyPerHour, tdd24HrsPerHour,
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
         )
 
@@ -471,7 +470,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.tdd2DaysPerHour = tdd2Days / 24
 
         tddDaily = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
-        this.tddDailyPerHour = tddDaily / 24
+        this.tddPerHour = tddDaily / 24
 
         val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
         this.tdd24HrsPerHour = tdd24Hrs / 24
@@ -520,7 +519,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("stable",stable)
         this.profile.put("tdd7DaysPerHour",tdd7DaysPerHour)
         this.profile.put("tdd2DaysPerHour",tdd2DaysPerHour)
-        this.profile.put("tddPerHour",tddDailyPerHour)
+        this.profile.put("tddPerHour",tddPerHour)
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
 
         this.profile.put("tddlastHrs",tddlastHrs)

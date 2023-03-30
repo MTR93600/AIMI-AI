@@ -141,12 +141,14 @@ class DetermineBasalAdapteraiSMB internal constructor(private val injector: HasA
 
         val headerRow = "dateStr,dateLong,hourOfDay,weekend," +
             "bg,targetBg,iob,cob,lastCarbAgeMin,futureCarbs,delta,shortAvgDelta,longAvgDelta," +
-            "tdd7DaysPerHour,tdd2DaysPerHour,tddPerHour,tdd24HrsPerHour," +
+            "accelerating_up,deccelerating_up,accelerating_down,deccelerating_down,stable," +
+            "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
             "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
             "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
             "predictedSMB,maxIob,maxSMB,smbGiven\n"
         val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
             "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
+            "$accelerating_up,$deccelerating_up,$accelerating_down,$deccelerating_down,$stable," +
             "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
             "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
             "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
@@ -216,8 +218,7 @@ class DetermineBasalAdapteraiSMB internal constructor(private val injector: HasA
         interpreter.run(modelInputs, output)
         interpreter.close()
         var smbToGive = output[0][0]
-        //smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
-        smbToGive = String.format(Locale.US, "%.4f", smbToGive).toFloat()
+        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         return smbToGive
     }
 

@@ -44,7 +44,7 @@ class ConfigImpl @Inject constructor(
         engineeringMode = engineeringModeSemaphore.exists() && engineeringModeSemaphore.isFile
         unfinishedMode = unfinishedModeSemaphore.exists() && unfinishedModeSemaphore.isFile
         devBranch = BuildConfig.VERSION.contains("-") || BuildConfig.VERSION.matches(Regex(".*[a-zA-Z]+.*"))
-        if (BuildConfig.VERSION.contains("-beta") || BuildConfig.VERSION.contains("-rc"))
+        if (BuildConfig.VERSION.contains("-beta") || BuildConfig.VERSION.contains("-rc") || BuildConfig.VERSION.contains("-AIMI"))
             devBranch = false
     }
 
