@@ -8,7 +8,6 @@ import info.nightscout.core.extensions.plannedRemainingMinutes
 import info.nightscout.database.ValueWrapper
 import info.nightscout.interfaces.GlucoseUnit
 import info.nightscout.interfaces.aps.DetermineBasalAdapter
-import info.nightscout.plugins.aps.APSResultObject
 import info.nightscout.interfaces.aps.AIMIDefaults
 import info.nightscout.interfaces.iob.GlucoseStatus
 import info.nightscout.interfaces.iob.IobCobCalculator
@@ -50,13 +49,11 @@ import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.UserEntry
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
-import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
 import java.io.File
 import java.util.*
 import kotlin.math.min
 import kotlin.math.roundToInt
 import org.tensorflow.lite.Interpreter
-import kotlin.math.absoluteValue
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -134,6 +131,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var now: Long = 0
     private var modelai: Boolean = false
     private var smbToGive = 0.0f
+    private var variableSensitivity = 0.0f
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -155,16 +153,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
             "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
             "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
-            "predictedSMB,maxIob,maxSMB,smbGiven\n"
+            "variableSensitivity,lastbolusage,predictedSMB,maxIob,maxSMB,smbGiven\n"
         val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
             "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
             "$accelerating_up,$deccelerating_up,$accelerating_down,$deccelerating_down,$stable," +
             "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
             "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
             "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
-            "$predictedSMB,$maxIob,$maxSMB,$smbToGive"
+            "$variableSensitivity,$lastbolusage,$predictedSMB,$maxIob,$maxSMB,$smbToGive"
 
-        val file = File(path, "AAPS/aiSMB_records.csv")
+        val file = File(path, "AAPS/aiSMB_Newrecords.csv")
         if (!file.exists()) {
             file.createNewFile()
             file.appendText(headerRow)
@@ -221,47 +219,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             return 0.0f
         }
 
-        /* val interpreter = Interpreter(modelFile)
-        val modelInputs = floatArrayOf(
-            hourOfDay.toFloat(), weekend.toFloat(),
-            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
-            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
-            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
-        )
-        val output = arrayOf(floatArrayOf(0.0f))
-        interpreter.run(modelInputs, output)
-        interpreter.close()
-        var smbToGive = output[0][0]
-        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
-        //smbToGive = String.format(Locale.US, "%.4f", smbToGive.toDouble()).toFloat()
-        return smbToGive
-    }*/
-        /*val interpreter = Interpreter(modelFile)
-
-        val modelInputs = floatArrayOf(
-            hourOfDay.toFloat(), weekend.toFloat(),
-            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
-            accelerating_up.toFloat(), deccelerating_up.toFloat(), accelerating_down.toFloat(), deccelerating_down.toFloat(), stable.toFloat(),
-            tdd7DaysPerHour, tdd2DaysPerHour, tddDailyPerHour, tdd24HrsPerHour,
-            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
-        )
-        val output = arrayOf(floatArrayOf(0.0f))
-        try {
-            interpreter.run(modelInputs, output)
-        } catch (e: Exception) {
-            aapsLogger.error(LTag.APS, "Error running model: ${e.message}")
-            return 0.0f
-        } finally {
-            interpreter.close()
-        }
-        var smbToGive = output[0][0]
-        if (smbToGive.isNaN() || smbToGive.isInfinite()) {
-            aapsLogger.error(LTag.APS, "Invalid output from model: $smbToGive")
-            return 0.0f
-        }
-        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
-        return smbToGive
-    }*/
         val interpreter = Interpreter(modelFile)
 
         val modelInputs = floatArrayOf(
@@ -733,18 +690,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val aimisensitivity = tddLast24H?.let { tddLast24H / tdd7D } ?: return
 
 // Add comments to explain the purpose and logic of the code
-        var variableSensitivity: Double?
+        //var variableSensitivity: Double?
         if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
             //Calculating aimisensitivity
             this.profile.put("aimisensitivity", aimisensitivity)
             //Calculating variableSensitivity
-            variableSensitivity = 1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))
-            if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5
-            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 ) variableSensitivity *= 1.3
+            variableSensitivity = (1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))).toFloat()
+            if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5f
+            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 ) variableSensitivity *= 1.3f
             //Round to 0.1
-            variableSensitivity = Round.roundTo(variableSensitivity, 0.1)
+            variableSensitivity = Round.roundTo(variableSensitivity.toDouble(), 0.1).toFloat()
         } else {
-            variableSensitivity = profile.getIsfMgdl()
+            variableSensitivity = profile.getIsfMgdl().toFloat()
         }
         tdd?.let { this.profile.put("TDD", tdd) }
         this.profile.put("aimisensitivity", aimisensitivity)
