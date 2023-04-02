@@ -705,9 +705,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         tdd?.let { this.profile.put("TDD", tdd) }
         this.profile.put("aimisensitivity", aimisensitivity)
+        var clusterinsulin = 0.0f
+        if (bg > targetBg){
+            clusterinsulin = (((bg - targetBg) / variableSensitivity).toFloat())
 
+        }
 
-
+        this.profile.put("clusterinsulin", clusterinsulin)
         this.profile.put("variable_sens", variableSensitivity)
         this.profile.put("lastHourTIRLow", lastHourTIRLow)
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
