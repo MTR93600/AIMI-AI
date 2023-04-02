@@ -1286,7 +1286,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-i-AIMI-Variant Extended Bolus & b30bolus 05/03/23 ");
+                console.log(" 3.2.0-dev-i-AIMI-Variant Extended Bolus & b30bolus 02/04/23 ");
                 console.log(", UPDATE : UAM+ conditions change to check again if it's a rise");
                 console.log(", UPDATE2 : if calibration sensor, disable aimi");
                 console.log(", UPDATE3 : add a variable to manage the time between two smb differently when the rise is in accelerating mode");
@@ -2066,7 +2066,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
         } else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit) {
             if(bg < 100 && delta <= 5) {
                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-                var durationReq = 20;
+                var durationReq = 15;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*delta,profile);
             } else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
@@ -2076,18 +2076,18 @@ if (AIMI_UAM && AIMI_BreakFastLight && nowdec >= AIMI_BL_StartTime && nowdec <= 
                 var rate = round_basal(basal*8,profile);
             } else if (b30Ko === false) {
                 rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*6/60)*30;
-                var durationReq = 20;
+                var durationReq = 15;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*6,profile);
             }
         } else if (iTimeActivation === true && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170) {
             rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-            var durationReq = 20;
+            var durationReq = 15;
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
         }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
         rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tddlastHrs - profile.tddlastHrs);
-        var durationReq = 20;
+        var durationReq = 15;
         rT.duration = durationReq;
         var rate = round_basal(profile.tddlastHrs - profile.tddlastHrs);
         }

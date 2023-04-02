@@ -1237,7 +1237,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-i-AIMI-Variant B30BFIOBratio-MSSV-09/02/23 ");
+                console.log(" 3.2.0-dev-i-AIMI-Variant B30BFIOBratio-MSSV-02/04/23 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1419,7 +1419,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.2.0-dev-i-AIMI-Variant B30BFIOBratio-MSSV-09/02/23 ";
+    rT.reason += "\n3.2.0-dev-i-AIMI-Variant B30BFIOBratio-MSSV-02/04/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1953,7 +1953,7 @@ var aimi_rise = 1, sens_predType = "NA" ;
             }else if (iTimeActivation === true && iTime < iTimeProfile && delta > 0 && delta <= b30upperdelta && bg < b30upperLimit){
                      if(bg < 100 && delta <= 5){
                          rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-                         durationReq = 20;
+                         durationReq = 15;
                          rT.duration = durationReq;
                          rate = round_basal(basal*delta,profile);
                       }else if (b30Ko === false && bg > 0.8 * b30upperLimit && bg < b30upperLimit){
@@ -1963,13 +1963,13 @@ var aimi_rise = 1, sens_predType = "NA" ;
                      rate = round_basal(basal*8,profile);
                      }else if (b30Ko === false){
                       rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*30;
-                      durationReq = 20;
+                      durationReq = 15;
                       rT.duration = durationReq;
                       rate = round_basal(basal*delta,profile);
                   }
              }else if (iTimeActivation === true && iTime < iTimeProfile && glucose_status.delta > 0 && glucose_status.delta <= 5 && bg >= 170){
                    rT.reason += ". force basal because iTime is running and delta < 6 : "+(basal*delta/60)*20;
-                   durationReq = 20;
+                   durationReq = 15;
                    rT.duration = durationReq;
                    rate = round_basal(basal*delta,profile);
 

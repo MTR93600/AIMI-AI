@@ -1223,7 +1223,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
 }
                 console.error("\n");
                 console.log("--------------");
-                console.log(" 3.2.0-dev-i-AIMI 22/03/2023 Variant Pam2 ");
+                console.log(" 3.2.0-dev-i-AIMI 02/04/2023 Variant Pam2 ");
                 console.log("--------------");
                 if ( meal_data.TDDAIMI3 ){
                 console.error("TriggerPredSMB_future_sens_45 : ",TriggerPredSMB_future_sens_45," aimi_bg : ",aimi_bg," aimi_delta : ",aimi_delta);
@@ -1393,7 +1393,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
         rT.reason += ", Dia : "+aimiDIA+" minutes ; ";
         rT.reason += " aimismb : "+aimismb+" ; ";
 
-    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Pam2-22/03/23 ";
+    rT.reason += "\n3.2.0-dev-i-AIMI-Variant Pam2-02/04/23 ";
     rT.reason += "; ";
 
     // use naive_eventualBG if above 40, but switch to minGuardBG if both eventualBGs hit floor of 39
@@ -1920,7 +1920,7 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                 }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <=b30upperLimit) {
                     if(bg < 100 && delta <= 5 && delta > 0) {
                         rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
-                        var durationReq = 20;
+                        var durationReq = 15;
                         rT.duration = durationReq;
                         var rate = round_basal(basal*delta,profile);
                     } else if (bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
@@ -1929,24 +1929,24 @@ if (AIMI_UAM && AIMI_BreakFastLight && now >= AIMI_BL_StartTime && now <= AIMI_B
                         rT.duration = durationReq;
                         var rate = round_basal(basal*8,profile);
                     }
-                    return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
+                    return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
                 } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150) {
                     rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
-                    var durationReq = 20;
+                    var durationReq = 15;
                     rT.duration = durationReq;
                     var rate = round_basal(basal*delta,profile);
                 }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
                 rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tddlastHrs - profile.tddlastHrs);
-                var durationReq = 20;
+                var durationReq = 15;
                 rT.duration = durationReq;
                 var rate = round_basal(profile.tddlastHrs - profile.tddlastHrs,profile);
-                return tempBasalFunctions.setTempBasal(rate, 20, profile, rT, currenttemp);
+                return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
                 }else if(nosmb === true && delta > 0){
                         rT.reason += ". force basal because no smb = true : "+(basal * 3);
-                        var durationReq = profile.b30_duration;
+                        var durationReq = 15;
                         rT.duration = durationReq;
                         var rate = round_basal(basal * 3,profile);
-                        return tempBasalFunctions.setTempBasal(rate, profile.b30_duration, profile, rT, currenttemp);
+                        return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
                 }
 
         if (rate > maxSafeBasal) {
