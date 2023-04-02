@@ -119,7 +119,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var SMBcount: Long = 0
     private var MaxSMBcount: Long = 0
     private var b30bolus: Long = 0
-    private var lastBolusNormalUnits: Long = 0
+    private var lastBolusNormalUnits = 0.0f
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
     private var recentSteps15Minutes: Int = 0
@@ -550,7 +550,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("lastCarbTime", mealData.lastCarbTime)
 
         val getlastBolusNormal = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.NORMAL).blockingGet()
-        lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount.toLong() else 0L
+        lastBolusNormalUnits = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.amount.toFloat() else 0.0f
         val lastBolusNormalTime = if (getlastBolusNormal is ValueWrapper.Existing) getlastBolusNormal.value.timestamp else 0L
         this.mealData.put("lastBolusNormalUnits", lastBolusNormalUnits)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
@@ -562,8 +562,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
         extendedsmb.forEach{bolus ->
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits) extendedsmbCount +=1
-            if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits) SMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits.toLong()) extendedsmbCount +=1
+            if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits.toLong()) SMBcount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true ) MaxSMBcount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount === (lastBolusNormalUnits * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus, "50"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true && sp.getBoolean(R.string.key_use_Aimib30bolus, false) === true) b30bolus += 1
         }
