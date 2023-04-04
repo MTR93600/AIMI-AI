@@ -130,7 +130,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val modelFile = File(path, "AAPS/ml/model.tflite")
     private var now: Long = 0
     private var modelai: Boolean = false
-    private var smbToGive = 0.0f
+    private var smbToGivetest = 0.0f
     private var variableSensitivity = 0.0f
 
     override var currentTempParam: String? = null
@@ -170,40 +170,35 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         file.appendText(valuesToRecord + "\n")
     }
    private fun applySafetyPrecautions(smbToGiveParam: Float): Float {
-         smbToGive = smbToGiveParam
-        // don't exceed max IOB
-        if (iob + smbToGive > maxIob) {
-            smbToGive = maxIob - iob
-        }
-        // don't exceed max SMB
-        //this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * 0.38 / 100).toFloat()
-        if (smbToGive > maxSMB) {
-            smbToGive = maxSMB
-        }
-        // don't give insulin if below target too aggressive
-        /*val belowTargetAndDropping = bg < targetBg && delta < -2
-        val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
-        val belowMinThreshold = bg < 70
-        val stablebg = delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150
-        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob || stablebg) {
-            smbToGive = 0.0f
-        }
+       var smbToGive = smbToGiveParam
+       // don't exceed max IOB
+       if (iob + smbToGive > maxIob) {
+           smbToGive = maxIob - iob
+       }
+       // don't exceed max SMB
+       if (smbToGive > maxSMB) {
+           smbToGive = maxSMB
+       }
+       // don't give insulin if below target too aggressive
+       val belowTargetAndDropping = bg < targetBg && delta < -2
+       val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
+       val belowMinThreshold = bg < 70
+       if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
+           smbToGive = 0.0f
+       }
 
-        // don't give insulin if dropping fast
-        val droppingFast = bg < 150 && delta < -5
-        val droppingFastAtHigh = bg < 200 && delta < -7
-        val droppingVeryFast = delta < -10
-        if (droppingFast || droppingFastAtHigh || droppingVeryFast) {
-            smbToGive = 0.0f
-        }
-        if (smbToGive < 0.0f) {
-            smbToGive = 0.0f
-        }*/
-        if (bg <150 && delta > 0 && delta < 5){
-            smbToGive *= 0.5f
-        }
-        return smbToGive
-    }
+       // don't give insulin if dropping fast
+       val droppingFast = bg < 150 && delta < -5
+       val droppingFastAtHigh = bg < 200 && delta < -7
+       val droppingVeryFast = delta < -10
+       if (droppingFast || droppingFastAtHigh || droppingVeryFast) {
+           smbToGive = 0.0f
+       }
+       if (smbToGive < 0.0f) {
+           smbToGive = 0.0f
+       }
+       return smbToGive
+   }
 
     private fun roundToPoint05(number: Float): Float {
         return (number * 20.0).roundToInt() / 20.0f
@@ -220,41 +215,23 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         val interpreter = Interpreter(modelFile)
-
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
         )
-
-        val output = arrayOf(FloatArray(1))
-
-        try {
-            interpreter.run(modelInputs, output)
-        } catch (e: Exception) {
-            aapsLogger.error(LTag.APS, "Error running model: ${e.message}")
-            interpreter.close()
-            return 0.0f
-        }
-
+        val output = arrayOf(floatArrayOf(0.0f))
+        interpreter.run(modelInputs, output)
         interpreter.close()
-
-         smbToGive = output[0][0]
-
-        if (smbToGive.isNaN() || smbToGive.isInfinite()) {
-            aapsLogger.error(LTag.APS, "Invalid output from model: $smbToGive")
-            return 0.0f
-        }
-
-        smbToGive = "%.4f".format(smbToGive).toFloat()
-
+        var smbToGive = output[0][0]
+        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
         return smbToGive
     }
 
 
         override operator fun invoke(): DetermineBasalResultSMB? {
-            try {
+            /*try {
                 predictedSMB = calculateSMBFromModel()
 
                 // Utiliser la valeur de smbToGive
@@ -263,11 +240,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
                 var errorAI =  aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
                 this.profile.put("errorAI", errorAI)
-            }
-
-        smbToGive = predictedSMB
+            }*/
+        predictedSMB = calculateSMBFromModel()
+        var smbToGive = predictedSMB
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
+        smbToGivetest = smbToGive
 
         //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
@@ -748,13 +726,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //this.profile.put("predictedSMB", smbToGive)
         smbToGive = applySafetyPrecautions(smbToGive)*/
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
-            smbToGive = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+            smbToGivetest = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
         }else if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
-            smbToGive = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+            smbToGivetest = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
         }
 
         //smbToGive = roundToPoint05(smbToGive)
-        this.profile.put("smbToGive", smbToGive)
+        this.profile.put("smbToGive", smbToGivetest)
         this.profile.put("predictedSMB", predictedSMB)
 
         if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
