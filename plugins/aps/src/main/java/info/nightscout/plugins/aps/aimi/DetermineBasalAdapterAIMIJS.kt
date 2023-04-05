@@ -83,11 +83,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var delta = 0.0f
     private var shortAvgDelta = 0.0f
     private var longAvgDelta = 0.0f
-    private var accelerating_up: Int = 0
-    private var deccelerating_up: Int = 0
-    private var accelerating_down: Int = 0
-    private var deccelerating_down: Int = 0
-    private var stable: Int = 0
+    private var accelerating_up = 0.0f
+    private var deccelerating_up = 0.0f
+    private var accelerating_down = 0.0f
+    private var deccelerating_down = 0.0f
+    private var stable = 0.0f
     private var maxIob = 0.0f
     private var maxSMB = 1.0f
     private var lastbolusage: Long = 0
@@ -218,6 +218,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
+            accelerating_up,accelerating_down,deccelerating_up,deccelerating_down,stable,
+            variableSensitivity,lastbolusage.toFloat(),
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
         )
@@ -392,11 +394,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.shortAvgDelta = glucoseStatus.shortAvgDelta.toFloat()
         this.longAvgDelta = glucoseStatus.longAvgDelta.toFloat()
 
-        this.accelerating_up = if (delta > 2 && delta - longAvgDelta > 2) 1 else 0
-        this.deccelerating_up = if (delta > 0 && (delta < shortAvgDelta || delta < longAvgDelta)) 1 else 0
-        this.accelerating_down = if (delta < -2 && delta - longAvgDelta < -2) 1 else 0
-        this.deccelerating_down = if (delta < 0 && (delta > shortAvgDelta || delta > longAvgDelta)) 1 else 0
-        this.stable = if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3) 1 else 0
+        this.accelerating_up = if (delta > 2 && delta - longAvgDelta > 2) 1f else 0f
+        this.deccelerating_up = if (delta > 0 && (delta < shortAvgDelta || delta < longAvgDelta)) 1f else 0f
+        this.accelerating_down = if (delta < -2 && delta - longAvgDelta < -2) 1f else 0f
+        this.deccelerating_down = if (delta < 0 && (delta > shortAvgDelta || delta > longAvgDelta)) 1f else 0f
+        this.stable = if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3) 1f else 0f
 
         val tdd7Days = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.totalAmount?.toFloat() ?: 0.0f
         this.tdd7DaysPerHour = tdd7Days / 24
