@@ -49,6 +49,7 @@ import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.UserEntry
+import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
 import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
 import java.io.File
@@ -60,6 +61,7 @@ import org.tensorflow.lite.Interpreter
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
     @Inject lateinit var aapsLogger: AAPSLogger
+    @Inject lateinit var constraintChecker: Constraints
     @Inject lateinit var sp: SP
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var iobCobCalculator: IobCobCalculator
@@ -694,10 +696,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("insulinR", insulinR)
 
 
-        if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
-            autosensData.put("ratio", tddLast24H / tdd7D)
-        else
+        if (constraintChecker.isAutosensModeEnabled().value()) {
+            autosensData.put("ratio", autosensDataRatio)
+        } else {
             autosensData.put("ratio", 1.0)
+        }
 
         this.microBolusAllowed = microBolusAllowed
         smbAlwaysAllowed = advancedFiltering
