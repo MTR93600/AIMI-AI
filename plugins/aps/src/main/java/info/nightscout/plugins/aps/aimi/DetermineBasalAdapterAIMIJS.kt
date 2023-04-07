@@ -48,6 +48,7 @@ import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.UserEntry
+import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
 import java.io.File
 import java.util.*
@@ -58,6 +59,7 @@ import org.tensorflow.lite.Interpreter
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
     @Inject lateinit var aapsLogger: AAPSLogger
+    @Inject lateinit var constraintChecker: Constraints
     @Inject lateinit var sp: SP
     @Inject lateinit var profileFunction: ProfileFunction
     @Inject lateinit var iobCobCalculator: IobCobCalculator
@@ -97,7 +99,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tdd24HrsPerHour = 0.0f
     private var tddlastHrs = 0.0f
     private var tddDaily = 0.0f
-    private var predictedSMB = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
     private var profile = JSONObject()
@@ -131,6 +132,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var now: Long = 0
     private var modelai: Boolean = false
     private var smbToGivetest = 0.0f
+    private var smbTopredict = 0.0f
     private var variableSensitivity = 0.0f
 
     override var currentTempParam: String? = null
@@ -211,19 +213,19 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private fun calculateSMBFromModel(): Float {
         if (!modelFile.exists()) {
             aapsLogger.error(LTag.APS, "NO Model found at AAPS/ml/model.tflite")
-            return 0.0f
+            return 0.0F
         }
 
         val interpreter = Interpreter(modelFile)
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
-            accelerating_up,accelerating_down,deccelerating_up,deccelerating_down,stable,
-            variableSensitivity,lastbolusage.toFloat(),
+            //accelerating_up,accelerating_down,deccelerating_up,deccelerating_down,stable,
+            //variableSensitivity,lastbolusage.toFloat(),
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
         )
-        val output = arrayOf(floatArrayOf(0.0f))
+        val output = arrayOf(floatArrayOf(0.0F))
         interpreter.run(modelInputs, output)
         interpreter.close()
         var smbToGive = output[0][0]
@@ -243,7 +245,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 var errorAI =  aapsLogger.error(LTag.APS, "Une erreur s'est produite lors du calcul de SMB : ${e.message}")
                 this.profile.put("errorAI", errorAI)
             }*/
-        predictedSMB = calculateSMBFromModel()
+        val predictedSMB = calculateSMBFromModel()
+            smbTopredict = predictedSMB
         var smbToGive = predictedSMB
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
@@ -667,7 +670,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
 
-        val aimisensitivity = tddLast24H?.let { tddLast24H / tdd7D } ?: return
+        val aimisensitivity = tddLast24H / tdd7D
 
 // Add comments to explain the purpose and logic of the code
         //var variableSensitivity: Double?
@@ -735,12 +738,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         //smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGivetest)
-        this.profile.put("predictedSMB", predictedSMB)
+        this.profile.put("predictedSMB", smbTopredict)
 
-        if (sp.getBoolean(R.string.key_openapsama_use_autosens, false) && tdd7D != null && tddLast24H != null)
-            autosensData.put("ratio", tddLast24H / tdd7D)
+        /*if (constraintChecker.isAutosensModeEnabled().value() && tdd7D != null && tddLast24H != null)
+            autosensData.put("ratio", aimisensitivity)
         else
+            autosensData.put("ratio", 1.0)*/
+
+        if (constraintChecker.isAutosensModeEnabled().value()) {
+            autosensData.put("ratio", autosensDataRatio)
+        } else {
             autosensData.put("ratio", 1.0)
+        }
 
         this.microBolusAllowed = microBolusAllowed
         smbAlwaysAllowed = advancedFiltering

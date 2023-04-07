@@ -1579,7 +1579,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var durationReq = 30;
             rT.duration = durationReq;
             var rate = round_basal(basal*10,profile);
-            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+            //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
         }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200) {
             if(bg < 100 && delta <= 5 && delta > 0) {
@@ -1589,29 +1589,29 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 var rate = round_basal(basal*delta,profile);
             } else if (bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
                 rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*8/60)*30;
-                var durationReq = 15;
+                var durationReq = 30;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*8,profile);
             }
-            return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
+            //return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150 && bg < 200) {
             rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*delta/60)*30;
             var durationReq = 30;
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
-            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+            //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
         }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
         rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tdd7DaysPerHour - profile.tddlastHrs);
-        var durationReq = 15;
+        var durationReq = 30;
         rT.duration = durationReq;
         var rate = round_basal(profile.tdd7DaysPerHour - profile.tddlastHrs,profile);
-        return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
+        //return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         }else if(nosmb === true && delta > 0){
                 rT.reason += ". force basal because no smb = true : "+(basal * 3);
                 var durationReq = 30;
                 rT.duration = durationReq;
                 var rate = round_basal(basal * 3,profile);
-                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+                //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
         }
 
 
