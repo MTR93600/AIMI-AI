@@ -218,12 +218,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         val interpreter = Interpreter(modelFile)
         val modelInputs = floatArrayOf(
-            hourOfDay.toFloat(), weekend.toFloat(),
+            /*hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
             //accelerating_up,accelerating_down,deccelerating_up,deccelerating_down,stable,
             //variableSensitivity,lastbolusage.toFloat(),
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
-            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()
+            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()*/
+            hourOfDay.toFloat(), weekend.toFloat(),
+            bg, iob, delta, shortAvgDelta, longAvgDelta,
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
         )
         val output = arrayOf(floatArrayOf(0.0F))
         interpreter.run(modelInputs, output)

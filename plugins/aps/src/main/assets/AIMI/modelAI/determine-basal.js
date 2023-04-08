@@ -442,18 +442,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
      enlog += "C2 change because of hypo_target : "+C2+"\n";
      halfBasalTarget = 160;
      var c = halfBasalTarget - normalTarget;
-     if (meal_data.TDDAIMI3){
-     sensitivityRatio = c/(c+target_bg-normalTarget);
-     var sensitivityTDD = Math.max(0.5,aimisensitivity);
-     enlog += "sensitivityTDD : "+sensitivityTDD+"\n";
-     // limit sensitivityRatio to profile.autosens_max (1.2x by default)
-     sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max)
-     sensitivityRatio = Math.min(sensitivityTDD, sensitivityRatio);
-     }else{
      sensitivityRatio = c/(c+target_bg-normalTarget);
      sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
-
-     }
      sensitivityRatio = round(sensitivityRatio,2);
      enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
      sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
