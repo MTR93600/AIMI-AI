@@ -55,6 +55,7 @@ import java.util.*
 import kotlin.math.min
 import kotlin.math.roundToInt
 import org.tensorflow.lite.Interpreter
+import kotlin.math.round
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -131,8 +132,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val modelFile = File(path, "AAPS/ml/model.tflite")
     private var now: Long = 0
     private var modelai: Boolean = false
-    private var smbToGivetest = 0.0f
-    private var smbTopredict = 0.0f
+    private var smbToGivetest: Double = 0.0
+    private var smbTopredict: Double = 0.0
     private var variableSensitivity = 0.0f
 
     override var currentTempParam: String? = null
@@ -249,11 +250,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 this.profile.put("errorAI", errorAI)
             }*/
         val predictedSMB = calculateSMBFromModel()
-            smbTopredict = predictedSMB
+            smbTopredict = round(predictedSMB.toDouble()*100)/100
         var smbToGive = predictedSMB
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
-        smbToGivetest = smbToGive
+        smbToGivetest = round(smbToGive.toDouble()*100)/100
 
         //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
@@ -734,9 +735,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //this.profile.put("predictedSMB", smbToGive)
         smbToGive = applySafetyPrecautions(smbToGive)*/
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
-            smbToGivetest = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+            smbToGivetest = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toDouble())
         }else if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
-            smbToGivetest = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toFloat()).toFloat()
+            smbToGivetest = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toDouble())
         }
 
         //smbToGive = roundToPoint05(smbToGive)
