@@ -734,8 +734,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var smbToGive = predictedSMB
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
-        this.profile.put("predictedSMB2", predictedSMB)
-        this.profile.put("smbToGive2", smbToGive)
+        //this.profile.put("predictedSMB2", predictedSMB)
+        //this.profile.put("smbToGive2", smbToGive)
         //smbToGive = applySafetyPrecautions(smbToGive)
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
             smbToGivetest = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toDouble())
@@ -746,8 +746,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         //smbToGive = roundToPoint05(smbToGive)
-        this.profile.put("smbToGive", predictedSMB)
-        this.profile.put("predictedSMB", smbToGive)
+        this.profile.put("smbToGive", smbToGive)
+        this.profile.put("predictedSMB", predictedSMB)
 
         /*if (constraintChecker.isAutosensModeEnabled().value() && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", aimisensitivity)

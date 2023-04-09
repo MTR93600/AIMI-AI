@@ -1433,7 +1433,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                      var microBolus = Math.min(AIMI_UAM_CAP,insulinReq);
                      microBolus = (microBolus > (max_iob - iob_data.iob) ? (max_iob - iob_data.iob) : microBolus);
                      }
-                   if (meal_data.MaxSMBcount >=1 && profile.accelerating_up === 0 && lastbolusAge > 60 || meal_data.countSMB40 > 2 && profile.accelerating_up === 0 && lastbolusAge > 60 || meal_data.countSMB40 === 0 && lastbolusAge > 60){
+                   if (meal_data.MaxSMBcount >=1 && profile.accelerating_up === 0 && lastbolusAge > 60 && bg < 180 || meal_data.countSMB40 > 2 && profile.accelerating_up === 0 && lastbolusAge > 60 && bg < 180 || meal_data.countSMB40 === 0 && lastbolusAge > 60 && bg < 180){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                        if (bg < 130 && delta <= 10){
