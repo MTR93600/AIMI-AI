@@ -227,7 +227,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()*/
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, iob, delta, shortAvgDelta, longAvgDelta,
-            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
         )
         val output = arrayOf(floatArrayOf(0.0F))
         interpreter.run(modelInputs, output)
@@ -250,11 +250,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 this.profile.put("errorAI", errorAI)
             }*/
         val predictedSMB = calculateSMBFromModel()
-            smbTopredict = round(predictedSMB.toDouble()*100)/100
+        this.smbTopredict = round(predictedSMB.toDouble()*100)/100
         var smbToGive = predictedSMB
         smbToGive = applySafetyPrecautions(smbToGive)
         smbToGive = roundToPoint05(smbToGive)
-        smbToGivetest = round(smbToGive.toDouble()*100)/100
+        this.smbToGivetest = round(smbToGive.toDouble()*100)/100
 
         //logDataToCsv(predictedSMB, smbToGive)
         aapsLogger.debug(LTag.APS, ">>> Invoking determine_basal <<<")
@@ -730,19 +730,24 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
 
-        //val predictedSMB = calculateSMBFromModel()
-        /*var smbToGive = predictedSMB
-        //this.profile.put("predictedSMB", smbToGive)
-        smbToGive = applySafetyPrecautions(smbToGive)*/
+        val predictedSMB = calculateSMBFromModel()
+        var smbToGive = predictedSMB
+        smbToGive = applySafetyPrecautions(smbToGive)
+        smbToGive = roundToPoint05(smbToGive)
+        this.profile.put("predictedSMB2", predictedSMB)
+        this.profile.put("smbToGive2", smbToGive)
+        //smbToGive = applySafetyPrecautions(smbToGive)
         if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 150){
             smbToGivetest = (((basalRate * 3.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toDouble())
+            smbToGive = smbToGivetest.toFloat()
         }else if(delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
             smbToGivetest = (((basalRate * 5.0) / 60.0) * sp.getString(R.string.key_iTime_B30_duration,"20").toDouble())
+            smbToGive = smbToGivetest.toFloat()
         }
 
         //smbToGive = roundToPoint05(smbToGive)
-        this.profile.put("smbToGive", smbToGivetest)
-        this.profile.put("predictedSMB", smbTopredict)
+        this.profile.put("smbToGive", predictedSMB)
+        this.profile.put("predictedSMB", smbToGive)
 
         /*if (constraintChecker.isAutosensModeEnabled().value() && tdd7D != null && tddLast24H != null)
             autosensData.put("ratio", aimisensitivity)
