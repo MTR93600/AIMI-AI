@@ -49,68 +49,6 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_Aimiprotein"
-            android:title="meal low carbs"
-            android:summary="meal low carbs with proteins and lipids. this option will force b30" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="60"
-            android:dialogMessage="with meal low carbs enable, this value define how many time after the bolus started iTime you want to force B30"
-            android:inputType="numberDecimal"
-            android:key="@string/key_aimi_B30_proteinstart"
-            android:title="B30 protein start"
-            validate:floatmaxNumber="180"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="60"
-            android:dialogMessage="with meal low carbs enable, this value define the duration of the B30 for proteins and lipids"
-            android:inputType="numberDecimal"
-            android:key="@string/key_aimi_B30_proteinduration"
-            android:title="B30 protein duration"
-            validate:floatmaxNumber="180"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="300"
-            android:dialogMessage="with meal low carbs enable, this value define the % of the B30 for proteins and lipids"
-            android:inputType="numberDecimal"
-            android:key="@string/key_aimi_B30_proteinpercent"
-            android:title="B30 protein %"
-            validate:floatmaxNumber="500"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_Aimib30bolus"
-            android:title="Automated Bolus"
-            android:summary="Enabling an automated bolus which will happen xx minutes after the manual bolus and which is a % of the manual bolus. The condition of application is only this option enable, for now the code don't check anything else. The variable will define the time after the manual bolus et the % of this one you want receive. This is only working with the variant Extended_Bolus_and_b30Bolus and the variant Mathieu." />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="50"
-            android:dialogMessage="This variable define which % of the manual bolus you will receive xx minutes after the bolus. This is only working with the variant Extended Bolus and b30Bolus."
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_B30_bolus"
-            android:title="B30 bolus %"
-            validate:floatmaxNumber="500"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="50"
-            android:dialogMessage="This variable define the time after the manual bolus, you will receive this SMB b30_bolus. This is only working with the variant Extended Bolus and b30Bolus."
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_B30_bolus_duration"
-            android:title="B30_bolus Time after the manual bolus"
-            validate:floatmaxNumber="500"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
 
     </androidx.preference.PreferenceScreen>
 
@@ -131,28 +69,6 @@
             android:key="@string/key_openapssmb_max_iob"
             android:title="@string/openapssmb_max_iob_title"
             validate:floatmaxNumber="25.0"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="180"
-            android:dialogMessage="@string/iTime_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime"
-            android:title="@string/iTime_title"
-            validate:floatmaxNumber="1500"
-            validate:floatminNumber="0"
-            validate:testType="floatNumericRange" />
-
-
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="2"
-            android:dialogMessage="@string/iTime_Starting_Bolus_summary"
-            android:inputType="numberDecimal"
-            android:key="@string/key_iTime_Starting_Bolus"
-            android:title="@string/iTime_Starting_Bolus_title"
-            validate:floatmaxNumber="5"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
@@ -185,27 +101,9 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="@string/key_use_newSMB"
-            android:title="new smb aimi calculation"
-            android:summary="new smb aimi calculation" />
-
-        <SwitchPreference
-            android:defaultValue="false"
             android:key="@string/key_use_AimiIgnoreCOB"
             android:title="Ignore COB"
             android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_AimiBreak"
-            android:title="Break SMB 10 minutes"
-            android:summary="If smb = 0,6 * max_smb_size or if you received 2 smb in the same hour, the interval change for 10 minutes" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_AimiIOBpredBG"
-            android:title="BFIOB"
-            android:summary="Using the IOBpredBG instead of UAMpredBG during the breakfast" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -213,14 +111,7 @@
             android:title="Use AIMI FULL UAM"
             android:summary="Enable the Full UAM code to define the size of the SMB. Need iTime true with an SMB >= iTime_Starting_Bolus" />
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_AimiPower"
-            android:title="Use AIMI Power"
-            android:summary="Enable give the full AIMI UAM power during the iTime duration, disable give a 50% power answer during the iTime duration" />
-
-
-        <SwitchPreference
+       <SwitchPreference
             android:defaultValue="false"
             android:key="@string/key_use_smb"
             android:summary="@string/enable_smb_summary"
@@ -232,40 +123,6 @@
             android:key="@string/key_use_AimiUAM_ISF"
             android:summary="Dependency with AIMI_UAM mode, active a faster scale ISF"
             android:title="AIMI UAM Super ISF" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="@string/key_use_AIMI_BreakFastLight"
-            android:summary="Active with AIMI FULL UAM mode a smaller answer during the night and the morning"
-            android:title="AIMI UAM BreakFast Light/Night or for very small need give smaller SMB (for this case start time has to 1 and end time 23) " />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dependency="@string/key_use_AIMI_BreakFastLight"
-            android:key="@string/key_use_disable_b30_BFL"
-            android:summary="Disable B30 if Breakfast Light is enable. In this case you will not get 500% basal after the first 20 minutes"
-            android:title="AIMI UAM BreakFast Light/Night B30 disable" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="6"
-            android:dialogMessage="Enter AIMI UAM Light Breakfast start time in 24h e.g. 6AM is 6"
-            android:inputType="number"
-            android:key="@string/key_AIMI_BreakFastLight_timestart"
-            android:title="Start Time AIMI UAM Breakfast Light "
-            validate:maxNumber="23"
-            validate:minNumber="0"
-            validate:testType="numericRange" />
-
-        <info.nightscout.core.validators.ValidatingEditTextPreference
-            android:defaultValue="10"
-            android:dialogMessage="Enter AIMI UAM Light Breakfast end time in 24h e.g. 5AM is 10"
-            android:inputType="number"
-            android:key="@string/key_AIMI_BreakFastLight_timeend"
-            android:title="End Time AIMI UAM Breakfast Light"
-            validate:maxNumber="23"
-            validate:minNumber="0"
-            validate:testType="numericRange" />
-
 
         <SwitchPreference
             android:defaultValue="false"

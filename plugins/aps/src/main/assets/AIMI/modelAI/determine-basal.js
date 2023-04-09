@@ -356,7 +356,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
     insulinPeakTime = insulinPeakTime * circadian_sensitivity;
-    var AIMI_Power = profile.enable_AIMI_Power;
+
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
 
     var C1 = bg + glucose_status.delta;
