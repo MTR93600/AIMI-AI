@@ -746,7 +746,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         //smbToGive = roundToPoint05(smbToGive)
-        this.profile.put("smbToGive", smbToGive)
+        this.profile.put("smbToGive", smbToGive.toDouble())
         this.profile.put("predictedSMB", predictedSMB)
 
         /*if (constraintChecker.isAutosensModeEnabled().value() && tdd7D != null && tddLast24H != null)
