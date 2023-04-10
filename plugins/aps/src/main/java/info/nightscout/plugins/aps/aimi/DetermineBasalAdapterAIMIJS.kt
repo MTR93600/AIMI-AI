@@ -56,6 +56,10 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import org.tensorflow.lite.Interpreter
 import kotlin.math.round
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
+
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -232,9 +236,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val output = arrayOf(floatArrayOf(0.0F))
         interpreter.run(modelInputs, output)
         interpreter.close()
-        var smbToGive = output[0][0]
-        smbToGive = "%.4f".format(smbToGive.toDouble()).toFloat()
-        return smbToGive
+        //var smbToGive = output[0][0]
+        var smbToGive = output[0][0].toString().replace(',', '.').toDouble()
+
+
+        //smbToGive = "%.4f".format(smbToGive).toDouble()
+        val formatter = DecimalFormat("#.####", DecimalFormatSymbols(Locale.US))
+        smbToGive = formatter.format(smbToGive).toDouble()
+
+        return smbToGive.toFloat()
     }
 
 
