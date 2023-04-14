@@ -319,7 +319,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var lastHourTIRLow = profile.lastHourTIRLow;
     var lastHourTIRAbove = profile.lastHourTIRAbove;
     var last2HourTIRAbove = profile.last2HourTIRAbove;
-    var aimisensitivity = profile.aimisensitivity;
+    //var aimisensitivity = profile.aimisensitivity;
     var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
     var AIMI_UAM = target_bg >= 130 || aimi_activity === true ? false : profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
@@ -1114,9 +1114,10 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant Model AIMI 09/04/2023 3.2.0-dev-i";
+        rT.reason +=" , Variant Model AIMI 14/04/2023 3.2.0-dev-i";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
-        rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
+        //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
+        rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
         rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
         rT.reason += ", circadian_sensitivity : "+circadian_sensitivity;
@@ -1590,11 +1591,12 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-        }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs < profile.tdd7DaysPerHour ){
-        rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : "+(profile.tdd7DaysPerHour - profile.tddlastHrs);
-        var durationReq = 30;
-        rT.duration = durationReq;
-        var rate = round_basal(profile.tdd7DaysPerHour - profile.tddlastHrs,profile);
+        }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour) {
+             rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : " + (profile.tdd7DaysPerHour - profile.tddlastHrs);
+             var durationReq = 30;
+             rT.duration = durationReq;
+             var rate = round_basal(profile.tdd7DaysPerHour - profile.tddlastHrs, profile);
+
         //return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         }else if(nosmb === true && delta > 0){
                 rT.reason += ". force basal because no smb = true : "+(basal * 3);

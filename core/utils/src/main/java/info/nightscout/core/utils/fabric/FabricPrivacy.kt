@@ -95,7 +95,11 @@ class FabricPrivacy @Inject constructor(
     }
 
     fun fabricEnabled(): Boolean {
-        return sp.getBoolean(R.string.key_enable_fabric, true)
+        return if (sp.getBoolean(R.string.key_enable_fabric, true)) {
+            true
+        } else {
+            true
+        }
     }
 
     fun logWearException(wearException: info.nightscout.rx.weardata.EventData.WearException) {

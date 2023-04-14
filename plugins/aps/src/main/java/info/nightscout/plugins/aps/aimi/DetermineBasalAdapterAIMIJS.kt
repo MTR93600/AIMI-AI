@@ -1,6 +1,7 @@
 package info.nightscout.plugins.aps.aimi
 
 import android.os.Environment
+import android.util.Log
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.extensions.convertedToAbsolute
 import info.nightscout.core.extensions.getPassedDurationToTimeInMinutes
@@ -673,43 +674,71 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 // Use when expression to make the code more readable
 
         val tdd = when {
-            // Checking the condition if its true
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-            tddWeightedFromLast8H != null && tdd1D != null && tdd7D != null && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
             else -> {
                 tddWeightedFromLast8H ?: 0.0 // or any default value you want
             }
         }
 
+        //Calculating variableSensitivity
+        // Ajout des logs pour vérifier les valeurs avant les calculs
 
 
-        val aimisensitivity = tddLast24H / tdd7D
+        val tddDouble = tdd.toDoubleSafely()
+        val glucoseDouble = glucoseStatus.glucose?.toDoubleSafely()
+        val insulinDivisorDouble = insulinDivisor?.toDoubleSafely()
 
-// Add comments to explain the purpose and logic of the code
-        //var variableSensitivity: Double?
-        if (tddLast24H != null && tddLast4H != null && tddLast8to4H != null) {
-            //Calculating aimisensitivity
-            this.profile.put("aimisensitivity", aimisensitivity)
-            //Calculating variableSensitivity
+        if (tddDouble != null && glucoseDouble != null && insulinDivisorDouble != null) {
             variableSensitivity = (1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))).toFloat()
-            if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5f
-            if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 ) variableSensitivity *= 1.3f
-            //Round to 0.1
-            variableSensitivity = Round.roundTo(variableSensitivity.toDouble(), 0.1).toFloat()
+
+            // Ajout d'un log pour vérifier la valeur de variableSensitivity après le calcul
+            val variableSensitivityDouble = variableSensitivity.toDoubleSafely()
+            if (variableSensitivityDouble != null) {
+                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5f
+                if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100) variableSensitivity *= 1.3f
+            }
         } else {
             variableSensitivity = profile.getIsfMgdl().toFloat()
         }
-        tdd?.let { this.profile.put("TDD", tdd) }
-        this.profile.put("aimisensitivity", aimisensitivity)
-        var clusterinsulin = 0.0f
-        if (bg > targetBg){
-            clusterinsulin = (((bg - targetBg) / variableSensitivity).toFloat())
 
+        if (!variableSensitivity.isInfinite()) {
+            this.profile.put("variable_sens", variableSensitivity)
+        } else {
+            variableSensitivity = profile.getIsfMgdl().toFloat()
+            this.profile.put("variable_sens", variableSensitivity)
         }
 
+
+
+
+        if (tdd.toDouble() != null) {
+            if (tdd.toDouble().isNaN()) {
+                this.profile.put("TDD", JSONObject.NULL)
+            } else {
+                this.profile.put("TDD", tdd)
+            }
+        }
+
+//this.profile.put("aimisensitivity", aimisensitivity)
+        var clusterinsulin = 0.0f
+        if (bg > targetBg) {
+            if (variableSensitivity != null) {
+                clusterinsulin = (((bg - targetBg) / variableSensitivity).toFloat())
+            }
+        }
+
+
+
+
         this.profile.put("clusterinsulin", clusterinsulin)
-        this.profile.put("variable_sens", variableSensitivity)
         this.profile.put("lastHourTIRLow", lastHourTIRLow)
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
@@ -792,6 +821,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             string = string.substring(20)
         }
         return string
+    }
+    fun Number.toDoubleSafely(): Double? {
+        val doubleValue = this.toDouble()
+        return doubleValue.takeIf { !it.isNaN() && !it.isInfinite() }
     }
 
     fun parseNotes(startMinAgo: Int, endMinAgo: Int): String {

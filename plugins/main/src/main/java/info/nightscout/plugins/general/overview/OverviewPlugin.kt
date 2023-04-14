@@ -117,13 +117,22 @@ class OverviewPlugin @Inject constructor(
                            if (notificationStore.remove(n.id))
                                overviewBus.send(EventUpdateOverviewNotification("EventDismissNotification"))
                        }, fabricPrivacy::logException)
-        disposable += rxBus
+        /*disposable += rxBus
             .toObservable(EventIobCalculationProgress::class.java)
             .observeOn(aapsSchedulers.io)
             .subscribe({
                            overviewData.calcProgressPct = it.pass.finalPercent(it.progressPct)
                            overviewBus.send(EventUpdateOverviewCalcProgress("EventIobCalculationProgress"))
+                       }, fabricPrivacy::logException)*/
+        disposable += rxBus
+            .toObservable(EventIobCalculationProgress::class.java)
+            .filter { it is EventIobCalculationProgress } // Ajoutez cette ligne pour filtrer les objets de type EventIobCalculationProgress
+            .observeOn(aapsSchedulers.io)
+            .subscribe({
+                           overviewData.calcProgressPct = it.pass.finalPercent(it.progressPct)
+                           overviewBus.send(EventUpdateOverviewCalcProgress("EventIobCalculationProgress"))
                        }, fabricPrivacy::logException)
+
         disposable += rxBus
             .toObservable(EventPumpStatusChanged::class.java)
             .observeOn(aapsSchedulers.io)
