@@ -729,10 +729,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 //this.profile.put("aimisensitivity", aimisensitivity)
         var clusterinsulin = 0.0f
-        if (bg > targetBg) {
-            if (variableSensitivity != null) {
-                clusterinsulin = (((bg - targetBg) / variableSensitivity).toFloat())
-            }
+        if (bg > targetBg && variableSensitivity != null && variableSensitivity.isInfinite()) {
+            clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
         }
 
 
