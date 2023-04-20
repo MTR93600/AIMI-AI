@@ -1415,7 +1415,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             if (!profile.temptargetSet && delta > 0){
                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                   if (circadian_smb > (-7)){
+                   if (circadian_smb > (-7) && lastbolusAge > 60){
                       var microBolus = profile.modelai === true && profile.smbToGive > 0 ? profile.smbToGive : Math.min(AIMI_UAM_CAP,insulinReq);
                       AI = true;
                       rT.reason += ", AIMI_AI is running.";
