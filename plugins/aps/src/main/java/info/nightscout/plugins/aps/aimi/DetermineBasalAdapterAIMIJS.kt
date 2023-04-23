@@ -560,6 +560,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
+        this.profile.put("key_use_enable_circadian", sp.getBoolean(R.string.key_use_enable_circadian, false))
+
 
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {

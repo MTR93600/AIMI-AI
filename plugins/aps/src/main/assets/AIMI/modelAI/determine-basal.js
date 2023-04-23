@@ -357,6 +357,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     enlog += "nowminutes = " +nowminutes+" ; \n";
 
     //var circadian_sensitivity = 1;
+    var enable_circadian = profile.key_use_enable_circadian;
     var circadian_sensitivity = (0.00000379*Math.pow(nowminutes,5))-(0.00016422*Math.pow(nowminutes,4))+(0.00128081*Math.pow(nowminutes,3))+(0.02533782*Math.pow(nowminutes,2))-(0.33275556*nowminutes)+1.38581503;
     var circadian_smb = round((0.00000379*delta*Math.pow(nowminutes,5))-(0.00016422*delta*Math.pow(nowminutes,4))+(0.00128081*delta*Math.pow(nowminutes,3))+(0.02533782*delta*Math.pow(nowminutes,2))-(0.33275556*delta*nowminutes)+1.38581503,2);
 
@@ -365,7 +366,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var insulinPeakTime = 60;
     // add 30m to allow for insulin delivery (SMBs or temps)
     insulinPeakTime = 90;
-    insulinPeakTime = insulinPeakTime * circadian_sensitivity;
+    insulinPeakTime = enable_circadian ? insulinPeakTime * circadian_sensitivity : insulinPeakTime;
 
     var AIMI_lastBolusSMBUnits = meal_data.lastBolusSMBUnits;
 
@@ -378,9 +379,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     console.log("\nb30activity : "+round(b30activity,2)+" ; ");
 
 
-    basal = basal / circadian_sensitivity;
+    basal = enable_circadian ? basal / circadian_sensitivity : basal;
     basal = Math.max(profile.current_basal * 0.5,basal);
-    enlog += "Basal circadian_sensitivity factor : "+basal+"\n";
+    enlog +=enable_circadian ? : "Basal circadian_sensitivity factor : "+basal+"\n" : "";
 
     if (lastbolusAge < profile.b30_duration && LastManualBolus >= 0){
          rT.reason += ". force basal because iTime is running and lesser than "+profile.b30_duration+" minutes : "+(profile.current_basal*10/60)*profile.b30_duration+" U, remaining time : " +(profile.b30_duration - lastbolusAge);
@@ -433,8 +434,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     sens = glucose_status.delta < 0 && iTimeActivation && aimi_bg < 150 ? profile.sens : sens;
     enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTimeActivation && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-aimi-TIRLow : "+sens+ " \n" : " \n";
     }else{
+    if (enable_circadian){
     sens = iTimeActivation && glucose_status.delta > 15 ? profile.sens / 2 : Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
     enlog += iTimeActivation && glucose_status.delta > 15 ? "ISF from profile divide by 2 because iTimeActivation && glucose_status.delta > 15 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
+    }else{
+    sens = iTimeActivation && glucose_status.delta > 15 ? profile.sens / 2 : profile.sens;
+    enlog += iTimeActivation && glucose_status.delta > 15 ? "ISF from profile divide by 2 because iTimeActivation && glucose_status.delta > 15 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
+    }
    }
     var mineRatio = profile.carb_ratio/2;
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
