@@ -1531,7 +1531,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
                 microBolus = calculerMicroBolus(microBolus, max_iob, iob_data);
 
-                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > 60 && bg < 180) {
+                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > 60) {
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
 
@@ -1616,7 +1616,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
-            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > 60 ){
+            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > 30 ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
             }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && lastbolusAge > 60 ){
@@ -1625,7 +1625,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             }else if (circadian_smb > 0 && lastbolusAge > 60 ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
-            }else if(lastbolusAge > 60 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+            }else if(lastbolusAge > 30 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
             SMBInterval = 10;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
             }
