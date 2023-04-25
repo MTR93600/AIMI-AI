@@ -618,7 +618,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
-        if (lastbolusage > 120){
+        if (lastbolusage > 60){
             this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
         }else{
             this.maxSMB = lastBolusNormalUnits
