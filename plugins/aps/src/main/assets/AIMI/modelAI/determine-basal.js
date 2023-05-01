@@ -13,9 +13,6 @@
 
 
 var round_basal = require('../round-basal')
-var syncCounter = 0;
-var slowIncreaseCounter = 0;
-
 
 // Fonctions
 function calculerMicroBolus(microBolus, max_iob, iob_data) {
@@ -146,6 +143,7 @@ function determine_varSMBratio(profile, bg, target_bg)
 
 
 var determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime, flatBGsDetected) {
+
     var rT = {}; //short for requestedTemp
     var deliverAt = new Date();
     //variable for step
@@ -1552,24 +1550,14 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 }*/
                 // Récupérer les compteurs du localStorage
 
-                console.log("syncCounter:", syncCounter, "slowIncreaseCounter:", slowIncreaseCounter);
+
 
                 if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > 60) {
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                     var nosmb;
-                    // Incrémenter le compteur de synchronisation
-                    syncCounter++;
 
-                    // Vérifier si le bg a augmenté de +2 ou +3 toutes les 5 minutes pendant 20 minutes
-                    if (delta >= 2 && delta <= 4 && syncCounter <= 4) {
-                        slowIncreaseCounter++;
-                        console.log("slowIncreaseCounter a augmenté:", slowIncreaseCounter);
-                    } else {
-                        slowIncreaseCounter = 0;
-                    }
 
-                    rT.reason += ",slowIncreaseCounter = " + slowIncreaseCounter + "syncCounter = " + syncCounter;
                     if (bg > 170 && delta > 0) {
                         microBolus = AIMI_lastBolusSMBUnits > M2 && meal_data.countSMB40 >= 3 ? M1 : M2;
                     } else if (bg < 130 && delta <= 10) {
@@ -1586,9 +1574,31 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     if (bg > 150 && delta > 5) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
+                    var lastFourValues = UAMpredBGs.slice(-4);
+                    var areValuesClose = true;
 
+                    for (var i = 0; i < lastFourValues.length; i++) {
+                        for (var j = i + 1; j < lastFourValues.length; j++) {
+                            var difference = Math.abs(lastFourValues[i] - lastFourValues[j]);
+                            if (difference > 5) {
+                                areValuesClose = false;
+                                break;
+                            }
+                        }
+                        if (!areValuesClose) {
+                            break;
+                        }
+                    }
+
+                    if (areValuesClose) {
+                        console.log("Les 4 dernières valeurs sont proches à +/- 5");
+
+                    } else {
+                        console.log("Les 4 dernières valeurs ne sont pas proches à +/- 5");
+                    }
+                     rT.reason += ", areValuesClose : "+areValuesClose;
                     // Condition pour détecter une progression lente du bg
-                    if (bg >= 130 && slowIncreaseCounter === 4) {
+                    if (bg >= 130 && areValuesClose === true) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 8 ? M1 : microBolus;
                     }
                 }
