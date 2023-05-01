@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.8.10'
+        kotlin_version = '1.8.21'
         core_version = '1.10.0'
         rxjava_version = '3.1.6'
         rxandroid_version = '3.0.2'
@@ -31,11 +31,11 @@ buildscript {
         swipe_version = '1.1.0'
 
         junit_version = '4.13.2'
-        junit_jupiter_version = '5.9.2'
+        junit_jupiter_version = '5.9.3'
         mockito_version = '4.6.1'
         dexmaker_version = '1.2'
         retrofit2_version = '2.9.0'
-        okhttp3_version = '4.10.0'
+        okhttp3_version = '4.11.0'
         byteBuddy_version = '1.12.8'
 
         androidx_junit_version = '1.1.4'
@@ -75,7 +75,7 @@ buildscript {
 plugins {
     // Test Gradle build, keep disabled under normal circumstances
     // id "com.osacky.doctor" version "0.8.1"
-    id "org.jlleitschuh.gradle.ktlint" version "11.3.1"
+    id "org.jlleitschuh.gradle.ktlint" version "11.3.2"
     id 'org.barfuin.gradle.jacocolog' version '3.1.0'
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
 }
