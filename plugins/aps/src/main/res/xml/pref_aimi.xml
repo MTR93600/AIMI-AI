@@ -49,6 +49,16 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="30"
+            android:dialogMessage="Duration after a manual bolus to let AIMI managing the SMB interval"
+            android:inputType="numberDecimal"
+            android:key="@string/key_mbi"
+            android:title="AIMI SMB interval management time after a manual bolus"
+            validate:floatmaxNumber="100"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
 
     </androidx.preference.PreferenceScreen>
 

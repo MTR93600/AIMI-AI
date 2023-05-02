@@ -232,5 +232,6 @@
     <string name="key_iTime_B30_bolus_duration">key_iTime_B30_bolus_duration</string>
     <string name="key_use_Aimib30bolus">key_use_Aimib30bolus</string>
     <string name="key_use_enable_circadian">key_use_enable_circadian</string>
+    <string name="key_mbi">AIMI smb interval duration after a bolus</string>
 
 </resources>

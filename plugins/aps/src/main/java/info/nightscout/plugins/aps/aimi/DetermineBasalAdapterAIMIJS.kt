@@ -561,7 +561,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
         this.profile.put("key_use_enable_circadian", sp.getBoolean(R.string.key_use_enable_circadian, false))
-
+        this.profile.put("key_mbi", SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30")))
 
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
@@ -616,9 +616,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         lastprebolus.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastPBoluscount += 1
         }
-
+        var mbi = SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30"))
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
-        if (lastbolusage > 60){
+        if (lastbolusage > mbi){
             this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
         }else{
             this.maxSMB = lastBolusNormalUnits

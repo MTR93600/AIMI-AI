@@ -393,7 +393,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          //return tempBasalFunctions.setTempBasal(basal*10, profile.b30_duration, profile, rT, currenttemp);
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if(lastbolusAge > 60 &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if(lastbolusAge > profile.key_mbi &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
          rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(profile.current_basal*delta/60)*10;
          rT.deliverAt = deliverAt;
          rT.temp = 'absolute';
@@ -402,7 +402,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if(lastbolusAge > 60 &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if(lastbolusAge > profile.key_mbi &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(profile.current_basal*delta/60)*10;
                rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
@@ -1416,7 +1416,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb > 3){
             AIMI_UAM_CAP *= 0.7;
-            }else if (circadian_smb < -1 && lastbolusAge > 60){
+            }else if (circadian_smb < -1 && lastbolusAge > profile.key_mbi){
             AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
@@ -1552,7 +1552,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
 
 
-                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > 60) {
+                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi) {
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                     var nosmb;
@@ -1634,7 +1634,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
-        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > 60){
+        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > profile.key_mbi){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
         }
@@ -1676,16 +1676,16 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
-            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > 30 ){
+            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > profile.key_mbi ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
-            }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && lastbolusAge > 60 ){
+            }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && lastbolusAge > profile.key_mbi ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because bg is stable";
-            }else if (circadian_smb > 0 && lastbolusAge > 60 ){
+            }else if (circadian_smb > 0 && lastbolusAge > profile.key_mbi ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
-            }else if(lastbolusAge > 30 &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+            }else if(lastbolusAge > profile.key_mbi &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
             SMBInterval = 10;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
             }
