@@ -54,8 +54,8 @@
             android:dialogMessage="Duration after a manual bolus AIMI doesn't manage the SMB interval. The max smb size = manual bolus"
             android:inputType="numberDecimal"
             android:key="@string/key_mbi"
-            android:title="AIMI SMB interval management time after a manual bolus"
-            validate:floatmaxNumber="300"
+            android:title="AIMI SMB interval management + MSS value"
+            validate:floatmaxNumber="120"
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 

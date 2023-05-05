@@ -1533,25 +1533,6 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
                 microBolus = calculerMicroBolus(microBolus, max_iob, iob_data);
 
-                /*if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > 60) {
-                    var M1 = microBolus / 3;
-                    var M2 = microBolus / 2;
-                    if (bg > 170 && delta > 0){
-                        microBolus = AIMI_lastBolusSMBUnits > M2 && meal_data.countSMB40 >= 3 ? M1 : M2;
-                    }else if (bg < 130 && delta <= 10) {
-                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? nosmb = true : M1;
-                    } else if (bg < 130 && delta > 10) {
-                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 7 && meal_data.countSMB40 >= 2 ? M1 : M2;
-                    } else if (bg > 130 && delta > 10) {
-                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 7 && meal_data.countSMB40 >= 2 ? M2 : microBolus;
-                    } else if (bg > 130 && delta <= 10) {
-                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? nosmb = true : M1;
-                    }
-                }*/
-                // Récupérer les compteurs du localStorage
-
-
-
                 if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi) {
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
@@ -1576,6 +1557,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     }
                     var lastFourValues = UAMpredBGs.slice(-4);
                     var areValuesClose = true;
+                    var arerisingagain = true;
 
                     for (var i = 0; i < lastFourValues.length; i++) {
                         for (var j = i + 1; j < lastFourValues.length; j++) {
@@ -1583,9 +1565,14 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                             if (difference > 5) {
                                 areValuesClose = false;
                                 break;
+                            }else if (difference < 10 && bg < 160){
+                                arerisingagain = false;
                             }
                         }
                         if (!areValuesClose) {
+                            break;
+                        }
+                        if (!arerisingagain){
                             break;
                         }
                     }
@@ -1596,10 +1583,12 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     } else {
                         console.log("Les 4 dernières valeurs ne sont pas proches à +/- 5");
                     }
-                     rT.reason += ", areValuesClose : "+areValuesClose;
+                     rT.reason += ", areValuesClose : "+areValuesClose+", arerisingagain : "+arerisingagain;
                     // Condition pour détecter une progression lente du bg
                     if (bg >= 130 && areValuesClose === true) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 8 ? M1 : microBolus;
+                    }else if(arerisingagain === true){
+                        microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 8 ? M2 : microBolus;
                     }
                 }
 
