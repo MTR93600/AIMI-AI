@@ -1555,7 +1555,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     if (bg > 150 && delta > 5) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
-                    var lastFourValues = UAMpredBGs.slice(-4);
+                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-6) : UAMpredBGs.slice(-3);
                     var areValuesClose = true;
                     var arerisingagain = true;
 
