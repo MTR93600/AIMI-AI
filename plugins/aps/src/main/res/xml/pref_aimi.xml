@@ -59,6 +59,26 @@
             validate:floatminNumber="0"
             validate:testType="floatNumericRange" />
 
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="Weight in kg to calculate the basal"
+            android:inputType="numberDecimal"
+            android:key="@string/key_aimiweight"
+            android:title="Weight in kg"
+            validate:floatmaxNumber="150"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="50"
+            android:dialogMessage="TDD average 7 days"
+            android:inputType="numberDecimal"
+            android:key="@string/key_tdd7"
+            android:title="TDD 7 days"
+            validate:floatmaxNumber="150"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
 
     </androidx.preference.PreferenceScreen>
 
