@@ -97,6 +97,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var deccelerating_down = 0.0f
     private var stable = 0.0f
     private var maxIob = 0.0f
+    private var basalaimi = 0.0f
     private var maxSMB = 1.0f
     private var lastbolusage: Long = 0
     private var tdd7DaysPerHour = 0.0f
@@ -434,9 +435,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
-
-
-
+        if (tdd7Days != null) {
+            this.basalaimi = (tdd7Days / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
+        }else{
+            this.basalaimi = (SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")) / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
+        }
         // profile.dia
         val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())
         val absIob = abs.iob
@@ -562,7 +565,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
         this.profile.put("key_use_enable_circadian", sp.getBoolean(R.string.key_use_enable_circadian, false))
         this.profile.put("key_mbi", SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30")))
-
+        this.profile.put("key_tdd7", SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")))
+        this.profile.put("key_aimiweight", SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50")))
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
             this.profile.put("out_units", "mmol/L")
