@@ -653,6 +653,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 160.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 160.0))?.belowPct()
+        val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,140.0))?.inRangePct()
+        val tirbasal3B = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,140.0))?.belowPct()
+        val tirbasal3A = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,140.0))?.abovePct()
         val tdd1D = tddDaily
         var tdd7D = tdd7Days
         val tddLast24H = tdd24Hrs
@@ -665,6 +668,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             insulin.peak >= 35 -> 55 // lyumjev peak: 45
             insulin.peak > 45 -> 65 // ultra rapid peak: 55
             else              -> 75 // rapid peak: 75
+        }
+        if (tirbasal3B != null) {
+            if (tirbasal3IR != null) {
+                if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80)){
+                    basalaimi = (basalaimi * 1.1).toFloat()
+                }else if(tirbasal3B <= 5 && tirbasal3IR <= 70){
+                    basalaimi = (basalaimi * 1.2).toFloat()
+                }else if(tirbasal3B > 5 && tirbasal3A!! < 5){
+                    basalaimi = (basalaimi * 0.85).toFloat()
+                }
+            }
         }
 
 // Add variable for readability and to avoid repeating the same calculations
@@ -747,6 +761,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
         this.profile.put("lastPBoluscount", lastPBoluscount)
+        this.profile.put("basalaimi", basalaimi)
 
         this.profile.put("insulinDivisor", insulinDivisor)
         //this.profile.put("tddlastHaverage", tddlastHaverage)
