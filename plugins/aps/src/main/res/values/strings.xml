@@ -235,5 +235,6 @@
     <string name="key_mbi">AIMI smb interval duration after a bolus</string>
     <string name="key_aimiweight">key_aimiweight</string>
     <string name="key_tdd7">key_tdd7</string>
+    <string name="key_cho">key_cho</string>
 
 </resources>

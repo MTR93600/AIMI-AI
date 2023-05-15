@@ -98,6 +98,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var stable = 0.0f
     private var maxIob = 0.0f
     private var basalaimi = 0.0f
+    private var CI = 0.0f
+    private var aimilimit = 0.0f
     private var maxSMB = 1.0f
     private var lastbolusage: Long = 0
     private var tdd7DaysPerHour = 0.0f
@@ -440,6 +442,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }else{
             this.basalaimi = (SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")) / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
         }
+        if (tdd7Days != null){
+            this.CI = 450 / tdd7Days
+        }else{
+            this.CI = (450 / SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50"))).toFloat()
+        }
+        this.aimilimit = (SafeParse.stringToDouble(sp.getString(R.string.key_cho, "50")) / CI).toFloat()
         // profile.dia
         val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())
         val absIob = abs.iob
@@ -459,6 +467,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("type", "current")
         this.profile.put("max_daily_basal", profile.getMaxDailyBasal())
         this.profile.put("max_basal", maxBasal)
+
         this.profile.put("min_bg", minBg)
         this.profile.put("max_bg", maxBg)
         this.profile.put("target_bg", targetBg)
@@ -483,6 +492,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tddlastHrs",tddlastHrs)
         this.profile.put("hourOfDay",hourOfDay)
         this.profile.put("weekend",weekend)
+        this.profile.put("IC",CI)
+        this.profile.put("aimilimit",aimilimit)
 
 
 
@@ -680,6 +691,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 }
             }
         }
+
 
 // Add variable for readability and to avoid repeating the same calculations
         val tddWeightedFromLast8H: Double? = if(tddLast4H != null && tddLast8to4H != null){
