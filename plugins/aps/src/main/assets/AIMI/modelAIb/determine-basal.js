@@ -1443,9 +1443,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
                 } else if (circadian_smb <= -7) {
                     microBolus = Math.min(AIMI_UAM_CAP, insulinReq * 2);
-                } else if (circadian_smb > -1 && bg > 200) {
+                } /*else if (circadian_smb > -1 && bg > 200) {
                     microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
-                }
+                }*/
 
                 microBolus = calculerMicroBolus(microBolus, max_iob, iob_data);
 
@@ -1471,7 +1471,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     if (bg > 150 && delta > 5) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
-                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-6) : UAMpredBGs.slice(-3);
+                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-8) : UAMpredBGs.slice(-4);
                     var areValuesClose = true;
                     var arerisingagain = true;
 
@@ -1521,7 +1521,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
 
-        if (UAMpredBG < 110){
+        if (UAMpredBG < 120){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < 100, ";
         }else if (bg < target_bg && delta < -2){
