@@ -442,11 +442,20 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }else{
             this.basalaimi = (SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")) / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
         }
-        if (tdd7Days != null){
+        if (tdd7Days != null && tdd7Days != 0.0f){
             this.CI = 450 / tdd7Days
         }else{
-            this.CI = (450 / SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50"))).toFloat()
+            val tdd7Key = SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50"))
+            this.CI = (450 / tdd7Key).toFloat()
         }
+
+        val choKey = SafeParse.stringToDouble(sp.getString(R.string.key_cho, "50"))
+        if(CI != 0.0f && CI != Float.POSITIVE_INFINITY && CI != Float.NEGATIVE_INFINITY) {
+            this.aimilimit = (choKey / CI).toFloat()
+        } else {
+            this.aimilimit = (choKey / profile.getIc()).toFloat()
+        }
+
         this.aimilimit = (SafeParse.stringToDouble(sp.getString(R.string.key_cho, "50")) / CI).toFloat()
         // profile.dia
         val abs = iobCobCalculator.calculateAbsoluteIobFromBaseBasals(System.currentTimeMillis())

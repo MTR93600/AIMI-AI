@@ -1127,7 +1127,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 15/05/2023 3.2.0-dev-i";
+        rT.reason +=" , Variant AIMI-AIb 16/05/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1428,21 +1428,21 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             if (!profile.temptargetSet && delta > 0) {
                 insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
+                //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
 
-                if (circadian_smb > -7) {
+                if (circadian_smb > -8) {
                     if (profile.modelai === true && profile.smbToGive > 0) {
-                        microBolus = profile.smbToGive;
+                        var microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
                     } else if (profile.modelai === false) {
-                        microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                        var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg,future_sens);
                     }
                 } else if (profile.smbToGive < 0 && bg > 150 && profile.modelai === true && delta > 5 && meal_data.countSMB40 === 0) {
-                    microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                    var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                     rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                } else if (circadian_smb <= -7) {
-                    microBolus = Math.min(AIMI_UAM_CAP, insulinReq * 2);
+                } else if (circadian_smb <= -8 && profile.accelerating_up === 1) {
+                    var microBolus = Math.min(AIMI_UAM_CAP, insulinReq * 2);
                 } /*else if (circadian_smb > -1 && bg > 200) {
                     microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                 }*/
