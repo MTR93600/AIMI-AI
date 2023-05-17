@@ -323,7 +323,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     //variable AIMI
-    var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
+    var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160|| countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
     var TDD = profile.TDD;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
