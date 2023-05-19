@@ -15,8 +15,8 @@
 var round_basal = require('../round-basal')
 
 // Fonctions
-function calculerMicroBolus(microBolus, max_iob, iob_data) {
-    return Math.min(microBolus, max_iob - iob_data.iob);
+function calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data) {
+    return Math.min(AIMI_UAM_CAP, microBolus, max_iob - iob_data.iob);
 }
 
 function calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens) {
@@ -1428,26 +1428,26 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             if (!profile.temptargetSet && delta > 0) {
                 insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
-                //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
+                var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
 
                 if (circadian_smb > -8) {
                     if (profile.modelai === true && profile.smbToGive > 0) {
-                        var microBolus = profile.smbToGive;
+                         microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
                     } else if (profile.modelai === false) {
-                        var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg,future_sens);
+                         microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg,future_sens);
                     }
-                } else if (profile.smbToGive < 0 && bg > 150 && profile.modelai === true && delta > 5 && meal_data.countSMB40 === 0) {
-                    var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                } else if (profile.smbToGive <= 0 && bg > 140 && profile.modelai === true && delta > 5 && meal_data.countSMB40 === 0) {
+                     microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                     rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
                 } else if (circadian_smb <= -8 && profile.accelerating_up === 1) {
-                    var microBolus = Math.min(AIMI_UAM_CAP, insulinReq * 2);
-                } /*else if (circadian_smb > -1 && bg > 200) {
+                     microBolus = Math.min(AIMI_UAM_CAP, insulinReq * 2);
+                } else if (circadian_smb > -1 && bg >= 180 && bg <= 200 && UAMpredBG > 100) {
                     microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
-                }*/
+                }
 
-                microBolus = calculerMicroBolus(microBolus, max_iob, iob_data);
+                microBolus = calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data);
 
                 if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi) {
                     var M1 = microBolus / 3;
@@ -1512,7 +1512,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             }
 
-            microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
+            microBolus = Math.floor(Math.min((microBolus * roundSMBTo),AIMI_UAM_CAP)) / roundSMBTo;
 
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
@@ -1521,9 +1521,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
 
-        if (UAMpredBG < 120){
+        if (UAMpredBG < 120 && bg < 180){
             microBolus = 0;
-            rT.reason += ", No SMB because UAMpredBG < 100, ";
+            rT.reason += ", No SMB because UAMpredBG < 120, ";
         }else if (bg < target_bg && delta < -2){
             microBolus = 0;
             rT.reason += ", No SMB because bg < target_bg && delta < -2, ";
