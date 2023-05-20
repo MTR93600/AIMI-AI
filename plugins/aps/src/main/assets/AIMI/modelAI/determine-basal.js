@@ -15,8 +15,8 @@
 var round_basal = require('../round-basal')
 
 // Fonctions
-function calculerMicroBolus(microBolus, max_iob, iob_data) {
-    return Math.min(microBolus, max_iob - iob_data.iob);
+function calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data) {
+    return Math.min(AIMI_UAM_CAP,microBolus, max_iob - iob_data.iob);
 }
 
 function calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens) {
@@ -1446,7 +1446,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                 }
 
-                microBolus = calculerMicroBolus(microBolus, max_iob, iob_data);
+                microBolus = calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data);
 
                 if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi) {
                     var M1 = microBolus / 3;
