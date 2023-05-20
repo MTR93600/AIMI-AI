@@ -1512,7 +1512,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             }
 
-            microBolus = Math.floor(Math.min((microBolus * roundSMBTo),AIMI_UAM_CAP)) / roundSMBTo;
+            microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
 
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
