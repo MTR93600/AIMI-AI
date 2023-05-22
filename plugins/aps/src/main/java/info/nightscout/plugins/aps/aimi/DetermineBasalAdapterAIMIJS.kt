@@ -234,7 +234,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
             recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()*/
             hourOfDay.toFloat(), weekend.toFloat(),
-            bg, iob, delta, shortAvgDelta, longAvgDelta,
+            bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
         )
         val output = arrayOf(floatArrayOf(0.0F))
@@ -587,6 +587,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_mbi", SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30")))
         this.profile.put("key_tdd7", SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")))
         this.profile.put("key_aimiweight", SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50")))
+        this.profile.put("key_UAMpredBG", SafeParse.stringToDouble(sp.getString(R.string.key_UAMpredBG, "120")))
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
             this.profile.put("out_units", "mmol/L")
@@ -644,8 +645,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
         if (lastbolusage > mbi){
             this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
-        }else{
+        }else if (lastbolusage < mbi){
             this.maxSMB = lastBolusNormalUnits
+        }else{
+            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
         }
         this.profile.put("mss",maxSMB)
 
