@@ -1651,18 +1651,72 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }
 
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
+        var maxRate, durationReq = 30, insulinScheduled;
+        rate = 0;
+
+        if (lastbolusAge < profile.key_mbi){
+            maxRate = Math.min(maxSafeBasal, basal * 10);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because it's last manual bolus age < " + profile.key_mbi + " minutes : " + (basal*10/60)*30 + " U, meal. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        else if (delta > -3 && delta < 3 && shortAvgDelta > -3 && shortAvgDelta < 3 && longAvgDelta > -3 && longAvgDelta < 3 && bg > 150){
+            maxRate = Math.min(maxSafeBasal, basal * 10);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because it's stable but bg > 150 : " + (basal*10/60)*30 + " U, stable bg. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        else if (iTimeActivation && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200) {
+            maxRate = (bg < 100 && delta <= 5 && delta > 0) ? Math.min(maxSafeBasal, basal * delta) : Math.min(maxSafeBasal, basal * 8);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because AIMI is running and delta < 6 : " + (maxRate/60)*30 + " U, B30. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        else if (iTimeActivation && delta > 0 && delta <= 5 && bg >= 150 && bg < 200) {
+            maxRate = Math.min(maxSafeBasal, basal * delta);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because AIMI is running and delta < 6 : " + (maxRate/60)*30 + " U, B30. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        else if (!aimi_activity && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour) {
+            maxRate = Math.min(maxSafeBasal, profile.tdd7DaysPerHour - profile.tddlastHrs);
+            rate = round_basal(maxRate, profile);
+            rT.reason = ". Force basal because tddlastHrs < tdd7DaysPerHours : " + (profile.tdd7DaysPerHour - profile.tddlastHrs) + ", tddlastHrs. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        else if(nosmb && delta > 0){
+            maxRate = Math.min(maxSafeBasal, basal * 3);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because no smb = true : " + maxRate + ", delta > 0. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
+        }
+
+        if(insulinScheduled < insulinReq * 2) {
+            rT.duration = durationReq;
+            return tempBasalFunctions.setTempBasal(rate, durationReq, profile, rT, currenttemp);
+        }
+
         /*if (lastbolusAge < profile.key_mbi){
             rT.reason += ". force basal because it's last manual bolus age < "+profile.key_mbi+" minutes : "+(basal*10/60)*30+" U";
-            var durationReq = 30;
+            durationReq = 30;
             rT.duration = durationReq;
-            var rate = round_basal(basal*10,profile);
-        }else */if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
+            rate = round_basal(basal*10,profile);
+            rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " meal. Setting temp basal of " + rate + "U/hr. ";
+            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+        }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg > 150){
             rT.reason += ". force basal because it's stable but bg > 150 : "+(basal*10/60)*30+" U";
             //rT.deliverAt = deliverAt;
             var durationReq = 30;
             rT.duration = durationReq;
-            var rate = round_basal(basal*10,profile);
+            rate = round_basal(basal*10,profile);
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+            rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " stable bg. Setting temp basal of " + rate + "U/hr. ";
+            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
         }else if (iTimeActivation === true && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200) {
             if(bg < 100 && delta <= 5 && delta > 0) {
@@ -1670,12 +1724,16 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 var durationReq = 30;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*delta,profile);
+                rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " B30. Setting temp basal of " + rate + "U/hr. ";
+                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
             } else if (bg > 0.8 * b30upperLimit && bg < b30upperLimit) {
                 rT.reason += ". force basal because AIMI is running and delta < 6 : "+(basal*8/60)*30;
                 var durationReq = 30;
                 rT.duration = durationReq;
                 var rate = round_basal(basal*8,profile);
+                rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " B30. Setting temp basal of " + rate + "U/hr. ";
+                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
             }
             //return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         } else if (iTimeActivation === true && delta > 0 && delta <= 5 && bg >= 150 && bg < 200) {
@@ -1683,12 +1741,16 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var durationReq = 30;
             rT.duration = durationReq;
             var rate = round_basal(basal*delta,profile);
+            rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " B30. Setting temp basal of " + rate + "U/hr. ";
+            return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
             //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
         }else if (aimi_activity === false && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour) {
              rT.reason += ". force basal because tddlastHrs < tdd7DaysPerHours : " + (profile.tdd7DaysPerHour - profile.tddlastHrs);
              var durationReq = 30;
              rT.duration = durationReq;
              var rate = round_basal(profile.tdd7DaysPerHour - profile.tddlastHrs, profile);
+             rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " tddlastHrs. Setting temp basal of " + rate + "U/hr. ";
+             return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
 
         //return tempBasalFunctions.setTempBasal(rate, 15, profile, rT, currenttemp);
         }else if(nosmb === true && delta > 0){
@@ -1697,11 +1759,13 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 rT.duration = durationReq;
                 var rate = round_basal(basal * 3,profile);
                 //return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-        }
+                rT.reason += currenttemp.duration + "m@" + (currenttemp.rate).toFixed(2) + " delta > 0. Setting temp basal of " + rate + "U/hr. ";
+                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
+        }*/
 
 
 
-        if (rate > maxSafeBasal) {
+        if (rate > maxSafeBasal && lastbolusAge > profile.key_mbi) {
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
          rate = round_basal(maxSafeBasal, profile);
          }
