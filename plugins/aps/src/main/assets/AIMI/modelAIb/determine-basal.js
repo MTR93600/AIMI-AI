@@ -304,6 +304,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     } else {
         tick = round(glucose_status.delta,0);
     }
+
+
     //var minDelta = Math.min(glucose_status.delta, glucose_status.short_avgdelta, glucose_status.long_avgdelta);
     var minDelta = Math.min(glucose_status.delta, glucose_status.short_avgdelta);
     var minAvgDelta = Math.min(glucose_status.short_avgdelta, glucose_status.long_avgdelta);
@@ -584,7 +586,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (iob_data.iob > 0) {
         var naive_eventualBG = round( bg - (iob_data.iob * sens) );
     } else { // if IOB is negative, be more conservative and use the lower of sens, profile.sens
-        naive_eventualBG = round( bg - (iob_data.iob * Math.min(sens, profile.sens) ) );
+        var naive_eventualBG = round( bg - (iob_data.iob * Math.min(sens, profile.sens) ) );
     }
     // and adjust it for the deviation above
     var eventualBG = naive_eventualBG + deviation;
@@ -1287,10 +1289,58 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 return tempBasalFunctions.setTempBasal(basal, 30, profile, rT, currenttemp);
             }
         }
+        // activityLevel - represents the recent physical activity level
+        // bgTrend - represents the recent blood glucose trend
+        // timeOfDay - represents the current time of day
+        var activityAdjustment = 1;
+        var trendAdjustment = 1;
+        var timeAdjustment = 1;
+        // Adjust based on activity level
+        if (recentSteps60Minutes >= 1000) {
+            activityAdjustment = 0.8;
+        }else if (recentSteps60Minutes < 300){
+        activityAdjustment = 1.2;
+        }
+        // Adjust based on blood glucose trend
+        var lastpredValues = now.getHours() < 11 ? UAMpredBGs.slice(-8) : UAMpredBGs.slice(-4);
+        var ValuesClose = true;
+        var risingagain = true;
+
+        for (var i = 0; i < lastFourValues.length; i++) {
+            for (var j = i + 1; j < lastFourValues.length; j++) {
+                var difference = Math.abs(lastFourValues[i] - lastFourValues[j]);
+                if (difference > 5) {
+                    ValuesClose = false;
+                    break;
+                }else if (difference < 10 && bg < 160){
+                    risingagain = false;
+                }
+            }
+            if (!ValuesClose) {
+                break;
+            }
+            if (!risingagain){
+                break;
+            }
+        }
+        if (ValuesClose === false && risingagain === true){
+            trendAdjustment = 1.2;
+        }else if (ValuesClose === true && risingagain === flase){
+            trendAdjustment = 0.8;
+        }
+
+        // Adjust based on time of day
+        if (now >= 7 && now < 11){
+            timeAdjustment = 0.9;
+        }else if(now >= 11 && now <= 16){
+            timeAdjustment = 1.1;
+        }else{
+            timeAdjustment = 1;
+        }
 
         // calculate 30m low-temp required to get projected BG up to target
         // multiply by 2 to low-temp faster for increased hypo safety
-        var insulinReq = 2 * Math.min(0, (eventualBG - target_bg) / future_sens);
+        var insulinReq = activityAdjustment * trendAdjustment * timeAdjustment * 2 * Math.min(0,(eventualBG - target_bg) / future_sens);
         insulinReq = round( insulinReq , 2);
         // calculate naiveInsulinReq based on naive_eventualBG
         var naiveInsulinReq = Math.min(0, (naive_eventualBG - target_bg) / sens);
@@ -1456,7 +1506,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var AI = false;
 
             if (!profile.temptargetSet && delta > 0) {
-                insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
+                //insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
                 //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
 
                 if (circadian_smb > -5) {
@@ -1465,10 +1515,12 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
                     }else if (profile.smbToGive === 0 && bg > 140 && profile.modelai === true && delta > 5 && meal_data.countSMB40 === 0){
-                         var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                         //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                         var microBolus = insulinReq;
                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
                     }else if (profile.modelai === false){
-                        var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                        //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                        var microBolus = insulinReq;
                     }
                 }else if (circadian_smb <= -5 && profile.accelerating_up === 1){
                     var microBolus = insulinReq;
@@ -1478,13 +1530,15 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
                 microBolus = calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data);
 
-                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi){
+                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && lastbolusAge > profile.key_mbi){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                     var nosmb;
 
 
-                    if (bg > 170 && delta > 0){
+                    if (bg > 200 && delta > 0){
+                        microBolus = AIMI_lastBolusSMBUnits < M2 && meal_data.countSMB40 ===0 ? microBolus : M2;
+                    }else if (bg > 170 && delta > 0){
                         microBolus = AIMI_lastBolusSMBUnits > M2 && meal_data.countSMB40 >= 3 ? M1 : M2;
                     } else if (bg < 130 && delta <= 10){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? (nosmb = true) : M1;
