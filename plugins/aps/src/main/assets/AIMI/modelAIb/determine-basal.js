@@ -1165,7 +1165,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
         rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
         rT.reason += enable_circadian === true ? ", circadian_sensitivity : "+circadian_sensitivity : "";
-        rT.reason += ",circadian_smb test : "+circadian_smb+", Basal : "+basal;
+        rT.reason += ",circadian_smb test : "+circadian_smb+", Basal : "+basal+" U";
         //rT.reason += ",aimismb test de valeur : "+aimi_smb;
         rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
         rT.reason += (profile.modelai === true ? ", The ai model predicted SMB of "+profile.predictedSMB+"u after safety requirements and rounding to .05, requested "+profile.smbToGive+"u to the pump" : "The ai model need a file which is missing");
@@ -1306,9 +1306,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         var ValuesClose = true;
         var risingagain = true;
 
-        for (var i = 0; i < lastFourValues.length; i++) {
-            for (var j = i + 1; j < lastFourValues.length; j++) {
-                var difference = Math.abs(lastFourValues[i] - lastFourValues[j]);
+        for (var i = 0; i < lastpredValues.length; i++) {
+            for (var j = i + 1; j < lastpredValues.length; j++) {
+                var difference = Math.abs(lastpredValues[i] - lastpredValues[j]);
                 if (difference > 5) {
                     ValuesClose = false;
                     break;
@@ -1506,9 +1506,11 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var AI = false;
 
             if (!profile.temptargetSet && delta > 0) {
-                insulinReq = lastbolusAge < profile.key_mbi ? ((1 + Math.sqrt(aimi_delta)) / 2) : insulinReq;
+                //insulinReq = lastbolusAge < profile.key_mbi ? ((1 + Math.sqrt(aimi_delta)) / 2) : insulinReq;
                 //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
-
+                if (lastbolusAge < profile.key_mbi){
+                    insulinReq = (1 + Math.sqrt(aimi_delta)) / 2;
+                }
                 if (circadian_smb > -5) {
                     if (profile.modelai === true && profile.smbToGive > 0){
                         var microBolus = profile.smbToGive;
