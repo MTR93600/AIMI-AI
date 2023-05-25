@@ -1158,14 +1158,14 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 20/05/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AIb 25/05/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
         rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
         rT.reason += enable_circadian === true ? ", circadian_sensitivity : "+circadian_sensitivity : "";
-        rT.reason += ",circadian_smb test : "+circadian_smb;
+        rT.reason += ",circadian_smb test : "+circadian_smb+", Basal : "+basal;
         //rT.reason += ",aimismb test de valeur : "+aimi_smb;
         rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
         rT.reason += (profile.modelai === true ? ", The ai model predicted SMB of "+profile.predictedSMB+"u after safety requirements and rounding to .05, requested "+profile.smbToGive+"u to the pump" : "The ai model need a file which is missing");
@@ -1506,7 +1506,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             var AI = false;
 
             if (!profile.temptargetSet && delta > 0) {
-                //insulinReq = ((1 + Math.sqrt(aimi_delta)) / 2);
+                insulinReq = lastbolusAge < profile.key_mbi ? ((1 + Math.sqrt(aimi_delta)) / 2) : insulinReq;
                 //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
 
                 if (circadian_smb > -5) {
@@ -1514,15 +1514,19 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                         var microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
-                    }else if (profile.smbToGive === 0 && bg > 140 && profile.modelai === true && delta > 5 && meal_data.countSMB40 === 0){
+                    }else if (profile.smbToGive === 0 && bg > 140 && delta > 5 && meal_data.countSMB40 === 0){
                          //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                          var microBolus = insulinReq;
                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                    }else if (profile.modelai === false){
+                    }else if (profile.smbToGive <= 0 && bg > 160 && delta > 0 && meal_data.countSMB40 === 0){
+                          //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
+                          var microBolus = insulinReq;
+                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
+                     }else if (profile.modelai === false){
                         //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                         var microBolus = insulinReq;
                     }
-                }else if (circadian_smb <= -5 && profile.accelerating_up === 1){
+                }else if (circadian_smb <= -5){
                     var microBolus = insulinReq;
                 }else if (circadian_smb > -1 && bg >= 180 && bg <= 200 && UAMpredBG > 100){
                    var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
