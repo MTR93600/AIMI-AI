@@ -1158,7 +1158,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 25/05/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AIb 28/05/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1312,31 +1312,34 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                 if (difference > 5) {
                     ValuesClose = false;
                     break;
-                }else if (difference < 10 && bg < 160){
+                } else if (difference < 10 && bg < 160){
                     risingagain = false;
                 }
             }
-            if (!ValuesClose) {
-                break;
-            }
-            if (!risingagain){
+            if (!ValuesClose || !risingagain){
                 break;
             }
         }
-        if (ValuesClose === false && risingagain === true){
+
+        var trendAdjustment;
+        if (!ValuesClose && risingagain){
             trendAdjustment = 1.2;
-        }else if (ValuesClose === true && risingagain === flase){
+        } else if (ValuesClose && !risingagain){
             trendAdjustment = 0.8;
         }
 
         // Adjust based on time of day
-        if (now >= 7 && now < 11){
+        var currentHour = now.getHours();
+        var timeAdjustment;
+
+        if (currentHour >= 7 && currentHour < 11){
             timeAdjustment = 0.9;
-        }else if(now >= 11 && now <= 16){
+        } else if(currentHour >= 11 && currentHour <= 16){
             timeAdjustment = 1.1;
-        }else{
+        } else{
             timeAdjustment = 1;
         }
+
 
         // calculate 30m low-temp required to get projected BG up to target
         // multiply by 2 to low-temp faster for increased hypo safety
@@ -1516,11 +1519,11 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                         var microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
-                    }else if (profile.smbToGive === 0 && bg > 140 && delta > 5 && meal_data.countSMB40 === 0){
+                    }else if (profile.smbToGive === 0 && bg > 140 && delta > 5){
                          //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                          var microBolus = insulinReq;
                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                    }else if (profile.smbToGive <= 0 && bg > 160 && delta > 0 && meal_data.countSMB40 === 0){
+                    }else if (profile.smbToGive <= 0 && bg > 160 && delta > 0){
                           //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                           var microBolus = insulinReq;
                           rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
