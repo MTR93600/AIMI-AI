@@ -396,7 +396,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          //return tempBasalFunctions.setTempBasal(basal*10, profile.b30_duration, profile, rT, currenttemp);
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if(lastbolusAge > profile.key_mbi &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
          rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(basal*delta/60)*10;
          rT.deliverAt = deliverAt;
          rT.temp = 'absolute';
@@ -405,7 +405,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if(lastbolusAge > profile.key_mbi &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(basal*delta/60)*10;
                rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
@@ -1158,7 +1158,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 28/05/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AIb 02/06/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1499,7 +1499,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb > 3){
             AIMI_UAM_CAP *= 0.7;
-            }else if (circadian_smb < -3 && lastbolusAge > profile.key_mbi){
+            }else if (circadian_smb < -3 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && now.getHours() > 8){
             AIMI_UAM_CAP = (basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
@@ -1539,7 +1539,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
                 microBolus = calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data);
 
-                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && lastbolusAge > profile.key_mbi){
+                if ((meal_data.MaxSMBcount >= 1 || meal_data.countSMB40 > 2 || meal_data.countSMB40 === 0) && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
                     var M1 = microBolus / 3;
                     var M2 = microBolus / 2;
                     var nosmb;
@@ -1631,7 +1631,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
-        }else if (delta <= b30upperdelta && bg < b30upperLimit && lastbolusAge > profile.key_mbi){
+        }else if (delta <= b30upperdelta && bg < b30upperLimit && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
         }
@@ -1673,10 +1673,10 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             if (lastbolusAge < profile.key_mbi && profile.aimilimit < iob_data.iob){
             aimiint = true;
             }
-            if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0 && lastbolusAge > profile.key_mbi){
+            if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
-            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > profile.key_mbi ){
+            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
             }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && aimiint === false ){
@@ -1828,7 +1828,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
 
 
-        if (rate > maxSafeBasal && lastbolusAge > profile.key_mbi) {
+        if (rate > maxSafeBasal && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)) {
          rT.reason += "adj. req. rate: "+round(rate, 2)+" to maxSafeBasal: "+maxSafeBasal+", ";
          rate = round_basal(maxSafeBasal, profile);
          }

@@ -140,6 +140,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_AimiPower"
+            android:title="Authorise more power applying B30 settings"
+            android:summary="when enable AIMI will be more aggressive during the duration of B30 settings section" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_enable_circadian"
             android:title="Enable the circadian model"
             android:summary="Enable circadian model on the ISF calculation and the basal profile" />

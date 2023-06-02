@@ -1126,7 +1126,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI 09/05/2023 3.2.0-dev-i";
+        rT.reason +=" , Variant AIMI-AI 02/06/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1416,7 +1416,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             AIMI_UAM_CAP *= 0.7;
             }else if (circadian_smb > 3){
             AIMI_UAM_CAP *= 0.7;
-            }else if (circadian_smb < -1 && lastbolusAge > profile.key_mbi){
+            }else if (circadian_smb < -1 && lastbolusAge > profile.key_mbi && now.getHours() > 8){
             AIMI_UAM_CAP = (profile.current_basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
@@ -1470,7 +1470,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     if (bg > 150 && delta > 5) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
-                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-8) : UAMpredBGs.slice(-4);
+                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-7) : UAMpredBGs.slice(-3);
                     var areValuesClose = true;
                     var arerisingagain = true;
 
