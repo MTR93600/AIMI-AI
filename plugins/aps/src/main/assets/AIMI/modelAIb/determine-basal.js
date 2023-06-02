@@ -1302,7 +1302,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         activityAdjustment = 1.2;
         }
         // Adjust based on blood glucose trend
-        var lastpredValues = now.getHours() < 11 ? UAMpredBGs.slice(-8) : UAMpredBGs.slice(-4);
+        var lastpredValues = now.getHours() < 11 ? UAMpredBGs.slice(-7) : UAMpredBGs.slice(-3);
         var ValuesClose = true;
         var risingagain = true;
 
@@ -1563,7 +1563,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                     if (bg > 150 && delta > 5) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
-                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-8) : UAMpredBGs.slice(-4);
+                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-7) : UAMpredBGs.slice(-3);
                     var areValuesClose = true;
                     var arerisingagain = true;
 
