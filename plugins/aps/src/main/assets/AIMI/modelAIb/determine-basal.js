@@ -1634,6 +1634,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (delta <= b30upperdelta && bg < b30upperLimit && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
+        }else if(profile.averageBeatsPerMinute >= 100 && bg < 160 && aimi_activity === true){
+            microBolus = 0;
+            rT.reason += ", averageBeatsPerMinute("+profile.averageBeatsPerMinute+") decision : No SMB = true => force basal, ";
         }
         // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
