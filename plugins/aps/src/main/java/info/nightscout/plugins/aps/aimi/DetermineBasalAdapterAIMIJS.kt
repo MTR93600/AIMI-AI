@@ -711,7 +711,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                     basalaimi = (basalaimi * 0.65).toFloat()
                 }else if(averageBeatsPerMinute != null && averageBeatsPerMinute >= 100 && bg >= 180 && recentSteps10Minutes < 200){
                     basalaimi = (basalaimi * 1.6).toFloat()
-                }else if(averageBeatsPerMinute != null && averageBeatsPerMinute <= 65 && recentSteps10Minutes === 0){
+                }else if(averageBeatsPerMinute != null && averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0){
                     basalaimi = (basalaimi * 1.4).toFloat()
                 }
             }
