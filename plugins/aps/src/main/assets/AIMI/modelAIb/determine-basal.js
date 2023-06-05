@@ -1547,7 +1547,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
                     if (bg > 200 && delta > 0){
                         microBolus = AIMI_lastBolusSMBUnits < M2 && meal_data.countSMB40 ===0 ? microBolus : M2;
-                    }else if (bg > 170 && delta > 0){
+                    }else if (bg > 160 && delta > 0){
                         microBolus = AIMI_lastBolusSMBUnits > M2 && meal_data.countSMB40 >= 3 ? M1 : M2;
                     } else if (bg < 130 && delta <= 10){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? (nosmb = true) : M1;
@@ -1613,7 +1613,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
 
-        if (UAMpredBG < profile.key_UAMpredBG && bg < 180){
+        if (UAMpredBG < profile.key_UAMpredBG && bg < 160){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < "+profile.key_UAMpredBG+", ";
         }else if (bg < target_bg && delta < -2){
@@ -1634,9 +1634,6 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (delta <= b30upperdelta && bg < b30upperLimit && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
             microBolus = 0;
             rT.reason += ", B30 decision : No SMB = true => force basal, ";
-        }else if(profile.averageBeatsPerMinute >= 100 && bg < 160 && aimi_activity === true){
-            microBolus = 0;
-            rT.reason += ", averageBeatsPerMinute("+profile.averageBeatsPerMinute+") decision : No SMB = true => force basal, ";
         }
         // if insulinReq > 0 but not enough for a microBolus, don't set an SMB zero temp
             if (insulinReq > 0 && microBolus < profile.bolus_increment) {
@@ -1682,7 +1679,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
-            }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && aimiint === false ){
+            }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 160 && aimiint === false ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because bg is stable";
             }else if (circadian_smb > 0 && aimiint === false ){

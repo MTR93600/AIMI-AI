@@ -672,13 +672,34 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
         this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
-        val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        /*val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
         val heartRates = repository.getHeartRatesFromTime(timeMillis)
         val beatsPerMinuteValues = heartRates.map { it.beatsPerMinute }
         val averageBeatsPerMinute = beatsPerMinuteValues.average()
         this.profile.put("heartRates", heartRates)
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
+        this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)*/
+        val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        var beatsPerMinuteValues: List<Int> = emptyList()
+        var averageBeatsPerMinute: Double = 0.0
+
+        try {
+            val heartRates = repository.getHeartRatesFromTime(timeMillis)
+            beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            averageBeatsPerMinute = beatsPerMinuteValues.average()
+        } catch (e: Exception) {
+            // Imprimer la pile d'appels pour aider au débogage
+            e.printStackTrace()
+            // Réaffecter les variables à leurs valeurs par défaut
+            beatsPerMinuteValues = emptyList()
+            averageBeatsPerMinute = 0.0
+        }
+
+        this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
+
+
+
 
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
@@ -707,15 +728,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                     basalaimi = (basalaimi * 1.2).toFloat()
                 } else if (tirbasal3B > 5 && tirbasal3A!! < 5) {
                     basalaimi = (basalaimi * 0.85).toFloat()
-                } else if (averageBeatsPerMinute != null && averageBeatsPerMinute >= 100 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
-                    basalaimi = (basalaimi * 0.65).toFloat()
-                }else if(averageBeatsPerMinute != null && averageBeatsPerMinute >= 100 && bg >= 180 && recentSteps10Minutes < 200){
-                    basalaimi = (basalaimi * 1.6).toFloat()
-                }else if(averageBeatsPerMinute != null && averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0){
-                    basalaimi = (basalaimi * 1.4).toFloat()
+                } else if (averageBeatsPerMinute != 0.0) {
+                    if (averageBeatsPerMinute >= 100 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
+                        basalaimi = (basalaimi * 0.65).toFloat()
+                    } else if(averageBeatsPerMinute >= 100 && bg >= 180 && recentSteps10Minutes < 200){
+                        basalaimi = (basalaimi * 1.6).toFloat()
+                    } else if(averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0){
+                        basalaimi = (basalaimi * 1.4).toFloat()
+                    }
                 }
             }
         }
+
 
 
 // Add variable for readability and to avoid repeating the same calculations
