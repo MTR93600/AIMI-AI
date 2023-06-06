@@ -700,7 +700,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         try {
             val heartRates = repository.getHeartRatesFromTime(timeMillis)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
-            averageBeatsPerMinute = beatsPerMinuteValues.average()
+            averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
+                beatsPerMinuteValues.average()
+            } else {
+                80.0 // or some other default value
+            }
+
         } catch (e: Exception) {
             // Log that watch is not connected
             //println("Watch is not connected. Using default values for heart rate data.")
