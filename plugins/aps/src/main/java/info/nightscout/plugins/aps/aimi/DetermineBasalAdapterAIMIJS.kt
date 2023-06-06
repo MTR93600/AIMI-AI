@@ -1,15 +1,18 @@
 package info.nightscout.plugins.aps.aimi
 
 import android.os.Environment
-import android.util.Log
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.extensions.convertedToAbsolute
 import info.nightscout.core.extensions.getPassedDurationToTimeInMinutes
 import info.nightscout.core.extensions.plannedRemainingMinutes
 import info.nightscout.database.ValueWrapper
+import info.nightscout.database.entities.Bolus
+import info.nightscout.database.entities.UserEntry
+import info.nightscout.database.impl.AppRepository
 import info.nightscout.interfaces.GlucoseUnit
-import info.nightscout.interfaces.aps.DetermineBasalAdapter
 import info.nightscout.interfaces.aps.AIMIDefaults
+import info.nightscout.interfaces.aps.DetermineBasalAdapter
+import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.interfaces.iob.GlucoseStatus
 import info.nightscout.interfaces.iob.IobCobCalculator
 import info.nightscout.interfaces.iob.IobTotal
@@ -18,15 +21,19 @@ import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.interfaces.profile.Profile
 import info.nightscout.interfaces.profile.ProfileFunction
 import info.nightscout.interfaces.stats.TddCalculator
-import info.nightscout.interfaces.utils.Round
+import info.nightscout.interfaces.stats.TirCalculator
 import info.nightscout.plugins.aps.R
 import info.nightscout.plugins.aps.logger.LoggerCallback
+import info.nightscout.plugins.aps.loop.LoopVariantPreference
 import info.nightscout.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.plugins.aps.utils.ScriptReader
+import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
 import info.nightscout.shared.SafeParse
 import info.nightscout.shared.sharedPreferences.SP
+import info.nightscout.shared.utils.DateUtil
+import info.nightscout.shared.utils.T
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -38,29 +45,19 @@ import org.mozilla.javascript.RhinoException
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.Undefined
+import org.tensorflow.lite.Interpreter
+import java.io.File
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
-import javax.inject.Inject
-import kotlin.math.ln
-import info.nightscout.shared.utils.T
-import info.nightscout.shared.utils.DateUtil
-import info.nightscout.interfaces.stats.TirCalculator
-import info.nightscout.database.impl.AppRepository
-import info.nightscout.database.entities.Bolus
-import info.nightscout.database.entities.UserEntry
-import info.nightscout.interfaces.constraints.Constraints
-import info.nightscout.plugins.aps.loop.LoopVariantPreference
-import java.io.File
-import java.util.*
-import kotlin.math.min
-import kotlin.math.roundToInt
-import org.tensorflow.lite.Interpreter
-import kotlin.math.round
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.util.Locale
-
+import java.util.*
+import javax.inject.Inject
+import kotlin.math.ln
+import kotlin.math.min
+import kotlin.math.round
+import kotlin.math.roundToInt
 
 class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader: ScriptReader, private val injector: HasAndroidInjector): DetermineBasalAdapter {
 
@@ -74,6 +71,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     @Inject lateinit var dateUtil: DateUtil
     @Inject lateinit var tddCalculator: TddCalculator
     @Inject lateinit var tirCalculator: TirCalculator
+
 
 
 
@@ -143,6 +141,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var smbToGivetest: Double = 0.0
     private var smbTopredict: Double = 0.0
     private var variableSensitivity = 0.0f
+
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -679,6 +678,21 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("heartRates", heartRates)
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)*/
+        /*val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        var beatsPerMinuteValues: List<Int> = emptyList()
+        var averageBeatsPerMinute: Double = 0.0
+
+        try {
+            val heartRates = repository.getHeartRatesFromTime(timeMillis)
+            beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            averageBeatsPerMinute = beatsPerMinuteValues.average()
+        } catch (e: Exception) {
+            // Log that watch is not connected
+            println("Watch is not connected. Using default values for heart rate data.")
+            // Réaffecter les variables à leurs valeurs par défaut
+            beatsPerMinuteValues = listOf(80)
+            averageBeatsPerMinute = 80.0
+        }*/
         val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
         var beatsPerMinuteValues: List<Int> = emptyList()
         var averageBeatsPerMinute: Double = 0.0
@@ -688,19 +702,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             averageBeatsPerMinute = beatsPerMinuteValues.average()
         } catch (e: Exception) {
-            // Imprimer la pile d'appels pour aider au débogage
-            e.printStackTrace()
+            // Log that watch is not connected
+            //println("Watch is not connected. Using default values for heart rate data.")
             // Réaffecter les variables à leurs valeurs par défaut
-            beatsPerMinuteValues = emptyList()
-            averageBeatsPerMinute = 0.0
+            beatsPerMinuteValues = listOf(80)
+            averageBeatsPerMinute = 80.0
         }
+
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
-
-
-
-
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
         val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
