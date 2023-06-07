@@ -27,7 +27,6 @@ import info.nightscout.plugins.aps.logger.LoggerCallback
 import info.nightscout.plugins.aps.loop.LoopVariantPreference
 import info.nightscout.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.plugins.aps.utils.ScriptReader
-import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
 import info.nightscout.shared.SafeParse
@@ -141,6 +140,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var smbToGivetest: Double = 0.0
     private var smbTopredict: Double = 0.0
     private var variableSensitivity = 0.0f
+    private var averageBeatsPerMinute = 0.0
 
 
     override var currentTempParam: String? = null
@@ -173,6 +173,32 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             "$variableSensitivity,$lastbolusage,$predictedSMB,$maxIob,$maxSMB,$smbToGive"
 
         val file = File(path, "AAPS/aiSMB_Newrecords.csv")
+        if (!file.exists()) {
+            file.createNewFile()
+            file.appendText(headerRow)
+        }
+        file.appendText(valuesToRecord + "\n")
+    }
+    private fun logDataToCsvHB(predictedSMB: Float, smbToGive: Float) {
+        val dateStr = dateUtil.dateAndTimeString(dateUtil.now())
+
+        val headerRow = "dateStr,dateLong,hourOfDay,weekend," +
+            "bg,targetBg,iob,cob,lastCarbAgeMin,futureCarbs,delta,shortAvgDelta,longAvgDelta," +
+            "accelerating_up,deccelerating_up,accelerating_down,deccelerating_down,stable," +
+            "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
+            "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
+            "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
+            "variableSensitivity,lastbolusage,predictedSMB,maxIob,maxSMB,smbGiven\n"
+        val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
+            "$bg,$targetBg,$iob,$cob,$lastCarbAgeMin,$futureCarbs,$delta,$shortAvgDelta,$longAvgDelta," +
+            "$accelerating_up,$deccelerating_up,$accelerating_down,$deccelerating_down,$stable," +
+            "$tdd7DaysPerHour,$tdd2DaysPerHour,$tddPerHour,$tdd24HrsPerHour," +
+            "$recentSteps5Minutes,$recentSteps10Minutes,$recentSteps15Minutes,$recentSteps30Minutes,$recentSteps60Minutes," +
+            "$averageBeatsPerMinute," +
+            "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
+            "$variableSensitivity,$lastbolusage,$predictedSMB,$maxIob,$maxSMB,$smbToGive"
+
+        val file = File(path, "AAPS/aiSMB_NewrecordsHB.csv")
         if (!file.exists()) {
             file.createNewFile()
             file.appendText(headerRow)
@@ -334,6 +360,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                     val resultJson = JSONObject(result)
                     determineBasalResultSMB = DetermineBasalResultSMB(injector, resultJson)
                     logDataToCsv(predictedSMB,determineBasalResultSMB.smb.toFloat())
+                    logDataToCsvHB(predictedSMB,determineBasalResultSMB.smb.toFloat())
                 } catch (e: JSONException) {
                     aapsLogger.error(LTag.APS, "Unhandled exception", e)
                 }
@@ -694,13 +721,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             averageBeatsPerMinute = 80.0
         }*/
         val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
-        var beatsPerMinuteValues: List<Int> = emptyList()
-        var averageBeatsPerMinute: Double = 0.0
+        var beatsPerMinuteValues: List<Int>
+        //var averageBeatsPerMinute: Double = 0.0
 
         try {
             val heartRates = repository.getHeartRatesFromTime(timeMillis)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
-            averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
+            this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()
             } else {
                 80.0 // or some other default value
@@ -711,7 +738,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             //println("Watch is not connected. Using default values for heart rate data.")
             // Réaffecter les variables à leurs valeurs par défaut
             beatsPerMinuteValues = listOf(80)
-            averageBeatsPerMinute = 80.0
+            this.averageBeatsPerMinute = 80.0
         }
 
 
