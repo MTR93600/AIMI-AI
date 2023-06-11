@@ -877,7 +877,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             //console.error(predBGI, predCI, predUCI);
             }else{
-            if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 140) {
+            if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 130) {
                 // calculate insulin activity
                  var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
@@ -938,7 +938,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // wait 85-105m before setting COB and 60m for UAM minPredBGs
             if ( (cid || remainingCIpeak > 0) && COBpredBGs.length > insulinPeak5m && (COBpredBG < minCOBPredBG) ) { minCOBPredBG = round(COBpredBG); }
             if ( (cid || remainingCIpeak > 0) && COBpredBG > maxIOBPredBG ) { maxCOBPredBG = COBpredBG; }
-            if ( enableUAM && UAMpredBGs.length > 12 && (UAMpredBG < minUAMPredBG) ) { minUAMPredBG = round(UAMpredBG); }
+            if ( enableUAM && UAMpredBGs.length > 10 && (UAMpredBG < minUAMPredBG) ) { minUAMPredBG = round(UAMpredBG); }
             if ( enableUAM && UAMpredBG > maxIOBPredBG ) { maxUAMPredBG = UAMpredBG; }
             //console.log("insulinPeakTime : "+insulinPeakTime+" and insulinPeak5m : "+insulinPeak5m+" prediction : "+curvepred * 5+" minutes");
         });
