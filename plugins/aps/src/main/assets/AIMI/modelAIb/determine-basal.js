@@ -1573,7 +1573,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                             if (difference > 5) {
                                 areValuesClose = false;
                                 break;
-                            }else if (difference < 10 && bg < 160){
+                            }else if (difference < 8 && bg < 130){
                                 arerisingagain = false;
                             }
                         }
