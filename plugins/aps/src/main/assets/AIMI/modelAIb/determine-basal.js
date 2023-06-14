@@ -665,6 +665,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var IOBpredBGs = [];
     var UAMpredBGs = [];
     var ZTpredBGs = [];
+    //var histBG = [];
     COBpredBGs.push(bg);
     aCOBpredBGs.push(bg);
     IOBpredBGs.push(bg);
@@ -877,7 +878,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
             //console.error(predBGI, predCI, predUCI);
             }else{
-            if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 130) {
+            if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 140) {
                 // calculate insulin activity
                  var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
 
@@ -938,7 +939,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             // wait 85-105m before setting COB and 60m for UAM minPredBGs
             if ( (cid || remainingCIpeak > 0) && COBpredBGs.length > insulinPeak5m && (COBpredBG < minCOBPredBG) ) { minCOBPredBG = round(COBpredBG); }
             if ( (cid || remainingCIpeak > 0) && COBpredBG > maxIOBPredBG ) { maxCOBPredBG = COBpredBG; }
-            if ( enableUAM && UAMpredBGs.length > 10 && (UAMpredBG < minUAMPredBG) ) { minUAMPredBG = round(UAMpredBG); }
+            if ( enableUAM && UAMpredBGs.length > 12 && (UAMpredBG < minUAMPredBG) ) { minUAMPredBG = round(UAMpredBG); }
             if ( enableUAM && UAMpredBG > maxIOBPredBG ) { maxUAMPredBG = UAMpredBG; }
             //console.log("insulinPeakTime : "+insulinPeakTime+" and insulinPeak5m : "+insulinPeak5m+" prediction : "+curvepred * 5+" minutes");
         });
@@ -1158,7 +1159,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 10/06/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AIb 13/06/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1573,7 +1574,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
                             if (difference > 5) {
                                 areValuesClose = false;
                                 break;
-                            }else if (difference < 8 && bg < 130){
+                            }else if (difference < 8 && bg < 140){
                                 arerisingagain = false;
                             }
                         }
