@@ -14,6 +14,59 @@
 
 var round_basal = require('../round-basal')
 
+var bgValues = [];
+var now = new Date();
+
+function getMedianBG(newBG) {
+    var hours = now.getHours();
+
+    // Si nous sommes entre minuit (0 heure) et 6 heures du matin, on utilise la médiane
+    if (hours >= 0 && hours < 6) {
+        // Ajoutez la nouvelle valeur à la liste et triez la liste
+        bgValues.push(newBG);
+        bgValues.sort();
+
+        // Choisissez la valeur médiane
+        var medianBG;
+        if (bgValues.length % 2 === 0) {
+            medianBG = (bgValues[bgValues.length / 2 - 1] + bgValues[bgValues.length / 2]) / 2;
+        } else {
+            medianBG = bgValues[(bgValues.length - 1) / 2];
+        }
+
+        // Retirez la valeur la plus ancienne si la liste est trop longue
+        if (bgValues.length > 5) {
+            bgValues.shift();
+        }
+
+        return medianBG;
+    } else {
+        // Pendant la journée, retournez simplement la valeur actuelle
+        return newBG;
+    }
+}
+var deltaValues = [];
+
+function getMedianDelta(newDelta) {
+    // Ajoutez la nouvelle valeur à la liste et triez la liste
+    deltaValues.push(newDelta);
+    deltaValues.sort();
+
+    // Choisissez la valeur médiane
+    var medianDelta;
+    if (deltaValues.length % 2 === 0) {
+        medianDelta = (deltaValues[deltaValues.length / 2 - 1] + deltaValues[deltaValues.length / 2]) / 2;
+    } else {
+        medianDelta = deltaValues[(deltaValues.length - 1) / 2];
+    }
+
+    // Retirez la valeur la plus ancienne si la liste est trop longue
+    if (deltaValues.length > 5) {
+        deltaValues.shift();
+    }
+
+    return medianDelta;
+}
 // Fonctions
 function calculerMicroBolus(AIMI_UAM_CAP,microBolus, max_iob, iob_data) {
     return Math.min(AIMI_UAM_CAP, microBolus, max_iob - iob_data.iob);
@@ -156,7 +209,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var b30upperLimit = profile.b30_upperBG;
     var b30upperdelta = profile.b30_upperdelta;
     // variables for deltas
-    var delta = glucose_status.delta;
+    var delta = getMedianDelta(glucose_status.delta);
     var shortAvgDelta = glucose_status.short_avgdelta;
     var longAvgDelta = glucose_status.long_avgdelta;
 
@@ -180,6 +233,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var minAgo = round((systemTime - bgTime) / 60 / 1000 ,1);
 
     var bg = glucose_status.glucose;
+    bg = getMedianBG(bg);
     var noise = glucose_status.noise;
     var aimisafesensor = false;
     // 38 is an xDrip error state that usually indicates sensor failure
@@ -325,7 +379,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     //variable AIMI
-    var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160|| countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
+    var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
     var TDD = profile.TDD;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
@@ -1604,7 +1658,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
 
             }
-
+            microBolus = microBolus > (max_iob - microBolus) ? (max_iob - microBolus) : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
 
 
