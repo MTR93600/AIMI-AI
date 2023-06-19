@@ -13,9 +13,27 @@
 
 
 var round_basal = require('../round-basal')
-
 var bgValues = [];
 var now = new Date();
+var deltaValues = [];
+var isReduced = false; // Initialiser la variable globale
+
+function processNewBGValue(newBG) {
+    if (newBG < 70) {
+        reductionCount = 10;
+    }
+
+    if (reductionCount > 0) {
+        // Définir isReduced à true si reductionCount est plus grand que 0
+        isReduced = true;
+
+        // Décrémenter le compteur
+        reductionCount--;
+    } else {
+        // Définir isReduced à false si reductionCount est égal à 0
+        isReduced = false;
+    }
+}
 
 function getMedianBG(newBG) {
     var hours = now.getHours();
@@ -45,7 +63,6 @@ function getMedianBG(newBG) {
         return newBG;
     }
 }
-var deltaValues = [];
 
 function getMedianDelta(newDelta) {
     // Ajoutez la nouvelle valeur à la liste et triez la liste
@@ -459,7 +476,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-1) && circadian_smb < 1){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(basal*delta/60)*10;
                rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
@@ -1659,6 +1676,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             }
             microBolus = microBolus > (max_iob - microBolus) ? (max_iob - microBolus) : microBolus;
+            var newBG = bg; // Obtenir la nouvelle valeur BG
+            processNewBGValue(newBG); // Appeler la fonction avec la nouvelle valeur BG
+            microBolus = isReduced ? microBolus * 0.6 : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
 
 
