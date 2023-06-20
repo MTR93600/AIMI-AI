@@ -1800,10 +1800,10 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        else if (delta > -3 && delta < 3 && shortAvgDelta > -3 && shortAvgDelta < 3 && longAvgDelta > -3 && longAvgDelta < 3 && bg > 150 && UAMpredBG > profile.key_UAMpredBG){
+        else if (delta > -3 && delta < 3 && shortAvgDelta > -3 && shortAvgDelta < 3 && longAvgDelta > -3 && longAvgDelta < 3 && UAMpredBG > profile.key_UAMpredBG){
             maxRate = Math.min(maxSafeBasal, basal * 10);
             rate = round_basal(maxRate,profile);
-            rT.reason = ". Force basal because it's stable but bg > 150 : " + (basal*10/60)*30 + " U, stable bg. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            rT.reason = ". Force basal because it's stable but rising slowly : " + (basal*10/60)*30 + " U, stable bg. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
