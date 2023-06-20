@@ -17,6 +17,7 @@ var bgValues = [];
 var now = new Date();
 var deltaValues = [];
 var isReduced = false; // Initialiser la variable globale
+var reductionCount = 0;
 
 function processNewBGValue(newBG) {
     if (newBG < 70) {
@@ -1680,7 +1681,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             processNewBGValue(newBG); // Appeler la fonction avec la nouvelle valeur BG
             microBolus = isReduced ? microBolus * 0.6 : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
-
+            rT.reason += ",isReduced : "+isReduced;
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
             // calculate a long enough zero temp to eventually correct back up to target

@@ -15,6 +15,26 @@
 var round_basal = require('../round-basal')
 var bgValues = [];
 var now = new Date();
+var deltaValues = [];
+var isReduced = false; // Initialiser la variable globale
+var reductionCount = 0;
+
+function processNewBGValue(newBG) {
+    if (newBG < 70) {
+        reductionCount = 10;
+    }
+
+    if (reductionCount > 0) {
+        // Définir isReduced à true si reductionCount est plus grand que 0
+        isReduced = true;
+
+        // Décrémenter le compteur
+        reductionCount--;
+    } else {
+        // Définir isReduced à false si reductionCount est égal à 0
+        isReduced = false;
+    }
+}
 
 function getMedianBG(newBG) {
     var hours = now.getHours();
@@ -44,7 +64,6 @@ function getMedianBG(newBG) {
         return newBG;
     }
 }
-var deltaValues = [];
 
 function getMedianDelta(newDelta) {
     // Ajoutez la nouvelle valeur à la liste et triez la liste
@@ -1564,7 +1583,11 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
             }
             microBolus = microBolus > (max_iob - microBolus) ? (max_iob - microBolus) : microBolus;
+            var newBG = bg; // Obtenir la nouvelle valeur BG
+            processNewBGValue(newBG); // Appeler la fonction avec la nouvelle valeur BG
+            microBolus = isReduced ? microBolus * 0.6 : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
+            rT.reason += ",isReduced : "+isReduced;
 
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
