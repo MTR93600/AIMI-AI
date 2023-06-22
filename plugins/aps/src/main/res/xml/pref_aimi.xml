@@ -146,6 +146,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="@string/key_use_AimiPregnancy"
+            android:title="Enable an active mode for pregnancy"
+            android:summary="specific mode to allow more TBR action if the BG > 110" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="@string/key_use_enable_circadian"
             android:title="Enable the circadian model"
             android:summary="Enable circadian model on the ISF calculation and the basal profile" />

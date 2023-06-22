@@ -614,6 +614,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_tdd7", SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")))
         this.profile.put("key_aimiweight", SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50")))
         this.profile.put("key_UAMpredBG", SafeParse.stringToDouble(sp.getString(R.string.key_UAMpredBG, "120")))
+        this.profile.put("aimipregnancy", sp.getBoolean(R.string.key_use_AimiPregnancy, false))
 //**********************************************************************************************************************************************
         if (profileFunction.getUnits() == GlucoseUnit.MMOL) {
             this.profile.put("out_units", "mmol/L")
@@ -866,6 +867,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
         this.profile.put("lastPBoluscount", lastPBoluscount)
         this.profile.put("basalaimi", basalaimi)
+
 
         this.profile.put("insulinDivisor", insulinDivisor)
         //this.profile.put("tddlastHaverage", tddlastHaverage)
