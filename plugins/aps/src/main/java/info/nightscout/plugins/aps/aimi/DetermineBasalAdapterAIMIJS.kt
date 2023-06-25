@@ -745,12 +745,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
-        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 150.0))?.abovePct()
-        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 150.0))?.belowPct()
+        val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 130.0))?.abovePct()
+        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 130.0))?.abovePct()
+        val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 130.0))?.belowPct()
         val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,130.0))?.inRangePct()
         val tirbasal3B = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,130.0))?.belowPct()
         val tirbasal3A = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,130.0))?.abovePct()
+        val tirbasalhAP = tirCalculator.averageTIR(tirCalculator.calculateHour(65.0,110.0))?.abovePct()
+        val tirbasalhbP = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0,110.0))?.abovePct()
         val tdd1D = tddDaily
         var tdd7D = tdd7Days
         val tddLast24H = tdd24Hrs
@@ -766,7 +768,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         if (tirbasal3B != null) {
             if (tirbasal3IR != null) {
-                if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80)) {
+                if (tirbasalhAP != null && tirbasalhAP >= 5 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true) ){
+                    basalaimi = (basalaimi * 3).toFloat()
+                }else if (tirbasalhbP != null && tirbasalhbP >= 2 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true) ){
+                    basalaimi = basalaimi
+                }else if ((sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true)){
+                    basalaimi = (basalaimi * 2).toFloat()
+                }
+                else if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80)) {
                     basalaimi = (basalaimi * 1.1).toFloat()
                 } else if (tirbasal3B <= 5 && tirbasal3IR <= 70) {
                     basalaimi = (basalaimi * 1.2).toFloat()
@@ -783,7 +792,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 }
             }
         }
-
+        if (lastHourTIRAbove != null && lastHourTIRAbove >= 5 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)){
+            basalaimi = (basalaimi * 1.618).toFloat()
+        } else if (lastHourTIRLow != null && lastHourTIRLow >= 2 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false) ){
+            basalaimi = (basalaimi * 0.5).toFloat()
+        }
 
 
 // Add variable for readability and to avoid repeating the same calculations

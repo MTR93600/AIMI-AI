@@ -350,7 +350,24 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.log("Basal unchanged: "+basal+"; ");
         }
     }
-
+if (profile.temptargetSet) {
+        //console.log("Temp Target set, not adjusting with autosens; ");
+    } else if (typeof autosens_data !== 'undefined' && autosens_data) {
+        if ( profile.sensitivity_raises_target && autosens_data.ratio < 1 || profile.resistance_lowers_target && autosens_data.ratio > 1 ) {
+            // with a target of 100, default 0.7-1.2 autosens min/max range would allow a 93-117 target range
+            min_bg = round((min_bg - 60) / autosens_data.ratio) + 60;
+            max_bg = round((max_bg - 60) / autosens_data.ratio) + 60;
+            var new_target_bg = round((target_bg - 60) / autosens_data.ratio) + 60;
+            // don't allow target_bg below 80
+            new_target_bg = Math.max(80, new_target_bg);
+            if (target_bg === new_target_bg) {
+                console.log("target_bg unchanged: "+new_target_bg+"; ");
+            } else {
+                console.log("target_bg from "+target_bg+" to "+new_target_bg+"; ");
+            }
+            target_bg = new_target_bg;
+        }
+    }
 
 
     if (typeof iob_data === 'undefined' ) {
@@ -468,7 +485,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          //return tempBasalFunctions.setTempBasal(basal*10, profile.b30_duration, profile, rT, currenttemp);
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  meal_data.countSMB40 === 2 && glucose_status.delta >0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && profile.aimipregnancy === false &&  meal_data.countSMB40 === 2 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
          rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(basal*delta/60)*10;
          rT.deliverAt = deliverAt;
          rT.temp = 'absolute';
@@ -517,7 +534,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
     var csf = profile.sens / profile.carb_ratio ;
     var Hypo_ratio = 1;
-    if (!profile.temptargetSet && bg >= 140 && profile.accelerating_up === 1 && delta > 8) {
+    if (!profile.temptargetSet && bg >= 110 && profile.accelerating_up === 1 && delta > 8) {
 
             var hyper_target = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
             hyper_target *= Math.min(circadian_sensitivity,1);
@@ -546,7 +563,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             }
         }
 
-     if (currentTIRLow > 10 || circadian_smb > (-3) ){
+     if ((currentTIRLow > 10 || circadian_smb > (-3) ) && profile.aimipregnancy === false){
      var hypo_target = 100 * Math.max(1,circadian_sensitivity);
      enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
@@ -1679,17 +1696,18 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             microBolus = microBolus > (max_iob - microBolus) ? (max_iob - microBolus) : microBolus;
             var newBG = bg; // Obtenir la nouvelle valeur BG
             processNewBGValue(newBG); // Appeler la fonction avec la nouvelle valeur BG
-            microBolus = isReduced ? microBolus * 0.6 : microBolus;
+            microBolus = isReduced || (delta > 10 && now.getHours() > 7 && now.getHours() < 11) ? microBolus * 0.6 : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
             rT.reason += ",isReduced : "+isReduced;
+
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
             // calculate a long enough zero temp to eventually correct back up to target
         var smbTarget = target_bg;
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
-
-        if (UAMpredBG < profile.key_UAMpredBG && bg < 160){
+        UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
+        if (UAMpredBG < profile.key_UAMpredBG && bg < 110){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < "+profile.key_UAMpredBG+", ";
         }else if (bg < target_bg && delta < -2){
@@ -1701,9 +1719,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
         }else if (bg < 90){
             microBolus = 0;
             rT.reason += ", No SMB because bg < 90, ";
-        }else if (bg < 150 && delta < -5){
+        }else if (bg < 140 && delta < -5 && profile.aimipregnancy === false){
             microBolus = 0;
-            rT.reason += ", No SMB because bg < 150 && delta < -5, ";
+            rT.reason += ", No SMB because bg < 140 && delta < -5, ";
         }else if (nosmb === true){
             microBolus = 0;
             rT.reason += ", No SMB = true => force basal, ";
@@ -1761,7 +1779,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             }else if (circadian_smb > 0 && aimiint === false ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
-            }else if(aimiint === false &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+            }else if(aimiint === false &&  bg < 130 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1 && profile.aimipregnancy === false){
             SMBInterval = 10;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because circadian_smb ("+circadian_smb+") > 0";
             }
