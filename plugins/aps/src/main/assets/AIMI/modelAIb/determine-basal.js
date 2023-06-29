@@ -485,7 +485,7 @@ if (profile.temptargetSet) {
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          //return tempBasalFunctions.setTempBasal(basal*10, profile.b30_duration, profile, rT, currenttemp);
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && profile.aimipregnancy === false &&  meal_data.countSMB40 === 2 && glucose_status.delta > 0 && circadian_smb > (-2) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && profile.aimipregnancy === false &&  meal_data.countSMB40 === 2 && glucose_status.delta > 0 && !aimi_activity && circadian_smb > (-2) && circadian_smb < 1){
          rT.reason += ". force basal because you receive 2 SMB : 10 minutes" +(basal*delta/60)*10;
          rT.deliverAt = deliverAt;
          rT.temp = 'absolute';
@@ -494,7 +494,7 @@ if (profile.temptargetSet) {
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) &&  bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-1) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && !aimi_activity && bg < 130 &&  bg > 70 && glucose_status.delta > 0 && circadian_smb > (-1) && circadian_smb < 1){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(basal*delta/60)*10;
                rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
@@ -1825,21 +1825,21 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        else if (delta > -3 && delta < 3 && shortAvgDelta > -3 && shortAvgDelta < 3 && longAvgDelta > -3 && longAvgDelta < 3 && UAMpredBG > profile.key_UAMpredBG){
+        else if (!aimi_activity && delta > -3 && delta < 3 && shortAvgDelta > -3 && shortAvgDelta < 3 && longAvgDelta > -3 && longAvgDelta < 3 && UAMpredBG > profile.key_UAMpredBG){
             maxRate = Math.min(maxSafeBasal, basal * 10);
             rate = round_basal(maxRate,profile);
             rT.reason = ". Force basal because it's stable but rising slowly : " + (basal*10/60)*30 + " U, stable bg. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        else if (iTimeActivation && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200 && UAMpredBG > profile.key_UAMpredBG) {
+        else if (!aimi_activity && iTimeActivation && delta > 0 && delta <= b30upperdelta && bg <= b30upperLimit && bg < 200 && UAMpredBG > profile.key_UAMpredBG) {
             maxRate = (bg < 100 && delta <= 5 && delta > 0) ? Math.min(maxSafeBasal, basal * delta) : Math.min(maxSafeBasal, basal * 8);
             rate = round_basal(maxRate,profile);
             rT.reason = ". Force basal because AIMI is running and delta < 6 : " + (maxRate/60)*30 + " U, B30. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        else if (iTimeActivation && delta > 0 && delta <= 5 && bg >= 150 && bg < 200 && UAMpredBG > profile.key_UAMpredBG) {
+        else if (!aimi_activity && iTimeActivation && delta > 0 && delta <= 5 && bg >= 150 && bg < 200 && UAMpredBG > profile.key_UAMpredBG) {
             maxRate = Math.min(maxSafeBasal, basal * delta);
             rate = round_basal(maxRate,profile);
             rT.reason = ". Force basal because AIMI is running and delta < 6 : " + (maxRate/60)*30 + " U, B30. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";

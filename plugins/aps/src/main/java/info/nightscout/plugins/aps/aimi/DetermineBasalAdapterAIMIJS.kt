@@ -463,13 +463,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
-        if (tdd7Days != null) {
-            this.basalaimi = (tdd7Days / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
+        if (tdd2Days != null) {
+            this.basalaimi = (tdd2Days / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
         }else{
             this.basalaimi = (SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")) / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
         }
-        if (tdd7Days != null && tdd7Days != 0.0f){
-            this.CI = 450 / tdd7Days
+        if (tdd2Days != null && tdd2Days != 0.0f){
+            this.CI = 450 / tdd2Days
         }else{
             val tdd7Key = SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50"))
             this.CI = (450 / tdd7Key).toFloat()
@@ -792,8 +792,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 }
             }
         }
-        if (lastHourTIRAbove != null && lastHourTIRAbove >= 5 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)){
-            basalaimi = (basalaimi * 1.618).toFloat()
+        if (lastHourTIRAbove != null && lastHourTIRAbove >= 3 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)){
+            basalaimi = (basalaimi * 2.5).toFloat()
         } else if (lastHourTIRLow != null && lastHourTIRLow >= 2 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false) ){
             basalaimi = (basalaimi * 0.5).toFloat()
         }
