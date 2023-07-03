@@ -350,25 +350,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.log("Basal unchanged: "+basal+"; ");
         }
     }
-if (profile.temptargetSet) {
-        //console.log("Temp Target set, not adjusting with autosens; ");
-    } else if (typeof autosens_data !== 'undefined' && autosens_data) {
-        if ( profile.sensitivity_raises_target && autosens_data.ratio < 1 || profile.resistance_lowers_target && autosens_data.ratio > 1 ) {
-            // with a target of 100, default 0.7-1.2 autosens min/max range would allow a 93-117 target range
-            min_bg = round((min_bg - 60) / autosens_data.ratio) + 60;
-            max_bg = round((max_bg - 60) / autosens_data.ratio) + 60;
-            var new_target_bg = round((target_bg - 60) / autosens_data.ratio) + 60;
-            // don't allow target_bg below 80
-            new_target_bg = Math.max(80, new_target_bg);
-            if (target_bg === new_target_bg) {
-                console.log("target_bg unchanged: "+new_target_bg+"; ");
-            } else {
-                console.log("target_bg from "+target_bg+" to "+new_target_bg+"; ");
-            }
-            target_bg = new_target_bg;
-        }
-    }
-
 
     if (typeof iob_data === 'undefined' ) {
         rT.error ='Error: iob_data undefined. ';
@@ -534,7 +515,7 @@ if (profile.temptargetSet) {
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
     var csf = profile.sens / profile.carb_ratio ;
     var Hypo_ratio = 1;
-    if (!profile.temptargetSet && bg >= 110 && profile.accelerating_up === 1 && delta > 8) {
+    if (!profile.temptargetSet && bg >= 110 && delta > 5 && profile.resistance_lowers_target) {
 
             var hyper_target = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
             hyper_target *= Math.min(circadian_sensitivity,1);
@@ -561,62 +542,57 @@ if (profile.temptargetSet) {
             } else {
                 enlog +="Basal unchanged: "+basal+";\n";
             }
+        }else if ((currentTIRLow > 10 || circadian_smb > (-2) ) && profile.aimipregnancy === false && profile.sensitivity_raises_target){
+                 var hypo_target = 100 * Math.max(1,circadian_sensitivity);
+                 enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
+
+                 target_bg = circadian_smb > 5 ? 144 : hypo_target+circadian_smb;
+                 Hypo_ratio = 0.7;
+                 enlog += "Hypo_ratio : "+Hypo_ratio+"\n";
+                 C2 = (target_bg * 1.618)-(glucose_status.delta * 1.618);
+                 enlog += "C2 change because of hypo_target : "+C2+"\n";
+                 halfBasalTarget = 160;
+                 var c = halfBasalTarget - normalTarget;
+                 sensitivityRatio = c/(c+target_bg-normalTarget);
+                 sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
+                 sensitivityRatio = round(sensitivityRatio,2);
+                 enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+                 sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
+                 basal = circadian_smb > 5 ? basal / 2 : basal * sensitivityRatio;
+                 basal = round_basal(basal, profile);
+                 if (basal !== profile_current_basal) {
+                     enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+                 } else {
+                     enlog +="Basal unchanged: "+basal+";\n";
+                 }
+        }else if (aimi_activity === true){
+               target_bg = 140;
+               sensitivityRatio = c/(c+target_bg-normalTarget);
+               sensitivityRatio = round(sensitivityRatio,2);
+               enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+
+               basal = profile.current_basal * sensitivityRatio;
+               basal = round_basal(basal, profile);
+               if (basal !== profile_current_basal) {
+                   enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+               } else {
+                   enlog +="Basal unchanged: "+basal+";\n";
+               }
+                rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
+        }else if (countsteps === true && recentSteps30Minutes > 500 && recentSteps5Minutes >= 0){
+               target_bg = 120;
+               sensitivityRatio = c/(c+target_bg-normalTarget);
+               sensitivityRatio = round(sensitivityRatio,2);
+               enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+               basal = basal * sensitivityRatio;
+               basal = round_basal(basal, profile);
+               if (basal !== profile_current_basal) {
+                  enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+               } else {
+                  enlog +="Basal unchanged: "+basal+";\n";
+               }
+               rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
         }
-
-     if ((currentTIRLow > 10 || circadian_smb > (-3) ) && profile.aimipregnancy === false){
-     var hypo_target = 100 * Math.max(1,circadian_sensitivity);
-     enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
-
-     target_bg = circadian_smb > 5 ? 144 : hypo_target+circadian_smb;
-     Hypo_ratio = 0.7;
-     enlog += "Hypo_ratio : "+Hypo_ratio+"\n";
-     C2 = (target_bg * 1.618)-(glucose_status.delta * 1.618);
-     enlog += "C2 change because of hypo_target : "+C2+"\n";
-     halfBasalTarget = 160;
-     var c = halfBasalTarget - normalTarget;
-     sensitivityRatio = c/(c+target_bg-normalTarget);
-     sensitivityRatio = Math.min(sensitivityRatio, profile.autosens_max);
-     sensitivityRatio = round(sensitivityRatio,2);
-     enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
-     sens = target_bg > min_bg * 1.10 ? sens * 1.618 : sens;
-     basal = circadian_smb > 5 ? basal / 2 : basal * sensitivityRatio;
-     basal = round_basal(basal, profile);
-     if (basal !== profile_current_basal) {
-         enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
-     } else {
-         enlog +="Basal unchanged: "+basal+";\n";
-     }
-     }
-
-    //set activity behavior
-       if (aimi_activity === true){
-       target_bg = 140;
-       sensitivityRatio = c/(c+target_bg-normalTarget);
-       sensitivityRatio = round(sensitivityRatio,2);
-       enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
-
-       basal = profile.current_basal * sensitivityRatio;
-       basal = round_basal(basal, profile);
-       if (basal !== profile_current_basal) {
-           enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
-       } else {
-           enlog +="Basal unchanged: "+basal+";\n";
-       }
-        rT.reason += ", aimi_activity : "+aimi_activity+", basal activity : "+basal;
-       }else if (countsteps === true && recentSteps30Minutes > 500 && recentSteps5Minutes >= 0){
-       target_bg = 120;
-       sensitivityRatio = c/(c+target_bg-normalTarget);
-       sensitivityRatio = round(sensitivityRatio,2);
-       enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
-       basal = basal * sensitivityRatio;
-       basal = round_basal(basal, profile);
-       if (basal !== profile_current_basal) {
-          enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
-       } else {
-          enlog +="Basal unchanged: "+basal+";\n";
-       }
-       rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
-       }
 
 //================= MT =====================================
     //console.log("***hypo_target : "+hypo_target+" & hyper_target : "+hyper_target);
@@ -1248,7 +1224,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 22/06/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AIb 01/07/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
