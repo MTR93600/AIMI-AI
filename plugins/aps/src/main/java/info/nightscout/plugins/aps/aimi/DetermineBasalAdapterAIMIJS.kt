@@ -103,7 +103,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tdd2DaysPerHour = 0.0f
     private var tddPerHour = 0.0f
     private var tdd24HrsPerHour = 0.0f
-    //private var tddlastHrs = 0.0f
     private var tddDaily = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
@@ -122,11 +121,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private val millsToThePast3 = T.mins(180).msecs()
     private var lastBolusNormalTimecount: Long = 0
     private var lastPBoluscount: Long = 0
-    private var extendedsmbCount: Long = 0
     private var lastBolusSMBcount: Long = 0
     private var SMBcount: Long = 0
     private var MaxSMBcount: Long = 0
-    private var b30bolus: Long = 0
     private var lastBolusNormalUnits = 0.0f
     private var recentSteps5Minutes: Int = 0
     private var recentSteps10Minutes: Int = 0
@@ -252,12 +249,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         val interpreter = Interpreter(modelFile)
         val modelInputs = floatArrayOf(
-            /*hourOfDay.toFloat(), weekend.toFloat(),
-            bg, targetBg, iob, cob, lastCarbAgeMin.toFloat(), futureCarbs, delta, shortAvgDelta, longAvgDelta,
-            //accelerating_up,accelerating_down,deccelerating_up,deccelerating_down,stable,
-            //variableSensitivity,lastbolusage.toFloat(),
-            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour,
-            recentSteps5Minutes.toFloat(), recentSteps10Minutes.toFloat(), recentSteps15Minutes.toFloat(), recentSteps30Minutes.toFloat(), recentSteps60Minutes.toFloat()*/
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
             tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
@@ -539,11 +530,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("insulinPeak", insulinPeak)
         //mProfile.put("high_temptarget_raises_sensitivity", SP.getBoolean(R.string.key_high_temptarget_raises_sensitivity, UAMDefaults.high_temptarget_raises_sensitivity));
 //**********************************************************************************************************************************************
-        //this.profile.put("high_temptarget_raises_sensitivity", false)
-        //mProfile.put("low_temptarget_lowers_sensitivity", SP.getBoolean(R.string.key_low_temptarget_lowers_sensitivity, UAMDefaults.low_temptarget_lowers_sensitivity));
         this.profile.put("high_temptarget_raises_sensitivity",sp.getBoolean(info.nightscout.core.utils.R.string.key_high_temptarget_raises_sensitivity, AIMIDefaults.high_temptarget_raises_sensitivity))
         this.profile.put("low_temptarget_lowers_sensitivity",sp.getBoolean(info.nightscout.core.utils.R.string.key_low_temptarget_lowers_sensitivity, AIMIDefaults.low_temptarget_lowers_sensitivity))
-        //this.profile.put("low_temptarget_lowers_sensitivity", false)
+
 //**********************************************************************************************************************************************
         this.profile.put("sensitivity_raises_target", sp.getBoolean(R.string.key_sensitivity_raises_target, AIMIDefaults.sensitivity_raises_target))
         this.profile.put("resistance_lowers_target", sp.getBoolean(R.string.key_resistance_lowers_target, AIMIDefaults.resistance_lowers_target))
@@ -552,12 +541,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("half_basal_exercise_target", AIMIDefaults.half_basal_exercise_target)
         this.profile.put("maxCOB", AIMIDefaults.maxCOB)
         this.profile.put("skip_neutral_temps", pump.setNeutralTempAtFullHour())
-        // min_5m_carbimpact is not used within SMB determinebasal
-        //if (mealData.usedMinCarbsImpact > 0) {
-        //    mProfile.put("min_5m_carbimpact", mealData.usedMinCarbsImpact);
-        //} else {
-        //    mProfile.put("min_5m_carbimpact", SP.getDouble(R.string.key_openapsama_min_5m_carbimpact, UAMDefaults.min_5m_carbimpact));
-        //}
+
         this.profile.put("remainingCarbsCap", AIMIDefaults.remainingCarbsCap)
         this.profile.put("enableUAM", uamAllowed)
 
@@ -579,34 +563,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(info.nightscout.core.utils.R.string.key_openapsama_autosens_max, "1.2")))
 //**********************************************************************************************************************************************
 
-        this.profile.put("iTime",SafeParse.stringToDouble(sp.getString(R.string.key_iTime,"180")))
         this.profile.put("b30_upperBG",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_upperBG,"150")))
         this.profile.put("b30_duration",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_duration,"20")))
         this.profile.put("b30_upperdelta",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_upperdelta,"6")))
-        this.profile.put("b30_bolus",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus,"50")))
-        this.profile.put("b30_bolus_duration",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus_duration,"50")))
-        this.profile.put("enable_AIMI_b30_bolus", sp.getBoolean(R.string.key_use_Aimib30bolus, false))
-        this.profile.put("enable_AIMI_protein", sp.getBoolean(R.string.key_use_Aimiprotein, false))
-        this.profile.put("b30_protein_start",SafeParse.stringToDouble(sp.getString(R.string.key_aimi_B30_proteinstart,"60")))
-        this.profile.put("b30_protein_duration",SafeParse.stringToDouble(sp.getString(R.string.key_aimi_B30_proteinduration,"60")))
-        this.profile.put("b30_protein_percent",SafeParse.stringToDouble(sp.getString(R.string.key_aimi_B30_proteinpercent,"300")))
-        this.profile.put("iTime_Start_Bolus",SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus,"2")))
-        this.profile.put("smb_delivery_ratio", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_delivery_ratio, "0.5")))
-        this.profile.put("smb_delivery_ratio_min", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_delivery_ratio_min, "0.5")))
-        this.profile.put("smb_delivery_ratio_max", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_delivery_ratio_max, "0.9")))
-        this.profile.put("smb_delivery_ratio_bg_range", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_delivery_ratio_bg_range, "40")))
-        this.profile.put("smb_max_range_extension", SafeParse.stringToDouble(sp.getString(R.string.key_openapsama_smb_max_range_extension, "1.2")))
         this.profile.put("enable_AIMI_UAM", sp.getBoolean(R.string.key_use_AimiUAM, false))
-        this.profile.put("enable_AIMI_Break", sp.getBoolean(R.string.key_use_AimiBreak, false))
         this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
-        this.profile.put("key_use_AimiIOBpredBG", sp.getBoolean(R.string.key_use_AimiIOBpredBG, false))
         this.profile.put("key_use_AimiUAM_ISF", sp.getBoolean(R.string.key_use_AimiUAM_ISF, false))
-        this.profile.put("key_use_AIMI_BreakFastLight", sp.getBoolean(R.string.key_use_AIMI_BreakFastLight, false))
-        this.profile.put("key_use_disable_b30_BFL", sp.getBoolean(R.string.key_use_disable_b30_BFL, false))
-        this.profile.put("key_AIMI_BreakFastLight_timestart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timestart, "6")))
-        this.profile.put("key_AIMI_BreakFastLight_timeend", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_BreakFastLight_timeend, "10")))
         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
-        this.profile.put("key_use_newsmb", sp.getBoolean(R.string.key_use_newSMB, false))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
         this.profile.put("key_use_enable_circadian", sp.getBoolean(R.string.key_use_enable_circadian, false))
@@ -659,10 +622,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2,false).blockingGet()
         extendedsmb.forEach{bolus ->
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount.toLong() == lastBolusNormalUnits.toLong()) extendedsmbCount +=1
             if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits.toLong()) SMBcount += 1
             if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true ) MaxSMBcount += 1
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount === (lastBolusNormalUnits * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_bolus, "50"))/100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true && sp.getBoolean(R.string.key_use_Aimib30bolus, false) === true) b30bolus += 1
         }
         val lastprebolus = repository.getBolusesDataFromTime(now - millsToThePast3,false).blockingGet()
         lastprebolus.forEach { bolus ->
@@ -682,9 +643,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
         this.mealData.put("countSMB40", SMBcount)
-        this.mealData.put("extendedsmbCount", extendedsmbCount)
         this.mealData.put("MaxSMBcount", MaxSMBcount)
-        this.mealData.put("b30bolus", b30bolus)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
         this.mealData.put("lastbolusage", lastbolusage)
 
@@ -699,28 +658,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
         this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
-        /*val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
-        val heartRates = repository.getHeartRatesFromTime(timeMillis)
-        val beatsPerMinuteValues = heartRates.map { it.beatsPerMinute }
-        val averageBeatsPerMinute = beatsPerMinuteValues.average()
-        this.profile.put("heartRates", heartRates)
-        this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
-        this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)*/
-        /*val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
-        var beatsPerMinuteValues: List<Int> = emptyList()
-        var averageBeatsPerMinute: Double = 0.0
 
-        try {
-            val heartRates = repository.getHeartRatesFromTime(timeMillis)
-            beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
-            averageBeatsPerMinute = beatsPerMinuteValues.average()
-        } catch (e: Exception) {
-            // Log that watch is not connected
-            println("Watch is not connected. Using default values for heart rate data.")
-            // Réaffecter les variables à leurs valeurs par défaut
-            beatsPerMinuteValues = listOf(80)
-            averageBeatsPerMinute = 80.0
-        }*/
         val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
         var beatsPerMinuteValues: List<Int>
         //var averageBeatsPerMinute: Double = 0.0
@@ -746,7 +684,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 130.0))?.abovePct()
-        val last2HourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculate2Hour(72.0, 130.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 130.0))?.belowPct()
         val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,130.0))?.inRangePct()
         val tirbasal3B = tirCalculator.averageTIR(tirCalculator.calculate(3,65.0,130.0))?.belowPct()
@@ -755,7 +692,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tirbasalhbP = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0,110.0))?.abovePct()
         val tdd1D = tddDaily
         var tdd7D = tdd7Days
-        val tddLast24H = tdd24Hrs
         val tddLast4H = tdd2DaysPerHour * 4
         val tddLast8to4H = tdd24HrsPerHour * 4
         val TDDLast8 = tdd24HrsPerHour * 8
@@ -865,7 +801,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             }
         }
 
-//this.profile.put("aimisensitivity", aimisensitivity)
         var clusterinsulin = 0.0f
         if (bg > targetBg && variableSensitivity != null && variableSensitivity.isInfinite()) {
             clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
@@ -877,7 +812,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("clusterinsulin", clusterinsulin)
         this.profile.put("lastHourTIRLow", lastHourTIRLow)
         this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
-        this.profile.put("last2HourTIRAbove", last2HourTIRAbove)
         this.profile.put("lastPBoluscount", lastPBoluscount)
         this.profile.put("basalaimi", basalaimi)
 
@@ -925,11 +859,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //smbToGive = roundToPoint05(smbToGive)
         this.profile.put("smbToGive", smbToGive.toDouble())
         this.profile.put("predictedSMB", predictedSMB)
-
-        /*if (constraintChecker.isAutosensModeEnabled().value() && tdd7D != null && tddLast24H != null)
-            autosensData.put("ratio", aimisensitivity)
-        else
-            autosensData.put("ratio", 1.0)*/
 
         if (constraintChecker.isAutosensModeEnabled().value()) {
             autosensData.put("ratio", autosensDataRatio)

@@ -187,32 +187,6 @@ function enable_smb(
     return true;
 }
 
-
-function determine_varSMBratio(profile, bg, target_bg)
-{   // mod 12: let SMB delivery ratio increase f#rom min to max depending on how much bg exceeds target
-    if ( typeof profile.smb_delivery_ratio_bg_range === 'undefined' || profile.smb_delivery_ratio_bg_range === 0 ) {
-        // not yet upgraded to this version or deactivated in SMB extended menu
-        console.error('SMB delivery ratio set to fixed value', profile.smb_delivery_ratio);
-        return profile.smb_delivery_ratio;
-    }
-    var lower_SMB = Math.min(profile.smb_delivery_ratio_min, profile.smb_delivery_ratio_max);
-    if (bg <= target_bg) {
-        console.error('SMB delivery ratio limited by minimum value', lower_SMB);
-        return lower_SMB;
-    }
-    var higher_SMB = Math.max(profile.smb_delivery_ratio_min, profile.smb_delivery_ratio_max);
-    var higher_bg = target_bg + profile.smb_delivery_ratio_bg_range;
-    if (bg >= higher_bg) {
-        console.error('SMB delivery ratio limited by maximum value', higher_SMB);
-        return higher_SMB;
-    }
-    var new_SMB = lower_SMB + (higher_SMB - lower_SMB)*(bg-target_bg) / profile.smb_delivery_ratio_bg_range;
-    console.error('SMB delivery ratio set to interpolated value', new_SMB);
-    return new_SMB;
-}
-
-
-
 var determine_basal = function determine_basal(glucose_status, currenttemp, iob_data, profile, autosens_data, meal_data, tempBasalFunctions, microBolusAllowed, reservoir_data, currentTime, flatBGsDetected) {
 
     var rT = {}; //short for requestedTemp
@@ -400,9 +374,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;
-    var lastHourTIRAbove = profile.lastHourTIRAbove;
-    var last2HourTIRAbove = profile.last2HourTIRAbove;
-    //var aimisensitivity = profile.aimisensitivity;
     var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
     var AIMI_UAM = target_bg >= 130 || aimi_activity === true ? false : profile.enable_AIMI_UAM;
     var countSMB = meal_data.countSMB;
@@ -1107,7 +1078,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     future_sens = iTimeActivation && lastHourTIRLow > 0 ? round(future_sens * 1.618,1) :
     round(future_sens);
     future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? profile.sens : round(future_sens);
-var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTime ) / 60000,1);
 
     minIOBPredBG = Math.max(39,minIOBPredBG);
     minCOBPredBG = Math.max(39,minCOBPredBG);
