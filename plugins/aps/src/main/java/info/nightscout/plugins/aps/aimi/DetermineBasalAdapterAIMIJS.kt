@@ -103,7 +103,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var tdd2DaysPerHour = 0.0f
     private var tddPerHour = 0.0f
     private var tdd24HrsPerHour = 0.0f
-    private var tddlastHrs = 0.0f
+    //private var tddlastHrs = 0.0f
     private var tddDaily = 0.0f
     private var hourOfDay: Int = 0
     private var weekend: Int = 0
@@ -186,7 +186,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             "bg,targetBg,iob,cob,lastCarbAgeMin,futureCarbs,delta,shortAvgDelta,longAvgDelta," +
             "accelerating_up,deccelerating_up,accelerating_down,deccelerating_down,stable," +
             "tdd7DaysPerHour,tdd2DaysPerHour,tddDailyPerHour,tdd24HrsPerHour," +
-            "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes," +
+            "recentSteps5Minutes,recentSteps10Minutes,recentSteps15Minutes,recentSteps30Minutes,recentSteps60Minutes,averageBeatsPerMinute," +
             "tags0to60minAgo,tags60to120minAgo,tags120to180minAgo,tags180to240minAgo," +
             "variableSensitivity,lastbolusage,predictedSMB,maxIob,maxSMB,smbGiven\n"
         val valuesToRecord = "$dateStr,${dateUtil.now()},$hourOfDay,$weekend," +
@@ -459,7 +459,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
         this.tdd24HrsPerHour = tdd24Hrs / 24
 
-        tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
+        //tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
@@ -524,7 +524,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tddPerHour",tddPerHour)
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
 
-        this.profile.put("tddlastHrs",tddlastHrs)
+        //this.profile.put("tddlastHrs",tddlastHrs)
         this.profile.put("hourOfDay",hourOfDay)
         this.profile.put("weekend",weekend)
         this.profile.put("IC",CI)
