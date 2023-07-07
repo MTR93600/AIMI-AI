@@ -195,7 +195,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             "$tags0to60minAgo,$tags60to120minAgo,$tags120to180minAgo,$tags180to240minAgo," +
             "$variableSensitivity,$lastbolusage,$predictedSMB,$maxIob,$maxSMB,$smbToGive"
 
-        val file = File(path, "AAPS/aiSMB_NewrecordsHB.csv")
+        val file = File(path, "AAPS/aiSMB_NewrecordsHBeat.csv")
         if (!file.exists()) {
             file.createNewFile()
             file.appendText(headerRow)
@@ -213,16 +213,16 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
            smbToGive = maxSMB
        }
        // don't give insulin if below target too aggressive
-       val belowTargetAndDropping = bg < targetBg && delta < -2
+       /*val belowTargetAndDropping = bg < targetBg && delta < -2
        val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
        val belowMinThreshold = bg < 70
        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
            smbToGive = 0.0f
-       }
+       }*/
 
        // don't give insulin if dropping fast
-       val droppingFast = bg < 150 && delta < -5
-       val droppingFastAtHigh = bg < 200 && delta < -7
+       val droppingFast = bg < 140 && delta < -5
+       val droppingFastAtHigh = bg < 190 && delta < -7
        val droppingVeryFast = delta < -10
        if (droppingFast || droppingFastAtHigh || droppingVeryFast) {
            smbToGive = 0.0f
@@ -450,7 +450,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd24Hrs = tddCalculator.calculateDaily(-24, 0)?.totalAmount?.toFloat() ?: 0.0f
         this.tdd24HrsPerHour = tdd24Hrs / 24
 
-        //tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
+        val tddlastHrs = tddCalculator.calculateDaily(-1,0)?.totalAmount?.toFloat() ?: 0.0f
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
@@ -515,7 +515,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("tddPerHour",tddPerHour)
         this.profile.put("tdd24HrsPerHour",tdd24HrsPerHour)
 
-        //this.profile.put("tddlastHrs",tddlastHrs)
+        this.profile.put("tddlastHrs",tddlastHrs)
         this.profile.put("hourOfDay",hourOfDay)
         this.profile.put("weekend",weekend)
         this.profile.put("IC",CI)
@@ -558,8 +558,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         //set the min SMB amount to be the amount set by the pump.
         this.profile.put("bolus_increment", pumpBolusStep)
         this.profile.put("carbsReqThreshold", sp.getInt(R.string.key_carbsReqThreshold, AIMIDefaults.carbsReqThreshold))
-        this.profile.put("current_basal", basalRate)
-        this.profile.put("temptargetSet", tempTargetSet)
         this.profile.put("autosens_max", SafeParse.stringToDouble(sp.getString(info.nightscout.core.utils.R.string.key_openapsama_autosens_max, "1.2")))
 //**********************************************************************************************************************************************
 

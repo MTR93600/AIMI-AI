@@ -349,8 +349,8 @@ class DanaRSPlugin @Inject constructor(
             aapsLogger.debug(LTag.PUMP, "setTempBasalAbsolute: Requested basal < 0.10u/h. Setting 0u/h (doLowTemp || doHighTemp)")
         }
         percentRate = if (percentRate < 100) Round.ceilTo(percentRate.toDouble(), 10.0).toInt() else Round.floorTo(percentRate.toDouble(), 10.0).toInt()
-        if (percentRate > 500) // Special high temp 500/15min
-            percentRate = 500
+        if (percentRate > 1000) // Special high temp 500/15min
+            percentRate = 1000
 
         if (percentRate == 100) doTempOff = true
 

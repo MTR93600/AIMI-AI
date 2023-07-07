@@ -219,13 +219,6 @@ class DanaFragment : DaggerFragment() {
             else
                 binding.lastBolus.text = ""
         }
-        /*if (pump.lastConnection != 0L) {
-            val agoMilliseconds = System.currentTimeMillis() - pump.lastConnection
-            val agoMinutes = agoMilliseconds.toDouble() / 60.0 / 1000.0
-            if (agoMinutes > 15){
-
-            }
-        }*/
 
         binding.dailyUnits.text = rh.gs(info.nightscout.core.ui.R.string.reservoir_value, pump.dailyTotalUnits, pump.maxDailyTotalUnits)
         warnColors.setColor(binding.dailyUnits, pump.dailyTotalUnits, pump.maxDailyTotalUnits * 0.75, pump.maxDailyTotalUnits * 0.9)

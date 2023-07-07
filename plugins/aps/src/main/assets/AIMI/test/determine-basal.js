@@ -18,7 +18,19 @@ var now = new Date();
 var deltaValues = [];
 var isReduced = false; // Initialiser la variable globale
 var reductionCount = 0;
+var circadian_smb_threshold = 0.1;
+var eventualBG_threshold = 180;
+var adjustRinsulin = false;
 
+function testmonitoring(circadian_smb,eventualBG){
+if (Math.abs(circadian_smb) < circadian_smb_threshold && eventualBG > eventualBG_threshold){
+ console.log(",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",");
+ rT.raison += ",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",";
+ adjustRinsulin = true;
+ rT.raison += "adjustRinsulin : "+adjustRinsulin+",";
+}
+return adjustRinsulin;
+}
 function processNewBGValue(newBG) {
     if (newBG < 70) {
         reductionCount = 10;
@@ -618,7 +630,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
     }
 
-    // calculate the naive (bolus calculator math) eventual BG based on net IOB and sensitivity
+    // MT calculate the naive (bolus calculator math) eventual BG based on net IOB and sensitivity
     if (iob_data.iob > 0) {
         var naive_eventualBG = round( bg - (iob_data.iob * sens) );
     } else { // if IOB is negative, be more conservative and use the lower of sens, profile.sens
@@ -668,7 +680,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         } else {
             console.error("max_bg unchanged: "+max_bg);
         }
-    }
+    }//MT
 
     var expectedDelta = calculate_expected_delta(target_bg, eventualBG, bgi);
     if (typeof eventualBG === 'undefined' || isNaN(eventualBG)) {
@@ -1539,7 +1551,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var roundSMBTo = 1 / profile.bolus_increment;
             var nosmb = false;
             var AI = false;
-
+            adjustRinsulin = testmonitoring(circadian_smb, eventualBG);
             if (!profile.temptargetSet && delta > 0) {
                 //insulinReq = lastbolusAge < profile.key_mbi ? ((1 + Math.sqrt(aimi_delta)) / 2) : insulinReq;
                 //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
@@ -1551,21 +1563,21 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                         var microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
-                    }else if (profile.smbToGive === 0 && bg > 140 && delta > 5){
+                    }else if (profile.smbToGive === 0 && adjustRinsulin === true && delta > 5){
                          //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                          var microBolus = insulinReq;
                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                    }else if (profile.smbToGive <= 0 && bg > 160 && delta > 0){
+                    }else if (profile.smbToGive <= 0 && adjustRinsulin === true && delta > 0){
                           //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                           var microBolus = insulinReq;
                           rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                     }else if (profile.modelai === false){
+                     }else if (profile.modelai === false && adjustRinsulin === true){
                         //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                         var microBolus = insulinReq;
                     }
-                }else if (circadian_smb <= -5){
+                }else if (circadian_smb <= -5 && adjustRinsulin === true){
                     var microBolus = insulinReq;
-                }else if (circadian_smb > -1 && bg >= 180 && bg <= 200 && UAMpredBG > 100){
+                }else if (circadian_smb > -1 && bg >= 180 && bg <= 200 && adjustRinsulin === true){
                    var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                 }
 
@@ -1577,25 +1589,25 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     var nosmb;
 
 
-                    if (bg > 200 && delta > 0){
+                    if (bg > 200 && delta > 0 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits < M2 && meal_data.countSMB40 ===0 ? microBolus : M2;
-                    }else if (bg > 160 && delta > 0){
+                    }else if (bg > 130 && delta > 0 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M2 && meal_data.countSMB40 >= 3 ? M1 : M2;
-                    } else if (bg < 130 && delta <= 10){
+                    } else if (bg < 130 && delta <= 10 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? (nosmb = true) : M1;
-                    } else if (bg < 130 && delta > 10){
+                    } else if (bg < 130 && delta > 10 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 7 && meal_data.countSMB40 >= 2 ? M1 : M2;
-                    } else if (bg > 130 && delta > 10){
+                    } else if (bg > 130 && delta > 10 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 7 && meal_data.countSMB40 >= 2 ? M2 : microBolus;
-                    } else if (bg > 130 && delta <= 10){
+                    } else if (bg > 130 && delta <= 10 && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 6 ? (nosmb = true) : M1;
                     }
 
                     // Condition pour détecter rapidement une augmentation de la valeur bg
-                    if (bg > 130 && delta > 5) {
+                    if (bg > 130 && delta > 5 && adjustRinsulin === true) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 4 ? M2 : microBolus;
                     }
-                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-7) : UAMpredBGs.slice(-3);
+                    var lastFourValues = now.getHours() < 11 ? UAMpredBGs.slice(-6) : UAMpredBGs.slice(-3);
                     var areValuesClose = true;
                     var arerisingagain = true;
 
@@ -1625,9 +1637,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                     }
                      rT.reason += ", areValuesClose : "+areValuesClose+", arerisingagain : "+arerisingagain;
                     // Condition pour détecter une progression lente du bg
-                    if (bg >= 130 && areValuesClose === true) {
+                    if (bg >= 130 && areValuesClose === true && adjustRinsulin === true) {
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 8 ? M1 : microBolus;
-                    }else if(arerisingagain === true){
+                    }else if(arerisingagain === true && adjustRinsulin === true){
                         microBolus = AIMI_lastBolusSMBUnits > M1 && TimeSMB <= 8 ? M2 : microBolus;
                     }
                 }
@@ -1788,12 +1800,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        /*else if (!aimi_activity && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour && UAMpredBG > profile.key_UAMpredBG) {
+        else if (!aimi_activity && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour && UAMpredBG > profile.key_UAMpredBG && bg < 130) {
             maxRate = Math.min(maxSafeBasal, profile.tdd7DaysPerHour - profile.tddlastHrs);
             rate = round_basal(maxRate, profile);
             rT.reason = ". Force basal because tddlastHrs < tdd7DaysPerHours : " + (profile.tdd7DaysPerHour - profile.tddlastHrs) + ", tddlastHrs. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
-        }*/
+        }
 
         else if(nosmb && delta > 0 && UAMpredBG > profile.key_UAMpredBG){
             maxRate = Math.min(maxSafeBasal, basal * 3);
