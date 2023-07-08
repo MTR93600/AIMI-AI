@@ -19,7 +19,7 @@ var deltaValues = [];
 var isReduced = false; // Initialiser la variable globale
 var reductionCount = 0;
 var circadian_smb_threshold = 0.1;
-var eventualBG_threshold = 180;
+var eventualBG_threshold = 160;
 var adjustRinsulin = false;
 
 // Extract the calculation of predBGI into a separate function
@@ -1530,21 +1530,21 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                         var microBolus = profile.smbToGive;
                         AI = true;
                         rT.reason += ", AIMI_AI is running.";
-                    }else if (profile.smbToGive === 0 && adjustRinsulin === true && delta > 5){
+                    }else if (profile.smbToGive === 0 && delta > 5){
                          //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                          var microBolus = insulinReq;
                          rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                    }else if (profile.smbToGive <= 0 && adjustRinsulin === true && delta > 0){
+                    }else if (profile.smbToGive <= 0 && delta > 0){
                           //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                           var microBolus = insulinReq;
                           rT.reason += ", ModelAI send a smb required " + profile.smbToGive + "u < 0 in a situation which normally need a smb, thanks to train the model again.";
-                     }else if (profile.modelai === false && adjustRinsulin === true){
+                     }else if (profile.modelai === false){
                         //var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                         var microBolus = insulinReq;
                     }
-                }else if (circadian_smb <= -5 && adjustRinsulin === true){
+                }else if (circadian_smb <= -5){
                     var microBolus = insulinReq;
-                }else if (circadian_smb > -1 && bg >= 180 && bg <= 200 && adjustRinsulin === true){
+                }else if (circadian_smb > -1 && bg >= 180 && bg <= 200){
                    var microBolus = calculerMicroBolusSelonBG(minPredBG, eventualBG, target_bg, future_sens);
                 }
 
