@@ -22,6 +22,46 @@ var circadian_smb_threshold = 0.1;
 var eventualBG_threshold = 180;
 var adjustRinsulin = false;
 
+// Extract the calculation of predBGI into a separate function
+function calculatePredBGI(iobTick, sens) {
+    return round(( -iobTick.activity * sens * 5 ), 2);
+}
+
+// Extract the calculation of predZTBGI into a separate function
+function calculatePredZTBGI(iobTick, sens) {
+    return round(( -iobTick.iobWithZeroTemp.activity * sens * 5 ), 2);
+}
+
+function calculatePredDev(ci, IOBpredBGs) {
+    return ci * ( 1 - Math.min(1, IOBpredBGs.length/(60/5)) );
+}
+
+// Extract the calculation of insulin activity and adding it to the last element of an array into a separate function
+function calculateInsulinActivityAndAddToLastElement(iobTick, TDD, insulinDivisor, array) {
+    var insulin_activity;
+    if (!TDD) {
+        insulin_activity = -iobTick.activity * sens * 5;
+    } else {
+        insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
+    }
+    insulin_activity = round(insulin_activity * 5, 2);
+    return array[array.length-1] + insulin_activity;
+}
+
+function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profile, bg, predDev, predUCI) {
+    var insulin_activity;
+    if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 140) {
+        insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
+    } else {
+        insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
+        insulin_activity += Math.min(0, predDev);
+        insulin_activity += predUCI;
+    }
+    insulin_activity = round(insulin_activity * 5, 2);
+    return array[array.length-1] + insulin_activity;
+}
+
+
 function testmonitoring(circadian_smb,eventualBG){
 if (Math.abs(circadian_smb) < circadian_smb_threshold && eventualBG > eventualBG_threshold){
  console.log(",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",");
@@ -859,101 +899,28 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     try {
         iobArray.forEach(function(iobTick) {
-            //console.error(iobTick);
-            var predBGI = round(( -iobTick.activity * sens * 5 ), 2);
-            var predZTBGI = round(( -iobTick.iobWithZeroTemp.activity * sens * 5 ), 2);
-            // for IOBpredBGs, predicted deviation impact drops linearly from current deviation down to zero
-            // over 60 minutes (data points every 5m)
-            var predDev = ci * ( 1 - Math.min(1,IOBpredBGs.length/(60/5)) );
-            if (!TDD){
-            IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + predBGI + predDev;
-             //IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ( TDD * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ),2));
-            }else{
-            // calculate insulin activity
-            var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
-
-            // round to 2 decimal places and multiply by 5
-            insulin_activity = round(insulin_activity * 5, 2);
-
-            // add the insulin activity to the last element of IOBpredBGs
-            IOBpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
-            }
-            // calculate predBGs with long zero temp without deviations
-            if ( !TDD){
-            var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + predZTBGI;
-            //var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + (round(( -iobTick.iobWithZeroTemp.activity * (1800 / ( TDD * (Math.log(( Math.max(ZTpredBGs[ZTpredBGs.length-1],39) / insulinDivisor ) + 1 ) ) )) * 5 ), 2));
-            }else{
-            // calculate insulin activity with zero temp
-            var insulin_activity = -iobTick.iobWithZeroTemp.activity * (1800 / (TDD * (Math.log((Math.max(ZTpredBGs[ZTpredBGs.length-1], 39) / insulinDivisor) + 1))));
-
-            // round to 2 decimal places and multiply by 5
-            insulin_activity = round(insulin_activity * 5, 2);
-
-            // add the insulin activity to the last element of ZTpredBGs
-            var ZTpredBG = ZTpredBGs[ZTpredBGs.length-1] + insulin_activity;
-            }
-
-            // for COBpredBGs, predicted carb impact drops linearly from current carb impact down to zero
-            // eventually accounting for all carbs (if they can be absorbed over DIA)
+            var predBGI = calculatePredBGI(iobTick, sens);
+            var predZTBGI = calculatePredZTBGI(iobTick, sens);
+            var predDev = calculatePredDev(ci, IOBpredBGs);
+            IOBpredBG = calculateInsulinActivityAndAddToLastElement(iobTick, TDD, insulinDivisor, IOBpredBGs);
+            var ZTpredBG = calculateInsulinActivityAndAddToLastElement(iobTick, TDD, insulinDivisor, ZTpredBGs);
             var predCI = Math.max(0, Math.max(0,ci) * ( 1 - COBpredBGs.length/Math.max(cid*2,1) ) );
             var predACI = Math.max(0, Math.max(0,aci) * ( 1 - COBpredBGs.length/Math.max(acid*2,1) ) );
-            // if any carbs aren't absorbed after remainingCATime hours, assume they'll absorb in a /\ shaped
-            // bilinear curve peaking at remainingCIpeak at remainingCATime/2 hours (remainingCATime/2*12 * 5m)
-            // and ending at remainingCATime h (remainingCATime*12 * 5m intervals)
             var intervals = Math.min( COBpredBGs.length, (remainingCATime*12)-COBpredBGs.length );
             var remainingCI = Math.max(0, intervals / (remainingCATime/2*12) * remainingCIpeak );
             remainingCItotal += predCI+remainingCI;
             remainingCIs.push(round(remainingCI,0));
             predCIs.push(round(predCI,0));
-            //console.log(round(predCI,1)+"+"+round(remainingCI,1)+" ");
             COBpredBG = COBpredBGs[COBpredBGs.length-1] + predBGI + Math.min(0,predDev) + predCI + remainingCI;
             var aCOBpredBG = aCOBpredBGs[aCOBpredBGs.length-1] + predBGI + Math.min(0,predDev) + predACI;
-            // for UAMpredBGs, predicted carb impact drops at slopeFromDeviations
-            // calculate predicted CI from UAM based on slopeFromDeviations
             var predUCIslope = Math.max(0, uci + (UAMpredBGs.length*slopeFromDeviations) );
-            // if slopeFromDeviations is too flat, predicted deviation impact drops linearly from
-            // current deviation down to zero over 3h (data points every 5m)
             var predUCImax = Math.max(0, uci * ( 1 - UAMpredBGs.length/Math.max(3*60/5,1) ) );
-            //console.error(predUCIslope, predUCImax);
-            // predicted CI from UAM is the lesser of CI based on deviationSlope or DIA
             var predUCI = Math.min(predUCIslope, predUCImax);
             if(predUCI>0) {
-                //console.error(UAMpredBGs.length,slopeFromDeviations, predUCI);
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
-            if (!TDD){
-            UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + predBGI + Math.min(0, predDev) + predUCI;
 
-            //console.error(predBGI, predCI, predUCI);
-            }else{
-            if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 140) {
-                // calculate insulin activity
-                 var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(IOBpredBGs[IOBpredBGs.length-1], 39) / insulinDivisor) + 1))));
-
-                // round to 2 decimal places and multiply by 5
-                insulin_activity = round(insulin_activity * 5, 2);
-
-                // add the insulin activity to the last element of IOBpredBGs
-                UAMpredBG = IOBpredBGs[IOBpredBGs.length-1] + insulin_activity;
-            } else {
-                // calculate insulin activity
-                var insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(UAMpredBGs[UAMpredBGs.length-1], 39) / insulinDivisor) + 1))));
-
-                // round to 2 decimal places and multiply by 5
-                insulin_activity = round(insulin_activity * 5, 2);
-
-                // add the insulin activity to the last element of UAMpredBGs
-                UAMpredBG = UAMpredBGs[UAMpredBGs.length-1] + insulin_activity;
-
-                // add the minimum value between 0 and predDev
-                UAMpredBG += Math.min(0, predDev);
-
-                // add predUCI
-                UAMpredBG += predUCI;
-            }
-            }
-
-
+            UAMpredBG = calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
 
             // truncate all BG predictions at 4 hours
             if ( IOBpredBGs.length < 48) { IOBpredBGs.push(IOBpredBG); }
