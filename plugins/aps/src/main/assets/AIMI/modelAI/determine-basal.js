@@ -386,7 +386,7 @@ if (profile.temptargetSet) {
 
     //variable AIMI
     var aimi_activity = countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000 ? true : false;
-    var TDD = profile.TDD;
+    var TDD = profile.tdd2Days === null || profile.tdd2Days === undefined ? profile.tdd2Days : profile.key_tdd7;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;

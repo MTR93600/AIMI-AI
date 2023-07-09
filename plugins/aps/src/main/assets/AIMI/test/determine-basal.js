@@ -48,9 +48,12 @@ function calculateInsulinActivityAndAddToLastElement(iobTick, TDD, insulinDiviso
     return array[array.length-1] + insulin_activity;
 }
 
-function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profile, bg, predDev, predUCI) {
+function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profile, bg, predDev, predUCI, predBGI) {
     var insulin_activity;
-    if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 140) {
+    if (TDD === null || TDD === undefined) {
+        return array[array.length-1] + predBGI + Math.min(0, predDev) + predUCI;
+    }
+    if (AIMI_UAM === false || profile.accelerating_up === 0 && bg < 130) {
         insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
     } else {
         insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
@@ -60,7 +63,6 @@ function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profi
     insulin_activity = round(insulin_activity * 5, 2);
     return array[array.length-1] + insulin_activity;
 }
-
 
 function testmonitoring(circadian_smb,eventualBG){
 if (Math.abs(circadian_smb) < circadian_smb_threshold && eventualBG > eventualBG_threshold){
@@ -422,7 +424,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     //variable AIMI
     var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
-    var TDD = profile.TDD;
+    var TDD = profile.tdd2Days === null || profile.tdd2Days === undefined ? profile.tdd2Days : profile.key_tdd7;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;
@@ -1520,8 +1522,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var AI = false;
             adjustRinsulin = testmonitoring(circadian_smb, eventualBG);
             if (!profile.temptargetSet && delta > 0) {
-                //insulinReq = lastbolusAge < profile.key_mbi ? ((1 + Math.sqrt(aimi_delta)) / 2) : insulinReq;
-                //var microBolus = Math.min(AIMI_UAM_CAP, insulinReq);
                 if (lastbolusAge < profile.key_mbi){
                     insulinReq = (1 + Math.sqrt(aimi_delta)) / 2;
                 }

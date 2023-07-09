@@ -520,6 +520,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("weekend",weekend)
         this.profile.put("IC",CI)
         this.profile.put("aimilimit",aimilimit)
+        this.profile.put("tdd2Days",tdd2Days)
 
 
 

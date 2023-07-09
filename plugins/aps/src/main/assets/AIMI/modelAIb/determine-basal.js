@@ -370,7 +370,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     //variable AIMI
     var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
-    var TDD = profile.TDD;
+    var TDD = profile.tdd2Days === null || profile.tdd2Days === undefined ? profile.tdd2Days : profile.key_tdd7;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;
