@@ -137,6 +137,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var smbTopredict: Double = 0.0
     private var variableSensitivity = 0.0f
     private var averageBeatsPerMinute = 0.0
+    private var averageBeatsPerMinute30 = 0.0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -612,23 +613,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         lastprebolus.forEach { bolus ->
             if (bolus.type == Bolus.Type.NORMAL && bolus.isValid && bolus.amount >= SafeParse.stringToDouble(sp.getString(R.string.key_iTime_Starting_Bolus, "2"))) lastPBoluscount += 1
         }
-        var mbi = SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30"))
-        this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
-        if (lastbolusage > mbi) {
-            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
-        } else if (lastbolusage < mbi) {
-            this.maxSMB = lastBolusNormalUnits
-        } else {
-            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
-        }
-        this.profile.put("mss", maxSMB)
+
 
         this.mealData.put("countBolus", lastBolusNormalTimecount)
         this.mealData.put("countSMB", lastBolusSMBcount)
         this.mealData.put("countSMB40", SMBcount)
         this.mealData.put("MaxSMBcount", MaxSMBcount)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
-        this.mealData.put("lastbolusage", lastbolusage)
+
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
@@ -643,11 +635,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
 
         val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        val timeMillis30 = System.currentTimeMillis() - 30 * 60 * 1000 // 15 minutes en millisecondes
         var beatsPerMinuteValues: List<Int>
-        //var averageBeatsPerMinute: Double = 0.0
+        var beatsPerMinuteValues30: List<Int>
 
         try {
             val heartRates = repository.getHeartRatesFromTime(timeMillis)
+            val heartRates30 = repository.getHeartRatesFromTime(timeMillis30)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()
@@ -662,10 +656,28 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             beatsPerMinuteValues = listOf(80)
             this.averageBeatsPerMinute = 80.0
         }
+        try {
 
+            val heartRates30 = repository.getHeartRatesFromTime(timeMillis30)
+            beatsPerMinuteValues30 = heartRates30.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            this.averageBeatsPerMinute30 = if (beatsPerMinuteValues30.isNotEmpty()) {
+                beatsPerMinuteValues30.average()
+            } else {
+                10.0 // or some other default value
+            }
+
+        } catch (e: Exception) {
+            // Log that watch is not connected
+            //println("Watch is not connected. Using default values for heart rate data.")
+            // Réaffecter les variables à leurs valeurs par défaut
+            beatsPerMinuteValues30 = listOf(10)
+            this.averageBeatsPerMinute30 = 10.0
+        }
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
+        this.profile.put("beatsPerMinuteValues30", beatsPerMinuteValues30)
+        this.profile.put("averageBeatsPerMinute30", averageBeatsPerMinute30)
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 140.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 140.0))?.belowPct()
         val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3, 65.0, 130.0))?.inRangePct()
@@ -701,18 +713,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 }
             }
         }
-
+        val timenow = LocalTime.now()
+        val sixAM = LocalTime.of(6, 0)
         if (averageBeatsPerMinute != 0.0) {
             if (averageBeatsPerMinute >= 100 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
                 basalaimi = (basalaimi * 0.65).toFloat()
-            } else if (averageBeatsPerMinute >= 100 && bg >= 150 && recentSteps10Minutes < 200) {
-                basalaimi = (basalaimi * 1.6).toFloat()
-            } else if (averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0) {
-                basalaimi = (basalaimi * 1.4).toFloat()
+            } else if (averageBeatsPerMinute30 != 10.0 && averageBeatsPerMinute > averageBeatsPerMinute30 && bg >= 130 && recentSteps10Minutes === 0 && timenow > sixAM) {
+                basalaimi = (basalaimi * 1.3).toFloat()
+            } else if (averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0 && bg >= 130) {
+                basalaimi = (basalaimi * 1.2).toFloat()
             }
         }
-        val timenow = LocalTime.now()
-        val sixAM = LocalTime.of(6, 0)
+
 
         if (timenow > sixAM) {
             if (lastHourTIRAbove != null && lastHourTIRAbove >= 3 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
@@ -793,7 +805,15 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
             }
 
-
+        var mbi = SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30"))
+        this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
+        if (lastbolusage > mbi) {
+            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalaimi / 100).toFloat()
+        } else if (lastbolusage < mbi) {
+            this.maxSMB = lastBolusNormalUnits
+        }
+        this.profile.put("mss", maxSMB)
+        this.mealData.put("lastbolusage", lastbolusage)
 
 
             this.profile.put("clusterinsulin", clusterinsulin)

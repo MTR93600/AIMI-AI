@@ -516,29 +516,25 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var currentTIRinRange = round(meal_data.currentTIRRange,2);
         var currentTIRAbove = round(meal_data.currentTIRAbove,2);
         enlog +="TDD  : "+TDD+"\n";
-    if (meal_data.TDDAIMI3){
-    var TDDaverage3 = meal_data.TDDAIMI3;
-    }else{
-    var TDDaverage3 = ((basal * 12)*100)/21;
-    }
-    var MagicNumber = profile.sens*TDDaverage3*profile.min_bg;
+    var TDDaverage3 = meal_data.TDDAIMI3 ? meal_data.TDDAIMI3 : ((basal * 12) * 100) / 21;
+    var MagicNumber = variable_sens * TDDaverage3 * profile.min_bg;
     enlog += "TDDaverage3("+TDDaverage3+") and MagicNumber("+MagicNumber+")\n";
-    sens = variable_sens;
+    sens = enable_circadian === true ? Math.max(variable_sens * circadian_sensitivity,variable_sens/2) : variable_sens;
     sens = lastHourTIRLow > 0 ? sens*1.618 : sens;
-    sens = glucose_status.delta < 0 && iTimeActivation && aimi_bg < 150 ? profile.sens : sens;
+    sens = glucose_status.delta < 0 && iTimeActivation && aimi_bg < 150 ? variable_sens : sens;
     enlog += lastHourTIRLow > 0 || C1 < C2 && !iTimeActivation || iTimeActivation && glucose_status.delta > 0 ? " ; sens TDD after adjustment depending of C1-C2-aimi-TIRLow : "+sens+ " \n" : " \n";
     }else{
     if (enable_circadian === true){
-    sens = iTimeActivation && glucose_status.delta > 15 ? profile.sens / 2 : Math.max(profile.sens * circadian_sensitivity,profile.sens/2);
+    sens = iTimeActivation && glucose_status.delta > 15 ? variable_sens / 2 : Math.max(variable_sens * circadian_sensitivity,variable_sens/2);
     enlog += iTimeActivation && glucose_status.delta > 15 ? "ISF from profile divide by 2 because iTimeActivation && glucose_status.delta > 15 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }else{
-    sens = iTimeActivation && glucose_status.delta > 15 ? profile.sens / 2 : profile.sens;
+    sens = iTimeActivation && glucose_status.delta > 15 ? variable_sens / 2 : variable_sens;
     enlog += iTimeActivation && glucose_status.delta > 15 ? "ISF from profile divide by 2 because iTimeActivation && glucose_status.delta > 15 :"+sens+" \n" : "######--TDD and TIR don't have data, the ISF come from the profile--######\n";
     }
    }
     var mineRatio = profile.carb_ratio/2;
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
-    var csf = profile.sens / profile.carb_ratio ;
+    var csf = variable_sens / profile.carb_ratio ;
     var Hypo_ratio = 1;
     if (!profile.temptargetSet && bg >= 110 && delta > 5 && profile.resistance_lowers_target) {
 
@@ -567,7 +563,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             } else {
                 enlog +="Basal unchanged: "+basal+";\n";
             }
-        }else if ((currentTIRLow > 10 || profile.beatsPerMinuteValues > (profile.averageBeatsPerMinute + 10 )|| circadian_smb > (-2) ) && profile.aimipregnancy === false && profile.sensitivity_raises_target){
+        }else if ((currentTIRLow > 10 || profile.beatsPerMinuteValues > (profile.averageBeatsPerMinute + 10 )|| circadian_smb > (0.1) ) && profile.aimipregnancy === false && profile.sensitivity_raises_target){
                  var hypo_target = 100 * Math.max(1,circadian_sensitivity);
                  enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
@@ -676,7 +672,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     if (iob_data.iob > 0) {
         var naive_eventualBG = round( bg - (iob_data.iob * sens) );
     } else { // if IOB is negative, be more conservative and use the lower of sens, profile.sens
-        var naive_eventualBG = round( bg - (iob_data.iob * Math.min(sens, profile.sens) ) );
+        var naive_eventualBG = round( bg - (iob_data.iob * Math.min(sens, variable_sens) ) );
     }
     // and adjust it for the deviation above
     var eventualBG = naive_eventualBG + deviation;
@@ -922,7 +918,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
 
-            UAMpredBG = calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
+            UAMpredBG = iob_data > (2*profile.mss) ? IOBpredBG : calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
 
             // truncate all BG predictions at 4 hours
             if ( IOBpredBGs.length < 48) { IOBpredBGs.push(IOBpredBG); }
@@ -1058,7 +1054,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
     future_sens = iTimeActivation && lastHourTIRLow > 0 ? round(future_sens * 1.618,1) :
     round(future_sens);
-    future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? profile.sens : round(future_sens);
+    future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? sens : round(future_sens);
 
     minIOBPredBG = Math.max(39,minIOBPredBG);
     minCOBPredBG = Math.max(39,minCOBPredBG);
@@ -1175,7 +1171,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-test 10/07/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AI-test 14/07/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1183,7 +1179,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
         rT.reason += enable_circadian === true ? ", circadian_sensitivity : "+circadian_sensitivity : "";
         rT.reason += ",circadian_smb test : "+circadian_smb+", Basal : "+basal+" U";
-        //rT.reason += ",aimismb test de valeur : "+aimi_smb;
         rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
         rT.reason += (profile.modelai === true ? ", The ai model predicted SMB of "+profile.predictedSMB+"u after safety requirements and rounding to .05, requested "+profile.smbToGive+"u to the pump" : "The ai model need a file which is missing");
 
