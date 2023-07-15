@@ -1647,7 +1647,7 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
-            }else if(profile.accelerating_up === 0 && meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > profile.key_mbi ){
+            }else if(meal_data.countSMB40 > 3 && circadian_smb > -7 && lastbolusAge > profile.key_mbi ){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because accelerating_up = 0 and you receive more than 3 SMB with a circadian_SMB > -7";
             }else if (delta>-3 && delta<3 && shortAvgDelta>-3 && shortAvgDelta<3 && longAvgDelta>-3 && longAvgDelta<3 && bg < 180 && lastbolusAge > profile.key_mbi ){
