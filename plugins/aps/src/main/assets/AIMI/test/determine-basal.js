@@ -58,7 +58,7 @@ function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profi
     } else {
         insulin_activity = -iobTick.activity * (1800 / (TDD * (Math.log((Math.max(array[array.length-1], 39) / insulinDivisor) + 1))));
         insulin_activity += Math.min(0, predDev);
-        insulin_activity += predUCI;
+        insulin_activity += predUCI / 2;
     }
     insulin_activity = round(insulin_activity * 5, 2);
     return array[array.length-1] + insulin_activity;
@@ -1025,11 +1025,24 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         }
 
         // set eventualBG based on COB or UAM predBGs
-        rT.eventualBG = eventualBG;
+       // rT.eventualBG = eventualBG;
+
     }
 
+    if (UAMpredBGs[UAMpredBGs.length-1] && ZTpredBGs[ZTpredBGs.length-1] && IOBpredBGs[IOBpredBGs.length-1]){
+        var predbgsaverage = (UAMpredBGs[UAMpredBGs.length-1] + ZTpredBGs[ZTpredBGs.length-1] + IOBpredBGs[IOBpredBGs.length-1]) / 3;
+    }else{
+        var predbgsaverage = (ZTpredBGs[ZTpredBGs.length-1] + IOBpredBGs[IOBpredBGs.length-1]) / 2;
+    }
+
+    rT.eventualBG = predbgsaverage;
+
+
+    //var predbgsaverage = (lastUAMPredBG + lastZTpredBG + lastIOBpredBG) / 3;
+    //rT.eventualBG = predbgsaverage;
     console.error("UAM Impact:",uci,"mg/dL per 5m; UAM Duration:",UAMduration,"hours");
     console.log("EventualBG is" +eventualBG+" ;");
+
 
     var AIMI_ISF = profile.key_use_AimiUAM_ISF;
     if (TDD){

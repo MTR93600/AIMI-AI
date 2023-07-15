@@ -93,6 +93,7 @@ import io.socket.emitter.Emitter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.net.URISyntaxException
 import java.security.InvalidParameterException
@@ -534,21 +535,32 @@ class NSClientV3Plugin @Inject constructor(
         }
     }
 
-    private val onClearAlarm = Emitter.Listener { args ->
+    /*private val onClearAlarm = Emitter.Listener { args ->
 
-        /*
+        *//*
         {
         "clear":true,
         "title":"All Clear",
         "message":"default - Urgent was ack'd",
         "group":"default"
         }
-         */
+         *//*
         val data = args[0] as JSONObject
         rxBus.send(EventNSClientNewLog("◄ CLEARALARM", data.optString("title")))
         aapsLogger.debug(LTag.NSCLIENT, data.toString())
         rxBus.send(EventDismissNotification(Notification.NS_ALARM))
         rxBus.send(EventDismissNotification(Notification.NS_URGENT_ALARM))
+    }*/
+    private val onClearAlarm = Emitter.Listener { args ->
+        try {
+            val data = JSONObject(args[0] as String)
+            rxBus.send(EventNSClientNewLog("◄ CLEARALARM", data.optString("title")))
+            aapsLogger.debug(LTag.NSCLIENT, data.toString())
+            rxBus.send(EventDismissNotification(Notification.NS_ALARM))
+            rxBus.send(EventDismissNotification(Notification.NS_URGENT_ALARM))
+        } catch (e: JSONException) {
+            aapsLogger.error("Failed to parse JSON", e)
+        }
     }
 
     override fun handleClearAlarm(originalAlarm: NSAlarm, silenceTimeInMilliseconds: Long) {

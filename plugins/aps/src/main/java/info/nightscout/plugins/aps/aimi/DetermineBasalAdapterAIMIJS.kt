@@ -728,7 +728,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         if (timenow > sixAM) {
             if (lastHourTIRAbove != null && lastHourTIRAbove >= 3 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
-                basalaimi = (basalaimi * 2).toFloat()
+                basalaimi = (basalaimi * 1.5).toFloat()
             } else if (lastHourTIRLow != null && lastHourTIRLow >= 2 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
                 basalaimi = (basalaimi * 0.5).toFloat()
             }
