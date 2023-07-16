@@ -508,6 +508,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("IC", CI)
         this.profile.put("aimilimit", aimilimit)
         this.profile.put("tdd2Days", tdd2Days)
+        this.profile.put("tdd7Days", tdd7Days)
 
         val insulin = activePlugin.activeInsulin
         val insulinType = insulin.friendlyName
@@ -516,7 +517,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("insulinPeak", insulinPeak)
         //mProfile.put("high_temptarget_raises_sensitivity", SP.getBoolean(R.string.key_high_temptarget_raises_sensitivity, UAMDefaults.high_temptarget_raises_sensitivity));
 //**********************************************************************************************************************************************
-        this.profile.put("high_temptarget_raises_sensitivity", sp.getBoolean(info.nightscout.core.utils.R.string.key_high_temptarget_raises_sensitivity, AIMIDefaults.high_temptarget_raises_sensitivity))
+        this.profile.put(
+            "high_temptarget_raises_sensitivity",
+            sp.getBoolean(info.nightscout.core.utils.R.string.key_high_temptarget_raises_sensitivity, AIMIDefaults.high_temptarget_raises_sensitivity)
+        )
         this.profile.put("low_temptarget_lowers_sensitivity", sp.getBoolean(info.nightscout.core.utils.R.string.key_low_temptarget_lowers_sensitivity, AIMIDefaults.low_temptarget_lowers_sensitivity))
 
 //**********************************************************************************************************************************************
@@ -607,7 +611,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2, false).blockingGet()
         extendedsmb.forEach { bolus ->
             if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits.toLong()) SMBcount += 1
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")) / 100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true) MaxSMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(
+                    sp.getString(
+                        R.string.key_use_AIMI_CAP,
+                        "150"
+                    )
+                ) / 100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true
+            ) MaxSMBcount += 1
         }
         val lastprebolus = repository.getBolusesDataFromTime(now - millsToThePast3, false).blockingGet()
         lastprebolus.forEach { bolus ->
@@ -620,7 +630,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.mealData.put("countSMB40", SMBcount)
         this.mealData.put("MaxSMBcount", MaxSMBcount)
         this.mealData.put("lastBolusNormalTime", lastBolusNormalTime)
-
 
         val getlastBolusSMB = repository.getLastBolusRecordOfTypeWrapped(Bolus.Type.SMB).blockingGet()
         val lastBolusSMBUnits = if (getlastBolusSMB is ValueWrapper.Existing) getlastBolusSMB.value.amount else 0L
@@ -735,81 +744,87 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
 // Add variable for readability and to avoid repeating the same calculations
-            val tddWeightedFromLast8H: Double? = if (tddLast4H != null && tddLast8to4H != null) {
-                ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
-            } else {
-                null
-            }
+        val tddWeightedFromLast8H: Double? = if (tddLast4H != null && tddLast8to4H != null) {
+            ((1.4 * tddLast4H) + (0.6 * tddLast8to4H)) * 3
+        } else {
+            null
+        }
 
 // Use null-safe operator to avoid unnecessary unwrapping
-            tdd7D = tdd7D?.let { it } ?: return
+        tdd7D = tdd7D?.let { it } ?: return
 
 // Use when expression to make the code more readable
 
-            val tdd = when {
-                tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
-                    tdd1D != null && !tdd1D.isNaN() &&
-                    tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
-                tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
-                    tdd1D != null && !tdd1D.isNaN() &&
-                    tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
-                tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
-                    tdd1D != null && !tdd1D.isNaN() &&
-                    tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+        val tdd = when {
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+            tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
+                tdd1D != null && !tdd1D.isNaN() &&
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
 
-                else -> {
-                    tddWeightedFromLast8H ?: 0.0 // or any default value you want
-                }
+            else -> {
+                tddWeightedFromLast8H ?: 0.0 // or any default value you want
             }
+        }
 
-            //Calculating variableSensitivity
-            // Ajout des logs pour vérifier les valeurs avant les calculs
+        //Calculating variableSensitivity
+        // Ajout des logs pour vérifier les valeurs avant les calculs
 
-            val tddDouble = tdd.toDoubleSafely()
-            val glucoseDouble = glucoseStatus.glucose?.toDoubleSafely()
-            val insulinDivisorDouble = insulinDivisor?.toDoubleSafely()
+        val tddDouble = tdd.toDoubleSafely()
+        val glucoseDouble = glucoseStatus.glucose?.toDoubleSafely()
+        val insulinDivisorDouble = insulinDivisor?.toDoubleSafely()
 
-            if (tddDouble != null && glucoseDouble != null && insulinDivisorDouble != null) {
-                variableSensitivity = (1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))).toFloat()
+        if (tddDouble != null && glucoseDouble != null && insulinDivisorDouble != null) {
+            variableSensitivity = (1800 / (tdd * (ln((glucoseStatus.glucose / insulinDivisor) + 1)))).toFloat()
 
-                // Ajout d'un log pour vérifier la valeur de variableSensitivity après le calcul
-                val variableSensitivityDouble = variableSensitivity.toDoubleSafely()
-                if (variableSensitivityDouble != null) {
-                    if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5f
-                    if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100) variableSensitivity *= 1.3f
-                }
+            // Ajout d'un log pour vérifier la valeur de variableSensitivity après le calcul
+            val variableSensitivityDouble = variableSensitivity.toDoubleSafely()
+            if (variableSensitivityDouble != null) {
+                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200) variableSensitivity *= 1.5f
+                if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100) variableSensitivity *= 1.3f
+            }
+        } else {
+            variableSensitivity = profile.getIsfMgdl().toFloat()
+        }
+
+        if (!variableSensitivity.isInfinite()) {
+            this.profile.put("variable_sens", variableSensitivity)
+        } else {
+            variableSensitivity = profile.getIsfMgdl().toFloat()
+            this.profile.put("variable_sens", variableSensitivity)
+        }
+
+
+
+
+        if (tdd.toDouble() != null) {
+            if (tdd.toDouble().isNaN()) {
+                this.profile.put("TDD", JSONObject.NULL)
             } else {
-                variableSensitivity = profile.getIsfMgdl().toFloat()
+                this.profile.put("TDD", tdd)
             }
+        }
 
-            if (!variableSensitivity.isInfinite()) {
-                this.profile.put("variable_sens", variableSensitivity)
-            } else {
-                variableSensitivity = profile.getIsfMgdl().toFloat()
-                this.profile.put("variable_sens", variableSensitivity)
-            }
-
-
-
-
-            if (tdd.toDouble() != null) {
-                if (tdd.toDouble().isNaN()) {
-                    this.profile.put("TDD", JSONObject.NULL)
-                } else {
-                    this.profile.put("TDD", tdd)
-                }
-            }
-
-            var clusterinsulin = 0.0f
-            if (bg > targetBg && variableSensitivity != null && variableSensitivity.isInfinite()) {
-                clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
-            }
+        var clusterinsulin = 0.0f
+        if (bg > targetBg && variableSensitivity != null && variableSensitivity.isInfinite()) {
+            clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
+        }
 
         var mbi = SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30"))
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
-        if (lastbolusage > mbi) {
-            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalaimi / 100).toFloat()
-        } else if (lastbolusage < mbi) {
+        if (lastbolusage > mbi && basalaimi != null) {
+            if(basalaimi < 1.3*basalRate) {
+                this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalaimi / 100).toFloat()
+            }else{
+                this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+            }
+        }else if(lastbolusage > mbi){
+            this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
+        }else if (lastbolusage < mbi) {
             this.maxSMB = lastBolusNormalUnits
         }
         this.profile.put("mss", maxSMB)
@@ -820,8 +835,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("lastHourTIRLow", lastHourTIRLow)
             this.profile.put("lastHourTIRAbove", lastHourTIRAbove)
             this.profile.put("lastPBoluscount", lastPBoluscount)
-            this.profile.put("basalaimi", basalaimi)
 
+        if (basalaimi != null) {
+            this.profile.put("basalaimi", basalaimi)
+        }else{
+            this.profile.put("basalaimi", basalRate)
+        }
 
             this.profile.put("insulinDivisor", insulinDivisor)
             //this.profile.put("tddlastHaverage", tddlastHaverage)

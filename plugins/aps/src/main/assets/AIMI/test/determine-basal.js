@@ -424,7 +424,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     //variable AIMI
     var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
-    var TDD = profile.tdd2Days === null || profile.tdd2Days === undefined ? profile.tdd2Days : profile.key_tdd7;
+    var TDD = profile.tdd7Days === null || profile.tdd7Days === undefined ? profile.TDD : profile.key_tdd7;
     var insulinDivisor = profile.insulinDivisor;
     var variable_sens = profile.variable_sens;
     var lastHourTIRLow = profile.lastHourTIRLow;
@@ -1184,7 +1184,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-test 15/07/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AI-test 16/07/2023 3.2.0-dev-j";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
@@ -1636,7 +1636,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
         UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
-        if (eventualBG < profile.key_UAMpredBG && bg < 110){
+        if (eventualBG < profile.key_UAMpredBG){
             microBolus = 0;
             rT.reason += ", No SMB because eventualBG < "+profile.key_UAMpredBG+", ";
         }else if (bg < target_bg && delta < -2){
