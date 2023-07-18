@@ -137,7 +137,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var smbTopredict: Double = 0.0
     private var variableSensitivity = 0.0f
     private var averageBeatsPerMinute = 0.0
-    private var averageBeatsPerMinute30 = 0.0
+    private var averageBeatsPerMinute180 = 0.0
 
     override var currentTempParam: String? = null
     override var iobDataParam: String? = null
@@ -644,13 +644,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
 
         val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
-        val timeMillis30 = System.currentTimeMillis() - 30 * 60 * 1000 // 15 minutes en millisecondes
+        val timeMillis180 = System.currentTimeMillis() - 180 * 60 * 1000 // 180 minutes en millisecondes
         var beatsPerMinuteValues: List<Int>
-        var beatsPerMinuteValues30: List<Int>
+        var beatsPerMinuteValues180: List<Int>
 
         try {
             val heartRates = repository.getHeartRatesFromTime(timeMillis)
-            val heartRates30 = repository.getHeartRatesFromTime(timeMillis30)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()
@@ -667,10 +666,10 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
         try {
 
-            val heartRates30 = repository.getHeartRatesFromTime(timeMillis30)
-            beatsPerMinuteValues30 = heartRates30.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
-            this.averageBeatsPerMinute30 = if (beatsPerMinuteValues30.isNotEmpty()) {
-                beatsPerMinuteValues30.average()
+            val heartRates180 = repository.getHeartRatesFromTime(timeMillis180)
+            beatsPerMinuteValues180 = heartRates180.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
+                beatsPerMinuteValues180.average()
             } else {
                 10.0 // or some other default value
             }
@@ -679,14 +678,14 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             // Log that watch is not connected
             //println("Watch is not connected. Using default values for heart rate data.")
             // Réaffecter les variables à leurs valeurs par défaut
-            beatsPerMinuteValues30 = listOf(10)
-            this.averageBeatsPerMinute30 = 10.0
+            beatsPerMinuteValues180 = listOf(10)
+            this.averageBeatsPerMinute180 = 10.0
         }
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
-        this.profile.put("beatsPerMinuteValues30", beatsPerMinuteValues30)
-        this.profile.put("averageBeatsPerMinute30", averageBeatsPerMinute30)
+        this.profile.put("beatsPerMinuteValues180", beatsPerMinuteValues180)
+        this.profile.put("averageBeatsPerMinute180", averageBeatsPerMinute180)
         val lastHourTIRAbove = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 140.0))?.abovePct()
         val lastHourTIRLow = tirCalculator.averageTIR(tirCalculator.calculateHour(72.0, 140.0))?.belowPct()
         val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3, 65.0, 130.0))?.inRangePct()
@@ -725,11 +724,11 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val timenow = LocalTime.now()
         val sixAM = LocalTime.of(6, 0)
         if (averageBeatsPerMinute != 0.0) {
-            if (averageBeatsPerMinute >= 100 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
+            if (averageBeatsPerMinute >= averageBeatsPerMinute180 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
                 basalaimi = (basalaimi * 0.65).toFloat()
-            } else if (averageBeatsPerMinute30 != 10.0 && averageBeatsPerMinute > averageBeatsPerMinute30 && bg >= 130 && recentSteps10Minutes === 0 && timenow > sixAM) {
+            } else if (averageBeatsPerMinute180 != 10.0 && averageBeatsPerMinute > averageBeatsPerMinute180 && bg >= 130 && recentSteps10Minutes === 0 && timenow > sixAM) {
                 basalaimi = (basalaimi * 1.3).toFloat()
-            } else if (averageBeatsPerMinute <= 70 && recentSteps10Minutes === 0 && bg >= 130) {
+            } else if (averageBeatsPerMinute180 != 10.0 && averageBeatsPerMinute < averageBeatsPerMinute180 && recentSteps10Minutes === 0 && bg >= 130) {
                 basalaimi = (basalaimi * 1.2).toFloat()
             }
         }
