@@ -715,7 +715,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                 } else if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80)) {
                     basalaimi = (basalaimi * 1.1).toFloat()
                 } else if (tirbasal3B <= 5 && tirbasal3IR <= 70) {
-                    basalaimi = (basalaimi * 1.2).toFloat()
+                    basalaimi = (basalaimi * 1.3).toFloat()
                 } else if (tirbasal3B > 5 && tirbasal3A!! < 5) {
                     basalaimi = (basalaimi * 0.85).toFloat()
                 }
