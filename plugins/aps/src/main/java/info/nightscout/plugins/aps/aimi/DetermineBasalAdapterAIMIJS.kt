@@ -757,13 +757,13 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tdd = when {
             tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
                 tdd1D != null && !tdd1D.isNaN() &&
-                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 0.85
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRLow!! > 0 -> ((tddWeightedFromLast8H * 0.20) + (tdd7D * 0.45) + (tdd1D * 0.35)) * 0.85
             tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
                 tdd1D != null && !tdd1D.isNaN() &&
-                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)) * 1.15
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f && lastHourTIRAbove!! > 0 -> ((tddWeightedFromLast8H * 0.20) + (tdd7D * 0.45) + (tdd1D * 0.35)) * 1.15
             tddWeightedFromLast8H != null && !tddWeightedFromLast8H.isNaN() &&
                 tdd1D != null && !tdd1D.isNaN() &&
-                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.33) + (tdd7D * 0.34) + (tdd1D * 0.33)
+                tdd7D != null && !tdd7D.isNaN() && tdd7D != 0.0f -> (tddWeightedFromLast8H * 0.20) + (tdd7D * 0.45) + (tdd1D * 0.35)
 
             else -> {
                 tddWeightedFromLast8H ?: 0.0 // or any default value you want

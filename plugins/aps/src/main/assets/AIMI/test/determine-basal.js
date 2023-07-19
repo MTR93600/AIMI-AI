@@ -917,8 +917,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             if(predUCI>0) {
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
-
-            UAMpredBG = iob_data > (2*profile.mss) ? IOBpredBG : calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
+            testpredbg = UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ((TDD-iob_data.iob) * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) +1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + (predUCI/2);
+            UAMpredBG = iob_data.iob > (2*profile.mss) ? IOBpredBG : calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
+            testpredbg = Math.max(testpredbg,39);
 
             // truncate all BG predictions at 4 hours
             if ( IOBpredBGs.length < 48) { IOBpredBGs.push(IOBpredBG); }
@@ -1185,7 +1186,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "; ";
         rT.reason += "================================================================="
         rT.reason +=" , Variant AIMI-AI-test 16/07/2023 3.2.0-dev-j";
-        rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
+        rT.reason += ",testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
