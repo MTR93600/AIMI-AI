@@ -443,7 +443,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
         this.maxIob = sp.getDouble(R.string.key_openapssmb_max_iob, 5.0).toFloat()
-        if (tdd2Days != null) {
+        if (tdd2Days != null && tdd2Days != 0.0f) {
             this.basalaimi = (tdd2Days / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()
         } else {
             this.basalaimi = (SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")) / SafeParse.stringToDouble(sp.getString(R.string.key_aimiweight, "50"))).toFloat()

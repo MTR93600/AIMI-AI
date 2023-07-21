@@ -918,7 +918,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 UAMduration = round((UAMpredBGs.length+1)*5/60,1);
             }
             testpredbg = UAMpredBGs[UAMpredBGs.length-1] + (round(( -iobTick.activity * (1800 / ((TDD-iob_data.iob) * (Math.log((Math.max( IOBpredBGs[IOBpredBGs.length-1],39) / insulinDivisor ) +1 ) ) )) * 5 ),2)) + Math.min(0, predDev) + (predUCI/2);
-            UAMpredBG = iob_data.iob > (2*profile.mss) ? IOBpredBG : calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
+            UAMpredBG = iob_data.iob > (2*profile.mss)   && meal_data.countSMB40 > 2 ? IOBpredBG : calculateUAMPredBG(iobTick, TDD, insulinDivisor, UAMpredBGs, AIMI_UAM, profile, bg, predDev, predUCI);
             testpredbg = Math.max(testpredbg,39);
 
             // truncate all BG predictions at 4 hours
