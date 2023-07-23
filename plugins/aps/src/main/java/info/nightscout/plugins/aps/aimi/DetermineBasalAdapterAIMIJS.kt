@@ -691,7 +691,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val tirbasal3IR = tirCalculator.averageTIR(tirCalculator.calculate(3, 65.0, 130.0))?.inRangePct()
         val tirbasal3B = tirCalculator.averageTIR(tirCalculator.calculate(3, 65.0, 130.0))?.belowPct()
         val tirbasal3A = tirCalculator.averageTIR(tirCalculator.calculate(3, 65.0, 130.0))?.abovePct()
-        val tirbasalhAP = tirCalculator.averageTIR(tirCalculator.calculateHour(65.0, 110.0))?.abovePct()
+        val tirbasalhAP = tirCalculator.averageTIR(tirCalculator.calculateHour(65.0, 115.0))?.abovePct()
         val tdd1D = tddDaily
         var tdd7D = tdd7Days
         val tddLast4H = tdd2DaysPerHour * 4
@@ -704,25 +704,28 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             insulin.peak > 45  -> 65 // ultra rapid peak: 55
             else               -> 75 // rapid peak: 75
         }
+        val timenow = LocalTime.now()
+        val sixAM = LocalTime.of(6, 0)
         if (tirbasal3B != null) {
             if (tirbasal3IR != null) {
                 if (tirbasalhAP != null && tirbasalhAP >= 5 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true)) {
-                    basalaimi = (basalaimi * 3).toFloat()
+                    basalaimi = (basalaimi * 2.0).toFloat()
                 } else if (lastHourTIRAbove != null && lastHourTIRAbove >= 2 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true)) {
-                    basalaimi = basalaimi
-                } else if ((sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true)) {
-                    basalaimi = (basalaimi * 2).toFloat()
-                } else if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80)) {
+                    basalaimi = (basalaimi * 1.8).toFloat()
+                }else if (timenow < sixAM && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true)){
+                    basalaimi = (basalaimi * 1.4).toFloat()
+                }else if ((sp.getBoolean(R.string.key_use_AimiPregnancy, false) === true) && timenow > sixAM) {
+                    basalaimi = (basalaimi * 1.6).toFloat()
+                } else if ((tirbasal3B <= 5) && (tirbasal3IR >= 70 && tirbasal3IR <= 80) && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
                     basalaimi = (basalaimi * 1.1).toFloat()
-                } else if (tirbasal3B <= 5 && tirbasal3IR <= 70) {
+                } else if (tirbasal3B <= 5 && tirbasal3IR <= 70 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
                     basalaimi = (basalaimi * 1.3).toFloat()
-                } else if (tirbasal3B > 5 && tirbasal3A!! < 5) {
+                } else if (tirbasal3B > 5 && tirbasal3A!! < 5 && (sp.getBoolean(R.string.key_use_AimiPregnancy, false) === false)) {
                     basalaimi = (basalaimi * 0.85).toFloat()
                 }
             }
         }
-        val timenow = LocalTime.now()
-        val sixAM = LocalTime.of(6, 0)
+
         if (averageBeatsPerMinute != 0.0) {
             if (averageBeatsPerMinute >= averageBeatsPerMinute180 && recentSteps5Minutes > 100 && recentSteps10Minutes > 200) {
                 basalaimi = (basalaimi * 0.65).toFloat()
@@ -816,7 +819,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var mbi = SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30"))
         this.lastbolusage = ((now - lastBolusNormalTime) / (60 * 1000)).toDouble().roundToInt().toLong()
         if (lastbolusage > mbi && basalaimi != null) {
-            if(basalaimi < 1.3*basalRate) {
+            if(basalaimi < 1.2*basalRate) {
                 this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalaimi / 100).toFloat()
             }else{
                 this.maxSMB = (sp.getDouble(R.string.key_use_AIMI_CAP, 150.0).toFloat() * basalRate / 100).toFloat()
