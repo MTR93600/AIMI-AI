@@ -102,6 +102,17 @@ sealed class EventData : Event() {
     }
 
     @Serializable
+    data class ActionStepsRate(
+        val duration: Long,
+        val timestamp: Long,
+        val steps: Int,
+        val device: String): EventData() {
+        override fun toString() =
+            "STEPS $steps at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
+    }
+
+
+    @Serializable
     data class ActionTempTargetPreCheck(
         val command: TempTargetCommand,
         val isMgdl: Boolean = true, val duration: Int = 0, val low: Double = 0.0, val high: Double = 0.0 // manual
