@@ -130,7 +130,7 @@ class stepCountListener(
             EventData.ActionStepsRate(
                 duration = 10 * 60 * 1000,
                 timestamp = timestampMillis,
-                steps5min = 0,
+                steps5min = stepsInLast5Minutes,
                 steps10min = stepsInLast10Minutes,
                 steps15min = 0,
                 steps30min = 0,
@@ -140,8 +140,8 @@ class stepCountListener(
             EventData.ActionStepsRate(
                 duration = 15 * 60 * 1000,
                 timestamp = timestampMillis,
-                steps5min = 0,
-                steps10min = 0,
+                steps5min = stepsInLast5Minutes,
+                steps10min = stepsInLast10Minutes,
                 steps15min = stepsInLast15Minutes,
                 steps30min = 0,
                 steps60min = 0,
@@ -150,9 +150,9 @@ class stepCountListener(
             EventData.ActionStepsRate(
                 duration = 30 * 60 * 1000,
                 timestamp = timestampMillis,
-                steps5min = 0,
-                steps10min = 0,
-                steps15min = 0,
+                steps5min = stepsInLast5Minutes,
+                steps10min = stepsInLast10Minutes,
+                steps15min = stepsInLast15Minutes,
                 steps30min = stepsInLast30Minutes,
                 steps60min = 0,
                 device = device
@@ -160,16 +160,14 @@ class stepCountListener(
             EventData.ActionStepsRate(
                 duration = 60 * 60 * 1000,
                 timestamp = timestampMillis,
-                steps5min = 0,
-                steps10min = 0,
-                steps15min = 0,
-                steps30min = 0,
+                steps5min = stepsInLast5Minutes,
+                steps10min = stepsInLast10Minutes,
+                steps15min = stepsInLast15Minutes,
+                steps30min = stepsInLast30Minutes,
                 steps60min = stepsInLast60Minutes,
                 device = device
             )
         )
-
-
         sendStepsRate(stepsList)
     }
 

@@ -143,9 +143,22 @@ open class DatabaseModule {
             dropCustomIndexes(database)
         }
     }
+    private val migration26to27 = object : Migration(26, 27) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """ALTER TABLE `$TABLE_STEPS_COUNT`
+            ADD COLUMN `steps5min` INTEGER NOT NULL DEFAULT 0,
+            ADD COLUMN `steps10min` INTEGER NOT NULL DEFAULT 0,
+            ADD COLUMN `steps15min` INTEGER NOT NULL DEFAULT 0,
+            ADD COLUMN `steps30min` INTEGER NOT NULL DEFAULT 0,
+            ADD COLUMN `steps60min` INTEGER NOT NULL DEFAULT 0""".trimIndent()
+            )
+        }
+    }
+
 
 
     /** List of all migrations for easy reply in tests. */
     @VisibleForTesting
-    internal val migrations = arrayOf(migration20to21, migration21to22, migration22to23, migration23to24, migration24to25)
+    internal val migrations = arrayOf(migration20to21, migration21to22, migration22to23, migration23to24, migration24to25, migration26to27)
 }

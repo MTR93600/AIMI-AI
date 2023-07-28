@@ -49,7 +49,7 @@ import info.nightscout.database.impl.daos.HeartRateDao
 import info.nightscout.database.impl.daos.stepsCountDao
 import java.io.Closeable
 
-const val DATABASE_VERSION = 26
+const val DATABASE_VERSION = 27
 
 @Database(version = DATABASE_VERSION,
           entities = [APSResult::class, Bolus::class, BolusCalculatorResult::class, Carbs::class,
