@@ -152,5 +152,7 @@ interface OverviewData {
     var dsMinSeries: LineGraphSeries<ScaledDataPoint>
     var heartRateScale: Scale
     var heartRateGraphSeries: LineGraphSeries<DataPointWithLabelInterface>
+    var stepsForScale: Scale
+    var stepsCountGraphSeries: LineGraphSeries<DataPointWithLabelInterface>
 
 }

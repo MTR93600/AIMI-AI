@@ -1,12 +1,13 @@
 package info.nightscout.androidaps.wearStepCount
 
 import android.content.Context
-import android.content.Context.SENSOR_SERVICE
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import info.nightscout.androidaps.comm.IntentWearToMobile
 import info.nightscout.rx.AapsSchedulers
@@ -15,30 +16,8 @@ import info.nightscout.rx.logging.LTag
 import info.nightscout.rx.weardata.EventData
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
-/**
- * Gets heart rate readings from watch and sends them to the phone.
- *
- * The Android API doesn't define how often heart rate events are sent do the
- * listener, it could be once per second or only when the heart rate changes.
- *
- * Heart rate is not a point in time measurement but is always sampled over a
- * certain time, i.e. you count the the number of heart beats and divide by the
- * minutes that have passed. Therefore, the provided value has to be for the past.
- * However, we ignore this here.
- *
- * We don't need very exact values, but rather values that are easy to consume
- * and don't produce too much data that would cause much battery consumption.
- * Therefore, this class averages the heart rate over a minute ([samplingIntervalMillis])
- * and sends this value to the phone.
- *
- * We will not always get valid values, e.g. if the watch is taken of. The listener
- * ignores such time unless we don't get good values for more than 90% of time. Since
- * heart rate doesn't change so fast this should be good enough.
- */
 class stepCountListener(
     private val ctx: Context,
     private val aapsLogger: AAPSLogger,
@@ -46,39 +25,75 @@ class stepCountListener(
     now: Long = System.currentTimeMillis(),
 ) :  SensorEventListener, Disposable {
 
-    /** How often we send values to the phone. */
     private val samplingIntervalMillis = 300_000L
-    private val sampler = Sampler(now)
+    private val stepsMap = LinkedHashMap<Long, Int>()
+    private val fiveMinutesInMs = 300000
+    private val numOf5MinBlocksToKeep = 20
+    private var previousStepCount = -1
     private var schedule: Disposable? = null
 
     init {
         aapsLogger.info(LTag.WEAR, "Create ${javaClass.simpleName}")
-        val sensorManager = ctx.getSystemService(SENSOR_SERVICE) as SensorManager?
+        val sensorManager = ctx.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
         if (sensorManager == null) {
             aapsLogger.warn(LTag.WEAR, "Cannot get sensor manager to get steps rate readings")
         } else {
             val stepsRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+            aapsLogger.debug(LTag.WEAR, "Steps rate sensor: $stepsRateSensor")
             if (stepsRateSensor == null) {
-                aapsLogger.warn(LTag.WEAR, "Cannot get steps rate sensor")
+                aapsLogger.debug(LTag.WEAR, "Cannot get steps rate sensor")
             } else {
                 sensorManager.registerListener(this, stepsRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                aapsLogger.debug(LTag.WEAR, "Steps rate sensor registered")
             }
         }
         schedule = aapsSchedulers.io.schedulePeriodicallyDirect(
             ::send, samplingIntervalMillis, samplingIntervalMillis, TimeUnit.MILLISECONDS)
     }
 
-    val currentStepsRateBpm get() = sampler.currentTotalSteps
-
-    @VisibleForTesting
-    var sendStepsRate: (EventData.ActionStepsRate)->Unit = { steps -> ctx.startService(IntentWearToMobile(ctx, steps)) }
+    var sendStepsRate: (List<EventData.ActionStepsRate>)->Unit = { stepsList ->
+        aapsLogger.info(LTag.WEAR, "sendStepsRate called")
+        stepsList.forEach { steps ->
+            ctx.startService(IntentWearToMobile(ctx, steps))
+        }
+    }
 
     override fun isDisposed() = schedule == null
 
     override fun dispose() {
         aapsLogger.info(LTag.WEAR, "Dispose ${javaClass.simpleName}")
         schedule?.dispose()
-        (ctx.getSystemService(SENSOR_SERVICE) as SensorManager?)?.unregisterListener(this)
+        (ctx.getSystemService(Context.SENSOR_SERVICE) as SensorManager?)?.unregisterListener(this)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
+        Log.i(LTag.WEAR.name, "onAccuracyChanged: Sensor: $sensor; accuracy: $accuracy")
+    }
+
+    private fun currentTimeIn5Min(): Long {
+        return (System.currentTimeMillis() / fiveMinutesInMs.toDouble()).roundToLong()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onSensorChanged(event: SensorEvent) {
+        aapsLogger.info(LTag.WEAR, "onSensorChanged called with event: $event")
+        if (event.sensor?.type == Sensor.TYPE_STEP_COUNTER && event.values.isNotEmpty()) {
+            val now = currentTimeIn5Min()
+            val stepCount = event.values[0].toInt()
+            if(previousStepCount >= 0) {
+                var recentStepCount = stepCount - previousStepCount
+                if(stepsMap.contains(now)) {
+                    recentStepCount += stepsMap.getValue(now)
+                }
+                stepsMap[now] = recentStepCount
+            }
+            previousStepCount = stepCount
+
+            if(stepsMap.size > numOf5MinBlocksToKeep) {
+                val removeBefore = now - numOf5MinBlocksToKeep
+                stepsMap.entries.removeIf { it.key < removeBefore}
+            }
+        }
     }
 
     private fun send() {
@@ -87,65 +102,85 @@ class stepCountListener(
 
     @VisibleForTesting
     fun send(timestampMillis: Long) {
-        sampler.getAndReset(timestampMillis)?.let { steps ->
-            aapsLogger.info(LTag.WEAR, "Send Steps count $steps")
-            sendStepsRate(steps)
-        }
+        val stepsInLast5Minutes = getStepsInLastXMin(1)
+        val stepsInLast10Minutes = getStepsInLastXMin(2)
+        val stepsInLast15Minutes = getStepsInLastXMin(3)
+        val stepsInLast30Minutes = getStepsInLastXMin(6)
+        val stepsInLast60Minutes = getStepsInLastXMin(12)
+
+        aapsLogger.debug(LTag.WEAR, "Steps in last 5 minutes: $stepsInLast5Minutes")
+        aapsLogger.debug(LTag.WEAR, "Steps in last 10 minutes: $stepsInLast10Minutes")
+        aapsLogger.debug(LTag.WEAR, "Steps in last 15 minutes: $stepsInLast15Minutes")
+        aapsLogger.debug(LTag.WEAR, "Steps in last 30 minutes: $stepsInLast30Minutes")
+        aapsLogger.debug(LTag.WEAR, "Steps in last 60 minutes: $stepsInLast60Minutes")
+
+        val device = (Build.MANUFACTURER ?: "unknown") + " " + (Build.MODEL ?: "unknown")
+
+        val stepsList = listOf(
+            EventData.ActionStepsRate(
+                duration = 5 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = stepsInLast5Minutes,
+                steps10min = 0,
+                steps15min = 0,
+                steps30min = 0,
+                steps60min = 0,
+                device = device
+            ),
+            EventData.ActionStepsRate(
+                duration = 10 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = 0,
+                steps10min = stepsInLast10Minutes,
+                steps15min = 0,
+                steps30min = 0,
+                steps60min = 0,
+                device = device
+            ),
+            EventData.ActionStepsRate(
+                duration = 15 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = 0,
+                steps10min = 0,
+                steps15min = stepsInLast15Minutes,
+                steps30min = 0,
+                steps60min = 0,
+                device = device
+            ),
+            EventData.ActionStepsRate(
+                duration = 30 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = 0,
+                steps10min = 0,
+                steps15min = 0,
+                steps30min = stepsInLast30Minutes,
+                steps60min = 0,
+                device = device
+            ),
+            EventData.ActionStepsRate(
+                duration = 60 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = 0,
+                steps10min = 0,
+                steps15min = 0,
+                steps30min = 0,
+                steps60min = stepsInLast60Minutes,
+                device = device
+            )
+        )
+
+
+        sendStepsRate(stepsList)
     }
 
-    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-        // Ignored
-    }
-
-    override fun onSensorChanged(event: SensorEvent) {
-        if (event.sensor?.type == Sensor.TYPE_STEP_COUNTER && event.values.isNotEmpty()) {
-            val steps = event.values[0].toInt()
-            sampler.setStepsRate(System.currentTimeMillis(), steps, aapsLogger)
-        }
-    }
-
-    private class Sampler(timestampMillis: Long) {
-        private var startMillis: Long = timestampMillis
-        private var lastEventMillis: Long = timestampMillis
-        private var steps: Int = 0
-        private var activeMillis: Long = 0
-        private val device = (Build.MANUFACTURER ?: "unknown") + " " + (Build.MODEL ?: "unknown")
-
-        var currentTotalSteps: Int? = null
-            private set(value) { field = value }
-
-        private fun Long.toMinute(): Double = this / 60_000.0
-
-        private fun fix(timestampMillis: Long) {
-            currentTotalSteps?.let { bpm ->
-                val elapsed = timestampMillis - lastEventMillis
-                steps += (elapsed.toMinute() * bpm).toInt()
-                activeMillis += elapsed
-            }
-            lastEventMillis = timestampMillis
-        }
-
-        fun getAndReset(timestampMillis: Long): EventData.ActionStepsRate? {
-            fix(timestampMillis)
-            return if (10 * activeMillis > lastEventMillis - startMillis) {
-                val bpm = (steps / activeMillis.toMinute()).toInt()
-                EventData.ActionStepsRate(timestampMillis - startMillis, timestampMillis, bpm, device)
-            } else {
-                null
-            }.also {
-                startMillis = timestampMillis
-                lastEventMillis = timestampMillis
-                steps = 0
-                activeMillis = 0
+    private fun getStepsInLastXMin(numberOf5MinIncrements: Int): Int {
+        var stepCount = 0
+        val thirtyMinAgo = currentTimeIn5Min() - numberOf5MinIncrements
+        for (entry in stepsMap.entries) {
+            if (entry.key > thirtyMinAgo) {
+                stepCount += entry.value
             }
         }
-
-        fun setStepsRate(timestampMillis: Long, totalStepCount: Int?, aapsLogger: AAPSLogger) {
-            if (timestampMillis >= lastEventMillis) {
-                fix(timestampMillis)
-                currentTotalSteps = totalStepCount
-            }
-        }
+        return stepCount
     }
 }
-

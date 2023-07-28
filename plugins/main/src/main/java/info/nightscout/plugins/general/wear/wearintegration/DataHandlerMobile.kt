@@ -20,6 +20,7 @@ import info.nightscout.database.entities.Bolus
 import info.nightscout.database.entities.BolusCalculatorResult
 import info.nightscout.database.entities.GlucoseValue
 import info.nightscout.database.entities.HeartRate
+import info.nightscout.database.entities.StepsCount
 import info.nightscout.database.entities.TemporaryBasal
 import info.nightscout.database.entities.TemporaryTarget
 import info.nightscout.database.entities.TotalDailyDose
@@ -30,6 +31,7 @@ import info.nightscout.database.impl.AppRepository
 import info.nightscout.database.impl.transactions.CancelCurrentTemporaryTargetIfAnyTransaction
 import info.nightscout.database.impl.transactions.InsertAndCancelCurrentTemporaryTargetTransaction
 import info.nightscout.database.impl.transactions.InsertOrUpdateHeartRateTransaction
+import info.nightscout.database.impl.transactions.InsertOrUpdateStepsCountTransaction
 import info.nightscout.interfaces.Config
 import info.nightscout.interfaces.Constants
 import info.nightscout.interfaces.GlucoseUnit
@@ -314,6 +316,14 @@ class DataHandlerMobile @Inject constructor(
             .toObservable(EventData.ActionHeartRate::class.java)
             .observeOn(aapsSchedulers.io)
             .subscribe({ handleHeartRate(it) }, fabricPrivacy::logException)
+        disposable += rxBus
+            .toObservable(EventData.ActionStepsRate::class.java)
+            .observeOn(aapsSchedulers.io)
+            .subscribe({
+                           aapsLogger.debug(LTag.WEAR, "Received ActionStepsRate event")
+                           handleStepsCount(it)
+                       }, fabricPrivacy::logException)
+
     }
 
     private fun handleTddStatus() {
@@ -1247,4 +1257,20 @@ class DataHandlerMobile @Inject constructor(
             device = actionHeartRate.device)
         repository.runTransaction(InsertOrUpdateHeartRateTransaction(hr)).blockingAwait()
     }
+
+    private fun handleStepsCount(actionStepsRate: EventData.ActionStepsRate) {
+        aapsLogger.debug(LTag.WEAR, "Steps count received $actionStepsRate from ${actionStepsRate.sourceNodeId}")
+        val stepsCount = StepsCount(
+            duration = actionStepsRate.duration,
+            timestamp = actionStepsRate.timestamp,
+            steps5min = actionStepsRate.steps5min,
+            steps10min = actionStepsRate.steps10min,
+            steps15min = actionStepsRate.steps15min,
+            steps30min = actionStepsRate.steps30min,
+            steps60min = actionStepsRate.steps60min,
+            device = actionStepsRate.device)
+        repository.runTransaction(InsertOrUpdateStepsCountTransaction(stepsCount)).blockingAwait()
+    }
+
+
 }

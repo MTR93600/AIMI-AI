@@ -56,6 +56,7 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
         IOB_PREDICTION,
         BUCKETED_BG,
         HEARTRATE,
+        STEPS,
     }
 
     /**
@@ -326,6 +327,10 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                         canvas.drawRect(endX - 3, bounds.top + py - 3, xPlusLength + 3, bounds.bottom + py + 3, mPaint);
                     }
                 } else if (value.getShape() == Shape.HEARTRATE) {
+                    mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                    mPaint.setStrokeWidth(0);
+                    canvas.drawCircle(endX, endY, 1F, mPaint);
+                } else if (value.getShape() == Shape.STEPS) {
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     mPaint.setStrokeWidth(0);
                     canvas.drawCircle(endX, endY, 1F, mPaint);

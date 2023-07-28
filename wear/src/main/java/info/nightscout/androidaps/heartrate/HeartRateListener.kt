@@ -61,14 +61,22 @@ class HeartRateListener(
     init {
         aapsLogger.info(LTag.WEAR, "Create ${javaClass.simpleName}")
         val sensorManager = ctx.getSystemService(SENSOR_SERVICE) as SensorManager?
+
         if (sensorManager == null) {
             aapsLogger.warn(LTag.WEAR, "Cannot get sensor manager to get heart rate readings")
         } else {
             val heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+            val stepsDetectSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+            val stepsRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
             if (heartRateSensor == null) {
                 aapsLogger.warn(LTag.WEAR, "Cannot get heart rate sensor")
             } else {
                 sensorManager.registerListener(this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                aapsLogger.debug(LTag.WEAR, "Heart detect sensor registered")
+                sensorManager.registerListener(this, stepsDetectSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                aapsLogger.debug(LTag.WEAR, "Steps detect sensor registered")
+                sensorManager.registerListener(this, stepsRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                aapsLogger.debug(LTag.WEAR, "Steps rate sensor registered")
             }
         }
         schedule = aapsSchedulers.io.schedulePeriodicallyDirect(

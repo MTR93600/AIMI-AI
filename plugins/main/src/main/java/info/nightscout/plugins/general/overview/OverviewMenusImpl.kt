@@ -49,6 +49,7 @@ class OverviewMenusImpl @Inject constructor(
         ACT(R.string.overview_show_activity, info.nightscout.core.ui.R.attr.activityColor, info.nightscout.core.ui.R.attr.menuTextColor, primary = true, secondary = false, shortnameId = R.string.activity_shortname),
         DEVSLOPE(R.string.overview_show_deviation_slope, info.nightscout.core.ui.R.attr.devSlopePosColor, info.nightscout.core.ui.R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.devslope_shortname),
         HR(R.string.overview_show_heartRate, info.nightscout.core.ui.R.attr.heartRateColor, info.nightscout.core.ui.R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.heartRate_shortname),
+        STEPS(R.string.overview_show_steps, info.nightscout.core.ui.R.attr.stepsColor, info.nightscout.core.ui.R.attr.menuTextColor, primary = false, secondary = true, shortnameId = R.string.steps_shortname),
     }
 
     companion object {

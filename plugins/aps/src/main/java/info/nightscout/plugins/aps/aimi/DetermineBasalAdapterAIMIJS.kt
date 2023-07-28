@@ -643,13 +643,18 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
         this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
 
-        val timeMillis = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        val timeMillisNow = System.currentTimeMillis()
+        val timeMillis5 = System.currentTimeMillis() - 5 * 60 * 1000 // 5 minutes en millisecondes
+        val timeMillis10 = System.currentTimeMillis() - 10 * 60 * 1000 // 10 minutes en millisecondes
+        val timeMillis15 = System.currentTimeMillis() - 15 * 60 * 1000 // 15 minutes en millisecondes
+        val timeMillis30 = System.currentTimeMillis() - 30 * 60 * 1000 // 30 minutes en millisecondes
+        val timeMillis60 = System.currentTimeMillis() - 60 * 60 * 1000 // 60 minutes en millisecondes
         val timeMillis180 = System.currentTimeMillis() - 180 * 60 * 1000 // 180 minutes en millisecondes
         var beatsPerMinuteValues: List<Int>
         var beatsPerMinuteValues180: List<Int>
 
         try {
-            val heartRates = repository.getHeartRatesFromTime(timeMillis)
+            val heartRates = repository.getHeartRatesFromTime(timeMillis15)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()
@@ -682,6 +687,27 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.averageBeatsPerMinute180 = 10.0
         }
 
+        val stepsCountList5 = repository.getLastStepsCountFromTimeToTime(timeMillis5, timeMillisNow)
+        val stepsCount5 = stepsCountList5?.steps5min ?: 0
+
+        val stepsCountList10 = repository.getLastStepsCountFromTimeToTime(timeMillis10, timeMillisNow)
+        val stepsCount10 = stepsCountList10?.steps10min ?: 0
+
+        val stepsCountList15 = repository.getLastStepsCountFromTimeToTime(timeMillis15, timeMillisNow)
+        val stepsCount15 = stepsCountList15?.steps15min ?: 0
+
+        val stepsCountList30 = repository.getLastStepsCountFromTimeToTime(timeMillis30, timeMillisNow)
+        val stepsCount30 = stepsCountList30?.steps30min ?: 0
+
+        val stepsCountList60 = repository.getLastStepsCountFromTimeToTime(timeMillis60, timeMillisNow)
+        val stepsCount60 = stepsCountList60?.steps60min ?: 0
+
+
+        this.profile.put("stepscount5", stepsCount5)
+        this.profile.put("stepscount10", stepsCount10)
+        this.profile.put("stepscount15", stepsCount15)
+        this.profile.put("stepscount30", stepsCount30)
+        this.profile.put("stepscount60", stepsCount60)
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
         this.profile.put("beatsPerMinuteValues180", beatsPerMinuteValues180)

@@ -54,4 +54,6 @@ class InsertOrUpdateHeartRateTransactionTest {
         val hr3 = db.heartRateDao.findById(id)!!
         assertTrue(hr2.contentEqualsTo(hr3))
     }
+
+
 }

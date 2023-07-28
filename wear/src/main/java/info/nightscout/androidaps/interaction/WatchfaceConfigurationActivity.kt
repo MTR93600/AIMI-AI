@@ -1,6 +1,7 @@
 package info.nightscout.androidaps.interaction
 
 import android.Manifest
+import android.app.Activity
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class WatchfaceConfigurationActivity : WearPreferenceActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject lateinit var aapsLogger: AAPSLogger
+    private val PHYISCAL_ACTIVITY = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +39,22 @@ class WatchfaceConfigurationActivity : WearPreferenceActivity(), SharedPreferenc
     }
 
     override fun onSharedPreferenceChanged(sp: SharedPreferences, key: String?) {
+
         if (key == getString(R.string.key_heart_rate_sampling)) {
             if (sp.getBoolean(key, false)) {
                 requestBodySensorPermission()
             }
         }
+        if (key == getString(R.string.key_steps_sampling)) {
+            if (sp.getBoolean(key, false)) {
+                // Check if the permission is already granted, if not, request it
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED) {
+                    // The id "PHYISCAL_ACTIVITY" is an integer that identifies the request. It should be defined somewhere in your code.
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), PHYISCAL_ACTIVITY)
+                }
+            }
+        }
+
     }
 
     private fun requestBodySensorPermission() {

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <uses-sdk tools:overrideLibrary="androidx.wear.tiles" />
 
@@ -274,6 +275,10 @@
             android:exported="true" />
 
         <service
+            android:name=".wearStepCount.stepCountListener"
+            android:exported="true" />
+
+        <service
             android:name=".complications.LongStatusComplication"
             android:icon="@drawable/ic_aaps_full"
             android:label="Full Status"
@@ -289,6 +294,7 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="300" />
         </service>
+
 
         <service
             android:name=".complications.LongStatusFlippedComplication"

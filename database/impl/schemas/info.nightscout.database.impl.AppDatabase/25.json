@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 25,
-    "identityHash": "15bfe5011d4985fcd2b435ae324676b2",
+    "identityHash": "4c643cb254d1107d9aafe56e0df11f00",
     "entities": [
       {
         "tableName": "apsResults",
@@ -3832,8 +3832,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "Stepsservice",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `duration` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `stepsPerMinute` REAL NOT NULL, `device` TEXT NOT NULL, `utcOffset` INTEGER NOT NULL, `version` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `isValid` INTEGER NOT NULL, `referenceId` INTEGER, `nightscoutSystemId` TEXT, `nightscoutId` TEXT, `pumpType` TEXT, `pumpSerial` TEXT, `temporaryId` INTEGER, `pumpId` INTEGER, `startId` INTEGER, `endId` INTEGER)",
+        "tableName": "stepsCount",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `duration` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `steps5min` INTEGER NOT NULL, `steps10min` INTEGER NOT NULL, `steps15min` INTEGER NOT NULL, `steps30min` INTEGER NOT NULL, `steps60min` INTEGER NOT NULL, `device` TEXT NOT NULL, `utcOffset` INTEGER NOT NULL, `version` INTEGER NOT NULL, `dateCreated` INTEGER NOT NULL, `isValid` INTEGER NOT NULL, `referenceId` INTEGER, `nightscoutSystemId` TEXT, `nightscoutId` TEXT, `pumpType` TEXT, `pumpSerial` TEXT, `temporaryId` INTEGER, `pumpId` INTEGER, `startId` INTEGER, `endId` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -3854,9 +3854,33 @@
             "notNull": true
           },
           {
-            "fieldPath": "stepsPerMinute",
-            "columnName": "stepsPerMinute",
-            "affinity": "REAL",
+            "fieldPath": "steps5min",
+            "columnName": "steps5min",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "steps10min",
+            "columnName": "steps10min",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "steps15min",
+            "columnName": "steps15min",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "steps30min",
+            "columnName": "steps30min",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "steps60min",
+            "columnName": "steps60min",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -3952,22 +3976,22 @@
         },
         "indices": [
           {
-            "name": "index_Stepsservice_id",
+            "name": "index_stepsCount_id",
             "unique": false,
             "columnNames": [
               "id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Stepsservice_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stepsCount_id` ON `${TABLE_NAME}` (`id`)"
           },
           {
-            "name": "index_Stepsservice_timestamp",
+            "name": "index_stepsCount_timestamp",
             "unique": false,
             "columnNames": [
               "timestamp"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Stepsservice_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stepsCount_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
           }
         ],
         "foreignKeys": []
@@ -3976,7 +4000,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '15bfe5011d4985fcd2b435ae324676b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c643cb254d1107d9aafe56e0df11f00')"
     ]
   }
 }

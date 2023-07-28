@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import info.nightscout.database.entities.TABLE_HEART_RATE
+import info.nightscout.database.entities.TABLE_STEPS_COUNT
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -114,7 +115,37 @@ open class DatabaseModule {
         }
     }
 
+    private val migration24to25 = object : Migration(24, 25) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """CREATE TABLE IF NOT EXISTS `$TABLE_STEPS_COUNT` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `duration` INTEGER NOT NULL,
+                `timestamp` INTEGER NOT NULL,
+                `steps` INTEGER NOT NULL,
+                `device` TEXT NOT NULL,
+                `utcOffset` INTEGER NOT NULL,
+                `version` INTEGER NOT NULL,
+                `dateCreated` INTEGER NOT NULL,
+                `isValid` INTEGER NOT NULL,
+                `referenceId` INTEGER,
+                `nightscoutSystemId` TEXT,
+                `nightscoutId` TEXT,
+                `pumpType` TEXT,
+                `pumpSerial` TEXT,
+                `temporaryId` INTEGER,
+                `pumpId` INTEGER, `startId` INTEGER,
+                `endId` INTEGER)""".trimIndent()
+            )
+            database.execSQL("""CREATE INDEX IF NOT EXISTS `index_stepsCount_id` ON `$TABLE_STEPS_COUNT` (`id`)""")
+            database.execSQL("""CREATE INDEX IF NOT EXISTS `index_stepsCount_timestamp` ON `$TABLE_STEPS_COUNT` (`timestamp`)""")
+            // Custom indexes must be dropped on migration to pass room schema checking after upgrade
+            dropCustomIndexes(database)
+        }
+    }
+
+
     /** List of all migrations for easy reply in tests. */
     @VisibleForTesting
-    internal val migrations = arrayOf(migration20to21, migration21to22, migration22to23, migration23to24)
+    internal val migrations = arrayOf(migration20to21, migration21to22, migration22to23, migration23to24, migration24to25)
 }

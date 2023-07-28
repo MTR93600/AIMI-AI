@@ -11,9 +11,9 @@ import info.nightscout.core.graph.data.CarbsDataPoint
 import info.nightscout.core.graph.data.DataPointWithLabelInterface
 import info.nightscout.core.graph.data.EffectiveProfileSwitchDataPoint
 import info.nightscout.core.graph.data.ExtendedBolusDataPoint
-import info.nightscout.core.graph.data.FixedLineGraphSeries
 import info.nightscout.core.graph.data.HeartRateDataPoint
 import info.nightscout.core.graph.data.PointsWithLabelGraphSeries
+import info.nightscout.core.graph.data.StepsDataPoint
 import info.nightscout.core.graph.data.TherapyEventDataPoint
 import info.nightscout.core.utils.receivers.DataWorkerStorage
 import info.nightscout.core.utils.worker.LoggingWorker
@@ -136,6 +136,11 @@ class PrepareTreatmentsDataWorker(
             repository.getHeartRatesFromTimeToTime(fromTime, endTime)
                 .map { hr -> HeartRateDataPoint(hr, rh) }
                 .toTypedArray()).apply { color = rh.gac(null, info.nightscout.core.ui.R.attr.heartRateColor) }
+
+        data.overviewData.stepsCountGraphSeries = LineGraphSeries<DataPointWithLabelInterface>(
+            repository.getStepsCountFromTimeToTime(fromTime, endTime)
+                .map { steps -> StepsDataPoint(steps, rh) }
+                .toTypedArray()).apply { color = rh.gac(null, info.nightscout.core.ui.R.attr.stepsColor) }
 
         rxBus.send(EventIobCalculationProgress(CalculationWorkflow.ProgressData.PREPARE_TREATMENTS_DATA, 100, null))
         return Result.success()

@@ -24,6 +24,7 @@ import info.nightscout.androidaps.heartrate.HeartRateListener
 import info.nightscout.androidaps.interaction.menus.MainMenuActivity
 import info.nightscout.androidaps.interaction.utils.Persistence
 import info.nightscout.androidaps.interaction.utils.WearUtil
+import info.nightscout.androidaps.wearStepCount.stepCountListener
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
 import info.nightscout.rx.events.EventWearToMobile
@@ -101,6 +102,7 @@ abstract class BaseWatchFace : WatchFace() {
     private var mLastSvg = ""
     private var mLastDirection = ""
     private var heartRateListener: HeartRateListener? = null
+    private var stepCountListener: stepCountListener? = null
 
     override fun onCreate() {
         // Not derived from DaggerService, do injection here
@@ -118,6 +120,7 @@ abstract class BaseWatchFace : WatchFace() {
                 simpleUi.updatePreferences()
                 if (event.changedKey != null && event.changedKey == "delta_granularity") rxBus.send(EventWearToMobile(ActionResendData("BaseWatchFace:onSharedPreferenceChanged")))
                 if (event.changedKey == getString(R.string.key_heart_rate_sampling)) updateHeartRateListener()
+                if (event.changedKey == getString(R.string.key_steps_sampling)) updatestepsCountListener()
                 if (layoutSet) setDataFields()
                 invalidate()
             }
@@ -143,6 +146,7 @@ abstract class BaseWatchFace : WatchFace() {
         performViewSetup()
         rxBus.send(EventWearToMobile(ActionResendData("BaseWatchFace::onCreate")))
         updateHeartRateListener()
+        updatestepsCountListener()
     }
 
     private fun forceUpdate() {
@@ -160,6 +164,20 @@ abstract class BaseWatchFace : WatchFace() {
             heartRateListener?.let { hrl ->
                 disposable.remove(hrl)
                 heartRateListener = null
+            }
+        }
+    }
+
+    private fun updatestepsCountListener() {
+        if (sp.getBoolean(R.string.key_steps_sampling, false)) {
+            if (stepCountListener == null) {
+                stepCountListener = stepCountListener(
+                    this, aapsLogger, aapsSchedulers).also { scl -> disposable += scl }
+            }
+        } else {
+            stepCountListener?.let { scl ->
+                disposable.remove(scl)
+                stepCountListener = null
             }
         }
     }

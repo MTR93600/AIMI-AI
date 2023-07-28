@@ -13,6 +13,7 @@ import info.nightscout.database.entities.MultiwaveBolusLink
 import info.nightscout.database.entities.OfflineEvent
 import info.nightscout.database.entities.PreferenceChange
 import info.nightscout.database.entities.ProfileSwitch
+import info.nightscout.database.entities.StepsCount
 import info.nightscout.database.entities.TemporaryBasal
 import info.nightscout.database.entities.TemporaryTarget
 import info.nightscout.database.entities.TherapyEvent
@@ -38,4 +39,5 @@ data class NewEntries(
     val totalDailyDoses: List<TotalDailyDose>,
     val versionChanges: List<VersionChange>,
     val heartRates: List<HeartRate>,
+    val stepsCount: List<StepsCount>,
 )

@@ -105,12 +105,16 @@ sealed class EventData : Event() {
     data class ActionStepsRate(
         val duration: Long,
         val timestamp: Long,
-        val steps: Int,
+        val steps5min: Int,
+        val steps10min: Int,
+        val steps15min: Int,
+        val steps30min: Int,
+        val steps60min: Int,
         val device: String): EventData() {
-        override fun toString() =
-            "STEPS $steps at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
-    }
 
+        override fun toString() =
+            "STEPS 5min: $steps5min, 10min: $steps10min, 15min: $steps15min, 30min: $steps30min, 60min: $steps60min at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
+    }
 
     @Serializable
     data class ActionTempTargetPreCheck(
