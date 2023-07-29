@@ -114,6 +114,7 @@ sealed class EventData : Event() {
 
         override fun toString() =
             "STEPS 5min: $steps5min, 10min: $steps10min, 15min: $steps15min, 30min: $steps30min, 60min: $steps60min at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
+
     }
 
     @Serializable

@@ -23,14 +23,15 @@ class stepCountListener(
     private val aapsLogger: AAPSLogger,
     aapsSchedulers: AapsSchedulers,
     now: Long = System.currentTimeMillis(),
-) :  SensorEventListener, Disposable {
+) : SensorEventListener, Disposable {
 
-    private val samplingIntervalMillis = 300_000L
+    private val samplingIntervalMillis = 40_000L
     private val stepsMap = LinkedHashMap<Long, Int>()
     private val fiveMinutesInMs = 300000
     private val numOf5MinBlocksToKeep = 20
     private var previousStepCount = -1
     private var schedule: Disposable? = null
+    private var movementDetected = false
 
     init {
         aapsLogger.info(LTag.WEAR, "Create ${javaClass.simpleName}")
@@ -38,13 +39,14 @@ class stepCountListener(
         if (sensorManager == null) {
             aapsLogger.warn(LTag.WEAR, "Cannot get sensor manager to get steps rate readings")
         } else {
-            val stepsRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-            aapsLogger.debug(LTag.WEAR, "Steps rate sensor: $stepsRateSensor")
-            if (stepsRateSensor == null) {
-                aapsLogger.debug(LTag.WEAR, "Cannot get steps rate sensor")
-            } else {
-                sensorManager.registerListener(this, stepsRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
-                aapsLogger.debug(LTag.WEAR, "Steps rate sensor registered")
+            sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)?.let {
+                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+            sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)?.let {
+                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let {
+                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
             }
         }
         schedule = aapsSchedulers.io.schedulePeriodicallyDirect(
@@ -76,22 +78,36 @@ class stepCountListener(
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onSensorChanged(event: SensorEvent) {
-        aapsLogger.info(LTag.WEAR, "onSensorChanged called with event: $event")
-        if (event.sensor?.type == Sensor.TYPE_STEP_COUNTER && event.values.isNotEmpty()) {
-            val now = currentTimeIn5Min()
-            val stepCount = event.values[0].toInt()
-            if(previousStepCount >= 0) {
-                var recentStepCount = stepCount - previousStepCount
-                if(stepsMap.contains(now)) {
-                    recentStepCount += stepsMap.getValue(now)
+        when (event.sensor?.type) {
+            Sensor.TYPE_STEP_DETECTOR -> {
+                if (event.values[0] > 0) {
+                    movementDetected = true
                 }
-                stepsMap[now] = recentStepCount
             }
-            previousStepCount = stepCount
+            Sensor.TYPE_ACCELEROMETER -> {
+                val limit = 1.0f
+                if (event.values.any { kotlin.math.abs(it) > limit }) {
+                    movementDetected = true
+                }
+            }
+            Sensor.TYPE_STEP_COUNTER -> {
+                if (movementDetected && event.values.isNotEmpty()) {
+                    val now = currentTimeIn5Min()
+                    val stepCount = event.values[0].toInt()
+                    if(previousStepCount >= 0) {
+                        var recentStepCount = stepCount - previousStepCount
+                        if(stepsMap.contains(now)) {
+                            recentStepCount += stepsMap.getValue(now)
+                        }
+                        stepsMap[now] = recentStepCount
+                    }
+                    previousStepCount = stepCount
 
-            if(stepsMap.size > numOf5MinBlocksToKeep) {
-                val removeBefore = now - numOf5MinBlocksToKeep
-                stepsMap.entries.removeIf { it.key < removeBefore}
+                    if(stepsMap.size > numOf5MinBlocksToKeep) {
+                        val removeBefore = now - numOf5MinBlocksToKeep
+                        stepsMap.entries.removeIf { it.key < removeBefore}
+                    }
+                }
             }
         }
     }
@@ -99,14 +115,82 @@ class stepCountListener(
     private fun send() {
         send(System.currentTimeMillis())
     }
+    private fun getStepsInLast5Min(): Int {
+        /*var stepCount = 0
+        val fiveMinAgo = currentTimeIn5Min() - 1
+        for (entry in stepsMap.entries) {
+            if (entry.key > fiveMinAgo) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        val now = currentTimeIn5Min() - 1
+        return if(stepsMap.contains(now)) stepsMap.getValue(now) else 0
+    }
+    private fun getStepsInLast10Min(): Int {
+        /*var stepCount = 0
+        val tenMinAgo = currentTimeIn5Min() - 2
+        val now = currentTimeIn5Min()
+        for (entry in stepsMap.entries) {
+            if (entry.key > tenMinAgo && entry.key <= now) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        val tenMinAgo = currentTimeIn5Min() - 2
+        return if(stepsMap.contains(tenMinAgo)) stepsMap.getValue(tenMinAgo) else 0
+    }
+
+
+    private fun getStepsInLast15Min(): Int {
+        /*var stepCount = 0
+        val fifteenMinAgo = currentTimeIn5Min() - 3
+        val now = currentTimeIn5Min()
+        for (entry in stepsMap.entries) {
+            if (entry.key > fifteenMinAgo && entry.key <= now) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        val fifteenMinAgo = currentTimeIn5Min() - 3
+        return if(stepsMap.contains(fifteenMinAgo)) stepsMap.getValue(fifteenMinAgo) else 0
+    }
+
+    private fun getStepsInLast30Min(): Int {
+        /*var stepCount = 0
+        val thirtyMinAgo = currentTimeIn5Min() - 6
+        val now = currentTimeIn5Min()
+        for (entry in stepsMap.entries) {
+            if (entry.key > thirtyMinAgo && entry.key <= now) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        return getStepsInLastXMin(6)
+    }
+
+    private fun getStepsInLast60Min(): Int {
+        /*var stepCount = 0
+        val sixtyMinAgo = currentTimeIn5Min() - 12
+        val now = currentTimeIn5Min()
+        for (entry in stepsMap.entries) {
+            if (entry.key > sixtyMinAgo && entry.key <= now) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        return getStepsInLastXMin(12)
+    }
+
+
 
     @VisibleForTesting
     fun send(timestampMillis: Long) {
-        val stepsInLast5Minutes = getStepsInLastXMin(1)
-        val stepsInLast10Minutes = getStepsInLastXMin(2)
-        val stepsInLast15Minutes = getStepsInLastXMin(3)
-        val stepsInLast30Minutes = getStepsInLastXMin(6)
-        val stepsInLast60Minutes = getStepsInLastXMin(12)
+        val stepsInLast5Minutes = getStepsInLast5Min()
+        val stepsInLast10Minutes = getStepsInLast10Min()
+        val stepsInLast15Minutes = getStepsInLast15Min()
+        val stepsInLast30Minutes = getStepsInLast30Min()
+        val stepsInLast60Minutes = getStepsInLast60Min()
 
         aapsLogger.debug(LTag.WEAR, "Steps in last 5 minutes: $stepsInLast5Minutes")
         aapsLogger.debug(LTag.WEAR, "Steps in last 10 minutes: $stepsInLast10Minutes")
@@ -174,11 +258,13 @@ class stepCountListener(
     private fun getStepsInLastXMin(numberOf5MinIncrements: Int): Int {
         var stepCount = 0
         val thirtyMinAgo = currentTimeIn5Min() - numberOf5MinIncrements
+        val now = currentTimeIn5Min()
         for (entry in stepsMap.entries) {
-            if (entry.key > thirtyMinAgo) {
+            if (entry.key > thirtyMinAgo && entry.key <= now) {
                 stepCount += entry.value
             }
         }
         return stepCount
     }
+
 }

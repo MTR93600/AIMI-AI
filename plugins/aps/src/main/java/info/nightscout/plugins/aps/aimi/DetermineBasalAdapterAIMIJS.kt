@@ -30,6 +30,7 @@ import info.nightscout.plugins.aps.openAPSSMB.DetermineBasalResultSMB
 import info.nightscout.plugins.aps.utils.ScriptReader
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
+import info.nightscout.rx.weardata.EventData
 import info.nightscout.shared.SafeParse
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.utils.DateUtil
