@@ -26,6 +26,7 @@ import info.nightscout.core.graph.R;
  *
  * @author jjoe64
  */
+
 public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> extends BaseSeries<E> {
     // Default spSize
     int spSize = 14;
@@ -97,9 +98,11 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
      * @param canvas        canvas to draw on
      * @param isSecondScale whether it is the second scale
      */
+
     @SuppressWarnings({"deprecation"})
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
+
         // Convert the sp to pixels
         float scaledTextSize = spSize * graphView.getContext().getResources().getDisplayMetrics().scaledDensity;
         float scaledPxSize = graphView.getContext().getResources().getDisplayMetrics().scaledDensity * 3f;
@@ -123,7 +126,8 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
 
         // draw background
         // draw data
-
+        float previousX = -1;
+        float previousY = -1;
         double diffY = maxY - minY;
         double diffX = maxX - minX;
 
@@ -330,17 +334,38 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     mPaint.setStrokeWidth(0);
                     canvas.drawCircle(endX, endY, 1F, mPaint);
-                } else if (value.getShape() == Shape.STEPS) {
+                } /*else if (value.getShape() == Shape.STEPS) {
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     mPaint.setStrokeWidth(0);
                     canvas.drawCircle(endX, endY, 1F, mPaint);
+                }*/
+                else if (value.getShape() == Shape.STEPS) {
+                    if (previousX != -1 && previousY != -1) {
+                        canvas.drawLine(previousX, previousY, endX, endY, mPaint);
+                    }
+                    previousX = endX;
+                    previousY = endY;
                 }
+
+
+
                 // set values above point
             }
 
         }
 
     }
+
+    private void drawRectangle(Canvas canvas, Paint mPaint, float left, float top, float right, float bottom) {
+        mPaint.setColor(Color.RED);
+        mPaint.setStyle(Paint.Style.FILL);
+
+        canvas.drawRect(left, top, right, bottom, mPaint);
+
+        mPaint.setColor(Color.BLACK);
+    }
+
+
 
     /**
      * helper to render triangle
@@ -349,6 +374,7 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
      * @param canvas canvas to draw on
      * @param paint  paint object
      */
+
     private void drawArrows(Point[] point, Canvas canvas, Paint paint) {
         canvas.save();
         Path path = new Path();

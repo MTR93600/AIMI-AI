@@ -67,7 +67,8 @@ function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profi
 function testmonitoring(circadian_smb,eventualBG){
 if (Math.abs(circadian_smb) < circadian_smb_threshold && eventualBG > eventualBG_threshold){
  console.log(",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",");
- rT.raison += ",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",";
+ rT.reason += ",Adjusting insulin administration based on circadian_smb: " +circadian_smb+",
+ eventualBG:" +eventualBG+",";
  adjustRinsulin = true;
  rT.raison += "adjustRinsulin : "+adjustRinsulin+",";
 }
@@ -1629,6 +1630,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             microBolus = isReduced || (delta > 10 && now.getHours() > 7 && now.getHours() < 11) ? microBolus * 0.6 : microBolus;
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
             rT.reason += ",isReduced : "+isReduced;
+            if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11){
+            microBolus = microBolus / 2;
+            rT.reason += ", BFL is enable => microBolus was reduced of 50%";
+            }
 
 
             //var microBolus = Math.floor(Math.min(insulinReq * insulinReqPCT,maxBolusTT)*roundSMBTo)/roundSMBTo;
@@ -1697,7 +1702,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             if (lastbolusAge < profile.key_mbi && profile.aimilimit < iob_data.iob){
             aimiint = true;
             }
-            if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
+            if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11 && aimiint === true){
+                SMBInterval = 10;
+                rT.reason += ", BFL is enable, interval between smb is 10 minutes."
+            }else if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
             SMBInterval = 15;
             rT.reason += ", the smb interval change for "+SMBInterval+" minutes because the steps number > 900 : "+profile.recentSteps30Minutes;
             }else if(meal_data.countSMB40 > 3 && circadian_smb > -7 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) ){
