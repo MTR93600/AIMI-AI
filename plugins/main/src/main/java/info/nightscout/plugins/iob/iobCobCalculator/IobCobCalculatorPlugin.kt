@@ -212,7 +212,7 @@ class IobCobCalculatorPlugin @Inject constructor(
         val basalIobWithZeroTemp = basalIob.copy()
         val t = TemporaryBasal(
             timestamp = now + 60 * 1000L,
-            duration = 240,
+            duration = 240 * 60 * 1000L,
             rate = 0.0,
             isAbsolute = true,
             type = TemporaryBasal.Type.NORMAL
@@ -240,7 +240,7 @@ class IobCobCalculatorPlugin @Inject constructor(
         val basalIobWithZeroTemp = basalIob.copy()
         val t = TemporaryBasal(
             timestamp = now + 60 * 1000L,
-            duration = 240,
+            duration = 240 * 60 * 1000L,
             rate = 0.0,
             isAbsolute = true,
             type = TemporaryBasal.Type.NORMAL
