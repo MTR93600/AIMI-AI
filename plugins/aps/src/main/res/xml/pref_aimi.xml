@@ -166,7 +166,7 @@
             android:defaultValue="false"
             android:key="@string/key_use_AIMI_BreakFastLight"
             android:title="Breakfast Light"
-            android:summary="This option will divide by two the SMB calculation between 6 and 11 am. the interval will be adjust to 10 minutes during this period." />
+            android:summary="variant test : This option will divide by two the SMB calculation between 6 and 11 am. the interval will be adjust to 10 minutes during this period." />
 
         <SwitchPreference
             android:defaultValue="false"
