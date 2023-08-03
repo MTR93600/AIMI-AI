@@ -67,8 +67,7 @@ function calculateUAMPredBG(iobTick, TDD, insulinDivisor, array, AIMI_UAM, profi
 function testmonitoring(circadian_smb,eventualBG){
 if (Math.abs(circadian_smb) < circadian_smb_threshold && eventualBG > eventualBG_threshold){
  console.log(",Adjusting insulin administration based on circadian_smb: " +circadian_smb+", eventualBG:" +eventualBG+",");
- rT.reason += ",Adjusting insulin administration based on circadian_smb: " +circadian_smb+",
- eventualBG:" +eventualBG+",";
+ rT.reason += ",Adjusting insulin administration based on circadian_smb: " +circadian_smb+",eventualBG:" +eventualBG+",";
  adjustRinsulin = true;
  rT.reason += "adjustRinsulin : "+adjustRinsulin+",";
 }
