@@ -132,6 +132,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var recentSteps60Minutes: Int = 0
     private val path = File(Environment.getExternalStorageDirectory().toString())
     private val modelFile = File(path, "AAPS/ml/model.tflite")
+    private val modelHBFile = File(path, "AAPS/ml/modelHB.tflite")
     private var now: Long = 0
     private var modelai: Boolean = false
     private var smbToGivetest: Double = 0.0
@@ -241,7 +242,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         return (number * 1000.0).roundToInt() / 1000.0f
     }
 
-    private fun calculateSMBFromModel(): Float {
+    /*private fun calculateSMBFromModel(): Float {
         if (!modelFile.exists()) {
             aapsLogger.error(LTag.APS, "NO Model found at AAPS/ml/model.tflite")
             return 0.0F
@@ -251,7 +252,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val modelInputs = floatArrayOf(
             hourOfDay.toFloat(), weekend.toFloat(),
             bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
-            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
+            tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour, averageBeatsPerMinute.toFloat()
         )
         val output = arrayOf(floatArrayOf(0.0F))
         interpreter.run(modelInputs, output)
@@ -264,7 +265,52 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         smbToGive = formatter.format(smbToGive).toDouble()
 
         return smbToGive.toFloat()
+    }*/
+    private fun calculateSMBFromModel(): Float {
+
+        var selectedModelFile: File? = null
+        lateinit var modelInputs: FloatArray
+
+        modelai = when {
+            modelHBFile.exists() -> {
+                selectedModelFile = modelHBFile
+                modelInputs = floatArrayOf(
+                    hourOfDay.toFloat(), weekend.toFloat(),
+                    bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
+                    tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour, averageBeatsPerMinute.toFloat()
+                )
+                true
+            }
+            modelFile.exists() -> {
+                selectedModelFile = modelFile
+                modelInputs = floatArrayOf(
+                    hourOfDay.toFloat(), weekend.toFloat(),
+                    bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
+                    tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
+                )
+                true
+            }
+            else -> {
+                aapsLogger.error(LTag.APS, "NO Model found at specified location")
+                false
+            }
+        }
+
+        if (!modelai) return 0.0F
+
+        val interpreter = Interpreter(selectedModelFile!!)
+        val output = arrayOf(floatArrayOf(0.0F))
+        interpreter.run(modelInputs, output)
+        interpreter.close()
+        var smbToGive = output[0][0].toString().replace(',', '.').toDouble()
+
+        val formatter = DecimalFormat("#.####", DecimalFormatSymbols(Locale.US))
+        smbToGive = formatter.format(smbToGive).toDouble()
+
+        return smbToGive.toFloat()
     }
+
+
     @Suppress("SpellCheckingInspection")
     override operator fun invoke(): APSResultObject? {
 
@@ -880,9 +926,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             //this.profile.put("tddlastHaverage", tddlastHaverage)
             this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
-            if (modelFile.exists()) {
+            /*if (modelFile.exists()) {
                 modelai = true
-            }
+            }*/
             this.profile.put("modelai", modelai)
             this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.totalAmount)
             this.mealData.put("aimiTDD24", tdd24Hrs)
