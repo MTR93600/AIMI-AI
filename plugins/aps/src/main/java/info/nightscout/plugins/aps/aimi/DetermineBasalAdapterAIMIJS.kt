@@ -269,9 +269,9 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private fun calculateSMBFromModel(): Float {
 
         var selectedModelFile: File? = null
-        lateinit var modelInputs: FloatArray
+        var modelInputs: FloatArray
 
-        modelai = when {
+        when {
             modelHBFile.exists() -> {
                 selectedModelFile = modelHBFile
                 modelInputs = floatArrayOf(
@@ -279,7 +279,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                     bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
                     tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour, averageBeatsPerMinute.toFloat()
                 )
-                true
             }
             modelFile.exists() -> {
                 selectedModelFile = modelFile
@@ -288,15 +287,12 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
                     bg, targetBg, iob, delta, shortAvgDelta, longAvgDelta,
                     tdd7DaysPerHour, tdd2DaysPerHour, tddPerHour, tdd24HrsPerHour
                 )
-                true
             }
             else -> {
                 aapsLogger.error(LTag.APS, "NO Model found at specified location")
-                false
+                return 0.0F
             }
         }
-
-        if (!modelai) return 0.0F
 
         val interpreter = Interpreter(selectedModelFile!!)
         val output = arrayOf(floatArrayOf(0.0F))
@@ -309,6 +305,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
         return smbToGive.toFloat()
     }
+
 
 
     @Suppress("SpellCheckingInspection")
@@ -926,9 +923,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             //this.profile.put("tddlastHaverage", tddlastHaverage)
             this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
 
-            /*if (modelFile.exists()) {
-                modelai = true
-            }*/
+        modelai = modelFile.exists() || modelHBFile.exists()
             this.profile.put("modelai", modelai)
             this.mealData.put("TDDAIMI3", tddCalculator.averageTDD(tddCalculator.calculate(3, allowMissingDays = true))?.totalAmount)
             this.mealData.put("aimiTDD24", tdd24Hrs)
