@@ -1,5 +1,6 @@
 package info.nightscout.plugins.aps.aimi
 
+import android.annotation.SuppressLint
 import android.os.Environment
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.extensions.convertedToAbsolute
@@ -412,6 +413,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     }
 
 
+    @SuppressLint("SuspiciousIndentation")
     @Suppress("SpellCheckingInspection")
     override fun setData(
         profile: Profile,
