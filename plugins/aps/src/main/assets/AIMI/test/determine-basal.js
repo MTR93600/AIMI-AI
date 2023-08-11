@@ -500,7 +500,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
          rT.rate = rate;
          rT.reason += ", "+currenttemp.duration + "m@" + (currenttemp.rate) + " Force Basal AIMI";
          return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
-     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && !aimi_activity && bg < 130 &&  bg > 80 && glucose_status.delta > 0 && circadian_smb > (-1) && circadian_smb < 1){
+     }else if((lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false) && !aimi_activity && bg < 130 &&  bg > 80 && glucose_status.delta > 0 && circadian_smb > (-1) && circadian_smb < 1 && profile.aimipregnancy === false ){
                rT.reason += ". force basal because bg < 130 and the rise is small" +(basal*delta/60)*10;
                rT.deliverAt = deliverAt;
                rT.temp = 'absolute';
@@ -1185,7 +1185,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-test 03/08/2023 3.2.0-dev-j";
+        rT.reason +=" , Variant AIMI-AI-test 11/08/2023 3.2.0-dev-j";
         rT.reason += ",testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
