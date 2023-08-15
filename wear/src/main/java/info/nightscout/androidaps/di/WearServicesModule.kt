@@ -42,6 +42,7 @@ abstract class WearServicesModule {
     @ContributesAndroidInjector abstract fun contributesBIGChart(): BigChartWatchface
     @ContributesAndroidInjector abstract fun contributesNOChart(): NoChartWatchface
     @ContributesAndroidInjector abstract fun contributesCircleWatchface(): CircleWatchface
+    @ContributesAndroidInjector abstract fun contributesCustomWatchface(): CustomWatchface
 
     @ContributesAndroidInjector abstract fun contributesTileBase(): TileBase
     @ContributesAndroidInjector abstract fun contributesQuickWizardTileService(): QuickWizardTileService

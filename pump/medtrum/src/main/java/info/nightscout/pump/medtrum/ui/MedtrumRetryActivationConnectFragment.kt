@@ -7,7 +7,6 @@ import info.nightscout.core.ui.dialogs.OKDialog
 import info.nightscout.pump.medtrum.R
 import info.nightscout.pump.medtrum.code.PatchStep
 import info.nightscout.pump.medtrum.databinding.FragmentMedtrumRetryActivationConnectBinding
-import info.nightscout.pump.medtrum.ui.MedtrumBaseFragment
 import info.nightscout.pump.medtrum.ui.viewmodel.MedtrumViewModel
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
@@ -34,15 +33,17 @@ class MedtrumRetryActivationConnectFragment : MedtrumBaseFragment<FragmentMedtru
             viewModel?.apply {
 
                 setupStep.observe(viewLifecycleOwner) {
-                    when (it) {
-                        MedtrumViewModel.SetupStep.INITIAL   -> Unit // Nothing to do here
-                        MedtrumViewModel.SetupStep.FILLED    -> forceMoveStep(PatchStep.PRIME)
-                        MedtrumViewModel.SetupStep.PRIMING   -> forceMoveStep(PatchStep.PRIMING)
-                        MedtrumViewModel.SetupStep.PRIMED    -> forceMoveStep(PatchStep.PRIME_COMPLETE)
-                        MedtrumViewModel.SetupStep.ACTIVATED -> forceMoveStep(PatchStep.ACTIVATE_COMPLETE)
+                    if (patchStep.value != PatchStep.CANCEL) {
+                        when (it) {
+                            MedtrumViewModel.SetupStep.INITIAL   -> Unit // Nothing to do here
+                            MedtrumViewModel.SetupStep.FILLED    -> forceMoveStep(PatchStep.PRIME)
+                            MedtrumViewModel.SetupStep.PRIMING   -> forceMoveStep(PatchStep.PRIMING)
+                            MedtrumViewModel.SetupStep.PRIMED    -> forceMoveStep(PatchStep.PRIME_COMPLETE)
+                            MedtrumViewModel.SetupStep.ACTIVATED -> forceMoveStep(PatchStep.ACTIVATE_COMPLETE)
 
-                        else                                 -> {
-                            aapsLogger.error(LTag.PUMP, "Unexpected state: $it")
+                            else                                 -> {
+                                aapsLogger.error(LTag.PUMP, "Unexpected state: $it")
+                            }
                         }
                     }
                 }

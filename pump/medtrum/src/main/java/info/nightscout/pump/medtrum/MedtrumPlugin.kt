@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.text.format.DateFormat
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import dagger.android.HasAndroidInjector
 import info.nightscout.core.ui.toast.ToastUtils
@@ -122,8 +123,29 @@ import kotlin.math.abs
 
     override fun preprocessPreferences(preferenceFragment: PreferenceFragmentCompat) {
         super.preprocessPreferences(preferenceFragment)
-        val serialSetting = preferenceFragment.findPreference(rh.gs(R.string.key_sn_input)) as EditTextPreference?
-        serialSetting?.isEnabled = !isInitialized()
+        preferenceFragment.findPreference<EditTextPreference>(rh.gs(R.string.key_sn_input))?.isEnabled = !isInitialized()
+
+        val alarmSetting = preferenceFragment.findPreference<ListPreference>(rh.gs(R.string.key_alarm_setting))
+        val allAlarmEntries = preferenceFragment.resources.getStringArray(R.array.alarmSettings)
+        val allAlarmValues = preferenceFragment.resources.getStringArray(R.array.alarmSettingsValues)
+
+        if (allAlarmEntries.size < 8 || allAlarmValues.size < 8) {
+            aapsLogger.error(LTag.PUMP, "Alarm settings array is not complete")
+            return
+        }
+
+        when (medtrumPump.pumpType()) {
+            PumpType.MEDTRUM_NANO -> {
+                alarmSetting?.entries = arrayOf(allAlarmEntries[6], allAlarmEntries[7]) // "Beep", "Silent"
+                alarmSetting?.entryValues = arrayOf(allAlarmValues[6], allAlarmValues[7]) // "6", "7"
+            }
+
+            else                  -> {
+                // Use Nano settings for unknown pumps
+                alarmSetting?.entries = arrayOf(allAlarmEntries[6], allAlarmEntries[7]) // "Beep", "Silent"
+                alarmSetting?.entryValues = arrayOf(allAlarmValues[6], allAlarmValues[7]) // "6", "7"
+            }
+        }
     }
 
     override fun isInitialized(): Boolean {
@@ -271,12 +293,12 @@ import kotlin.math.abs
         val pumpRate = constraintChecker.applyBasalConstraints(Constraint(absoluteRate), profile).value()
         temporaryBasalStorage.add(PumpSync.PumpState.TemporaryBasal(dateUtil.now(), T.mins(durationInMinutes.toLong()).msecs(), pumpRate, true, tbrType, 0L, 0L))
         val connectionOK = medtrumService?.setTempBasal(pumpRate, durationInMinutes) ?: false
-        if (connectionOK
+        return if (connectionOK
             && medtrumPump.tempBasalInProgress
-            && Math.abs(medtrumPump.tempBasalAbsoluteRate - pumpRate) <= 0.05
+            && abs(medtrumPump.tempBasalAbsoluteRate - pumpRate) <= 0.05
         ) {
 
-            return PumpEnactResult(injector).success(true).enacted(true).duration(durationInMinutes).absolute(medtrumPump.tempBasalAbsoluteRate)
+            PumpEnactResult(injector).success(true).enacted(true).duration(durationInMinutes).absolute(medtrumPump.tempBasalAbsoluteRate)
                 .isPercent(false)
                 .isTempCancel(false)
         } else {
@@ -284,7 +306,7 @@ import kotlin.math.abs
                 LTag.PUMP,
                 "setTempBasalAbsolute failed, connectionOK: $connectionOK, tempBasalInProgress: ${medtrumPump.tempBasalInProgress}, tempBasalAbsoluteRate: ${medtrumPump.tempBasalAbsoluteRate}"
             )
-            return PumpEnactResult(injector).success(false).enacted(false).comment("Medtrum setTempBasalAbsolute failed")
+            PumpEnactResult(injector).success(false).enacted(false).comment("Medtrum setTempBasalAbsolute failed")
         }
     }
 
@@ -303,11 +325,11 @@ import kotlin.math.abs
 
         aapsLogger.info(LTag.PUMP, "cancelTempBasal - enforceNew: $enforceNew")
         val connectionOK = medtrumService?.cancelTempBasal() ?: false
-        if (connectionOK && !medtrumPump.tempBasalInProgress) {
-            return PumpEnactResult(injector).success(true).enacted(true).isTempCancel(true)
+        return if (connectionOK && !medtrumPump.tempBasalInProgress) {
+            PumpEnactResult(injector).success(true).enacted(true).isTempCancel(true)
         } else {
             aapsLogger.error(LTag.PUMP, "cancelTempBasal failed, connectionOK: $connectionOK, tempBasalInProgress: ${medtrumPump.tempBasalInProgress}")
-            return PumpEnactResult(injector).success(false).enacted(false).comment("Medtrum cancelTempBasal failed")
+            PumpEnactResult(injector).success(false).enacted(false).comment("Medtrum cancelTempBasal failed")
         }
     }
 
@@ -414,7 +436,7 @@ import kotlin.math.abs
         if (isInitialized()) {
             commandQueue.updateTime(object : Callback() {
                 override fun run() {
-                    if (this.result.success == false) {
+                    if (!this.result.success) {
                         aapsLogger.error(LTag.PUMP, "Medtrum time update failed")
                         // Only notify here on failure (connection may be failed), service will handle success
                         medtrumService?.timeUpdateNotification(false)

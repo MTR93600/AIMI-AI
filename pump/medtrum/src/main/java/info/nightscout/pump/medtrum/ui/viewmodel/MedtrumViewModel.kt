@@ -10,13 +10,10 @@ import info.nightscout.pump.medtrum.MedtrumPump
 import info.nightscout.pump.medtrum.R
 import info.nightscout.pump.medtrum.code.ConnectionState
 import info.nightscout.pump.medtrum.services.MedtrumService
-import info.nightscout.pump.medtrum.code.EventType
 import info.nightscout.pump.medtrum.code.PatchStep
 import info.nightscout.pump.medtrum.comm.enums.MedtrumPumpState
 import info.nightscout.pump.medtrum.encryption.Crypt
 import info.nightscout.pump.medtrum.ui.MedtrumBaseNavigator
-import info.nightscout.pump.medtrum.ui.event.SingleLiveEvent
-import info.nightscout.pump.medtrum.ui.event.UIEvent
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
 import kotlinx.coroutines.CoroutineScope
@@ -43,10 +40,7 @@ class MedtrumViewModel @Inject constructor(
     val title: LiveData<Int>
         get() = _title
 
-    private val _eventHandler = SingleLiveEvent<UIEvent<EventType>>()
-    val eventHandler: LiveData<UIEvent<EventType>>
-        get() = _eventHandler
-
+    private var oldPatchStep: PatchStep? = null
     private var mInitPatchStep: PatchStep? = null
     private var connectRetryCounter = 0
 
@@ -135,52 +129,41 @@ class MedtrumViewModel @Inject constructor(
     }
 
     fun moveStep(newPatchStep: PatchStep) {
-        val oldPatchStep = patchStep.value
+        oldPatchStep = patchStep.value
 
         if (oldPatchStep != newPatchStep) {
             when (newPatchStep) {
-                PatchStep.CANCEL                   -> {
-                    if (oldPatchStep !in listOf(
-                            PatchStep.PREPARE_PATCH,
-                            PatchStep.START_DEACTIVATION,
-                            PatchStep.DEACTIVATE,
-                            PatchStep.FORCE_DEACTIVATION,
-                            PatchStep.DEACTIVATION_COMPLETE
-                        )
-                    ) {
-                        medtrumService?.disconnect("Cancel")
-                    }
-                }
-
-                PatchStep.COMPLETE                 -> {
-                    medtrumService?.disconnect("Complete")
-                }
-
+                PatchStep.CANCEL,
+                PatchStep.COMPLETE,
+                PatchStep.ACTIVATE_COMPLETE,
+                PatchStep.ERROR,
                 PatchStep.START_DEACTIVATION,
                 PatchStep.DEACTIVATE,
                 PatchStep.FORCE_DEACTIVATION,
                 PatchStep.DEACTIVATION_COMPLETE,
                 PatchStep.PREPARE_PATCH,
-                PatchStep.RETRY_ACTIVATION,
-                PatchStep.RETRY_ACTIVATION_CONNECT -> {
-                    // Do nothing, deactivation uses commandQueue to control connection
+                PatchStep.RETRY_ACTIVATION      -> {
+                    // Do nothing, these steps don't require a connection
                 }
 
-                PatchStep.PREPARE_PATCH_CONNECT    -> {
-                    // Make sure we are disconnected, else dont move step
+                PatchStep.RETRY_ACTIVATION_CONNECT,
+                PatchStep.PREPARE_PATCH_CONNECT -> {
+                    // Make sure we are disconnected, else don't move step
                     if (medtrumService?.isConnected == true) {
                         aapsLogger.info(LTag.PUMP, "moveStep: connected, not moving step")
                         return
-                    } else {
                     }
                 }
 
-                else                               -> {
-                    // Make sure we are connected, else dont move step
+                PatchStep.PRIME,
+                PatchStep.PRIMING,
+                PatchStep.PRIME_COMPLETE,
+                PatchStep.ATTACH_PATCH,
+                PatchStep.ACTIVATE              -> {
+                    // Make sure we are connected, else don't move step
                     if (medtrumService?.isConnected == false) {
                         aapsLogger.info(LTag.PUMP, "moveStep: not connected, not moving step")
                         return
-                    } else {
                     }
                 }
             }
@@ -196,6 +179,30 @@ class MedtrumViewModel @Inject constructor(
 
         prepareStep(newPatchStep)
         aapsLogger.info(LTag.PUMP, "forceMoveStep: $oldPatchStep -> $newPatchStep")
+    }
+
+    fun handleCancel() {
+        if (oldPatchStep !in listOf(
+                PatchStep.PREPARE_PATCH,
+                PatchStep.START_DEACTIVATION,
+                PatchStep.DEACTIVATE,
+                PatchStep.FORCE_DEACTIVATION,
+                PatchStep.DEACTIVATION_COMPLETE
+            )
+        ) {
+            medtrumService?.disconnect("Cancel")
+        }
+        if (oldPatchStep == PatchStep.RETRY_ACTIVATION_CONNECT) {
+            while (medtrumService?.isConnecting == true || medtrumService?.isConnected == true) {
+                SystemClock.sleep(100)
+            }
+            // Set pump state to FILLED, so user will be able to retry activation again
+            medtrumPump.pumpState = MedtrumPumpState.FILLED
+        }
+    }
+
+    fun handleComplete() {
+        medtrumService?.disconnect("Complete")
     }
 
     fun initializePatchStep(step: PatchStep) {
@@ -307,7 +314,7 @@ class MedtrumViewModel @Inject constructor(
         aapsLogger.info(LTag.PUMP, "prepareStep: title before cond: $stringResId")
         if (currentTitle != stringResId) {
             aapsLogger.info(LTag.PUMP, "prepareStep: title: $stringResId")
-            _title.postValue(stringResId)
+            stringResId?.let { _title.postValue(it) }
         }
 
         patchStep.postValue(newStep)

@@ -79,12 +79,16 @@ abstract class BaseWatchFace : WatchFace() {
     var gridColor = Color.WHITE
     var basalBackgroundColor = Color.BLUE
     var basalCenterColor = Color.BLUE
+    var carbColor = Color.GREEN
     private var bolusColor = Color.MAGENTA
     private var lowResMode = false
     private var layoutSet = false
     var bIsRound = false
     var dividerMatchesBg = false
     var pointSize = 2
+    var enableSecond = false
+    val showSecond: Boolean
+        get() = enableSecond && currentWatchMode == WatchMode.INTERACTIVE
 
     // Tapping times
     private var sgvTapTime: Long = 0
@@ -268,7 +272,7 @@ abstract class BaseWatchFace : WatchFace() {
     }
 
     override fun getInteractiveModeUpdateRate(): Long {
-        return 60 * 1000L // Only call onTimeChanged every 60 seconds
+        return if (showSecond) 1000L else 60 * 1000L // Only call onTimeChanged every 60 seconds
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -289,6 +293,8 @@ abstract class BaseWatchFace : WatchFace() {
             missedReadingAlert()
             checkVibrateHourly(oldTime, newTime)
             if (!simpleUi.isEnabled(currentWatchMode)) setDataFields()
+        } else if (layoutSet && !simpleUi.isEnabled(currentWatchMode) && showSecond && newTime.hasSecondChanged(oldTime)) {
+            setSecond()
         }
     }
 
@@ -376,9 +382,20 @@ abstract class BaseWatchFace : WatchFace() {
         binding.month?.text = dateUtil.monthString()
         binding.timePeriod?.visibility = android.text.format.DateFormat.is24HourFormat(this).not().toVisibility()
         binding.timePeriod?.text = dateUtil.amPm()
+        if (showSecond)
+            setSecond()
     }
 
-    private fun setColor() {
+    open fun setSecond() {
+        binding.time?.text = if(binding.timePeriod == null) dateUtil.timeString() else dateUtil.hourString() + ":" + dateUtil.minuteString() + if (showSecond) ":" + dateUtil.secondString() else ""
+        binding.second?.text = dateUtil.secondString()
+    }
+
+    open fun updateSecondVisibility() {
+        binding.second?.visibility = showSecond.toVisibility()
+    }
+
+    fun setColor() {
         dividerMatchesBg = sp.getBoolean(R.string.key_match_divider, false)
         when {
             lowResMode                             -> setColorLowRes()
@@ -396,9 +413,12 @@ abstract class BaseWatchFace : WatchFace() {
     }
 
     override fun onWatchModeChanged(watchMode: WatchMode) {
+        updateSecondVisibility()    // will show second if enabledSecond and Interactive mode, hide in other situation
+        setSecond()                 // will remove second from main date and time if not in Interactive mode
         lowResMode = isLowRes(watchMode)
         if (simpleUi.isEnabled(currentWatchMode)) simpleUi.setAntiAlias(currentWatchMode)
-        else setDataFields()
+        else
+            setDataFields()
         invalidate()
     }
 
@@ -427,12 +447,12 @@ abstract class BaseWatchFace : WatchFace() {
                 if (lowResMode)
                     BgGraphBuilder(
                         sp, dateUtil, graphData.entries, treatmentData.predictions, treatmentData.temps, treatmentData.basals, treatmentData.boluses, pointSize,
-                        midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe
+                        midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe
                     )
                 else
                     BgGraphBuilder(
                         sp, dateUtil, graphData.entries, treatmentData.predictions, treatmentData.temps, treatmentData.basals, treatmentData.boluses,
-                        pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, Color.GREEN, timeframe
+                        pointSize, highColor, lowColor, midColor, gridColor, basalBackgroundColor, basalCenterColor, bolusColor, carbColor, timeframe
                     )
             binding.chart?.lineChartData = bgGraphBuilder.lineData()
             binding.chart?.isViewportCalculationEnabled = true
