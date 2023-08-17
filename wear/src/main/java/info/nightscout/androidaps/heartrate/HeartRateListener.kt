@@ -47,7 +47,7 @@ class HeartRateListener(
 ) :  SensorEventListener, Disposable {
 
     /** How often we send values to the phone. */
-    private val samplingIntervalMillis = 60_000L
+    private val samplingIntervalMillis = 30_000L
     private val sampler = Sampler(now)
     private var schedule: Disposable? = null
 

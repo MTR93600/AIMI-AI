@@ -134,18 +134,21 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_enable_mssv"
             android:title="Enable the variation of max smb size"
             android:summary="If it's enable mssv will discrease the value when TIR low during the last hour > 5%, or if the target have changed for a higher one and the basal value discrease. The opposite is true about lowering the target, that will increase the basal value and increase the mssv value until +100% of the initial value in the settings. If it's disable, the calculation will be using constant value, basal from the profile and the mssv settings in the preferences." />
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiPower"
             android:title="Authorise more power applying B30 settings"
             android:summary="when enable AIMI will be more aggressive during the duration of B30 settings section" />
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiPregnancy"
             android:title="Enable an active mode for pregnancy"
             android:summary="specific mode to allow more TBR action if the BG > 110" />
@@ -164,6 +167,7 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AIMI_BreakFastLight"
             android:title="Breakfast Light"
             android:summary="variant test : This option will divide by two the SMB calculation between 6 and 11 am. the interval will be adjust to 10 minutes during this period." />
@@ -181,6 +185,7 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiIgnoreCOB"
             android:title="Ignore COB"
             android:summary="Ignore COB value for all calculations, only triggering Full UAM mode." />
@@ -200,6 +205,7 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiUAM_ISF"
             android:summary="Dependency with AIMI_UAM mode, active a faster scale ISF"
             android:title="AIMI UAM Super ISF" />
