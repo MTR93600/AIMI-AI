@@ -602,6 +602,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("b30_upperdelta", SafeParse.stringToDouble(sp.getString(R.string.key_iTime_B30_upperdelta, "6")))
         this.profile.put("enable_AIMI_UAM", sp.getBoolean(R.string.key_use_AimiUAM, false))
         this.profile.put("enable_AIMI_Power", sp.getBoolean(R.string.key_use_AimiPower, false))
+        this.profile.put("nightSMBdisable", sp.getBoolean(R.string.key_use_noNightsmb, false))
         this.profile.put("key_use_AimiUAM_ISF", sp.getBoolean(R.string.key_use_AimiUAM_ISF, false))
         this.profile.put("key_use_AIMI_CAP", SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")))
         this.profile.put("key_use_enable_mssv", sp.getBoolean(R.string.key_use_enable_mssv, false))

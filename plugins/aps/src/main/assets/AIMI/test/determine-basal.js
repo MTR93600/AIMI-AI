@@ -1070,6 +1070,14 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     round(future_sens);
     future_sens = iTimeActivation && glucose_status.delta < 0 && bg < 130 ? sens : round(future_sens);
 
+
+    var TriggerPredSMB_future_sens_45 = Math.max(round( bg - (iob_data.iob * future_sens) ) + round( 45 / 5 * ( minDelta - round(( -iob_data.activity * future_sens * 5 ), 2))),39);
+    var AIMI_BreakFastLight = false;
+    if (TriggerPredSMB_future_sens_45 < 100 && lastBolusAge > 100) {
+    AIMI_BreakFastLight = true;
+    var AIMI_BL_StartTime = now;
+    var AIMI_BL_EndTime = AIMI_BL_StartTime + 2;
+    }
     minIOBPredBG = Math.max(39,minIOBPredBG);
     minCOBPredBG = Math.max(39,minCOBPredBG);
     minUAMPredBG = Math.max(39,minUAMPredBG);
@@ -1185,8 +1193,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-test 11/08/2023 3.2.0-dev-j";
-        rT.reason += ",testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
+        rT.reason +=" , Variant AIMI-AI-test 19/08/2023 3.2.0-dev-k";
+        rT.reason += ", TriggerPredSMB_future_sens_45 : ("+TriggerPredSMB_future_sens_45+"), testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
@@ -1630,8 +1638,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             microBolus = Math.floor(microBolus * roundSMBTo) / roundSMBTo;
             rT.reason += ",isReduced : "+isReduced;
             if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11){
-            microBolus = microBolus / 2;
-            rT.reason += ", BFL is enable => microBolus was reduced of 50%";
+                microBolus = microBolus / 2;
+                rT.reason += ", BFL is enable => microBolus was reduced of 50%";
+            }else if (AIMI_BreakFastLight === true){
+                microBolus = microBolus / 2;
+                rT.reason += ", BFL is enable => because TriggerPredSMB_future_sens_45 : "+TriggerPredSMB_future_sens_45+" < 100";
             }
 
 
@@ -1641,7 +1652,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
         UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
-        if (eventualBG < profile.key_UAMpredBG){
+        if (profile.nightSMBdisable === true && now.getHours() < 7){
+            microBolus = 0;
+            rT.reason += ", No SMB during the night, option is enable on the interval midnight to 6am, ";
+        }else if (eventualBG < profile.key_UAMpredBG){
             microBolus = 0;
             rT.reason += ", No SMB because eventualBG < "+profile.key_UAMpredBG+", ";
         }else if (bg < target_bg && delta < -2){

@@ -149,6 +149,13 @@
         <SwitchPreference
             android:defaultValue="false"
             android:dependency="@string/key_use_AimiUAM"
+            android:key="@string/key_use_noNightsmb"
+            android:title="No SMB during the night"
+            android:summary="This option will disable SMB during the interval midnight - 6 am" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="@string/key_use_AimiUAM"
             android:key="@string/key_use_AimiPregnancy"
             android:title="Enable an active mode for pregnancy"
             android:summary="specific mode to allow more TBR action if the BG > 110" />
