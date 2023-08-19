@@ -153,6 +153,28 @@
             android:title="No SMB during the night"
             android:summary="This option will disable SMB during the interval midnight - 6 am" />
 
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="1"
+            android:dependency="@string/key_use_noNightsmb"
+            android:dialogMessage="No SMB during the night : Start time"
+            android:inputType="numberDecimal"
+            android:key="@string/key_AIMI_NoSMB_timestart"
+            android:title="No SMB during the night : Start time"
+            validate:floatmaxNumber="12"
+            validate:floatminNumber="0"
+            validate:testType="floatNumericRange" />
+
+        <info.nightscout.core.validators.ValidatingEditTextPreference
+            android:defaultValue="7"
+            android:dependency="@string/key_use_noNightsmb"
+            android:dialogMessage="No SMB during the night : End time"
+            android:inputType="numberDecimal"
+            android:key="@string/key_AIMI_NoSMB_timeend"
+            android:title="No SMB during the night : End time"
+            validate:floatmaxNumber="14"
+            validate:floatminNumber="1"
+            validate:testType="floatNumericRange" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:dependency="@string/key_use_AimiUAM"

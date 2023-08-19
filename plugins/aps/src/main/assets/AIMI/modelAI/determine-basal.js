@@ -1587,9 +1587,9 @@ var TimeSMB = round(( new Date(systemTime).getTime() - meal_data.lastBolusSMBTim
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
 
-        if (profile.nightSMBdisable === true && now.getHours() < 7){
+        if (profile.nightSMBdisable === true && now.getHours() >= profile.NoSMBStart && now.getHours() <= profile.NoSMBEnd){
             microBolus = 0;
-            rT.reason += ", No SMB during the night, option is enable on the interval midnight to 6am, ";
+            rT.reason += ", No SMB during the night, option is enable on the interval you define in the settings, ";
         }else if (UAMpredBG < 110){
             microBolus = 0;
             rT.reason += ", No SMB because UAMpredBG < 100, ";

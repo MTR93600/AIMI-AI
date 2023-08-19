@@ -609,6 +609,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         this.profile.put("key_use_countsteps", sp.getBoolean(R.string.key_use_countsteps, false))
         this.profile.put("key_use_wearcountsteps", sp.getBoolean(R.string.count_steps_watch, false))
         this.profile.put("bfl", sp.getBoolean(R.string.key_use_AIMI_BreakFastLight, false))
+        this.profile.put("NoSMBStart", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_NoSMB_timestart, "0")))
+        this.profile.put("NoSMBEnd", SafeParse.stringToDouble(sp.getString(R.string.key_AIMI_NoSMB_timeend, "7")))
         this.profile.put("key_use_enable_circadian", sp.getBoolean(R.string.key_use_enable_circadian, false))
         this.profile.put("key_mbi", SafeParse.stringToDouble(sp.getString(R.string.key_mbi, "30")))
         this.profile.put("key_tdd7", SafeParse.stringToDouble(sp.getString(R.string.key_tdd7, "50")))

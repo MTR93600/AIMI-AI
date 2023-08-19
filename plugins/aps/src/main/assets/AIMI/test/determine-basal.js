@@ -1652,9 +1652,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
         UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
-        if (profile.nightSMBdisable === true && now.getHours() < 7){
+        if (profile.nightSMBdisable === true && now.getHours() >= profile.NoSMBStart && now.getHours() <= profile.NoSMBEnd){
             microBolus = 0;
-            rT.reason += ", No SMB during the night, option is enable on the interval midnight to 6am, ";
+            rT.reason += ", No SMB during the night, option is enable on the interval you define in the settings, ";
         }else if (eventualBG < profile.key_UAMpredBG){
             microBolus = 0;
             rT.reason += ", No SMB because eventualBG < "+profile.key_UAMpredBG+", ";
