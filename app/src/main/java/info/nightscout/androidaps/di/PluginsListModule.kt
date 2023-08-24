@@ -254,11 +254,11 @@ abstract class PluginsListModule {
     @IntKey(230)
     abstract fun bindAIMIPlugin(plugin: AIMIPlugin): PluginBase
 
-    @Binds
+    /*@Binds
     @Unfinished
     @IntoMap
     @IntKey(223)
-    abstract fun bindOpenAPSaiSMBPlugin(plugin: OpenAPSaiSMBPlugin): PluginBase
+    abstract fun bindOpenAPSaiSMBPlugin(plugin: OpenAPSaiSMBPlugin): PluginBase*/
 
     @Binds
     @AllConfigs

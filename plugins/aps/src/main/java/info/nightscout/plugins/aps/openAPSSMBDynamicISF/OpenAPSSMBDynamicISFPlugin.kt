@@ -10,6 +10,7 @@ import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.interfaces.iob.GlucoseStatusProvider
 import info.nightscout.interfaces.iob.IobCobCalculator
 import info.nightscout.interfaces.plugin.ActivePlugin
+import info.nightscout.interfaces.plugin.PluginDescription
 import info.nightscout.interfaces.profile.ProfileFunction
 import info.nightscout.interfaces.profiling.Profiler
 import info.nightscout.interfaces.stats.TddCalculator
@@ -67,7 +68,7 @@ class OpenAPSSMBDynamicISFPlugin @Inject constructor(
 ) {
 
     init {
-        pluginDescription
+        PluginDescription()
             .pluginName(R.string.openaps_smb_dynamic_isf)
             .description(R.string.description_smb_dynamic_isf)
             .shortName(R.string.dynisf_shortname)
@@ -76,7 +77,7 @@ class OpenAPSSMBDynamicISFPlugin @Inject constructor(
     }
 
     // If there is no TDD data fallback to SMB as ISF calculation may be really off
-    override fun provideDetermineBasalAdapter(): DetermineBasalAdapter =
+    fun provideDetermineBasalAdapter(): DetermineBasalAdapter =
         if (tdd1D == null || tdd7D == null || tddLast4H == null || tddLast8to4H == null || tddLast24H == null || !dynIsfEnabled.value())
             DetermineBasalAdapterSMBJS(ScriptReader(context), injector)
         else DetermineBasalAdapterSMBDynamicISFJS(ScriptReader(context), injector)

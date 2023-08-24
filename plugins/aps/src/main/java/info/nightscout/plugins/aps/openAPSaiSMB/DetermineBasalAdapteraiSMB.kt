@@ -240,7 +240,12 @@ class DetermineBasalAdapteraiSMB internal constructor(private val injector: HasA
         microBolusAllowed: Boolean,
         uamAllowed: Boolean,
         advancedFiltering: Boolean,
-        flatBGsDetected: Boolean
+        flatBGsDetected: Boolean,
+        tdd1D: Double?,
+        tdd7D: Double?,
+        tddLast24H: Double?,
+        tddLast4H: Double?,
+        tddLast8to4H: Double?
     ) {
         this.now = System.currentTimeMillis()
         this.hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)

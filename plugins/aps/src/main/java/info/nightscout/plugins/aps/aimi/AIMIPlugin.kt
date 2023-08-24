@@ -22,6 +22,7 @@ import info.nightscout.interfaces.plugin.PluginType
 import info.nightscout.interfaces.profile.Profile
 import info.nightscout.interfaces.profile.ProfileFunction
 import info.nightscout.interfaces.profiling.Profiler
+import info.nightscout.interfaces.stats.TddCalculator
 import info.nightscout.interfaces.utils.HardLimits
 import info.nightscout.interfaces.utils.Round
 import info.nightscout.plugins.aps.OpenAPSFragment
@@ -58,7 +59,8 @@ class AIMIPlugin @Inject constructor(
     private val dateUtil: DateUtil,
     private val repository: AppRepository,
     private val glucoseStatusProvider: GlucoseStatusProvider,
-    private val bgQualityCheck: BgQualityCheck
+    private val bgQualityCheck: BgQualityCheck,
+    private val tddCalculator: TddCalculator
 )  : PluginBase(
     PluginDescription()
         .mainType(PluginType.APS)
@@ -71,6 +73,12 @@ class AIMIPlugin @Inject constructor(
     aapsLogger, rh, injector
 ), APS, Constraints {
 
+    var tdd1D : Double? = null
+    var tdd7D : Double? = null
+    var tddLast24H : Double? = null
+    var tddLast4H : Double? = null
+    var tddLast8to4H : Double? = null
+    //var dynIsfEnabled : Constraint<Boolean> = Constraint(false)
     // last values
     override var lastAPSRun: Long = 0
     override var lastAPSResult: DetermineBasalResultSMB? = null
@@ -198,6 +206,12 @@ class AIMIPlugin @Inject constructor(
         profiler.log(LTag.APS, "SMB data gathering", start)
         start = System.currentTimeMillis()
 
+        tdd1D = tddCalculator.averageTDD(tddCalculator.calculate(1, allowMissingDays = false))?.totalAmount
+        tdd7D = tddCalculator.averageTDD(tddCalculator.calculate(7, allowMissingDays = false))?.totalAmount
+        tddLast24H = tddCalculator.calculateDaily(-24, 0)?.totalAmount
+        tddLast4H = tddCalculator.calculateDaily(-4, 0)?.totalAmount
+        tddLast8to4H = tddCalculator.calculateDaily(-8, -4)?.totalAmount
+
         provideDetermineBasalAdapter().also { determineBasalAdapterAIMIJS ->
             determineBasalAdapterAIMIJS.setData(
                 profile, maxIob, maxBasal, minBg, maxBg, targetBg,
@@ -210,7 +224,12 @@ class AIMIPlugin @Inject constructor(
                 smbAllowed.value(),
                 uam.value(),
                 advancedFiltering.value(),
-                flatBGsDetected)
+                flatBGsDetected,
+                tdd1D = tdd1D,
+                tdd7D = tdd7D,
+                tddLast24H = tddLast24H,
+                tddLast4H = tddLast4H,
+                tddLast8to4H = tddLast8to4H)
             val now = System.currentTimeMillis()
             val determineBasalResultSMB = determineBasalAdapterAIMIJS.invoke()
             profiler.log(LTag.APS, "SMB calculation", start)
