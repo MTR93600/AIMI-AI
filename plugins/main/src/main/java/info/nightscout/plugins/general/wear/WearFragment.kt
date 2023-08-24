@@ -12,13 +12,12 @@ import info.nightscout.plugins.R
 import info.nightscout.plugins.databinding.WearFragmentBinding
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
-import info.nightscout.rx.events.EventMobileDataToWear
 import info.nightscout.rx.events.EventMobileToWear
 import info.nightscout.rx.events.EventWearUpdateGui
 import info.nightscout.rx.logging.AAPSLogger
-import info.nightscout.rx.weardata.CustomWatchfaceData
-import info.nightscout.rx.weardata.CustomWatchfaceDrawableDataKey
-import info.nightscout.rx.weardata.CustomWatchfaceMetadataKey
+import info.nightscout.rx.weardata.CwfData
+import info.nightscout.rx.weardata.CwfDrawableFileMap
+import info.nightscout.rx.weardata.CwfMetadataKey
 import info.nightscout.rx.weardata.EventData
 import info.nightscout.shared.extensions.toVisibility
 import info.nightscout.shared.interfaces.ResourceHelper
@@ -68,8 +67,7 @@ class WearFragment : DaggerFragment() {
             updateGui()
         }
         binding.exportCustom.setOnClickListener {
-            wearPlugin.savedCustomWatchface?.let { importExportPrefs.exportCustomWatchface(it) }
-                ?: apply { rxBus.send(EventMobileToWear(EventData.ActionrequestCustomWatchface(true)))}
+            rxBus.send(EventMobileToWear(EventData.ActionrequestCustomWatchface(true)))
         }
     }
 
@@ -79,10 +77,12 @@ class WearFragment : DaggerFragment() {
             .toObservable(EventWearUpdateGui::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({
-                           it.customWatchfaceData?.let { loadCustom(it) }
                            if (it.exportFile)
                                ToastUtils.okToast(activity, rh.gs(R.string.wear_new_custom_watchface_exported))
-                           updateGui()
+                           else {
+                               it.customWatchfaceData?.let { loadCustom(it) }
+                               updateGui()
+                           }
                        }, fabricPrivacy::logException)
         if (wearPlugin.savedCustomWatchface == null)
             rxBus.send(EventMobileToWear(EventData.ActionrequestCustomWatchface(false)))
@@ -104,8 +104,9 @@ class WearFragment : DaggerFragment() {
     private fun updateGui() {
         _binding ?: return
         wearPlugin.savedCustomWatchface?.let {
-            binding.customName.text = rh.gs(R.string.wear_custom_watchface, it.metadata[CustomWatchfaceMetadataKey.CWF_NAME])
-            binding.coverChart.setImageDrawable(it.drawableDatas[CustomWatchfaceDrawableDataKey.CUSTOM_WATCHFACE]?.toDrawable(resources))
+            wearPlugin.checkCustomWatchfacePreferences()
+            binding.customName.text = rh.gs(R.string.wear_custom_watchface, it.metadata[CwfMetadataKey.CWF_NAME])
+            binding.coverChart.setImageDrawable(it.drawableDatas[CwfDrawableFileMap.CUSTOM_WATCHFACE]?.toDrawable(resources))
         } ?:apply {
             binding.customName.text = rh.gs(R.string.wear_custom_watchface, rh.gs(info.nightscout.shared.R.string.wear_default_watchface))
             binding.coverChart.setImageDrawable(null)
@@ -114,7 +115,7 @@ class WearFragment : DaggerFragment() {
         binding.customWatchfaceLayout.visibility = (wearPlugin.connectedDevice != rh.gs(R.string.no_watch_connected)).toVisibility()
     }
 
-    private fun loadCustom(cwf: CustomWatchfaceData) {
+    private fun loadCustom(cwf: CwfData) {
         wearPlugin.savedCustomWatchface = cwf
     }
 }

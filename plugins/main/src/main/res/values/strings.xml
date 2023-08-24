@@ -112,11 +112,7 @@
     <string name="sms_wrong_tbr_duration">TBR duration must be a multiple of %1$d minutes and greater than 0.</string>
     <string name="a11y_otp_qr_code">QR Code for setup one time password</string>
 
-    <string name="xdrip_status_detailed_iob_title">Show detailed IOB</string>
-    <string name="xdrip_status_detailed_iob_summary">Break down IOB into bolus and basal IOB on the watchface</string>
     <string name="disabled_loop">Loop Disabled</string>
-    <string name="xdrip_status_show_bgi_title">Show BGI</string>
-    <string name="xdrip_status_show_bgi_summary">Add BGI to status line</string>
 
     <!-- Food-->
     <string name="food_short">Food</string>
@@ -357,17 +353,18 @@
     <string name="wear_wizard_settings_summary">Calculations included in the Wizard result:</string>
     <string name="wear_display_settings">Display Settings</string>
     <string name="wear_general_settings">General Settings</string>
-    <string name="wear_detailed_delta_title">Show detailed delta</string>
-    <string name="wear_detailed_delta_summary">Show delta with one more decimal place</string>
     <string name="wear_notifysmb_title">Notify on SMB</string>
     <string name="wear_notifysmb_summary">Show SMB on the watch like a standard bolus.</string>
     <string name="wear_predictions_summary">Show the predictions on the watchface.</string>
     <string name="wear_predictions_title">Predictions</string>
+    <string name="wear_custom_watchface_settings">Custom Watchface Settings</string>
+    <string name="wear_custom_watchface_authorization_title">Custom Watchface Authorization</string>
+    <string name="wear_custom_watchface_authorization_summary">Authorize loaded custom watchface to change and lock some watch display settings to suit watchface design</string>
     <string name="wear_custom_watchface">Custom Watchface: %1$s</string>
     <string name="wear_load_watchface">Load Watchface</string>
     <string name="wear_send_watchface">Send Watchface</string>
-    <string name="wear_export_watchface">Export Watchface</string>
-    <string name="wear_new_custom_watchface_exported">Custom watchface exported</string>
+    <string name="wear_export_watchface">Export template</string>
+    <string name="wear_new_custom_watchface_exported">Custom watchface template exported</string>
     <string name="resend_all_data">Resend All Data</string>
     <string name="open_settings_on_wear">Open Settings on Wear</string>
 

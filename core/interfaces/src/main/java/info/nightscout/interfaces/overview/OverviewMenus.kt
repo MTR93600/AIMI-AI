@@ -17,7 +17,7 @@ interface OverviewMenus {
         ACT,
         DEVSLOPE,
         HR,
-        STEPS,
+        STEPS
     }
 
     val setting: List<Array<Boolean>>
