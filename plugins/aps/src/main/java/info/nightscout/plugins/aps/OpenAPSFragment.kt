@@ -19,7 +19,6 @@ import info.nightscout.interfaces.plugin.ActivePlugin
 import info.nightscout.plugins.aps.databinding.OpenapsFragmentBinding
 import info.nightscout.plugins.aps.events.EventOpenAPSUpdateGui
 import info.nightscout.plugins.aps.events.EventResetOpenAPSGui
-import info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
 import info.nightscout.plugins.aps.utils.JSONFormatter
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus

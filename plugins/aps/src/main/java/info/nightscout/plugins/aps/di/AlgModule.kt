@@ -14,6 +14,5 @@ abstract class AlgModule {
     @ContributesAndroidInjector abstract fun determineBasalAdapterSMBJSInjector(): info.nightscout.plugins.aps.openAPSSMB.DetermineBasalAdapterSMBJS
     @ContributesAndroidInjector abstract fun determineBasalAdapterAIMIJSInjector(): info.nightscout.plugins.aps.aimi.DetermineBasalAdapterAIMIJS
     @ContributesAndroidInjector abstract fun determineBasalAdapterSMBAutoISFJSInjector(): info.nightscout.plugins.aps.openAPSSMBDynamicISF.DetermineBasalAdapterSMBDynamicISFJS
-    @ContributesAndroidInjector abstract fun determineBasalAdapteraiSMBInjector(): info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalAdapteraiSMB
-    @ContributesAndroidInjector abstract fun determineBasalResultaiSMBInjector(): info.nightscout.plugins.aps.openAPSaiSMB.DetermineBasalResultaiSMB
+
 }

@@ -27,7 +27,6 @@
     <string name="key_openapssmb_max_smb">key_openapssmb_max_smb</string>
     <string name="openapsaismb">OpenAPS aiSMB</string>
     <string name="key_openapsaismb_settings">OpenAPS aiSMB Settings</string>
-    <string name="description_aismb">Small micro boluses based on Artifical Intelligence and Machine Learning.</string>
     <string name="oaps_aismb_shortname">aiSMB</string>
 
 
@@ -161,7 +160,7 @@
     <!--    Loop -->
 
     <string name="aimi">AIMI</string>
-    <string name="description_aimi">Automated Insulin Management Interface</string>
+    <string name="description_aimi">Automated Insulin Management Interface, base on artificial intelligence and machine learning decision.</string>
     <string name="key_aimi_settings" translatable="false">aimi_settings</string>
     <string name="key_use_AimiIgnoreCOB" translatable="false">key_use_AimiIgnoreCOB</string>
     <string name="key_use_Aimiprotein" translatable="false">key_use_Aimiprotein</string>
@@ -213,8 +212,8 @@
     <string name="key_use_AIMI_SlowInsulin" translatable="false">key_use_AIMI_SlowInsulin</string>
     <string name="key_use_AIMI_PBolus" translatable="false">key_use_AIMI_PBolus</string>
     <string name="key_use_AIMI_BreakFastLight" translatable="false">key_use_AIMI_BreakfastLight</string>
-    <string name="key_AIMI_NoSMB_timeend">key_AIMI_BreakFastLight_timeend</string>
-    <string name="key_AIMI_NoSMB_timestart">key_AIMI_BreakFastLight_timestart</string>
+    <string name="key_AIMI_NoSMB_timeend">key_AIMI_NoSMB_timeend</string>
+    <string name="key_AIMI_NoSMB_timestart">key_AIMI_NoSMB_timestart</string>
     <string name="key_use_AimiUAM" translatable="false">AIMI</string>
     <string name="key_use_AimiPower" translatable="false">AIMI_Power</string>
     <string name="key_use_noNightsmb" translatable="false">No Night SMB</string>
