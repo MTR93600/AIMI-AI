@@ -215,12 +215,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             smbToGive = maxSMB
         }
         // don't give insulin if below target too aggressive
-        /*val belowTargetAndDropping = bg < targetBg && delta < -2
-       val belowTargetAndStableButNoCob = bg < targetBg - 15 && shortAvgDelta <= 2 && cob <= 5
+       val belowTargetAndDropping = bg < targetBg && delta < -2
+       val belowTargetAndStable = bg < targetBg - 15 && shortAvgDelta <= 2
        val belowMinThreshold = bg < 70
-       if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStableButNoCob) {
+       if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStable) {
            smbToGive = 0.0f
-       }*/
+       }
+       val safetysmb = bg < (targetBg + 40) && delta < 10
+       if (safetysmb){
+           smbToGive /= 2
+       }
+
 
         // don't give insulin if dropping fast
         val droppingFast = bg < 140 && delta < -5
@@ -734,7 +739,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var beatsPerMinuteValues180: List<Int>
 
         try {
-            val heartRates = repository.getHeartRatesFromTime(timeMillis15)
+            val heartRates = repository.getHeartRatesFromTime(timeMillis5)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()

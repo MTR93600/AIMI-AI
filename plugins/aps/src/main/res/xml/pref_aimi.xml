@@ -71,16 +71,6 @@
                 validate:testType="floatNumericRange" />
 
             <info.nightscout.core.validators.ValidatingEditTextPreference
-                android:defaultValue="50"
-                android:dialogMessage="Average carbs for a meal. it's an estimation not a precise value"
-                android:inputType="numberDecimal"
-                android:key="@string/key_cho"
-                android:title="CHO / Meal"
-                validate:floatmaxNumber="150"
-                validate:floatminNumber="0"
-                validate:testType="floatNumericRange" />
-
-            <info.nightscout.core.validators.ValidatingEditTextPreference
                 android:defaultValue="120"
                 android:dialogMessage="Value of the prediction UAMpredBG under the one you will not receive SMB"
                 android:inputType="numberDecimal"
@@ -147,6 +137,16 @@
                 <androidx.preference.PreferenceScreen
                     android:key="@string/key_aimi_conservative_settings"
                     android:title="AIMI conservative Preferences">
+
+                    <info.nightscout.core.validators.ValidatingEditTextPreference
+                        android:defaultValue="50"
+                        android:dialogMessage="Average carbs for a meal. it's an estimation not a precise value"
+                        android:inputType="numberDecimal"
+                        android:key="@string/key_cho"
+                        android:title="CHO / Meal"
+                        validate:floatmaxNumber="150"
+                        validate:floatminNumber="0"
+                        validate:testType="floatNumericRange" />
 
                     <SwitchPreference
                         android:defaultValue="false"
