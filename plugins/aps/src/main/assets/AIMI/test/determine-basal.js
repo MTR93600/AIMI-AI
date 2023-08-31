@@ -511,7 +511,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                return tempBasalFunctions.setTempBasal(rate, 30, profile, rT, currenttemp);
      }
 
-    if ( meal_data.TDDAIMI3 ){
+    if ( TDD ){
         var currentTIRLow = round(meal_data.currentTIRLow,2);
         var currentTIRinRange = round(meal_data.currentTIRRange,2);
         var currentTIRAbove = round(meal_data.currentTIRAbove,2);
@@ -1058,8 +1058,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         console.log("Future state sensitivity is " +future_sens+" based on a weighted average of bg & UAMpredBG");
         }else if (iTimeActivation && aimi_delta < 10){
         var future_sens = ( MagicNumber / (TDD * UAMpredBG));
-        console.log("Future state sensitivity is " +future_sens+" based on UAMpredBG  due to -ve delta")
-        ;
+        console.log("Future state sensitivity is " +future_sens+" based on UAMpredBG  due to -ve delta");
         }else{
         var future_sens = sens;
         }
