@@ -181,6 +181,18 @@ class stepCountListener(
         return stepCount*/
         return getStepsInLastXMin(12)
     }
+    private fun getStepsInLast180Min(): Int {
+        /*var stepCount = 0
+        val sixtyMinAgo = currentTimeIn5Min() - 12
+        val now = currentTimeIn5Min()
+        for (entry in stepsMap.entries) {
+            if (entry.key > sixtyMinAgo && entry.key <= now) {
+                stepCount += entry.value
+            }
+        }
+        return stepCount*/
+        return getStepsInLastXMin(36)
+    }
 
 
 
@@ -191,12 +203,14 @@ class stepCountListener(
         val stepsInLast15Minutes = getStepsInLast15Min()
         val stepsInLast30Minutes = getStepsInLast30Min()
         val stepsInLast60Minutes = getStepsInLast60Min()
+        val stepsInLast180Minutes = getStepsInLast180Min()
 
         aapsLogger.debug(LTag.WEAR, "Steps in last 5 minutes: $stepsInLast5Minutes")
         aapsLogger.debug(LTag.WEAR, "Steps in last 10 minutes: $stepsInLast10Minutes")
         aapsLogger.debug(LTag.WEAR, "Steps in last 15 minutes: $stepsInLast15Minutes")
         aapsLogger.debug(LTag.WEAR, "Steps in last 30 minutes: $stepsInLast30Minutes")
         aapsLogger.debug(LTag.WEAR, "Steps in last 60 minutes: $stepsInLast60Minutes")
+        aapsLogger.debug(LTag.WEAR, "Steps in last 180 minutes: $stepsInLast180Minutes")
 
         val device = (Build.MANUFACTURER ?: "unknown") + " " + (Build.MODEL ?: "unknown")
 
@@ -209,6 +223,7 @@ class stepCountListener(
                 steps15min = 0,
                 steps30min = 0,
                 steps60min = 0,
+                steps180min = 0,
                 device = device
             ),
             EventData.ActionStepsRate(
@@ -219,6 +234,7 @@ class stepCountListener(
                 steps15min = 0,
                 steps30min = 0,
                 steps60min = 0,
+                steps180min = 0,
                 device = device
             ),
             EventData.ActionStepsRate(
@@ -229,6 +245,7 @@ class stepCountListener(
                 steps15min = stepsInLast15Minutes,
                 steps30min = 0,
                 steps60min = 0,
+                steps180min = 0,
                 device = device
             ),
             EventData.ActionStepsRate(
@@ -239,6 +256,7 @@ class stepCountListener(
                 steps15min = stepsInLast15Minutes,
                 steps30min = stepsInLast30Minutes,
                 steps60min = 0,
+                steps180min = 0,
                 device = device
             ),
             EventData.ActionStepsRate(
@@ -249,8 +267,20 @@ class stepCountListener(
                 steps15min = stepsInLast15Minutes,
                 steps30min = stepsInLast30Minutes,
                 steps60min = stepsInLast60Minutes,
+                steps180min = stepsInLast180Minutes,
                 device = device
-            )
+            ),
+            EventData.ActionStepsRate(
+                duration = 180 * 60 * 1000,
+                timestamp = timestampMillis,
+                steps5min = stepsInLast5Minutes,
+                steps10min = stepsInLast10Minutes,
+                steps15min = stepsInLast15Minutes,
+                steps30min = stepsInLast30Minutes,
+                steps60min = stepsInLast60Minutes,
+                steps180min = stepsInLast180Minutes,
+                device = device
+        )
         )
         sendStepsRate(stepsList)
     }

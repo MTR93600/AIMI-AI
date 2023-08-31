@@ -27,6 +27,7 @@ data class StepsCount(
     var steps15min: Int,
     var steps30min: Int,
     var steps60min: Int,
+    var steps180min: Int,
     /** Source device that measured the steps count. */
     var device: String,
     override var utcOffset: Long = TimeZone.getDefault().getOffset(timestamp).toLong(),
@@ -47,6 +48,7 @@ data class StepsCount(
                 steps15min == other.steps15min &&
                 steps30min == other.steps30min &&
                 steps60min == other.steps60min &&
+                steps180min == other.steps180min &&
                 isValid == other.isValid)
     }
 }

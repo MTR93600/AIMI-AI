@@ -119,10 +119,11 @@ sealed class EventData : Event() {
         val steps15min: Int,
         val steps30min: Int,
         val steps60min: Int,
+        val steps180min: Int,
         val device: String): EventData() {
 
         override fun toString() =
-            "STEPS 5min: $steps5min, 10min: $steps10min, 15min: $steps15min, 30min: $steps30min, 60min: $steps60min at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
+            "STEPS 5min: $steps5min, 10min: $steps10min, 15min: $steps15min, 30min: $steps30min, 60min: $steps60min, 180min: $steps180min at ${DateTime(timestamp)} for ${duration / 1000.0}sec $device"
 
     }
 

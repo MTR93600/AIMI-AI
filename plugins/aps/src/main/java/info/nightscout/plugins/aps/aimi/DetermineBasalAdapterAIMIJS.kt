@@ -131,6 +131,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     private var recentSteps15Minutes: Int = 0
     private var recentSteps30Minutes: Int = 0
     private var recentSteps60Minutes: Int = 0
+    private var recentSteps180Minutes: Int = 0
     private val path = File(Environment.getExternalStorageDirectory().toString())
     private val modelFile = File(path, "AAPS/ml/model.tflite")
     private val modelHBFile = File(path, "AAPS/ml/modelHB.tflite")
@@ -720,12 +721,17 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val stepsCountList60 = repository.getLastStepsCountFromTimeToTime(timeMillis60, timeMillisNow)
         val stepsCount60 = stepsCountList60?.steps60min ?: 0
 
+        val stepsCountList180 = repository.getLastStepsCountFromTimeToTime(timeMillis180, timeMillisNow)
+        val stepsCount180 = stepsCountList180?.steps180min ?: 0
+
+
         if (sp.getBoolean(R.string.count_steps_watch, false)===true) {
             this.recentSteps5Minutes = stepsCount5
             this.recentSteps10Minutes = stepsCount10
             this.recentSteps15Minutes = stepsCount15
             this.recentSteps30Minutes = stepsCount30
             this.recentSteps60Minutes = stepsCount60
+            this.recentSteps180Minutes = stepsCount180
         }else{
             this.recentSteps5Minutes = StepService.getRecentStepCount5Min()
             this.recentSteps10Minutes = StepService.getRecentStepCount10Min()
@@ -733,6 +739,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
             this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
         }
+
 
 
         var beatsPerMinuteValues: List<Int>
@@ -951,6 +958,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("recentSteps15Minutes", recentSteps15Minutes)
             this.profile.put("recentSteps30Minutes", recentSteps30Minutes)
             this.profile.put("recentSteps60Minutes", recentSteps60Minutes)
+            this.profile.put("recentSteps180Minutes", recentSteps180Minutes)
 
             this.profile.put("insulinR", insulinR)
 
