@@ -673,13 +673,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val extendedsmb = repository.getBolusesDataFromTime(now - millsToThePast2, false).blockingGet()
         extendedsmb.forEach { bolus ->
             if ((bolus.type == Bolus.Type.SMB) && bolus.isValid && bolus.amount.toLong() !== lastBolusNormalUnits.toLong()) SMBcount += 1
-            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(
-                    sp.getString(
-                        R.string.key_use_AIMI_CAP,
-                        "150"
-                    )
-                ) / 100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true
-            ) MaxSMBcount += 1
+            if (bolus.type == Bolus.Type.SMB && bolus.isValid && bolus.amount >= (0.8 * (profile.getBasal() * SafeParse.stringToDouble(sp.getString(R.string.key_use_AIMI_CAP, "150")) / 100)) && sp.getBoolean(R.string.key_use_newSMB, false) === true) MaxSMBcount += 1
         }
         val lastprebolus = repository.getBolusesDataFromTime(now - millsToThePast3, false).blockingGet()
         lastprebolus.forEach { bolus ->
