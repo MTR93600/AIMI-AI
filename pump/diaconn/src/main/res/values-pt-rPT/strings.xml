@@ -45,7 +45,7 @@
     <string name="diaconn_g8_useextended_title">Utilizar bólus estendido por &gt;200%%</string>
     <string name="diaconn_g8_visualizeextendedaspercentage_title">Visualizar bólus prolongado como %%</string>
     <string name="diaconn_g8_bluetooth_status">Estado do Bluetooth</string>
-    <string name="diagonn_g8_tdd_label">TDD</string>
+    <string name="diagonn_g8_tdd_label">TID</string>
     <string name="bolus_step">Incremento Bólus</string>
     <string name="basal_step">Incremento Basal</string>
     <string name="pump_firmware_label">Firmware</string>
@@ -100,4 +100,7 @@
     <string name="diaconn_g8_reasonemergencystop">Paragem de emergência</string>
     <string name="diacon_g8_blockbasal">BASAL</string>
     <string name="diaconn_g8_logsuccess">Sucesso</string>
+    <string name="diaconn_g8_errorcode_32">Durante o funcionamento de SGB, a administração está restrita</string>
+    <string name="diaconn_g8_errorcode_33">O estado da SGB é ON, é recusado o comando ON.</string>
+    <string name="diaconn_g8_errorcode_34">O estado da SGB é OFF, é recusado o comando OFF.</string>
 </resources>

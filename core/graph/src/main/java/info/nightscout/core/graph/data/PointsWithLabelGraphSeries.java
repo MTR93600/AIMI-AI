@@ -26,7 +26,6 @@ import info.nightscout.core.graph.R;
  *
  * @author jjoe64
  */
-
 public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> extends BaseSeries<E> {
     // Default spSize
     int spSize = 14;
@@ -98,11 +97,9 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
      * @param canvas        canvas to draw on
      * @param isSecondScale whether it is the second scale
      */
-
     @SuppressWarnings({"deprecation"})
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
-
         // Convert the sp to pixels
         float scaledTextSize = spSize * graphView.getContext().getResources().getDisplayMetrics().scaledDensity;
         float scaledPxSize = graphView.getContext().getResources().getDisplayMetrics().scaledDensity * 3f;
@@ -250,6 +247,11 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                         mPaint.setFakeBoldText(true);
                         canvas.drawText(value.getLabel(), endX, endY, mPaint);
                     }
+                } else if (value.getShape() == Shape.HEARTRATE) {
+                    mPaint.setStrokeWidth(0);
+                    Rect bounds = new Rect((int) endX, (int) endY - 8, (int) (xPlusLength), (int) endY + 8);
+                    mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                    canvas.drawRect(bounds, mPaint);
                 } else if (value.getShape() == Shape.PROFILE) {
                     Drawable drawable = ContextCompat.getDrawable(graphView.getContext(), R.drawable.ic_ribbon_profile);
                     assert drawable != null;
@@ -346,9 +348,6 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     previousX = endX;
                     previousY = endY;
                 }
-
-
-
                 // set values above point
             }
 
@@ -374,7 +373,6 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
      * @param canvas canvas to draw on
      * @param paint  paint object
      */
-
     private void drawArrows(Point[] point, Canvas canvas, Paint paint) {
         canvas.save();
         Path path = new Path();

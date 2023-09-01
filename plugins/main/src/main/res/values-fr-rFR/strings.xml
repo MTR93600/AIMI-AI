@@ -24,6 +24,10 @@
     <string name="smscommunicator_otp_reset_header">Réinitialiser les authentificateurs</string>
     <string name="smscommunicator_otp_install_info">Sur chaque téléphone suiveur, installez une appli. Authentificateur qui prend en charge les jetons RFC 6238 TOTP. Les applications libres populaires sont:\n • Authy\n • Google Authenticator\n • LastPass Authenticator\n • FreeOTP Authenticator</string>
     <string name="smscommunicator_otp_reset_warning">En réinitialisant l\'Authentificateur, vous invalidez tous les authentificateurs déjà initialisés. Vous devrez les reconfigurer !</string>
+    <string name="smscommunicator_otp_verification_ok">Ok</string>
+    <string name="smscommunicator_otp_verification_ivalid_size">TAILLE INVALIDE !</string>
+    <string name="smscommunicator_otp_verification_wrong_pin">MAUVAIS CODE PIN</string>
+    <string name="smscommunicator_otp_verification_wrong_otp">MAUVAIS OTP</string>
     <string name="sms_wrong_code">Code incorrect. Commande annulée.</string>
     <string name="sms_timeout_while_waiting">Délai d\'attente pour finir la communication précédente avec la pompe</string>
     <string name="smscommunicator_allowednumbers">Numéros de tél autorisés</string>
@@ -315,11 +319,14 @@
     <string name="wear_custom_watchface_authorization_summary">Autoriser le cadran perso chargé à modifier et bloquer certains paramètres d\'affichage de la montre pour un affichage correct du cadran</string>
     <string name="wear_custom_watchface">Cadran personnalisé : %1$s</string>
     <string name="wear_load_watchface">Charger le cadran</string>
-    <string name="wear_send_watchface">Envoyer le cadran</string>
+    <string name="wear_infos_watchface">Infos Cadran</string>
     <string name="wear_export_watchface">Exporter le modèle</string>
     <string name="wear_new_custom_watchface_exported">Modèle du cadran personnalisé exporté</string>
     <string name="resend_all_data">Renvoyer toutes les données</string>
     <string name="open_settings_on_wear">Afficher les Paramètres sur la Montre</string>
+    <string name="cwf_infos_pref_locked">Liste des préférences verrouillées par le cadran</string>
+    <string name="cwf_infos_pref_required">Liste des préférences requises pour le cadran</string>
+    <string name="cwf_infos_view_title">Liste des champs inclus dans le cadran</string>
     <!--    PersistentNotification-->
     <string name="description_persistent_notification">Affiche une notification en cours avec un bref aperçu de ce que fait votre Boucle</string>
     <string name="old_data">DONNÉES ANCIENNES</string>
@@ -348,5 +355,5 @@
     <string name="until">jusqu\'à</string>
     <string name="default_range">PLAGE PAR DEFAUT</string>
     <string name="target">cible</string>
-    <string name="rate_duration">Taux: %1$.2fU/h (%2$.2f%%) \nDurée: %3$d% min</string>
+    <string name="rate_duration">Taux: %1$.2fU/h (%2$.2f%%) \nDurée: %3$d min</string>
 </resources>

@@ -24,6 +24,10 @@
     <string name="smscommunicator_otp_reset_header">Resetovat autentikátory</string>
     <string name="smscommunicator_otp_install_info">Na každém sledovacím telefonu nainstalujte Authentikátor, který podporuje tokeny TOTP RFC 6238. Nejoblíbenější bezplatné aplikace jsou:\n • Authy\n • Google Authenticator\n • LastPass Authenticator\n • FreeOTP Authenticator</string>
     <string name="smscommunicator_otp_reset_warning">Obnovením autentikátoru uděláte všechny již poskytnuté autentikátory neplatné. Budete je muset znovu nastavit!</string>
+    <string name="smscommunicator_otp_verification_ok">OK</string>
+    <string name="smscommunicator_otp_verification_ivalid_size">NEPLATNÁ DÉLKA!</string>
+    <string name="smscommunicator_otp_verification_wrong_pin">CHYBNÝ PIN</string>
+    <string name="smscommunicator_otp_verification_wrong_otp">CHYBNÉ OTP</string>
     <string name="sms_wrong_code">Nesprávný kód. Příkaz zrušen.</string>
     <string name="sms_timeout_while_waiting">Vypršel časový limit při čekání na dokončení předchozí komunikace s pumpou</string>
     <string name="smscommunicator_allowednumbers">Povolená tel. čísla</string>
@@ -315,11 +319,14 @@
     <string name="wear_custom_watchface_authorization_summary">Autorizujte načtený vlastní ciferník, aby se změnila a uzamkla některá nastavení hodinek tak, aby vyhovovala designu ciferníku</string>
     <string name="wear_custom_watchface">Vlastní ciferník: %1$s</string>
     <string name="wear_load_watchface">Nahrát ciferník</string>
-    <string name="wear_send_watchface">Odeslat ciferník</string>
+    <string name="wear_infos_watchface">Informace o ciferníku</string>
     <string name="wear_export_watchface">Exportovat šablonu</string>
     <string name="wear_new_custom_watchface_exported">Vlastní šablona ciferníku exportována</string>
     <string name="resend_all_data">Znovu poslat všechna data</string>
     <string name="open_settings_on_wear">Otevřít nastavení na hodinkách Wear</string>
+    <string name="cwf_infos_pref_locked">Seznam preferencí uzamčený hodinkami</string>
+    <string name="cwf_infos_pref_required">Seznam preferencí požadovaných ciferníkem</string>
+    <string name="cwf_infos_view_title">Seznam polí zahrnutých do ciferníku</string>
     <!--    PersistentNotification-->
     <string name="description_persistent_notification">Zobrazení průběžného oznámení v Androidu s krátkým přehledem, co smyčka právě dělá</string>
     <string name="old_data">ZASTARALÉ</string>

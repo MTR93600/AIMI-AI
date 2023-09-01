@@ -18,6 +18,9 @@ project.afterEvaluate {
         }
 
         def excludes = [
+                '**/di/*Module.class',
+                '**/di/*Component.class',
+                '**/com/jjoe64/**/*.*',
                 '**/R.class',
                 '**/R$*.class',
                 '**/BuildConfig.*',

@@ -24,6 +24,9 @@
     <string name="smscommunicator_otp_reset_header">Atstatyti tapatybės nustatymą</string>
     <string name="smscommunicator_otp_install_info">Kiekviename telefone, palaikančiame RFC 6238 TOTP prieigos raktus, įdiekite autentifikavimo programą. Populiariausios nemokamos programos yra:\n • Authy\n • Google Authenticator\n • LastPass Authenticator\n • FreeOTP Authenticator</string>
     <string name="smscommunicator_otp_reset_warning">Jei iš naujo nustatysite autentifikavimo priemonę, visi esami autentifikatoriai taps negaliojantys. Turėsite juos vėl nustatyti!</string>
+    <string name="smscommunicator_otp_verification_ok">OK</string>
+    <string name="smscommunicator_otp_verification_wrong_pin">NETEISINGAS PIN</string>
+    <string name="smscommunicator_otp_verification_wrong_otp">NETEISINGAS OTP</string>
     <string name="sms_wrong_code">Neteisingas kodas. Komanda atšaukta.</string>
     <string name="sms_timeout_while_waiting">Baigėsi laikas kol buvo laukiama, kada baigsis ankstesnis susijungimas su pompa</string>
     <string name="smscommunicator_allowednumbers">Leidžiami telefono numeriai</string>
@@ -239,6 +242,7 @@
     <string name="short_tabtitles">Naudoti sutrumpintus skirtukų pavadinimus</string>
     <string name="overview_show_notes_field_in_dialogs_title">Rodyti pastabų laukelį terapijos dialoguose</string>
     <string name="deliverpartofboluswizard">Boluso skaičiuoklė atlieka skaičiavimus, tačiau tik dalis apskaičiuoto insulino yra suleidžiama. Naudinga kartu su SMB algoritmu.</string>
+    <string name="deliver_part_of_boluswizard_reset_time">Suleisti 100% bolusą, jei glikemijos duomenys senesni nei</string>
     <string name="enable_bolus_advisor">Įgalinti boluso patarėją</string>
     <string name="enable_bolus_advisor_summary">Galimybė priminti jums valgyti vėliau (pvz., esant aukštai glikemijai) boliuso vedlyje („po susileidimo palaukti ir valgyti vėliau“)</string>
     <string name="enablesuperbolus">Įgalinti superbolusus skaičiuoklėje</string>
@@ -249,6 +253,7 @@
     <!--    OverviewMenu-->
     <string name="overview_show_predictions">Prognozė</string>
     <string name="overview_show_treatments">Terapija</string>
+    <string name="overview_show_heartRate">Pulsas</string>
     <string name="overview_show_deviation_slope">Nuokrypiai</string>
     <string name="overview_show_activity">Aktyvumas</string>
     <string name="overview_show_bgi">KG įtaka</string>
@@ -266,6 +271,7 @@
     <string name="abs_insulin_shortname">ABS</string>
     <string name="devslope_shortname">DEVSLOPE</string>
     <string name="treatments_shortname">ĮRAŠ</string>
+    <string name="heartRate_shortname">ŠSD</string>
     <string name="sensitivity_shortname">JAUTR</string>
     <string name="graph_scale">Grafiko mastelis</string>
     <string name="graph_menu_divider_header">Grafikas</string>
@@ -307,6 +313,7 @@
     <string name="wear_notifysmb_summary">Rodyti SMB laikrodyje kaip standartinį bolusą.</string>
     <string name="wear_predictions_summary">Rodyti prognozes laikrodyje.</string>
     <string name="wear_predictions_title">Prognozė</string>
+    <string name="wear_export_watchface">Eksportuoti ruošinį</string>
     <string name="resend_all_data">Pakartotinai siųsti visus duomenis</string>
     <string name="open_settings_on_wear">Atidaryti išmaniojo laikrodžio nustatymus</string>
     <!--    PersistentNotification-->
@@ -317,6 +324,7 @@
     <string name="grams_short">g</string>
     <string name="hour_short">val</string>
     <string name="no_active_profile">Neparinktas aktyvus profilis!</string>
+    <string name="profile_message">Profilis:\n\nLaiko perstūmimas: %1$\nProcentai: %2$d%%\"</string>
     <string name="tdd_line">%1$.2fv %1$.0f%%</string>
     <string name="no_profile">Profilis neįkeltas</string>
     <string name="aps_only">Tik APS režime!</string>

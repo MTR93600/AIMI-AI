@@ -24,6 +24,10 @@
     <string name="smscommunicator_otp_reset_header">איפוס מאמתים</string>
     <string name="smscommunicator_otp_install_info">בכל אחד מהטלפונים העוקבים, התקינו יישום מאמת התומך באסימוני RFC 6238 TOTP. יישומים פופולריים בחינם הם:\n • Authy\n • Google Authenticator\n • LastPass Authenticator\n • FreeOTP Authenticator</string>
     <string name="smscommunicator_otp_reset_warning">אתחול המאמת הופך את כל המאמתים הקיימים לבלתי חוקיים. יש להגדיר אותם מחדש!</string>
+    <string name="smscommunicator_otp_verification_ok">אישור</string>
+    <string name="smscommunicator_otp_verification_ivalid_size">אורך לא תקין!</string>
+    <string name="smscommunicator_otp_verification_wrong_pin">קוד שגוי</string>
+    <string name="smscommunicator_otp_verification_wrong_otp">קוד חד פעמי שגוי</string>
     <string name="sms_wrong_code">קוד שגוי. הפקודה בוטלה.</string>
     <string name="sms_timeout_while_waiting">בהמתנה עד לסיום תקשורת קודמת עם המשאבה</string>
     <string name="smscommunicator_allowednumbers">מספרי טלפון מורשים</string>
@@ -315,11 +319,13 @@
     <string name="wear_custom_watchface_authorization_title">אישור פני שעון מותאמים אישית</string>
     <string name="wear_custom_watchface">פני שעון מותאמים אישית: %1$s</string>
     <string name="wear_load_watchface">טעינת פני שעון</string>
-    <string name="wear_send_watchface">שליחת פני שעון</string>
+    <string name="wear_infos_watchface">פני שעון מידע</string>
     <string name="wear_export_watchface">ייצוא תבנית</string>
     <string name="wear_new_custom_watchface_exported">תבנית פני השעון יוצאה</string>
     <string name="resend_all_data">שלח מחדש את כל הנתונים</string>
     <string name="open_settings_on_wear">פתיחת הגדרות Wear</string>
+    <string name="cwf_infos_pref_locked">רשימת העדפות ננעלה ע\"י פני השעון</string>
+    <string name="cwf_infos_view_title">רשימת שדות הכלולים בפני השעון</string>
     <!--    PersistentNotification-->
     <string name="description_persistent_notification">מציג הודעה קבועה עם סקירה קצרה של מה שהלולאה שלכם עושה</string>
     <string name="old_data">נתונים ישנים</string>
@@ -328,7 +334,6 @@
     <string name="grams_short">גר\'</string>
     <string name="hour_short">ש\'</string>
     <string name="no_active_profile">לא הופעלה החלפת פרופיל!</string>
-    <string name="profile_message">פרופיל:\n\nהיסט זמן: %1$\nאחוז: %2$d%\"</string>
     <string name="tdd_line">%1$.2fיח\' %1$.0f%</string>
     <string name="no_profile">לא נטען פרופיל</string>
     <string name="aps_only">חל רק במצב APS!</string>
@@ -348,5 +353,4 @@
     <string name="until">עד</string>
     <string name="default_range">טווח ברירת מחדל</string>
     <string name="target">מטרה</string>
-    <string name="rate_duration">מינון: %1$.2fיח\'\\ש\' (%2$.2f%) \nל-%3$d דק\'</string>
 </resources>

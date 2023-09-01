@@ -15,8 +15,7 @@ import info.nightscout.interfaces.plugin.PluginDescription
 import info.nightscout.interfaces.plugin.PluginType
 import info.nightscout.interfaces.receivers.Intents
 import info.nightscout.interfaces.source.BgSource
-import info.nightscout.interfaces.source.DoingOwnUploadSource
-import info.nightscout.interfaces.source.XDrip
+import info.nightscout.interfaces.source.XDripSource
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
 import info.nightscout.shared.interfaces.ResourceHelper
@@ -31,13 +30,14 @@ class XdripSourcePlugin @Inject constructor(
     aapsLogger: AAPSLogger
 ) : PluginBase(
     PluginDescription()
-    .mainType(PluginType.BGSOURCE)
-    .fragmentClass(BGSourceFragment::class.java.name)
-    .pluginIcon((info.nightscout.core.main.R.drawable.ic_blooddrop_48))
-    .pluginName(R.string.source_xdrip)
-    .description(R.string.description_source_xdrip),
+        .mainType(PluginType.BGSOURCE)
+        .fragmentClass(BGSourceFragment::class.java.name)
+        .pluginIcon((info.nightscout.core.main.R.drawable.ic_blooddrop_48))
+        .preferencesId(R.xml.pref_bgsource)
+        .pluginName(R.string.source_xdrip)
+        .description(R.string.description_source_xdrip),
     aapsLogger, rh, injector
-), BgSource, DoingOwnUploadSource, XDrip {
+), BgSource, XDripSource {
 
     private var advancedFiltering = false
     override var sensorBatteryLevel = -1
@@ -92,8 +92,10 @@ class XdripSourcePlugin @Inject constructor(
                 raw = bundle.getDouble(Intents.EXTRA_RAW, 0.0),
                 noise = null,
                 trendArrow = GlucoseValue.TrendArrow.fromString(bundle.getString(Intents.EXTRA_BG_SLOPE_NAME)),
-                sourceSensor = GlucoseValue.SourceSensor.fromString(bundle.getString(Intents.XDRIP_DATA_SOURCE_DESCRIPTION)
-                    ?: "")
+                sourceSensor = GlucoseValue.SourceSensor.fromString(
+                    bundle.getString(Intents.XDRIP_DATA_SOURCE_DESCRIPTION)
+                        ?: ""
+                )
             )
             repository.runTransactionForResult(CgmSourceTransaction(glucoseValues, emptyList(), null))
                 .doOnError {

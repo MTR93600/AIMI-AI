@@ -151,7 +151,7 @@ interface OverviewData {
     var dsMaxSeries: LineGraphSeries<ScaledDataPoint>
     var dsMinSeries: LineGraphSeries<ScaledDataPoint>
     var heartRateScale: Scale
-    var heartRateGraphSeries: LineGraphSeries<DataPointWithLabelInterface>
+    var heartRateGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface>
     var stepsForScale: Scale
     var stepsCountGraphSeries: LineGraphSeries<DataPointWithLabelInterface>
 
