@@ -137,7 +137,7 @@ class PrepareTreatmentsDataWorker(
                 .map { hr -> HeartRateDataPoint(hr, rh) }
                 .toTypedArray()).apply { color = rh.gac(null, info.nightscout.core.ui.R.attr.heartRateColor) }
 
-        data.overviewData.stepsCountGraphSeries = LineGraphSeries<DataPointWithLabelInterface>(
+        data.overviewData.stepsCountGraphSeries = PointsWithLabelGraphSeries<DataPointWithLabelInterface>(
             repository.getStepsCountFromTimeToTime(fromTime, endTime)
                 .map { steps -> StepsDataPoint(steps, rh) }
                 .toTypedArray()).apply { color = rh.gac(null, info.nightscout.core.ui.R.attr.stepsColor) }

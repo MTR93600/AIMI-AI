@@ -42,7 +42,7 @@ class XdripSourcePlugin @Inject constructor(
     private var advancedFiltering = false
     override var sensorBatteryLevel = -1
 
-    override fun shouldUploadToNs(glucoseValue: GlucoseValue): Boolean  = true
+     fun shouldUploadToNs(glucoseValue: GlucoseValue): Boolean  = true
 
     override fun advancedFilteringSupported(): Boolean = advancedFiltering
 

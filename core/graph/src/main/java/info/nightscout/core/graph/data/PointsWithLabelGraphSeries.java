@@ -252,6 +252,11 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     Rect bounds = new Rect((int) endX, (int) endY - 8, (int) (xPlusLength), (int) endY + 8);
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     canvas.drawRect(bounds, mPaint);
+                }else if (value.getShape() == Shape.STEPS) {
+                    mPaint.setStrokeWidth(0);
+                    Rect bounds = new Rect((int) endX, (int) endY - 8, (int) (xPlusLength), (int) endY + 8);
+                    mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                    canvas.drawRect(bounds, mPaint);
                 } else if (value.getShape() == Shape.PROFILE) {
                     Drawable drawable = ContextCompat.getDrawable(graphView.getContext(), R.drawable.ic_ribbon_profile);
                     assert drawable != null;
@@ -336,35 +341,24 @@ public class PointsWithLabelGraphSeries<E extends DataPointWithLabelInterface> e
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     mPaint.setStrokeWidth(0);
                     canvas.drawCircle(endX, endY, 1F, mPaint);
-                } /*else if (value.getShape() == Shape.STEPS) {
+                } else if (value.getShape() == Shape.STEPS) {
                     mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                     mPaint.setStrokeWidth(0);
                     canvas.drawCircle(endX, endY, 1F, mPaint);
-                }*/
-                else if (value.getShape() == Shape.STEPS) {
+                }
+                /*else if (value.getShape() == Shape.STEPS) {
                     if (previousX != -1 && previousY != -1) {
                         canvas.drawLine(previousX, previousY, endX, endY, mPaint);
                     }
                     previousX = endX;
                     previousY = endY;
-                }
+                }*/
                 // set values above point
             }
 
         }
 
     }
-
-    private void drawRectangle(Canvas canvas, Paint mPaint, float left, float top, float right, float bottom) {
-        mPaint.setColor(Color.RED);
-        mPaint.setStyle(Paint.Style.FILL);
-
-        canvas.drawRect(left, top, right, bottom, mPaint);
-
-        mPaint.setColor(Color.BLACK);
-    }
-
-
 
     /**
      * helper to render triangle

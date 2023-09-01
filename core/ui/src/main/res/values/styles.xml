@@ -217,8 +217,8 @@
         <item name="inRangeBackground">@color/inRangeBackground</item>
         <item name="devSlopePosColor">@color/devSlopePos</item>
         <item name="devSlopeNegColor">@color/devSlopeNeg</item>
-        <item name="heartRateColor">@color/heartRate</item>
-        <item name="stepsColor">@color/steps</item>
+        <item name="heartRateColor">@color/aaps_theme_light_error</item>
+        <item name="stepsColor">@color/blue</item>
         <item name="deviationGreyColor">@color/deviationGrey</item>
         <item name="deviationBlackColor">@color/deviationBlack</item>
         <item name="deviationGreenColor">@color/deviationGreen</item>

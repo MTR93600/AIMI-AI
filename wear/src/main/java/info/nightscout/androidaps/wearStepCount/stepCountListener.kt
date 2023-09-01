@@ -28,7 +28,7 @@ class stepCountListener(
     private val samplingIntervalMillis = 40_000L
     private val stepsMap = LinkedHashMap<Long, Int>()
     private val fiveMinutesInMs = 300000
-    private val numOf5MinBlocksToKeep = 20
+    private val numOf5MinBlocksToKeep = 40
     private var previousStepCount = -1
     private var schedule: Disposable? = null
     private var movementDetected = false

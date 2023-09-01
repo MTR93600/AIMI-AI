@@ -153,6 +153,6 @@ interface OverviewData {
     var heartRateScale: Scale
     var heartRateGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface>
     var stepsForScale: Scale
-    var stepsCountGraphSeries: LineGraphSeries<DataPointWithLabelInterface>
+    var stepsCountGraphSeries: PointsWithLabelGraphSeries<DataPointWithLabelInterface>
 
 }
