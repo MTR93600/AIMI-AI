@@ -10,12 +10,12 @@ class StepsDataPoint(
     private val rh: ResourceHelper,
 ) : DataPointWithLabelInterface {
 
-    override fun getX(): Double = (data.timestamp - 5).toDouble()
+    override fun getX(): Double = data.timestamp.toDouble()
     override fun getY(): Double = data.steps5min.toDouble()
     override fun setY(y: Double) {}
 
     override val label: String = ""
-    override val duration = data.duration
+    override val duration = 900000L
     override val shape = PointsWithLabelGraphSeries.Shape.STEPS
     override val size = 10f
     override val paintStyle: Paint.Style = Paint.Style.FILL

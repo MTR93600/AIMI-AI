@@ -272,7 +272,7 @@ class GraphData(
     fun addSteps(useForScale: Boolean, scale: Double) {
         val maxSteps = overviewData.stepsCountGraphSeries.highestValueY
         if (useForScale) {
-            minY = 0.0
+            minY = 30.0
             maxY = maxSteps
         }
         addSeries(overviewData.stepsCountGraphSeries)

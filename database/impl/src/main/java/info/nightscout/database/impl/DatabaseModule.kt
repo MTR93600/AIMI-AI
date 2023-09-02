@@ -151,10 +151,12 @@ open class DatabaseModule {
             ADD COLUMN `steps10min` INTEGER NOT NULL DEFAULT 0,
             ADD COLUMN `steps15min` INTEGER NOT NULL DEFAULT 0,
             ADD COLUMN `steps30min` INTEGER NOT NULL DEFAULT 0,
-            ADD COLUMN `steps60min` INTEGER NOT NULL DEFAULT 0""".trimIndent()
+            ADD COLUMN `steps60min` INTEGER NOT NULL DEFAULT 0,
+            ADD COLUMN `steps180min` INTEGER NOT NULL DEFAULT 0""".trimIndent()
             )
         }
     }
+
 
 
 
