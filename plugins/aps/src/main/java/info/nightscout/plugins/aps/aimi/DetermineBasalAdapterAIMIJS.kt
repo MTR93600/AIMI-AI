@@ -736,7 +736,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
 
 
 
-        var beatsPerMinuteValues: List<Int>
+        /*var beatsPerMinuteValues: List<Int>
         var beatsPerMinuteValues180: List<Int>
 
         try {
@@ -758,7 +758,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         try {
 
             val heartRates180 = repository.getHeartRatesFromTime(timeMillis180)
-            beatsPerMinuteValues180 = heartRates180.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            beatsPerMinuteValues180 = heartRates180.map { listOf(it.beatsPerMinute) } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
                 beatsPerMinuteValues180.average()
             } else {
@@ -771,7 +771,50 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             // Réaffecter les variables à leurs valeurs par défaut
             beatsPerMinuteValues180 = listOf(10)
             this.averageBeatsPerMinute180 = 10.0
-        }
+        }*/
+
+        // Initialize your lists
+        var beatsPerMinuteValues: List<Int> = listOf()
+        var beatsPerMinuteValues180: List<Int> = listOf()
+
+// Fetch data for timeMillis5
+        repository.getHeartRatesFromTime(timeMillis5)
+            .subscribe(
+                { heartRates ->
+                    beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() }
+                    this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
+                        beatsPerMinuteValues.average()
+                    } else {
+                        80.0 // or some other default value
+                    }
+                },
+                { e ->
+                    // Log that watch is not connected
+                    //println("Watch is not connected. Using default values for heart rate data.")
+                    beatsPerMinuteValues = listOf(80)
+                    this.averageBeatsPerMinute = 80.0
+                }
+            )
+
+// Fetch data for timeMillis180
+        repository.getHeartRatesFromTime(timeMillis180)
+            .subscribe(
+                { heartRates180 ->
+                    beatsPerMinuteValues180 = heartRates180.map { it.beatsPerMinute.toInt() }
+                    this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
+                        beatsPerMinuteValues180.average()
+                    } else {
+                        10.0 // or some other default value
+                    }
+                },
+                { e ->
+                    // Log that watch is not connected
+                    //println("Watch is not connected. Using default values for heart rate data.")
+                    beatsPerMinuteValues180 = listOf(10)
+                    this.averageBeatsPerMinute180 = 10.0
+                }
+            )
+
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
