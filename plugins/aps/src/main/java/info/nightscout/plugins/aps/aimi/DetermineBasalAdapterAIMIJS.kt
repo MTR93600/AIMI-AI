@@ -734,45 +734,6 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
         }
 
-
-
-        /*var beatsPerMinuteValues: List<Int>
-        var beatsPerMinuteValues180: List<Int>
-
-        try {
-            val heartRates = repository.getHeartRatesFromTime(timeMillis5)
-            beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
-            this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
-                beatsPerMinuteValues.average()
-            } else {
-                80.0 // or some other default value
-            }
-
-        } catch (e: Exception) {
-            // Log that watch is not connected
-            //println("Watch is not connected. Using default values for heart rate data.")
-            // Réaffecter les variables à leurs valeurs par défaut
-            beatsPerMinuteValues = listOf(80)
-            this.averageBeatsPerMinute = 80.0
-        }
-        try {
-
-            val heartRates180 = repository.getHeartRatesFromTime(timeMillis180)
-            beatsPerMinuteValues180 = heartRates180.map { listOf(it.beatsPerMinute) } // Extract beatsPerMinute values from heartRates
-            this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
-                beatsPerMinuteValues180.average()
-            } else {
-                10.0 // or some other default value
-            }
-
-        } catch (e: Exception) {
-            // Log that watch is not connected
-            //println("Watch is not connected. Using default values for heart rate data.")
-            // Réaffecter les variables à leurs valeurs par défaut
-            beatsPerMinuteValues180 = listOf(10)
-            this.averageBeatsPerMinute180 = 10.0
-        }*/
-
         // Initialize your lists
         var beatsPerMinuteValues: List<Int> = listOf()
         var beatsPerMinuteValues180: List<Int> = listOf()
@@ -946,7 +907,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         }
 
         var clusterinsulin = 0.0f
-        if (bg > targetBg && variableSensitivity != null && variableSensitivity.isInfinite()) {
+        if (bg > targetBg && variableSensitivity != null) {
             clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
         }
 
