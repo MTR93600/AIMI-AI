@@ -2,7 +2,7 @@ package info.nightscout.plugins.iob.iobCobCalculator
 
 import androidx.collection.LongSparseArray
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.annotations.OpenForTesting
+import info.nightscout.annotations.OpenForTesting
 import info.nightscout.core.extensions.convertedToAbsolute
 import info.nightscout.core.extensions.iobCalc
 import info.nightscout.core.extensions.toTemporaryBasal
@@ -80,7 +80,8 @@ class IobCobCalculatorPlugin @Inject constructor(
     private val dateUtil: DateUtil,
     private val repository: AppRepository,
     val overviewData: OverviewData,
-    private val calculationWorkflow: CalculationWorkflow
+    private val calculationWorkflow: CalculationWorkflow,
+    private val decimalFormatter: DecimalFormatter
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.GENERAL)
@@ -389,7 +390,7 @@ class IobCobCalculatorPlugin @Inject constructor(
         val sb = StringBuilder()
         sb.append("[")
         for (i in array) {
-            sb.append(DecimalFormatter.to2Decimal(i.iob))
+            sb.append(decimalFormatter.to2Decimal(i.iob))
             sb.append(", ")
         }
         sb.append("]")

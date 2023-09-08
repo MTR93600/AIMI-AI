@@ -2,7 +2,7 @@ package info.nightscout.plugins.profile
 
 import androidx.fragment.app.FragmentActivity
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.annotations.OpenForTesting
+import info.nightscout.annotations.OpenForTesting
 import info.nightscout.core.extensions.blockFromJsonArray
 import info.nightscout.core.extensions.pureProfileFromJson
 import info.nightscout.core.profile.ProfileSealed
@@ -31,6 +31,7 @@ import info.nightscout.rx.events.EventLocalProfileChanged
 import info.nightscout.rx.events.EventProfileStoreChanged
 import info.nightscout.rx.logging.AAPSLogger
 import info.nightscout.rx.logging.LTag
+import info.nightscout.shared.interfaces.ProfileUtil
 import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.sharedPreferences.SP
 import info.nightscout.shared.utils.DateUtil
@@ -50,11 +51,13 @@ class ProfilePlugin @Inject constructor(
     rh: ResourceHelper,
     private val sp: SP,
     private val profileFunction: ProfileFunction,
+    private val profileUtil: ProfileUtil,
     private val activePlugin: ActivePlugin,
     private val hardLimits: HardLimits,
     private val dateUtil: DateUtil,
     private val config: Config,
-    private val instantiator: Instantiator
+    private val instantiator: Instantiator,
+    private val decimalFormatter: DecimalFormatter
 ) : PluginBase(
     PluginDescription()
         .mainType(PluginType.PROFILE)
@@ -121,7 +124,7 @@ class ProfilePlugin @Inject constructor(
                     return false
                 }
             } else {
-                if (blockFromJsonArray(isf, dateUtil)?.all { hardLimits.isInRange(Profile.toMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.MIN_ISF, HardLimits.MAX_ISF) } == false) {
+                if (blockFromJsonArray(isf, dateUtil)?.all { hardLimits.isInRange(profileUtil.convertToMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.MIN_ISF, HardLimits.MAX_ISF) } == false) {
                     ToastUtils.errorToast(activity, rh.gs(R.string.error_in_isf_values))
                     return false
                 }
@@ -129,11 +132,11 @@ class ProfilePlugin @Inject constructor(
                     ToastUtils.errorToast(activity, rh.gs(R.string.error_in_basal_values))
                     return false
                 }
-                if (low?.all { hardLimits.isInRange(Profile.toMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.VERY_HARD_LIMIT_MIN_BG[0], HardLimits.VERY_HARD_LIMIT_MIN_BG[1]) } == false) {
+                if (low?.all { hardLimits.isInRange(profileUtil.convertToMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.VERY_HARD_LIMIT_MIN_BG[0], HardLimits.VERY_HARD_LIMIT_MIN_BG[1]) } == false) {
                     ToastUtils.errorToast(activity, rh.gs(R.string.error_in_target_values))
                     return false
                 }
-                if (high?.all { hardLimits.isInRange(Profile.toMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.VERY_HARD_LIMIT_MAX_BG[0], HardLimits.VERY_HARD_LIMIT_MAX_BG[1]) } == false) {
+                if (high?.all { hardLimits.isInRange(profileUtil.convertToMgdl(it.amount, GlucoseUnit.MMOL), HardLimits.VERY_HARD_LIMIT_MAX_BG[0], HardLimits.VERY_HARD_LIMIT_MAX_BG[1]) } == false) {
                     ToastUtils.errorToast(activity, rh.gs(R.string.error_in_target_values))
                     return false
                 }
@@ -171,15 +174,15 @@ class ProfilePlugin @Inject constructor(
     override fun storeSettings(activity: FragmentActivity?, timestamp: Long) {
         for (i in 0 until numOfProfiles) {
             profiles[i].run {
-                    val localProfileNumbered = Constants.LOCAL_PROFILE + "_" + i + "_"
-                    sp.putString(localProfileNumbered + "name", name)
-                    sp.putBoolean(localProfileNumbered + "mgdl", mgdl)
-                    sp.putDouble(localProfileNumbered + "dia", dia)
-                    sp.putString(localProfileNumbered + "ic", ic.toString())
-                    sp.putString(localProfileNumbered + "isf", isf.toString())
-                    sp.putString(localProfileNumbered + "basal", basal.toString())
-                    sp.putString(localProfileNumbered + "targetlow", targetLow.toString())
-                    sp.putString(localProfileNumbered + "targethigh", targetHigh.toString())
+                val localProfileNumbered = Constants.LOCAL_PROFILE + "_" + i + "_"
+                sp.putString(localProfileNumbered + "name", name)
+                sp.putBoolean(localProfileNumbered + "mgdl", mgdl)
+                sp.putDouble(localProfileNumbered + "dia", dia)
+                sp.putString(localProfileNumbered + "ic", ic.toString())
+                sp.putString(localProfileNumbered + "isf", isf.toString())
+                sp.putString(localProfileNumbered + "basal", basal.toString())
+                sp.putString(localProfileNumbered + "targetlow", targetLow.toString())
+                sp.putString(localProfileNumbered + "targethigh", targetHigh.toString())
             }
         }
         sp.putInt(Constants.LOCAL_PROFILE + "_profiles", numOfProfiles)
@@ -420,6 +423,6 @@ class ProfilePlugin @Inject constructor(
 
     override val profileName: String
         get() = rawProfile?.getDefaultProfile()?.let {
-            DecimalFormatter.to2Decimal(ProfileSealed.Pure(it).percentageBasalSum()) + "U "
+            decimalFormatter.to2Decimal(ProfileSealed.Pure(it).percentageBasalSum()) + "U "
         } ?: "INVALID"
 }

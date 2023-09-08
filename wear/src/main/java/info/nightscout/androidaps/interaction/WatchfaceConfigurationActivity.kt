@@ -23,7 +23,8 @@ class WatchfaceConfigurationActivity : WearPreferenceActivity(), SharedPreferenc
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        addPreferencesFromResource(R.xml.preferences)
+        val preferenceFile = intent.getIntExtra(getString(R.string.key_preference_id), R.xml.display_preferences)
+        addPreferencesFromResource(preferenceFile)
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this)
         val view = window.decorView as ViewGroup
         removeBackgroundRecursively(view)

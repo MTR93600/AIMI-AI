@@ -2,6 +2,7 @@ package info.nightscout.rx.weardata
 
 import android.content.res.Resources
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
@@ -21,7 +22,7 @@ import java.util.zip.ZipOutputStream
 
 val CUSTOM_VERSION = "1.0"
 
-enum class CwfDrawableFileMap(val fileName: String) {
+enum class ResFileMap(val fileName: String) {
     UNKNOWN("Unknown"),
     CUSTOM_WATCHFACE("CustomWatchface"),
     BACKGROUND("Background"),
@@ -49,40 +50,45 @@ enum class CwfDrawableFileMap(val fileName: String) {
     ARROW_FLAT("ArrowFlat"),
     ARROW_FORTY_FIVE_DOWN("Arrow45Down"),
     ARROW_SINGLE_DOWN("ArrowSingleDown"),
-    ARROW_DOUBLE_DOWN("ArrowDoubleDown");
+    ARROW_DOUBLE_DOWN("ArrowDoubleDown"),
+    FONT1("Font1"),
+    FONT2("Font2"),
+    FONT3("Font3"),
+    FONT4("Font4");
 
     companion object {
 
-        fun fromFileName(file: String): CwfDrawableFileMap = values().firstOrNull { it.fileName == file.substringBeforeLast(".") } ?: UNKNOWN
+        fun fromFileName(file: String): ResFileMap = values().firstOrNull { it.fileName == file.substringBeforeLast(".") } ?: UNKNOWN
     }
 }
 
-enum class DrawableFormat(val extension: String) {
+enum class ResFormat(val extension: String) {
     UNKNOWN(""),
     SVG("svg"),
     JPG("jpg"),
-    PNG("png");
+    PNG("png"),
+    TTF("ttf");
 
     companion object {
 
-        fun fromFileName(fileName: String): DrawableFormat =
-            values().firstOrNull { it.extension == fileName.substringAfterLast(".") } ?: UNKNOWN
+        fun fromFileName(fileName: String): ResFormat =
+            values().firstOrNull { it.extension == fileName.substringAfterLast(".").lowercase() } ?: UNKNOWN
 
     }
 }
 
 @Serializable
-data class DrawableData(val value: ByteArray, val format: DrawableFormat) {
+data class ResData(val value: ByteArray, val format: ResFormat) {
 
     fun toDrawable(resources: Resources): Drawable? {
         try {
             return when (format) {
-                DrawableFormat.PNG, DrawableFormat.JPG -> {
+                ResFormat.PNG, ResFormat.JPG -> {
                     val bitmap = BitmapFactory.decodeByteArray(value, 0, value.size)
                     BitmapDrawable(resources, bitmap)
                 }
 
-                DrawableFormat.SVG                     -> {
+                ResFormat.SVG                -> {
                     val svg = SVG.getFromInputStream(ByteArrayInputStream(value))
                     val picture = svg.renderToPicture()
                     PictureDrawable(picture).apply {
@@ -90,7 +96,37 @@ data class DrawableData(val value: ByteArray, val format: DrawableFormat) {
                     }
                 }
 
-                else                                   -> null
+                else                         -> null
+            }
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
+    fun toTypeface(): Typeface? {
+        try {
+            return when (format) {
+                ResFormat.TTF -> {
+                    // Workaround with temporary File, Typeface.createFromFileDescriptor(null, value, 0, value.size) more simple not available
+                    File.createTempFile("temp", ".ttf").let { tempFile ->
+                        FileOutputStream(tempFile).let { fileOutputStream ->
+                            fileOutputStream.write(value)
+                            fileOutputStream.close()
+                        }
+
+                        Typeface.createFromFile(tempFile).let {
+                            if (!tempFile.delete()) {
+                                // delete tempfile after usage
+                            }
+                            it
+                        }
+                    }
+                }
+
+                else          -> {
+                    null
+
+                }
             }
         } catch (e: Exception) {
             return null
@@ -98,11 +134,11 @@ data class DrawableData(val value: ByteArray, val format: DrawableFormat) {
     }
 }
 
-typealias CwfDrawableDataMap = MutableMap<CwfDrawableFileMap, DrawableData>
+typealias CwfResDataMap = MutableMap<ResFileMap, ResData>
 typealias CwfMetadataMap = MutableMap<CwfMetadataKey, String>
 
 @Serializable
-data class CwfData(val json: String, var metadata: CwfMetadataMap, val drawableDatas: CwfDrawableDataMap)
+data class CwfData(val json: String, var metadata: CwfMetadataMap, val resDatas: CwfResDataMap)
 
 enum class CwfMetadataKey(val key: String, @StringRes val label: Int, val isPref: Boolean) {
 
@@ -112,7 +148,7 @@ enum class CwfMetadataKey(val key: String, @StringRes val label: Int, val isPref
     CWF_CREATED_AT("created_at", R.string.metadata_label_watchface_created_at, false),
     CWF_VERSION("cwf_version", R.string.metadata_label_plugin_version, false),
     CWF_AUTHOR_VERSION("author_version", R.string.metadata_label_watchface_name_version, false),
-    CWF_COMMENT("comment", R.string.metadata_label_watchface_comment, false), // label not planed to be used for CWF_COMMENT
+    CWF_COMMENT("comment", R.string.metadata_label_watchface_infos, false),
     CWF_AUTHORIZATION("cwf_authorization", R.string.metadata_label_watchface_authorization, false),
     CWF_PREF_WATCH_SHOW_DETAILED_IOB("key_show_detailed_iob", R.string.pref_show_detailed_iob, true),
     CWF_PREF_WATCH_SHOW_DETAILED_DELTA("key_show_detailed_delta", R.string.pref_show_detailed_delta, true),
@@ -224,7 +260,10 @@ enum class JsonKeyValues(val key: String, val jsonKey: JsonKeys) {
     BOLD_ITALIC("bold_italic", JsonKeys.FONTSTYLE),
     ITALIC("italic", JsonKeys.FONTSTYLE),
     BGCOLOR("bgColor", JsonKeys.COLOR),
-    BGCOLOR1("bgColor", JsonKeys.FONTCOLOR)
+    FONT1("font1", JsonKeys.FONTCOLOR),
+    FONT2("font2", JsonKeys.FONTCOLOR),
+    FONT3("font3", JsonKeys.FONTCOLOR),
+    FONT4("font4", JsonKeys.FONTCOLOR)
 }
 
 enum class ViewType(@StringRes val comment: Int?) {
@@ -243,7 +282,7 @@ class ZipWatchfaceFormat {
         fun loadCustomWatchface(cwfFile: File, authorization: Boolean): CwfData? {
             var json = JSONObject()
             var metadata: CwfMetadataMap = mutableMapOf()
-            val drawableDatas: CwfDrawableDataMap = mutableMapOf()
+            val resDatas: CwfResDataMap = mutableMapOf()
 
             try {
                 val zipInputStream = ZipInputStream(cwfFile.inputStream())
@@ -267,18 +306,18 @@ class ZipWatchfaceFormat {
                         metadata[CwfMetadataKey.CWF_FILENAME] = cwfFile.name
                         metadata[CwfMetadataKey.CWF_AUTHORIZATION] = authorization.toString()
                     } else {
-                        val cwfDrawableFileMap = CwfDrawableFileMap.fromFileName(entryName)
-                        val drawableFormat = DrawableFormat.fromFileName(entryName)
-                        if (cwfDrawableFileMap != CwfDrawableFileMap.UNKNOWN && drawableFormat != DrawableFormat.UNKNOWN) {
-                            drawableDatas[cwfDrawableFileMap] = DrawableData(byteArrayOutputStream.toByteArray(), drawableFormat)
+                        val cwfResFileMap = ResFileMap.fromFileName(entryName)
+                        val drawableFormat = ResFormat.fromFileName(entryName)
+                        if (cwfResFileMap != ResFileMap.UNKNOWN && drawableFormat != ResFormat.UNKNOWN) {
+                            resDatas[cwfResFileMap] = ResData(byteArrayOutputStream.toByteArray(), drawableFormat)
                         }
                     }
                     zipEntry = zipInputStream.nextEntry
                 }
 
                 // Valid CWF file must contains a valid json file with a name within metadata and a custom watchface image
-                return if (metadata.containsKey(CwfMetadataKey.CWF_NAME) && drawableDatas.containsKey(CwfDrawableFileMap.CUSTOM_WATCHFACE))
-                    CwfData(json.toString(4), metadata, drawableDatas)
+                return if (metadata.containsKey(CwfMetadataKey.CWF_NAME) && resDatas.containsKey(ResFileMap.CUSTOM_WATCHFACE))
+                    CwfData(json.toString(4), metadata, resDatas)
                 else
                     null
 
@@ -292,18 +331,16 @@ class ZipWatchfaceFormat {
             try {
                 val outputStream = FileOutputStream(file)
                 val zipOutputStream = ZipOutputStream(BufferedOutputStream(outputStream))
-
-                // Ajouter le fichier JSON au ZIP
+                
                 val jsonEntry = ZipEntry(CWF_JSON_FILE)
                 zipOutputStream.putNextEntry(jsonEntry)
                 zipOutputStream.write(customWatchface.json.toByteArray())
                 zipOutputStream.closeEntry()
 
-                // Ajouter les fichiers divers au ZIP
-                for (drawableData in customWatchface.drawableDatas) {
-                    val fileEntry = ZipEntry("${drawableData.key.fileName}.${drawableData.value.format.extension}")
+                for (resData in customWatchface.resDatas) {
+                    val fileEntry = ZipEntry("${resData.key.fileName}.${resData.value.format.extension}")
                     zipOutputStream.putNextEntry(fileEntry)
-                    zipOutputStream.write(drawableData.value.value)
+                    zipOutputStream.write(resData.value.value)
                     zipOutputStream.closeEntry()
                 }
                 zipOutputStream.close()

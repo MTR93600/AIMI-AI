@@ -15,6 +15,7 @@ import dagger.android.HasAndroidInjector
 import info.nightscout.core.ui.dialogs.OKDialog
 import info.nightscout.core.ui.toast.ToastUtils
 import info.nightscout.core.utils.fabric.FabricPrivacy
+import info.nightscout.core.validators.ValidatingEditTextPreference
 import info.nightscout.interfaces.constraints.Constraint
 import info.nightscout.interfaces.constraints.Constraints
 import info.nightscout.interfaces.notifications.Notification
@@ -40,8 +41,8 @@ import info.nightscout.interfaces.ui.UiInteraction
 import info.nightscout.interfaces.utils.DecimalFormatter
 import info.nightscout.interfaces.utils.TimeChangeType
 import info.nightscout.pump.medtrum.comm.enums.MedtrumPumpState
-import info.nightscout.pump.medtrum.ui.MedtrumOverviewFragment
 import info.nightscout.pump.medtrum.services.MedtrumService
+import info.nightscout.pump.medtrum.ui.MedtrumOverviewFragment
 import info.nightscout.pump.medtrum.util.MedtrumSnUtil
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
@@ -75,7 +76,8 @@ import kotlin.math.abs
     private val medtrumPump: MedtrumPump,
     private val uiInteraction: UiInteraction,
     private val pumpSync: PumpSync,
-    private val temporaryBasalStorage: TemporaryBasalStorage
+    private val temporaryBasalStorage: TemporaryBasalStorage,
+    private val decimalFormatter: DecimalFormatter
 ) : PumpPluginBase(
     PluginDescription()
         .mainType(PluginType.PUMP)
@@ -127,33 +129,41 @@ import kotlin.math.abs
 
     override fun preprocessPreferences(preferenceFragment: PreferenceFragmentCompat) {
         super.preprocessPreferences(preferenceFragment)
+
+        preprocessSerialSettings(preferenceFragment)
+        preprocessAlarmSettings(preferenceFragment)
+        preprocessMaxInsulinSettings(preferenceFragment)
+    }
+
+    private fun preprocessSerialSettings(preferenceFragment: PreferenceFragmentCompat) {
         val serialSetting = preferenceFragment.findPreference<EditTextPreference>(rh.gs(R.string.key_sn_input))
-        serialSetting?.isEnabled = !isInitialized()
-        serialSetting?.setOnBindEditTextListener { editText ->
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(newValue: Editable?) {
-                    val newSN = newValue.toString().toLongOrNull(radix = 16)
-                    val newDeviceType = MedtrumSnUtil().getDeviceTypeFromSerial(newSN ?: 0)
-                    if (newDeviceType == MedtrumSnUtil.INVALID) {
-                        editText.error = rh.gs(R.string.sn_input_invalid)
-                    } else {
-                        editText.error = null
+        serialSetting?.apply {
+            isEnabled = !isInitialized()
+            setOnBindEditTextListener { editText ->
+                editText.addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(newValue: Editable?) {
+                        val newSN = newValue?.toString()?.toLongOrNull(radix = 16) ?: 0
+                        val newDeviceType = MedtrumSnUtil().getDeviceTypeFromSerial(newSN)
+                        editText.error = if (newDeviceType == MedtrumSnUtil.INVALID) {
+                            rh.gs(R.string.sn_input_invalid)
+                        } else {
+                            null
+                        }
                     }
-                }
 
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    // Nothing to do here
-                }
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                        // Nothing to do here
+                    }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    // Nothing to do here
-                }
-            })
-        }
-        serialSetting?.setOnPreferenceChangeListener { _, newValue ->
-            if (newValue is String) {
-                val newSN = newValue.toLongOrNull(radix = 16)
-                val newDeviceType = MedtrumSnUtil().getDeviceTypeFromSerial(newSN ?: 0)
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        // Nothing to do here
+                    }
+                })
+            }
+            setOnPreferenceChangeListener { _, newValue ->
+                val newSN = (newValue as? String)?.toLongOrNull(radix = 16) ?: 0
+                val newDeviceType = MedtrumSnUtil().getDeviceTypeFromSerial(newSN)
+
                 when {
                     newDeviceType == MedtrumSnUtil.INVALID                           -> {
                         preferenceFragment.activity?.let { activity ->
@@ -171,30 +181,61 @@ import kotlin.math.abs
 
                     else                                                             -> true
                 }
-            } else {
-                false
             }
         }
+    }
 
+    private fun preprocessAlarmSettings(preferenceFragment: PreferenceFragmentCompat) {
         val alarmSetting = preferenceFragment.findPreference<ListPreference>(rh.gs(R.string.key_alarm_setting))
         val allAlarmEntries = preferenceFragment.resources.getStringArray(R.array.alarmSettings)
         val allAlarmValues = preferenceFragment.resources.getStringArray(R.array.alarmSettingsValues)
 
         if (allAlarmEntries.size < 8 || allAlarmValues.size < 8) {
             aapsLogger.error(LTag.PUMP, "Alarm settings array is not complete")
-            return
+        } else {
+            when (medtrumPump.pumpType()) {
+                PumpType.MEDTRUM_NANO, PumpType.MEDTRUM_300U -> {
+                    alarmSetting?.apply {
+                        entries = arrayOf(allAlarmEntries[6], allAlarmEntries[7]) // "Beep", "Silent"
+                        entryValues = arrayOf(allAlarmValues[6], allAlarmValues[7]) // "6", "7"
+                    }
+                }
+
+                else                                         -> {
+                    // Use default
+                }
+            }
+        }
+    }
+
+    private fun preprocessMaxInsulinSettings(preferenceFragment: PreferenceFragmentCompat) {
+        val hourlyMaxSetting = preferenceFragment.findPreference<ValidatingEditTextPreference>(rh.gs(R.string.key_hourly_max_insulin))
+        val dailyMaxSetting = preferenceFragment.findPreference<ValidatingEditTextPreference>(rh.gs(R.string.key_daily_max_insulin))
+
+        val hourlyMaxValue = hourlyMaxSetting?.text?.toIntOrNull() ?: 0
+        val newDailyMaxMinValue = if (hourlyMaxValue > 20) hourlyMaxValue else 20
+        dailyMaxSetting?.setMinNumber(newDailyMaxMinValue)
+
+        val pumpTypeSettings = when (medtrumPump.pumpType()) {
+            PumpType.MEDTRUM_NANO -> Pair(40, 180) // maxHourlyMax, maxDailyMax
+            PumpType.MEDTRUM_300U -> Pair(60, 270)
+            else                  -> Pair(40, 180)
         }
 
-        when (medtrumPump.pumpType()) {
-            PumpType.MEDTRUM_NANO -> {
-                alarmSetting?.entries = arrayOf(allAlarmEntries[6], allAlarmEntries[7]) // "Beep", "Silent"
-                alarmSetting?.entryValues = arrayOf(allAlarmValues[6], allAlarmValues[7]) // "6", "7"
+        hourlyMaxSetting?.apply {
+            setMaxNumber(pumpTypeSettings.first)
+            val hourlyCurrentValue = text?.toIntOrNull() ?: 0
+            if (hourlyCurrentValue > pumpTypeSettings.first) {
+                text = pumpTypeSettings.first.toString()
             }
+        }
 
-            else                  -> {
-                // Use Nano settings for unknown pumps
-                alarmSetting?.entries = arrayOf(allAlarmEntries[6], allAlarmEntries[7]) // "Beep", "Silent"
-                alarmSetting?.entryValues = arrayOf(allAlarmValues[6], allAlarmValues[7]) // "6", "7"
+        dailyMaxSetting?.apply {
+            setMaxNumber(pumpTypeSettings.second)
+            val dailyCurrentValue = text?.toIntOrNull() ?: 0
+            when {
+                dailyCurrentValue < newDailyMaxMinValue     -> text = newDailyMaxMinValue.toString()
+                dailyCurrentValue > pumpTypeSettings.second -> text = pumpTypeSettings.second.toString()
             }
         }
     }
@@ -220,6 +261,7 @@ import kotlin.math.abs
     override fun isHandshakeInProgress(): Boolean = false
 
     override fun finishHandshaking() {
+        // Unused
     }
 
     override fun connect(reason: String) {
@@ -417,6 +459,7 @@ import kotlin.math.abs
             try {
                 extended.put("ActiveProfile", profileName)
             } catch (ignored: Exception) {
+                // Ignore
             }
             pumpJson.put("status", status)
             pumpJson.put("extended", extended)
@@ -452,12 +495,12 @@ import kotlin.math.abs
             ret += "LastConn: $agoMin minAgo\n"
         }
         if (medtrumPump.lastBolusTime != 0L)
-            ret += "LastBolus: ${DecimalFormatter.to2Decimal(medtrumPump.lastBolusAmount)}U @${DateFormat.format("HH:mm", medtrumPump.lastBolusTime)}\n"
+            ret += "LastBolus: ${decimalFormatter.to2Decimal(medtrumPump.lastBolusAmount)}U @${DateFormat.format("HH:mm", medtrumPump.lastBolusTime)}\n"
 
         if (medtrumPump.tempBasalInProgress)
             ret += "Temp: ${medtrumPump.temporaryBasalToString()}\n"
 
-        ret += "Res: ${DecimalFormatter.to0Decimal(medtrumPump.reservoir)}U\n"
+        ret += "Res: ${decimalFormatter.to0Decimal(medtrumPump.reservoir)}U\n"
         return ret
     }
 
@@ -472,6 +515,7 @@ import kotlin.math.abs
     }
 
     override fun executeCustomAction(customActionType: CustomActionType) {
+        // Unused
     }
 
     override fun executeCustomCommand(customCommand: CustomCommand): PumpEnactResult? {

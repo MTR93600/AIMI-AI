@@ -8,7 +8,7 @@ import android.os.SystemClock
 import android.text.Spanned
 import androidx.appcompat.app.AppCompatActivity
 import dagger.android.HasAndroidInjector
-import info.nightscout.androidaps.annotations.OpenForTesting
+import info.nightscout.annotations.OpenForTesting
 import info.nightscout.core.events.EventNewNotification
 import info.nightscout.core.extensions.getCustomizedName
 import info.nightscout.core.profile.ProfileSealed
@@ -57,6 +57,7 @@ import info.nightscout.interfaces.queue.Command.CommandType
 import info.nightscout.interfaces.queue.CommandQueue
 import info.nightscout.interfaces.queue.CustomCommand
 import info.nightscout.interfaces.ui.UiInteraction
+import info.nightscout.interfaces.utils.DecimalFormatter
 import info.nightscout.interfaces.utils.HtmlHelper
 import info.nightscout.rx.AapsSchedulers
 import info.nightscout.rx.bus.RxBus
@@ -95,7 +96,8 @@ class CommandQueueImplementation @Inject constructor(
     private val fabricPrivacy: FabricPrivacy,
     private val androidPermission: AndroidPermission,
     private val uiInteraction: UiInteraction,
-    private val persistenceLayer: PersistenceLayer
+    private val persistenceLayer: PersistenceLayer,
+    private val decimalFormatter: DecimalFormatter
 ) : CommandQueue {
 
     private val disposable = CompositeDisposable()
@@ -132,7 +134,7 @@ class CommandQueueImplementation @Inject constructor(
                                                targetBlocks = nonCustomized.targetBlocks,
                                                glucoseUnit = if (it.glucoseUnit == ProfileSwitch.GlucoseUnit.MGDL) EffectiveProfileSwitch.GlucoseUnit.MGDL else EffectiveProfileSwitch.GlucoseUnit.MMOL,
                                                originalProfileName = it.profileName,
-                                               originalCustomizedName = it.getCustomizedName(),
+                                               originalCustomizedName = it.getCustomizedName(decimalFormatter),
                                                originalTimeshift = it.timeshift,
                                                originalPercentage = it.percentage,
                                                originalDuration = it.duration,
@@ -234,7 +236,7 @@ class CommandQueueImplementation @Inject constructor(
         val tempCommandQueue = CommandQueueImplementation(
             injector, aapsLogger, rxBus, aapsSchedulers, rh,
             constraintChecker, profileFunction, activePlugin, context, sp,
-            config, dateUtil, repository, fabricPrivacy, androidPermission, uiInteraction, persistenceLayer
+            config, dateUtil, repository, fabricPrivacy, androidPermission, uiInteraction, persistenceLayer, decimalFormatter
         )
         tempCommandQueue.readStatus(reason, callback)
         tempCommandQueue.disposable.clear()
@@ -319,7 +321,14 @@ class CommandQueueImplementation @Inject constructor(
                 // not when the Bolus command is starting. The command closes the dialog upon completion).
                 showBolusProgressDialog(detailedBolusInfo)
                 // Notify Wear about upcoming bolus
-                rxBus.send(EventMobileToWear(info.nightscout.rx.weardata.EventData.BolusProgress(percent = 0, status = rh.gs(info.nightscout.core.ui.R.string.goingtodeliver, detailedBolusInfo.insulin))))
+                rxBus.send(
+                    EventMobileToWear(
+                        info.nightscout.rx.weardata.EventData.BolusProgress(
+                            percent = 0,
+                            status = rh.gs(info.nightscout.core.ui.R.string.goingtodeliver, detailedBolusInfo.insulin)
+                        )
+                    )
+                )
             }
         }
         notifyAboutNewCommand()
@@ -609,10 +618,7 @@ class CommandQueueImplementation @Inject constructor(
 
     override fun isCustomCommandRunning(customCommandType: Class<out CustomCommand>): Boolean {
         val performing = this.performing
-        if (performing is CommandCustomCommand && customCommandType.isInstance(performing.customCommand)) {
-            return true
-        }
-        return false
+        return performing is CommandCustomCommand && customCommandType.isInstance(performing.customCommand)
     }
 
     @Synchronized

@@ -35,12 +35,12 @@ import info.nightscout.androidaps.watchfaces.utils.BaseWatchFace
 import info.nightscout.rx.logging.LTag
 import info.nightscout.rx.weardata.CUSTOM_VERSION
 import info.nightscout.rx.weardata.CwfData
-import info.nightscout.rx.weardata.CwfDrawableFileMap
-import info.nightscout.rx.weardata.CwfDrawableDataMap
+import info.nightscout.rx.weardata.ResFileMap
+import info.nightscout.rx.weardata.CwfResDataMap
 import info.nightscout.rx.weardata.CwfMetadataKey
 import info.nightscout.rx.weardata.CwfMetadataMap
-import info.nightscout.rx.weardata.DrawableData
-import info.nightscout.rx.weardata.DrawableFormat
+import info.nightscout.rx.weardata.ResData
+import info.nightscout.rx.weardata.ResFormat
 import info.nightscout.rx.weardata.EventData
 import info.nightscout.rx.weardata.JsonKeyValues
 import info.nightscout.rx.weardata.JsonKeys.*
@@ -63,11 +63,11 @@ class CustomWatchface : BaseWatchFace() {
     private val TEMPLATE_RESOLUTION = 400
     private var lowBatColor = Color.RED
     private var bgColor = Color.WHITE
-    private var drawableDataMap: CwfDrawableDataMap = mutableMapOf()
+    private var resDataMap: CwfResDataMap = mutableMapOf()
 
     override fun onCreate() {
         super.onCreate()
-        FontMap.init(context)
+        FontMap.init(context, resDataMap)
     }
 
     @Suppress("DEPRECATION")
@@ -91,7 +91,7 @@ class CustomWatchface : BaseWatchFace() {
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun setDataFields() {
         super.setDataFields()
-        binding.direction2.setImageDrawable(TrendArrowMap.drawable(singleBg.slopeArrow, resources, drawableDataMap))
+        binding.direction2.setImageDrawable(TrendArrowMap.drawable(singleBg.slopeArrow, resources, resDataMap))
         // rotate the second hand.
         binding.secondHand.rotation = TimeOfDay().secondOfMinute * 6f
         // rotate the minute hand.
@@ -148,7 +148,8 @@ class CustomWatchface : BaseWatchFace() {
             updatePref(it.customWatchfaceData.metadata)
             try {
                 val json = JSONObject(it.customWatchfaceData.json)
-                drawableDataMap = it.customWatchfaceData.drawableDatas
+                resDataMap = it.customWatchfaceData.resDatas
+                FontMap.init(context, resDataMap)
                 enableSecond = json.optBoolean(ENABLESECOND.key) && sp.getBoolean(R.string.key_show_seconds, true)
                 highColor = getColor(json.optString(HIGHCOLOR.key), ContextCompat.getColor(this, R.color.dark_highColor))
                 midColor = getColor(json.optString(MIDCOLOR.key), ContextCompat.getColor(this, R.color.inrange))
@@ -163,6 +164,8 @@ class CustomWatchface : BaseWatchFace() {
                     .takeIf { it.matches(Regex("E{1,4}")) } ?: "E"
                 monthFormat = json.optString(MONTHFORMAT.key, "MMM")
                     .takeIf { it.matches(Regex("M{1,4}")) } ?: "MMM"
+                binding.dayName.text = dateUtil.dayNameString(dayNameFormat) // Update daynName and month according to format on cwf loading
+                binding.month.text = dateUtil.monthString(monthFormat)
                 bgColor = when (singleBg.sgvLevel) {
                     1L   -> highColor
                     0L   -> midColor
@@ -197,7 +200,7 @@ class CustomWatchface : BaseWatchFace() {
 
                                 is ImageView -> {
                                     view.clearColorFilter()
-                                    id.drawable(resources, drawableDataMap, singleBg.sgvLevel)?.let {
+                                    id.drawable(resources, resDataMap, singleBg.sgvLevel)?.let {
                                         if (viewJson.has(COLOR.key))        // Note only works on bitmap (png or jpg) or xml included into res, not for svg files
                                             it.colorFilter = changeDrawableColor(getColor(viewJson.optString(COLOR.key)))
                                         else
@@ -296,9 +299,9 @@ class CustomWatchface : BaseWatchFace() {
             }
         }
         val metadataMap = ZipWatchfaceFormat.loadMetadata(json)
-        val drawableDataMap: CwfDrawableDataMap = mutableMapOf()
+        val drawableDataMap: CwfResDataMap = mutableMapOf()
         getResourceByteArray(info.nightscout.shared.R.drawable.watchface_custom)?.let {
-            drawableDataMap[CwfDrawableFileMap.CUSTOM_WATCHFACE] = DrawableData(it, DrawableFormat.PNG)
+            drawableDataMap[ResFileMap.CUSTOM_WATCHFACE] = ResData(it, ResFormat.PNG)
         }
         return EventData.ActionSetCustomWatchface(CwfData(json.toString(4), metadataMap, drawableDataMap))
     }
@@ -389,9 +392,9 @@ class CustomWatchface : BaseWatchFace() {
         @IdRes val id: Int,
         @StringRes val pref: Int?,
         @IdRes val defaultDrawable: Int?,
-        val customDrawable: CwfDrawableFileMap?,
-        val customHigh:CwfDrawableFileMap?,
-        val customLow: CwfDrawableFileMap?
+        val customDrawable: ResFileMap?,
+        val customHigh:ResFileMap?,
+        val customLow: ResFileMap?
     ) {
 
         BACKGROUND(
@@ -399,9 +402,9 @@ class CustomWatchface : BaseWatchFace() {
             R.id.background,
             null,
             info.nightscout.shared.R.drawable.background,
-            CwfDrawableFileMap.BACKGROUND,
-            CwfDrawableFileMap.BACKGROUND_HIGH,
-            CwfDrawableFileMap.BACKGROUND_LOW
+            ResFileMap.BACKGROUND,
+            ResFileMap.BACKGROUND_HIGH,
+            ResFileMap.BACKGROUND_LOW
         ),
         CHART(ViewKeys.CHART.key, R.id.chart, null, null, null, null, null),
         COVER_CHART(
@@ -409,9 +412,9 @@ class CustomWatchface : BaseWatchFace() {
             R.id.cover_chart,
             null,
             null,
-            CwfDrawableFileMap.COVER_CHART,
-            CwfDrawableFileMap.COVER_CHART_HIGH,
-            CwfDrawableFileMap.COVER_CHART_LOW
+            ResFileMap.COVER_CHART,
+            ResFileMap.COVER_CHART_HIGH,
+            ResFileMap.COVER_CHART_LOW
         ),
         FREETEXT1(ViewKeys.FREETEXT1.key, R.id.freetext1, null, null, null, null, null),
         FREETEXT2(ViewKeys.FREETEXT2.key, R.id.freetext2, null, null, null, null, null),
@@ -443,37 +446,37 @@ class CustomWatchface : BaseWatchFace() {
             ViewKeys.COVER_PLATE.key,
             R.id.cover_plate,
             null,
-            null,
-            CwfDrawableFileMap.COVER_PLATE,
-            CwfDrawableFileMap.COVER_PLATE_HIGH,
-            CwfDrawableFileMap.COVER_PLATE_LOW
+            info.nightscout.shared.R.drawable.simplified_dial,
+            ResFileMap.COVER_PLATE,
+            ResFileMap.COVER_PLATE_HIGH,
+            ResFileMap.COVER_PLATE_LOW
         ),
         HOUR_HAND(
             ViewKeys.HOUR_HAND.key,
             R.id.hour_hand,
             null,
             info.nightscout.shared.R.drawable.hour_hand,
-            CwfDrawableFileMap.HOUR_HAND,
-            CwfDrawableFileMap.HOUR_HAND_HIGH,
-            CwfDrawableFileMap.HOUR_HAND_LOW
+            ResFileMap.HOUR_HAND,
+            ResFileMap.HOUR_HAND_HIGH,
+            ResFileMap.HOUR_HAND_LOW
         ),
         MINUTE_HAND(
             ViewKeys.MINUTE_HAND.key,
             R.id.minute_hand,
             null,
             info.nightscout.shared.R.drawable.minute_hand,
-            CwfDrawableFileMap.MINUTE_HAND,
-            CwfDrawableFileMap.MINUTE_HAND_HIGH,
-            CwfDrawableFileMap.MINUTE_HAND_LOW
+            ResFileMap.MINUTE_HAND,
+            ResFileMap.MINUTE_HAND_HIGH,
+            ResFileMap.MINUTE_HAND_LOW
         ),
         SECOND_HAND(
             ViewKeys.SECOND_HAND.key,
             R.id.second_hand,
             R.string.key_show_seconds,
             info.nightscout.shared.R.drawable.second_hand,
-            CwfDrawableFileMap.SECOND_HAND,
-            CwfDrawableFileMap.SECOND_HAND_HIGH,
-            CwfDrawableFileMap.SECOND_HAND_LOW
+            ResFileMap.SECOND_HAND,
+            ResFileMap.SECOND_HAND_HIGH,
+            ResFileMap.SECOND_HAND_LOW
         );
 
         companion object {
@@ -484,7 +487,7 @@ class CustomWatchface : BaseWatchFace() {
         fun visibility(sp: SP): Boolean = this.pref?.let { sp.getBoolean(it, true) }
             ?: true
 
-        fun drawable(resources: Resources, drawableDataMap: CwfDrawableDataMap, sgvLevel: Long): Drawable? = customDrawable?.let { cd ->
+        fun drawable(resources: Resources, drawableDataMap: CwfResDataMap, sgvLevel: Long): Drawable? = customDrawable?.let { cd ->
             when (sgvLevel) {
                 1L   -> { drawableDataMap[customHigh]?.toDrawable(resources) ?: drawableDataMap[cd]?.toDrawable(resources) }
                 0L   -> { drawableDataMap[cd]?.toDrawable(resources) }
@@ -495,21 +498,21 @@ class CustomWatchface : BaseWatchFace() {
     }
 }
 
-private enum class TrendArrowMap(val symbol: String, @DrawableRes val icon: Int,val customDrawable: CwfDrawableFileMap?) {
-    NONE("??", R.drawable.ic_invalid, CwfDrawableFileMap.ARROW_NONE),
-    TRIPLE_UP("X", R.drawable.ic_doubleup, CwfDrawableFileMap.ARROW_DOUBLE_UP),
-    DOUBLE_UP("\u21c8", R.drawable.ic_doubleup, CwfDrawableFileMap.ARROW_DOUBLE_UP),
-    SINGLE_UP("\u2191", R.drawable.ic_singleup, CwfDrawableFileMap.ARROW_SINGLE_UP),
-    FORTY_FIVE_UP("\u2197", R.drawable.ic_fortyfiveup, CwfDrawableFileMap.ARROW_FORTY_FIVE_UP),
-    FLAT("\u2192", R.drawable.ic_flat, CwfDrawableFileMap.ARROW_FLAT),
-    FORTY_FIVE_DOWN("\u2198", R.drawable.ic_fortyfivedown, CwfDrawableFileMap.ARROW_FORTY_FIVE_DOWN),
-    SINGLE_DOWN("\u2193", R.drawable.ic_singledown, CwfDrawableFileMap.ARROW_SINGLE_DOWN),
-    DOUBLE_DOWN("\u21ca", R.drawable.ic_doubledown, CwfDrawableFileMap.ARROW_DOUBLE_DOWN),
-    TRIPLE_DOWN("X", R.drawable.ic_doubledown, CwfDrawableFileMap.ARROW_DOUBLE_DOWN);
+private enum class TrendArrowMap(val symbol: String, @DrawableRes val icon: Int,val customDrawable: ResFileMap?) {
+    NONE("??", R.drawable.ic_invalid, ResFileMap.ARROW_NONE),
+    TRIPLE_UP("X", R.drawable.ic_doubleup, ResFileMap.ARROW_DOUBLE_UP),
+    DOUBLE_UP("\u21c8", R.drawable.ic_doubleup, ResFileMap.ARROW_DOUBLE_UP),
+    SINGLE_UP("\u2191", R.drawable.ic_singleup, ResFileMap.ARROW_SINGLE_UP),
+    FORTY_FIVE_UP("\u2197", R.drawable.ic_fortyfiveup, ResFileMap.ARROW_FORTY_FIVE_UP),
+    FLAT("\u2192", R.drawable.ic_flat, ResFileMap.ARROW_FLAT),
+    FORTY_FIVE_DOWN("\u2198", R.drawable.ic_fortyfivedown, ResFileMap.ARROW_FORTY_FIVE_DOWN),
+    SINGLE_DOWN("\u2193", R.drawable.ic_singledown, ResFileMap.ARROW_SINGLE_DOWN),
+    DOUBLE_DOWN("\u21ca", R.drawable.ic_doubledown, ResFileMap.ARROW_DOUBLE_DOWN),
+    TRIPLE_DOWN("X", R.drawable.ic_doubledown, ResFileMap.ARROW_DOUBLE_DOWN);
 
     companion object {
 
-        fun drawable(direction: String?, resources: Resources, drawableDataMap: CwfDrawableDataMap): Drawable {
+        fun drawable(direction: String?, resources: Resources, drawableDataMap: CwfResDataMap): Drawable {
             val arrow = values().firstOrNull { it.symbol == direction } ?:NONE
             return drawableDataMap[arrow.customDrawable]?.toDrawable(resources)  ?:resources.getDrawable(arrow.icon)
         }
@@ -529,20 +532,35 @@ private enum class GravityMap(val key: String, val gravity: Int) {
     }
 }
 
-private enum class FontMap(val key: String, var font: Typeface, @FontRes val fontRessources: Int?) {
-    SANS_SERIF(JsonKeyValues.SANS_SERIF.key, Typeface.SANS_SERIF, null),
-    DEFAULT(JsonKeyValues.DEFAULT.key, Typeface.DEFAULT, null),
-    DEFAULT_BOLD(JsonKeyValues.DEFAULT_BOLD.key, Typeface.DEFAULT_BOLD, null),
-    MONOSPACE(JsonKeyValues.MONOSPACE.key, Typeface.MONOSPACE, null),
-    SERIF(JsonKeyValues.SERIF.key, Typeface.SERIF, null),
-    ROBOTO_CONDENSED_BOLD(JsonKeyValues.ROBOTO_CONDENSED_BOLD.key, Typeface.DEFAULT, R.font.roboto_condensed_bold),
-    ROBOTO_CONDENSED_LIGHT(JsonKeyValues.ROBOTO_CONDENSED_LIGHT.key, Typeface.DEFAULT, R.font.roboto_condensed_light),
-    ROBOTO_CONDENSED_REGULAR(JsonKeyValues.ROBOTO_CONDENSED_REGULAR.key, Typeface.DEFAULT, R.font.roboto_condensed_regular),
-    ROBOTO_SLAB_LIGHT(JsonKeyValues.ROBOTO_SLAB_LIGHT.key, Typeface.DEFAULT, R.font.roboto_slab_light);
+private enum class FontMap(val key: String, var font: Typeface, @FontRes val fontRessources: Int?, val customFont: ResFileMap?) {
+    SANS_SERIF(JsonKeyValues.SANS_SERIF.key, Typeface.SANS_SERIF, null, null),
+    DEFAULT(JsonKeyValues.DEFAULT.key, Typeface.DEFAULT, null, null),
+    DEFAULT_BOLD(JsonKeyValues.DEFAULT_BOLD.key, Typeface.DEFAULT_BOLD, null, null),
+    MONOSPACE(JsonKeyValues.MONOSPACE.key, Typeface.MONOSPACE, null, null),
+    SERIF(JsonKeyValues.SERIF.key, Typeface.SERIF, null, null),
+    ROBOTO_CONDENSED_BOLD(JsonKeyValues.ROBOTO_CONDENSED_BOLD.key, Typeface.DEFAULT, R.font.roboto_condensed_bold, null),
+    ROBOTO_CONDENSED_LIGHT(JsonKeyValues.ROBOTO_CONDENSED_LIGHT.key, Typeface.DEFAULT, R.font.roboto_condensed_light, null),
+    ROBOTO_CONDENSED_REGULAR(JsonKeyValues.ROBOTO_CONDENSED_REGULAR.key, Typeface.DEFAULT, R.font.roboto_condensed_regular, null),
+    ROBOTO_SLAB_LIGHT(JsonKeyValues.ROBOTO_SLAB_LIGHT.key, Typeface.DEFAULT, R.font.roboto_slab_light, null),
+    FONT1(JsonKeyValues.FONT1.key, Typeface.DEFAULT, null, ResFileMap.FONT1),
+    FONT2(JsonKeyValues.FONT2.key, Typeface.DEFAULT, null, ResFileMap.FONT2),
+    FONT3(JsonKeyValues.FONT3.key, Typeface.DEFAULT, null, ResFileMap.FONT3),
+    FONT4(JsonKeyValues.FONT4.key, Typeface.DEFAULT, null, ResFileMap.FONT4);
 
     companion object {
 
-        fun init(context: Context) = values().forEach { it.font = it.fontRessources?.let { font -> ResourcesCompat.getFont(context, font) } ?: it.font }
+        fun init(context: Context, resDataMap: CwfResDataMap) = values().forEach { fontMap ->
+            fontMap.customFont?.let { customFont ->
+                fontMap.font = Typeface.DEFAULT
+                resDataMap[customFont]?.toTypeface()?.let { resData ->
+                    fontMap.font = resData
+                }
+            } ?: run {
+                fontMap.font = fontMap.fontRessources?.let { fontResource ->
+                    ResourcesCompat.getFont(context, fontResource)
+                } ?: fontMap.font
+            }
+        }
         fun font(key: String) = values().firstOrNull { it.key == key }?.font ?: DEFAULT.font
         fun key() = DEFAULT.key
     }
