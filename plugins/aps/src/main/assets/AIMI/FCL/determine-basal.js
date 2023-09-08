@@ -1195,10 +1195,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "================================================================="
         rT.reason +=" , Variant AIMI-AI-test 01/09/2023 3.2.0-dev-l";
         rT.reason += ", TriggerPredSMB_future_sens_45 : ("+TriggerPredSMB_future_sens_45+"), testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
-        //rT.reason += ", IOB : "+iob_data.iob+"U, tdd 7d/h("+profile.tdd7DaysPerHour+"), tdd 2d/h("+profile.tdd2DaysPerHour+"), tdd daily/h("+profile.tddPerHour+"), tdd 24h/h("+profile.tdd24HrsPerHour+"), TDD("+TDD+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
-        rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+")";
+        rT.reason += ", Profile : Hour of the day("+profile.hourOfDay+"), Weekend("+profile.weekend+"), recentSteps5Minutes("+profile.recentSteps5Minutes+"), recentSteps10Minutes("+profile.recentSteps10Minutes+"), recentSteps15Minutes("+profile.recentSteps15Minutes+"), recentSteps30Minutes("+profile.recentSteps30Minutes+"), recentSteps60Minutes("+profile.recentSteps60Minutes+"), recentSteps180Minutes("+profile.recentSteps180Minutes+")";
         rT.reason += enable_circadian === true ? ", circadian_sensitivity : "+circadian_sensitivity : "";
         rT.reason += ",circadian_smb test : "+circadian_smb+", Basal : "+basal+" U";
         rT.reason += ", TIR : "+currentTIRLow+" %, "+currentTIRinRange+" %, "+currentTIRAbove+"%";
@@ -1248,7 +1247,6 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
     if (enableSMB && minGuardBG < threshold) {
         console.error("minGuardBG",convert_bg(minGuardBG, profile),"projected below", convert_bg(threshold, profile) ,"- disabling SMB");
-        //rT.reason += "minGuardBG "+minGuardBG+"<"+threshold+": SMB disabled; ";
         enableSMB = false;
     }
     if ( maxDelta > 0.20 * bg && iTimeActivation === false){
@@ -1533,7 +1531,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             AIMI_UAM_CAP = (basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
-            AIMI_UAM_CAP *= aimiFactor;
+            AIMI_UAM_CAP = iob_data.iob < max_iob/2 ? AIMI_UAM_CAP * aimiFactor : AIMI_UAM_CAP; //A surveiller
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
             var roundSMBTo = 1 / profile.bolus_increment;
             var nosmb = false;
