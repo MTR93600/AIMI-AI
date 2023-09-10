@@ -1193,7 +1193,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-FCL 09/09/2023 3.2.0-dev-l";
+        rT.reason +=" , Variant AIMI-AI-FCL 10/09/2023 3.2.0-dev-l";
         rT.reason += ", TriggerPredSMB_future_sens_45 : ("+TriggerPredSMB_future_sens_45+"), testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
@@ -1628,8 +1628,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
             }
-
-            microBolus = microBolus > (max_iob - microBolus) ? (max_iob - microBolus)*aimiFactor : microBolus*aimiFactor;
+            microBolus *= aimiFactor;
+            microBolus = microBolus > (max_iob - microBolus) ? max_iob - microBolus : microBolus;
 
             var newBG = bg; // Obtenir la nouvelle valeur BG
             processNewBGValue(newBG); // Appeler la fonction avec la nouvelle valeur BG
