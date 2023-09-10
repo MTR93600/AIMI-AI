@@ -1194,7 +1194,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AIb 08/09/2023 3.2.0-dev-l";
+        rT.reason +=" , Variant AIMI-AIb 09/09/2023 3.2.0-dev-l";
         rT.reason += ", Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
@@ -1793,12 +1793,12 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
         }
 
-        else if (!aimi_activity && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour && UAMpredBG > profile.key_UAMpredBG && bg < 130) {
+        /*else if (!aimi_activity && delta > 0 && profile.tddlastHrs !== null && profile.tdd7DaysPerHour !== null && profile.tddlastHrs < profile.tdd7DaysPerHour && UAMpredBG > profile.key_UAMpredBG && bg < 130) {
             maxRate = Math.min(maxSafeBasal, profile.tdd7DaysPerHour - profile.tddlastHrs);
             rate = round_basal(maxRate, profile);
             rT.reason = ". Force basal because tddlastHrs < tdd7DaysPerHours : " + (profile.tdd7DaysPerHour - profile.tddlastHrs) + ", tddlastHrs. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
             insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
-        }
+        }*/
 
         else if(nosmb && delta > 0 && UAMpredBG > profile.key_UAMpredBG){
             maxRate = Math.min(maxSafeBasal, basal * 3);

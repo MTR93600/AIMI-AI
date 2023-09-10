@@ -222,7 +222,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
        if (belowTargetAndDropping || belowMinThreshold || belowTargetAndStable) {
            smbToGive = 0.0f
        }
-       val safetysmb = bg < (targetBg + 40) && delta < 10 || recentSteps180Minutes > 1500
+       val safetysmb = bg < (targetBg + 40) && delta < 10 || recentSteps180Minutes > 1500 && bg < 140
        if (safetysmb){
            smbToGive /= 2
        }
@@ -881,7 +881,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             // Ajout d'un log pour vérifier la valeur de variableSensitivity après le calcul
             val variableSensitivityDouble = variableSensitivity.toDoubleSafely()
             if (variableSensitivityDouble != null) {
-                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || recentSteps180Minutes > 1500) variableSensitivity *= 1.5f
+                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || recentSteps180Minutes > 1500 && bg < 140) variableSensitivity *= 1.5f
                 if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100) variableSensitivity *= 1.3f
             }
         } else {
