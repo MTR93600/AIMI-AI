@@ -419,7 +419,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
     }
 
 
-    @SuppressLint("SuspiciousIndentation")
+    @SuppressLint("SuspiciousIndentation", "CheckResult")
     @Suppress("SpellCheckingInspection")
     override fun setData(
         profile: Profile,
@@ -719,6 +719,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         val stepsCount180 = stepsCountList180?.steps180min ?: 0
 
 
+
         if (sp.getBoolean(R.string.count_steps_watch, false)===true) {
             this.recentSteps5Minutes = stepsCount5
             this.recentSteps10Minutes = stepsCount10
@@ -734,48 +735,43 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
         }
 
-        // Initialize your lists
-        var beatsPerMinuteValues: List<Int> = listOf()
-        var beatsPerMinuteValues180: List<Int> = listOf()
 
-// Fetch data for timeMillis5
-        repository.getHeartRatesFromTime(timeMillis5)
-            .subscribe(
-                { heartRates ->
-                    beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() }
-                    this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
-                        beatsPerMinuteValues.average()
-                    } else {
-                        80.0 // or some other default value
-                    }
-                },
-                { e ->
-                    // Log that watch is not connected
-                    //println("Watch is not connected. Using default values for heart rate data.")
-                    beatsPerMinuteValues = listOf(80)
-                    this.averageBeatsPerMinute = 80.0
-                }
-            )
+        var beatsPerMinuteValues: List<Int>
+        var beatsPerMinuteValues180: List<Int>
 
-// Fetch data for timeMillis180
-        repository.getHeartRatesFromTime(timeMillis180)
-            .subscribe(
-                { heartRates180 ->
-                    beatsPerMinuteValues180 = heartRates180.map { it.beatsPerMinute.toInt() }
-                    this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
-                        beatsPerMinuteValues180.average()
-                    } else {
-                        10.0 // or some other default value
-                    }
-                },
-                { e ->
-                    // Log that watch is not connected
-                    //println("Watch is not connected. Using default values for heart rate data.")
-                    beatsPerMinuteValues180 = listOf(10)
-                    this.averageBeatsPerMinute180 = 10.0
-                }
-            )
+        try {
+            val heartRates = repository.getHeartRatesFromTimeToTime(timeMillis15,timeMillisNow)
+            beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
+                beatsPerMinuteValues.average()
+            } else {
+                80.0 // or some other default value
+            }
 
+        } catch (e: Exception) {
+            // Log that watch is not connected
+            //println("Watch is not connected. Using default values for heart rate data.")
+            // Réaffecter les variables à leurs valeurs par défaut
+            beatsPerMinuteValues = listOf(80)
+            this.averageBeatsPerMinute = 80.0
+        }
+        try {
+
+            val heartRates180 = repository.getHeartRatesFromTimeToTime(timeMillis180,timeMillisNow)
+            beatsPerMinuteValues180 = heartRates180.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
+            this.averageBeatsPerMinute180 = if (beatsPerMinuteValues180.isNotEmpty()) {
+                beatsPerMinuteValues180.average()
+            } else {
+                10.0 // or some other default value
+            }
+
+        } catch (e: Exception) {
+            // Log that watch is not connected
+            //println("Watch is not connected. Using default values for heart rate data.")
+            // Réaffecter les variables à leurs valeurs par défaut
+            beatsPerMinuteValues180 = listOf(10)
+            this.averageBeatsPerMinute180 = 10.0
+        }
 
         this.profile.put("beatsPerMinuteValues", beatsPerMinuteValues)
         this.profile.put("averageBeatsPerMinute", averageBeatsPerMinute)
@@ -881,8 +877,8 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             // Ajout d'un log pour vérifier la valeur de variableSensitivity après le calcul
             val variableSensitivityDouble = variableSensitivity.toDoubleSafely()
             if (variableSensitivityDouble != null) {
-                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200 || recentSteps180Minutes > 1500 && bg < 140) variableSensitivity *= 1.5f
-                if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100) variableSensitivity *= 1.3f
+                if (recentSteps5Minutes > 100 && recentSteps10Minutes > 200 && bg < 130 && delta < 10|| recentSteps180Minutes > 1500 && bg < 130 && delta < 10) variableSensitivity *= 1.5f
+                if (recentSteps30Minutes > 500 && recentSteps5Minutes >= 0 && recentSteps5Minutes < 100 && bg < 130 && delta < 10) variableSensitivity *= 1.3f
             }
         } else {
             variableSensitivity = profile.getIsfMgdl().toFloat()
@@ -906,7 +902,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             }
         }
 
-        var clusterinsulin = 0.0f
+        var clusterinsulin = 1.0f
         if (bg > targetBg && variableSensitivity != null) {
             clusterinsulin = ((bg - targetBg) / variableSensitivity).toFloat()
         }

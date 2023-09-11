@@ -1531,7 +1531,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             AIMI_UAM_CAP = (basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
-            AIMI_UAM_CAP = iob_data.iob < max_iob/2 ? AIMI_UAM_CAP * aimiFactor : AIMI_UAM_CAP; //A surveiller
+            AIMI_UAM_CAP = iob_data.iob < max_iob/2.5 && delta > 10 ? AIMI_UAM_CAP * aimiFactor :
+            AIMI_UAM_CAP;
+            //A surveiller
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
             var roundSMBTo = 1 / profile.bolus_increment;
             var nosmb = false;
@@ -1740,7 +1742,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.error("naive_eventualBG",naive_eventualBG+",",durationReq+"m "+smbLowTempReq+"U/h temp needed; last bolus",lastBolusAge+"m ago; maxBolus: "+maxBolus);
             if (lastBolusAge > SMBInterval) {
                 if (microBolus > 0) {
-                    rT.units = microBolus;
+                    rT.units = microBolus < (max_iob - iob_data.iob) ? microBolus : (max_iob - iob_data.iob);
                     rT.reason += "Microbolusing " + microBolus + "U. ";
                 }
             } else {
