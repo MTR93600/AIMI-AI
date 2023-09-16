@@ -423,7 +423,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     //variable AIMI
-    var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 160 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 160? true : false;
+    var aimi_activity = profile.temptargetSet && target_bg > 120 || countsteps === true && recentSteps5Minutes > 100 && recentSteps10Minutes > 200  && bg < 130 || countsteps === true && recentSteps5Minutes >= 0 && recentSteps30Minutes >= 1000  && bg < 130? true : false;
     var TDD = profile.tdd7Days === null || profile.tdd7Days === undefined ? profile.TDD : profile.key_tdd7;
     var aimiFactor = profile.clusterinsulin;
     var insulinDivisor = profile.insulinDivisor;
@@ -537,7 +537,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var eRatio = round(Math.max(mineRatio,sens / 13.2),2);
     var csf = variable_sens / profile.carb_ratio ;
     var Hypo_ratio = 1;
-    if (!profile.temptargetSet && bg >= 110 && delta > 5 && profile.resistance_lowers_target) {
+    if (bg >= 110 && delta > 5 && profile.resistance_lowers_target) {
 
             var hyper_target = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
             hyper_target *= Math.min(circadian_sensitivity,1);
@@ -692,7 +692,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         target_bg = adjustedTargetBG;
         max_bg = adjustedMaxBG;
     // adjust target BG range if configured to bring down high BG faster
-    } else if ( bg > max_bg && profile.adv_target_adjustments && !profile.temptargetSet ) {
+    } else if ( bg > max_bg && profile.adv_target_adjustments) {
         // with target=100, as BG rises from 100 to 160, adjustedTarget drops from 100 to 80
         adjustedMinBG = round(Math.max(80, min_bg - (bg - min_bg)/3 ),0);
         adjustedTargetBG =round( Math.max(80, target_bg - (bg - target_bg)/3 ),0);
@@ -1539,7 +1539,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             var nosmb = false;
             var AI = false;
             adjustRinsulin = testmonitoring(circadian_smb, eventualBG);
-            if (!profile.temptargetSet && delta > 0) {
+            if (delta > 0) {
                 if (lastbolusAge < profile.key_mbi){
                     insulinReq = (1 + Math.sqrt(aimi_delta)) / 2;
                 }
@@ -1653,7 +1653,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
         UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
-        if (profile.nightSMBdisable === true && now.getHours() >= profile.NoSMBStart && now.getHours() <= profile.NoSMBEnd){
+        if (profile.temptargetSet && target_bg <= 80){
+            microBolus = 0.5;
+            rT.reason += ", Test starting a meal";
+        }else if (profile.nightSMBdisable === true && now.getHours() >= profile.NoSMBStart && now.getHours() <= profile.NoSMBEnd){
             microBolus = 0;
             rT.reason += ", No SMB during the night, option is enable on the interval you define in the settings, ";
         }else if (eventualBG < profile.key_UAMpredBG){
@@ -1716,7 +1719,10 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             if (lastbolusAge < profile.key_mbi && profile.aimilimit < iob_data.iob){
             aimiint = true;
             }
-            if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11 && aimiint === true){
+            if (profile.temptargetSet && target_bg <= 80){
+            var SMBInterval = 3;
+            rT.reason += ", Meal starting, interval between smb is 5 minutes."
+            }else if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11 && aimiint === true){
                 SMBInterval = 10;
                 rT.reason += ", BFL is enable, interval between smb is 10 minutes."
             }else if (profile.key_use_countsteps === true && profile.recentSteps30Minutes > 900 && profile.recentSteps5Minutes >= 0 && profile.accelerating_up === 0 && (lastbolusAge > profile.key_mbi || profile.enable_AIMI_Power === false)){
@@ -1762,8 +1768,13 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
         var maxRate, durationReq = 30, insulinScheduled;
         rate = 0;
+        if (profile.temptargetSet && target_bg <= 80){
+            maxRate = Math.min(maxSafeBasal, basal * 10);
+            rate = round_basal(maxRate,profile);
+            rT.reason = ". Force basal because it's meal start < " + profile.key_mbi + " minutes : "+ (basal*10/60)*30 + " U, meal. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
+            insulinScheduled = currenttemp.duration * (currenttemp.rate - basal) / 60;
 
-        if (lastbolusAge < profile.key_mbi){
+        }   else if (lastbolusAge < profile.key_mbi){
             maxRate = Math.min(maxSafeBasal, basal * 10);
             rate = round_basal(maxRate,profile);
             rT.reason = ". Force basal because it's last manual bolus age < " + profile.key_mbi + " minutes : " + (basal*10/60)*30 + " U, meal. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";
