@@ -229,6 +229,7 @@
     <string name="key_use_newSMB" translatable="false">new aimi smb calculation proportional</string>
     <string name="key_use_enable_mssv" translatable="false">Enable the variation of max smb size</string>
     <string name="key_use_countsteps" translatable="false">Enable counting steps</string>
+    <string name="key_use_fcl_smb" translatable="false">Enable FCL Automated SMB</string>
     <string name="count_steps_watch" translatable="false">Enable Steps from the watch</string>
     <string name="key_iTime_B30_bolus">key_iTime_B30_bolus</string>
     <string name="key_iTime_B30_bolus_duration">key_iTime_B30_bolus_duration</string>
@@ -239,6 +240,7 @@
     <string name="key_tdd7">key_tdd7</string>
     <string name="key_cho">key_cho</string>
     <string name="key_UAMpredBG">key_UAMpredBG</string>
+    <string name="key_fcl_smb">key_fcl_smb</string>
     <string name="key_use_AimiPregnancy">key_use_AimiPregnancy</string>
 
 

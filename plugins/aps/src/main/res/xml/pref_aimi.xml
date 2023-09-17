@@ -202,6 +202,29 @@
 
                     </androidx.preference.PreferenceScreen>
 
+                    <androidx.preference.PreferenceScreen
+                        android:key="@string/key_aimi_FCL"
+                        android:title="AIMI Variant FCL Settings">
+
+                        <SwitchPreference
+                            android:defaultValue="false"
+                            android:key="@string/key_use_fcl_smb"
+                            android:title="Enable Automated SMB when TT <= 80 is enable"
+                            android:summary="This option will enable SMB with the value you set in FCL_SMB_Value, each 5 minutes for the duration of the TT if the prediction is not announcing an hypo. " />
+
+                        <info.nightscout.core.validators.ValidatingEditTextPreference
+                            android:defaultValue="0.5"
+                            android:dependency="@string/key_use_fcl_smb"
+                            android:dialogMessage="Size of the automated smb during the TT <= 80. You will receive this value each 5 minutes. The purpose is testing small value with TBR to avoid the first wave. "
+                            android:inputType="numberDecimal"
+                            android:key="@string/key_fcl_smb"
+                            android:title="FCL TT Automated SMB"
+                            validate:floatmaxNumber="2"
+                            validate:floatminNumber="0.1"
+                            validate:testType="floatNumericRange" />
+
+                    </androidx.preference.PreferenceScreen>
+
         <info.nightscout.core.validators.ValidatingEditTextPreference
             android:defaultValue="1"
             android:dialogMessage="@string/openapsma_max_basal_summary"

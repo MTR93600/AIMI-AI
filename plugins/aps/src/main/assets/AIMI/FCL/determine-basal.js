@@ -1193,7 +1193,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-FCL 10/09/2023 3.2.0-dev-l";
+        rT.reason +=" , Variant AIMI-AI-FCL 17/09/2023 3.2.0-dev-l";
         rT.reason += ", TriggerPredSMB_future_sens_45 : ("+TriggerPredSMB_future_sens_45+"), testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
@@ -1653,9 +1653,9 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             worstCaseInsulinReq = (smbTarget - (naive_eventualBG + minIOBPredBG)/2 ) / sens;
             durationReq = round(30*worstCaseInsulinReq / basal);
         UAMpredBG = profile.aimipregnancy ? UAMpredBG * 1.618 : UAMpredBG;
-        if (profile.temptargetSet && target_bg <= 80){
-            microBolus = 0.5;
-            rT.reason += ", Test starting a meal";
+        if (profile.temptargetSet && target_bg <= 80 && profile.key_use_fcl_smb === true){
+            microBolus = profile.key_fcl_smb;
+            rT.reason += ", Test variant FCL starting a meal with automated smb during TT <= 80";
         }else if (profile.nightSMBdisable === true && now.getHours() >= profile.NoSMBStart && now.getHours() <= profile.NoSMBEnd){
             microBolus = 0;
             rT.reason += ", No SMB during the night, option is enable on the interval you define in the settings, ";
@@ -1719,7 +1719,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             if (lastbolusAge < profile.key_mbi && profile.aimilimit < iob_data.iob){
             aimiint = true;
             }
-            if (profile.temptargetSet && target_bg <= 80){
+            if (profile.temptargetSet && target_bg <= 80 && profile.key_use_fcl_smb === true){
             var SMBInterval = 3;
             rT.reason += ", Meal starting, interval between smb is 5 minutes."
             }else if (profile.bfl === true && now.getHours() >= 6 && now.getHours() <= 11 && aimiint === true){
@@ -1768,7 +1768,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         var maxSafeBasal = tempBasalFunctions.getMaxSafeBasal(profile);
         var maxRate, durationReq = 30, insulinScheduled;
         rate = 0;
-        if (profile.temptargetSet && target_bg <= 80){
+        if (profile.temptargetSet && target_bg <= 80 && profile.key_use_fcl_smb === true ){
             maxRate = Math.min(maxSafeBasal, basal * 10);
             rate = round_basal(maxRate,profile);
             rT.reason = ". Force basal because it's meal start < " + profile.key_mbi + " minutes : "+ (basal*10/60)*30 + " U, meal. Setting temp basal of " + rate + "U/hr for " + currenttemp.duration + "m at " + (currenttemp.rate).toFixed(2) + ".";

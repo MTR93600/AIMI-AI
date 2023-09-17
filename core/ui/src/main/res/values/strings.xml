@@ -49,6 +49,7 @@
     <string name="key_aimi_aggressive_settings" translatable="false">key_aimi_aggressive_settings</string>
     <string name="key_aimi_conservative_settings" translatable="false">key_aimi_conservative_settings</string>
     <string name="key_aimi_activity_settings" translatable="false">key_aimi_activity_settings</string>
+    <string name="key_aimi_FCL" translatable="false">Settings_variant_FCL</string>
     <string name="extendedbolusdeliveryerror">Extended bolus delivery error</string>
     <string name="aps_mode_title">APS Mode</string>
     <string name="extended_bolus">Extended bolus</string>
