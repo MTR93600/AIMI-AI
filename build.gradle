@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     ext {
-        kotlin_version = '1.8.22'
+        kotlin_version = '1.9.10'
         core_version = '1.10.1'
         rxjava_version = '3.1.7'
         rxandroid_version = '3.0.2'
@@ -35,7 +35,7 @@ buildscript {
 
         junit_version = '4.13.2'
         junit_jupiter_version = '5.10.0'
-        mockito_version = '4.6.1'
+        mockito_version = '5.5.0'
         dexmaker_version = '1.2'
         retrofit2_version = '2.9.0'
         okhttp3_version = '4.11.0'
@@ -81,7 +81,7 @@ plugins {
     // id "com.osacky.doctor" version "0.8.1"
     id "org.jlleitschuh.gradle.ktlint" version "11.5.1"
     // Aggregates and/or logs Jacoco test coverage to the Gradle build log
-    id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+    //id 'org.barfuin.gradle.jacocolog' version '3.1.0'
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
 }
 
@@ -121,20 +121,5 @@ task clean(type: Delete) {
 subprojects {
     tasks.withType(Test) {
         maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-    }
-}
-
-// This is necessary to prevent Gradle build errors like:
-//
-//  Duplicate class androidx.lifecycle.ViewModelLazy found in modules jetified-lifecycle-viewmodel-ktx-2.3.1-runtime (androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1) and lifecycle-viewmodel-2.5.0-runtime (androidx.lifecycle:lifecycle-viewmodel:2.5.0)
-//
-// By explicitly adding these dependencies, the jetifier
-// is forced to use the correct lifecycle version instead
-// of automatically picking 2.3.1.
-//
-// See: https://stackoverflow.com/a/69832319/560774
-configurations {
-    all {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
     }
 }
