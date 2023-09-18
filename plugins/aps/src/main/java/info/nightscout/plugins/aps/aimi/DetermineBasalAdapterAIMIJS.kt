@@ -742,7 +742,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
         var beatsPerMinuteValues180: List<Int>
 
         try {
-            val heartRates = repository.getHeartRatesFromTimeToTime(timeMillis15,timeMillisNow)
+            val heartRates = repository.getHeartRatesFromTimeToTime(timeMillis5,timeMillisNow)
             beatsPerMinuteValues = heartRates.map { it.beatsPerMinute.toInt() } // Extract beatsPerMinute values from heartRates
             this.averageBeatsPerMinute = if (beatsPerMinuteValues.isNotEmpty()) {
                 beatsPerMinuteValues.average()

@@ -564,11 +564,11 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             } else {
                 enlog +="Basal unchanged: "+basal+";\n";
             }
-        }else if ((currentTIRLow > 10 || profile.beatsPerMinuteValues > (profile.averageBeatsPerMinute + 10 )|| circadian_smb > (0.1) ) && profile.aimipregnancy === false && profile.sensitivity_raises_target){
+        }else if ((currentTIRLow > 10 || profile.beatsPerMinuteValues > profile.averageBeatsPerMinute|| circadian_smb > (0.1) ) && profile.aimipregnancy === false && profile.sensitivity_raises_target){
                  var hypo_target = 100 * Math.max(1,circadian_sensitivity);
                  enlog += "target_bg from "+target_bg+" to "+hypo_target+" because currentTIRLow > 5 : "+currentTIRLow+"\n";
 
-                 target_bg = circadian_smb > 5 ? 144 : hypo_target+circadian_smb;
+                 //target_bg = circadian_smb > 5 ? 144 : hypo_target+circadian_smb;
                  Hypo_ratio = 0.7;
                  enlog += "Hypo_ratio : "+Hypo_ratio+"\n";
                  C2 = (target_bg * 1.618)-(glucose_status.delta * 1.618);
@@ -614,6 +614,19 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                   enlog +="Basal unchanged: "+basal+";\n";
                }
                rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
+        }else if (countsteps === true && recentSteps180Minutes > 1500 && recentSteps5Minutes < 100){
+                        target_bg = 110;
+                        sensitivityRatio = c/(c+target_bg-normalTarget);
+                        sensitivityRatio = round(sensitivityRatio,2);
+                        enlog +="Sensitivity ratio set to "+sensitivityRatio+" based on temp target of "+target_bg+";\n";
+                        basal = basal * sensitivityRatio;
+                        basal = round_basal(basal, profile);
+                        if (basal !== profile_current_basal) {
+                           enlog +="Adjusting basal from "+profile_current_basal+" to "+basal+";\n";
+                        } else {
+                           enlog +="Basal unchanged: "+basal+";\n";
+                        }
+                        rT.reason += ", recentSteps30Minutes : "+recentSteps30Minutes+", basal activity : "+basal;
         }
 
 //================= MT =====================================
