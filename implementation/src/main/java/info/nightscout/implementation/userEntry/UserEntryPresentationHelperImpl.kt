@@ -3,6 +3,7 @@ package info.nightscout.implementation.userEntry
 import android.text.Spanned
 import dagger.Reusable
 import info.nightscout.core.main.R
+import info.nightscout.core.utils.HtmlHelper
 import info.nightscout.database.entities.UserEntry
 import info.nightscout.database.entities.UserEntry.Action
 import info.nightscout.database.entities.UserEntry.ColorGroup
@@ -13,7 +14,6 @@ import info.nightscout.interfaces.GlucoseUnit
 import info.nightscout.interfaces.Translator
 import info.nightscout.interfaces.userEntry.UserEntryPresentationHelper
 import info.nightscout.interfaces.utils.DecimalFormatter
-import info.nightscout.interfaces.utils.HtmlHelper
 import info.nightscout.shared.interfaces.ProfileUtil
 import info.nightscout.shared.interfaces.ResourceHelper
 import info.nightscout.shared.utils.DateUtil
@@ -49,7 +49,7 @@ class UserEntryPresentationHelperImpl @Inject constructor(
         Sources.QuickWizard         -> R.drawable.ic_quick_wizard
         Sources.ExtendedBolusDialog -> R.drawable.ic_actions_start_extended_bolus
         Sources.TTDialog            -> R.drawable.ic_temptarget_high
-        Sources.ProfileSwitchDialog -> info.nightscout.interfaces.R.drawable.ic_actions_profileswitch
+        Sources.ProfileSwitchDialog -> info.nightscout.core.ui.R.drawable.ic_actions_profileswitch
         Sources.LoopDialog          -> R.drawable.ic_loop_closed
         Sources.TempBasalDialog     -> R.drawable.ic_actions_start_temp_basal
         Sources.CalibrationDialog   -> R.drawable.ic_calibration
