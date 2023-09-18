@@ -223,6 +223,12 @@
                                 validate:floatminNumber="0.1"
                                 validate:testType="floatNumericRange" />
 
+                            <SwitchPreference
+                                android:defaultValue="false"
+                                android:key="@string/key_use_AIMI_factor"
+                                android:title="Enable a factor for smb and max smb size"
+                                android:summary="This factor is following the BG difference with the target. that can provide smaller max smb size or higher one if IOB is lesser than maxiob divide by 2.5 and delta greater than 10." />
+
                         </androidx.preference.PreferenceScreen>
 
         <info.nightscout.core.validators.ValidatingEditTextPreference

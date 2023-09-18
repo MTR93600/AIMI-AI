@@ -1193,7 +1193,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
 
         rT.reason += "; ";
         rT.reason += "================================================================="
-        rT.reason +=" , Variant AIMI-AI-FCL 17/09/2023 3.2.0-dev-l";
+        rT.reason +=" , Variant AIMI-AI-FCL 18/09/2023 3.2.0-dev-l";
         rT.reason += ", TriggerPredSMB_future_sens_45 : ("+TriggerPredSMB_future_sens_45+"), testpredbg : ("+testpredbg+"), Glucose : BG("+bg+"), TargetBG("+target_bg+"), Delta("+delta+"), shortavg delta("+shortAvgDelta+"), long avg delta("+longAvgDelta+"), accelerating_up("+profile.accelerating_up+"), deccelerating_up("+profile.deccelerating_up+"), accelerating_down("+profile.accelerating_down+"),decelerating_down("+profile.deccelerating_down+"), stable("+profile.stable+")";
         rT.reason += ", IOB : " + iob_data.iob + "U, tdd 7d/h(" + (profile.tdd7DaysPerHour || 0) + "), tdd 2d/h(" + (profile.tdd2DaysPerHour || 0) + "), tdd daily/h(" + (profile.tddPerHour || 0) + "), tdd 24h/h(" + (profile.tdd24HrsPerHour || 0) + "), TDD(" + (TDD || 0) + ")";
         rT.reason += ", Dia : "+aimiDIA+" minutes, MaxSMB : "+profile.mss+" u ";
@@ -1531,8 +1531,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             AIMI_UAM_CAP = (basal)*((profile.key_use_AIMI_CAP+100)/100);
             }
             }
-            AIMI_UAM_CAP = iob_data.iob < max_iob/2.5 && delta > 10 ? AIMI_UAM_CAP * aimiFactor :
-            AIMI_UAM_CAP;
+            AIMI_UAM_CAP = iob_data.iob < max_iob/2.5 && delta > 10 && profile.key_use_AIMI_factor === true ? AIMI_UAM_CAP * aimiFactor : AIMI_UAM_CAP;
             //A surveiller
             rT.reason += ", Max Smb Size = "+AIMI_UAM_CAP;
             var roundSMBTo = 1 / profile.bolus_increment;
@@ -1630,7 +1629,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
                 }
 
             }
-            microBolus *= aimiFactor;
+            microBolus = profile.key_use_AIMI_factor === true ? microBolus * aimiFactor : microBolus;
             microBolus = microBolus > (max_iob - microBolus) ? max_iob - microBolus : microBolus;
 
             var newBG = bg; // Obtenir la nouvelle valeur BG

@@ -213,6 +213,7 @@
     <string name="key_use_AIMI_SlowInsulin" translatable="false">key_use_AIMI_SlowInsulin</string>
     <string name="key_use_AIMI_PBolus" translatable="false">key_use_AIMI_PBolus</string>
     <string name="key_use_AIMI_BreakFastLight" translatable="false">key_use_AIMI_BreakfastLight</string>
+    <string name="key_use_AIMI_factor" translatable="false">key_use_AIMI_factor</string>
     <string name="key_AIMI_NoSMB_timeend">key_AIMI_NoSMB_timeend</string>
     <string name="key_AIMI_NoSMB_timestart">key_AIMI_NoSMB_timestart</string>
     <string name="key_use_AimiUAM" translatable="false">AIMI</string>

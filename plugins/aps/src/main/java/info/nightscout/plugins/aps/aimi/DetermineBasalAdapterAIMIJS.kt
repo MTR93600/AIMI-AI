@@ -940,6 +940,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.profile.put("insulinDivisor", insulinDivisor)
             //this.profile.put("tddlastHaverage", tddlastHaverage)
             this.profile.put("key_use_AimiIgnoreCOB", sp.getBoolean(R.string.key_use_AimiIgnoreCOB, false))
+            this.profile.put("key_use_AIMI_factor", sp.getBoolean(R.string.key_use_AIMI_factor, false))
 
         modelai = modelFile.exists() || modelHBFile.exists()
             this.profile.put("modelai", modelai)
