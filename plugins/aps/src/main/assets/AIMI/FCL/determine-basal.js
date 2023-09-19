@@ -251,6 +251,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     var recentSteps10Minutes = profile.recentSteps10Minutes;
     var recentSteps30Minutes = profile.recentSteps30Minutes;
     var recentSteps60Minutes = profile.recentSteps60Minutes;
+    var recentSteps180Minutes = profile.recentSteps180Minutes;
     //variables B30 : forcer la basale en fonction des conditions
     var b30upperLimit = profile.b30_upperBG;
     var b30upperdelta = profile.b30_upperdelta;
@@ -1390,6 +1391,8 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         // multiply by 2 to low-temp faster for increased hypo safety
         var insulinReq = activityAdjustment * trendAdjustment * timeAdjustment * 2 * Math.min(0,(eventualBG - target_bg) / future_sens);
         insulinReq = round( insulinReq , 2);
+        var newaimiinsulin = insulinReq;
+        rT.reason += ", Test newaimiinsulin : "+newaimiinsulin+" U";
         // calculate naiveInsulinReq based on naive_eventualBG
         var naiveInsulinReq = Math.min(0, (naive_eventualBG - target_bg) / sens);
         naiveInsulinReq = round( naiveInsulinReq , 2);
