@@ -735,6 +735,7 @@ class DetermineBasalAdapterAIMIJS internal constructor(private val scriptReader:
             this.recentSteps15Minutes = StepService.getRecentStepCount15Min()
             this.recentSteps30Minutes = StepService.getRecentStepCount30Min()
             this.recentSteps60Minutes = StepService.getRecentStepCount60Min()
+            this.recentSteps180Minutes = StepService.getRecentStepCount180Min()
         }
 
 

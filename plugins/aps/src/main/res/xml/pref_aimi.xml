@@ -198,7 +198,7 @@
                             android:defaultValue="false"
                             android:key="@string/count_steps_watch"
                             android:title="Enable Counting from the watch"
-                            android:summary="This option will use the hardware from the watch instead of the phone. This option is not instead of the previous one but just to select the hardware you want to use." />
+                            android:summary="This option will use the hardware from the watch instead of the phone. Both option about the steps need to be enable." />
 
                     </androidx.preference.PreferenceScreen>
 
