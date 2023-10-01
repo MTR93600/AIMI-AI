@@ -1763,7 +1763,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
             console.error("naive_eventualBG",naive_eventualBG+",",durationReq+"m "+smbLowTempReq+"U/h temp needed; last bolus",lastBolusAge+"m ago; maxBolus: "+maxBolus);
             if (lastBolusAge > SMBInterval) {
                 if (microBolus > 0) {
-                    rT.units = microBolus < (max_iob - iob_data.iob) ? microBolus : (max_iob - iob_data.iob);
+                    rT.units = microBolus < (max_iob - iob_data.iob) ? Math.min(microBolus,max_iob/2) : Math.min(max_iob/2,(max_iob - iob_data.iob));
                     rT.reason += "Microbolusing " + microBolus + "U. ";
                 }
             } else {
